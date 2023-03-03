@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E12F66AA3A9
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B04D6AA475
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:33:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233555AbjCCWCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:02:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32792 "EHLO
+        id S232772AbjCCWdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:33:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233509AbjCCWCJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:02:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2926922D;
-        Fri,  3 Mar 2023 13:52:48 -0800 (PST)
+        with ESMTP id S232851AbjCCWdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:33:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285761816F;
+        Fri,  3 Mar 2023 14:29:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A41EB819DC;
-        Fri,  3 Mar 2023 21:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85033C433D2;
-        Fri,  3 Mar 2023 21:43:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3E174CE22A5;
+        Fri,  3 Mar 2023 21:43:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C27C4339B;
+        Fri,  3 Mar 2023 21:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879793;
-        bh=no72Ppyk2wemYMrmbysArikEUMlgxXlsYqSGkmDaXBs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJ2wpnFLMgiXr9/21yqXCmt8Nrha50lDUqtU7n6D3vPJih4PlmKkCC9PCWmLTDZw3
-         Z3uB4hJQ2QG017X5Zn4Q/8UBJswetFMJXTUO0Pc9YseJ8N90Frh3oZnTYWAoN4RP8d
-         WqSb/ZELioN5PbpANRbMPVu+deJB1BNq+EIy3wAR4kSuApzIzLsyCfrwBG9auK3ekB
-         vKt2P/RFaDT8oTfuWR+rCprSDMSakDOMLmH+PAnxPDyH5I457nuS/t0Gfz1/L08Dnv
-         ITEpezxt4r5X7ii+vFI7pDxiuxJ4iC8xTw84NCeg6JqaBQ3/Nwk1UFwQoBdC03HriI
-         hhghgjJOzbDkw==
+        s=k20201202; t=1677879797;
+        bh=ziEC4mRzw2QHcDPWZ32nHGd0U8w5jht093o+kHHOBEc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QcaOeplJUAk1kCvtZfntKrSbTkSdOKr74Jp7GQgqPgUVE8SEIlxoMQyP7a4pjYNti
+         rE+U+IINYzEDlRfEDLyEA2bi4yb5XhPG/ZLHr08FQ3r44B972rVryL/t6oFUFJCqWb
+         L1WNiJzT6INooEInCRccis3JkaLQ6FiNSmImrdAJ41bVNJHAeyfIzBfng3TMC8bnQz
+         K4tfvk170sw5AZ/eB4sPjRf9T2Vz7hSoJM95RbBFi53CJoNA2SEAuVhJN7NjaoEepm
+         k0rJorSKPRrlckT7OLtJtD/beEXLWgqZ+sOTPaSPD6omCNbaq8WY8V1WROA8ud6Uxm
+         QBGITjOhosSSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.2 64/64] soundwire: cadence: Drain the RX FIFO after an IO timeout
-Date:   Fri,  3 Mar 2023 16:41:06 -0500
-Message-Id: <20230303214106.1446460-64-sashal@kernel.org>
+Cc:     Dean Luick <dean.luick@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 01/60] IB/hfi1: Update RMT size calculation
+Date:   Fri,  3 Mar 2023 16:42:15 -0500
+Message-Id: <20230303214315.1447666-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230303214106.1446460-1-sashal@kernel.org>
-References: <20230303214106.1446460-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,110 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Dean Luick <dean.luick@cornelisnetworks.com>
 
-[ Upstream commit 0603a47bd3a8f439d7844b841eee1819353063e0 ]
+[ Upstream commit 892ede5a77f337831609fb9c248ac60948061894 ]
 
-If wait_for_completion_timeout() times-out in _cdns_xfer_msg() it
-is possible that something could have been written to the RX FIFO.
-In this case, we should drain the RX FIFO so that anything in it
-doesn't carry over and mess up the next transfer.
+Fix possible RMT overflow:  Use the correct netdev size.
+Don't allow adjusted user contexts to go negative.
 
-Obviously, if we got to this state something went wrong, and we
-don't really know the state of everything. The cleanup in this
-situation cannot be bullet-proof but we should attempt to avoid
-breaking future transaction, if only to reduce the amount of
-error noise when debugging the failure from a kernel log.
+Fix QOS calculation: Send kernel context count as an argument since
+dd->n_krcv_queues is not yet set up in earliest call.  Do not include
+the control context in the QOS calculation.  Use the same sized
+variable to find the max of krcvq[] entries.
 
-Note that this patch only implements the draining for blocking
-(non-deferred) transfers. The deferred API doesn't have any proper
-handling of error conditions and would need some re-design before
-implementing cleanup. That is a task for a separate patch...
+Update the RMT count explanation to make more sense.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221202161812.4186897-4-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Link: https://lore.kernel.org/r/167329106946.1472990.18385495251650939054.stgit@awfm-02.cornelisnetworks.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c | 50 ++++++++++++++++--------------
- 1 file changed, 27 insertions(+), 23 deletions(-)
+ drivers/infiniband/hw/hfi1/chip.c | 59 +++++++++++++++++--------------
+ 1 file changed, 32 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index 37eef80939475..901052dfe420a 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -554,6 +554,29 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
- 	return SDW_CMD_OK;
- }
- 
-+static void cdns_read_response(struct sdw_cdns *cdns)
-+{
-+	u32 num_resp, cmd_base;
-+	int i;
-+
-+	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
-+	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
-+
-+	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
-+	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
-+	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
-+		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
-+		num_resp = ARRAY_SIZE(cdns->response_buf);
-+	}
-+
-+	cmd_base = CDNS_MCP_CMD_BASE;
-+
-+	for (i = 0; i < num_resp; i++) {
-+		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
-+		cmd_base += CDNS_MCP_CMD_WORD_LEN;
-+	}
-+}
-+
- static enum sdw_command_response
- _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
- 	       int offset, int count, bool defer)
-@@ -595,6 +618,10 @@ _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
- 		dev_err(cdns->dev, "IO transfer timed out, cmd %d device %d addr %x len %d\n",
- 			cmd, msg->dev_num, msg->addr, msg->len);
- 		msg->len = 0;
-+
-+		/* Drain anything in the RX_FIFO */
-+		cdns_read_response(cdns);
-+
- 		return SDW_CMD_TIMEOUT;
+diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
+index ebe970f76232d..90b672feed83d 100644
+--- a/drivers/infiniband/hw/hfi1/chip.c
++++ b/drivers/infiniband/hw/hfi1/chip.c
+@@ -1056,7 +1056,7 @@ static void read_link_down_reason(struct hfi1_devdata *dd, u8 *ldr);
+ static void handle_temp_err(struct hfi1_devdata *dd);
+ static void dc_shutdown(struct hfi1_devdata *dd);
+ static void dc_start(struct hfi1_devdata *dd);
+-static int qos_rmt_entries(struct hfi1_devdata *dd, unsigned int *mp,
++static int qos_rmt_entries(unsigned int n_krcv_queues, unsigned int *mp,
+ 			   unsigned int *np);
+ static void clear_full_mgmt_pkey(struct hfi1_pportdata *ppd);
+ static int wait_link_transfer_active(struct hfi1_devdata *dd, int wait_ms);
+@@ -13362,7 +13362,6 @@ static int set_up_context_variables(struct hfi1_devdata *dd)
+ 	int ret;
+ 	unsigned ngroups;
+ 	int rmt_count;
+-	int user_rmt_reduced;
+ 	u32 n_usr_ctxts;
+ 	u32 send_contexts = chip_send_contexts(dd);
+ 	u32 rcv_contexts = chip_rcv_contexts(dd);
+@@ -13421,28 +13420,34 @@ static int set_up_context_variables(struct hfi1_devdata *dd)
+ 					 (num_kernel_contexts + n_usr_ctxts),
+ 					 &node_affinity.real_cpu_mask);
+ 	/*
+-	 * The RMT entries are currently allocated as shown below:
+-	 * 1. QOS (0 to 128 entries);
+-	 * 2. FECN (num_kernel_context - 1 + num_user_contexts +
+-	 *    num_netdev_contexts);
+-	 * 3. netdev (num_netdev_contexts).
+-	 * It should be noted that FECN oversubscribe num_netdev_contexts
+-	 * entries of RMT because both netdev and PSM could allocate any receive
+-	 * context between dd->first_dyn_alloc_text and dd->num_rcv_contexts,
+-	 * and PSM FECN must reserve an RMT entry for each possible PSM receive
+-	 * context.
++	 * RMT entries are allocated as follows:
++	 * 1. QOS (0 to 128 entries)
++	 * 2. FECN (num_kernel_context - 1 [a] + num_user_contexts +
++	 *          num_netdev_contexts [b])
++	 * 3. netdev (NUM_NETDEV_MAP_ENTRIES)
++	 *
++	 * Notes:
++	 * [a] Kernel contexts (except control) are included in FECN if kernel
++	 *     TID_RDMA is active.
++	 * [b] Netdev and user contexts are randomly allocated from the same
++	 *     context pool, so FECN must cover all contexts in the pool.
+ 	 */
+-	rmt_count = qos_rmt_entries(dd, NULL, NULL) + (num_netdev_contexts * 2);
+-	if (HFI1_CAP_IS_KSET(TID_RDMA))
+-		rmt_count += num_kernel_contexts - 1;
+-	if (rmt_count + n_usr_ctxts > NUM_MAP_ENTRIES) {
+-		user_rmt_reduced = NUM_MAP_ENTRIES - rmt_count;
+-		dd_dev_err(dd,
+-			   "RMT size is reducing the number of user receive contexts from %u to %d\n",
+-			   n_usr_ctxts,
+-			   user_rmt_reduced);
+-		/* recalculate */
+-		n_usr_ctxts = user_rmt_reduced;
++	rmt_count = qos_rmt_entries(num_kernel_contexts - 1, NULL, NULL)
++		    + (HFI1_CAP_IS_KSET(TID_RDMA) ? num_kernel_contexts - 1
++						  : 0)
++		    + n_usr_ctxts
++		    + num_netdev_contexts
++		    + NUM_NETDEV_MAP_ENTRIES;
++	if (rmt_count > NUM_MAP_ENTRIES) {
++		int over = rmt_count - NUM_MAP_ENTRIES;
++		/* try to squish user contexts, minimum of 1 */
++		if (over >= n_usr_ctxts) {
++			dd_dev_err(dd, "RMT overflow: reduce the requested number of contexts\n");
++			return -EINVAL;
++		}
++		dd_dev_err(dd, "RMT overflow: reducing # user contexts from %u to %u\n",
++			   n_usr_ctxts, n_usr_ctxts - over);
++		n_usr_ctxts -= over;
  	}
  
-@@ -768,29 +795,6 @@ EXPORT_SYMBOL(cdns_read_ping_status);
-  * IRQ handling
-  */
+ 	/* the first N are kernel contexts, the rest are user/netdev contexts */
+@@ -14299,15 +14304,15 @@ static void clear_rsm_rule(struct hfi1_devdata *dd, u8 rule_index)
+ }
  
--static void cdns_read_response(struct sdw_cdns *cdns)
--{
--	u32 num_resp, cmd_base;
--	int i;
--
--	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
--	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
--
--	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
--	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
--	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
--		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
--		num_resp = ARRAY_SIZE(cdns->response_buf);
--	}
--
--	cmd_base = CDNS_MCP_CMD_BASE;
--
--	for (i = 0; i < num_resp; i++) {
--		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
--		cmd_base += CDNS_MCP_CMD_WORD_LEN;
--	}
--}
--
- static int cdns_update_slave_status(struct sdw_cdns *cdns,
- 				    u64 slave_intstat)
+ /* return the number of RSM map table entries that will be used for QOS */
+-static int qos_rmt_entries(struct hfi1_devdata *dd, unsigned int *mp,
++static int qos_rmt_entries(unsigned int n_krcv_queues, unsigned int *mp,
+ 			   unsigned int *np)
  {
+ 	int i;
+ 	unsigned int m, n;
+-	u8 max_by_vl = 0;
++	uint max_by_vl = 0;
+ 
+ 	/* is QOS active at all? */
+-	if (dd->n_krcv_queues <= MIN_KERNEL_KCTXTS ||
++	if (n_krcv_queues < MIN_KERNEL_KCTXTS ||
+ 	    num_vls == 1 ||
+ 	    krcvqsset <= 1)
+ 		goto no_qos;
+@@ -14365,7 +14370,7 @@ static void init_qos(struct hfi1_devdata *dd, struct rsm_map_table *rmt)
+ 
+ 	if (!rmt)
+ 		goto bail;
+-	rmt_entries = qos_rmt_entries(dd, &m, &n);
++	rmt_entries = qos_rmt_entries(dd->n_krcv_queues - 1, &m, &n);
+ 	if (rmt_entries == 0)
+ 		goto bail;
+ 	qpns_per_vl = 1 << m;
 -- 
 2.39.2
 
