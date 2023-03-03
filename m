@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 786A86AA456
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE596AA48E
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:37:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231523AbjCCWaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:30:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36178 "EHLO
+        id S231879AbjCCWhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233785AbjCCW37 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:29:59 -0500
+        with ESMTP id S231965AbjCCWgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:36:45 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4ED06BDEB;
-        Fri,  3 Mar 2023 14:24:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EF8460ABC;
+        Fri,  3 Mar 2023 14:34:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 07C4DCE229F;
-        Fri,  3 Mar 2023 21:46:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADCDEC433A0;
-        Fri,  3 Mar 2023 21:46:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 57AB7CE22A6;
+        Fri,  3 Mar 2023 21:46:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BEFCC4339C;
+        Fri,  3 Mar 2023 21:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879968;
-        bh=WWKbL0XAaTcC2WdR556Ciru5qUvwI0Tp6k1Vu5sihl4=;
+        s=k20201202; t=1677879972;
+        bh=EW9lfzBa7CkIkb2KhLWSsi2h78M/5udjB0wcRun9UlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPERsjXbY5CTzeLN16bSAtU63Ds57w5Vm+HBVMTpxvWtCpyqvHdnsPZiDM8kQkF0a
-         FSt5KwuCzcYvHmSAlinx0clv09qVZr90DjJ+Fvos3MynkRHX60IiJLx/vKyFKtwGz3
-         e7uV4yz59mjfUHIhFZqizwUct88CMJcWIv2m4jeOIxZx7H+0tURJxsjYYWJI0rNJp7
-         PrkITgdNwk6w45MBwRY/DIubaXtykYIbNe7LFBhfve2t1PItKNabK4UZAldRup9+l7
-         d8tTeoktVomOU84N1SyA8+IGGd+HhxEmohW6tpXOMB3z+BK/NtvB0DK7JnmUo0fxgn
-         YGeGG3TuO/9Kg==
+        b=ZXBQffo5WaKuNnGPyNiTPKov6vLrNRyTg76ulvuTm3rs44dLuGhF/57hTlq6Pd9/8
+         1nnIQe1MbOSY2YH7+Aw460WfDacVX8Ty9FXcONEPkQxn37+rKj8ZO5c/0UoHgujJEm
+         Do0tS7i8hegLru3iQfKyWfzd35lLPjsebCP+slZyVvZrVwKCdneDJ6XieShOdrFnj7
+         nKe32u10oZcUzBd6j6cvPWn7K31sObTgOAwXXSm/Fr1Ey3UC15t8G/bXPEh77oP7ko
+         FblVjMf3qX8x46NOoDgPSCNHdOOaLilaMlmlsTXTPkSpY1nqXSf2qMhpAjMNhrfir+
+         eVE41EVoCRRmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
-        linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 17/50] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_config_word()
-Date:   Fri,  3 Mar 2023 16:44:58 -0500
-Message-Id: <20230303214531.1450154-17-sashal@kernel.org>
+Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 19/50] soundwire: bus_type: Avoid lockdep assert in sdw_drv_probe()
+Date:   Fri,  3 Mar 2023 16:45:00 -0500
+Message-Id: <20230303214531.1450154-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214531.1450154-1-sashal@kernel.org>
 References: <20230303214531.1450154-1-sashal@kernel.org>
@@ -56,46 +56,275 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 64a68158738ec8f520347144352f7a09bdb9e169 ]
+[ Upstream commit 3dca1f89ae3455963d7b53245ecf298ea9bae857 ]
 
-Smatch Warns:
-drivers/iio/accel/mma9551_core.c:299
-	mma9551_read_config_word() error: uninitialized symbol 'v'.
+Don't hold sdw_dev_lock while calling the peripheral driver
+probe() and remove() callbacks.
 
-When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
-without 'v' being initialized, so check for the error and return.
+Holding sdw_dev_lock around the probe() and remove() calls causes
+a theoretical mutex inversion which lockdep will assert on.
 
-Note: No actual bug as caller checks the return value and does not
-use the parameter in the problem case.
+During probe() the sdw_dev_lock mutex is taken first and then
+ASoC/ALSA locks are taken by the probe() implementation.
 
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20230126153610.3586243-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+During normal operation ASoC can take its locks and then trigger
+a runtime resume of the component. The SoundWire resume will then
+take sdw_dev_lock. This is the reverse order compared to probe().
+
+It's not necessary to hold sdw_dev_lock when calling the probe()
+and remove(), it is only used to prevent the bus core calling the
+driver callbacks if there isn't a driver or the driver is removing.
+
+All calls to the driver callbacks are guarded by the 'probed' flag.
+So if sdw_dev_lock is held while setting and clearing the 'probed'
+flag this is sufficient to guarantee the safety of callback
+functions.
+
+Removing the mutex from around the call to probe() means that it
+is now possible for a bus event (PING response) to be handled in
+parallel with the probe(). But sdw_bus_probe() already has
+handling for this by calling the device update_status() after
+the probe() has completed.
+
+Example lockdep assert:
+[   46.098514] ======================================================
+[   46.104736] WARNING: possible circular locking dependency detected
+[   46.110961] 6.1.0-rc4-jamerson #1 Tainted: G            E
+[   46.116842] ------------------------------------------------------
+[   46.123063] mpg123/1130 is trying to acquire lock:
+[   46.127883] ffff8b445031fb80 (&slave->sdw_dev_lock){+.+.}-{3:3}, at: sdw_update_slave_status+0x26/0x70
+[   46.137225]
+               but task is already holding lock:
+[   46.143074] ffffffffc1455310 (&card->pcm_mutex){+.+.}-{3:3}, at: dpcm_fe_dai_open+0x49/0x830
+[   46.151536]
+               which lock already depends on the new lock.[   46.159732]
+               the existing dependency chain (in reverse order) is:
+[   46.167231]
+               -> #4 (&card->pcm_mutex){+.+.}-{3:3}:
+[   46.173428]        __mutex_lock+0x94/0x920
+[   46.177542]        snd_soc_dpcm_runtime_update+0x2e/0x100
+[   46.182958]        snd_soc_dapm_put_enum_double+0x1c2/0x200
+[   46.188548]        snd_ctl_elem_write+0x10c/0x1d0
+[   46.193268]        snd_ctl_ioctl+0x126/0x850
+[   46.197556]        __x64_sys_ioctl+0x87/0xc0
+[   46.201845]        do_syscall_64+0x38/0x90
+[   46.205959]        entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   46.211553]
+               -> #3 (&card->controls_rwsem){++++}-{3:3}:
+[   46.218188]        down_write+0x2b/0xd0
+[   46.222038]        snd_ctl_add_replace+0x39/0xb0
+[   46.226672]        snd_soc_add_controls+0x53/0x80
+[   46.231393]        soc_probe_component+0x1e4/0x2a0
+[   46.236202]        snd_soc_bind_card+0x51a/0xc80
+[   46.240836]        devm_snd_soc_register_card+0x43/0x90
+[   46.246079]        mc_probe+0x982/0xfe0 [snd_soc_sof_sdw]
+[   46.251500]        platform_probe+0x3c/0xa0
+[   46.255700]        really_probe+0xde/0x390
+[   46.259814]        __driver_probe_device+0x78/0x180
+[   46.264710]        driver_probe_device+0x1e/0x90
+[   46.269347]        __driver_attach+0x9f/0x1f0
+[   46.273721]        bus_for_each_dev+0x78/0xc0
+[   46.278098]        bus_add_driver+0x1ac/0x200
+[   46.282473]        driver_register+0x8f/0xf0
+[   46.286759]        do_one_initcall+0x58/0x310
+[   46.291136]        do_init_module+0x4c/0x1f0
+[   46.295422]        __do_sys_finit_module+0xb4/0x130
+[   46.300321]        do_syscall_64+0x38/0x90
+[   46.304434]        entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   46.310027]
+               -> #2 (&card->mutex){+.+.}-{3:3}:
+[   46.315883]        __mutex_lock+0x94/0x920
+[   46.320000]        snd_soc_bind_card+0x3e/0xc80
+[   46.324551]        devm_snd_soc_register_card+0x43/0x90
+[   46.329798]        mc_probe+0x982/0xfe0 [snd_soc_sof_sdw]
+[   46.335219]        platform_probe+0x3c/0xa0
+[   46.339420]        really_probe+0xde/0x390
+[   46.343532]        __driver_probe_device+0x78/0x180
+[   46.348430]        driver_probe_device+0x1e/0x90
+[   46.353065]        __driver_attach+0x9f/0x1f0
+[   46.357437]        bus_for_each_dev+0x78/0xc0
+[   46.361812]        bus_add_driver+0x1ac/0x200
+[   46.366716]        driver_register+0x8f/0xf0
+[   46.371528]        do_one_initcall+0x58/0x310
+[   46.376424]        do_init_module+0x4c/0x1f0
+[   46.381239]        __do_sys_finit_module+0xb4/0x130
+[   46.386665]        do_syscall_64+0x38/0x90
+[   46.391299]        entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   46.397416]
+               -> #1 (client_mutex){+.+.}-{3:3}:
+[   46.404307]        __mutex_lock+0x94/0x920
+[   46.408941]        snd_soc_add_component+0x24/0x2c0
+[   46.414345]        devm_snd_soc_register_component+0x54/0xa0
+[   46.420522]        cs35l56_common_probe+0x280/0x370 [snd_soc_cs35l56]
+[   46.427487]        cs35l56_sdw_probe+0xf4/0x170 [snd_soc_cs35l56_sdw]
+[   46.434442]        sdw_drv_probe+0x80/0x1a0
+[   46.439136]        really_probe+0xde/0x390
+[   46.443738]        __driver_probe_device+0x78/0x180
+[   46.449120]        driver_probe_device+0x1e/0x90
+[   46.454247]        __driver_attach+0x9f/0x1f0
+[   46.459106]        bus_for_each_dev+0x78/0xc0
+[   46.463971]        bus_add_driver+0x1ac/0x200
+[   46.468825]        driver_register+0x8f/0xf0
+[   46.473592]        do_one_initcall+0x58/0x310
+[   46.478441]        do_init_module+0x4c/0x1f0
+[   46.483202]        __do_sys_finit_module+0xb4/0x130
+[   46.488572]        do_syscall_64+0x38/0x90
+[   46.493158]        entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   46.499229]
+               -> #0 (&slave->sdw_dev_lock){+.+.}-{3:3}:
+[   46.506737]        __lock_acquire+0x1121/0x1df0
+[   46.511765]        lock_acquire+0xd5/0x300
+[   46.516360]        __mutex_lock+0x94/0x920
+[   46.520949]        sdw_update_slave_status+0x26/0x70
+[   46.526409]        sdw_clear_slave_status+0xd8/0xe0
+[   46.531783]        intel_resume_runtime+0x139/0x2a0
+[   46.537155]        __rpm_callback+0x41/0x120
+[   46.541919]        rpm_callback+0x5d/0x70
+[   46.546422]        rpm_resume+0x531/0x7e0
+[   46.550920]        __pm_runtime_resume+0x4a/0x80
+[   46.556024]        snd_soc_pcm_component_pm_runtime_get+0x2f/0xc0
+[   46.562611]        __soc_pcm_open+0x62/0x520
+[   46.567375]        dpcm_be_dai_startup+0x116/0x210
+[   46.572661]        dpcm_fe_dai_open+0xf7/0x830
+[   46.577597]        snd_pcm_open_substream+0x54a/0x8b0
+[   46.583145]        snd_pcm_open.part.0+0xdc/0x200
+[   46.588341]        snd_pcm_playback_open+0x51/0x80
+[   46.593625]        chrdev_open+0xc0/0x250
+[   46.598129]        do_dentry_open+0x15f/0x430
+[   46.602981]        path_openat+0x75e/0xa80
+[   46.607575]        do_filp_open+0xb2/0x160
+[   46.612162]        do_sys_openat2+0x9a/0x160
+[   46.616922]        __x64_sys_openat+0x53/0xa0
+[   46.621767]        do_syscall_64+0x38/0x90
+[   46.626352]        entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   46.632414]
+               other info that might help us debug this:[   46.641862] Chain exists of:
+                 &slave->sdw_dev_lock --> &card->controls_rwsem --> &card->pcm_mutex[   46.655145]  Possible unsafe locking scenario:[   46.662048]        CPU0                    CPU1
+[   46.667080]        ----                    ----
+[   46.672108]   lock(&card->pcm_mutex);
+[   46.676267]                                lock(&card->controls_rwsem);
+[   46.683382]                                lock(&card->pcm_mutex);
+[   46.690063]   lock(&slave->sdw_dev_lock);
+[   46.694574]
+                *** DEADLOCK ***[   46.701942] 2 locks held by mpg123/1130:
+[   46.706356]  #0: ffff8b4457b22b90 (&pcm->open_mutex){+.+.}-{3:3}, at: snd_pcm_open.part.0+0xc9/0x200
+[   46.715999]  #1: ffffffffc1455310 (&card->pcm_mutex){+.+.}-{3:3}, at: dpcm_fe_dai_open+0x49/0x830
+[   46.725390]
+               stack backtrace:
+[   46.730752] CPU: 0 PID: 1130 Comm: mpg123 Tainted: G            E      6.1.0-rc4-jamerson #1
+[   46.739703] Hardware name: AAEON UP-WHL01/UP-WHL01, BIOS UPW1AM19 11/10/2020
+[   46.747270] Call Trace:
+[   46.750239]  <TASK>
+[   46.752857]  dump_stack_lvl+0x56/0x73
+[   46.757045]  check_noncircular+0x102/0x120
+[   46.761664]  __lock_acquire+0x1121/0x1df0
+[   46.766197]  lock_acquire+0xd5/0x300
+[   46.770292]  ? sdw_update_slave_status+0x26/0x70
+[   46.775432]  ? lock_is_held_type+0xe2/0x140
+[   46.780143]  __mutex_lock+0x94/0x920
+[   46.784241]  ? sdw_update_slave_status+0x26/0x70
+[   46.789387]  ? find_held_lock+0x2b/0x80
+[   46.793750]  ? sdw_update_slave_status+0x26/0x70
+[   46.798894]  ? lock_release+0x147/0x2f0
+[   46.803262]  ? lockdep_init_map_type+0x47/0x250
+[   46.808315]  ? sdw_update_slave_status+0x26/0x70
+[   46.813456]  sdw_update_slave_status+0x26/0x70
+[   46.818422]  sdw_clear_slave_status+0xd8/0xe0
+[   46.823302]  ? pm_generic_runtime_suspend+0x30/0x30
+[   46.828706]  intel_resume_runtime+0x139/0x2a0
+[   46.833583]  ? _raw_spin_unlock_irq+0x24/0x50
+[   46.838462]  ? pm_generic_runtime_suspend+0x30/0x30
+[   46.843866]  __rpm_callback+0x41/0x120
+[   46.848142]  ? pm_generic_runtime_suspend+0x30/0x30
+[   46.853550]  rpm_callback+0x5d/0x70
+[   46.857568]  rpm_resume+0x531/0x7e0
+[   46.861578]  ? _raw_spin_lock_irqsave+0x62/0x70
+[   46.866634]  __pm_runtime_resume+0x4a/0x80
+[   46.871258]  snd_soc_pcm_component_pm_runtime_get+0x2f/0xc0
+[   46.877358]  __soc_pcm_open+0x62/0x520
+[   46.881634]  ? dpcm_add_paths.isra.0+0x35d/0x4c0
+[   46.886784]  dpcm_be_dai_startup+0x116/0x210
+[   46.891592]  dpcm_fe_dai_open+0xf7/0x830
+[   46.896046]  ? debug_mutex_init+0x33/0x50
+[   46.900591]  snd_pcm_open_substream+0x54a/0x8b0
+[   46.905658]  snd_pcm_open.part.0+0xdc/0x200
+[   46.910376]  ? wake_up_q+0x90/0x90
+[   46.914312]  snd_pcm_playback_open+0x51/0x80
+[   46.919118]  chrdev_open+0xc0/0x250
+[   46.923147]  ? cdev_device_add+0x90/0x90
+[   46.927608]  do_dentry_open+0x15f/0x430
+[   46.931976]  path_openat+0x75e/0xa80
+[   46.936086]  do_filp_open+0xb2/0x160
+[   46.940194]  ? lock_release+0x147/0x2f0
+[   46.944563]  ? _raw_spin_unlock+0x29/0x50
+[   46.949101]  do_sys_openat2+0x9a/0x160
+[   46.953377]  __x64_sys_openat+0x53/0xa0
+[   46.957733]  do_syscall_64+0x38/0x90
+[   46.961829]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   46.967402] RIP: 0033:0x7fa6397ccd3b
+[   46.971506] Code: 25 00 00 41 00 3d 00 00 41 00 74 4b 64 8b 04 25 18 00 00 00 85 c0 75 67 44 89 e2 48 89 ee bf 9c ff ff ff b8 01 01 00 00 0f 05 <48> 3d 00 f0 ff ff 0f 87 91 00 00 00 48 8b 4c 24 28 64 48 33 0c 25
+[   46.991413] RSP: 002b:00007fff838e8990 EFLAGS: 00000246 ORIG_RAX: 0000000000000101
+[   46.999580] RAX: ffffffffffffffda RBX: 0000000000080802 RCX: 00007fa6397ccd3b
+[   47.007311] RDX: 0000000000080802 RSI: 00007fff838e8b50 RDI: 00000000ffffff9c
+[   47.015047] RBP: 00007fff838e8b50 R08: 0000000000000000 R09: 0000000000000011
+[   47.022787] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000080802
+[   47.030539] R13: 0000000000000004 R14: 0000000000000000 R15: 00007fff838e8b50
+[   47.038289]  </TASK>
+
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20230123172520.339367-1-rf@opensource.cirrus.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mma9551_core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/soundwire/bus_type.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
-index 413610a749c24..9023c07bb57b4 100644
---- a/drivers/iio/accel/mma9551_core.c
-+++ b/drivers/iio/accel/mma9551_core.c
-@@ -296,9 +296,12 @@ int mma9551_read_config_word(struct i2c_client *client, u8 app_id,
+diff --git a/drivers/soundwire/bus_type.c b/drivers/soundwire/bus_type.c
+index 04b3529f89293..963498db0fd22 100644
+--- a/drivers/soundwire/bus_type.c
++++ b/drivers/soundwire/bus_type.c
+@@ -105,20 +105,19 @@ static int sdw_drv_probe(struct device *dev)
+ 	if (ret)
+ 		return ret;
  
- 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_CONFIG,
- 			       reg, NULL, 0, (u8 *)&v, 2);
-+	if (ret < 0)
-+		return ret;
+-	mutex_lock(&slave->sdw_dev_lock);
+-
+ 	ret = drv->probe(slave, id);
+ 	if (ret) {
+ 		name = drv->name;
+ 		if (!name)
+ 			name = drv->driver.name;
+-		mutex_unlock(&slave->sdw_dev_lock);
+ 
+ 		dev_err(dev, "Probe of %s failed: %d\n", name, ret);
+ 		dev_pm_domain_detach(dev, false);
+ 		return ret;
+ 	}
+ 
++	mutex_lock(&slave->sdw_dev_lock);
 +
- 	*val = be16_to_cpu(v);
+ 	/* device is probed so let's read the properties now */
+ 	if (drv->ops && drv->ops->read_prop)
+ 		drv->ops->read_prop(slave);
+@@ -167,14 +166,12 @@ static int sdw_drv_remove(struct device *dev)
+ 	int ret = 0;
  
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL(mma9551_read_config_word);
+ 	mutex_lock(&slave->sdw_dev_lock);
+-
+ 	slave->probed = false;
++	mutex_unlock(&slave->sdw_dev_lock);
  
+ 	if (drv->remove)
+ 		ret = drv->remove(slave);
+ 
+-	mutex_unlock(&slave->sdw_dev_lock);
+-
+ 	dev_pm_domain_detach(dev, false);
+ 
+ 	return ret;
 -- 
 2.39.2
 
