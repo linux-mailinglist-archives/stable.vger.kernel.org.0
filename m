@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F060B6AA35A
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:57:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D7F6AA360
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233205AbjCCV5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:57:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46024 "EHLO
+        id S233333AbjCCV5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:57:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233235AbjCCV4P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:56:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B277B6BC1C;
-        Fri,  3 Mar 2023 13:49:47 -0800 (PST)
+        with ESMTP id S231788AbjCCV4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:56:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF0AF6BC20;
+        Fri,  3 Mar 2023 13:49:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28C52B81A2F;
-        Fri,  3 Mar 2023 21:47:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6129C4339E;
-        Fri,  3 Mar 2023 21:47:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73FD2B81A49;
+        Fri,  3 Mar 2023 21:47:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E768C433A0;
+        Fri,  3 Mar 2023 21:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880072;
-        bh=asg2lp3VjKEDASl19R0m5Yrp87Z/g135eWcLVDDof1M=;
+        s=k20201202; t=1677880075;
+        bh=v6tt9E3aHxxAdKeqDkuuE8e7wq6/1T8rWsMDE3MN5G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erWcmmAf91ipJwXNthYvy2z1PKH1jf+5/N0E4/FKY7abJbHo5sRMDXcr0vs//o228
-         MOjf8T3RXw4ltA/guXcCRg6c7BQoyIDkmtT2lpuitHrlElSt6JQMRtdX86DGr4QNgO
-         0o70lzll4qrYCimMRR8xofZSvJAmm7imSUJ3jIR4238O7RHILGsmcECBtKqxKaXUGo
-         RBIiw7WkAXfK4sdvFy/qzT9JEcFwo2CZ9zbV4DJN8TfFPBotRDdVPfkcZsi41E1wIp
-         uNOJpq+PjR7/JWDoEQ6LLPVHwZe4qYUnOVm4MxyoQtdHluvtKPIObALnDoaGHQ8N+l
-         aZ6f77RjaZpVw==
+        b=JXlTjdr/xwjNul3ldFde7Tigm4tz9hqMIIewr+m2xP9/KOlpEZYP+n1eC1L/jaLbF
+         6GxaXyxVxyVpgAtvcfqH3idtqpuIohZ/gsAzGhDTsM7hCyR4XdJjW2plT4xNsJfnCM
+         sdmpREsem7k7bardCWsaBlOEsCc+26RbAkIxPkLcAsZER1Xw0DqWpWrTTZ8DYNXaNs
+         rmBt0Dff+3nnBLTtCmJhxaFfg6+tvfGY5svEDpAhK1rx6agQblPkcRiD81GbHLVmYZ
+         ge9HKm95P5UFO3tIsEdu8U5rkOefw5hoDdK3PinPXE0E+JPJjoiCWXIoWeBnRBD4rQ
+         sVj6u+2dyJCEQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com,
-        w36195@motorola.com, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 21/30] usb: gadget: uvc: Make bSourceID read/write
-Date:   Fri,  3 Mar 2023 16:47:06 -0500
-Message-Id: <20230303214715.1452256-21-sashal@kernel.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Alexander Motin <mav@ixsystems.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 23/30] PCI: Take other bus devices into account when distributing resources
+Date:   Fri,  3 Mar 2023 16:47:08 -0500
+Message-Id: <20230303214715.1452256-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214715.1452256-1-sashal@kernel.org>
 References: <20230303214715.1452256-1-sashal@kernel.org>
@@ -48,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,111 +57,279 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit b3c839bd8a07d303bc59a900d55dd35c7826562c ]
+[ Upstream commit 9db0b9b6a14249ef65a5f1e5e3b37762af96f425 ]
 
-At the moment, the UVC function graph is hardcoded IT -> PU -> OT.
-To add XU support we need the ability to insert the XU descriptors
-into the chain. To facilitate that, make the output terminal's
-bSourceID attribute writeable so that we can configure its source.
+A PCI bridge may reside on a bus with other devices as well. The resource
+distribution code does not take this into account and therefore it expands
+the bridge resource windows too much, not leaving space for the other
+devices (or functions of a multifunction device).  This leads to an issue
+that Jonathan reported when running QEMU with the following topology (QEMU
+parameters):
 
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Link: https://lore.kernel.org/r/20230206161802.892954-2-dan.scally@ideasonboard.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  -device pcie-root-port,port=0,id=root_port13,chassis=0,slot=2  \
+  -device x3130-upstream,id=sw1,bus=root_port13,multifunction=on \
+  -device e1000,bus=root_port13,addr=0.1                         \
+  -device xio3130-downstream,id=fun1,bus=sw1,chassis=0,slot=3    \
+  -device e1000,bus=fun1
+
+The first e1000 NIC here is another function in the switch upstream port.
+This leads to following errors:
+
+  pci 0000:00:04.0: bridge window [mem 0x10200000-0x103fffff] to [bus 02-04]
+  pci 0000:02:00.0: bridge window [mem 0x10200000-0x103fffff] to [bus 03-04]
+  pci 0000:02:00.1: BAR 0: failed to assign [mem size 0x00020000]
+  e1000 0000:02:00.1: can't ioremap BAR 0: [??? 0x00000000 flags 0x0]
+
+Fix this by taking into account bridge windows, device BARs and SR-IOV PF
+BARs on the bus (PF BARs include space for VF BARS so only account PF
+BARs), including the ones belonging to bridges themselves if it has any.
+
+Link: https://lore.kernel.org/linux-pci/20221014124553.0000696f@huawei.com/
+Link: https://lore.kernel.org/linux-pci/6053736d-1923-41e7-def9-7585ce1772d9@ixsystems.com/
+Link: https://lore.kernel.org/r/20230131092405.29121-3-mika.westerberg@linux.intel.com
+Reported-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reported-by: Alexander Motin <mav@ixsystems.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ABI/testing/configfs-usb-gadget-uvc       |  2 +-
- drivers/usb/gadget/function/uvc_configfs.c    | 59 ++++++++++++++++++-
- 2 files changed, 59 insertions(+), 2 deletions(-)
+ drivers/pci/setup-bus.c | 176 ++++++++++++++++++++++++----------------
+ 1 file changed, 106 insertions(+), 70 deletions(-)
 
-diff --git a/Documentation/ABI/testing/configfs-usb-gadget-uvc b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-index ac5e11af79a81..4b1813994bd0d 100644
---- a/Documentation/ABI/testing/configfs-usb-gadget-uvc
-+++ b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-@@ -51,7 +51,7 @@ Date:		Dec 2014
- KernelVersion:	4.0
- Description:	Default output terminal descriptors
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 4a6b698b5dd10..16d291e10627b 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -1878,12 +1878,67 @@ static void adjust_bridge_window(struct pci_dev *bridge, struct resource *res,
+ 		add_size = size - new_size;
+ 		pci_dbg(bridge, "bridge window %pR shrunken by %pa\n", res,
+ 			&add_size);
++	} else {
++		return;
+ 	}
  
--		All attributes read only:
-+		All attributes read only except bSourceID:
+ 	res->end = res->start + new_size - 1;
+ 	remove_from_list(add_list, res);
+ }
  
- 		==============	=============================================
- 		iTerminal	index of string descriptor
-diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
-index 00fb58e50a155..7bb11d532b195 100644
---- a/drivers/usb/gadget/function/uvc_configfs.c
-+++ b/drivers/usb/gadget/function/uvc_configfs.c
-@@ -505,11 +505,68 @@ UVC_ATTR_RO(uvcg_default_output_, cname, aname)
- UVCG_DEFAULT_OUTPUT_ATTR(b_terminal_id, bTerminalID, 8);
- UVCG_DEFAULT_OUTPUT_ATTR(w_terminal_type, wTerminalType, 16);
- UVCG_DEFAULT_OUTPUT_ATTR(b_assoc_terminal, bAssocTerminal, 8);
--UVCG_DEFAULT_OUTPUT_ATTR(b_source_id, bSourceID, 8);
- UVCG_DEFAULT_OUTPUT_ATTR(i_terminal, iTerminal, 8);
- 
- #undef UVCG_DEFAULT_OUTPUT_ATTR
- 
-+static ssize_t uvcg_default_output_b_source_id_show(struct config_item *item,
-+						    char *page)
++static void remove_dev_resource(struct resource *avail, struct pci_dev *dev,
++				struct resource *res)
 +{
-+	struct config_group *group = to_config_group(item);
-+	struct f_uvc_opts *opts;
-+	struct config_item *opts_item;
-+	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
-+	struct uvc_output_terminal_descriptor *cd;
-+	int result;
++	resource_size_t size, align, tmp;
 +
-+	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
++	size = resource_size(res);
++	if (!size)
++		return;
 +
-+	opts_item = group->cg_item.ci_parent->ci_parent->
-+			ci_parent->ci_parent;
-+	opts = to_f_uvc_opts(opts_item);
-+	cd = &opts->uvc_output_terminal;
-+
-+	mutex_lock(&opts->lock);
-+	result = sprintf(page, "%u\n", le8_to_cpu(cd->bSourceID));
-+	mutex_unlock(&opts->lock);
-+
-+	mutex_unlock(su_mutex);
-+
-+	return result;
++	align = pci_resource_alignment(dev, res);
++	align = align ? ALIGN(avail->start, align) - avail->start : 0;
++	tmp = align + size;
++	avail->start = min(avail->start + tmp, avail->end + 1);
 +}
 +
-+static ssize_t uvcg_default_output_b_source_id_store(struct config_item *item,
-+						     const char *page, size_t len)
++static void remove_dev_resources(struct pci_dev *dev, struct resource *io,
++				 struct resource *mmio,
++				 struct resource *mmio_pref)
 +{
-+	struct config_group *group = to_config_group(item);
-+	struct f_uvc_opts *opts;
-+	struct config_item *opts_item;
-+	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
-+	struct uvc_output_terminal_descriptor *cd;
-+	int result;
-+	u8 num;
++	int i;
 +
-+	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
++	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
++		struct resource *res = &dev->resource[i];
 +
-+	opts_item = group->cg_item.ci_parent->ci_parent->
-+			ci_parent->ci_parent;
-+	opts = to_f_uvc_opts(opts_item);
-+	cd = &opts->uvc_output_terminal;
++		if (resource_type(res) == IORESOURCE_IO) {
++			remove_dev_resource(io, dev, res);
++		} else if (resource_type(res) == IORESOURCE_MEM) {
 +
-+	result = kstrtou8(page, 0, &num);
-+	if (result)
-+		return result;
-+
-+	mutex_lock(&opts->lock);
-+	cd->bSourceID = num;
-+	mutex_unlock(&opts->lock);
-+
-+	mutex_unlock(su_mutex);
-+
-+	return len;
++			/*
++			 * Make sure prefetchable memory is reduced from
++			 * the correct resource. Specifically we put 32-bit
++			 * prefetchable memory in non-prefetchable window
++			 * if there is an 64-bit pretchable window.
++			 *
++			 * See comments in __pci_bus_size_bridges() for
++			 * more information.
++			 */
++			if ((res->flags & IORESOURCE_PREFETCH) &&
++			    ((res->flags & IORESOURCE_MEM_64) ==
++			     (mmio_pref->flags & IORESOURCE_MEM_64)))
++				remove_dev_resource(mmio_pref, dev, res);
++			else
++				remove_dev_resource(mmio, dev, res);
++		}
++	}
 +}
-+UVC_ATTR(uvcg_default_output_, b_source_id, bSourceID);
 +
- static struct configfs_attribute *uvcg_default_output_attrs[] = {
- 	&uvcg_default_output_attr_b_terminal_id,
- 	&uvcg_default_output_attr_w_terminal_type,
++/*
++ * io, mmio and mmio_pref contain the total amount of bridge window space
++ * available. This includes the minimal space needed to cover all the
++ * existing devices on the bus and the possible extra space that can be
++ * shared with the bridges.
++ */
+ static void pci_bus_distribute_available_resources(struct pci_bus *bus,
+ 					    struct list_head *add_list,
+ 					    struct resource io,
+@@ -1893,7 +1948,7 @@ static void pci_bus_distribute_available_resources(struct pci_bus *bus,
+ 	unsigned int normal_bridges = 0, hotplug_bridges = 0;
+ 	struct resource *io_res, *mmio_res, *mmio_pref_res;
+ 	struct pci_dev *dev, *bridge = bus->self;
+-	resource_size_t io_per_hp, mmio_per_hp, mmio_pref_per_hp, align;
++	resource_size_t io_per_b, mmio_per_b, mmio_pref_per_b, align;
+ 
+ 	io_res = &bridge->resource[PCI_BRIDGE_IO_WINDOW];
+ 	mmio_res = &bridge->resource[PCI_BRIDGE_MEM_WINDOW];
+@@ -1937,100 +1992,81 @@ static void pci_bus_distribute_available_resources(struct pci_bus *bus,
+ 			normal_bridges++;
+ 	}
+ 
+-	/*
+-	 * There is only one bridge on the bus so it gets all available
+-	 * resources which it can then distribute to the possible hotplug
+-	 * bridges below.
+-	 */
+-	if (hotplug_bridges + normal_bridges == 1) {
+-		dev = list_first_entry(&bus->devices, struct pci_dev, bus_list);
+-		if (dev->subordinate)
+-			pci_bus_distribute_available_resources(dev->subordinate,
+-				add_list, io, mmio, mmio_pref);
+-		return;
+-	}
+-
+-	if (hotplug_bridges == 0)
++	if (!(hotplug_bridges + normal_bridges))
+ 		return;
+ 
+ 	/*
+-	 * Calculate the total amount of extra resource space we can
+-	 * pass to bridges below this one.  This is basically the
+-	 * extra space reduced by the minimal required space for the
+-	 * non-hotplug bridges.
++	 * Calculate the amount of space we can forward from "bus" to any
++	 * downstream buses, i.e., the space left over after assigning the
++	 * BARs and windows on "bus".
+ 	 */
+-	for_each_pci_bridge(dev, bus) {
+-		resource_size_t used_size;
+-		struct resource *res;
+-
+-		if (dev->is_hotplug_bridge)
+-			continue;
+-
+-		/*
+-		 * Reduce the available resource space by what the
+-		 * bridge and devices below it occupy.
+-		 */
+-		res = &dev->resource[PCI_BRIDGE_IO_WINDOW];
+-		align = pci_resource_alignment(dev, res);
+-		align = align ? ALIGN(io.start, align) - io.start : 0;
+-		used_size = align + resource_size(res);
+-		if (!res->parent)
+-			io.start = min(io.start + used_size, io.end + 1);
+-
+-		res = &dev->resource[PCI_BRIDGE_MEM_WINDOW];
+-		align = pci_resource_alignment(dev, res);
+-		align = align ? ALIGN(mmio.start, align) - mmio.start : 0;
+-		used_size = align + resource_size(res);
+-		if (!res->parent)
+-			mmio.start = min(mmio.start + used_size, mmio.end + 1);
+-
+-		res = &dev->resource[PCI_BRIDGE_PREF_MEM_WINDOW];
+-		align = pci_resource_alignment(dev, res);
+-		align = align ? ALIGN(mmio_pref.start, align) -
+-			mmio_pref.start : 0;
+-		used_size = align + resource_size(res);
+-		if (!res->parent)
+-			mmio_pref.start = min(mmio_pref.start + used_size,
+-				mmio_pref.end + 1);
++	list_for_each_entry(dev, &bus->devices, bus_list) {
++		if (!dev->is_virtfn)
++			remove_dev_resources(dev, &io, &mmio, &mmio_pref);
+ 	}
+ 
+-	io_per_hp = div64_ul(resource_size(&io), hotplug_bridges);
+-	mmio_per_hp = div64_ul(resource_size(&mmio), hotplug_bridges);
+-	mmio_pref_per_hp = div64_ul(resource_size(&mmio_pref),
+-		hotplug_bridges);
+-
+ 	/*
+-	 * Go over devices on this bus and distribute the remaining
+-	 * resource space between hotplug bridges.
++	 * If there is at least one hotplug bridge on this bus it gets all
++	 * the extra resource space that was left after the reductions
++	 * above.
++	 *
++	 * If there are no hotplug bridges the extra resource space is
++	 * split between non-hotplug bridges. This is to allow possible
++	 * hotplug bridges below them to get the extra space as well.
+ 	 */
++	if (hotplug_bridges) {
++		io_per_b = div64_ul(resource_size(&io), hotplug_bridges);
++		mmio_per_b = div64_ul(resource_size(&mmio), hotplug_bridges);
++		mmio_pref_per_b = div64_ul(resource_size(&mmio_pref),
++					   hotplug_bridges);
++	} else {
++		io_per_b = div64_ul(resource_size(&io), normal_bridges);
++		mmio_per_b = div64_ul(resource_size(&mmio), normal_bridges);
++		mmio_pref_per_b = div64_ul(resource_size(&mmio_pref),
++					   normal_bridges);
++	}
++
+ 	for_each_pci_bridge(dev, bus) {
+ 		struct resource *res;
+ 		struct pci_bus *b;
+ 
+ 		b = dev->subordinate;
+-		if (!b || !dev->is_hotplug_bridge)
++		if (!b)
+ 			continue;
++		if (hotplug_bridges && !dev->is_hotplug_bridge)
++			continue;
++
++		res = &dev->resource[PCI_BRIDGE_IO_WINDOW];
+ 
+ 		/*
+-		 * Distribute available extra resources equally between
+-		 * hotplug-capable downstream ports taking alignment into
+-		 * account.
++		 * Make sure the split resource space is properly aligned
++		 * for bridge windows (align it down to avoid going above
++		 * what is available).
+ 		 */
+-		res = &dev->resource[PCI_BRIDGE_IO_WINDOW];
+ 		align = pci_resource_alignment(dev, res);
+-		io.end = align ? io.start + ALIGN_DOWN(io_per_hp, align) - 1
+-			       : io.start + io_per_hp - 1;
++		io.end = align ? io.start + ALIGN_DOWN(io_per_b, align) - 1
++			       : io.start + io_per_b - 1;
++
++		/*
++		 * The x_per_b holds the extra resource space that can be
++		 * added for each bridge but there is the minimal already
++		 * reserved as well so adjust x.start down accordingly to
++		 * cover the whole space.
++		 */
++		io.start -= resource_size(res);
+ 
+ 		res = &dev->resource[PCI_BRIDGE_MEM_WINDOW];
+ 		align = pci_resource_alignment(dev, res);
+-		mmio.end = align ? mmio.start + ALIGN_DOWN(mmio_per_hp, align) - 1
+-				 : mmio.start + mmio_per_hp - 1;
++		mmio.end = align ? mmio.start + ALIGN_DOWN(mmio_per_b, align) - 1
++				 : mmio.start + mmio_per_b - 1;
++		mmio.start -= resource_size(res);
+ 
+ 		res = &dev->resource[PCI_BRIDGE_PREF_MEM_WINDOW];
+ 		align = pci_resource_alignment(dev, res);
+ 		mmio_pref.end = align ? mmio_pref.start +
+-					ALIGN_DOWN(mmio_pref_per_hp, align) - 1
+-				      : mmio_pref.start + mmio_pref_per_hp - 1;
++					ALIGN_DOWN(mmio_pref_per_b, align) - 1
++				      : mmio_pref.start + mmio_pref_per_b - 1;
++		mmio_pref.start -= resource_size(res);
+ 
+ 		pci_bus_distribute_available_resources(b, add_list, io, mmio,
+ 						       mmio_pref);
 -- 
 2.39.2
 
