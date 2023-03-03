@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 747F86AA4E9
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:55:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F7B6AA2B7
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:51:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233284AbjCCWzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:55:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48242 "EHLO
+        id S232757AbjCCVtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:49:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233304AbjCCWzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:55:12 -0500
+        with ESMTP id S232753AbjCCVtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:49:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47DD31F499;
-        Fri,  3 Mar 2023 14:54:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F616703F;
+        Fri,  3 Mar 2023 13:45:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2899DB819FE;
-        Fri,  3 Mar 2023 21:45:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDB7CC433AE;
-        Fri,  3 Mar 2023 21:45:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECFD2B81A09;
+        Fri,  3 Mar 2023 21:45:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B91C4339B;
+        Fri,  3 Mar 2023 21:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879917;
-        bh=hMbtTHtbpXktOMar5Unaj+/vzJDlRLP8YZo1+weNIi8=;
+        s=k20201202; t=1677879922;
+        bh=08JKqLomuqR8Z+WnXh9Rr9/MR0OoAsnToT9vuZiLzkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqW67Cf9oSEDbi/UVAQ+K54ZKES+JQ4TEWKUWW/osvA9gP9ClZtVh0+OjEo/eN1/W
-         cH+5cMCV+XdHluZnpLxKZBl0PFquWh8Lrm6D0PcFGYK6gzZbq1/1/BcVEvF7uVasPN
-         BftmMo15ZNKcqVcHWwG7FWcEEF7tGSIb0VPeFO+VgqN4Q+PIwGS29+dLda3fqQG4BS
-         kmMTZhC4msdfqLUSky1ZVK7CE22HCYgnNIEi/0dUyxRep/m9leh2AxwyQGQearzauf
-         zSnubUe6mzoEzlP7PTLNCw5cKqN6TQiQGnLLlbnIJtkya+sCMMdu/KTosMwC1jeRi1
-         Lok5c9pfuBwoA==
+        b=mspy/E0ZzxK617jzB3y9Q9XOJS/zR5ao67YYwjTkdbAxxhh4+4pVtf+6QuedYcJ0S
+         3rNbviRNCn6YDg1NkO2ynqzz21tpCeWa9Sqr6mpQWxta/AnfxMiTTsNWUHv82qHIFg
+         Y6tP8bblA8XSQ8QHSgDE6XuzmMcOCDEhh7sPWymGovGzBjGuts2ZBkgUSxJmIYYhDA
+         aJlDxFu3EeO9jSMI6BeEVoraPn8tYV6tHviz4kbvnw+sk/x8IrjtjRVC1hoyRXif5U
+         Cg7Eom6KRU1F4Fv1XFlW9N+/1qF8l7BKJxFvWYPxOSXtLkwORXEok+iXGEP85TyAWB
+         y3Q17anNDHhKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kishon@kernel.org, heiko@sntech.de, linux-phy@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 56/60] phy: rockchip-typec: Fix unsigned comparison with less than zero
-Date:   Fri,  3 Mar 2023 16:43:10 -0500
-Message-Id: <20230303214315.1447666-56-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, ndesaulniers@google.com,
+        markzhang@nvidia.com, Jason@zx2c4.com, phaddad@nvidia.com,
+        haakon.bugge@oracle.com, linux-rdma@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.1 57/60] RDMA/cma: Distinguish between sockaddr_in and sockaddr_in6 by size
+Date:   Fri,  3 Mar 2023 16:43:11 -0500
+Message-Id: <20230303214315.1447666-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -58,41 +59,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit f765c59c5a72546a2d74a92ae5d0eb0329d8e247 ]
+[ Upstream commit 876e480da2f74715fc70e37723e77ca16a631e35 ]
 
-The dp and ufp are defined as bool type, the return value type of
-function extcon_get_state should be int, so the type of dp and ufp
-are modified to int.
+Clang can do some aggressive inlining, which provides it with greater
+visibility into the sizes of various objects that are passed into
+helpers. Specifically, compare_netdev_and_ip() can see through the type
+given to the "sa" argument, which means it can generate code for "struct
+sockaddr_in" that would have been passed to ipv6_addr_cmp() (that expects
+to operate on the larger "struct sockaddr_in6"), which would result in a
+compile-time buffer overflow condition detected by memcmp(). Logically,
+this state isn't reachable due to the sa_family assignment two callers
+above and the check in compare_netdev_and_ip(). Instead, provide a
+compile-time check on sizes so the size-mismatched code will be elided
+when inlining. Avoids the following warning from Clang:
 
-./drivers/phy/rockchip/phy-rockchip-typec.c:827:12-14: WARNING: Unsigned expression compared with zero: dp > 0.
+../include/linux/fortify-string.h:652:4: error: call to '__read_overflow' declared with 'error' attribute: detected read beyond size of object (1st parameter)
+                        __read_overflow();
+                        ^
+note: In function 'cma_netevent_callback'
+note:   which inlined function 'node_from_ndev_ip'
+1 error generated.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3962
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230213035709.99027-1-jiapeng.chong@linux.alibaba.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+When the underlying object size is not known (e.g. with GCC and older
+Clang), the result of __builtin_object_size() is SIZE_MAX, which will also
+compile away, leaving the code as it was originally.
+
+Link: https://lore.kernel.org/r/20230208232549.never.139-kees@kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1687
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-typec.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/core/cma.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-typec.c b/drivers/phy/rockchip/phy-rockchip-typec.c
-index d76440ae10ff4..3a594b8cbe1ab 100644
---- a/drivers/phy/rockchip/phy-rockchip-typec.c
-+++ b/drivers/phy/rockchip/phy-rockchip-typec.c
-@@ -808,9 +808,8 @@ static int tcphy_get_mode(struct rockchip_typec_phy *tcphy)
- 	struct extcon_dev *edev = tcphy->extcon;
- 	union extcon_property_value property;
- 	unsigned int id;
--	bool ufp, dp;
- 	u8 mode;
--	int ret;
-+	int ret, ufp, dp;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 26d1772179b8f..8730674ceb2e1 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -479,13 +479,20 @@ static int compare_netdev_and_ip(int ifindex_a, struct sockaddr *sa,
+ 	if (sa->sa_family != sb->sa_family)
+ 		return sa->sa_family - sb->sa_family;
  
- 	if (!edev)
- 		return MODE_DFP_USB;
+-	if (sa->sa_family == AF_INET)
+-		return memcmp((char *)&((struct sockaddr_in *)sa)->sin_addr,
+-			      (char *)&((struct sockaddr_in *)sb)->sin_addr,
++	if (sa->sa_family == AF_INET &&
++	    __builtin_object_size(sa, 0) >= sizeof(struct sockaddr_in)) {
++		return memcmp(&((struct sockaddr_in *)sa)->sin_addr,
++			      &((struct sockaddr_in *)sb)->sin_addr,
+ 			      sizeof(((struct sockaddr_in *)sa)->sin_addr));
++	}
++
++	if (sa->sa_family == AF_INET6 &&
++	    __builtin_object_size(sa, 0) >= sizeof(struct sockaddr_in6)) {
++		return ipv6_addr_cmp(&((struct sockaddr_in6 *)sa)->sin6_addr,
++				     &((struct sockaddr_in6 *)sb)->sin6_addr);
++	}
+ 
+-	return ipv6_addr_cmp(&((struct sockaddr_in6 *)sa)->sin6_addr,
+-			     &((struct sockaddr_in6 *)sb)->sin6_addr);
++	return -1;
+ }
+ 
+ static int cma_add_id_to_tree(struct rdma_id_private *node_id_priv)
 -- 
 2.39.2
 
