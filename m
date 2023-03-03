@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF356AA1B8
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:42:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 748A46AA1BA
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232083AbjCCVm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:42:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54922 "EHLO
+        id S232096AbjCCVma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:42:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232082AbjCCVmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:42:01 -0500
+        with ESMTP id S232099AbjCCVmC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:42:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE8D64244;
-        Fri,  3 Mar 2023 13:41:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56C164262;
+        Fri,  3 Mar 2023 13:41:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CEDA618F8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0547A618C2;
+        Fri,  3 Mar 2023 21:41:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 400DDC433EF;
         Fri,  3 Mar 2023 21:41:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ABCFC433D2;
-        Fri,  3 Mar 2023 21:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879691;
-        bh=gBacpPObbsTaKF3BXzGCiOFfFP+HyV+HIQY11zBlvIQ=;
+        s=k20201202; t=1677879692;
+        bh=jAtidpuaujEU/MdsfTuilFqZ7n2O/Brc1NdJhzNg97A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nAOb6oLFiGzDtBkBamylnS38hU8AzlRc1LpetJRClSTjdR7qhASIWw3H0LOmRciRY
-         ZIh0Dhqv5e2GPJ08qJkU7KWK8qweF3FLbuxAlt66fD/QQGIbUPo6PN365LBXxROI4u
-         gdD/7b0FMZadGniRJ89R8vt7NUS96tKJd0RoRI+Q6zh2dxiQ8tjHNKaDC0l7rFywlN
-         DuJb/t1oXXdFPywaB9bwAD3uUPIH31uoByMiljm9ueIM8PhoPRt4K2GurpBw+djaId
-         9EHb6QH1Hik3NkMnFTPiT9p2KHbCMYpdFYExqKSQpkapW+GkeY2pwe1kdLm3js2qx9
-         sp4A0rpKNEVAg==
+        b=MQST8L+EsRKrF53tEbWpV0ORqojqtWVKLhEvLhbFA5xlKuJ2KhvRms62GcfypxFDu
+         96qOvSIdYmAYxRg3TGqPBJ8oRaKUJgv5gIrmKlOP76pFI4StbaMR7864TA87LCjKOI
+         KxiilcqpxlhHFLmwPsMvrx7z1v7bVDkmQLQYqX0fJRyNmfVRDjXmZTkPZ3QS6kfFRz
+         VaYgITB+AaR/fG3Dh3mZhbqvrx+S1usAt7FxO6NPQbg1aecIyXBhDYLl4+EfbG6uLI
+         85TORmXcspN68TdWpDPLM2/XpR+4nHUu9jwPrd8Ye+8tdJAocZ/YStgbGv/NVyKWP1
+         aEt120HstVuUA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuan Can <yuancan@huawei.com>, Simon Horman <horms@verge.net.au>,
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, drv@mailo.com,
-        linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.2 14/64] staging: emxx_udc: Add checks for dma_alloc_coherent()
-Date:   Fri,  3 Mar 2023 16:40:16 -0500
-Message-Id: <20230303214106.1446460-14-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.2 15/64] tty: fix out-of-bounds access in tty_driver_lookup_tty()
+Date:   Fri,  3 Mar 2023 16:40:17 -0500
+Message-Id: <20230303214106.1446460-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214106.1446460-1-sashal@kernel.org>
 References: <20230303214106.1446460-1-sashal@kernel.org>
@@ -56,43 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit f6510a93cfd8c6c79b4dda0f2967cdc6df42eff4 ]
+[ Upstream commit db4df8e9d79e7d37732c1a1b560958e8dadfefa1 ]
 
-As the dma_alloc_coherent may return NULL, the return value needs to be
-checked to avoid NULL poineter dereference.
+When specifying an invalid console= device like console=tty3270,
+tty_driver_lookup_tty() returns the tty struct without checking
+whether index is a valid number.
 
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Simon Horman <horms@verge.net.au>
-Link: https://lore.kernel.org/r/20230119083119.16956-1-yuancan@huawei.com
+To reproduce:
+
+qemu-system-x86_64 -enable-kvm -nographic -serial mon:stdio \
+-kernel ../linux-build-x86/arch/x86/boot/bzImage \
+-append "console=ttyS0 console=tty3270"
+
+This crashes with:
+
+[    0.770599] BUG: kernel NULL pointer dereference, address: 00000000000000ef
+[    0.771265] #PF: supervisor read access in kernel mode
+[    0.771773] #PF: error_code(0x0000) - not-present page
+[    0.772609] Oops: 0000 [#1] PREEMPT SMP PTI
+[    0.774878] RIP: 0010:tty_open+0x268/0x6f0
+[    0.784013]  chrdev_open+0xbd/0x230
+[    0.784444]  ? cdev_device_add+0x80/0x80
+[    0.784920]  do_dentry_open+0x1e0/0x410
+[    0.785389]  path_openat+0xca9/0x1050
+[    0.785813]  do_filp_open+0xaa/0x150
+[    0.786240]  file_open_name+0x133/0x1b0
+[    0.786746]  filp_open+0x27/0x50
+[    0.787244]  console_on_rootfs+0x14/0x4d
+[    0.787800]  kernel_init_freeable+0x1e4/0x20d
+[    0.788383]  ? rest_init+0xc0/0xc0
+[    0.788881]  kernel_init+0x11/0x120
+[    0.789356]  ret_from_fork+0x22/0x30
+
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221209112737.3222509-2-svens@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/emxx_udc/emxx_udc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/tty/tty_io.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/emxx_udc/emxx_udc.c b/drivers/staging/emxx_udc/emxx_udc.c
-index b4e19174bef2e..f9765841c4aa3 100644
---- a/drivers/staging/emxx_udc/emxx_udc.c
-+++ b/drivers/staging/emxx_udc/emxx_udc.c
-@@ -2587,10 +2587,15 @@ static int nbu2ss_ep_queue(struct usb_ep *_ep,
- 		req->unaligned = false;
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index 3149114bf130e..36fb945fdad48 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -1224,14 +1224,16 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
+ {
+ 	struct tty_struct *tty;
  
- 	if (req->unaligned) {
--		if (!ep->virt_buf)
-+		if (!ep->virt_buf) {
- 			ep->virt_buf = dma_alloc_coherent(udc->dev, PAGE_SIZE,
- 							  &ep->phys_buf,
- 							  GFP_ATOMIC | GFP_DMA);
-+			if (!ep->virt_buf) {
-+				spin_unlock_irqrestore(&udc->lock, flags);
-+				return -ENOMEM;
-+			}
-+		}
- 		if (ep->epnum > 0)  {
- 			if (ep->direct == USB_DIR_IN)
- 				memcpy(ep->virt_buf, req->req.buf,
+-	if (driver->ops->lookup)
++	if (driver->ops->lookup) {
+ 		if (!file)
+ 			tty = ERR_PTR(-EIO);
+ 		else
+ 			tty = driver->ops->lookup(driver, file, idx);
+-	else
++	} else {
++		if (idx >= driver->num)
++			return ERR_PTR(-EINVAL);
+ 		tty = driver->ttys[idx];
+-
++	}
+ 	if (!IS_ERR(tty))
+ 		tty_kref_get(tty);
+ 	return tty;
 -- 
 2.39.2
 
