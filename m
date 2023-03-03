@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CD56AA1F7
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:45:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72D7F6AA4F1
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232193AbjCCVo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:44:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54826 "EHLO
+        id S231578AbjCCW7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232197AbjCCVoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:44:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A9462DA6;
-        Fri,  3 Mar 2023 13:43:14 -0800 (PST)
+        with ESMTP id S232170AbjCCW6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:58:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEA555F518;
+        Fri,  3 Mar 2023 14:58:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC0F061931;
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3F9FB81A10;
+        Fri,  3 Mar 2023 21:43:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1A73C433A7;
         Fri,  3 Mar 2023 21:43:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE00C4339B;
-        Fri,  3 Mar 2023 21:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879789;
-        bh=JuKjRaZVkoaiQEQB+xyXbpZsFWy1BStMRXTHDE0ZbCM=;
+        s=k20201202; t=1677879790;
+        bh=GdIekXKTgJ/2knGO1EfBSkJFGT7Ks5ynxAYuXSzW8As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qesu1KTdNqOPB2Qn5a5FUuvSeMCOHWmYLVoiGa8NXB1R2EipgDvs3ikSPPICzm0g6
-         UL6pw7vaI+X3kMa5BdRs3/rHPdXuMk9V9cQPsUU4kjV4ioopVLanC051zuXFSVi/nu
-         5pPfJ3Rjev594E35DMQB0CDzdiREEHn9tde5dSpHFmoTgv+TvAIaAR51DfCQEynAgM
-         6mZtQ+22c+lSf8/JhtNEIC/p4g830ID3Pu8JDsT6GOz+2NSD1/jXcwzjAM08NNzh1w
-         BYxL10LmWlmWm3gnuwI1uSYuxQUyM+MxeKigqBzEOsY3xwWTYjePWLHwXcldbLDysG
-         47nRs1SX621Zw==
+        b=rMZpws2Y6pofmW9n6yU1ZXPInBP+/FwoWKBRDcWhMyWK84saC30diIsOsbsWwi6GR
+         kWK7sbMgZfWCvZ5333ShCOxqjW9Vhf+IeBHC4eIaITY/zkyZ46Jmt6NCrTNuHmdacl
+         uNml7BzJM34dxCfxZokoQLuRtmE5sUm2Otu2oW5fPMdEC6l6pv6PUuRVUDZx1aCdOb
+         wwqKuC+UpOq/8synMLxj8Wglbn2leoK4HuR3dM6kk2hnaut9E2OWoYw5lSjC/oDyYf
+         F8H4NG9XR81Xl1jt028OmrF9Fef34VB6SJlyrBgaT4Dv4vun1+exiAP+Knu7scAgym
+         zcsO3TEbXECDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
+Cc:     Vasant Hegde <vasant.hegde@amd.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Matt Fagnani <matt.fagnani@bell.net>,
         Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, ndesaulniers@google.com,
-        markzhang@nvidia.com, phaddad@nvidia.com, Jason@zx2c4.com,
-        lengchao@huawei.com, michaelgur@nvidia.com,
-        linux-rdma@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.2 61/64] RDMA/cma: Distinguish between sockaddr_in and sockaddr_in6 by size
-Date:   Fri,  3 Mar 2023 16:41:03 -0500
-Message-Id: <20230303214106.1446460-61-sashal@kernel.org>
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
+        will@kernel.org, iommu@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.2 62/64] iommu: Attach device group to old domain in error path
+Date:   Fri,  3 Mar 2023 16:41:04 -0500
+Message-Id: <20230303214106.1446460-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214106.1446460-1-sashal@kernel.org>
 References: <20230303214106.1446460-1-sashal@kernel.org>
@@ -50,8 +50,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,73 +59,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Vasant Hegde <vasant.hegde@amd.com>
 
-[ Upstream commit 876e480da2f74715fc70e37723e77ca16a631e35 ]
+[ Upstream commit 2cc73c5712f97de98c38c2fafc1f288354a9f3c3 ]
 
-Clang can do some aggressive inlining, which provides it with greater
-visibility into the sizes of various objects that are passed into
-helpers. Specifically, compare_netdev_and_ip() can see through the type
-given to the "sa" argument, which means it can generate code for "struct
-sockaddr_in" that would have been passed to ipv6_addr_cmp() (that expects
-to operate on the larger "struct sockaddr_in6"), which would result in a
-compile-time buffer overflow condition detected by memcmp(). Logically,
-this state isn't reachable due to the sa_family assignment two callers
-above and the check in compare_netdev_and_ip(). Instead, provide a
-compile-time check on sizes so the size-mismatched code will be elided
-when inlining. Avoids the following warning from Clang:
+iommu_attach_group() attaches all devices in a group to domain and then
+sets group domain (group->domain). Current code (__iommu_attach_group())
+does not handle error path. This creates problem as devices to domain
+attachment is in inconsistent state.
 
-../include/linux/fortify-string.h:652:4: error: call to '__read_overflow' declared with 'error' attribute: detected read beyond size of object (1st parameter)
-                        __read_overflow();
-                        ^
-note: In function 'cma_netevent_callback'
-note:   which inlined function 'node_from_ndev_ip'
-1 error generated.
+Flow:
+  - During boot iommu attach devices to default domain
+  - Later some device driver (like amd/iommu_v2 or vfio) tries to attach
+    device to new domain.
+  - In iommu_attach_group() path we detach device from current domain.
+    Then it tries to attach devices to new domain.
+  - If it fails to attach device to new domain then device to domain link
+    is broken.
+  - iommu_attach_group() returns error.
+  - At this stage iommu_attach_group() caller thinks, attaching device to
+    new domain failed and devices are still attached to old domain.
+  - But in reality device to old domain link is broken. It will result
+    in all sort of failures (like IO page fault) later.
 
-When the underlying object size is not known (e.g. with GCC and older
-Clang), the result of __builtin_object_size() is SIZE_MAX, which will also
-compile away, leaving the code as it was originally.
+To recover from this situation, we need to attach all devices back to the
+old domain. Also log warning if it fails attach device back to old domain.
 
-Link: https://lore.kernel.org/r/20230208232549.never.139-kees@kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1687
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reported-by: Matt Fagnani <matt.fagnani@bell.net>
+Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Tested-by: Matt Fagnani <matt.fagnani@bell.net>
+Link: https://lore.kernel.org/r/20230215052642.6016-1-vasant.hegde@amd.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216865
+Link: https://lore.kernel.org/lkml/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/iommu/iommu.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 68721ff10255e..7e508b15e7761 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -479,13 +479,20 @@ static int compare_netdev_and_ip(int ifindex_a, struct sockaddr *sa,
- 	if (sa->sa_family != sb->sa_family)
- 		return sa->sa_family - sb->sa_family;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 54e1306a99a47..f91b5b1a39e3b 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2126,8 +2126,22 @@ static int __iommu_attach_group(struct iommu_domain *domain,
  
--	if (sa->sa_family == AF_INET)
--		return memcmp((char *)&((struct sockaddr_in *)sa)->sin_addr,
--			      (char *)&((struct sockaddr_in *)sb)->sin_addr,
-+	if (sa->sa_family == AF_INET &&
-+	    __builtin_object_size(sa, 0) >= sizeof(struct sockaddr_in)) {
-+		return memcmp(&((struct sockaddr_in *)sa)->sin_addr,
-+			      &((struct sockaddr_in *)sb)->sin_addr,
- 			      sizeof(((struct sockaddr_in *)sa)->sin_addr));
-+	}
+ 	ret = __iommu_group_for_each_dev(group, domain,
+ 					 iommu_group_do_attach_device);
+-	if (ret == 0)
++	if (ret == 0) {
+ 		group->domain = domain;
++	} else {
++		/*
++		 * To recover from the case when certain device within the
++		 * group fails to attach to the new domain, we need force
++		 * attaching all devices back to the old domain. The old
++		 * domain is compatible for all devices in the group,
++		 * hence the iommu driver should always return success.
++		 */
++		struct iommu_domain *old_domain = group->domain;
 +
-+	if (sa->sa_family == AF_INET6 &&
-+	    __builtin_object_size(sa, 0) >= sizeof(struct sockaddr_in6)) {
-+		return ipv6_addr_cmp(&((struct sockaddr_in6 *)sa)->sin6_addr,
-+				     &((struct sockaddr_in6 *)sb)->sin6_addr);
++		group->domain = NULL;
++		WARN(__iommu_group_set_domain(group, old_domain),
++		     "iommu driver failed to attach a compatible domain");
 +	}
  
--	return ipv6_addr_cmp(&((struct sockaddr_in6 *)sa)->sin6_addr,
--			     &((struct sockaddr_in6 *)sb)->sin6_addr);
-+	return -1;
+ 	return ret;
  }
- 
- static int cma_add_id_to_tree(struct rdma_id_private *node_id_priv)
 -- 
 2.39.2
 
