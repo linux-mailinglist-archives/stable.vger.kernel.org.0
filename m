@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 240686AA3A1
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C256F6AA4D5
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:54:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233180AbjCCWCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:02:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58726 "EHLO
+        id S231838AbjCCWyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:54:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233126AbjCCWBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:01:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F2665129;
-        Fri,  3 Mar 2023 13:52:32 -0800 (PST)
+        with ESMTP id S232572AbjCCWya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:54:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9F5326598;
+        Fri,  3 Mar 2023 14:53:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8708DB81A06;
-        Fri,  3 Mar 2023 21:49:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 916A0C4339C;
-        Fri,  3 Mar 2023 21:49:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C142B81A2C;
+        Fri,  3 Mar 2023 21:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 097F1C433D2;
+        Fri,  3 Mar 2023 21:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880166;
-        bh=RAr5wrUnf+ccVAU8sqdv6s47MHooyUP7CYuTCGSNmng=;
+        s=k20201202; t=1677880168;
+        bh=DOJb9D9BCzW3Ov2ZRHdmfpQJEmbgq9MfKARRJQ76lqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzidnDMIjopJwNOUAFhroqSkpQF87jOc4Nztko8v6QxYvvmibGZLPMaV1mKUMeWXQ
-         0azxoFo9+4ByOov0edcWQzgcVC2Icy5wsEDD0QBTQcrCqXdHIsDy7r7yFn8xh+faOU
-         xYmJcODREyHoHXpdbuqnBn6hn97GepBd3ZHnZWE2Y+RLctEzworiUo5xG35NKcR6OZ
-         qL82JNhVQaEnJ940ztuFIGBk+Px03/Qx0PyMgVAZjh9R3QVYpETeDh2Oqr9jNQ4dem
-         eS/0yjOSV/0R8N6mIqAcOxZ8h7R87orrrlquZa8jjQnh0TaD9QCGvM/tOgRyaCUpCl
-         3j61BED18rmTw==
+        b=Y/krJJFyHGc4/hyJpXAc1MjRnYg8rKLYGdBDiBGuH+x5HDgeWOrJmo4kwi+kPxEN9
+         R2GXihCz6HV9AEz5gwjaznLfDIuKmuEmQqLi/PWCaHBA9Ssqz6Ck7jgy7w5KKguuvT
+         ReNUEs86lj4If88AXM8/C4EKuP14FUZb32rKWJAnWbsXG3jTYw4udAexcotSPsVJKm
+         orl7GfmuOk4cMtXq92dqZt/RQEt3858mLaNNAo1VvH3Xo7CjH6+Ex9OIYT13SRUJ7r
+         1V3oBYp4FvNIgKUI6n8OCOQjbeBWv/EyVPFeqmDkCmd8y1bkjSbAJLpDuOacTvHA0U
+         /D7hvOJy9+WHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alper Nebi Yasak <alpernebiyasak@gmail.com>,
+Cc:     Kees Cook <keescook@chromium.org>,
+        Mathias Nyman <mathias.nyman@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 12/16] firmware: coreboot: framebuffer: Ignore reserved pixel color bits
-Date:   Fri,  3 Mar 2023 16:48:45 -0500
-Message-Id: <20230303214849.1454002-12-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/16] usb: host: xhci: mvebu: Iterate over array indexes instead of using pointer math
+Date:   Fri,  3 Mar 2023 16:48:46 -0500
+Message-Id: <20230303214849.1454002-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214849.1454002-1-sashal@kernel.org>
 References: <20230303214849.1454002-1-sashal@kernel.org>
@@ -46,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,55 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alper Nebi Yasak <alpernebiyasak@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit e6acaf25cba14661211bb72181c35dd13b24f5b3 ]
+[ Upstream commit 0fbd2cda92cdb00f72080665554a586f88bca821 ]
 
-The coreboot framebuffer doesn't support transparency, its 'reserved'
-bit field is merely padding for byte/word alignment of pixel colors [1].
-When trying to match the framebuffer to a simplefb format, the kernel
-driver unnecessarily requires the format's transparency bit field to
-exactly match this padding, even if the former is zero-width.
+Walking the dram->cs array was seen as accesses beyond the first array
+item by the compiler. Instead, use the array index directly. This allows
+for run-time bounds checking under CONFIG_UBSAN_BOUNDS as well. Seen
+with GCC 13 with -fstrict-flex-arrays:
 
-Due to a coreboot bug [2] (fixed upstream), some boards misreport the
-reserved field's size as equal to its position (0x18 for both on a
-'Lick' Chromebook), and the driver fails to probe where it would have
-otherwise worked fine with e.g. the a8r8g8b8 or x8r8g8b8 formats.
+In function 'xhci_mvebu_mbus_config',
+    inlined from 'xhci_mvebu_mbus_init_quirk' at ../drivers/usb/host/xhci-mvebu.c:66:2:
+../drivers/usb/host/xhci-mvebu.c:37:28: warning: array subscript 0 is outside array bounds of 'const struct mbus_dram_window[0]' [-Warray-bounds=]
+   37 |                 writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
+      |                          ~~^~~~~~
 
-Remove the transparency comparison with reserved bits. When the
-bits-per-pixel and other color components match, transparency will
-already be in a subset of the reserved field. Not forcing it to match
-reserved bits allows the driver to work on the boards which misreport
-the reserved field. It also enables using simplefb formats that don't
-have transparency bits, although this doesn't currently happen due to
-format support and ordering in linux/platform_data/simplefb.h.
-
-[1] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.19/src/commonlib/include/commonlib/coreboot_tables.h#255
-[2] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.13/src/drivers/intel/fsp2_0/graphics.c#82
-
-Signed-off-by: Alper Nebi Yasak <alpernebiyasak@gmail.com>
-Link: https://lore.kernel.org/r/20230122190433.195941-1-alpernebiyasak@gmail.com
+Cc: Mathias Nyman <mathias.nyman@intel.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20230204183651.never.663-kees@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/framebuffer-coreboot.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/host/xhci-mvebu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/google/framebuffer-coreboot.c b/drivers/firmware/google/framebuffer-coreboot.c
-index b8b49c0671574..58b1dae60c193 100644
---- a/drivers/firmware/google/framebuffer-coreboot.c
-+++ b/drivers/firmware/google/framebuffer-coreboot.c
-@@ -51,9 +51,7 @@ static int framebuffer_probe(struct coreboot_device *dev)
- 		    fb->green_mask_pos     == formats[i].green.offset &&
- 		    fb->green_mask_size    == formats[i].green.length &&
- 		    fb->blue_mask_pos      == formats[i].blue.offset &&
--		    fb->blue_mask_size     == formats[i].blue.length &&
--		    fb->reserved_mask_pos  == formats[i].transp.offset &&
--		    fb->reserved_mask_size == formats[i].transp.length)
-+		    fb->blue_mask_size     == formats[i].blue.length)
- 			pdata.format = formats[i].name;
- 	}
- 	if (!pdata.format)
+diff --git a/drivers/usb/host/xhci-mvebu.c b/drivers/usb/host/xhci-mvebu.c
+index 32e1585687885..fc9d6189c310f 100644
+--- a/drivers/usb/host/xhci-mvebu.c
++++ b/drivers/usb/host/xhci-mvebu.c
+@@ -31,7 +31,7 @@ static void xhci_mvebu_mbus_config(void __iomem *base,
+ 
+ 	/* Program each DRAM CS in a seperate window */
+ 	for (win = 0; win < dram->num_cs; win++) {
+-		const struct mbus_dram_window *cs = dram->cs + win;
++		const struct mbus_dram_window *cs = &dram->cs[win];
+ 
+ 		writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
+ 		       (dram->mbus_dram_target_id << 4) | 1,
 -- 
 2.39.2
 
