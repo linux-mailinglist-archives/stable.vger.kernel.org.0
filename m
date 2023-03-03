@@ -2,101 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 656226A9054
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 05:56:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 699A56A909F
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 06:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbjCCE4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 23:56:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36550 "EHLO
+        id S229754AbjCCFzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 00:55:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbjCCE4R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 23:56:17 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 932C815547;
-        Thu,  2 Mar 2023 20:56:14 -0800 (PST)
-Received: from kwepemi500024.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4PSbJM4v6szrSN7;
-        Fri,  3 Mar 2023 12:55:31 +0800 (CST)
-Received: from ci.huawei.com (10.67.175.89) by kwepemi500024.china.huawei.com
- (7.221.188.100) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Fri, 3 Mar
- 2023 12:56:12 +0800
-From:   Cai Xinchen <caixinchen1@huawei.com>
-To:     <longman@redhat.com>, <lizefan.x@bytedance.com>, <tj@kernel.org>,
-        <hannes@cmpxchg.org>, <gregkh@linuxfoundation.org>,
-        <sashal@kernel.org>
-CC:     <mkoutny@suse.com>, <zhangqiao22@huawei.com>,
-        <juri.lelli@redhat.com>, <penguin-kernel@I-love.SAKURA.ne.jp>,
-        <stable@vger.kernel.org>, <cgroups@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH 4.19 3/3] cgroup: Add missing cpus_read_lock() to cgroup_attach_task_all()
-Date:   Fri, 3 Mar 2023 04:50:50 +0000
-Message-ID: <20230303045050.139985-4-caixinchen1@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230303045050.139985-1-caixinchen1@huawei.com>
-References: <20230303045050.139985-1-caixinchen1@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.175.89]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- kwepemi500024.china.huawei.com (7.221.188.100)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229633AbjCCFzm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 00:55:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABEA639BBD;
+        Thu,  2 Mar 2023 21:55:04 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45113B81606;
+        Fri,  3 Mar 2023 05:55:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F04C433EF;
+        Fri,  3 Mar 2023 05:55:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1677822902;
+        bh=iHfZBwFCse5ztMSVUxmZpYUodSn6St6D/K4W7Hg8NWE=;
+        h=Date:To:From:Subject:From;
+        b=YWsnZ/jO5Fo63mUilxOzu9apCKKKlpX1lOnwY9+dPlQ6gXzU7HEzFfgoxUevwwnx/
+         Ex2CGX9fhr99DBpDimQqM6FiYbT3VKSZI3E2W7gU77bylGNbvPnacU+qF+gLurxiA8
+         sZrQQygQ5G06LfoW7OVmF8QYpOnv54CrXPps2Xck=
+Date:   Thu, 02 Mar 2023 21:55:01 -0800
+To:     mm-commits@vger.kernel.org, vgoyal@redhat.com,
+        stable@vger.kernel.org, pmladek@suse.com, mikelley@microsoft.com,
+        keescook@chromium.org, hidehiro.kawai.ez@hitachi.com,
+        feng.tang@intel.com, dyoung@redhat.com, d.hatayama@jp.fujitsu.com,
+        bhe@redhat.com, gpiccoli@igalia.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] panic-fixes-the-panic_print-nmi-backtrace-setting.patch removed from -mm tree
+Message-Id: <20230303055501.E1F04C433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 43626dade36fa74d3329046f4ae2d7fdefe401c6 upstream.
+The quilt patch titled
+     Subject: panic: fix the panic_print NMI backtrace setting
+has been removed from the -mm tree.  Its filename was
+     panic-fixes-the-panic_print-nmi-backtrace-setting.patch
 
-syzbot is hitting percpu_rwsem_assert_held(&cpu_hotplug_lock) warning at
-cpuset_attach() [1], for commit 4f7e7236435ca0ab ("cgroup: Fix
-threadgroup_rwsem <-> cpus_read_lock() deadlock") missed that
-cpuset_attach() is also called from cgroup_attach_task_all().
-Add cpus_read_lock() like what cgroup_procs_write_start() does.
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-Link: https://syzkaller.appspot.com/bug?extid=29d3a3b4d86c8136ad9e [1]
-Reported-by: syzbot <syzbot+29d3a3b4d86c8136ad9e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 4f7e7236435ca0ab ("cgroup: Fix threadgroup_rwsem <-> cpus_read_lock() deadlock")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
+------------------------------------------------------
+From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Subject: panic: fix the panic_print NMI backtrace setting
+Date: Sun, 26 Feb 2023 13:08:38 -0300
+
+Commit 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in
+panic_print") introduced a setting for the "panic_print" kernel parameter
+to allow users to request a NMI backtrace on panic.  Problem is that the
+panic_print handling happens after the secondary CPUs are already
+disabled, hence this option ended-up being kind of a no-op - kernel skips
+the NMI trace in idling CPUs, which is the case of offline CPUs.
+
+Fix it by checking the NMI backtrace bit in the panic_print prior to the
+CPU disabling function.
+
+Link: https://lkml.kernel.org/r/20230226160838.414257-1-gpiccoli@igalia.com
+Fixes: 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in panic_print")
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Cc: <stable@vger.kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+Cc: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- kernel/cgroup/cgroup-v1.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 61644976225a..c0ebb70808b6 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -13,6 +13,7 @@
- #include <linux/delayacct.h>
- #include <linux/pid_namespace.h>
- #include <linux/cgroupstats.h>
-+#include <linux/cpu.h>
- 
- #include <trace/events/cgroup.h>
- 
-@@ -55,6 +56,7 @@ int cgroup_attach_task_all(struct task_struct *from, struct task_struct *tsk)
- 	int retval = 0;
- 
- 	mutex_lock(&cgroup_mutex);
-+	get_online_cpus();
- 	percpu_down_write(&cgroup_threadgroup_rwsem);
- 	for_each_root(root) {
- 		struct cgroup *from_cgrp;
-@@ -71,6 +73,7 @@ int cgroup_attach_task_all(struct task_struct *from, struct task_struct *tsk)
- 			break;
+
+--- a/kernel/panic.c~panic-fixes-the-panic_print-nmi-backtrace-setting
++++ a/kernel/panic.c
+@@ -212,9 +212,6 @@ static void panic_print_sys_info(bool co
+ 		return;
  	}
- 	percpu_up_write(&cgroup_threadgroup_rwsem);
-+	put_online_cpus();
- 	mutex_unlock(&cgroup_mutex);
  
- 	return retval;
--- 
-2.17.1
+-	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
+-		trigger_all_cpu_backtrace();
+-
+ 	if (panic_print & PANIC_PRINT_TASK_INFO)
+ 		show_state();
+ 
+@@ -244,6 +241,30 @@ void check_panic_on_warn(const char *ori
+ 		      origin, limit);
+ }
+ 
++/*
++ * Helper that triggers the NMI backtrace (if set in panic_print)
++ * and then performs the secondary CPUs shutdown - we cannot have
++ * the NMI backtrace after the CPUs are off!
++ */
++static void panic_other_cpus_shutdown(bool crash_kexec)
++{
++	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
++		trigger_all_cpu_backtrace();
++
++	/*
++	 * Note that smp_send_stop() is the usual SMP shutdown function,
++	 * which unfortunately may not be hardened to work in a panic
++	 * situation. If we want to do crash dump after notifier calls
++	 * and kmsg_dump, we will need architecture dependent extra
++	 * bits in addition to stopping other CPUs, hence we rely on
++	 * crash_smp_send_stop() for that.
++	 */
++	if (!crash_kexec)
++		smp_send_stop();
++	else
++		crash_smp_send_stop();
++}
++
+ /**
+  *	panic - halt the system
+  *	@fmt: The text string to print
+@@ -334,23 +355,10 @@ void panic(const char *fmt, ...)
+ 	 *
+ 	 * Bypass the panic_cpu check and call __crash_kexec directly.
+ 	 */
+-	if (!_crash_kexec_post_notifiers) {
++	if (!_crash_kexec_post_notifiers)
+ 		__crash_kexec(NULL);
+ 
+-		/*
+-		 * Note smp_send_stop is the usual smp shutdown function, which
+-		 * unfortunately means it may not be hardened to work in a
+-		 * panic situation.
+-		 */
+-		smp_send_stop();
+-	} else {
+-		/*
+-		 * If we want to do crash dump after notifier calls and
+-		 * kmsg_dump, we will need architecture dependent extra
+-		 * works in addition to stopping other CPUs.
+-		 */
+-		crash_smp_send_stop();
+-	}
++	panic_other_cpus_shutdown(_crash_kexec_post_notifiers);
+ 
+ 	/*
+ 	 * Run any panic handlers, including those that might need to
+_
+
+Patches currently in -mm which might be from gpiccoli@igalia.com are
+
 
