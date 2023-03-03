@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBAFC6AA53F
-	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:02:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74D816AA304
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232280AbjCCXCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 18:02:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60372 "EHLO
+        id S232996AbjCCVxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:53:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232446AbjCCXCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:02:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1BE14B804;
-        Fri,  3 Mar 2023 15:02:17 -0800 (PST)
+        with ESMTP id S232989AbjCCVwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:52:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642EF6F492;
+        Fri,  3 Mar 2023 13:47:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 757AE61943;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F57E6195E;
+        Fri,  3 Mar 2023 21:47:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE96CC4339C;
         Fri,  3 Mar 2023 21:47:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88C03C4339C;
-        Fri,  3 Mar 2023 21:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880029;
-        bh=eaqxMiW+hFInlOzEsD+yg/ipaGPuNxTLH2jXqymyuGk=;
+        s=k20201202; t=1677880030;
+        bh=UPgSQDiz37wmpeF/caGGh5H14TBtwqAIZKd89eNeUO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f7tSG6ZXKt1jeF2/uZZf7hxsaZCo7NhihKigsPnmY2xPvjIjOSVNLLjhx+0fAPddp
-         /8rmbQWESreUwqTEfXxWjpdh5WsRcEfBIoYVvsk7w5qZbP5bvK30qNxImE0xFmDG1S
-         o+7/uOG4oaQtSMzbRTyvpDZwRqBMMGAd63av+d4Qog3tP9kOUVUM84Lfs6cR2+HILj
-         f3g6qaqw64KwBrM4T1EVmat1hFesI/uuFSqm5ufywk5jfue95GaWiq0acVazpXNbyN
-         ZgQR8tPGKQnqBwwJ02FwO0qlXA4w7imfRqIRXdxAQIpZg7trE0MDsRXFBglFKTd6kR
-         n18st8x5cqy1w==
+        b=oCaCvouk+0HXpCSTg1jRavtUAjdp5uh1w3Mlv5lG78fpjJWkN8yWWbu1qXVa2tvX6
+         HxujwnR8V1SXbvXqoDaaciZaumElc0nOgBDYng8djv0c5jDkWopPFJFzps1VZL2L2b
+         6CtzKF47MBzEUY9NJeQyFgWD6MCwY87TMcD5Wn8gAc+TqPfnQl+9OpCczEMogBKoYj
+         VnzkAFn1wE2rcDHtG7zSjVTk9BRlq9pJDL1bJMoV0+jUDmaYMD1oto7KX5oR2QItfi
+         xfzY3jy6HJMXdT7oDt6ErFFv+eF4O0i8v2l1QIHXTo7qmP+hwNfB9hSPjICCAmWAHz
+         VrTg+z8qspNXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huacai Chen <chenhuacai@loongson.cn>,
+Cc:     Mengyuan Lou <mengyuanlou@net-swift.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, lpieralisi@kernel.org,
-        kw@linux.com, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 46/50] PCI: loongson: Add more devices that need MRRS quirk
-Date:   Fri,  3 Mar 2023 16:45:27 -0500
-Message-Id: <20230303214531.1450154-46-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 47/50] PCI: Add ACS quirk for Wangxun NICs
+Date:   Fri,  3 Mar 2023 16:45:28 -0500
+Message-Id: <20230303214531.1450154-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214531.1450154-1-sashal@kernel.org>
 References: <20230303214531.1450154-1-sashal@kernel.org>
@@ -47,8 +46,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,83 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Mengyuan Lou <mengyuanlou@net-swift.com>
 
-[ Upstream commit c768f8c5f40fcdc6f058cc2f02592163d6c6716c ]
+[ Upstream commit a2b9b123ccac913e9f9b80337d687a2fe786a634 ]
 
-Loongson-2K SOC and LS7A2000 chipset add new PCI IDs that need MRRS
-quirk.  Add them.
+Wangxun has verified there is no peer-to-peer between functions for the
+below selection of SFxxx, RP1000 and RP2000 NICS.  They may be
+multi-function devices, but the hardware does not advertise ACS capability.
 
-Link: https://lore.kernel.org/r/20230211023321.3530080-1-chenhuacai@loongson.cn
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Add an ACS quirk for these devices so the functions can be in independent
+IOMMU groups.
+
+Link: https://lore.kernel.org/r/20230207102419.44326-1-mengyuanlou@net-swift.com
+Signed-off-by: Mengyuan Lou <mengyuanlou@net-swift.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-loongson.c | 33 +++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/pci/quirks.c    | 22 ++++++++++++++++++++++
+ include/linux/pci_ids.h |  2 ++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
-index dc7b4e4293ced..e73e18a73833b 100644
---- a/drivers/pci/controller/pci-loongson.c
-+++ b/drivers/pci/controller/pci-loongson.c
-@@ -13,9 +13,14 @@
- #include "../pci.h"
- 
- /* Device IDs */
--#define DEV_PCIE_PORT_0	0x7a09
--#define DEV_PCIE_PORT_1	0x7a19
--#define DEV_PCIE_PORT_2	0x7a29
-+#define DEV_LS2K_PCIE_PORT0	0x1a05
-+#define DEV_LS7A_PCIE_PORT0	0x7a09
-+#define DEV_LS7A_PCIE_PORT1	0x7a19
-+#define DEV_LS7A_PCIE_PORT2	0x7a29
-+#define DEV_LS7A_PCIE_PORT3	0x7a39
-+#define DEV_LS7A_PCIE_PORT4	0x7a49
-+#define DEV_LS7A_PCIE_PORT5	0x7a59
-+#define DEV_LS7A_PCIE_PORT6	0x7a69
- 
- #define DEV_LS2K_APB	0x7a02
- #define DEV_LS7A_CONF	0x7a10
-@@ -38,11 +43,11 @@ static void bridge_class_quirk(struct pci_dev *dev)
- 	dev->class = PCI_CLASS_BRIDGE_PCI << 8;
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index a531064233f98..00d7d1738992c 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4823,6 +4823,26 @@ static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
+ 		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
  }
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
--			DEV_PCIE_PORT_0, bridge_class_quirk);
-+			DEV_LS7A_PCIE_PORT0, bridge_class_quirk);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
--			DEV_PCIE_PORT_1, bridge_class_quirk);
-+			DEV_LS7A_PCIE_PORT1, bridge_class_quirk);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
--			DEV_PCIE_PORT_2, bridge_class_quirk);
-+			DEV_LS7A_PCIE_PORT2, bridge_class_quirk);
  
- static void system_bus_quirk(struct pci_dev *pdev)
- {
-@@ -72,11 +77,21 @@ static void loongson_mrrs_quirk(struct pci_dev *pdev)
- 	bridge->no_inc_mrrs = 1;
- }
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
--			DEV_PCIE_PORT_0, loongson_mrrs_quirk);
-+			DEV_LS2K_PCIE_PORT0, loongson_mrrs_quirk);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
--			DEV_PCIE_PORT_1, loongson_mrrs_quirk);
-+			DEV_LS7A_PCIE_PORT0, loongson_mrrs_quirk);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
--			DEV_PCIE_PORT_2, loongson_mrrs_quirk);
-+			DEV_LS7A_PCIE_PORT1, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_LS7A_PCIE_PORT2, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_LS7A_PCIE_PORT3, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_LS7A_PCIE_PORT4, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_LS7A_PCIE_PORT5, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_LS7A_PCIE_PORT6, loongson_mrrs_quirk);
++/*
++ * Wangxun 10G/1G NICs have no ACS capability, and on multi-function
++ * devices, peer-to-peer transactions are not be used between the functions.
++ * So add an ACS quirk for below devices to isolate functions.
++ * SFxxx 1G NICs(em).
++ * RP1000/RP2000 10G NICs(sp).
++ */
++static int  pci_quirk_wangxun_nic_acs(struct pci_dev *dev, u16 acs_flags)
++{
++	switch (dev->device) {
++	case 0x0100 ... 0x010F:
++	case 0x1001:
++	case 0x2001:
++		return pci_acs_ctrl_enabled(acs_flags,
++			PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
++	}
++
++	return false;
++}
++
+ static const struct pci_dev_acs_enabled {
+ 	u16 vendor;
+ 	u16 device;
+@@ -4968,6 +4988,8 @@ static const struct pci_dev_acs_enabled {
+ 	{ PCI_VENDOR_ID_NXP, 0x8d9b, pci_quirk_nxp_rp_acs },
+ 	/* Zhaoxin Root/Downstream Ports */
+ 	{ PCI_VENDOR_ID_ZHAOXIN, PCI_ANY_ID, pci_quirk_zhaoxin_pcie_ports_acs },
++	/* Wangxun nics */
++	{ PCI_VENDOR_ID_WANGXUN, PCI_ANY_ID, pci_quirk_wangxun_nic_acs },
+ 	{ 0 }
+ };
  
- static void __iomem *cfg1_map(struct loongson_pci *priv, int bus,
- 				unsigned int devfn, int where)
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 04f44a4694a2e..4853538bf1561 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -3012,6 +3012,8 @@
+ #define PCI_DEVICE_ID_INTEL_VMD_9A0B	0x9a0b
+ #define PCI_DEVICE_ID_INTEL_S21152BB	0xb152
+ 
++#define PCI_VENDOR_ID_WANGXUN		0x8088
++
+ #define PCI_VENDOR_ID_SCALEMP		0x8686
+ #define PCI_DEVICE_ID_SCALEMP_VSMP_CTL	0x1010
+ 
 -- 
 2.39.2
 
