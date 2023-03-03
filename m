@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D894A6A8F3E
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 03:32:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 061F46A8F43
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 03:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229779AbjCCCcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 21:32:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59146 "EHLO
+        id S229794AbjCCCcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 21:32:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229586AbjCCCc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 21:32:29 -0500
+        with ESMTP id S229808AbjCCCck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 21:32:40 -0500
 Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AC53E0AE;
-        Thu,  2 Mar 2023 18:32:26 -0800 (PST)
-Received: from dggpeml100012.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4PSX470hywznWkl;
-        Fri,  3 Mar 2023 10:29:43 +0800 (CST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AB33B21C;
+        Thu,  2 Mar 2023 18:32:38 -0800 (PST)
+Received: from dggpeml100012.china.huawei.com (unknown [172.30.72.57])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4PSX6h2jlKzrS8F;
+        Fri,  3 Mar 2023 10:31:56 +0800 (CST)
 Received: from localhost.localdomain (10.67.175.61) by
  dggpeml100012.china.huawei.com (7.185.36.121) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Fri, 3 Mar 2023 10:32:24 +0800
+ 15.1.2507.21; Fri, 3 Mar 2023 10:32:37 +0800
 From:   Zheng Yejian <zhengyejian1@huawei.com>
 To:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>
 CC:     <agross@kernel.org>, <bjorn.andersson@linaro.org>,
         <balbi@kernel.org>, <lee.jones@linaro.org>,
         <linux-arm-msm@vger.kernel.org>, <linux-usb@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <zhengyejian1@huawei.com>
-Subject: [PATCH 5.10] usb: dwc3: dwc3-qcom: Add missing platform_device_put() in dwc3_qcom_acpi_register_core
-Date:   Fri, 3 Mar 2023 10:34:59 +0800
-Message-ID: <20230303023459.774689-1-zhengyejian1@huawei.com>
+Subject: [PATCH 5.4] usb: dwc3: dwc3-qcom: Add missing platform_device_put() in dwc3_qcom_acpi_register_core
+Date:   Fri, 3 Mar 2023 10:35:12 +0800
+Message-ID: <20230303023512.774777-1-zhengyejian1@huawei.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
@@ -65,10 +65,10 @@ Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
  1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index dac13fe97811..416c94c612f5 100644
+index 2dcdeb52fc29..35f94fd69bba 100644
 --- a/drivers/usb/dwc3/dwc3-qcom.c
 +++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -613,8 +613,10 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+@@ -486,8 +486,10 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
  	qcom->dwc3->dev.coherent_dma_mask = dev->coherent_dma_mask;
  
  	child_res = kcalloc(2, sizeof(*child_res), GFP_KERNEL);
@@ -80,7 +80,7 @@ index dac13fe97811..416c94c612f5 100644
  
  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  	if (!res) {
-@@ -650,10 +652,15 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+@@ -519,10 +521,15 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
  	}
  
  	ret = platform_device_add(qcom->dwc3);
