@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D15156AA267
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:47:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7496AA2B4
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:51:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbjCCVrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:47:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37138 "EHLO
+        id S232603AbjCCVvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:51:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232589AbjCCVrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:47:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF9BC65478;
-        Fri,  3 Mar 2023 13:44:46 -0800 (PST)
+        with ESMTP id S232874AbjCCVtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:49:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EDC26C193;
+        Fri,  3 Mar 2023 13:46:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B070D61917;
-        Fri,  3 Mar 2023 21:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF58C4339C;
-        Fri,  3 Mar 2023 21:44:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 926FA618EF;
+        Fri,  3 Mar 2023 21:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A04C4339C;
+        Fri,  3 Mar 2023 21:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879886;
-        bh=7DncJ7Sp55/QaL5AZ2gDo9EjANT0in8LnumekkBM47o=;
+        s=k20201202; t=1677879890;
+        bh=A/crVSRZXWfcucn7uPO0pYPF+/PRImbksZJ+WhCUuNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YVtha6TX61dNA9//HwgMd4QEtygLNT4t+642Dvcr+n6jm8tVNGet/7+MBwcqUjA9M
-         WoOw5iiv8fqaWs5flGIb4B/eEl5L/EVFXwtxtdDhU1auprLA+Jl7NTc/uBTDd67//u
-         MBWYXsa7m2fXe1BF+fEezviZq5quiv3B0x14tOkOhEwQaiK82dUrTQZiZFoSgDo0yK
-         i2Lpg0E30ECHCuVKM8G9Jz56x+xC63FjnQEanJBTOQ5rE7siiHyXCPnoDmba5g16G6
-         hMOsCrPMY01Q2HXtBEgICAW0xj/MIvlysIu5mEv/UBfB0NtCWxoXj1H0hxVWXyB56I
-         ao6mUluiYpN8Q==
+        b=ej7TDMqSl/zD/0WBIKVImQIuoywWynPNzpN9ZRcyYe2yiZZ0/bZpS32+PKRbDw5kA
+         dVz6aioCBamZpDon4g/Qg90QiTxF6PX6fwaGz14zeLBxnQ6eD/GF57j4ixnfRfNUGw
+         UA+qX+pUscyIgO8Y82EDts9cODFw4ke0xLmpp6Uq3YhyCohLsNP9RiAbi4rbPHdVlI
+         ms5kr32HsGwaxe/+PxAhc4TIAFIQHp/AoWYiPhmKk4o0FkCAZSnKcA/nGHfgiimujl
+         z0PLMmSr1FD5ACHeAcBwEl4RqYfsBOcRkgAOG3ME7hS/3z2Iy1G6M7FBWgNWKd9VUV
+         ipxGguqyjV6EA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Daniel Scally <dan.scally@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        kieran.bingham@ideasonboard.com
-Subject: [PATCH AUTOSEL 6.1 41/60] usb: uvc: Enumerate valid values for color matching
-Date:   Fri,  3 Mar 2023 16:42:55 -0500
-Message-Id: <20230303214315.1447666-41-sashal@kernel.org>
+        laurent.pinchart@ideasonboard.com, kieran.bingham@ideasonboard.com,
+        w36195@motorola.com, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 42/60] usb: gadget: uvc: Make bSourceID read/write
+Date:   Fri,  3 Mar 2023 16:42:56 -0500
+Message-Id: <20230303214315.1447666-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -48,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,63 +59,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Scally <dan.scally@ideasonboard.com>
 
-[ Upstream commit e16cab9c1596e251761d2bfb5e1467950d616963 ]
+[ Upstream commit b3c839bd8a07d303bc59a900d55dd35c7826562c ]
 
-The color matching descriptors defined in the UVC Specification
-contain 3 fields with discrete numeric values representing particular
-settings. Enumerate those values so that later code setting them can
-be more readable.
+At the moment, the UVC function graph is hardcoded IT -> PU -> OT.
+To add XU support we need the ability to insert the XU descriptors
+into the chain. To facilitate that, make the output terminal's
+bSourceID attribute writeable so that we can configure its source.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Link: https://lore.kernel.org/r/20230202114142.300858-2-dan.scally@ideasonboard.com
+Link: https://lore.kernel.org/r/20230206161802.892954-2-dan.scally@ideasonboard.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/usb/video.h | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ .../ABI/testing/configfs-usb-gadget-uvc       |  2 +-
+ drivers/usb/gadget/function/uvc_configfs.c    | 59 ++++++++++++++++++-
+ 2 files changed, 59 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/usb/video.h b/include/uapi/linux/usb/video.h
-index bfdae12cdacf8..c58854fb7d94a 100644
---- a/include/uapi/linux/usb/video.h
-+++ b/include/uapi/linux/usb/video.h
-@@ -179,6 +179,36 @@
- #define UVC_CONTROL_CAP_AUTOUPDATE			(1 << 3)
- #define UVC_CONTROL_CAP_ASYNCHRONOUS			(1 << 4)
+diff --git a/Documentation/ABI/testing/configfs-usb-gadget-uvc b/Documentation/ABI/testing/configfs-usb-gadget-uvc
+index 611b23e6488d9..feb3f2cc0c167 100644
+--- a/Documentation/ABI/testing/configfs-usb-gadget-uvc
++++ b/Documentation/ABI/testing/configfs-usb-gadget-uvc
+@@ -52,7 +52,7 @@ Date:		Dec 2014
+ KernelVersion:	4.0
+ Description:	Default output terminal descriptors
  
-+/* 3.9.2.6 Color Matching Descriptor Values */
-+enum uvc_color_primaries_values {
-+	UVC_COLOR_PRIMARIES_UNSPECIFIED,
-+	UVC_COLOR_PRIMARIES_BT_709_SRGB,
-+	UVC_COLOR_PRIMARIES_BT_470_2_M,
-+	UVC_COLOR_PRIMARIES_BT_470_2_B_G,
-+	UVC_COLOR_PRIMARIES_SMPTE_170M,
-+	UVC_COLOR_PRIMARIES_SMPTE_240M,
-+};
+-		All attributes read only:
++		All attributes read only except bSourceID:
+ 
+ 		==============	=============================================
+ 		iTerminal	index of string descriptor
+diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
+index 4303a3283ba0a..832565730d224 100644
+--- a/drivers/usb/gadget/function/uvc_configfs.c
++++ b/drivers/usb/gadget/function/uvc_configfs.c
+@@ -483,11 +483,68 @@ UVC_ATTR_RO(uvcg_default_output_, cname, aname)
+ UVCG_DEFAULT_OUTPUT_ATTR(b_terminal_id, bTerminalID, 8);
+ UVCG_DEFAULT_OUTPUT_ATTR(w_terminal_type, wTerminalType, 16);
+ UVCG_DEFAULT_OUTPUT_ATTR(b_assoc_terminal, bAssocTerminal, 8);
+-UVCG_DEFAULT_OUTPUT_ATTR(b_source_id, bSourceID, 8);
+ UVCG_DEFAULT_OUTPUT_ATTR(i_terminal, iTerminal, 8);
+ 
+ #undef UVCG_DEFAULT_OUTPUT_ATTR
+ 
++static ssize_t uvcg_default_output_b_source_id_show(struct config_item *item,
++						    char *page)
++{
++	struct config_group *group = to_config_group(item);
++	struct f_uvc_opts *opts;
++	struct config_item *opts_item;
++	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
++	struct uvc_output_terminal_descriptor *cd;
++	int result;
 +
-+enum uvc_transfer_characteristics_values {
-+	UVC_TRANSFER_CHARACTERISTICS_UNSPECIFIED,
-+	UVC_TRANSFER_CHARACTERISTICS_BT_709,
-+	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_M,
-+	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_B_G,
-+	UVC_TRANSFER_CHARACTERISTICS_SMPTE_170M,
-+	UVC_TRANSFER_CHARACTERISTICS_SMPTE_240M,
-+	UVC_TRANSFER_CHARACTERISTICS_LINEAR,
-+	UVC_TRANSFER_CHARACTERISTICS_SRGB,
-+};
++	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
 +
-+enum uvc_matrix_coefficients {
-+	UVC_MATRIX_COEFFICIENTS_UNSPECIFIED,
-+	UVC_MATRIX_COEFFICIENTS_BT_709,
-+	UVC_MATRIX_COEFFICIENTS_FCC,
-+	UVC_MATRIX_COEFFICIENTS_BT_470_2_B_G,
-+	UVC_MATRIX_COEFFICIENTS_SMPTE_170M,
-+	UVC_MATRIX_COEFFICIENTS_SMPTE_240M,
-+};
++	opts_item = group->cg_item.ci_parent->ci_parent->
++			ci_parent->ci_parent;
++	opts = to_f_uvc_opts(opts_item);
++	cd = &opts->uvc_output_terminal;
 +
- /* ------------------------------------------------------------------------
-  * UVC structures
-  */
++	mutex_lock(&opts->lock);
++	result = sprintf(page, "%u\n", le8_to_cpu(cd->bSourceID));
++	mutex_unlock(&opts->lock);
++
++	mutex_unlock(su_mutex);
++
++	return result;
++}
++
++static ssize_t uvcg_default_output_b_source_id_store(struct config_item *item,
++						     const char *page, size_t len)
++{
++	struct config_group *group = to_config_group(item);
++	struct f_uvc_opts *opts;
++	struct config_item *opts_item;
++	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
++	struct uvc_output_terminal_descriptor *cd;
++	int result;
++	u8 num;
++
++	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
++
++	opts_item = group->cg_item.ci_parent->ci_parent->
++			ci_parent->ci_parent;
++	opts = to_f_uvc_opts(opts_item);
++	cd = &opts->uvc_output_terminal;
++
++	result = kstrtou8(page, 0, &num);
++	if (result)
++		return result;
++
++	mutex_lock(&opts->lock);
++	cd->bSourceID = num;
++	mutex_unlock(&opts->lock);
++
++	mutex_unlock(su_mutex);
++
++	return len;
++}
++UVC_ATTR(uvcg_default_output_, b_source_id, bSourceID);
++
+ static struct configfs_attribute *uvcg_default_output_attrs[] = {
+ 	&uvcg_default_output_attr_b_terminal_id,
+ 	&uvcg_default_output_attr_w_terminal_type,
 -- 
 2.39.2
 
