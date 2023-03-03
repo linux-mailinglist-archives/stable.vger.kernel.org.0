@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D93EF6AA282
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF35B6AA4AA
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:41:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232675AbjCCVsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:48:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37124 "EHLO
+        id S233773AbjCCWlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:41:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232509AbjCCVrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:47:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72326546E;
-        Fri,  3 Mar 2023 13:45:02 -0800 (PST)
+        with ESMTP id S234075AbjCCWk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:40:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF67F1BF5;
+        Fri,  3 Mar 2023 14:39:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEB49B81A0C;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22EF0B81A00;
+        Fri,  3 Mar 2023 21:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2116EC433AE;
         Fri,  3 Mar 2023 21:43:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0617C4339B;
-        Fri,  3 Mar 2023 21:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879810;
-        bh=F3Q4jKopnnXfzlnJ8qnU5EeFLtFycAZFH7iwqJimz+U=;
+        s=k20201202; t=1677879811;
+        bh=0T9+8+7+BL7xXnvPFs6hZTxkcUV34Tqod1GgJ/+Aq6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqeoD2XXN4gaV7ra2FafWdf3gi0uRaEc9qy08MnpoKhc85R8/Wk8VaNmdFcSIZfus
-         9Ihwnbztdv67v+Co54CoIkd5L9qOvON6xTuqwkbEa1wUWl+SfGvPpa8I1xhpl/y69Z
-         /+cME/Js2G0Wqwmdhp7WUlpK12sVeRU0TH0th/nTvCzifeRW+lTEDTvnWYAc0g9oPp
-         YuQm8Fd/GFS9LKIc/RDZZfoSHOhWUFahrNlE6BO/EZ8oqNs77HJWeO7kDkuyRv/xk4
-         /3NVEBaZZms2VSPLI08z3wPjlMspV1lwuUXAZqFXvxIHrqg411hgn2l8zE6YTcnVNY
-         5x9yQM2jP4tUg==
+        b=HKpQcXIzdfFA66NlEiQPbb0jjEn+4M++ZsaKCMzpFfHVEW1L6v3Vnn3lAiMMDT/Df
+         7yjfbB0VloUSdJz7KNvd9LuSy8VzwfCxiHUABRk/D2RgM9dfCefKDNg4chfkhttU+A
+         AEeU9Q02DGlkKA3R3Cq0XGR30ftR3zB1kOO2J9ax100iFML6Pa6wD0T2ydEyHnvlbY
+         KtlJHfZviy/fy0wZk+uqezZsv/wiNSpOADYbfd25gLzr0lsO2Ce2c/GGk8/f3EA5oR
+         xuvDDerOqZN4irBWGxm0wj+uV3yRx/BCJefvOpYiCfLDU+fRdbq1/CGLTY/3CFLI/r
+         07Hd/GiEZmAhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Jilin Yuan <yuanjilin@cdjrlc.com>,
-        Sasha Levin <sashal@kernel.org>, hdegoede@redhat.com,
-        mchehab@kernel.org, mika.westerberg@linux.intel.com,
-        alexandre.belloni@bootlin.com, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 09/60] USB: fix memory leak with using debugfs_lookup()
-Date:   Fri,  3 Mar 2023 16:42:23 -0500
-Message-Id: <20230303214315.1447666-9-sashal@kernel.org>
+Cc:     Yong-Xuan Wang <yongxuan.wang@sifive.com>,
+        Pierre Gondois <pierre.gondois@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org
+Subject: [PATCH AUTOSEL 6.1 10/60] cacheinfo: Fix shared_cpu_map to handle shared caches at different levels
+Date:   Fri,  3 Mar 2023 16:42:24 -0500
+Message-Id: <20230303214315.1447666-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -49,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,37 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Yong-Xuan Wang <yongxuan.wang@sifive.com>
 
-[ Upstream commit 30374434edab20e25776f8ecb4bc9d1e54309487 ]
+[ Upstream commit 198102c9103fc78d8478495971947af77edb05c1 ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic at
-once.
+The cacheinfo sets up the shared_cpu_map by checking whether the caches
+with the same index are shared between CPUs. However, this will trigger
+slab-out-of-bounds access if the CPUs do not have the same cache hierarchy.
+Another problem is the mismatched shared_cpu_map when the shared cache does
+not have the same index between CPUs.
 
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Jilin Yuan <yuanjilin@cdjrlc.com>
-Link: https://lore.kernel.org/r/20230106152828.3790902-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CPU0	I	D	L3
+index	0	1	2	x
+	^	^	^	^
+index	0	1	2	3
+CPU1	I	D	L2	L3
+
+This patch checks each cache is shared with all caches on other CPUs.
+
+Reviewed-by: Pierre Gondois <pierre.gondois@arm.com>
+Signed-off-by: Yong-Xuan Wang <yongxuan.wang@sifive.com>
+Link: https://lore.kernel.org/r/20230117105133.4445-2-yongxuan.wang@sifive.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/cacheinfo.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
-index 11b15d7b357ad..a415206cab043 100644
---- a/drivers/usb/core/usb.c
-+++ b/drivers/usb/core/usb.c
-@@ -998,7 +998,7 @@ static void usb_debugfs_init(void)
- 
- static void usb_debugfs_cleanup(void)
+diff --git a/drivers/base/cacheinfo.c b/drivers/base/cacheinfo.c
+index 4b5cd08c5a657..f30256a524be6 100644
+--- a/drivers/base/cacheinfo.c
++++ b/drivers/base/cacheinfo.c
+@@ -251,7 +251,7 @@ static int cache_shared_cpu_map_setup(unsigned int cpu)
  {
--	debugfs_remove(debugfs_lookup("devices", usb_debug_root));
-+	debugfs_lookup_and_remove("devices", usb_debug_root);
- }
+ 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
+ 	struct cacheinfo *this_leaf, *sib_leaf;
+-	unsigned int index;
++	unsigned int index, sib_index;
+ 	int ret = 0;
  
- /*
+ 	if (this_cpu_ci->cpu_map_populated)
+@@ -279,11 +279,13 @@ static int cache_shared_cpu_map_setup(unsigned int cpu)
+ 
+ 			if (i == cpu || !sib_cpu_ci->info_list)
+ 				continue;/* skip if itself or no cacheinfo */
+-
+-			sib_leaf = per_cpu_cacheinfo_idx(i, index);
+-			if (cache_leaves_are_shared(this_leaf, sib_leaf)) {
+-				cpumask_set_cpu(cpu, &sib_leaf->shared_cpu_map);
+-				cpumask_set_cpu(i, &this_leaf->shared_cpu_map);
++			for (sib_index = 0; sib_index < cache_leaves(i); sib_index++) {
++				sib_leaf = per_cpu_cacheinfo_idx(i, sib_index);
++				if (cache_leaves_are_shared(this_leaf, sib_leaf)) {
++					cpumask_set_cpu(cpu, &sib_leaf->shared_cpu_map);
++					cpumask_set_cpu(i, &this_leaf->shared_cpu_map);
++					break;
++				}
+ 			}
+ 		}
+ 		/* record the maximum cache line size */
+@@ -297,7 +299,7 @@ static int cache_shared_cpu_map_setup(unsigned int cpu)
+ static void cache_shared_cpu_map_remove(unsigned int cpu)
+ {
+ 	struct cacheinfo *this_leaf, *sib_leaf;
+-	unsigned int sibling, index;
++	unsigned int sibling, index, sib_index;
+ 
+ 	for (index = 0; index < cache_leaves(cpu); index++) {
+ 		this_leaf = per_cpu_cacheinfo_idx(cpu, index);
+@@ -308,9 +310,14 @@ static void cache_shared_cpu_map_remove(unsigned int cpu)
+ 			if (sibling == cpu || !sib_cpu_ci->info_list)
+ 				continue;/* skip if itself or no cacheinfo */
+ 
+-			sib_leaf = per_cpu_cacheinfo_idx(sibling, index);
+-			cpumask_clear_cpu(cpu, &sib_leaf->shared_cpu_map);
+-			cpumask_clear_cpu(sibling, &this_leaf->shared_cpu_map);
++			for (sib_index = 0; sib_index < cache_leaves(sibling); sib_index++) {
++				sib_leaf = per_cpu_cacheinfo_idx(sibling, sib_index);
++				if (cache_leaves_are_shared(this_leaf, sib_leaf)) {
++					cpumask_clear_cpu(cpu, &sib_leaf->shared_cpu_map);
++					cpumask_clear_cpu(sibling, &this_leaf->shared_cpu_map);
++					break;
++				}
++			}
+ 		}
+ 		if (of_have_populated_dt())
+ 			of_node_put(this_leaf->fw_token);
 -- 
 2.39.2
 
