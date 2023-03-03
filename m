@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4DCE6AA547
-	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:03:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD4C6AA548
+	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232133AbjCCXDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 18:03:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34608 "EHLO
+        id S232170AbjCCXDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 18:03:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231730AbjCCXDo (ORCPT
+        with ESMTP id S231938AbjCCXDo (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:03:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31BF24FA90;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364BD4FA94;
         Fri,  3 Mar 2023 15:03:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2860BB81A43;
-        Fri,  3 Mar 2023 21:47:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F58C4339C;
-        Fri,  3 Mar 2023 21:47:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0D2DB81A3F;
+        Fri,  3 Mar 2023 21:47:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF67C43446;
+        Fri,  3 Mar 2023 21:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880073;
-        bh=EoYuMau1ceIpjX5tjDs5OAnfLOA35rNSG5SWqpHEXn4=;
+        s=k20201202; t=1677880076;
+        bh=L0GDlOFJh1U+yOBJ5nphKgt60E01OaTI0l1WVeilfBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DEW/gmMTojcaZWCVuCLV4krLrdgDL7c7VN+G+bbCl4FXvnNPJ5s+7As8RsDP2LvtM
-         T87w8EW4iTuoEx4cgZ0h3WASE3C8fK79T9UdTuY+soj/G4zCJnrYODELCc+RKiVm82
-         Iz6tCp88tczHVg9/eT/6fAP9H5tBJWFGJzrv3k+aPuC/AMU8Rka33QiHsMdQN4uVZB
-         asyBlrlbSxY4ANzQP5iAcQ6AncrQ51n3ItqTuCVoi6jw7uF0lJIwD04eHkrCf5VjgD
-         R6lcz3H415mtoG4RcQLFfQMFbwEzsPnTKFkU6UmmNAWYGTa5r9DbNGyNF+py3zvFS4
-         t+9VU3lioai3g==
+        b=fLjQBXwRRMdk3ZmaSt5J4D/fASyLVT+3fysLDdjsfjhtovN3gMpBbO0cZDWjJEu57
+         Nf6LyhVW+Mkd09go5OSgL6j3K+98MJctn/PaCRE14h2kcxiyJRrlv5Ju6RsuzCHQh7
+         +B2z+bnfgNTAzPCPr4EjmnLXInJKEMwRNnfZPYCRMkYID7XMQHPpDJgP1OpNBj3scQ
+         O0glO/Taz30tdECVKmdUwl8kHB0lmoSd2h0HeynQcS/3e5KK5iYijqHRMNHpXXhDTe
+         NAvUQlrixGztyNbarQ2x5KMN+ezp0MaFHLtaLsIshYbPRGNY38QRcH/5kldRryv8b/
+         t7qIiHu7kj1Tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 22/30] PCI: Align extra resources for hotplug bridges properly
-Date:   Fri,  3 Mar 2023 16:47:07 -0500
-Message-Id: <20230303214715.1452256-22-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 24/30] kernel/power/energy_model.c: fix memory leak with using debugfs_lookup()
+Date:   Fri,  3 Mar 2023 16:47:09 -0500
+Message-Id: <20230303214715.1452256-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214715.1452256-1-sashal@kernel.org>
 References: <20230303214715.1452256-1-sashal@kernel.org>
@@ -55,69 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 08f0a15ee8adb4846b08ca5d5c175fbf0f652bc9 ]
+[ Upstream commit a0bc3f78d0fffa8be1a73bf945a43bfe1c2871c1 ]
 
-After division the extra resource space per hotplug bridge may not be
-aligned according to the window alignment, so align it before passing it
-down for further distribution.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-Link: https://lore.kernel.org/r/20230131092405.29121-2-mika.westerberg@linux.intel.com
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Len Brown <len.brown@intel.com>
+Link: https://lore.kernel.org/r/20230202151515.2309543-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/setup-bus.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ kernel/power/energy_model.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
-index 2ce636937c6ea..4a6b698b5dd10 100644
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -2004,6 +2004,7 @@ static void pci_bus_distribute_available_resources(struct pci_bus *bus,
- 	 * resource space between hotplug bridges.
- 	 */
- 	for_each_pci_bridge(dev, bus) {
-+		struct resource *res;
- 		struct pci_bus *b;
+diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
+index 119b929dcff0f..334173fe6940e 100644
+--- a/kernel/power/energy_model.c
++++ b/kernel/power/energy_model.c
+@@ -72,10 +72,7 @@ static void em_debug_create_pd(struct device *dev)
  
- 		b = dev->subordinate;
-@@ -2015,16 +2016,28 @@ static void pci_bus_distribute_available_resources(struct pci_bus *bus,
- 		 * hotplug-capable downstream ports taking alignment into
- 		 * account.
- 		 */
--		io.end = io.start + io_per_hp - 1;
--		mmio.end = mmio.start + mmio_per_hp - 1;
--		mmio_pref.end = mmio_pref.start + mmio_pref_per_hp - 1;
-+		res = &dev->resource[PCI_BRIDGE_IO_WINDOW];
-+		align = pci_resource_alignment(dev, res);
-+		io.end = align ? io.start + ALIGN_DOWN(io_per_hp, align) - 1
-+			       : io.start + io_per_hp - 1;
-+
-+		res = &dev->resource[PCI_BRIDGE_MEM_WINDOW];
-+		align = pci_resource_alignment(dev, res);
-+		mmio.end = align ? mmio.start + ALIGN_DOWN(mmio_per_hp, align) - 1
-+				 : mmio.start + mmio_per_hp - 1;
-+
-+		res = &dev->resource[PCI_BRIDGE_PREF_MEM_WINDOW];
-+		align = pci_resource_alignment(dev, res);
-+		mmio_pref.end = align ? mmio_pref.start +
-+					ALIGN_DOWN(mmio_pref_per_hp, align) - 1
-+				      : mmio_pref.start + mmio_pref_per_hp - 1;
- 
- 		pci_bus_distribute_available_resources(b, add_list, io, mmio,
- 						       mmio_pref);
- 
--		io.start += io_per_hp;
--		mmio.start += mmio_per_hp;
--		mmio_pref.start += mmio_pref_per_hp;
-+		io.start += io.end + 1;
-+		mmio.start += mmio.end + 1;
-+		mmio_pref.start += mmio_pref.end + 1;
- 	}
+ static void em_debug_remove_pd(struct device *dev)
+ {
+-	struct dentry *debug_dir;
+-
+-	debug_dir = debugfs_lookup(dev_name(dev), rootdir);
+-	debugfs_remove_recursive(debug_dir);
++	debugfs_lookup_and_remove(dev_name(dev), rootdir);
  }
  
+ static int __init em_debug_init(void)
 -- 
 2.39.2
 
