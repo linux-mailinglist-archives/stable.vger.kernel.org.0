@@ -2,116 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A1A66AA903
-	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 10:52:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A006AA90C
+	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 11:00:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229668AbjCDJwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Mar 2023 04:52:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39994 "EHLO
+        id S229707AbjCDKAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Mar 2023 05:00:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbjCDJwM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Mar 2023 04:52:12 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DABA18152
-        for <stable@vger.kernel.org>; Sat,  4 Mar 2023 01:52:10 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id q16so4431379wrw.2
-        for <stable@vger.kernel.org>; Sat, 04 Mar 2023 01:52:10 -0800 (PST)
+        with ESMTP id S229702AbjCDKAO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Mar 2023 05:00:14 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAD0E1C7C3;
+        Sat,  4 Mar 2023 02:00:09 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id p20so5201099plw.13;
+        Sat, 04 Mar 2023 02:00:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677923529;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=hHyp+2d4yiZBmL7TlrkW3/dAr7k1h7hgYIqxni25jL4=;
-        b=CEcZV76qcifjkWnrMtwFRkC3GPCxeBhUG8ODpGEiZTTo56riA0VhqRZ083YFheFZ4r
-         kHifQJJbBoPBmeozPUsiSKi8mqzb2BdnJT+B6B2thyujwT2J93BXXjyPANsSRKDHf5Iv
-         ZP07zM0O5T4CQbAr7Cc8dPXDwzoh46m4b60ErRIs7KCSAZSfrHBjNh9ZV9CjgGxgT51L
-         VDHUJDTaLkIUiuoDqckDktvFS7nbvFQ5iIznGQMF53+eoLsxWyinXWgMTDCBOTHCAD2Z
-         j325hC8rdzFImIPvcGHTDxbe+Vlr5FMtHaeDTTUFeIWn0WMjpe9hwCE9dxsuq4BOLsvo
-         u3Tw==
+        d=gmail.com; s=20210112; t=1677924009;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Osgh48C4KnLfAsi4B8h3TeoDTNi6JcyLO4dX+82DIss=;
+        b=qL+5vVkGpZdEireGkhPsYww/RsdL7mHmQQCHHuHjz8CSUm1r3iujJq0ZwIhAj4py7+
+         ygoPJN8ohHOBG+HeYt28/iYodvVE7Wj+fYmS33wX617IqW1hd0WejUCNRLQd7KoQzzYF
+         GBDjjmlctTMhTxcuvvzOLOjwIowPL/lakmhC47jZMNEVXah21h6XFNUegyY/kVEpPlWk
+         M0vQvfEIl5MQS5i87iGapXSD7DZw6Aij43dsJvSc/TWiKdb/csacibgsBQxFJY1zTPxF
+         IXIDeVKzG1WRzIEnOniBDQRIDKpuZGON+MNNF4MHSRo4IWosGYtzs/BQphe3bTKIJ4Xr
+         e+FA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677923529;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hHyp+2d4yiZBmL7TlrkW3/dAr7k1h7hgYIqxni25jL4=;
-        b=F+poB42hCRSgig90CskM4P4vcdzCtv0dztg2wxhWgsJeVNp7083Wka7rQabpTWMU7L
-         S+OCsdDE1jAqvvCKbJy/fgc5ab4v1ZjieUWXIC5LkvJOCRWoaQeAMYX0+psdyHjfl4Ld
-         DehdEl2C8dPXsuIT3vQKHMuXA9d+OGBYJM5oi7uSKx9wt5fOsdut8s5qb9S6iuqxnYRj
-         2UzTQD9jzJv4ZFhpcGuHE+KG97y3MinR3ARdmPlzvTtI8+sIIpv1j9Ftds4MkmBl+PQM
-         EOQ/y3Q9wy9Ofag8O6mEqTYcBVqqSCGVAL8u+P6DZQE5fiuUpjHZ4FNuZVR7HhxpESad
-         D/5Q==
-X-Gm-Message-State: AO0yUKXjPTDm5pmCHGEbrfBkkMz6t6c5Pa4n8IlGhnym1DTYZTW3dnIz
-        WJmz6OKMeySC8niXFydwk/E=
-X-Google-Smtp-Source: AK7set9kQ83vnsOEZgQr1aM6jS/HyB2ZFEfEtLrOUivWD4p/LIvvhiZlFXugzEVRB01qPuh8d65Jog==
-X-Received: by 2002:a5d:614d:0:b0:2c7:d6a:cca9 with SMTP id y13-20020a5d614d000000b002c70d6acca9mr3385149wrt.23.1677923528857;
-        Sat, 04 Mar 2023 01:52:08 -0800 (PST)
-Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
-        by smtp.gmail.com with ESMTPSA id t20-20020a0560001a5400b002c54f4d0f71sm4616431wry.38.2023.03.04.01.52.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Mar 2023 01:52:08 -0800 (PST)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Received: by eldamar.lan (Postfix, from userid 1000)
-        id 4EBFCBE2DE0; Sat,  4 Mar 2023 10:52:07 +0100 (CET)
-Date:   Sat, 4 Mar 2023 10:52:07 +0100
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Martin Wilck <mwilck@suse.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Subject: Please apply commit 06e472acf964 ("scsi: mpt3sas: Remove usage of
- dma_get_required_mask() API") to stable series
-Message-ID: <ZAMUx8rG8xukulTu@eldamar.lan>
+        d=1e100.net; s=20210112; t=1677924009;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Osgh48C4KnLfAsi4B8h3TeoDTNi6JcyLO4dX+82DIss=;
+        b=Al3IG+u8nyUMUyATRmCCpjSuvj0M9OrpxqnluCv29wufeNcGyFe1EGH7bbj02/dZ4Q
+         PuD0ZiwTcSEWl3tfrfcq2i0HoOSEmTJI7ZL7AuQH1Nt+/VWQ3gKjpl1cwtT1J9i9693v
+         KxImWN4TuEecD21BsrRfVpE8FqJH/Je777+rJ7776fjWY9cPUonEGRvplzGltONZvPrI
+         kRX8PAHIEpiyKbd2Vm5lliLF2TD86d802YY7+ZI//ZgKveugpVL6Zc9BuqvtweZcrOdX
+         UtP014iyF5L6/rU5xLrxn9RfJAxCUzTH54EFWB2NJwUjYmEDE9Gkx1JMnsnfq4ORFg9y
+         iY/Q==
+X-Gm-Message-State: AO0yUKWWfrCV1wYFezOH1jnN8A178ZvNwEaB/fgtwB5bNFyixitbjbIO
+        fecBxjlWDsNqcd1hTleEyKl4pd9pv1W6+A==
+X-Google-Smtp-Source: AK7set+rXOuLqCSiww8Kj5UYsgdcmDlG2Q4gggWLA18NFWgxo93C9kEBRCi3aDCg5D5B+tT9SSving==
+X-Received: by 2002:a17:902:bb90:b0:19c:dbce:dce4 with SMTP id m16-20020a170902bb9000b0019cdbcedce4mr4229627pls.15.1677924009170;
+        Sat, 04 Mar 2023 02:00:09 -0800 (PST)
+Received: from [192.168.1.2] ([218.150.75.42])
+        by smtp.gmail.com with ESMTPSA id b2-20020a170903228200b001994a0f3380sm2952808plh.265.2023.03.04.02.00.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 04 Mar 2023 02:00:08 -0800 (PST)
+Message-ID: <144f843a-a5d5-4d2b-6d8e-6dfb064cbeba@gmail.com>
+Date:   Sat, 4 Mar 2023 19:00:05 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH 0/2] r8152: allow firmwares with NCM support
+To:     gregkh@linuxfoundation.org,
+        =?UTF-8?Q?Bj=c3=b8rn_Mork?= <bjorn@mork.no>,
+        stable@vger.kernel.org, netdev@vger.kernel.org
+Cc:     Hayes Wang <hayeswang@realtek.com>, linux-usb@vger.kernel.org,
+        Oliver Neukum <oliver@neukum.org>
+References: <20230106160739.100708-1-bjorn@mork.no>
+Content-Language: en-US
+From:   Juhyung Park <qkrwngud825@gmail.com>
+In-Reply-To: <20230106160739.100708-1-bjorn@mork.no>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear stable maintainers,
+Hi everyone,
 
-Please backport the aboove commit to the stable series. Note, though
-as a first step it just applies cleanly to 6.1.y. Due to 9df650963bf6
-("scsi: mpt3sas: Don't change DMA mask while reallocating pools") it
-does not apply cleanly to earlier series.
+Can we have this series backported to all applicable stable kernels?
++and future fixes:
+commit 0d4cda805a18 ("r8152: avoid to change cfg for all devices")
+commit 95a4c1d617b9 ("r8152: remove rtl_vendor_mode function")
 
-For context: There were several reports in Debian about regression in
-5.10.y already:
+RTL8156 (2.5Gbe) is supported by r8152, but wasn't blacklisted in 
+cdc_ether.c due to having a different product ID (0x8156).
 
-https://bugs.debian.org/1022268
-https://bugs.debian.org/1023183
-https://bugs.debian.org/1025747
-https://bugs.debian.org/1022126
+Some RTL8156 users are stuck with using the cdc_ncm driver prior to this 
+patch series, which results in a far less ideal experience [1].
 
-https://lore.kernel.org/linux-scsi/Y1JkuKTjVYrOWbvm@eldamar.lan/ is
-the initial reporting to upstream and later on brought as well to the
-regression list:
+As we (finally) have a proper fix implemented thanks to Bjørn, it seems 
+to make more than enough sense to backport this to stable kernels.
 
-https://lore.kernel.org/regressions/754b030c-ba14-167c-e2d0-2f4f5bf55e99@leemhuis.info/
+I'm personally running v6.1 with this applied.
 
-Thorsten suggested to first get the patch applied at least in 6.1.y
-but for further steps down we need help. Sreekanth and Martin is this
-still on your radar? Help with getting this back to 5.10.y would be
-welcome, and I'm sure with a tentative patch I can get some of the
-reporting users to report a Tested-by.
+Thanks, regards
 
-While people are "unhappy" why it is not fixed yet in Debian, I'm not
-willing to diverge and appy a patch which is not approved and aimed to
-go upstream into the respective stable series. But I have too less
-knowledge here to see which is the correct change to apply to back to
-5.10.y alone in case we need to diverge, as 9df650963bf6 picking as
-well is not an option. Input from you experts on that would be more
-the appreciated.
+[1] 
+https://lore.kernel.org/netdev/CAO3ALPzKEStzf5-mgSLJ_jsCSbRq_2JzZ6de2rXuETV5RC-V8w@mail.gmail.com/
 
-Regards,
-Salvatore
+On 1/7/23 01:07, Bjørn Mork wrote:
+> Some device and firmware combinations with NCM support will
+> end up using the cdc_ncm driver by default.  This is sub-
+> optimal for the same reasons we've previously accepted the
+> blacklist hack in cdc_ether.
+> 
+> The recent support for subclassing the generic USB device
+> driver allows us to create a very slim driver with the same
+> functionality.  This patch set uses that to implement a
+> device specific configuration default which is independent
+> of any USB interface drivers.  This means that it works
+> equally whether the device initially ends up in NCM or ECM
+> mode, without depending on any code in the respective class
+> drivers.
+> 
+> Bjørn Mork (2):
+>    r8152: add USB device driver for config selection
+>    cdc_ether: no need to blacklist any r8152 devices
+> 
+>   drivers/net/usb/cdc_ether.c | 114 ------------------------------------
+>   drivers/net/usb/r8152.c     | 113 +++++++++++++++++++++++++----------
+>   2 files changed, 81 insertions(+), 146 deletions(-)
+> 
