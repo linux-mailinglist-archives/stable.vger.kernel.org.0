@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 524706AB0A8
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DAE96AB075
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230282AbjCEN6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:58:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
+        id S230104AbjCEN4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 08:56:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230281AbjCEN5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:57:51 -0500
+        with ESMTP id S230191AbjCENzs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:55:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E2091A97B;
-        Sun,  5 Mar 2023 05:56:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35111196AB;
+        Sun,  5 Mar 2023 05:55:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 030C160B3F;
-        Sun,  5 Mar 2023 13:55:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 291C8C433AE;
-        Sun,  5 Mar 2023 13:55:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1650F60B21;
+        Sun,  5 Mar 2023 13:55:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D090DC4339E;
+        Sun,  5 Mar 2023 13:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024506;
-        bh=MnCXLDMbFPBJ+LFdICtYzTOFAIkvEJYeUNnVVW7X8Qg=;
+        s=k20201202; t=1678024507;
+        bh=YkW9XORc0MfYV6vPpLp/i6aNbNW4yluMnk6Tg9u2gsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCTPI3PoYtn2BMPH5o8hSZrPvR84TS00Pl6NxbXsrCBlszZGnLvkcJEV5LnZaWxMY
-         so0JCkL3mZv7Hs/vfCTVidAp69j2Ux9itZVukuEWlpoXnyTWbZrthQfd7SEyJORkOg
-         whKLAmvBzPT4Q627e/REF1CvTcWsM2jkg3TohNlFihj7qvAS77a1+sdgH1B7TfpDob
-         MGIrrhOov3ToeWDWa6H2jVdHKGOCjKRrmuOZAR9utW0Stbi/cS26egY6q7MBjzTzWg
-         mNtyyuj0taY1XNJ07IBmfDEdzB8SbdfVVeflm/DT4b1P2y+I/nWUjdZc287XNoXgYj
-         dUf59hVnEsbJw==
+        b=dZfi9rKag+GtSxrKa6wA73p3/HPR2CY31V+kqX2Ex76fX2xx/L9UV9avoYG4eB3Po
+         /AvTe1psdNN4U2gsnkDscTPrKmPHy2gf2FfMbAVHSbbLG3CCjRKP/532wrIliHRc7g
+         Q4KQauCMgVKUeTPqOFyAjQlO7qcYGJAGtkzuJb4mwX5dGaF22nC62Ir3U58aOLMCif
+         duQ3WKq/kvK1jQQLa0Dw7dBEmYYZG5ZwOmB8SkgSbWvIWAuQOgl3EyXSCSW4UOjuN+
+         tMyWQQyWiaUjhXzo2c1t52vGwydlndl4jT3wRyVs0lGF+CydPQbyJnE6sV4nhzT2vR
+         2hiLuS9ZU+J3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
-        ndesaulniers@google.com, u.kleine-koenig@pengutronix.de,
-        dmitry.torokhov@gmail.com, srinivas.pandruvada@linux.intel.com,
-        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org,
-        llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.4 5/7] macintosh: windfarm: Use unsigned type for 1-bit bitfields
-Date:   Sun,  5 Mar 2023 08:54:46 -0500
-Message-Id: <20230305135449.1794083-5-sashal@kernel.org>
+Cc:     Alvaro Karsz <alvaro.karsz@solid-run.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 6/7] PCI: Add SolidRun vendor ID
+Date:   Sun,  5 Mar 2023 08:54:47 -0500
+Message-Id: <20230305135449.1794083-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135449.1794083-1-sashal@kernel.org>
 References: <20230305135449.1794083-1-sashal@kernel.org>
@@ -59,66 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
 
-[ Upstream commit 748ea32d2dbd813d3bd958117bde5191182f909a ]
+[ Upstream commit db6c4dee4c104f50ed163af71c53bfdb878a8318 ]
 
-Clang warns:
+Add SolidRun vendor ID to pci_ids.h
 
-  drivers/macintosh/windfarm_lm75_sensor.c:63:14: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  lm->inited = 1;
-                             ^ ~
+The vendor ID is used in 2 different source files, the SNET vDPA driver
+and PCI quirks.
 
-  drivers/macintosh/windfarm_smu_sensors.c:356:19: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->fake_volts = 1;
-                                  ^ ~
-  drivers/macintosh/windfarm_smu_sensors.c:368:18: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
-                  pow->quadratic = 1;
-                                 ^ ~
-
-There is no bug here since no code checks the actual value of these
-fields, just whether or not they are zero (boolean context), but this
-can be easily fixed by switching to an unsigned type.
-
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230215-windfarm-wsingle-bit-bitfield-constant-conversion-v1-1-26415072e855@kernel.org
+Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Message-Id: <20230110165638.123745-2-alvaro.karsz@solid-run.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/windfarm_lm75_sensor.c | 4 ++--
- drivers/macintosh/windfarm_smu_sensors.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/linux/pci_ids.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/macintosh/windfarm_lm75_sensor.c b/drivers/macintosh/windfarm_lm75_sensor.c
-index 1e5fa09845e77..8713e80201c07 100644
---- a/drivers/macintosh/windfarm_lm75_sensor.c
-+++ b/drivers/macintosh/windfarm_lm75_sensor.c
-@@ -34,8 +34,8 @@
- #endif
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 526d423740eb2..3cde3050ef518 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -3104,6 +3104,8 @@
  
- struct wf_lm75_sensor {
--	int			ds1775 : 1;
--	int			inited : 1;
-+	unsigned int		ds1775 : 1;
-+	unsigned int		inited : 1;
- 	struct i2c_client	*i2c;
- 	struct wf_sensor	sens;
- };
-diff --git a/drivers/macintosh/windfarm_smu_sensors.c b/drivers/macintosh/windfarm_smu_sensors.c
-index 3e6059eaa1380..90823b4280259 100644
---- a/drivers/macintosh/windfarm_smu_sensors.c
-+++ b/drivers/macintosh/windfarm_smu_sensors.c
-@@ -273,8 +273,8 @@ struct smu_cpu_power_sensor {
- 	struct list_head	link;
- 	struct wf_sensor	*volts;
- 	struct wf_sensor	*amps;
--	int			fake_volts : 1;
--	int			quadratic : 1;
-+	unsigned int		fake_volts : 1;
-+	unsigned int		quadratic : 1;
- 	struct wf_sensor	sens;
- };
- #define to_smu_cpu_power(c) container_of(c, struct smu_cpu_power_sensor, sens)
+ #define PCI_VENDOR_ID_3COM_2		0xa727
+ 
++#define PCI_VENDOR_ID_SOLIDRUN		0xd063
++
+ #define PCI_VENDOR_ID_DIGIUM		0xd161
+ #define PCI_DEVICE_ID_DIGIUM_HFC4S	0xb410
+ 
 -- 
 2.39.2
 
