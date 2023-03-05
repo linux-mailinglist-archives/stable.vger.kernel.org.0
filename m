@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C0D6AB07F
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6896AB0D3
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 15:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230244AbjCEN4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:56:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43452 "EHLO
+        id S230079AbjCEOFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 09:05:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230165AbjCEN4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:56:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F1561A4A8;
-        Sun,  5 Mar 2023 05:55:22 -0800 (PST)
+        with ESMTP id S230164AbjCEOFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 09:05:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8750218A82;
+        Sun,  5 Mar 2023 06:05:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7130D60AD7;
-        Sun,  5 Mar 2023 13:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 183CFC433EF;
-        Sun,  5 Mar 2023 13:54:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D5E3B80A7C;
+        Sun,  5 Mar 2023 13:54:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BECDFC433EF;
+        Sun,  5 Mar 2023 13:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024451;
-        bh=RUtrwhkGxrU/WjppTacDxsQStzEre83Pl93QLDKDXBo=;
+        s=k20201202; t=1678024454;
+        bh=sVH2vsIk/sno9MnNFLS6rc3jeKS1wSCfh1TDNxfxzF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpAJ14tlji7Cd8mPm/MITjR5QjtNxC7H1y0yo13nkYxtezlcGUTjWpXSMW+es8rsb
-         Kufl4HEFrIpZQTIbqkIDMfEMxoTOTFifbYHQa3830iNG4kx7y40jBbM6vJektQ2DEE
-         JY0UYwlL8AAia1Es6ENIjQgeXoNV64+EqJGu1n3498ROa8ZEIoRsXVeHVUMAe0iYqS
-         Ud8XGk+47J9FTSz3gIex5DFLko0foqTVe1LSY9ontmz8sewg6Agq2z7fcUSDJJ20hN
-         yRuFwQ3pVJZIs7G0vKtTJZIJxppeKvTIBItReMcwScJwnjC01tkqaIsMOXpy5yj4/J
-         IPjY12BMBLXdA==
+        b=Ix+oxMiorDrLWyihh3pjEVPCZfs9ieTOulOBrT/NUbtnyCTq9CG+If3m5XmzkNBJ9
+         Hrnn5J6qRvLS5nseIT6l1mSvvZrCmeFOHirG/C+XMfd0BXsnaZryjiiuXypR6p+3W5
+         jresMAyvT6IbVXqBeySH/4KZHiv/bRsohLDLUQYnul5NfQ63MvR1QcaXInHAhhGgb1
+         ElnsZx6SlB9/yCNd6/JtLQ5K2ei44ljamOXzxEr3C5Yv+vT/354W/3HVqjzp5A8ppt
+         yU8GKiy1t+zNreJ3MuNSYg/aVIeDXYZ3nBdJfl6ledRoVECoNz5kyqN93r4kDcTdc5
+         31O8wE8MTEVgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Rohan McLure <rmclure@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, aik@ozlabs.ru,
-        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.15 4/9] powerpc/iommu: fix memory leak with using debugfs_lookup()
-Date:   Sun,  5 Mar 2023 08:53:54 -0500
-Message-Id: <20230305135359.1793830-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
+        christophe.leroy@csgroup.eu, alexandre.belloni@bootlin.com,
+        heying24@huawei.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.15 5/9] powerpc/kcsan: Exclude udelay to prevent recursive instrumentation
+Date:   Sun,  5 Mar 2023 08:53:55 -0500
+Message-Id: <20230305135359.1793830-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135359.1793830-1-sashal@kernel.org>
 References: <20230305135359.1793830-1-sashal@kernel.org>
@@ -47,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,40 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Rohan McLure <rmclure@linux.ibm.com>
 
-[ Upstream commit b505063910c134778202dfad9332dfcecb76bab3 ]
+[ Upstream commit 2a7ce82dc46c591c9244057d89a6591c9639b9b9 ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+In order for KCSAN to increase its likelihood of observing a data race,
+it sets a watchpoint on memory accesses and stalls, allowing for
+detection of conflicting accesses by other kernel threads or interrupts.
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stalls are implemented by injecting a call to udelay in instrumented code.
+To prevent recursive instrumentation, exclude udelay from being instrumented.
+
+Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230202141919.2298821-1-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20230206021801.105268-3-rmclure@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/iommu.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/powerpc/kernel/time.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
-index a67fd54ccc573..8bea336fa5b70 100644
---- a/arch/powerpc/kernel/iommu.c
-+++ b/arch/powerpc/kernel/iommu.c
-@@ -68,11 +68,9 @@ static void iommu_debugfs_add(struct iommu_table *tbl)
- static void iommu_debugfs_del(struct iommu_table *tbl)
- {
- 	char name[10];
--	struct dentry *liobn_entry;
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 934d8ae66cc63..4406d7a89558b 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -450,7 +450,7 @@ void vtime_flush(struct task_struct *tsk)
+ #define calc_cputime_factors()
+ #endif
  
- 	sprintf(name, "%08lx", tbl->it_index);
--	liobn_entry = debugfs_lookup(name, iommu_debugfs_dir);
--	debugfs_remove(liobn_entry);
-+	debugfs_lookup_and_remove(name, iommu_debugfs_dir);
+-void __delay(unsigned long loops)
++void __no_kcsan __delay(unsigned long loops)
+ {
+ 	unsigned long start;
+ 
+@@ -471,7 +471,7 @@ void __delay(unsigned long loops)
  }
- #else
- static void iommu_debugfs_add(struct iommu_table *tbl){}
+ EXPORT_SYMBOL(__delay);
+ 
+-void udelay(unsigned long usecs)
++void __no_kcsan udelay(unsigned long usecs)
+ {
+ 	__delay(tb_ticks_per_usec * usecs);
+ }
 -- 
 2.39.2
 
