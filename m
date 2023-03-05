@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 450376AB04B
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:54:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 506326AB041
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230084AbjCENyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:54:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41296 "EHLO
+        id S229955AbjCENyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 08:54:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229963AbjCENyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:54:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA1E18167;
-        Sun,  5 Mar 2023 05:53:36 -0800 (PST)
+        with ESMTP id S230010AbjCENyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:54:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD8F16AD8;
+        Sun,  5 Mar 2023 05:53:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2FFAB80A36;
-        Sun,  5 Mar 2023 13:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC7F9C4339C;
-        Sun,  5 Mar 2023 13:53:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1202B60B06;
+        Sun,  5 Mar 2023 13:53:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEAA7C433D2;
+        Sun,  5 Mar 2023 13:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024392;
-        bh=Hzk9IvwA7y6VQfWSvbFOzDfMXY+1sArz+O0UOp50ojY=;
+        s=k20201202; t=1678024396;
+        bh=kq3BrUowsgV/gXng+qdT32gnUa2E/oaKHyxWEtfLW2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZDPiL2VwC4zHXPSKN5t91a08NvQFLBItHHycA+yVBsFElOat6/ybY8e38wgsGsilY
-         3NW7kDsjtlsfDB4Z7HaHQbYiUFlwf7vvJ+ofpFDgP/8eDLfT3LA2HEUSD0VSzZuNqR
-         Nwd63y948BrVIxSfDEGQpYk2CgEsD6QmFSIHNXLme9W8rSPVeQSFuqyvR27FDeDvj+
-         FTBm8Ar91fkfSJoTjjn4WhRFYVpenb0lSdpjVCQIprVRPI5oGj6TYNpr4ZAd5ssCOm
-         g4VPimnytMlm36EE0YdAhePGD0imjNNBK4VnJuB6t7XlWQO4Ha28kBN/zjwsB9gPVp
-         l+fqOpMOwDzrw==
+        b=Kj7B+s/bei47N+Xps5FoFhjzL+2+320yOWDvuCqCi0UdaESZ2XwPHBs7kqnKOg/kT
+         /Dc9DfCTsGXHqMhbN34TsrcUdQ4qGCF1blgoF05n59FMvrhnLJDn5mU9g7ZFw55bMG
+         Fy7my9JOyuILvQk7nZRTxMSMWegL56TzZPVh6e6PJdV73lYCaL4NKmNFxWqg7QECbA
+         MpHI9q/NFtqMk8sUiau23OMVchkkeHgLIij9s5+Y7s5RRSNAn1ia0yRMvtOPcgh/ck
+         mORdfO/rahh72umzQtXSanuiwsyxAuyNARHEUNfadlaEIBxHwNw4GKjUnuJIkFiUaZ
+         5x31afcSWjn2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     xurui <xurui@kylinos.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 02/15] MIPS: Fix a compilation issue
-Date:   Sun,  5 Mar 2023 08:52:53 -0500
-Message-Id: <20230305135306.1793564-2-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 6.1 03/15] powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
+Date:   Sun,  5 Mar 2023 08:52:54 -0500
+Message-Id: <20230305135306.1793564-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135306.1793564-1-sashal@kernel.org>
 References: <20230305135306.1793564-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,36 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xurui <xurui@kylinos.cn>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 109d587a4b4d7ccca2200ab1f808f43ae23e2585 ]
+[ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
 
-arch/mips/include/asm/mach-rc32434/pci.h:377:
-cc1: error: result of ‘-117440512 << 16’ requires 44 bits to represent, but ‘int’ only has 32 bits [-Werror=shift-overflow=]
+NO_IRQ is a relic from the old days. It is not used anymore in core
+functions. By the way, function irq_of_parse_and_map() returns value 0
+on error.
 
-All bits in KORINA_STAT are already at the correct position, so there is
-no addtional shift needed.
+In some drivers, NO_IRQ is erroneously used to check the return of
+irq_of_parse_and_map().
 
-Signed-off-by: xurui <xurui@kylinos.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+It is not a real bug today because the only architectures using the
+drivers being fixed by this patch define NO_IRQ as 0, but there are
+architectures which define NO_IRQ as -1. If one day those
+architectures start using the non fixed drivers, there will be a
+problem.
+
+Long time ago Linus advocated for not using NO_IRQ, see
+https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
+
+He re-iterated the same view recently in
+https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
+
+So test !irq instead of tesing irq == NO_IRQ.
+
+All other usage of NO_IRQ for powerpc were removed in previous cycles so
+the time has come to remove NO_IRQ completely for powerpc.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mach-rc32434/pci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/irq.h    | 3 ---
+ arch/powerpc/platforms/44x/fsp2.c | 2 +-
+ 2 files changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/mips/include/asm/mach-rc32434/pci.h b/arch/mips/include/asm/mach-rc32434/pci.h
-index 9a6eefd127571..3eb767c8a4eec 100644
---- a/arch/mips/include/asm/mach-rc32434/pci.h
-+++ b/arch/mips/include/asm/mach-rc32434/pci.h
-@@ -374,7 +374,7 @@ struct pci_msu {
- 				 PCI_CFG04_STAT_SSE | \
- 				 PCI_CFG04_STAT_PE)
+diff --git a/arch/powerpc/include/asm/irq.h b/arch/powerpc/include/asm/irq.h
+index 5c1516a5ba8f6..deadd2149426a 100644
+--- a/arch/powerpc/include/asm/irq.h
++++ b/arch/powerpc/include/asm/irq.h
+@@ -16,9 +16,6 @@
  
--#define KORINA_CNFG1		((KORINA_STAT<<16)|KORINA_CMD)
-+#define KORINA_CNFG1		(KORINA_STAT | KORINA_CMD)
+ extern atomic_t ppc_n_lost_interrupts;
  
- #define KORINA_REVID		0
- #define KORINA_CLASS_CODE	0
+-/* This number is used when no interrupt has been assigned */
+-#define NO_IRQ			(0)
+-
+ /* Total number of virq in the platform */
+ #define NR_IRQS		CONFIG_NR_IRQS
+ 
+diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
+index e2e4f6d8150d6..56d91dbef5770 100644
+--- a/arch/powerpc/platforms/44x/fsp2.c
++++ b/arch/powerpc/platforms/44x/fsp2.c
+@@ -205,7 +205,7 @@ static void __init node_irq_request(const char *compat, irq_handler_t errirq_han
+ 
+ 	for_each_compatible_node(np, NULL, compat) {
+ 		irq = irq_of_parse_and_map(np, 0);
+-		if (irq == NO_IRQ) {
++		if (!irq) {
+ 			pr_err("device tree node %pOFn is missing a interrupt",
+ 			      np);
+ 			of_node_put(np);
 -- 
 2.39.2
 
