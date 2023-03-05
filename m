@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C81146AB086
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:56:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2E1F6AB065
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:55:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbjCEN4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:56:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43970 "EHLO
+        id S230173AbjCENzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 08:55:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbjCEN42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:56:28 -0500
+        with ESMTP id S230089AbjCENzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:55:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F6B166E4;
-        Sun,  5 Mar 2023 05:55:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D22F993F2;
+        Sun,  5 Mar 2023 05:54:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1AB160B08;
-        Sun,  5 Mar 2023 13:54:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DA6FC433EF;
-        Sun,  5 Mar 2023 13:54:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E4A460B1B;
+        Sun,  5 Mar 2023 13:54:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F13C0C433EF;
+        Sun,  5 Mar 2023 13:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024478;
-        bh=V8GrjHTdp/YzaPZLletIm2+ljKjPc8/5CtDA5lj08DM=;
+        s=k20201202; t=1678024480;
+        bh=bxTptbUVa63UoQCRWI3jLiKQBHLWc7zNuIcPhaE4q9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ns9cGxMcPiZZ5IGRbs3ImPSLHFDEcXrwIr78jp6tyNZApiGrvV5OuK3bp6mgMg9lO
-         /HMRIq0Z8pzTW9qWb63S4CwEo3giiCF2PX8sbpb4pfwyQrKq5qhgscULnitFyBTd5S
-         8YGE2FlVeOjtEibQW2+zQevABmBQk57IjLAFeZAHMnpaRVMxVi2IObhBLnTSuXpJPU
-         AyEtQoCm0GLssD/dovmbr86rgff33O9x7f/DL3E/bdXZ0uKirKa3+SMOY66d1MmTS8
-         YaOzno8tOqf2iVnZRGQf5m48sEQmXwrXJRPhA8CkB6NygD6pal3KzFG5X2WnNKuoSD
-         h8eqQf+L0hw5Q==
+        b=fTdrVIYNP1IIvzPehBYnLAVUEbXyPpFXsYkNsayIlewtJxK9pp8HnMx79LVs0oaIQ
+         qOYgFKjWfu9CzbG1H9ZHAsRudsdXxxqf45ZDmwNUnm/B24zZObgCRhApt+5axnt1LN
+         kw6QJQJsI+FXvpjrh4efsZEWzMAjqFnrxi/ZjwdiS4ZkgnaP6hDD/aJGbd3ow6VzhL
+         LClzjfbADClDPVY0QelAP3i75lAe2g8bNI9H1D2cIL2YJmwrtjNmCw1j7lilEIxbem
+         4xfOkgRm53hoe9T+ZFIYehMhuGiuJI66h3G0G3UzEZiQbWHJmPp9nO5z0i6fJtDUi5
+         fZl01FvTcEZkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rohan McLure <rmclure@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, joel@jms.id.au,
-        ganeshgr@linux.ibm.com, heying24@huawei.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 4/8] powerpc/kcsan: Exclude udelay to prevent recursive instrumentation
-Date:   Sun,  5 Mar 2023 08:54:21 -0500
-Message-Id: <20230305135425.1793964-4-sashal@kernel.org>
+Cc:     Edward Humes <aurxenon@lunos.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, richard.henderson@linaro.org,
+        ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 5/8] alpha: fix R_ALPHA_LITERAL reloc for large modules
+Date:   Sun,  5 Mar 2023 08:54:22 -0500
+Message-Id: <20230305135425.1793964-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135425.1793964-1-sashal@kernel.org>
 References: <20230305135425.1793964-1-sashal@kernel.org>
@@ -58,47 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohan McLure <rmclure@linux.ibm.com>
+From: Edward Humes <aurxenon@lunos.org>
 
-[ Upstream commit 2a7ce82dc46c591c9244057d89a6591c9639b9b9 ]
+[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
 
-In order for KCSAN to increase its likelihood of observing a data race,
-it sets a watchpoint on memory accesses and stalls, allowing for
-detection of conflicting accesses by other kernel threads or interrupts.
+Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
+modules.
 
-Stalls are implemented by injecting a call to udelay in instrumented code.
-To prevent recursive instrumentation, exclude udelay from being instrumented.
+This was because the Alpha's apply_relocate_add was relying on the kernel's
+module loader to have sorted the GOT towards the very end of the module as it
+was mapped into memory in order to correctly assign the global pointer. While
+this behavior would mostly work fine for small kernel modules, this approach
+would overflow on kernel modules with large GOT's since the global pointer
+would be very far away from the GOT, and thus, certain entries would be out of
+range.
 
-Signed-off-by: Rohan McLure <rmclure@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230206021801.105268-3-rmclure@linux.ibm.com
+This patch fixes this by instead using the Tru64 behavior of assigning the
+global pointer to be 32KB away from the start of the GOT. The change made
+in this patch won't work for multi-GOT kernel modules as it makes the
+assumption the module only has one GOT located at the beginning of .got,
+although for the vast majority kernel modules, this should be fine. Of the
+kernel modules that would previously result in a relocation error, none of
+them, even modules like nouveau, have even come close to filling up a single
+GOT, and they've all worked fine under this patch.
+
+Signed-off-by: Edward Humes <aurxenon@lunos.org>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/alpha/kernel/module.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 1d20f0f77a920..ba9b54d35f570 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -436,7 +436,7 @@ void vtime_flush(struct task_struct *tsk)
- #define calc_cputime_factors()
- #endif
+diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
+index 5b60c248de9ea..cbefa5a773846 100644
+--- a/arch/alpha/kernel/module.c
++++ b/arch/alpha/kernel/module.c
+@@ -146,10 +146,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
+ 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
+ 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
  
--void __delay(unsigned long loops)
-+void __no_kcsan __delay(unsigned long loops)
- {
- 	unsigned long start;
+-	/* The small sections were sorted to the end of the segment.
+-	   The following should definitely cover them.  */
+-	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
+ 	got = sechdrs[me->arch.gotsecindex].sh_addr;
++	gp = got + 0x8000;
  
-@@ -457,7 +457,7 @@ void __delay(unsigned long loops)
- }
- EXPORT_SYMBOL(__delay);
- 
--void udelay(unsigned long usecs)
-+void __no_kcsan udelay(unsigned long usecs)
- {
- 	__delay(tb_ticks_per_usec * usecs);
- }
+ 	for (i = 0; i < n; i++) {
+ 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
 -- 
 2.39.2
 
