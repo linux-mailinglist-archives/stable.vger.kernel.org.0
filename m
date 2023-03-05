@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4C46AB062
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBF56AB04D
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230149AbjCENzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:55:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43418 "EHLO
+        id S230019AbjCENyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 08:54:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229963AbjCENzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:55:07 -0500
+        with ESMTP id S230056AbjCENyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:54:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8061040F7;
-        Sun,  5 Mar 2023 05:54:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EA7DBF8;
+        Sun,  5 Mar 2023 05:54:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C04DB60B1A;
-        Sun,  5 Mar 2023 13:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70068C433D2;
-        Sun,  5 Mar 2023 13:53:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24D1260A54;
+        Sun,  5 Mar 2023 13:53:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3459EC433D2;
+        Sun,  5 Mar 2023 13:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024431;
-        bh=bxTptbUVa63UoQCRWI3jLiKQBHLWc7zNuIcPhaE4q9U=;
+        s=k20201202; t=1678024436;
+        bh=BpYzRbUO6+QDTYmGgfCuetgduaiwpCv1hdivX+XNe7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2zFa1Eo5Zd1oUXAe5qfehASPY7aVap57+hBSrL84YgA/CJ8tlDVoj1mnmZs81pn1
-         3uI6ij3F7xuwSomPmRxp1FUEo/CcTjXVgYt7l4iVO4Y/l9CkcgNE1IhrL91x6WSD0s
-         lebTbwWk4nf5AT147ZyHEC+LqeDU3oYmeEyb3yrHa0c1IKhqqwtdtAPkl90BBrkF/5
-         JnQKGU+fGcjBGRzmGCfd8lh7NMGB49lbf6mhu02nnTNyzAEklbWAHEdOMBSEhhsLTE
-         5DMuJQz8T/KLRCbHhEaG0rIlH0fcRRkz91IfZQnfp4aUrV4e6nJRHW19PzxrauZUBo
-         XrjnuUVwNqYmA==
+        b=XFVhP4uHQbAdimecEV2R3oCsi26Zc/M9gZducDgxsDU+9fRMXbJRpEtrxCIYiIVRa
+         AS6f2aE9mf9b4jC51ytw+m74fhZNAqU4LdvD9AKhrl8whGfrEGEGMnx1hVJhmpzvMn
+         bGoja31t/kko6EWV5L1yuVWufbFk75jEdmO/13T3rSfvJWzhzZBCgPs2X0oYWnS2wg
+         2xTpeOgIoHxPpONtlceGoCsKASJIcN9q45v1p/Fxi4osue+VewL4hayHDvgBfG/G8H
+         RBhQmS7GiThMxjyrJ+5Axv7Su62Cqbu1qIo0t9jynLcfoVdDqXgW0XjXQ/3ZnLojOQ
+         RjtmBm3mZM1ZA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Edward Humes <aurxenon@lunos.org>,
-        Matt Turner <mattst88@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, richard.henderson@linaro.org,
-        ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 12/15] alpha: fix R_ALPHA_LITERAL reloc for large modules
-Date:   Sun,  5 Mar 2023 08:53:03 -0500
-Message-Id: <20230305135306.1793564-12-sashal@kernel.org>
+Cc:     Nathan Chancellor <nathan@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, benh@kernel.crashing.org,
+        ndesaulniers@google.com, u.kleine-koenig@pengutronix.de,
+        luzmaximilian@gmail.com, cminyard@mvista.com, ajayg@nvidia.com,
+        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.1 13/15] macintosh: windfarm: Use unsigned type for 1-bit bitfields
+Date:   Sun,  5 Mar 2023 08:53:04 -0500
+Message-Id: <20230305135306.1793564-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135306.1793564-1-sashal@kernel.org>
 References: <20230305135306.1793564-1-sashal@kernel.org>
@@ -56,53 +59,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Humes <aurxenon@lunos.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
+[ Upstream commit 748ea32d2dbd813d3bd958117bde5191182f909a ]
 
-Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
-modules.
+Clang warns:
 
-This was because the Alpha's apply_relocate_add was relying on the kernel's
-module loader to have sorted the GOT towards the very end of the module as it
-was mapped into memory in order to correctly assign the global pointer. While
-this behavior would mostly work fine for small kernel modules, this approach
-would overflow on kernel modules with large GOT's since the global pointer
-would be very far away from the GOT, and thus, certain entries would be out of
-range.
+  drivers/macintosh/windfarm_lm75_sensor.c:63:14: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
+                  lm->inited = 1;
+                             ^ ~
 
-This patch fixes this by instead using the Tru64 behavior of assigning the
-global pointer to be 32KB away from the start of the GOT. The change made
-in this patch won't work for multi-GOT kernel modules as it makes the
-assumption the module only has one GOT located at the beginning of .got,
-although for the vast majority kernel modules, this should be fine. Of the
-kernel modules that would previously result in a relocation error, none of
-them, even modules like nouveau, have even come close to filling up a single
-GOT, and they've all worked fine under this patch.
+  drivers/macintosh/windfarm_smu_sensors.c:356:19: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
+                  pow->fake_volts = 1;
+                                  ^ ~
+  drivers/macintosh/windfarm_smu_sensors.c:368:18: error: implicit truncation from 'int' to a one-bit wide bit-field changes value from 1 to -1 [-Werror,-Wsingle-bit-bitfield-constant-conversion]
+                  pow->quadratic = 1;
+                                 ^ ~
 
-Signed-off-by: Edward Humes <aurxenon@lunos.org>
-Signed-off-by: Matt Turner <mattst88@gmail.com>
+There is no bug here since no code checks the actual value of these
+fields, just whether or not they are zero (boolean context), but this
+can be easily fixed by switching to an unsigned type.
+
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230215-windfarm-wsingle-bit-bitfield-constant-conversion-v1-1-26415072e855@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/module.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/macintosh/windfarm_lm75_sensor.c | 4 ++--
+ drivers/macintosh/windfarm_smu_sensors.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
-index 5b60c248de9ea..cbefa5a773846 100644
---- a/arch/alpha/kernel/module.c
-+++ b/arch/alpha/kernel/module.c
-@@ -146,10 +146,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
- 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
- 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
+diff --git a/drivers/macintosh/windfarm_lm75_sensor.c b/drivers/macintosh/windfarm_lm75_sensor.c
+index 204661c8e918f..9dd80837a759a 100644
+--- a/drivers/macintosh/windfarm_lm75_sensor.c
++++ b/drivers/macintosh/windfarm_lm75_sensor.c
+@@ -33,8 +33,8 @@
+ #endif
  
--	/* The small sections were sorted to the end of the segment.
--	   The following should definitely cover them.  */
--	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
- 	got = sechdrs[me->arch.gotsecindex].sh_addr;
-+	gp = got + 0x8000;
- 
- 	for (i = 0; i < n; i++) {
- 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
+ struct wf_lm75_sensor {
+-	int			ds1775 : 1;
+-	int			inited : 1;
++	unsigned int		ds1775 : 1;
++	unsigned int		inited : 1;
+ 	struct i2c_client	*i2c;
+ 	struct wf_sensor	sens;
+ };
+diff --git a/drivers/macintosh/windfarm_smu_sensors.c b/drivers/macintosh/windfarm_smu_sensors.c
+index 00c6fe25fcba0..2bdb73b34d291 100644
+--- a/drivers/macintosh/windfarm_smu_sensors.c
++++ b/drivers/macintosh/windfarm_smu_sensors.c
+@@ -274,8 +274,8 @@ struct smu_cpu_power_sensor {
+ 	struct list_head	link;
+ 	struct wf_sensor	*volts;
+ 	struct wf_sensor	*amps;
+-	int			fake_volts : 1;
+-	int			quadratic : 1;
++	unsigned int		fake_volts : 1;
++	unsigned int		quadratic : 1;
+ 	struct wf_sensor	sens;
+ };
+ #define to_smu_cpu_power(c) container_of(c, struct smu_cpu_power_sensor, sens)
 -- 
 2.39.2
 
