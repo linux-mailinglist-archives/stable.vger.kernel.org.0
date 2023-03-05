@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E83AD6AB019
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD096AB01D
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbjCENwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:52:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
+        id S229703AbjCENxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 08:53:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229621AbjCENwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:52:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA946158AC;
-        Sun,  5 Mar 2023 05:52:30 -0800 (PST)
+        with ESMTP id S229691AbjCENxI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:53:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 814CB16AE7;
+        Sun,  5 Mar 2023 05:52:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FADE60B06;
-        Sun,  5 Mar 2023 13:52:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4310CC433D2;
-        Sun,  5 Mar 2023 13:52:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B3B260B04;
+        Sun,  5 Mar 2023 13:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 016A3C433D2;
+        Sun,  5 Mar 2023 13:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024349;
-        bh=cghi09Wbzn7gRbEilv55hS/JW49IJkg0VYRCod5bCys=;
+        s=k20201202; t=1678024352;
+        bh=SIweHOSwLFh5mHa7adC3YqQ38yalzSuKcdxd8dSPmss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbjVW1/agSxqO2GdSR3t7AvCbMR5Sq1DExHjlmcLUKytHw7GybkZ0SQDw2Vfr+kpn
-         sP8vN8LTlyvkbWG605BGEPj7xjUsLbdLjHKn09kFJp3tGNO/XY37IcnBKMePc7/znh
-         tpc+Xam5aTfJjBQTKCI+OMoOX7XSLx9fZIFxJCWCQGK92y54vxZ3qm5cdBwKf30vqc
-         6ZAe/eOxEkYw629DmIlrgLjgsTsKDEI8joQN18ofQBvwuGrC//10UGcWJhuftepGOn
-         1JqUnCc7pYpg6QnGXwLcAIJy3UztAE6FDb+CLhDqHP/isBI1XwmXI8Os1fU74nGpPx
-         /c6NA+yNxEC6A==
+        b=WNl4igqD4DIStFs/ybQiQ+XF8t9GYl97Krya2q/1lQIQupSjZjb1TIHYzWdalFLh6
+         wIYNWbkMhvLchq4J2PGpwN9jhCFxORgjb/zHjvVWdfQurvzRgX5viVNsj2NuOjbjJu
+         FsDniBIcHBtFuFXe3nkWIz5lOrjrsQWuYx5izmRG/1AAEWu+7jTXdDzxEtICFL/1O/
+         mB+8DQWlPQNybu1LnaOOgcImCswNDai7gxyoJQX8d2uiW44QlkuGRYbz8gwyhC1dIz
+         NUKyUXgnyPinE4UMBUCpgfPFECtCsSOpvwFHTN/11ySNrSbWF4ta3CIDsP20Xns4f5
+         av7vAp0kHbfsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Gordeev <agordeev@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, cohuck@redhat.com,
-        pasic@linux.ibm.com, farman@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, linux-s390@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 05/16] s390/virtio: sort out physical vs virtual pointers usage
-Date:   Sun,  5 Mar 2023 08:51:56 -0500
-Message-Id: <20230305135207.1793266-5-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, aik@ozlabs.ru,
+        christophe.leroy@csgroup.eu, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 6.2 06/16] powerpc/iommu: fix memory leak with using debugfs_lookup()
+Date:   Sun,  5 Mar 2023 08:51:57 -0500
+Message-Id: <20230305135207.1793266-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135207.1793266-1-sashal@kernel.org>
 References: <20230305135207.1793266-1-sashal@kernel.org>
@@ -50,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,206 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 5fc5b94a273655128159186c87662105db8afeb5 ]
+[ Upstream commit b505063910c134778202dfad9332dfcecb76bab3 ]
 
-This does not fix a real bug, since virtual addresses
-are currently indentical to physical ones.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230202141919.2298821-1-gregkh@linuxfoundation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/virtio/virtio_ccw.c | 46 +++++++++++++++++---------------
- 1 file changed, 24 insertions(+), 22 deletions(-)
+ arch/powerpc/kernel/iommu.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index a10dbe632ef9b..954fc31b4bc74 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -363,7 +363,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
- 		thinint_area->isc = VIRTIO_AIRQ_ISC;
- 		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
- 		ccw->count = sizeof(*thinint_area);
--		ccw->cda = (__u32)(unsigned long) thinint_area;
-+		ccw->cda = (__u32)virt_to_phys(thinint_area);
- 	} else {
- 		/* payload is the address of the indicators */
- 		indicatorp = ccw_device_dma_zalloc(vcdev->cdev,
-@@ -373,7 +373,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
- 		*indicatorp = 0;
- 		ccw->cmd_code = CCW_CMD_SET_IND;
- 		ccw->count = sizeof(indicators(vcdev));
--		ccw->cda = (__u32)(unsigned long) indicatorp;
-+		ccw->cda = (__u32)virt_to_phys(indicatorp);
- 	}
- 	/* Deregister indicators from host. */
- 	*indicators(vcdev) = 0;
-@@ -417,7 +417,7 @@ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
- 	ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(struct vq_config_block);
--	ccw->cda = (__u32)(unsigned long)(&vcdev->dma_area->config_block);
-+	ccw->cda = (__u32)virt_to_phys(&vcdev->dma_area->config_block);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
- 	if (ret)
- 		return ret;
-@@ -454,7 +454,7 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
- 	}
- 	ccw->cmd_code = CCW_CMD_SET_VQ;
- 	ccw->flags = 0;
--	ccw->cda = (__u32)(unsigned long)(info->info_block);
-+	ccw->cda = (__u32)virt_to_phys(info->info_block);
- 	ret = ccw_io_helper(vcdev, ccw,
- 			    VIRTIO_CCW_DOING_SET_VQ | index);
- 	/*
-@@ -556,7 +556,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 	}
- 	ccw->cmd_code = CCW_CMD_SET_VQ;
- 	ccw->flags = 0;
--	ccw->cda = (__u32)(unsigned long)(info->info_block);
-+	ccw->cda = (__u32)virt_to_phys(info->info_block);
- 	err = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_VQ | i);
- 	if (err) {
- 		dev_warn(&vcdev->cdev->dev, "SET_VQ failed\n");
-@@ -590,6 +590,7 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
+diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
+index caebe1431596e..ee95937bdaf14 100644
+--- a/arch/powerpc/kernel/iommu.c
++++ b/arch/powerpc/kernel/iommu.c
+@@ -67,11 +67,9 @@ static void iommu_debugfs_add(struct iommu_table *tbl)
+ static void iommu_debugfs_del(struct iommu_table *tbl)
  {
- 	int ret;
- 	struct virtio_thinint_area *thinint_area = NULL;
-+	unsigned long indicator_addr;
- 	struct airq_info *info;
+ 	char name[10];
+-	struct dentry *liobn_entry;
  
- 	thinint_area = ccw_device_dma_zalloc(vcdev->cdev,
-@@ -599,21 +600,22 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
- 		goto out;
- 	}
- 	/* Try to get an indicator. */
--	thinint_area->indicator = get_airq_indicator(vqs, nvqs,
--						     &thinint_area->bit_nr,
--						     &vcdev->airq_info);
--	if (!thinint_area->indicator) {
-+	indicator_addr = get_airq_indicator(vqs, nvqs,
-+					    &thinint_area->bit_nr,
-+					    &vcdev->airq_info);
-+	if (!indicator_addr) {
- 		ret = -ENOSPC;
- 		goto out;
- 	}
-+	thinint_area->indicator = virt_to_phys((void *)indicator_addr);
- 	info = vcdev->airq_info;
- 	thinint_area->summary_indicator =
--		(unsigned long) get_summary_indicator(info);
-+		virt_to_phys(get_summary_indicator(info));
- 	thinint_area->isc = VIRTIO_AIRQ_ISC;
- 	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
- 	ccw->flags = CCW_FLAG_SLI;
- 	ccw->count = sizeof(*thinint_area);
--	ccw->cda = (__u32)(unsigned long)thinint_area;
-+	ccw->cda = (__u32)virt_to_phys(thinint_area);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND_ADAPTER);
- 	if (ret) {
- 		if (ret == -EOPNOTSUPP) {
-@@ -686,7 +688,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		ccw->cmd_code = CCW_CMD_SET_IND;
- 		ccw->flags = 0;
- 		ccw->count = sizeof(indicators(vcdev));
--		ccw->cda = (__u32)(unsigned long) indicatorp;
-+		ccw->cda = (__u32)virt_to_phys(indicatorp);
- 		ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
- 		if (ret)
- 			goto out;
-@@ -697,7 +699,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	ccw->cmd_code = CCW_CMD_SET_CONF_IND;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(indicators2(vcdev));
--	ccw->cda = (__u32)(unsigned long) indicatorp;
-+	ccw->cda = (__u32)virt_to_phys(indicatorp);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_CONF_IND);
- 	if (ret)
- 		goto out;
-@@ -759,7 +761,7 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- 	ccw->cmd_code = CCW_CMD_READ_FEAT;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*features);
--	ccw->cda = (__u32)(unsigned long)features;
-+	ccw->cda = (__u32)virt_to_phys(features);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_FEAT);
- 	if (ret) {
- 		rc = 0;
-@@ -776,7 +778,7 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- 	ccw->cmd_code = CCW_CMD_READ_FEAT;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*features);
--	ccw->cda = (__u32)(unsigned long)features;
-+	ccw->cda = (__u32)virt_to_phys(features);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_FEAT);
- 	if (ret == 0)
- 		rc |= (u64)le32_to_cpu(features->features) << 32;
-@@ -829,7 +831,7 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*features);
--	ccw->cda = (__u32)(unsigned long)features;
-+	ccw->cda = (__u32)virt_to_phys(features);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
- 	if (ret)
- 		goto out_free;
-@@ -843,7 +845,7 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*features);
--	ccw->cda = (__u32)(unsigned long)features;
-+	ccw->cda = (__u32)virt_to_phys(features);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
- 
- out_free:
-@@ -875,7 +877,7 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
- 	ccw->cmd_code = CCW_CMD_READ_CONF;
- 	ccw->flags = 0;
- 	ccw->count = offset + len;
--	ccw->cda = (__u32)(unsigned long)config_area;
-+	ccw->cda = (__u32)virt_to_phys(config_area);
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_CONFIG);
- 	if (ret)
- 		goto out_free;
-@@ -922,7 +924,7 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
- 	ccw->cmd_code = CCW_CMD_WRITE_CONF;
- 	ccw->flags = 0;
- 	ccw->count = offset + len;
--	ccw->cda = (__u32)(unsigned long)config_area;
-+	ccw->cda = (__u32)virt_to_phys(config_area);
- 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_CONFIG);
- 
- out_free:
-@@ -946,7 +948,7 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
- 	ccw->cmd_code = CCW_CMD_READ_STATUS;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(vcdev->dma_area->status);
--	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
-+	ccw->cda = (__u32)virt_to_phys(&vcdev->dma_area->status);
- 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_STATUS);
- /*
-  * If the channel program failed (should only happen if the device
-@@ -975,7 +977,7 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
- 	ccw->cmd_code = CCW_CMD_WRITE_STATUS;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(status);
--	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
-+	ccw->cda = (__u32)virt_to_phys(&vcdev->dma_area->status);
- 	/* We use ssch for setting the status which is a serializing
- 	 * instruction that guarantees the memory writes have
- 	 * completed before ssch.
-@@ -1274,7 +1276,7 @@ static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
- 	ccw->cmd_code = CCW_CMD_SET_VIRTIO_REV;
- 	ccw->flags = 0;
- 	ccw->count = sizeof(*rev);
--	ccw->cda = (__u32)(unsigned long)rev;
-+	ccw->cda = (__u32)virt_to_phys(rev);
- 
- 	vcdev->revision = VIRTIO_CCW_REV_MAX;
- 	do {
+ 	sprintf(name, "%08lx", tbl->it_index);
+-	liobn_entry = debugfs_lookup(name, iommu_debugfs_dir);
+-	debugfs_remove(liobn_entry);
++	debugfs_lookup_and_remove(name, iommu_debugfs_dir);
+ }
+ #else
+ static void iommu_debugfs_add(struct iommu_table *tbl){}
 -- 
 2.39.2
 
