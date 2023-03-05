@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78FC76AB047
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:54:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FD96AB0EA
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 15:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229875AbjCENyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:54:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39708 "EHLO
+        id S229990AbjCEOIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 09:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229615AbjCENyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:54:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E0618A9B;
-        Sun,  5 Mar 2023 05:53:35 -0800 (PST)
+        with ESMTP id S229986AbjCEOIf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 09:08:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C789411175;
+        Sun,  5 Mar 2023 06:08:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 429AA60B02;
-        Sun,  5 Mar 2023 13:53:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3710C433EF;
-        Sun,  5 Mar 2023 13:53:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F350060B04;
+        Sun,  5 Mar 2023 13:53:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F10AC4339C;
+        Sun,  5 Mar 2023 13:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024412;
-        bh=W1QfcQHVZVFp9rQvEhfqJH+RvdNqkFLq8fN0NrQTBe0=;
+        s=k20201202; t=1678024415;
+        bh=XXhWnAJ1mPexiyOnY6ivwMe4/AfJL2NSd6aZbOxjhik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkflD1xsCM/jRo7VJgr+3LGaKpmnPiwBUKmH0AqkthHvXLm4EVE6q1OKXP/WPvMeL
-         f0W0uq+5it/Px5mx/YIAOIsZDeyobw0ulGoXvu349u+qU5TyYdEZBjBSmuT1gr42E2
-         cMYNxzv8twS4LswUDpchQ1rTXkWcr+tD/V8e6UBaay/se+pnW94OhJfnAwwZqhaNV1
-         kjtiKcOmiGN+y7sx3/q0FPAj5VKy5JpwYo807Nf/yJGwt0n0sUlUVPS8Fp90/OlsMr
-         5uoL3hotyU2TeIeXoZ6QghuSYBngV7hUdrfhxirRIDC0aeHUWXoQU/KjO8BeixcveK
-         4EhJ5G7PLpdPg==
+        b=BE9jHv2/Cc1coeMIuMOUeytzxkSQEjXlXwoTAlgdD2+yigUP9F08LTvdV1LPrD2NG
+         cEr1uLpE7JINeY1z9Y5RUXUUURW+WyAv4v7EqruSh0HjJXyZwbcOw2Rj/lscldKzXA
+         +X7QO32apnoGz8G8iHnnFtcpRuO4mwMNPc5r/95MK63mNpoxoWeQAKxJNzlYuiyoQW
+         92QejPIKYcoo/c/owjuWaUS0fc1P9w68Q0ht187OPxmAg23S46ZHMcUWSRBqJgIkVb
+         PfM6tl+rUBNeFjNHCELV4T4UeY/tBiXGEqn0S7s8QseFXTa3lvYc4MBarOvo51ULGs
+         ssItVY/OVddsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org,
-        naveen.n.rao@linux.ibm.com, bpf@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
+        pmladek@suse.com, peterz@infradead.org,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 6.1 08/15] powerpc/bpf/32: Only set a stack frame when necessary
-Date:   Sun,  5 Mar 2023 08:52:59 -0500
-Message-Id: <20230305135306.1793564-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 09/15] powerpc/64: Fix task_cpu in early boot when booting non-zero cpuid
+Date:   Sun,  5 Mar 2023 08:53:00 -0500
+Message-Id: <20230305135306.1793564-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135306.1793564-1-sashal@kernel.org>
 References: <20230305135306.1793564-1-sashal@kernel.org>
@@ -49,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,78 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit d084dcf256bc4565b4b1af9b00297ac7b51c7049 ]
+[ Upstream commit 9fa24404f5044967753a6cd3e5e36f57686bec6e ]
 
-Until now a stack frame was set at all time due to the need
-to keep tail call counter in the stack.
+powerpc/64 can boot on a non-zero SMP processor id. Initially, the boot
+CPU is said to be "assumed to be 0" until early_init_devtree() discovers
+the id from the device tree. That is not a good description because the
+assumption can be wrong and that has to be handled, the better
+description is that 0 is used as a placeholder, and things are fixed
+after the real id is discovered.
 
-But since commit 89d21e259a94 ("powerpc/bpf/32: Fix Oops on tail call
-tests") the tail call counter is passed via register r4. It is therefore
-not necessary anymore to have a stack frame for that.
+smp_processor_id() is set to the boot cpuid, but task_cpu(current) is
+not, which causes the smp_processor_id() == task_cpu(current) invariant
+to be broken until init_idle() in sched_init().
 
-Just like PPC64, implement bpf_has_stack_frame() and only sets the frame
-when needed.
+This is quite fragile and could lead to subtle bugs in future. One bug
+is that validate_sp_size uses task_cpu() to get the process stack, so
+any stack trace from the booting CPU between early_init_devtree()
+and sched_init() will have problems. Early on paca_ptrs[0] will be
+poisoned, so that can cause machine checks dereferencing that memory
+in real mode. Later, validating the current stack pointer against the
+idle task of a different secondary will probably cause no stack trace
+to be printed.
 
-The difference with PPC64 is that PPC32 doesn't have a redzone, so
-the stack is required as soon as non volatile registers are used or
-when tail call count is set up.
+Fix this by setting thread_info->cpu right after smp_processor_id() is
+set to the boot cpuid.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Fix commit reference in change log]
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+[mpe: Fix SMP=n build as reported by sfr]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/62d7b654a3cfe73d998697cb29bbc5ffd89bfdb1.1675245773.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20221216115930.2667772-3-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/net/bpf_jit_comp32.c | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/setup_64.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/powerpc/net/bpf_jit_comp32.c b/arch/powerpc/net/bpf_jit_comp32.c
-index a379b0ce19ffa..8643b2c8b76ef 100644
---- a/arch/powerpc/net/bpf_jit_comp32.c
-+++ b/arch/powerpc/net/bpf_jit_comp32.c
-@@ -79,6 +79,20 @@ static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
- #define SEEN_NVREG_FULL_MASK	0x0003ffff /* Non volatile registers r14-r31 */
- #define SEEN_NVREG_TEMP_MASK	0x00001e01 /* BPF_REG_5, BPF_REG_AX, TMP_REG */
- 
-+static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
-+{
-+	/*
-+	 * We only need a stack frame if:
-+	 * - we call other functions (kernel helpers), or
-+	 * - we use non volatile registers, or
-+	 * - we use tail call counter
-+	 * - the bpf program uses its stack area
-+	 * The latter condition is deduced from the usage of BPF_REG_FP
-+	 */
-+	return ctx->seen & (SEEN_FUNC | SEEN_TAILCALL | SEEN_NVREG_FULL_MASK) ||
-+	       bpf_is_seen_register(ctx, bpf_to_ppc(BPF_REG_FP));
-+}
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index a0dee7354fe6b..a43865e0fb4bf 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -396,6 +396,11 @@ void __init early_setup(unsigned long dt_ptr)
+ 	}
+ 	fixup_boot_paca(paca_ptrs[boot_cpuid]);
+ 	setup_paca(paca_ptrs[boot_cpuid]); /* install the paca into registers */
++	// smp_processor_id() now reports boot_cpuid
 +
- void bpf_jit_realloc_regs(struct codegen_context *ctx)
- {
- 	unsigned int nvreg_mask;
-@@ -118,7 +132,8 @@ void bpf_jit_build_prologue(u32 *image, struct codegen_context *ctx)
++#ifdef CONFIG_SMP
++	task_thread_info(current)->cpu = boot_cpuid; // fix task_cpu(current)
++#endif
  
- #define BPF_TAILCALL_PROLOGUE_SIZE	4
- 
--	EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
-+	if (bpf_has_stack_frame(ctx))
-+		EMIT(PPC_RAW_STWU(_R1, _R1, -BPF_PPC_STACKFRAME(ctx)));
- 
- 	if (ctx->seen & SEEN_TAILCALL)
- 		EMIT(PPC_RAW_STW(_R4, _R1, bpf_jit_stack_offsetof(ctx, BPF_PPC_TC)));
-@@ -171,7 +186,8 @@ static void bpf_jit_emit_common_epilogue(u32 *image, struct codegen_context *ctx
- 		EMIT(PPC_RAW_LWZ(_R0, _R1, BPF_PPC_STACKFRAME(ctx) + PPC_LR_STKOFF));
- 
- 	/* Tear down our stack frame */
--	EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
-+	if (bpf_has_stack_frame(ctx))
-+		EMIT(PPC_RAW_ADDI(_R1, _R1, BPF_PPC_STACKFRAME(ctx)));
- 
- 	if (ctx->seen & SEEN_FUNC)
- 		EMIT(PPC_RAW_MTLR(_R0));
+ 	/*
+ 	 * Configure exception handlers. This include setting up trampolines
 -- 
 2.39.2
 
