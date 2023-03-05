@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB0C6AB0AE
-	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:58:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2896AB08F
+	for <lists+stable@lfdr.de>; Sun,  5 Mar 2023 14:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230380AbjCEN6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 08:58:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43380 "EHLO
+        id S230254AbjCEN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 08:57:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230285AbjCEN5w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:57:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4815E1A64F;
-        Sun,  5 Mar 2023 05:56:58 -0800 (PST)
+        with ESMTP id S230222AbjCEN5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 08:57:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1B7210D;
+        Sun,  5 Mar 2023 05:56:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5B8BB80ACE;
-        Sun,  5 Mar 2023 13:54:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD130C433D2;
-        Sun,  5 Mar 2023 13:54:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A939060B0D;
+        Sun,  5 Mar 2023 13:55:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44C66C433EF;
+        Sun,  5 Mar 2023 13:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678024498;
-        bh=7xD3X6MpnJbx2RsII0tEO8wHfCTuyt13z+tHDer6SfQ=;
+        s=k20201202; t=1678024501;
+        bh=uK+ef2YNaL/8nHoWhWxVzFQp5/xsZI26cmKsOwW7KEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDePuMI3lz60EAq51gGLwHBf/biCzJb4x1AaqZXzLyBWBjNxKck9G2+CcQvxztho0
-         R+yqVbUpQSnCmpCZPVlvUm0u4VENunmAgL2MqgRoJT/R9pa3GbB90EkWltILZuxzjV
-         rWRAeB28vNOXpTInBY+5g4JcOecSz8dCF9M8Aqu72A11IMlgTCI/LSGROoDCqjI3SW
-         QqjhQQfZ/zSPlOaOcUSgUSr+01QrP6sBlarD2ubFXE7EWnUTcAPhP+pPZwpvrNY0D8
-         6L67nkmr62YY+PEe8goepP0aiGV76ILknfuvhOvib0DAqeJuLRFueegVgAZW52hkhn
-         N5Akg/bkIlXIw==
+        b=Yj7JEtF38ZCtqTgx3S2moTlfrP4/zPZN4QLocGMec4npr5JPp8+SX7LHEzyhhsODl
+         QRvhOKBq6G+8EIuEamM+eTzo6yD6Ogmq2AWyXzp3LMvzfje4k+mawvxYAvAasAfgmt
+         dwKE0FAMPMUBbTDA/keCv7WrugI5NNvAK6QcVGmUTVm9mh8GPutCiCA8c51S6czkqH
+         q9xGwNHN7oaE9nxjt6xCxhXUJcm8vJBOr4KkKjjpErfDxi7GiSLu+UvF1up8+zzMWW
+         KUZ0dysYbBIGVp8u25CMWryoi26801goyNTSqofVJklWG4Pp6QH+l9V0QH7gYrhdKm
+         +R6DdC56F0Yzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 3/7] powerpc: Check !irq instead of irq == NO_IRQ and remove NO_IRQ
-Date:   Sun,  5 Mar 2023 08:54:44 -0500
-Message-Id: <20230305135449.1794083-3-sashal@kernel.org>
+Cc:     Edward Humes <aurxenon@lunos.org>,
+        Matt Turner <mattst88@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, richard.henderson@linaro.org,
+        ink@jurassic.park.msu.ru, linux-alpha@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 4/7] alpha: fix R_ALPHA_LITERAL reloc for large modules
+Date:   Sun,  5 Mar 2023 08:54:45 -0500
+Message-Id: <20230305135449.1794083-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230305135449.1794083-1-sashal@kernel.org>
 References: <20230305135449.1794083-1-sashal@kernel.org>
@@ -55,70 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Edward Humes <aurxenon@lunos.org>
 
-[ Upstream commit bab537805a10bdbf55b31324ba4a9599e0651e5e ]
+[ Upstream commit b6b17a8b3ecd878d98d5472a9023ede9e669ca72 ]
 
-NO_IRQ is a relic from the old days. It is not used anymore in core
-functions. By the way, function irq_of_parse_and_map() returns value 0
-on error.
+Previously, R_ALPHA_LITERAL relocations would overflow for large kernel
+modules.
 
-In some drivers, NO_IRQ is erroneously used to check the return of
-irq_of_parse_and_map().
+This was because the Alpha's apply_relocate_add was relying on the kernel's
+module loader to have sorted the GOT towards the very end of the module as it
+was mapped into memory in order to correctly assign the global pointer. While
+this behavior would mostly work fine for small kernel modules, this approach
+would overflow on kernel modules with large GOT's since the global pointer
+would be very far away from the GOT, and thus, certain entries would be out of
+range.
 
-It is not a real bug today because the only architectures using the
-drivers being fixed by this patch define NO_IRQ as 0, but there are
-architectures which define NO_IRQ as -1. If one day those
-architectures start using the non fixed drivers, there will be a
-problem.
+This patch fixes this by instead using the Tru64 behavior of assigning the
+global pointer to be 32KB away from the start of the GOT. The change made
+in this patch won't work for multi-GOT kernel modules as it makes the
+assumption the module only has one GOT located at the beginning of .got,
+although for the vast majority kernel modules, this should be fine. Of the
+kernel modules that would previously result in a relocation error, none of
+them, even modules like nouveau, have even come close to filling up a single
+GOT, and they've all worked fine under this patch.
 
-Long time ago Linus advocated for not using NO_IRQ, see
-https://lore.kernel.org/all/Pine.LNX.4.64.0511211150040.13959@g5.osdl.org
-
-He re-iterated the same view recently in
-https://lore.kernel.org/all/CAHk-=wg2Pkb9kbfbstbB91AJA2SF6cySbsgHG-iQMq56j3VTcA@mail.gmail.com
-
-So test !irq instead of tesing irq == NO_IRQ.
-
-All other usage of NO_IRQ for powerpc were removed in previous cycles so
-the time has come to remove NO_IRQ completely for powerpc.
-
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4b8d4f96140af01dec3a3330924dda8b2451c316.1674476798.git.christophe.leroy@csgroup.eu
+Signed-off-by: Edward Humes <aurxenon@lunos.org>
+Signed-off-by: Matt Turner <mattst88@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/irq.h    | 3 ---
- arch/powerpc/platforms/44x/fsp2.c | 2 +-
- 2 files changed, 1 insertion(+), 4 deletions(-)
+ arch/alpha/kernel/module.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/irq.h b/arch/powerpc/include/asm/irq.h
-index 814dfab7e392e..f2f952ca87c37 100644
---- a/arch/powerpc/include/asm/irq.h
-+++ b/arch/powerpc/include/asm/irq.h
-@@ -17,9 +17,6 @@
+diff --git a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
+index ac110ae8f9780..b19a8aae74e1f 100644
+--- a/arch/alpha/kernel/module.c
++++ b/arch/alpha/kernel/module.c
+@@ -146,10 +146,8 @@ apply_relocate_add(Elf64_Shdr *sechdrs, const char *strtab,
+ 	base = (void *)sechdrs[sechdrs[relsec].sh_info].sh_addr;
+ 	symtab = (Elf64_Sym *)sechdrs[symindex].sh_addr;
  
- extern atomic_t ppc_n_lost_interrupts;
+-	/* The small sections were sorted to the end of the segment.
+-	   The following should definitely cover them.  */
+-	gp = (u64)me->core_layout.base + me->core_layout.size - 0x8000;
+ 	got = sechdrs[me->arch.gotsecindex].sh_addr;
++	gp = got + 0x8000;
  
--/* This number is used when no interrupt has been assigned */
--#define NO_IRQ			(0)
--
- /* Total number of virq in the platform */
- #define NR_IRQS		CONFIG_NR_IRQS
- 
-diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
-index 823397c802def..f8bbe05d9ef29 100644
---- a/arch/powerpc/platforms/44x/fsp2.c
-+++ b/arch/powerpc/platforms/44x/fsp2.c
-@@ -205,7 +205,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
- 
- 	for_each_compatible_node(np, NULL, compat) {
- 		irq = irq_of_parse_and_map(np, 0);
--		if (irq == NO_IRQ) {
-+		if (!irq) {
- 			pr_err("device tree node %pOFn is missing a interrupt",
- 			      np);
- 			of_node_put(np);
+ 	for (i = 0; i < n; i++) {
+ 		unsigned long r_sym = ELF64_R_SYM (rela[i].r_info);
 -- 
 2.39.2
 
