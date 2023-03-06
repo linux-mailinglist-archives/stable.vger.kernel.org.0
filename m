@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3519C6ACCF9
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 19:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8F4F6ACCFD
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 19:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229922AbjCFSsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 13:48:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55448 "EHLO
+        id S230164AbjCFStI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 13:49:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230126AbjCFSsv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 13:48:51 -0500
+        with ESMTP id S230166AbjCFStE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 13:49:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8282364F
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:48:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F4638E80
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:48:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98D4AB810AF
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 18:48:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF4A6C433EF;
-        Mon,  6 Mar 2023 18:48:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43B75B810AB
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 18:48:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A3EC433EF;
+        Mon,  6 Mar 2023 18:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678128521;
-        bh=hs7dP/ebOErX5oxL7g4VDXOkztE+e9KPFzBqf8qJQ0o=;
+        s=korg; t=1678128523;
+        bh=NxWjN6OP9JcE3atI5+Wr4dsxGgHRnpLP9r1DsE5ia/Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=YuHcozMQw4CEz3KS4OWBg5ASwU8LOOcC68p4KG37nZffQreM1pS6w6Dz9tndiwICx
-         sDkAbYUw9j3jaFNkC6n800YOv9ZedcNjFZAciA3tHfelCZsmKhwQgUBsG0BZib/5RC
-         I2iv3ww/AnMqBSdXLLQQyHXoWKuhWh9wy8aTk7/0=
-Subject: FAILED: patch "[PATCH] irqdomain: Refactor __irq_domain_alloc_irqs()" failed to apply to 5.10-stable tree
+        b=thO4ii6VFKFM6E5LnaHXj5B179rL6i0BXuOSHUtVvJ0amwXLkkGPmCk1kY7WNZVi6
+         OWfFdNpiRv0y45vvhqUFw/q4oqnZ26I765sPkQG2WXomGfHLX2DMy7huYH7cB5Uj7A
+         W5f2ejcz0lxzh4IHy18TtwJuV5d9DQsUzKHL3c50=
+Subject: FAILED: patch "[PATCH] irqdomain: Refactor __irq_domain_alloc_irqs()" failed to apply to 5.4-stable tree
 To:     johan+linaro@kernel.org, hsinyi@chromium.org,
         mark-pk.tsai@mediatek.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 19:48:36 +0100
-Message-ID: <16781285161731@kroah.com>
+Date:   Mon, 06 Mar 2023 19:48:37 +0100
+Message-ID: <167812851762200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,23 +48,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x d55f7f4c58c07beb5050a834bf57ae2ede599c7e
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781285161731@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167812851762200@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
 d55f7f4c58c0 ("irqdomain: Refactor __irq_domain_alloc_irqs()")
+55567976629e ("genirq/irqdomain: Allow partial trimming of irq_data hierarchy")
+87f2d1c662fa ("genirq/irqdomain: Check pointer in irq_domain_alloc_irqs_hierarchy()")
 
 thanks,
 
