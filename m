@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E79DA6AC7AF
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 17:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5300F6AC819
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 17:35:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229878AbjCFQWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 11:22:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48168 "EHLO
+        id S229911AbjCFQfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 11:35:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229962AbjCFQVw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 11:21:52 -0500
+        with ESMTP id S230341AbjCFQfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 11:35:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D9BE077
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 08:19:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959721FC6
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 08:34:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F4CFB80D98
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 16:09:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6B5C433EF;
-        Mon,  6 Mar 2023 16:09:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 252F7B80F3B
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 16:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B2A3C433D2;
+        Mon,  6 Mar 2023 16:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678118953;
-        bh=OtqhZXz4x5XgwVKvkyAKLWKujghtvjDQw+hTULS/HLg=;
+        s=korg; t=1678118955;
+        bh=8V7rDhMtJ9r8w8ztbub7bhC2JanCuDJpcg3LYP1OL9o=;
         h=Subject:To:Cc:From:Date:From;
-        b=RdBRKUWMi9mjkBPqpE87cvSf1H/RmR0YSemTiCw0Ze8FS22+h59/rf3dXMMowDWl+
-         UVhTJJqUvp/RbSrL2Zufap9xzRQytyP35MlcuWsEhrf/h2Hw2yYfTvpVvYVngqc3Tx
-         HgyLhoyfk0lNidlKN+FtO/Inm86yZlBQMCWs9qds=
-Subject: FAILED: patch "[PATCH] KVM: VMX: Do _all_ initialization before exposing /dev/kvm to" failed to apply to 6.1-stable tree
+        b=yALZ6tEjU5LQ3efssJcsXW91rUAqt5X7boB+xDnPNeus+yuTtLa/DCft0DLw+0iHD
+         zVALrfa1I4Vetg0OwcQ8RiGW31+QifTY+tpabwGmXTFolOK6pRVER22YjDVOSwRWhe
+         1v0oMPoItMSrZmwSbo+xgQVaKo/UVHIj4OLjxhQc=
+Subject: FAILED: patch "[PATCH] KVM: VMX: Do _all_ initialization before exposing /dev/kvm to" failed to apply to 5.15-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 17:09:08 +0100
-Message-ID: <1678118948184196@kroah.com>
+Date:   Mon, 06 Mar 2023 17:09:09 +0100
+Message-ID: <167811894915491@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x e32b120071ea114efc0b4ddd439547750b85f618
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678118948184196@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167811894915491@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
@@ -67,6 +67,17 @@ e32b120071ea ("KVM: VMX: Do _all_ initialization before exposing /dev/kvm to use
 4f8396b96a9f ("KVM: x86: Move guts of kvm_arch_init() to standalone helper")
 da66de44b01e ("KVM: VMX: Don't bother disabling eVMCS static key on module exit")
 2916b70fc342 ("KVM: VMX: Reset eVMCS controls in VP assist page during hardware disabling")
+94bda2f4cd86 ("KVM: x86: Reject loading KVM if host.PAT[0] != WB")
+fdc298da8661 ("KVM: x86: Move kvm_ops_static_call_update() to x86.c")
+5e17b2ee45b9 ("kvm: x86: Require const tsc for RT")
+925088781eed ("KVM: x86: Fix pointer mistmatch warning when patching RET0 static calls")
+5be2226f417d ("KVM: x86: allow defining return-0 static calls")
+abb6d479e226 ("KVM: x86: make several APIC virtualization callbacks optional")
+dd2319c61888 ("KVM: x86: warn on incorrectly NULL members of kvm_x86_ops")
+e4fc23bad813 ("KVM: x86: remove KVM_X86_OP_NULL and mark optional kvm_x86_ops")
+8a2897853c53 ("KVM: x86: return 1 unconditionally for availability of KVM_CAP_VAPIC")
+db6e7adf8de9 ("KVM: SVM: Rename AVIC helpers to use "avic" prefix instead of "svm"")
+4e71cad31c62 ("Merge remote-tracking branch 'kvm/master' into HEAD")
 
 thanks,
 
