@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D046ACB69
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB2C6ACBC1
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229540AbjCFRx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 12:53:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47664 "EHLO
+        id S230145AbjCFR7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 12:59:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbjCFRxz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:53:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8083D905
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:53:26 -0800 (PST)
+        with ESMTP id S229890AbjCFR7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:59:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5196C1BE
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:58:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E48B61086
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:52:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3680C433EF;
-        Mon,  6 Mar 2023 17:52:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B968B81061
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B97FC433EF;
+        Mon,  6 Mar 2023 17:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678125168;
-        bh=HCuxSQBfNaY9nH9fmJwqyhDuKk6F9zzesYbwMZ/VcC4=;
+        s=korg; t=1678125170;
+        bh=RdkB2V4W8ZJg/t9uIecq+I5aXlARMM2m2FWApMw7N8Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=iNQINQmFTvcFv2+EVAUN+5a2DgAIQ8l1U6YoSGLu6jsbK2C/gax1algzP88wQxa1m
-         TIjyakf7d9eg11tBtsPdHr/W4yJ5TfyxSE43uc159p2P352Ms5nagiTQn5EbviwpIU
-         Gn7CE8CkIi+OQCBd5VehZETwyJtir0uScBoD9gAY=
-Subject: FAILED: patch "[PATCH] brd: mark as nowait compatible" failed to apply to 5.10-stable tree
-To:     axboe@kernel.dk
+        b=no2CuKKNgRrdzuwam2EE7uXTJrh+P0yaiaM2nxvAJHE8Gsrjh8ZOptU6ULkR6TRWk
+         W18fb8r14YhMj7DfDW3ajjeKb1Lf5Z4MbVDpl7u2jbC5Ug7n5vj84ovqMCKmfZduE9
+         RSflT/aV4IrA28gagedFNluUHOKsVadxfZcCDS4w=
+Subject: FAILED: patch "[PATCH] brd: check for REQ_NOWAIT and set correct page allocation" failed to apply to 5.15-stable tree
+To:     axboe@kernel.dk, hch@lst.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 18:50:00 +0100
-Message-ID: <167812500026148@kroah.com>
+Date:   Mon, 06 Mar 2023 18:50:31 +0100
+Message-ID: <1678125031200144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,28 +47,41 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
-git cherry-pick -x 67205f80be9910207481406c47f7d85e703fb2e9
+git cherry-pick -x 6ded703c56c21bfb259725d4f1831a5feb563e9b
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167812500026148@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678125031200144@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
-67205f80be99 ("brd: mark as nowait compatible")
-e1528830bd4e ("block/brd: add error handling support for add_disk()")
-f7bf35862477 ("brd: reduce the brd_devices_mutex scope")
-7f9b348cb5e9 ("brd: convert to blk_alloc_disk/blk_cleanup_disk")
-f4be591f1436 ("brd: expose number of allocated pages in debugfs")
-7cc178a6b994 ("brd: use __register_blkdev to allocate devices on demand")
+6ded703c56c2 ("brd: check for REQ_NOWAIT and set correct page allocation mask")
+db0ccc44a20b ("brd: return 0/-error from brd_insert_page()")
+ba91fd01aad2 ("block/brd: Use the enum req_op type")
+3e08773c3841 ("block: switch polling to be bio based")
+6ce913fe3eee ("block: rename REQ_HIPRI to REQ_POLLED")
+d729cf9acb93 ("io_uring: don't sleep when polling for I/O")
+ef99b2d37666 ("block: replace the spin argument to blk_iopoll with a flags argument")
+28a1ae6b9dab ("blk-mq: remove blk_qc_t_valid")
+efbabbe121f9 ("blk-mq: remove blk_qc_t_to_tag and blk_qc_t_is_internal")
+c6699d6fe0ff ("blk-mq: factor out a "classic" poll helper")
+f70299f0d58e ("blk-mq: factor out a blk_qc_to_hctx helper")
+71fc3f5e2c00 ("block: don't try to poll multi-bio I/Os in __blkdev_direct_IO")
+0f38d7664615 ("blk-mq: cleanup blk_mq_submit_bio")
+47c122e35d7e ("block: pre-allocate requests if plug is started and is a batch")
+24b83deb29b7 ("block: move struct request to blk-mq.h")
+badf7f643787 ("block: move a few merge helpers out of <linux/blkdev.h>")
+2e9bc3465ac5 ("block: move elevator.h to block/")
+9778ac77c202 ("block: remove the struct blk_queue_ctx forward declaration")
+90138237a562 ("block: remove the unused blk_queue_state enum")
 
 thanks,
 
@@ -76,55 +89,153 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 67205f80be9910207481406c47f7d85e703fb2e9 Mon Sep 17 00:00:00 2001
+From 6ded703c56c21bfb259725d4f1831a5feb563e9b Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Wed, 15 Feb 2023 16:43:47 -0700
-Subject: [PATCH] brd: mark as nowait compatible
+Date: Thu, 16 Feb 2023 08:01:08 -0700
+Subject: [PATCH] brd: check for REQ_NOWAIT and set correct page allocation
+ mask
 
-By default, non-mq drivers do not support nowait. This causes io_uring
-to use a slower path as the driver cannot be trust not to block. brd
-can safely set the nowait flag, as worst case all it does is a NOIO
-allocation.
+If REQ_NOWAIT is set, then do a non-blocking allocation if the operation
+is a write and we need to insert a new page. Currently REQ_NOWAIT cannot
+be set as the queue isn't marked as supporting nowait, this change is in
+preparation for allowing that.
 
-For io_uring, this makes a substantial difference. Before:
+radix_tree_preload() warns on attempting to call it with an allocation
+mask that doesn't allow blocking. While that warning could arguably
+be removed, we need to handle radix insertion failures anyway as they
+are more likely if we cannot block to get memory.
 
-submitter=0, tid=453, file=/dev/ram0, node=-1
-polled=0, fixedbufs=1/0, register_files=1, buffered=0, QD=128
-Engine=io_uring, sq_ring=128, cq_ring=128
-IOPS=440.03K, BW=1718MiB/s, IOS/call=32/31
-IOPS=428.96K, BW=1675MiB/s, IOS/call=32/32
-IOPS=442.59K, BW=1728MiB/s, IOS/call=32/31
-IOPS=419.65K, BW=1639MiB/s, IOS/call=32/32
-IOPS=426.82K, BW=1667MiB/s, IOS/call=32/31
-
-and after:
-
-submitter=0, tid=354, file=/dev/ram0, node=-1
-polled=0, fixedbufs=1/0, register_files=1, buffered=0, QD=128
-Engine=io_uring, sq_ring=128, cq_ring=128
-IOPS=3.37M, BW=13.15GiB/s, IOS/call=32/31
-IOPS=3.45M, BW=13.46GiB/s, IOS/call=32/31
-IOPS=3.43M, BW=13.42GiB/s, IOS/call=32/32
-IOPS=3.43M, BW=13.39GiB/s, IOS/call=32/31
-IOPS=3.43M, BW=13.38GiB/s, IOS/call=32/31
-
-or about an 8x in difference. Now that brd is prepared to deal with
-REQ_NOWAIT reads/writes, mark it as supporting that.
+Remove legacy BUG_ON()'s and turn them into proper errors instead, one
+for the allocation failure and one for finding a page that doesn't
+match the correct index.
 
 Cc: stable@vger.kernel.org # 5.10+
-Link: https://lore.kernel.org/linux-block/20230203103005.31290-1-p.raghav@samsung.com/
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 00f3c5b51a01..740631dcdd0e 100644
+index 15a148d5aad9..00f3c5b51a01 100644
 --- a/drivers/block/brd.c
 +++ b/drivers/block/brd.c
-@@ -418,6 +418,7 @@ static int brd_alloc(int i)
- 	/* Tell the block layer that this is not a rotational device */
- 	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
- 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
-+	blk_queue_flag_set(QUEUE_FLAG_NOWAIT, disk->queue);
- 	err = add_disk(disk);
- 	if (err)
- 		goto out_cleanup_disk;
+@@ -80,26 +80,21 @@ static struct page *brd_lookup_page(struct brd_device *brd, sector_t sector)
+ /*
+  * Insert a new page for a given sector, if one does not already exist.
+  */
+-static int brd_insert_page(struct brd_device *brd, sector_t sector)
++static int brd_insert_page(struct brd_device *brd, sector_t sector, gfp_t gfp)
+ {
+ 	pgoff_t idx;
+ 	struct page *page;
+-	gfp_t gfp_flags;
++	int ret = 0;
+ 
+ 	page = brd_lookup_page(brd, sector);
+ 	if (page)
+ 		return 0;
+ 
+-	/*
+-	 * Must use NOIO because we don't want to recurse back into the
+-	 * block or filesystem layers from page reclaim.
+-	 */
+-	gfp_flags = GFP_NOIO | __GFP_ZERO | __GFP_HIGHMEM;
+-	page = alloc_page(gfp_flags);
++	page = alloc_page(gfp | __GFP_ZERO | __GFP_HIGHMEM);
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+-	if (radix_tree_preload(GFP_NOIO)) {
++	if (gfpflags_allow_blocking(gfp) && radix_tree_preload(gfp)) {
+ 		__free_page(page);
+ 		return -ENOMEM;
+ 	}
+@@ -110,15 +105,17 @@ static int brd_insert_page(struct brd_device *brd, sector_t sector)
+ 	if (radix_tree_insert(&brd->brd_pages, idx, page)) {
+ 		__free_page(page);
+ 		page = radix_tree_lookup(&brd->brd_pages, idx);
+-		BUG_ON(!page);
+-		BUG_ON(page->index != idx);
++		if (!page)
++			ret = -ENOMEM;
++		else if (page->index != idx)
++			ret = -EIO;
+ 	} else {
+ 		brd->brd_nr_pages++;
+ 	}
+ 	spin_unlock(&brd->brd_lock);
+ 
+ 	radix_tree_preload_end();
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -167,19 +164,20 @@ static void brd_free_pages(struct brd_device *brd)
+ /*
+  * copy_to_brd_setup must be called before copy_to_brd. It may sleep.
+  */
+-static int copy_to_brd_setup(struct brd_device *brd, sector_t sector, size_t n)
++static int copy_to_brd_setup(struct brd_device *brd, sector_t sector, size_t n,
++			     gfp_t gfp)
+ {
+ 	unsigned int offset = (sector & (PAGE_SECTORS-1)) << SECTOR_SHIFT;
+ 	size_t copy;
+ 	int ret;
+ 
+ 	copy = min_t(size_t, n, PAGE_SIZE - offset);
+-	ret = brd_insert_page(brd, sector);
++	ret = brd_insert_page(brd, sector, gfp);
+ 	if (ret)
+ 		return ret;
+ 	if (copy < n) {
+ 		sector += copy >> SECTOR_SHIFT;
+-		ret = brd_insert_page(brd, sector);
++		ret = brd_insert_page(brd, sector, gfp);
+ 	}
+ 	return ret;
+ }
+@@ -254,20 +252,26 @@ static void copy_from_brd(void *dst, struct brd_device *brd,
+  * Process a single bvec of a bio.
+  */
+ static int brd_do_bvec(struct brd_device *brd, struct page *page,
+-			unsigned int len, unsigned int off, enum req_op op,
++			unsigned int len, unsigned int off, blk_opf_t opf,
+ 			sector_t sector)
+ {
+ 	void *mem;
+ 	int err = 0;
+ 
+-	if (op_is_write(op)) {
+-		err = copy_to_brd_setup(brd, sector, len);
++	if (op_is_write(opf)) {
++		/*
++		 * Must use NOIO because we don't want to recurse back into the
++		 * block or filesystem layers from page reclaim.
++		 */
++		gfp_t gfp = opf & REQ_NOWAIT ? GFP_NOWAIT : GFP_NOIO;
++
++		err = copy_to_brd_setup(brd, sector, len, gfp);
+ 		if (err)
+ 			goto out;
+ 	}
+ 
+ 	mem = kmap_atomic(page);
+-	if (!op_is_write(op)) {
++	if (!op_is_write(opf)) {
+ 		copy_from_brd(mem + off, brd, sector, len);
+ 		flush_dcache_page(page);
+ 	} else {
+@@ -296,8 +300,12 @@ static void brd_submit_bio(struct bio *bio)
+ 				(len & (SECTOR_SIZE - 1)));
+ 
+ 		err = brd_do_bvec(brd, bvec.bv_page, len, bvec.bv_offset,
+-				  bio_op(bio), sector);
++				  bio->bi_opf, sector);
+ 		if (err) {
++			if (err == -ENOMEM && bio->bi_opf & REQ_NOWAIT) {
++				bio_wouldblock_error(bio);
++				return;
++			}
+ 			bio_io_error(bio);
+ 			return;
+ 		}
 
