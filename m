@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC87A6AC187
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:39:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB746AC18E
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:40:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230398AbjCFNjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 08:39:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55110 "EHLO
+        id S230228AbjCFNkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 08:40:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229494AbjCFNje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:39:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556E11DB81
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:39:33 -0800 (PST)
+        with ESMTP id S229982AbjCFNkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:40:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FC72B2A4
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:40:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0708DB80E40
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73E68C433D2;
-        Mon,  6 Mar 2023 13:39:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E5C260EB8
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:40:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6578BC433D2;
+        Mon,  6 Mar 2023 13:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678109970;
-        bh=9+FKTNEyPHCF+OePX1OvLRQ9g5ZurxwFPz3EwDT40PY=;
+        s=korg; t=1678110007;
+        bh=8DyYMIWwD8VlAIn1KMQiv6+izOx7o5p3NcuDdqSupqU=;
         h=Subject:To:Cc:From:Date:From;
-        b=mvQ4hNtxT+h1n1EEmPE+njnHdWX2BGj4QMgXbyCMMFrgonvPvrnEQPKWoreDpQdRD
-         M07N+RioTfhA3nyBy3hLOZRuYgAkmeFg+JkwcFUmMRjiDCFpwTfoxtskIlnvzE/Toa
-         EmSWH6cYr++nkZJiZDRHSoEdYwTPC8u2TmxFTMtE=
-Subject: FAILED: patch "[PATCH] udf: Preserve link count of system files" failed to apply to 4.14-stable tree
+        b=hqwr9ZzW7UgROq3QaB6NKG1fFkYBfumb1odCw3UC4zrWf9L7Z3XEgHRiaWW3HumiG
+         HIpN+qveLSOU9ki1ZQ7H/JOiK4+0V/9OkShlqM5XeMxPFHGgqmtujVR0L3aU+O8wM2
+         BDB8854KfmKslq2rQk2hQIiQPsA1GwE+b5J/OKJw=
+Subject: FAILED: patch "[PATCH] udf: Fix off-by-one error when discarding preallocation" failed to apply to 6.2-stable tree
 To:     jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 14:39:20 +0100
-Message-ID: <167810996089240@kroah.com>
+Date:   Mon, 06 Mar 2023 14:40:04 +0100
+Message-ID: <167811000425499@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,27 +47,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 6.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
 git checkout FETCH_HEAD
-git cherry-pick -x fc8033a34a3ca7d23353e645e6dde5d364ac5f12
+git cherry-pick -x f54aa97fb7e5329a373f9df4e5e213ced4fc8759
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167810996089240@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167811000425499@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
 Possible dependencies:
 
-fc8033a34a3c ("udf: Preserve link count of system files")
-382a2287bf9c ("udf: Remove pointless union in udf_inode_info")
-044e2e26f214 ("udf: Avoid accessing uninitialized data on failed inode read")
-ab9a3a737284 ("udf: reduce leakage of blocks related to named streams")
-d288d95842f1 ("udf: Fix BUG on corrupted inode")
+f54aa97fb7e5 ("udf: Fix off-by-one error when discarding preallocation")
+f3a30be77750 ("udf: Factor out block mapping into udf_map_block()")
+a27b2923de7e ("udf: Move udf_expand_dir_adinicb() to its callsite")
+57bda9fb169d ("udf: Convert udf_expand_dir_adinicb() to new directory iteration")
 
 thanks,
 
@@ -75,69 +74,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fc8033a34a3ca7d23353e645e6dde5d364ac5f12 Mon Sep 17 00:00:00 2001
+From f54aa97fb7e5329a373f9df4e5e213ced4fc8759 Mon Sep 17 00:00:00 2001
 From: Jan Kara <jack@suse.cz>
-Date: Tue, 3 Jan 2023 09:56:56 +0100
-Subject: [PATCH] udf: Preserve link count of system files
+Date: Mon, 23 Jan 2023 14:29:15 +0100
+Subject: [PATCH] udf: Fix off-by-one error when discarding preallocation
 
-System files in UDF filesystem have link count 0. To not confuse VFS we
-fudge the link count to be 1 when reading such inodes however we forget
-to restore the link count of 0 when writing such inodes. Fix that.
+The condition determining whether the preallocation can be used had
+an off-by-one error so we didn't discard preallocation when new
+allocation was just following it. This can then confuse code in
+inode_getblk().
 
 CC: stable@vger.kernel.org
+Fixes: 16d055656814 ("udf: Discard preallocation before extending file with a hole")
 Signed-off-by: Jan Kara <jack@suse.cz>
 
 diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 31965c3798f2..9ee269d3d546 100644
+index 51deada8b928..ee440d16411e 100644
 --- a/fs/udf/inode.c
 +++ b/fs/udf/inode.c
-@@ -1301,6 +1301,7 @@ static int udf_read_inode(struct inode *inode, bool hidden_inode)
- 		ret = -EIO;
- 		goto out;
- 	}
-+	iinfo->i_hidden = hidden_inode;
- 	iinfo->i_unique = 0;
- 	iinfo->i_lenEAttr = 0;
- 	iinfo->i_lenExtents = 0;
-@@ -1636,8 +1637,12 @@ static int udf_update_inode(struct inode *inode, int do_sync)
- 
- 	if (S_ISDIR(inode->i_mode) && inode->i_nlink > 0)
- 		fe->fileLinkCount = cpu_to_le16(inode->i_nlink - 1);
--	else
--		fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
-+	else {
-+		if (iinfo->i_hidden)
-+			fe->fileLinkCount = cpu_to_le16(0);
-+		else
-+			fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
-+	}
- 
- 	fe->informationLength = cpu_to_le64(inode->i_size);
- 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index 06eda8177b5f..241b40e886b3 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -147,6 +147,7 @@ static struct inode *udf_alloc_inode(struct super_block *sb)
- 	ei->i_next_alloc_goal = 0;
- 	ei->i_strat4096 = 0;
- 	ei->i_streamdir = 0;
-+	ei->i_hidden = 0;
- 	init_rwsem(&ei->i_data_sem);
- 	ei->cached_extent.lstart = -1;
- 	spin_lock_init(&ei->i_extent_cache_lock);
-diff --git a/fs/udf/udf_i.h b/fs/udf/udf_i.h
-index 06ff7006b822..312b7c9ef10e 100644
---- a/fs/udf/udf_i.h
-+++ b/fs/udf/udf_i.h
-@@ -44,7 +44,8 @@ struct udf_inode_info {
- 	unsigned		i_use : 1;	/* unallocSpaceEntry */
- 	unsigned		i_strat4096 : 1;
- 	unsigned		i_streamdir : 1;
--	unsigned		reserved : 25;
-+	unsigned		i_hidden : 1;	/* hidden system inode */
-+	unsigned		reserved : 24;
- 	__u8			*i_data;
- 	struct kernel_lb_addr	i_locStreamdir;
- 	__u64			i_lenStreams;
+@@ -361,7 +361,7 @@ static int udf_map_block(struct inode *inode, struct udf_map_rq *map)
+ 	 * Block beyond EOF and prealloc extents? Just discard preallocation
+ 	 * as it is not useful and complicates things.
+ 	 */
+-	if (((loff_t)map->lblk) << inode->i_blkbits > iinfo->i_lenExtents)
++	if (((loff_t)map->lblk) << inode->i_blkbits >= iinfo->i_lenExtents)
+ 		udf_discard_prealloc(inode);
+ 	udf_clear_extent_cache(inode);
+ 	err = inode_getblk(inode, map);
 
