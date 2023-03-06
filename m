@@ -2,118 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E7046AC018
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F76B6AC072
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbjCFNB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 08:01:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34864 "EHLO
+        id S230445AbjCFNLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 08:11:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230432AbjCFNB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:01:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23792CC40;
-        Mon,  6 Mar 2023 05:00:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FE26B80DFE;
-        Mon,  6 Mar 2023 13:00:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E53AAC433D2;
-        Mon,  6 Mar 2023 13:00:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678107640;
-        bh=Tq+ejnM8EgKEmGpRqfw+eZW2i/bKA895J5AlzxwrEK4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Qs5sO7oW/Iqwf/4SBfKK0bBIBKsl2SLt7RBxapjEnAm7hU8mv9AYlmYE26eKWU+XV
-         1QQHGyJQdf8bUVoiVkoK/F79GJ+IQlyYCXgZMywKaCyyn57WqAQJzvm1pfLwRDAKiA
-         cRL8B9YoAvNqzzO/6oxB199bvUG9VNO+Sz9oi/VAwI0cLjgFQmAmXJuwNXrwIJHGa/
-         K2qIuPwui4ljBRkgIX3Z+qFAPNjy6EoUPC9pRscBeAtqomZbV+w9mxnFROwpk0YBNJ
-         DZPL7YvOJb7DvVpbgg6lgVI4Ort9Q6PPtohFNkfVT/DhnkIXmyRybTfNLKeUhFBH8P
-         B3nwh72Bt7pcw==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1pZASu-0001wC-Go; Mon, 06 Mar 2023 14:01:20 +0100
-Date:   Mon, 6 Mar 2023 14:01:20 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Abel Vesa <abel.vesa@linaro.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-        Juerg Haefliger <juerg.haefliger@canonical.com>,
-        linux-arm-msm@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] soc: qcom: llcc: Fix slice configuration values for
- SC8280XP
-Message-ID: <ZAXkIHOom26DlVx0@hovoldconsulting.com>
-References: <20230219165701.2557446-1-abel.vesa@linaro.org>
+        with ESMTP id S231128AbjCFNLS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:11:18 -0500
+Received: from mail.pr-group.ru (mail.pr-group.ru [178.18.215.3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E52029160;
+        Mon,  6 Mar 2023 05:11:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+        d=metrotek.ru; s=mail;
+        h=from:subject:date:message-id:to:cc:mime-version:content-type:in-reply-to:
+         references;
+        bh=0lPKYqp5KzpJCaV63cbjBO6MIb6dz7vOpMZcld4bLPA=;
+        b=AB+AqP1S71ese3cohv4aD3rBSZFL6cfSKrfRGIT0mp+BUC8V7TkKL7CU9wEBjB8hefaWTL61AEzJN
+         fllf3YKhScKnM9XqHrn9ZIIDOonSvt1J7lXHJPluQ0h9n1Fbd7J1k5zq3w0pMy1NVypFjZvPKEaCDa
+         GTYgOI3FrYKy2J864FFZHWu6cYCkS8SZDhcwb5M6LlCYSmp15BMaQbRp0JWY6JL7d5bau/vH1SICpf
+         YZdCXRrnrZ8LUFAKOjinKwDcnYkswVobcFpO6RiJh9l1pj+SZZ+Qvc+ol/lvbEBbXflXSIZFlA7pgQ
+         RPprw28j9oMxXOBVeNwjn2uXiJ3WKVw==
+X-Kerio-Anti-Spam:  Build: [Engines: 2.17.1.1470, Stamp: 3], Multi: [Enabled, t: (0.000012,0.008337)], BW: [Enabled, t: (0.000031,0.000001)], RTDA: [Enabled, t: (0.085092), Hit: No, Details: v2.48.0; Id: 15.q69xp.1gqrgnj4l.7b1; mclb], total: 0(700)
+X-Spam-Status: No, score=-0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        URIBL_BLACK autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: 
+X-Footer: bWV0cm90ZWsucnU=
+Received: from x260 ([78.37.166.219])
+        (authenticated user i.bornyakov@metrotek.ru)
+        by mail.pr-group.ru with ESMTPSA
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256 bits));
+        Mon, 6 Mar 2023 16:10:46 +0300
+Date:   Mon, 6 Mar 2023 16:10:40 +0300
+From:   Ivan Bornyakov <i.bornyakov@metrotek.ru>
+To:     linux-imx@nxp.com
+Cc:     shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
+        festevam@gmail.com, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH RESEND] bus: imx-weim: fix branch condition evaluates to
+ a garbage value
+Message-ID: <20230306131040.f6757retj5utp6lf@x260>
+References: <20230306060505.11657-1-i.bornyakov@metrotek.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230219165701.2557446-1-abel.vesa@linaro.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230306060505.11657-1-i.bornyakov@metrotek.ru>
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Feb 19, 2023 at 06:57:01PM +0200, Abel Vesa wrote:
-> The slice IDs for CVPFW, CPUSS1 and CPUWHT currently overflow the 32bit
-> LLCC config registers. Fix that by using the slice ID values taken from
-> the latest LLCC SC table.
+On Mon, Mar 06, 2023 at 09:05:05AM +0300, Ivan Bornyakov wrote:
+> If bus type is other than imx50_weim_devtype and have no child devices,
+> variable 'ret' in function weim_parse_dt() will not be initialized, but
+> will be used as branch condition and return value. Fix this by
+> initializing 'ret' with 0.
+> 
+> This was discovered with help of clang-analyzer, but the situation is
+> quite possible in real life.
+> 
+> Signed-off-by: Ivan Bornyakov <i.bornyakov@metrotek.ru>
+> Cc: stable@vger.kernel.org
 
-This still doesn't really explain what the impact of this bug is (e.g.
-for people doing backports), but I guess this will do.
+Fixes: 52c47b63412b ("bus: imx-weim: improve error handling upon child probe-failure")
 
-> Fixes: ec69dfbdc426 ("soc: qcom: llcc: Add sc8180x and sc8280xp configurations")
-> Cc: stable@vger.kernel.org	# 5.19+
-> Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-> Tested-by: Juerg Haefliger <juerg.haefliger@canonical.com>
-> Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
-> Acked-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-
-Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+Is it OK, or should I post v2 with "Fixes:" tag?
 
 > ---
+>  drivers/bus/imx-weim.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> The v2 is here:
-> https://lore.kernel.org/all/20230127144724.1292580-1-abel.vesa@linaro.org/
+> diff --git a/drivers/bus/imx-weim.c b/drivers/bus/imx-weim.c
+> index 828c66bbaa67..55d917bd1f3f 100644
+> --- a/drivers/bus/imx-weim.c
+> +++ b/drivers/bus/imx-weim.c
+> @@ -204,8 +204,8 @@ static int weim_parse_dt(struct platform_device *pdev)
+>  	const struct of_device_id *of_id = of_match_device(weim_id_table,
+>  							   &pdev->dev);
+>  	const struct imx_weim_devtype *devtype = of_id->data;
+> +	int ret = 0, have_child = 0;
+>  	struct device_node *child;
+> -	int ret, have_child = 0;
+>  	struct weim_priv *priv;
+>  	void __iomem *base;
+>  	u32 reg;
+> -- 
+> 2.39.2
 > 
-> Changes since v2:
->  * specifically mentioned the 3 slice IDs that are being fixed and
->    what is happening without this patch
->  * added stabke Cc line
->  * added Juerg's T-b tag
->  * added Sai's R-b tag
->  * added Konrad's A-b tag
-> 
-> Changes since v1:
->  * dropped the LLCC_GPU and LLCC_WRCACHE max_cap changes
->  * took the new values from documentatio this time rather than
->    downstream kernel
-> 
->  drivers/soc/qcom/llcc-qcom.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/soc/qcom/llcc-qcom.c b/drivers/soc/qcom/llcc-qcom.c
-> index 23ce2f78c4ed..26efe12012a0 100644
-> --- a/drivers/soc/qcom/llcc-qcom.c
-> +++ b/drivers/soc/qcom/llcc-qcom.c
-> @@ -191,9 +191,9 @@ static const struct llcc_slice_config sc8280xp_data[] = {
->  	{ LLCC_CVP,      28, 512,  3, 1, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
->  	{ LLCC_APTCM,    30, 1024, 3, 1, 0x0,   0x1, 1, 0, 0, 1, 0, 0 },
->  	{ LLCC_WRCACHE,  31, 1024, 1, 1, 0xfff, 0x0, 0, 0, 0, 0, 1, 0 },
-> -	{ LLCC_CVPFW,    32, 512,  1, 0, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
-> -	{ LLCC_CPUSS1,   33, 2048, 1, 1, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
-> -	{ LLCC_CPUHWT,   36, 512,  1, 1, 0xfff, 0x0, 0, 0, 0, 0, 1, 0 },
-> +	{ LLCC_CVPFW,    17, 512,  1, 0, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
-> +	{ LLCC_CPUSS1,   3, 2048, 1, 1, 0xfff, 0x0, 0, 0, 0, 1, 0, 0 },
-> +	{ LLCC_CPUHWT,   5, 512,  1, 1, 0xfff, 0x0, 0, 0, 0, 0, 1, 0 },
->  };
->  
->  static const struct llcc_slice_config sdm845_data[] =  {
+
