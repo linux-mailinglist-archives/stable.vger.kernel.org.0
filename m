@@ -2,105 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4796ABCFC
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF04C6ABCFF
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231161AbjCFKfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 05:35:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43554 "EHLO
+        id S231197AbjCFKfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 05:35:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231539AbjCFKfg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:35:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EE5222E8
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:34:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1678098846;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dugI5ah/rpmEloFzsd7SNav7KkzrRZ4JKHEJqiV00wk=;
-        b=F4oCmZXixgaVu+gIf+RHbDi8K1ZDgxVOWjbJf6IPvS/jFxDyS7CaMxQZkRudi7khyjD5Oy
-        AnKKmBvIFZBDBBmPfjvw98kDL/QZb3+5fWA2ytImhKQqDV6ePqBUC3DtqiWI+UCxVPHwxB
-        v7RqwyMkfNXlW7vinwt3KtllAyLWpsw=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-189-NJtRD6F5NTSQC2PvXfFGWw-1; Mon, 06 Mar 2023 05:34:05 -0500
-X-MC-Unique: NJtRD6F5NTSQC2PvXfFGWw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S231591AbjCFKfk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:35:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 265F059E6;
+        Mon,  6 Mar 2023 02:35:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3EE742A5957A;
-        Mon,  6 Mar 2023 10:34:05 +0000 (UTC)
-Received: from x1.localdomain.com (unknown [10.39.195.139])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3086B40CF8F0;
-        Mon,  6 Mar 2023 10:34:04 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2 3/3] usb: ucsi_acpi: Increase the command completion timeout
-Date:   Mon,  6 Mar 2023 11:33:59 +0100
-Message-Id: <20230306103359.6591-4-hdegoede@redhat.com>
-In-Reply-To: <20230306103359.6591-1-hdegoede@redhat.com>
-References: <20230306103359.6591-1-hdegoede@redhat.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4E0A60DD8;
+        Mon,  6 Mar 2023 10:35:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E768C433EF;
+        Mon,  6 Mar 2023 10:35:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678098921;
+        bh=SRUfSdNrezRb0O3IdTK2gQ4I8eUwRNj/lM/SpHhJyzk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cFKax5qc9bZgyqF07BqIBQn1IixKmGK6qqgwzTH2dgSKFoMBja6hBio5dlINqRBsc
+         BzKJukhpkk2eKTOaYCa+b4YrEPhGrWl9RRGjUQIb9ehBC6gnleZrd+9S07FwBz8j4T
+         c/nqt3e2MElvmEHSm+tyrh+ztgc+pAzpVK6W3r6g/SK0Hh5cpFSZCh4X5UovUbSQpk
+         pziKnOrP//m34QXp9pJNcPZ81LGA2b6hbOeVxMGqIK3tD7vJzeF75sNzkaVKrwfVel
+         Ps93IE6prRpA2EhMtPg3oXtfK51lg1NAgXKJqhCML1IbLuU4W+/zzyFT+5G1anR4va
+         N6p+c6niGaz+g==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan+linaro@kernel.org>)
+        id 1pZ8CH-0001Hm-Ce; Mon, 06 Mar 2023 11:36:01 +0100
+From:   Johan Hovold <johan+linaro@kernel.org>
+To:     Neil Armstrong <neil.armstrong@linaro.org>
+Cc:     David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        dri-devel@lists.freedesktop.org, linux-amlogic@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] drm/meson: fix missing component unbind on bind errors
+Date:   Mon,  6 Mar 2023 11:35:33 +0100
+Message-Id: <20230306103533.4915-1-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 130a96d698d7 ("usb: typec: ucsi: acpi: Increase command
-completion timeout value") increased the timeout from 5 seconds
-to 60 seconds due to issues related to alternate mode discovery.
+Make sure to unbind all subcomponents when binding the aggregate device
+fails.
 
-After the alternate mode discovery switch to polled mode
-the timeout was reduced, but instead of being set back to
-5 seconds it was reduced to 1 second.
-
-This is causing problems when using a Lenovo ThinkPad X1 yoga gen7
-connected over Type-C to a LG 27UL850-W (charging DP over Type-C).
-
-When the monitor is already connected at boot the following error
-is logged: "PPM init failed (-110)", /sys/class/typec is empty and
-on unplugging the NULL pointer deref fixed earlier in this series
-happens.
-
-When the monitor is connected after boot the following error
-is logged instead: "GET_CONNECTOR_STATUS failed (-110)".
-
-Setting the timeout back to 5 seconds fixes both cases.
-
-Fixes: e08065069fc7 ("usb: typec: ucsi: acpi: Reduce the command completion timeout")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: a41e82e6c457 ("drm/meson: Add support for components")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/usb/typec/ucsi/ucsi_acpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/typec/ucsi/ucsi_acpi.c b/drivers/usb/typec/ucsi/ucsi_acpi.c
-index ce0c8ef80c04..62206a6b8ea7 100644
---- a/drivers/usb/typec/ucsi/ucsi_acpi.c
-+++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
-@@ -78,7 +78,7 @@ static int ucsi_acpi_sync_write(struct ucsi *ucsi, unsigned int offset,
+Note that this one has only been compile tested.
+
+Johan
+
+
+ drivers/gpu/drm/meson/meson_drv.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index 79bfe3938d3c..7caf937c3c90 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -325,23 +325,23 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
+ 
+ 	ret = meson_encoder_hdmi_init(priv);
  	if (ret)
- 		goto out_clear_bit;
+-		goto exit_afbcd;
++		goto unbind_all;
  
--	if (!wait_for_completion_timeout(&ua->complete, HZ))
-+	if (!wait_for_completion_timeout(&ua->complete, 5 * HZ))
- 		ret = -ETIMEDOUT;
+ 	ret = meson_plane_create(priv);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
  
- out_clear_bit:
+ 	ret = meson_overlay_create(priv);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	ret = meson_crtc_create(priv);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	ret = request_irq(priv->vsync_irq, meson_irq, 0, drm->driver->name, drm);
+ 	if (ret)
+-		goto exit_afbcd;
++		goto unbind_all;
+ 
+ 	drm_mode_config_reset(drm);
+ 
+@@ -359,6 +359,9 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
+ 
+ uninstall_irq:
+ 	free_irq(priv->vsync_irq, drm);
++unbind_all:
++	if (has_components)
++		component_unbind_all(drm->dev, drm);
+ exit_afbcd:
+ 	if (priv->afbcd.ops)
+ 		priv->afbcd.ops->exit(priv);
 -- 
-2.39.1
+2.39.2
 
