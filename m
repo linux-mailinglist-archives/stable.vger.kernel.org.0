@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 231216AC19A
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:40:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68BBB6AC1C4
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230205AbjCFNka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 08:40:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56348 "EHLO
+        id S229568AbjCFNso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 08:48:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231297AbjCFNk3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:40:29 -0500
+        with ESMTP id S229528AbjCFNso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:48:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5F12ED59
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:40:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB02224138
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:48:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4404EB80E44
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:40:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 938B0C433EF;
-        Mon,  6 Mar 2023 13:40:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13B93B80E53
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:48:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A0FBC433EF;
+        Mon,  6 Mar 2023 13:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678110023;
-        bh=WQbZKwwruWanOp4T57C5GoUTBl1sT/zW/bceCfY8ywA=;
+        s=korg; t=1678110496;
+        bh=sGLxr7lGKQgTTu/DZZnFXhAo2PlDpXXWI3DVHgoFLBE=;
         h=Subject:To:Cc:From:Date:From;
-        b=p9x33l+AhORt+OjSR4uGreE4KLYRwrdPud5HemMRmRp6eRrKKjvI5GC6X7R9Fo6x4
-         3RJHJMpPj+igDxQwzw636R28/Ck3VKP8ctvbHUtq8eas6fRtI7Vebi6/S5ZU2QKI4g
-         D4lqdz1mvCo3873QHPBUpkbg7Lxyp0YGMGnrE5Ng=
-Subject: FAILED: patch "[PATCH] udf: Fix off-by-one error when discarding preallocation" failed to apply to 4.14-stable tree
+        b=nMrqGa4ThF4UlmrXCIraftDTqP1BvJoBlnGzysdVSq4OQL968f5y2WhkKVpvharMs
+         Ulfx7Y06QzXWOisaigcOxJut9S+m5W2SEB1KowWRHYQ9GM7weCHXJPZRQBBklskKlY
+         EgUbbqOl+wlN42WQI8BIjLQCo2WTMU6/cvEiZjf8=
+Subject: FAILED: patch "[PATCH] udf: Detect system inodes linked into directory hierarchy" failed to apply to 4.19-stable tree
 To:     jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 14:40:08 +0100
-Message-ID: <167811000815093@kroah.com>
+Date:   Mon, 06 Mar 2023 14:44:22 +0100
+Message-ID: <1678110262133121@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,42 +47,23 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
-git cherry-pick -x f54aa97fb7e5329a373f9df4e5e213ced4fc8759
+git cherry-pick -x 85a37983ec69cc9fcd188bc37c4de15ee326355a
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167811000815093@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678110262133121@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
-f54aa97fb7e5 ("udf: Fix off-by-one error when discarding preallocation")
-f3a30be77750 ("udf: Factor out block mapping into udf_map_block()")
-a27b2923de7e ("udf: Move udf_expand_dir_adinicb() to its callsite")
-57bda9fb169d ("udf: Convert udf_expand_dir_adinicb() to new directory iteration")
-16d055656814 ("udf: Discard preallocation before extending file with a hole")
-979a6e28dd96 ("udf: Get rid of 0-length arrays in struct fileIdentDesc")
-63c9e47a1642 ("udf: fix silent AED tagLocation corruption")
-382a2287bf9c ("udf: Remove pointless union in udf_inode_info")
-044e2e26f214 ("udf: Avoid accessing uninitialized data on failed inode read")
-c3367a1b47d5 ("udf: augment UDF permissions on new inodes")
-ab9a3a737284 ("udf: reduce leakage of blocks related to named streams")
-fa33cdbf3ece ("udf: Fix incorrect final NOT_ALLOCATED (hole) extent length")
-c3b9cecd89b8 ("udf: convert inode stamps to timespec64")
-f2e83347119a ("udf: Provide function for calculating dir entry length")
-95582b008388 ("vfs: change inode times to use struct timespec64")
-0220eddac66d ("udf: Simplify calls to udf_disk_stamp_to_time")
-0a2dfbecb361 ("fs: nfs: get rid of memcpys for inode times")
-13442b036a13 ("ceph: make inode time prints to be long long")
-8efd6894ff08 ("fs: add timespec64_truncate()")
-ffdeec7aa41a ("ceph: always update atime/mtime/ctime for new inode")
+85a37983ec69 ("udf: Detect system inodes linked into directory hierarchy")
 
 thanks,
 
@@ -90,31 +71,38 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f54aa97fb7e5329a373f9df4e5e213ced4fc8759 Mon Sep 17 00:00:00 2001
+From 85a37983ec69cc9fcd188bc37c4de15ee326355a Mon Sep 17 00:00:00 2001
 From: Jan Kara <jack@suse.cz>
-Date: Mon, 23 Jan 2023 14:29:15 +0100
-Subject: [PATCH] udf: Fix off-by-one error when discarding preallocation
+Date: Tue, 3 Jan 2023 10:03:35 +0100
+Subject: [PATCH] udf: Detect system inodes linked into directory hierarchy
 
-The condition determining whether the preallocation can be used had
-an off-by-one error so we didn't discard preallocation when new
-allocation was just following it. This can then confuse code in
-inode_getblk().
+When UDF filesystem is corrupted, hidden system inodes can be linked
+into directory hierarchy which is an avenue for further serious
+corruption of the filesystem and kernel confusion as noticed by syzbot
+fuzzed images. Refuse to access system inodes linked into directory
+hierarchy and vice versa.
 
 CC: stable@vger.kernel.org
-Fixes: 16d055656814 ("udf: Discard preallocation before extending file with a hole")
+Reported-by: syzbot+38695a20b8addcbc1084@syzkaller.appspotmail.com
 Signed-off-by: Jan Kara <jack@suse.cz>
 
 diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 51deada8b928..ee440d16411e 100644
+index 9ee269d3d546..96873fa2f683 100644
 --- a/fs/udf/inode.c
 +++ b/fs/udf/inode.c
-@@ -361,7 +361,7 @@ static int udf_map_block(struct inode *inode, struct udf_map_rq *map)
- 	 * Block beyond EOF and prealloc extents? Just discard preallocation
- 	 * as it is not useful and complicates things.
- 	 */
--	if (((loff_t)map->lblk) << inode->i_blkbits > iinfo->i_lenExtents)
-+	if (((loff_t)map->lblk) << inode->i_blkbits >= iinfo->i_lenExtents)
- 		udf_discard_prealloc(inode);
- 	udf_clear_extent_cache(inode);
- 	err = inode_getblk(inode, map);
+@@ -1813,8 +1813,13 @@ struct inode *__udf_iget(struct super_block *sb, struct kernel_lb_addr *ino,
+ 	if (!inode)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	if (!(inode->i_state & I_NEW))
++	if (!(inode->i_state & I_NEW)) {
++		if (UDF_I(inode)->i_hidden != hidden_inode) {
++			iput(inode);
++			return ERR_PTR(-EFSCORRUPTED);
++		}
+ 		return inode;
++	}
+ 
+ 	memcpy(&UDF_I(inode)->i_location, ino, sizeof(struct kernel_lb_addr));
+ 	err = udf_read_inode(inode, hidden_inode);
 
