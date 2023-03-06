@@ -2,95 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C30C6AB98F
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 10:19:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2115C6AB9A9
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 10:23:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229816AbjCFJTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 04:19:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57400 "EHLO
+        id S229555AbjCFJXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 04:23:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229881AbjCFJTg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 04:19:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D2321944;
-        Mon,  6 Mar 2023 01:19:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FB4660B24;
-        Mon,  6 Mar 2023 09:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B546C433EF;
-        Mon,  6 Mar 2023 09:19:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678094373;
-        bh=9s/ueQ0rHu2KZhrMnIPYJ7KNkqBgjGsNBO9lojJJQWY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HIy+UEBb8S65c/nwtuMZaEWubApEV08eL2u6iNXrm5+aKOAKtLttCs7KxhBvR92/N
-         IIGL/fG64gcUFueH7mbiWGxhAMjbB22oZmPAA2RrgLLAgv/4bmgU9XnfAd5mb1BcRY
-         WCeFcHXULGVRkj0RuWftrWD/UHi15NrdR9MqUsjI=
-Date:   Mon, 6 Mar 2023 10:19:30 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Zhang Qiao <zhangqiao22@huawei.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>
-Subject: Re: Patch "sched/fair: sanitize vruntime of entity being placed" has
- been added to the 4.14-stable tree
-Message-ID: <ZAWwIrMQ2EUikr6t@kroah.com>
-References: <20230305040248.1787312-1-sashal@kernel.org>
- <cf0108ec-d949-a5ab-7367-f358b6685873@huawei.com>
+        with ESMTP id S229753AbjCFJXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 04:23:44 -0500
+Received: from mail-ua1-x92a.google.com (mail-ua1-x92a.google.com [IPv6:2607:f8b0:4864:20::92a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 764882695
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 01:23:42 -0800 (PST)
+Received: by mail-ua1-x92a.google.com with SMTP id s13so5926340uac.8
+        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 01:23:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20210112.gappssmtp.com; s=20210112; t=1678094621;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5WmGxT0R5eR6v2aBCU3TSlvNxSxXuWeZonOf78HDRp4=;
+        b=8D9OdtC0F3+qBtaRxlHN5TzQD7LjvXLkrOb8yKPcyBoovFP8tpDM+IVRgfF+6qHvtM
+         k+eFUsPiNabWwFNVL9TSHbwFue5eoLFhJLLScOCUqanj8PPN4i93JewoBBGBST7N550t
+         u4fItJsgo/GFJadt7wzYP5sEfR9z0i8i6h1bddExu6Z6vQJZFbnmQMvFujcsnYTg8VJ4
+         tRtDFRWGZQVCnXS2hna4JeeWob2M/wv47h+IF8K8c0IzXP0P25FKJL+UCQWDejjhMMZ+
+         E+BcIHAKmRsKqjx8N1TygfqKiOazvn8sKSK6Wi14/6rBKGm14+I87FbBZURmITdnY6lh
+         athQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678094621;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5WmGxT0R5eR6v2aBCU3TSlvNxSxXuWeZonOf78HDRp4=;
+        b=DB9duXwNwF/jPstDwa62KYY/0aw4rOXy3lgqnaK9TnT1mF3NSjAyubmAmDNBbgNt6G
+         +HaRdc6FJ8uF+0B2D/FjBgMTeNZs+nv4F6W+dcOI6nxpZ2zTVnIl8BGGweAtlKhIP669
+         z/LIIOHePM7QVkTjVTdgkniBgB2nk1A7VM/Dd3B5X6rLoqACijOzJeKyJW5kIwyjSi/0
+         fQaFZyRXF66ijGQtxea3TV9LE+t6lT4IC0TgUA+TxHqz2F9yF/dAEz3LQpToRynnVaKP
+         vBNlZiP37gD9fpbe1m9TpdC5xwqp5/jP07VXhd0qiEOStRwR6iZSNwsFv9F8VLmAZnnV
+         Dzfw==
+X-Gm-Message-State: AO0yUKWU7QekysFWYwllM6WVMHwdT75aZe4squUP2mq6johXgUfwea0Z
+        KAAS8AWFFDA/iE7iRPFTvw/FWoPyny0hc/HceVyTsg==
+X-Google-Smtp-Source: AK7set8oYDvhH0jruOqfFFa3967LzAHy0bKz/fypuAmQi3CfC0FCoHeoohwCVjB1fMyL2eyMANPOK7bSZOz33o8mPgk=
+X-Received: by 2002:a1f:914a:0:b0:401:4007:10c4 with SMTP id
+ t71-20020a1f914a000000b00401400710c4mr6472309vkd.1.1678094621540; Mon, 06 Mar
+ 2023 01:23:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cf0108ec-d949-a5ab-7367-f358b6685873@huawei.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20230228081724.94786-1-william.gray@linaro.org>
+In-Reply-To: <20230228081724.94786-1-william.gray@linaro.org>
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+Date:   Mon, 6 Mar 2023 10:23:30 +0100
+Message-ID: <CAMRc=MfD3=ifo9EJf=5_HZKLXnbASi=ehYm=Zs4WQA+YxfffQw@mail.gmail.com>
+Subject: Re: [RESEND] gpio: ws16c48: Fix off-by-one error in WS16C48 resource
+ region extent
+To:     William Breathitt Gray <william.gray@linaro.org>
+Cc:     linus.walleij@linaro.org, linux-gpio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, techsupport@winsystems.com,
+        stable@vger.kernel.org,
+        Paul Demetrotion <pdemetrotion@winsystems.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 06, 2023 at 04:31:57PM +0800, Zhang Qiao wrote:
-> 
-> 
-> 在 2023/3/5 12:02, Sasha Levin 写道:
-> > This is a note to let you know that I've just added the patch titled
-> > 
-> >     sched/fair: sanitize vruntime of entity being placed
-> > 
-> > to the 4.14-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > 
-> > The filename of the patch is:
-> >      sched-fair-sanitize-vruntime-of-entity-being-placed.patch
-> > and it can be found in the queue-4.14 subdirectory.
-> > 
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> > 
-> > 
-> > 
-> > commit 38247e1de3305a6ef644404ac818bc6129440eae
-> 
-> Hi,
-> This patch has significant impact on the hackbench.throughput [1].
-> Please don't backport this patch.
-> 
-> [1] https://lore.kernel.org/lkml/202302211553.9738f304-yujie.liu@intel.com/T/#u
+On Thu, Mar 2, 2023 at 11:30=E2=80=AFPM William Breathitt Gray
+<william.gray@linaro.org> wrote:
+>
+> The WinSystems WS16C48 I/O address region spans offsets 0x0 through 0xA,
+> which is a total of 11 bytes. Fix the WS16C48_EXTENT define to the
+> correct value of 11 so that access to necessary device registers is
+> properly requested in the ws16c48_probe() callback by the
+> devm_request_region() function call.
+>
+> Fixes: 2c05a0f29f41 ("gpio: ws16c48: Implement and utilize register struc=
+tures")
+> Cc: stable@vger.kernel.org
+> Cc: Paul Demetrotion <pdemetrotion@winsystems.com>
+> Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+> ---
 
-This link says it made hackbench.throughput faster, not slower, so why
-would we NOT want it?
+Why did you need to resend this? Anything changed?
 
-confused,
-
-greg k-h
+Bart
