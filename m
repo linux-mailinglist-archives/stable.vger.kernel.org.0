@@ -2,262 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2256ABF91
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 13:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 323E46ABFBF
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 13:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbjCFMeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 07:34:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59894 "EHLO
+        id S229651AbjCFMlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 07:41:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229824AbjCFMd7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 07:33:59 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 944831968E
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 04:33:55 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id x34so9637615pjj.0
-        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 04:33:55 -0800 (PST)
+        with ESMTP id S229535AbjCFMlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 07:41:14 -0500
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79552B2B4
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 04:41:12 -0800 (PST)
+Received: by mail-qt1-x835.google.com with SMTP id w23so10215674qtn.6
+        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 04:41:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678106035;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=V3FY/QMIp3O9jt+V348AbO5GemTGcqLYfOPv8Z80T+4=;
-        b=bsnR1MgEWrADL2j9m+35H1q/jZpv4BcZ/RLQndiSn+6gtUMmD9oQlg2YEL9dusOH7j
-         pAEWIgSKH42rgE2j9DWFDCCqzkPDxshDFcmOc9HNAwiVIcDVtvyL+a9S+bsofTHaraI+
-         96poVufb5g99nHgeg9HkBd24YmTEZND7mWovHwQOJy1gVVGqOsAVWvqYb8aZb5WRr7Wt
-         QbylFLExM7btGkyAxaP0NSvzGhUdBAtQZHugV2wXFhHJZrvW1Pln8sOOOW/yCJG9605p
-         UH5r/xwXnxaXF4Aayp5Fb3UN5iW61MX9Gp7ndQ1SLcBM2O55BmiGKjiDJ1g3x50GbAq2
-         rduw==
+        d=linaro.org; s=google; t=1678106472;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=6XrdgZjMDlRLFUbyVPxJfBpwx76lgBG7lHXmFXxIIe0=;
+        b=U92togDggQfebFB+oCNSCcXsZbxpGePUFP3ikADRG6yzR7syMch4sYx3BcPbAHkflT
+         XK1Kj+4jKssvq/kJJq1e8naG9O8KHAnyfxBVzOBoFkIpBEWAh9DPnvxr05kI8FLpl0aj
+         kumC2G3oTOFIk7cWg3iIQjO12DUpbeZ27eyh+PD142mAqUYXfI6XQc2bQW16b7Dm6Anl
+         iVr8ApM5YTEDLOSpsYjlxQZKpKvTHphg2oAtc/e1B3uZ5iiD/PjC8O0R6RyChc+SzMqS
+         e4Wfc2RpqIbpxMTo2MpTDso63NBC9hYdfTUUs4kRyuvJG7E97nsjdO5rurLS0Myq7xaF
+         4vvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678106035;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=V3FY/QMIp3O9jt+V348AbO5GemTGcqLYfOPv8Z80T+4=;
-        b=45mSxOsfBPXbTkvlRDfabBeVRrCNKVwvpZVjEQpqI/hT/M8ZMAH22qjm6uvI4FkX0M
-         uVdkcSwc8UAuxHPxK5NJCF5SHRwpU5SyuJ4UHyfAuL8W6R/LYEoZZCTUSiPvyRp2bDTt
-         9W3KKZVID7JmcN09OqKdsL/FFAxr4Gyo5NoqgHsK4IlqFf3JPLS8YIlP5ep4ShoIOE/B
-         b16r4Af1wFDFb7Qcn9tw8VLRSXgJBMGRJYgz53JqCrx3Pmz0ac/oDPwsRY6uXQGmhy2E
-         /apZ7OXGUiNwHz1bMiVlV5btpWws0dVLpk5aH3MlaQwHvwG3jGkfibVUYD+u6ntovYVh
-         Fr2w==
-X-Gm-Message-State: AO0yUKVxpTixmqKhjgU6XwTSedgeEngR2coC6G+V/cxwqS9YIJZPKkM0
-        4ahlus9Dn6NOE2hzE/MvcKXBN+H6Afz+PNO0ZcXQT6EE
-X-Google-Smtp-Source: AK7set9ptTc09u+pgXfwXUJEqpxXB33kxeceydwJVc6RNRrwOIh9PYbK4oa2abFHUPL38wkRgKJhnA==
-X-Received: by 2002:a17:903:2291:b0:19e:b988:e81f with SMTP id b17-20020a170903229100b0019eb988e81fmr6243962plh.0.1678106034777;
-        Mon, 06 Mar 2023 04:33:54 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s2-20020a170902ea0200b001992fc0a8eesm6593788plg.174.2023.03.06.04.33.54
+        d=1e100.net; s=20210112; t=1678106472;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6XrdgZjMDlRLFUbyVPxJfBpwx76lgBG7lHXmFXxIIe0=;
+        b=3Uzdwx8UAjHQTHwQx7k9/DXu7HXMi9+QZFxo1FgV2+5WtMT4mcsFwByPeIzZV4AC4X
+         my7d/MfWZME3lBep7WIFexYAjC/sQBSQfnGnUB4mQ0lF6B5b+5JTd06DHyuzYsgBrKU9
+         0HNXhfoOTXS40bfQy0l44tYAAdMqazJth5ikbn6htwVi0ynLWWem34op86hXCwFHnLgQ
+         q9E/duhG6Xf1iVqHzXmrn222kiIPBWfx/tZrmg4ZyA1cBa1D2DdrYUuNG8hFdF0teBas
+         RspiBvxq4Q69h2qVct5DzRcX8PWl6nhlMK7UW8KNz9c/sb3qoPZjh30lbofmYM1mVKyK
+         L/zg==
+X-Gm-Message-State: AO0yUKWFshEuTKmWlnnL+dWC1n7pG9Rss0puzVtfDkrWLqPCqurjRYfW
+        1A5woUE+KF9/J9kl/zsLFxicZXGfk3ievoIC2ZU=
+X-Google-Smtp-Source: AK7set9TfEy2X1DOujpMKIH+igyL2YEO/hoGzriXXAWSRxRsb3UHkcR/L6n7Onm7AHa1lQCQR1vI8g==
+X-Received: by 2002:a05:622a:34b:b0:3b8:6ca4:bb23 with SMTP id r11-20020a05622a034b00b003b86ca4bb23mr15273152qtw.15.1678106471798;
+        Mon, 06 Mar 2023 04:41:11 -0800 (PST)
+Received: from fedora (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
+        by smtp.gmail.com with ESMTPSA id l19-20020a05620a211300b007423c122457sm7340219qkl.63.2023.03.06.04.41.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Mar 2023 04:33:54 -0800 (PST)
-Message-ID: <6405ddb2.170a0220.aab73.af0b@mx.google.com>
-Date:   Mon, 06 Mar 2023 04:33:54 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 06 Mar 2023 04:41:11 -0800 (PST)
+Date:   Mon, 6 Mar 2023 07:41:09 -0500
+From:   William Breathitt Gray <william.gray@linaro.org>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     linus.walleij@linaro.org, linux-gpio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, techsupport@winsystems.com,
+        stable@vger.kernel.org,
+        Paul Demetrotion <pdemetrotion@winsystems.com>
+Subject: Re: [RESEND] gpio: ws16c48: Fix off-by-one error in WS16C48 resource
+ region extent
+Message-ID: <ZAXfZbywWOo2pg4L@fedora>
+References: <20230228081724.94786-1-william.gray@linaro.org>
+ <CAMRc=MfD3=ifo9EJf=5_HZKLXnbASi=ehYm=Zs4WQA+YxfffQw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/6.1
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v6.1.15-650-g40afe6d834bf
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/6.1 baseline: 133 runs,
- 4 regressions (v6.1.15-650-g40afe6d834bf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="zqx7Ofl6bIpHu7bU"
+Content-Disposition: inline
+In-Reply-To: <CAMRc=MfD3=ifo9EJf=5_HZKLXnbASi=ehYm=Zs4WQA+YxfffQw@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/6.1 baseline: 133 runs, 4 regressions (v6.1.15-650-g40afe6d=
-834bf)
 
-Regressions Summary
--------------------
+--zqx7Ofl6bIpHu7bU
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform               | arch   | lab           | compiler | defconfig     =
-    | regressions
------------------------+--------+---------------+----------+---------------=
-----+------------
-bcm2835-rpi-b-rev2     | arm    | lab-broonie   | gcc-10   | bcm2835_defcon=
-fig | 1          =
+On Mon, Mar 06, 2023 at 10:23:30AM +0100, Bartosz Golaszewski wrote:
+> On Thu, Mar 2, 2023 at 11:30=E2=80=AFPM William Breathitt Gray
+> <william.gray@linaro.org> wrote:
+> >
+> > The WinSystems WS16C48 I/O address region spans offsets 0x0 through 0xA,
+> > which is a total of 11 bytes. Fix the WS16C48_EXTENT define to the
+> > correct value of 11 so that access to necessary device registers is
+> > properly requested in the ws16c48_probe() callback by the
+> > devm_request_region() function call.
+> >
+> > Fixes: 2c05a0f29f41 ("gpio: ws16c48: Implement and utilize register str=
+uctures")
+> > Cc: stable@vger.kernel.org
+> > Cc: Paul Demetrotion <pdemetrotion@winsystems.com>
+> > Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+> > ---
+>=20
+> Why did you need to resend this? Anything changed?
+>=20
+> Bart
 
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
-ig  | 1          =
+No changes in code, just added the stable@ver.kernel.org Cc tag.
 
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
-ig  | 1          =
+William Breathitt Gray
 
-qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
-ig  | 1          =
+--zqx7Ofl6bIpHu7bU
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F6.1/kern=
-el/v6.1.15-650-g40afe6d834bf/plan/baseline/
+iHUEARYKAB0WIQSNN83d4NIlKPjon7a1SFbKvhIjKwUCZAXfZQAKCRC1SFbKvhIj
+K5j3AQCDDi/opSFAVX095eZN7sUZr/Nq6/HOpDiRxrg0Da27EAD+Ir3Vs4hMQ8ik
+dvGD/xKnfiuEDHex5yeQzjHChNUO6Qo=
+=d1q2
+-----END PGP SIGNATURE-----
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/6.1
-  Describe: v6.1.15-650-g40afe6d834bf
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      40afe6d834bf9907b777aac924240b4ee9d262e9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-    | regressions
------------------------+--------+---------------+----------+---------------=
-----+------------
-bcm2835-rpi-b-rev2     | arm    | lab-broonie   | gcc-10   | bcm2835_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6405a6e1fa81589bcc8c863c
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-r=
-pi-b-rev2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-r=
-pi-b-rev2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230224.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/6405a6e1fa81589bcc8c8645
-        failing since 8 days (last pass: v6.1.13-47-ge942f47f1a6d, first fa=
-il: v6.1.13-47-g106bc513b009)
-
-    2023-03-06T08:39:40.297652  + set +x
-    2023-03-06T08:39:40.301401  <8>[   17.804705] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 105918_1.5.2.4.1>
-    2023-03-06T08:39:40.419238  / # #
-    2023-03-06T08:39:40.521771  export SHELL=3D/bin/sh
-    2023-03-06T08:39:40.522528  #
-    2023-03-06T08:39:40.624352  / # export SHELL=3D/bin/sh. /lava-105918/en=
-vironment
-    2023-03-06T08:39:40.625417  =
-
-    2023-03-06T08:39:40.727405  / # . /lava-105918/environment/lava-105918/=
-bin/lava-test-runner /lava-105918/1
-    2023-03-06T08:39:40.728689  =
-
-    2023-03-06T08:39:40.734751  / # /lava-105918/bin/lava-test-runner /lava=
--105918/1 =
-
-    ... (14 line(s) more)  =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-    | regressions
------------------------+--------+---------------+----------+---------------=
-----+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
-ig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6405a65e032330baa48c8641
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_x=
-86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_x=
-86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230224.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6405a65e032330baa48c8=
-642
-        failing since 1 day (last pass: v6.1.15-4-gf9fbed52efb7, first fail=
-: v6.1.15-651-g1da2ded14cbf3) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-    | regressions
------------------------+--------+---------------+----------+---------------=
-----+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
-ig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6405a64e4655e9b5c18c86ac
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x8=
-6_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x8=
-6_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230224.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6405a64e4655e9b5c18c8=
-6ad
-        failing since 1 day (last pass: v6.1.15-4-gf9fbed52efb7, first fail=
-: v6.1.15-651-g1da2ded14cbf3) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-    | regressions
------------------------+--------+---------------+----------+---------------=
-----+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
-ig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6405a640d53d7858318c8654
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_=
-x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.15-65=
-0-g40afe6d834bf/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_=
-x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230224.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6405a640d53d7858318c8=
-655
-        failing since 1 day (last pass: v6.1.15-4-gf9fbed52efb7, first fail=
-: v6.1.15-651-g1da2ded14cbf3) =
-
- =20
+--zqx7Ofl6bIpHu7bU--
