@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C24676ABD5A
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D99BD6ABD5E
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:52:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229554AbjCFKvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 05:51:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
+        id S229528AbjCFKwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 05:52:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230079AbjCFKuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:50:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 184182411E
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:50:26 -0800 (PST)
+        with ESMTP id S229636AbjCFKwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:52:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E80325BB3
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:51:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61185B80D7F
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:50:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5BF8C433D2;
-        Mon,  6 Mar 2023 10:50:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C108D60DE3
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:50:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7525C433A0;
+        Mon,  6 Mar 2023 10:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678099821;
-        bh=clJBD1eqzVI/iuDLSjxzbXw7mifw91cYgkyQGlnCbik=;
+        s=korg; t=1678099830;
+        bh=EGlJ3sLsnqH3XnnAjdf5OiluB8+4VAgEpXfzv0NZbl0=;
         h=Subject:To:Cc:From:Date:From;
-        b=qRqnSSSJxwQvHl7GPqyrP8Rs6HsoFyOL6E4ACqL16kGr6lmKS2ajfvj1aEGzEVI8s
-         PiAUxv4vpl/zLJMoV0miB4Zaz1EXMFoOkeDyvpKA7/0MAf8ClSqF4U8ZmQliIN7HBg
-         5lQJU5dUlEe6ge3wzVn64u/cf5zonRHrO2CnAseY=
-Subject: FAILED: patch "[PATCH] io_uring/poll: allow some retries for poll triggering" failed to apply to 6.1-stable tree
+        b=l3FcaoV59cStj5dmjylkdN90BMbQeSpWYgVrXoXydIiJjvV/iBNMDJAMppTsAUnfc
+         a/RKB10TYXLKeISid22XNPnE8nEyckzNdHSRDgplsFAv6xs1nCEJxdurAQumLW7BZG
+         pKBfKI9yOH283XOBkDDbbKGTPCi1mhKHPlY/jCEg=
+Subject: FAILED: patch "[PATCH] io_uring/poll: allow some retries for poll triggering" failed to apply to 5.15-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 11:50:18 +0100
-Message-ID: <167809981810941@kroah.com>
+Date:   Mon, 06 Mar 2023 11:50:19 +0100
+Message-ID: <16780998193152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,23 +47,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x c16bda37594f83147b167d381d54c010024efecf
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167809981810941@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16780998193152@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 c16bda37594f ("io_uring/poll: allow some retries for poll triggering spuriously")
+9b797a37c4bd ("io_uring: add abstraction around apoll cache")
+9da7471ed10d ("io_uring: move apoll cache to poll.c")
+5204aa8c43bd ("io_uring: add a helper for apoll alloc")
+d9b57aa3cfc7 ("io_uring: move opcode table to opdef.c")
+f3b44f92e59a ("io_uring: move read/write related opcodes to its own file")
+c98817e6cd44 ("io_uring: move remaining file table manipulation to filetable.c")
+735729844819 ("io_uring: move rsrc related data, core, and commands")
+3b77495a9723 ("io_uring: split provided buffers handling into its own file")
+7aaff708a768 ("io_uring: move cancelation into its own file")
+329061d3e2f9 ("io_uring: move poll handling into its own file")
+cfd22e6b3319 ("io_uring: add opcode name to io_op_defs")
+92ac8beaea1f ("io_uring: include and forward-declaration sanitation")
+c9f06aa7de15 ("io_uring: move io_uring_task (tctx) helpers into its own file")
+a4ad4f748ea9 ("io_uring: move fdinfo helpers to its own file")
+e5550a1447bf ("io_uring: use io_is_uring_fops() consistently")
+17437f311490 ("io_uring: move SQPOLL related handling into its own file")
+59915143e89f ("io_uring: move timeout opcodes and handling into its own file")
+e418bbc97bff ("io_uring: move our reference counting into a header")
+36404b09aa60 ("io_uring: move msg_ring into its own file")
 
 thanks,
 
