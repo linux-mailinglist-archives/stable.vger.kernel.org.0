@@ -2,71 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 323E46ABFBF
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 13:41:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF4D6ABFCA
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 13:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbjCFMlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 07:41:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39058 "EHLO
+        id S230139AbjCFMpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 07:45:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbjCFMlO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 07:41:14 -0500
-Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79552B2B4
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 04:41:12 -0800 (PST)
-Received: by mail-qt1-x835.google.com with SMTP id w23so10215674qtn.6
-        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 04:41:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678106472;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=6XrdgZjMDlRLFUbyVPxJfBpwx76lgBG7lHXmFXxIIe0=;
-        b=U92togDggQfebFB+oCNSCcXsZbxpGePUFP3ikADRG6yzR7syMch4sYx3BcPbAHkflT
-         XK1Kj+4jKssvq/kJJq1e8naG9O8KHAnyfxBVzOBoFkIpBEWAh9DPnvxr05kI8FLpl0aj
-         kumC2G3oTOFIk7cWg3iIQjO12DUpbeZ27eyh+PD142mAqUYXfI6XQc2bQW16b7Dm6Anl
-         iVr8ApM5YTEDLOSpsYjlxQZKpKvTHphg2oAtc/e1B3uZ5iiD/PjC8O0R6RyChc+SzMqS
-         e4Wfc2RpqIbpxMTo2MpTDso63NBC9hYdfTUUs4kRyuvJG7E97nsjdO5rurLS0Myq7xaF
-         4vvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678106472;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6XrdgZjMDlRLFUbyVPxJfBpwx76lgBG7lHXmFXxIIe0=;
-        b=3Uzdwx8UAjHQTHwQx7k9/DXu7HXMi9+QZFxo1FgV2+5WtMT4mcsFwByPeIzZV4AC4X
-         my7d/MfWZME3lBep7WIFexYAjC/sQBSQfnGnUB4mQ0lF6B5b+5JTd06DHyuzYsgBrKU9
-         0HNXhfoOTXS40bfQy0l44tYAAdMqazJth5ikbn6htwVi0ynLWWem34op86hXCwFHnLgQ
-         q9E/duhG6Xf1iVqHzXmrn222kiIPBWfx/tZrmg4ZyA1cBa1D2DdrYUuNG8hFdF0teBas
-         RspiBvxq4Q69h2qVct5DzRcX8PWl6nhlMK7UW8KNz9c/sb3qoPZjh30lbofmYM1mVKyK
-         L/zg==
-X-Gm-Message-State: AO0yUKWFshEuTKmWlnnL+dWC1n7pG9Rss0puzVtfDkrWLqPCqurjRYfW
-        1A5woUE+KF9/J9kl/zsLFxicZXGfk3ievoIC2ZU=
-X-Google-Smtp-Source: AK7set9TfEy2X1DOujpMKIH+igyL2YEO/hoGzriXXAWSRxRsb3UHkcR/L6n7Onm7AHa1lQCQR1vI8g==
-X-Received: by 2002:a05:622a:34b:b0:3b8:6ca4:bb23 with SMTP id r11-20020a05622a034b00b003b86ca4bb23mr15273152qtw.15.1678106471798;
-        Mon, 06 Mar 2023 04:41:11 -0800 (PST)
-Received: from fedora (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
-        by smtp.gmail.com with ESMTPSA id l19-20020a05620a211300b007423c122457sm7340219qkl.63.2023.03.06.04.41.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Mar 2023 04:41:11 -0800 (PST)
-Date:   Mon, 6 Mar 2023 07:41:09 -0500
-From:   William Breathitt Gray <william.gray@linaro.org>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     linus.walleij@linaro.org, linux-gpio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, techsupport@winsystems.com,
-        stable@vger.kernel.org,
-        Paul Demetrotion <pdemetrotion@winsystems.com>
-Subject: Re: [RESEND] gpio: ws16c48: Fix off-by-one error in WS16C48 resource
- region extent
-Message-ID: <ZAXfZbywWOo2pg4L@fedora>
-References: <20230228081724.94786-1-william.gray@linaro.org>
- <CAMRc=MfD3=ifo9EJf=5_HZKLXnbASi=ehYm=Zs4WQA+YxfffQw@mail.gmail.com>
+        with ESMTP id S229952AbjCFMpn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 07:45:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EB02BEFD;
+        Mon,  6 Mar 2023 04:45:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 154D0B80DF2;
+        Mon,  6 Mar 2023 12:45:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 035FBC433EF;
+        Mon,  6 Mar 2023 12:45:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678106739;
+        bh=EGjzYm/2z9uZZ81Lj/ba0nqcUILcwbFpoY2UUdEuutQ=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=Yr2jKpZh1Mm3riFN5T+mPtgoGwPNflrFnIE12B3moTH2rx+lCRohi3TVA6LJjfGBn
+         ZQ81PLMF/+uwb/DoT/NohHAmTAE28Um+/ETw1ddPB33UiOTRtpKNm1U1GIdj0ygo8T
+         g8FkYO5dO2NULQJQSU8e1h09Lstt12X68nUY1iXAY84xzx3WMYGm96SGqQrnSozbFy
+         FFyGvESMRh2AKmfeuWqM7i7vGlrSQL0qCcXkS/gTUuQsJhF8cNIaGvpkuRJ6s2yqWi
+         nODCin57ymqOsUDAdI7feD2+mqIr/x+Jq2FDIrMRvGqpUeWBCxgbf8vb5Mu9PPT7FO
+         5Zo686MX5bTKw==
+From:   Mark Brown <broonie@kernel.org>
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Banajit Goswami <bgoswami@quicinc.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     stable@vger.kernel.org
+In-Reply-To: <20230302122908.221398-1-krzysztof.kozlowski@linaro.org>
+References: <20230302122908.221398-1-krzysztof.kozlowski@linaro.org>
+Subject: Re: [PATCH] ASoC: qcom: q6prm: fix incorrect clk_root passed to
+ ADSP
+Message-Id: <167810673773.45838.18351424183553686686.b4-ty@kernel.org>
+Date:   Mon, 06 Mar 2023 12:45:37 +0000
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zqx7Ofl6bIpHu7bU"
-Content-Disposition: inline
-In-Reply-To: <CAMRc=MfD3=ifo9EJf=5_HZKLXnbASi=ehYm=Zs4WQA+YxfffQw@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13-dev-bd1bf
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -74,46 +59,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 02 Mar 2023 13:29:08 +0100, Krzysztof Kozlowski wrote:
+> The second to last argument is clk_root (root of the clock), however the
+> code called q6prm_request_lpass_clock() with clk_attr instead
+> (copy-paste error).  This effectively was passing value of 1 as root
+> clock which worked on some of the SoCs (e.g. SM8450) but fails on
+> others, depending on the ADSP.  For example on SM8550 this "1" as root
+> clock is not accepted and results in errors coming from ADSP.
+> 
+> [...]
 
---zqx7Ofl6bIpHu7bU
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applied to
 
-On Mon, Mar 06, 2023 at 10:23:30AM +0100, Bartosz Golaszewski wrote:
-> On Thu, Mar 2, 2023 at 11:30=E2=80=AFPM William Breathitt Gray
-> <william.gray@linaro.org> wrote:
-> >
-> > The WinSystems WS16C48 I/O address region spans offsets 0x0 through 0xA,
-> > which is a total of 11 bytes. Fix the WS16C48_EXTENT define to the
-> > correct value of 11 so that access to necessary device registers is
-> > properly requested in the ws16c48_probe() callback by the
-> > devm_request_region() function call.
-> >
-> > Fixes: 2c05a0f29f41 ("gpio: ws16c48: Implement and utilize register str=
-uctures")
-> > Cc: stable@vger.kernel.org
-> > Cc: Paul Demetrotion <pdemetrotion@winsystems.com>
-> > Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
-> > ---
->=20
-> Why did you need to resend this? Anything changed?
->=20
-> Bart
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
 
-No changes in code, just added the stable@ver.kernel.org Cc tag.
+Thanks!
 
-William Breathitt Gray
+[1/1] ASoC: qcom: q6prm: fix incorrect clk_root passed to ADSP
+      commit: 65882134bc622a1e57bd5928ac588855ea2e3ddd
 
---zqx7Ofl6bIpHu7bU
-Content-Type: application/pgp-signature; name="signature.asc"
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
 
------BEGIN PGP SIGNATURE-----
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-iHUEARYKAB0WIQSNN83d4NIlKPjon7a1SFbKvhIjKwUCZAXfZQAKCRC1SFbKvhIj
-K5j3AQCDDi/opSFAVX095eZN7sUZr/Nq6/HOpDiRxrg0Da27EAD+Ir3Vs4hMQ8ik
-dvGD/xKnfiuEDHex5yeQzjHChNUO6Qo=
-=d1q2
------END PGP SIGNATURE-----
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
---zqx7Ofl6bIpHu7bU--
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
