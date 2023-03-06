@@ -2,95 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 918EA6AB6C6
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 268796AB6D9
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:18:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbjCFHJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 02:09:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
+        id S229486AbjCFHSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 02:18:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbjCFHJE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:09:04 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A9483DB
-        for <stable@vger.kernel.org>; Sun,  5 Mar 2023 23:09:03 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id y10so5077738pfi.8
-        for <stable@vger.kernel.org>; Sun, 05 Mar 2023 23:09:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678086543;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=d0rhMMzKlVg9zIuqZGl8JylqDIpn9asL3UZVwQURhCTrgITnI5cijEX2SdpEbngLy2
-         Lyp4kodHH4WWAMDdaOzJvQpa02s4xEpunm0nHmfLmjKrKakMM8aNWqksMKhk+SIpBKhV
-         2AIZtwxSgD/Ef78gzDf7bR8Ke4Pm7o3rrEbmJ6jITlWb76Ae4T6Ns/40Xa+rp1j/iIgr
-         MmriL3KgzeD6DeHBylH5v6dbVL0CSrRqIt7xJw21oIi4BHJZJ7H7BccMjq4N+6y/+DAD
-         rn4u77v200mRNcEiDdPgcSGFwrsLf7rRlHNfyr35DDawpJn7m012lwGkcX6DpTKwJYLo
-         LeZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678086543;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=7HJ97Xt/aiS8z91SzTVfbmPb/1eMrnfvmKndoSQXoo3OGAlCVFV7PnTWtHZRgINJGE
-         RG+YOBVApDk7c9/C0rxBeF8OOfhbooq3I4jA5dpWM37ZyglylJMZpA+nqGRpL3GqCz2z
-         +1Hh0YuYdz1qicBrZkU9xQj05XfKyKH+2974rX8yHfSFquweVZGvZyXMN3vVSucd5/iM
-         kESKuo8TnEsUs7CIGTfTc24ycLBuAr5MtTmThfkoDLYDGqx9DPkQVwW5NDv4tjelXMy1
-         QyfkSdStH4IiW1pBZijsjq8CuWd2063xB2Huv5MU1ukGjLWNNVI2rJxpn5H5+f3DFIo+
-         heyw==
-X-Gm-Message-State: AO0yUKUV30XdF7QA69e8b++avr5qQs9VsiIzzyenKLBiSy5Ryp2yWE8g
-        Y1eKTQBUxvVFewZ5U+IbFqUnSXHbNGgpdmVA8Pk=
-X-Google-Smtp-Source: AK7set8X/+42+FdhSa6e1dIwTeDphmc7A+WXvkq56VB9x4A3mohHjQiZAHIDqTSG+Q+O0hCvr+ILylokAMelYQvGCUg=
-X-Received: by 2002:a62:838c:0:b0:592:5896:89cf with SMTP id
- h134-20020a62838c000000b00592589689cfmr4384484pfe.0.1678086543201; Sun, 05
- Mar 2023 23:09:03 -0800 (PST)
+        with ESMTP id S229450AbjCFHSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:18:04 -0500
+Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E50383C8
+        for <stable@vger.kernel.org>; Sun,  5 Mar 2023 23:18:03 -0800 (PST)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id D6F523200946;
+        Mon,  6 Mar 2023 02:18:00 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 06 Mar 2023 02:18:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1678087080; x=1678173480; bh=Eo
+        +njv5prXqIvtdbMSHJOlQbRIt1zn2AkCCO9y29ALE=; b=TAE+hZcNvMT9GUMGW7
+        i6XSF/4VtbnAimj9guwplhKn48t36w4kv2q2vrAjea/o1lW+vp6bkzjj8zc2fK3L
+        Qy0iGjv1ojaVmJuJWMjdYQPM3RqQ/cG7S9oyQeHzgQAEclMbVyYuaxJVcavJM2qE
+        cEn/fK/ZCIKek2Kn8JDcv6h1KAIGH51DDIsB0ioQm7NrU7XMTtBbKSXjJuVOhNFP
+        XF4hBhIQCy/zAsh0xdyXr2aKUKeVGTTWdIhGW8BJ4h5BnYrI6UukJhAvjsvLJWtJ
+        DhN9247doYHqUdt3Kmvs1hUIQjSew4ZxZkd3NyEcYPOqDXrpvIHaBXDe/kfGNXkJ
+        bxjg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; t=1678087080; x=1678173480; bh=Eo+njv5prXqIv
+        tdbMSHJOlQbRIt1zn2AkCCO9y29ALE=; b=s9VeifxfnExtQdcS8yC8ccy/ALE5h
+        Ru4jucjoc/3cRhZovjOovar/5HCMNrQenwv287gbWeTL9u8WI3iNAQP1WgbVOLdd
+        JTIFup/PsadoVn+nQ+mH0Knk1C0TjfPvJlBHP0IcDkEslWHrHYCfq9XKNzYQ+5an
+        h49wtN9ZZirlnF+eR/eswLS5VOdtsgrqRSSmbkdzq8x1QGfpAMZnpWkdJ5tLx30t
+        o4ibRjYxa/LRF3y4mP8/MqdU1yZGRfUjwT9v9qeOQKR6uM91ZoNqi0j94gM98umF
+        PL0eJUVWgIRYM1aQxbmYA3K9Qe1MwL9Ziw4kBALSKrlx34In/HHLjb/8A==
+X-ME-Sender: <xms:qJMFZIyzlwC-LEq5GJZFRp7LkcR8Mn1zGizYWShcvcUfN4CC_N3anw>
+    <xme:qJMFZMRW7cA7oonqaIhTyVH53IguF7LC60CKf5un9T4AQJounRcCwpzSqfpM2NT3x
+    wUfJaQYFLR3vQ>
+X-ME-Received: <xmr:qJMFZKVhEk1FlbPkco_pShIdlVEz0Yrm3mfbGyyuxSRhgr8ZedfkDzYKS04vlGJI-I8RcwKkc7OCU34CkHwlay0U-HKGBWWOMIAyNw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvddthedguddthecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehge
+    dvvedvleejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhu
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    grhhdrtghomh
+X-ME-Proxy: <xmx:qJMFZGg9jbPuZVNxoQJyTf1ziS0M8mjf9XGz3SzG2yyQemOflt-tWA>
+    <xmx:qJMFZKBZcmDwKA5uSRAv-UgOiv1-OCPzKJ1Sr6PGVReMAy6ugEpRxA>
+    <xmx:qJMFZHKFnK0galrLKruptMXwZytezGYh6YAQ_ciTqHVTkPOS5-nmvg>
+    <xmx:qJMFZNP6UoU2hCEEksdao-FPpBuYWW7pJrAtZ7Xe1V2oJNC87z4Jtg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 6 Mar 2023 02:17:59 -0500 (EST)
+Date:   Mon, 6 Mar 2023 08:17:56 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Jun ASAKA <JunASAKA@zzy040330.moe>
+Cc:     stable@vger.kernel.org
+Subject: Re: wifi: rtl8xxxu: fixing transmisison failure for rtl8192eu
+Message-ID: <ZAWTpNHkt13tK4+M@kroah.com>
+References: <91a734dd-a12f-54b8-0092-1da2e03e820d@zzy040330.moe>
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:6e96:b0:441:11d6:f6cc with HTTP; Sun, 5 Mar 2023
- 23:09:02 -0800 (PST)
-Reply-To: Lindacullbert@gmail.com
-From:   Mrs Linda Culbert <adelinejohnson07@gmail.com>
-Date:   Mon, 6 Mar 2023 07:09:02 +0000
-Message-ID: <CAHXS7qLu-+rfksCHWp9yHOdYkqmVnH14jy14Q7LidE0PWqecnQ@mail.gmail.com>
-Subject: =?UTF-8?Q?Hola=2C_Por_favor_como_est=C3=A1s=2E_Necesitar=C3=A9_su_respuest?=
-        =?UTF-8?Q?a_urgente=2E_Saludos?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,EMPTY_MESSAGE,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:434 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [adelinejohnson07[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [adelinejohnson07[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  2.3 EMPTY_MESSAGE Message appears to have no textual parts
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <91a734dd-a12f-54b8-0092-1da2e03e820d@zzy040330.moe>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Mar 05, 2023 at 01:34:02PM +0800, Jun ASAKA wrote:
+> commit c6015bf3ff1ffb3caa27eb913797438a0fc634a0 upstream.
+> 
+> Fixing transmission failure which results in
+> "authentication with ... timed out". This can be
+> fixed by disable the REG_TXPAUSE.
+> 
+> This patche should be applied to all kernel versions since the problem
+> seemed to be existed since version 4.9.x.
+> 
+> Signed-off-by: Jun ASAKA <JunASAKA@zzy040330.moe>
 
+now queued up, thanks.
+
+greg k-h
