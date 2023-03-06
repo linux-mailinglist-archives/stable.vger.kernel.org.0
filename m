@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 750AC6ACA47
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC6D6ACA32
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229809AbjCFR3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 12:29:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32964 "EHLO
+        id S229963AbjCFR2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 12:28:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229707AbjCFR3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:29:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DC465052
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:28:22 -0800 (PST)
+        with ESMTP id S229570AbjCFR2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:28:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7F7669061
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:27:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5DE661068
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B33C433EF;
-        Mon,  6 Mar 2023 17:27:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D779B80FE9
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9D5EC4339B;
+        Mon,  6 Mar 2023 17:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678123637;
-        bh=qr6FnSVpal2oAmaOrc0uvyrKyRZPGotCdqKjcOxVuxc=;
+        s=korg; t=1678123641;
+        bh=R8arx6IGpOVxlHrBCpwQdHmAYRpQLjtcChmuaZ4evRE=;
         h=Subject:To:Cc:From:Date:From;
-        b=A/4tc4A4QQ8c7HEeHSA9vk+P1F/cOAuDXQsgFO0q7y/ITpFiPsRe4ZFzdVn6ngV62
-         hblrIpmVuPqhh6e6DsQ1RzzP5iSqIDp1WZj0IyaY0x0zr2yxmoGih8ttVZIJENAMke
-         ToTyQz59N8SV8cshBjPZ6ArZmqrcMRqaZ+i9+qm8=
-Subject: FAILED: patch "[PATCH] x86/crash: Disable virt in core NMI crash handler to avoid" failed to apply to 5.4-stable tree
+        b=vHWAybh7lbXUzqMADmrFwJOz8/edbw1D5fuD9f5K6ypykmEyg/q5IwaJNE6O8TBcj
+         iUmzdyifr4aJRyh7Qindh2ksNVE6V8z3YQ5tmwFEzId//EknjYCGzVCUh8X4Ip5S/p
+         IZQh6k3CQmBSHO4ErSGnTa6UZnNCDS7j/fQmIlK8=
+Subject: FAILED: patch "[PATCH] x86/crash: Disable virt in core NMI crash handler to avoid" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, gpiccoli@igalia.com, pbonzini@redhat.com,
         tglx@linutronix.de, vkuznets@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 18:27:14 +0100
-Message-ID: <1678123634056@kroah.com>
+Date:   Mon, 06 Mar 2023 18:27:16 +0100
+Message-ID: <1678123636156122@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,25 +48,38 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x 26044aff37a5455b19a91785086914fd33053ef4
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678123634056@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678123636156122@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
 26044aff37a5 ("x86/crash: Disable virt in core NMI crash handler to avoid double shootdown")
 ed72736183c4 ("x86/reboot: Force all cpus to exit VMX root if VMX is supported")
 4d1d0977a215 ("x86: Fix a handful of typos")
+22ca7ee933a3 ("x86/apic: Provide and use helper for send_IPI_allbutself()")
+6a1cb5f5c641 ("x86/apic: Add static key to Control IPI shorthands")
+bdda3b93e660 ("x86/apic: Move no_ipi_broadcast() out of 32bit")
+9c92374b631d ("x86/cpu: Move arch_smt_update() to a neutral place")
+c94f0718fb1c ("x86/apic: Consolidate the apic local headers")
+ba77b2a02e00 ("x86/apic: Move apic_flat_64 header into apic directory")
+8b542da37287 ("x86/apic: Move ipi header into apic directory")
+521b82fee98c ("x86/apic: Cleanup the include maze")
+cdc86c9d1f82 ("x86/apic: Move IPI inlines into ipi.c")
+2591bc4e8d70 ("x86/kgbd: Use NMI_VECTOR not APIC_DM_NMI")
+747d5a1bf293 ("x86/reboot: Always use NMI fallback when shutdown via reboot vector IPI fails")
+7e300dabb7e7 ("treewide: Replace GPLv2 boilerplate/reference with SPDX - rule 223")
+fa4bff165070 ("Merge branch 'x86-mds-for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip")
 
 thanks,
 
