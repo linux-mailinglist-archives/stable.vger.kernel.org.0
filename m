@@ -2,79 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6396AC5AE
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 16:41:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C25E6AC5C9
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 16:45:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229750AbjCFPlz convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 6 Mar 2023 10:41:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
+        id S230445AbjCFPo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 10:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229698AbjCFPlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 10:41:55 -0500
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199162BED9
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:41:25 -0800 (PST)
-Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 0D9784000F;
-        Mon,  6 Mar 2023 15:40:26 +0000 (UTC)
-Message-ID: <f23d6700b79500e2da9875964aee356c60a60529.camel@hadess.net>
-Subject: Re: [PATCH 1/2] staging: rtl8723bs: Fix key-store index handling
-From:   Bastien Nocera <hadess@hadess.net>
-To:     Hans de Goede <hdegoede@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-staging@lists.linux.dev, stable@vger.kernel.org
-Date:   Mon, 06 Mar 2023 16:40:26 +0100
-In-Reply-To: <20230306153512.162104-1-hdegoede@redhat.com>
-References: <20230306153512.162104-1-hdegoede@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S230480AbjCFPo6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 10:44:58 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0CF231E3D
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:44:28 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326E5E2G018552
+        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:43:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : content-transfer-encoding
+ : mime-version; s=pp1; bh=hwbY6KH+YcTzJEkrVEGYYnQTgj5muhtMmCQpDQXzyRM=;
+ b=P8CtOaQRnEskw/v/KpmTTig7e+urqtqWSJZFCHJV0DA7j3fRHpi9odD7AEJ1P2RtJFxl
+ jkVBZL4hQzFsFeOGvMsjvubb2DQjM7fi0kWsezEVCitL4HvD3oz03TwScop9dqH/1Kkv
+ yhf/N+IgWfLnNEOwZUnYV8aKlJBNZAfObEvLsX1p20eMQhmJOpT4OiDira3hDqB1zEED
+ UJuHuWW4Lm3BrAYaXQPb4KQKYB00M2LkwFg6uJ5z7RgHlPKodLIdl0C/3hermXVVV/D3
+ v+5dQ8IBT5svR6VWIeLZJ2Am7Y0p9eFkdTROBA/7zwzREoAunNg6f+ikWJoExYnnSQLM yw== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p4uaeme3g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:43:43 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 326BWg5Q007376
+        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:43:41 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3p4188ax3n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:43:41 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326FhbCv31588684
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 6 Mar 2023 15:43:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 446C620043;
+        Mon,  6 Mar 2023 15:43:37 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1989120040;
+        Mon,  6 Mar 2023 15:43:37 +0000 (GMT)
+Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Mar 2023 15:43:37 +0000 (GMT)
+From:   Nico Boehr <nrb@linux.ibm.com>
+To:     stable@vger.kernel.org
+Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
+Subject: [PATCH 5.15.y] KVM: s390: disable migration mode when dirty tracking is disabled
+Date:   Mon,  6 Mar 2023 16:43:36 +0100
+Message-Id: <20230306154336.1868-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <16781000032425@kroah.com>
+References: <16781000032425@kroah.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 1jmpchHv7Zf37_W3c1nUw0Ybdk-2VkG4
+X-Proofpoint-ORIG-GUID: 1jmpchHv7Zf37_W3c1nUw0Ybdk-2VkG4
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-06_08,2023-03-06_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=894 clxscore=1015
+ phishscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 spamscore=0 mlxscore=0 impostorscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2303060137
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2023-03-06 at 16:35 +0100, Hans de Goede wrote:
-> There are 2 issues with the key-store index handling
-> 
-> 1. The non WEP key stores can store keys with indexes 0 -
-> BIP_MAX_KEYID,
->    this means that they should be an array with BIP_MAX_KEYID + 1
->    entries. But some of the arrays where just BIP_MAX_KEYID entries
->    big. While one other array was hardcoded to a size of 6 entries,
->    instead of using the BIP_MAX_KEYID define.
-> 
-> 2. The rtw_cfg80211_set_encryption() and wpa_set_encryption()
-> functions
->    index check where checking that the passed in key-index would fit
->    inside both the WEP key store (which only has 4 entries) as well
-> as
->    in the non WEP key stores. This breaks any attempts to set non WEP
->    keys with index 4 or 5.
-> 
-> Issue 2. specifically breaks wifi connection with some access points
-> which advertise PMF support. Without this fix connecting to these
-> access points fails with the following wpa_supplicant messages:
-> 
->  nl80211: kernel reports: key addition failed
->  wlan0: WPA: Failed to configure IGTK to the driver
->  wlan0: RSN: Failed to configure IGTK
->  wlan0: CTRL-EVENT-DISCONNECTED bssid=... reason=1
-> locally_generated=1
-> 
-> Fix 1. by using the right size for the key-stores. After this 2. can
-> safely be fixed by checking the right max-index value depending on
-> the
-> used algorithm, fixing wifi not working with some PMF capable APs.
+Migration mode is a VM attribute which enables tracking of changes in
+storage attributes (PGSTE). It assumes dirty tracking is enabled on all
+memslots to keep a dirty bitmap of pages with changed storage attributes.
 
-Good job on both those patches.
+When enabling migration mode, we currently check that dirty tracking is
+enabled for all memslots. However, userspace can disable dirty tracking
+without disabling migration mode.
 
-Can you please also CC: the maintainer of r8188eu which looks like it
-has similar code?
+Since migration mode is pointless with dirty tracking disabled, disable
+migration mode whenever userspace disables dirty tracking on any slot.
 
-Cheers
+Also update the documentation to clarify that dirty tracking must be
+enabled when enabling migration mode, which is already enforced by the
+code in kvm_s390_vm_start_migration().
+
+Also highlight in the documentation for KVM_S390_GET_CMMA_BITS that it
+can now fail with -EINVAL when dirty tracking is disabled while
+migration mode is on. Move all the error codes to a table so this stays
+readable.
+
+To disable migration mode, slots_lock should be held, which is taken
+in kvm_set_memory_region() and thus held in
+kvm_arch_prepare_memory_region().
+
+Restructure the prepare code a bit so all the sanity checking is done
+before disabling migration mode. This ensures migration mode isn't
+disabled when some sanity check fails.
+
+Cc: stable@vger.kernel.org
+Fixes: 190df4a212a7 ("KVM: s390: CMMA tracking, ESSA emulation, migration mode")
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230127140532.230651-2-nrb@linux.ibm.com
+Message-Id: <20230127140532.230651-2-nrb@linux.ibm.com>
+[frankja@linux.ibm.com: fixed commit message typo, moved api.rst error table upwards]
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+(cherry picked from commit f2d3155e2a6bac44d16f04415a321e8707d895c6)
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+---
+ Documentation/virt/kvm/api.rst        | 18 ++++++++++++------
+ Documentation/virt/kvm/devices/vm.rst |  4 ++++
+ arch/s390/kvm/kvm-s390.c              | 17 +++++++++++++++++
+ 3 files changed, 33 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index b550f43214c7..ec38299f9428 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -4117,6 +4117,18 @@ not holding a previously reported uncorrected error).
+ :Parameters: struct kvm_s390_cmma_log (in, out)
+ :Returns: 0 on success, a negative value on error
+ 
++Errors:
++
++  ======     =============================================================
++  ENOMEM     not enough memory can be allocated to complete the task
++  ENXIO      if CMMA is not enabled
++  EINVAL     if KVM_S390_CMMA_PEEK is not set but migration mode was not enabled
++  EINVAL     if KVM_S390_CMMA_PEEK is not set but dirty tracking has been
++             disabled (and thus migration mode was automatically disabled)
++  EFAULT     if the userspace address is invalid or if no page table is
++             present for the addresses (e.g. when using hugepages).
++  ======     =============================================================
++
+ This ioctl is used to get the values of the CMMA bits on the s390
+ architecture. It is meant to be used in two scenarios:
+ 
+@@ -4197,12 +4209,6 @@ mask is unused.
+ 
+ values points to the userspace buffer where the result will be stored.
+ 
+-This ioctl can fail with -ENOMEM if not enough memory can be allocated to
+-complete the task, with -ENXIO if CMMA is not enabled, with -EINVAL if
+-KVM_S390_CMMA_PEEK is not set but migration mode was not enabled, with
+--EFAULT if the userspace address is invalid or if no page table is
+-present for the addresses (e.g. when using hugepages).
+-
+ 4.108 KVM_S390_SET_CMMA_BITS
+ ----------------------------
+ 
+diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
+index 60acc39e0e93..147efec626e5 100644
+--- a/Documentation/virt/kvm/devices/vm.rst
++++ b/Documentation/virt/kvm/devices/vm.rst
+@@ -302,6 +302,10 @@ Allows userspace to start migration mode, needed for PGSTE migration.
+ Setting this attribute when migration mode is already active will have
+ no effects.
+ 
++Dirty tracking must be enabled on all memslots, else -EINVAL is returned. When
++dirty tracking is disabled on any memslot, migration mode is automatically
++stopped.
++
+ :Parameters: none
+ :Returns:   -ENOMEM if there is not enough free memory to start migration mode;
+ 	    -EINVAL if the state of the VM is invalid (e.g. no memory defined);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index c61533e1448a..d7aa442ceaf1 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -5066,6 +5066,23 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+ 	/* When we are protected, we should not change the memory slots */
+ 	if (kvm_s390_pv_get_handle(kvm))
+ 		return -EINVAL;
++
++	if (!kvm->arch.migration_mode)
++		return 0;
++
++	/*
++	 * Turn off migration mode when:
++	 * - userspace creates a new memslot with dirty logging off,
++	 * - userspace modifies an existing memslot (MOVE or FLAGS_ONLY) and
++	 *   dirty logging is turned off.
++	 * Migration mode expects dirty page logging being enabled to store
++	 * its dirty bitmap.
++	 */
++	if (change != KVM_MR_DELETE &&
++	    !(mem->flags & KVM_MEM_LOG_DIRTY_PAGES))
++		WARN(kvm_s390_vm_stop_migration(kvm),
++		     "Failed to stop migration mode");
++
+ 	return 0;
+ }
+ 
+-- 
+2.39.1
+
