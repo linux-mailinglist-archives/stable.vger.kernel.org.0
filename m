@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD146ACCF2
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 19:48:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 773EC6ACCF3
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 19:48:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229926AbjCFSsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 13:48:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54458 "EHLO
+        id S229591AbjCFSsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 13:48:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229591AbjCFSsJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 13:48:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 054BB24C8C
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:48:08 -0800 (PST)
+        with ESMTP id S229952AbjCFSsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 13:48:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB0C1ADCF
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:48:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE889B810AF
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 18:48:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00D7C433EF;
-        Mon,  6 Mar 2023 18:48:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4BC9DB8107E
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 18:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9732C433EF;
+        Mon,  6 Mar 2023 18:48:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678128485;
-        bh=D7pfj6kqQ+LNxxmP5bp1MLzHWKVnEOa0bSepzz8C/+U=;
+        s=korg; t=1678128488;
+        bh=JAE/jzVjFn4cfE79mp98rr+JE53r86dhNK6qFi6n2MQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=cad5UyPLXGdUYps12ELbCA4N/FTZQGVwx2INsRHXQMP4YvilRofz3KjTVhrDUjKXW
-         L0IOyYIdUIyZn1OBrf2ggUWwfmDlhV7Q0ukyPFMT9qBIgzXRwbqw8Fsq/gQgmKsp/P
-         sGOmSppcJQvHdz/M1PZAPZiIhKZNXvPny/kuDCZY=
-Subject: FAILED: patch "[PATCH] irqdomain: Look for existing mapping only once" failed to apply to 5.4-stable tree
+        b=lNrr5+6yGfyfbiCxGWy3/H06LvLhI04hJX19dM5Z7K8tX9UTAlPADHkCkGq2NNhYG
+         X0nunYaf6bomCK4uhn/1LYHyJ0B8KnS8XEVLP4r+FdM7e7qGx0Kybhzjtcr9gmPcDJ
+         edSc+XLBxtFGEmBAfIzDjdpekf1F+3e1yyTR+XW0=
+Subject: FAILED: patch "[PATCH] irqdomain: Look for existing mapping only once" failed to apply to 5.10-stable tree
 To:     johan+linaro@kernel.org, hsinyi@chromium.org,
         mark-pk.tsai@mediatek.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 06 Mar 2023 19:48:00 +0100
-Message-ID: <1678128480103128@kroah.com>
+Message-ID: <1678128480246217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,29 +48,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 6e6f75c9c98d2d246d90411ff2b6f0cd271f4cba
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678128480103128@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678128480246217@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
 6e6f75c9c98d ("irqdomain: Look for existing mapping only once")
 a359f757965a ("irq: Fix typos in comments")
-bb4c6910c8b4 ("genirq/irqdomain: Add an irq_create_mapping_affinity() function")
-baedb87d1b53 ("genirq/affinity: Handle affinity setting on inactive interrupts correctly")
-ef8c01eb64ca ("irqchip: Add Loongson PCH PIC controller")
-818e915fbac5 ("irqchip: Add Loongson HyperTransport Vector support")
-d71e064449a7 ("Merge tag 'mips_5.7' of git://git.kernel.org/pub/scm/linux/kernel/git/mips/linux")
 
 thanks,
 
