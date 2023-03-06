@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB2C6ACBC1
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066EB6ACB5E
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:53:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbjCFR7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 12:59:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
+        id S229706AbjCFRxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 12:53:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229890AbjCFR7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:59:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5196C1BE
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:58:38 -0800 (PST)
+        with ESMTP id S229748AbjCFRxd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:53:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E24D740FA
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:52:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B968B81061
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B97FC433EF;
-        Mon,  6 Mar 2023 17:52:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2D276102A
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:52:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D97E0C433EF;
+        Mon,  6 Mar 2023 17:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678125170;
-        bh=RdkB2V4W8ZJg/t9uIecq+I5aXlARMM2m2FWApMw7N8Y=;
+        s=korg; t=1678125173;
+        bh=5lL2+FwTNvkMIXMQ9kV2IC0Scz/kBj/A+nL8xUdnvRo=;
         h=Subject:To:Cc:From:Date:From;
-        b=no2CuKKNgRrdzuwam2EE7uXTJrh+P0yaiaM2nxvAJHE8Gsrjh8ZOptU6ULkR6TRWk
-         W18fb8r14YhMj7DfDW3ajjeKb1Lf5Z4MbVDpl7u2jbC5Ug7n5vj84ovqMCKmfZduE9
-         RSflT/aV4IrA28gagedFNluUHOKsVadxfZcCDS4w=
-Subject: FAILED: patch "[PATCH] brd: check for REQ_NOWAIT and set correct page allocation" failed to apply to 5.15-stable tree
+        b=r6eCtgcgD1bSwtCxiDe78GxyCus/FSK2nnMZgz6tT/IiEE29BfWk4Rd3pFl+JsOai
+         q/sdPFYVe/0CnMEG4LxMszU0wnyjJxWL66jJ+6ZF7kFX1sw52J/AVEae3W9m4EKOXk
+         eswWWobk0S6ZdXyW2n7R7dYhQGYBQBG2gng99+aQ=
+Subject: FAILED: patch "[PATCH] brd: check for REQ_NOWAIT and set correct page allocation" failed to apply to 5.10-stable tree
 To:     axboe@kernel.dk, hch@lst.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 18:50:31 +0100
-Message-ID: <1678125031200144@kroah.com>
+Date:   Mon, 06 Mar 2023 18:50:32 +0100
+Message-ID: <167812503219822@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 6ded703c56c21bfb259725d4f1831a5feb563e9b
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678125031200144@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167812503219822@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
@@ -82,6 +82,7 @@ badf7f643787 ("block: move a few merge helpers out of <linux/blkdev.h>")
 2e9bc3465ac5 ("block: move elevator.h to block/")
 9778ac77c202 ("block: remove the struct blk_queue_ctx forward declaration")
 90138237a562 ("block: remove the unused blk_queue_state enum")
+cc9c884dd7f4 ("block: call submit_bio_checks under q_usage_counter")
 
 thanks,
 
