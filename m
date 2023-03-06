@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 660096ABD64
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F9C6ABD65
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbjCFKxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 05:53:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35598 "EHLO
+        id S229604AbjCFKxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 05:53:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229636AbjCFKxc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:53:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158D692
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:53:30 -0800 (PST)
+        with ESMTP id S229536AbjCFKxg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:53:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4E446AF
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:53:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E57960DCB
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2AC5C433D2;
-        Mon,  6 Mar 2023 10:53:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0343EB80D80
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:53:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37891C4339B;
+        Mon,  6 Mar 2023 10:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678100009;
-        bh=YLcI5NHQEuuw8x+gBWu2yaOuF6EEl6lHtY8Cl33wuyA=;
+        s=korg; t=1678100011;
+        bh=IbAslAzVVn8VO1g8M0CU85xAlatY+xXzi3mFz71Re14=;
         h=Subject:To:Cc:From:Date:From;
-        b=DC90mEp1ZYmPGLgT8VY4JOFnFNooubmvIJL5HHCNqG84MdTkwnvkyJ+JwoDGTgo2e
-         cLVB5SV19xLwY2RbZi/ypBXM/tqKMm9ugALm8VLZphWO29fegk51g12xpHONNqY5k2
-         /MJEXe8OSKuFE1Qe8bDjF0dMa64xT8O+aiQQ83Fc=
-Subject: FAILED: patch "[PATCH] KVM: s390: disable migration mode when dirty tracking is" failed to apply to 5.10-stable tree
+        b=Dso46LEzqsdkjKa/WAGBVvWNNA1HHZgiwvlZerKJ9SA/4NmT2ReaXmDdDR2Req2v2
+         qRxREx4mjYXlP3a49m9aZUEod+VLl0vi+0Nv5H7NhWGLzQh3tmMv54nE1PenxJD63M
+         CzXpTIksh9z+DbdJS0azFifZXMJtzIUSUkELwlFs=
+Subject: FAILED: patch "[PATCH] KVM: s390: disable migration mode when dirty tracking is" failed to apply to 5.4-stable tree
 To:     nrb@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 11:53:25 +0100
-Message-ID: <16781000053227@kroah.com>
+Date:   Mon, 06 Mar 2023 11:53:26 +0100
+Message-ID: <167810000636131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,25 +47,40 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x f2d3155e2a6bac44d16f04415a321e8707d895c6
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781000053227@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167810000636131@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
 f2d3155e2a6b ("KVM: s390: disable migration mode when dirty tracking is disabled")
 ec5c86976674 ("KVM: s390: Skip gfn/size sanity checks on memslot DELETE or FLAGS_ONLY")
 cf5b486922dc ("KVM: s390: Use "new" memslot instead of userspace memory region")
+106ee47dc633 ("docs: kvm: Convert api.txt to ReST format")
+6c972ba685d5 ("docs: kvm: convert devices/vm.txt to ReST")
+aff7aeea5483 ("docs: kvm: convert devices/vfio.txt to ReST")
+e777a5bd98c6 ("docs: kvm: convert devices/vcpu.txt to ReST")
+e94474300361 ("docs: kvm: convert devices/s390_flic.txt to ReST")
+05c47036c62e ("docs: kvm: convert devices/mpic.txt to ReST")
+c0d1c8a0af59 ("docs: kvm: devices/arm-vgit-v3.txt to ReST")
+d371c011fc5e ("docs: kvm: devices/arm-vgic-its.txt to ReST format")
+7bd460fc1dfa ("docs: kvm: add arm/pvtime.rst to index.rst")
+290a6bb06de9 ("arm64: KVM: Add UAPI notes for swapped registers")
+22945688acd4 ("KVM: PPC: Book3S HV: Support reset of secure guest")
+008e359c76d8 ("KVM: PPC: Book3S HV: Radix changes for secure guest")
+60f0a643aa44 ("KVM: PPC: Book3S HV: Shared pages support for secure guests")
+ca9f4942670c ("KVM: PPC: Book3S HV: Support for running secure guests")
+a4b28f5c6798 ("Merge remote-tracking branch 'kvmarm/kvm-arm64/stolen-time' into kvmarm-master/next")
 
 thanks,
 
