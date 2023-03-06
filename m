@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 229BA6AC18F
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:40:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7230F6AC193
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230019AbjCFNkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 08:40:23 -0500
+        id S229982AbjCFNkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 08:40:25 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230376AbjCFNkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:40:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 649E52B2A9
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:40:11 -0800 (PST)
+        with ESMTP id S230420AbjCFNkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:40:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31682CC69
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:40:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3F9560F38
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CE0C433EF;
-        Mon,  6 Mar 2023 13:40:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EBC260F9F
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9682DC433D2;
+        Mon,  6 Mar 2023 13:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678110010;
-        bh=NSESegn6IXlsjtWq6fZEIiXnHJwrAxx8VB4Xe5zOdyo=;
+        s=korg; t=1678110015;
+        bh=ClB870E3+m8qO1Az9MVXR1/8OUxICddyUy1l1TOGb+8=;
         h=Subject:To:Cc:From:Date:From;
-        b=zimF+GVtV45v7027x1/p12rI++tvoN23y1cYdb8iLbFm9Oa95WXPv5SP6P9Ti7Dq+
-         3fzBEDss0GUZIGA/D9c4ZcEwuwmNJ98y6NfCnTHvduESZAGmTF/7cR5cX3l3+VJZB6
-         s6QZSTgWUJYTw1j5nrWLPl/1sFSDQH/1C8A0jsPU=
-Subject: FAILED: patch "[PATCH] udf: Fix off-by-one error when discarding preallocation" failed to apply to 6.1-stable tree
+        b=kZKE7fTcNyCeE9hhE0arOMQKbvKC9ToKZCu/fvQFmMvUIZxzvASlIEJ5Jjw2m5qvu
+         WIs+ji3/usBPTjTJ6VbdL+hzU2jL8XnxUJnmBlgzYd9BhrarBFV+U4K8b+b3TkKHGT
+         YqS2yfe1cQJDiKKs92Aqar5imwwKZB0jSJWWMwIw=
+Subject: FAILED: patch "[PATCH] udf: Fix off-by-one error when discarding preallocation" failed to apply to 5.15-stable tree
 To:     jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 14:40:05 +0100
-Message-ID: <1678110005174144@kroah.com>
+Date:   Mon, 06 Mar 2023 14:40:06 +0100
+Message-ID: <167811000666204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x f54aa97fb7e5329a373f9df4e5e213ced4fc8759
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678110005174144@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167811000666204@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
