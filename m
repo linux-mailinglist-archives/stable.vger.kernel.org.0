@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B97556AB7B2
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D557F6AB797
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229826AbjCFH6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 02:58:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53410 "EHLO
+        id S229952AbjCFH5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 02:57:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229812AbjCFH5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:57:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77421F900;
+        with ESMTP id S229788AbjCFH5k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:57:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119FE1F5DC;
         Sun,  5 Mar 2023 23:57:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C5DBB80CB3;
-        Mon,  6 Mar 2023 07:57:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47FA3C433A0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B28BCB80CA7;
+        Mon,  6 Mar 2023 07:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45DE2C4339B;
         Mon,  6 Mar 2023 07:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1678089456;
-        bh=7TZ6Ryi4qLzh/gGEJ5o6OzQmE+K2CCuNbOYeK44Wt5Q=;
+        bh=Gq0h6KWRJ7+7NQjJFlZM0IIfLOQXyWOu463epBupeVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHmzb4qknAa+64diW25JB7LUpUeFbjfyStzO548TnaOmwXOOmWx9iH4XyZWuite89
-         zFYdzbIB3uwbZ6ohEvzVP69suMk9Z4HzzV7QDBlgzeefeQ65IvB3Ie4F84+IKUG4oh
-         1D2jOS2OHRaMuoASYjHGN8H3/8XO+/JSKErf0xJvVod6Rmnw7X5uXSQO3/7/z47HGD
-         XoSOf14CMXssE2RQxUqTxJV0u1DUOEPS6rDhbenMWUeA6G0ulFpISXFEX8vVCB3ffa
-         XPshPnw8IQ0vG5rmZqUJ6+7vHw+iAthhIJbPFP4vkGGY8c0o9FxQ5BdB9uBKTg7Una
-         nLCjvLlQZlozA==
+        b=WRVn3Mena1i634HIHPWixQ/g1cfQETDXfXhBJGyPbNQ2zD0uRLBLLdX6lmKQBQRkf
+         0w0PC3EPFc1n7Gfqg6Tt+p005RchBMtNChwFTj+ZAyCoAaZFy0unjM0ozuy9HwFIEQ
+         fJVXcORUbnHtC6JYGafTiUcBCtJcj1Y/rWtvG2qcpuHixgnRcis+MncYc4/RdtuflY
+         KO10M3uLJUpywRlZZvIU9pN9ZeLKNPZS2uvrDkTRjP4AANF8rQhZz8j0DI5j94hyHv
+         ScxbeNuAwSau22/oKtyISv9Joc28MZrW40YPJFc4Wsy5LjMYjfI4QcZSx7r1lrD13c
+         1Y//i9567+Kng==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pZ5jb-0000ht-PN; Mon, 06 Mar 2023 08:58:15 +0100
+        id 1pZ5jb-0000hv-Rs; Mon, 06 Mar 2023 08:58:15 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Georgi Djakov <djakov@kernel.org>
 Cc:     "Shawn Guo" <shawnguo@kernel.org>,
@@ -54,16 +54,16 @@ Cc:     "Shawn Guo" <shawnguo@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 01/23] interconnect: fix mem leak when freeing nodes
-Date:   Mon,  6 Mar 2023 08:56:29 +0100
-Message-Id: <20230306075651.2449-2-johan+linaro@kernel.org>
+Subject: [PATCH v2 02/23] interconnect: fix icc_provider_del() error handling
+Date:   Mon,  6 Mar 2023 08:56:30 +0100
+Message-Id: <20230306075651.2449-3-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230306075651.2449-1-johan+linaro@kernel.org>
 References: <20230306075651.2449-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,32 +71,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The node link array is allocated when adding links to a node but is not
-deallocated when nodes are destroyed.
+The interconnect framework currently expects that providers are only
+removed when there are no users and after all nodes have been removed.
+
+There is currently nothing that guarantees this to be the case and the
+framework does not do any reference counting, but refusing to remove the
+provider is never correct as that would leave a dangling pointer to a
+resource that is about to be released in the global provider list (e.g.
+accessible through debugfs).
+
+Replace the current sanity checks with WARN_ON() so that the provider is
+always removed.
 
 Fixes: 11f1ceca7031 ("interconnect: Add generic on-chip interconnect API")
-Cc: stable@vger.kernel.org      # 5.1
+Cc: stable@vger.kernel.org      # 5.1: 680f8666baf6: interconnect: Make icc_provider_del() return void
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/interconnect/core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/interconnect/core.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
-index 0f392f59b135..5217f449eeec 100644
+index 5217f449eeec..cabb6f5df83e 100644
 --- a/drivers/interconnect/core.c
 +++ b/drivers/interconnect/core.c
-@@ -850,6 +850,10 @@ void icc_node_destroy(int id)
+@@ -1065,18 +1065,8 @@ EXPORT_SYMBOL_GPL(icc_provider_add);
+ void icc_provider_del(struct icc_provider *provider)
+ {
+ 	mutex_lock(&icc_lock);
+-	if (provider->users) {
+-		pr_warn("interconnect provider still has %d users\n",
+-			provider->users);
+-		mutex_unlock(&icc_lock);
+-		return;
+-	}
+-
+-	if (!list_empty(&provider->nodes)) {
+-		pr_warn("interconnect provider still has nodes\n");
+-		mutex_unlock(&icc_lock);
+-		return;
+-	}
++	WARN_ON(provider->users);
++	WARN_ON(!list_empty(&provider->nodes));
  
+ 	list_del(&provider->provider_list);
  	mutex_unlock(&icc_lock);
- 
-+	if (!node)
-+		return;
-+
-+	kfree(node->links);
- 	kfree(node);
- }
- EXPORT_SYMBOL_GPL(icc_node_destroy);
 -- 
 2.39.2
 
