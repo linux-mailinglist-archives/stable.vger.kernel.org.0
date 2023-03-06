@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA036AB70F
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:28:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 432386AB710
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:28:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229743AbjCFH2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 02:28:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60570 "EHLO
+        id S229748AbjCFH2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 02:28:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbjCFH2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:28:51 -0500
+        with ESMTP id S229688AbjCFH2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:28:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CB15CDE9
-        for <stable@vger.kernel.org>; Sun,  5 Mar 2023 23:28:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B341CAF6
+        for <stable@vger.kernel.org>; Sun,  5 Mar 2023 23:28:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB79D60B70
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:28:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ACF5C433D2;
-        Mon,  6 Mar 2023 07:28:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C51F960B70
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9F76C433EF;
+        Mon,  6 Mar 2023 07:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678087729;
-        bh=TPTV8w/oDFAqJjq4YNpAGIBeunXhInN2BQSgvpowdhU=;
+        s=korg; t=1678087733;
+        bh=rF9hVg7EL6aPSWxVZY2XldiSmU2Yo5cqMNLlFnXw0k0=;
         h=Subject:To:Cc:From:Date:From;
-        b=HhliBFJ0aPd/b02HwULCRyXlQvYu4fEYLjHLXOGxxUPhXFvZsXaBfSt5YyYbsC3cu
-         1ES+giTNA5PSCizOFL3q5oNWkmUka/pe0sE/duFx4VErTMtIKfgWfZ6AWtPH692SDb
-         7V7BmjctbhL3hrU7d0huV162z2Vbs08GPPHzworA=
-Subject: WTF: patch "[PATCH] ipmi:ssif: Remove rtc_us_timer" was seriously submitted to be applied to the 6.2-stable tree?
+        b=Yed51FDShbFUFvjzv/afzcZ/ZfPFz4RW272Fnjpf/iBpQjNyZJBvWZrt/U24cFQaK
+         jCk/WFoTwIGhFyToYKHXB/Q63naJYCOhkDndD1go4cGxMIBEFcjuaNvYFkc6nAQnAN
+         ySmBRzPvB1jMerGXFJVzFAp41Lh4yI8mDNuZKVdA=
+Subject: WTF: patch "[PATCH] ipmi:ssif: Remove rtc_us_timer" was seriously submitted to be applied to the 6.1-stable tree?
 To:     cminyard@mvista.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 08:28:46 +0100
-Message-ID: <167808772612167@kroah.com>
+Date:   Mon, 06 Mar 2023 08:28:50 +0100
+Message-ID: <1678087730108210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -46,7 +46,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below was submitted to be applied to the 6.2-stable tree.
+The patch below was submitted to be applied to the 6.1-stable tree.
 
 I fail to see how this patch meets the stable kernel rules as found at
 Documentation/process/stable-kernel-rules.rst.
