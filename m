@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 432386AB710
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C016AB715
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229748AbjCFH2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 02:28:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60618 "EHLO
+        id S229556AbjCFH3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 02:29:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbjCFH2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:28:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B341CAF6
-        for <stable@vger.kernel.org>; Sun,  5 Mar 2023 23:28:54 -0800 (PST)
+        with ESMTP id S229760AbjCFH3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:29:04 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9108B1C593
+        for <stable@vger.kernel.org>; Sun,  5 Mar 2023 23:29:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51F960B70
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9F76C433EF;
-        Mon,  6 Mar 2023 07:28:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BB5FACE0F02
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDAF5C433D2;
+        Mon,  6 Mar 2023 07:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678087733;
-        bh=rF9hVg7EL6aPSWxVZY2XldiSmU2Yo5cqMNLlFnXw0k0=;
+        s=korg; t=1678087737;
+        bh=PYGEvhEaUMO4BrlaB8Spa6QA1e7mLCo/N/nzRmdYTMc=;
         h=Subject:To:Cc:From:Date:From;
-        b=Yed51FDShbFUFvjzv/afzcZ/ZfPFz4RW272Fnjpf/iBpQjNyZJBvWZrt/U24cFQaK
-         jCk/WFoTwIGhFyToYKHXB/Q63naJYCOhkDndD1go4cGxMIBEFcjuaNvYFkc6nAQnAN
-         ySmBRzPvB1jMerGXFJVzFAp41Lh4yI8mDNuZKVdA=
-Subject: WTF: patch "[PATCH] ipmi:ssif: Remove rtc_us_timer" was seriously submitted to be applied to the 6.1-stable tree?
+        b=xT4GMP4sO4I/zli6dypm3PV85x9QtIiS3zTA+PLEam1bM97d9uF7qlyk1xwkki5VC
+         PHNxWJ9IL1BpGEbAoy8kth+QvUOzWXKosTqTtAqH/o2C026cfd5debWdh0efu2sv0c
+         Yqj1CDWAvtdmGN2xkxU2JCVpaIg9XMaBdTsAIVeY=
+Subject: WTF: patch "[PATCH] ipmi:ssif: Remove rtc_us_timer" was seriously submitted to be applied to the 5.15-stable tree?
 To:     cminyard@mvista.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 08:28:50 +0100
-Message-ID: <1678087730108210@kroah.com>
+Date:   Mon, 06 Mar 2023 08:28:54 +0100
+Message-ID: <16780877348076@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,7 +46,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch below was submitted to be applied to the 6.1-stable tree.
+The patch below was submitted to be applied to the 5.15-stable tree.
 
 I fail to see how this patch meets the stable kernel rules as found at
 Documentation/process/stable-kernel-rules.rst.
