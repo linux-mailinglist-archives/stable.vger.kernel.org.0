@@ -2,76 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92BA06AC48B
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 16:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B80266AC574
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 16:35:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229732AbjCFPNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 10:13:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33406 "EHLO
+        id S230424AbjCFPfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 10:35:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229770AbjCFPNj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 10:13:39 -0500
+        with ESMTP id S231375AbjCFPeo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 10:34:44 -0500
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BBC017CD4
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:13:38 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326EwPnr023319
-        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:13:38 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28209366A7
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:34:08 -0800 (PST)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326EnSmN022144
+        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:33:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=0BnADujkeHlDSfH1mIBNsfYo0ccU8SGB8I7oZSo/juk=;
- b=jq+7Jct+6+kzFurH2d0+cfD172DCh0YOJV6CX8TvUkgjp7k0AKLUKO4L9DXUjSajggt4
- 0YrXM1uzZLb3OKc3cX9isDfnmkgTsauZ/90MpN8VtYKQK+T4ucE6mzCoIzDfIb4nMKnC
- xFv1roc0i7t/byODblFwsHVBl2phAthJbMgZCIxve/di3WFWLaI4kg1rljwVq6JA3QbW
- qYd009qEHfz5vzkz+ZhD4duWMJMoauL65jShcVUsTkEuRvtaR25iziFBAWYTbxwoSYlt
- 1wG8Y26NUlCAA0LigxD05b3n65NHcqtwZSpdV/6T30Vp7731qnBrYi6l4p27i/7nXtDs lA== 
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p500dpe4j-1
+ : mime-version; s=pp1; bh=EBy8ERUw0EOyggvTnhxwn+PxXcJYr4gkl6B4A8bUwwU=;
+ b=Vmlo9f47FnkRa8ppWTj9yLTpKIqSEAgC+UOOnNNlUbxw2JWEljTcQhiESs6lJi7Ll/23
+ /eA6VzDA1mW3TPGQuSCPWKpXRx5Q2ibnXisrMb1MOaUHdKvFBMVmizWYGzKi1t5+iwAi
+ /Z+3H6vr5g91uCTHyvKXe+eQSFzoWME1zw6dxkEWAw1DjkbpNuL84tKubu5ybmfWa3pj
+ UwROE7AABdXft6e4ggLDODz/GzEx/V1RzXgl2gaCfilUpu6LlDutit4icIQPldau/vmh
+ Gtp93uh+VXTA/eKqd+HnBhgZJLjWgAXjaQzk0EmCavOaUquTFVgIusbBDP3+7cqaqYEe tA== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p4uaem647-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:13:37 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 325KPkYL012299
-        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:13:35 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-        by ppma04fra.de.ibm.com (PPS) with ESMTPS id 3p41b0ta04-1
+        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:33:22 +0000
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 326BgUmZ005927
+        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:33:20 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3p418ctwka-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:13:35 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326FDV6g31064682
+        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:33:20 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326FXGGi60621274
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Mar 2023 15:13:31 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8CD520049;
-        Mon,  6 Mar 2023 15:13:31 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9B2C320043;
-        Mon,  6 Mar 2023 15:13:31 +0000 (GMT)
+        Mon, 6 Mar 2023 15:33:16 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 776A52004B;
+        Mon,  6 Mar 2023 15:33:16 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4FB4920040;
+        Mon,  6 Mar 2023 15:33:16 +0000 (GMT)
 Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Mar 2023 15:13:31 +0000 (GMT)
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Mar 2023 15:33:16 +0000 (GMT)
 From:   Nico Boehr <nrb@linux.ibm.com>
 To:     stable@vger.kernel.org
 Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Subject: [PATCH 5.4.y] KVM: s390: disable migration mode when dirty tracking is disabled
-Date:   Mon,  6 Mar 2023 16:13:31 +0100
-Message-Id: <20230306151331.4531-1-nrb@linux.ibm.com>
+Subject: [PATCH 5.10.y] KVM: s390: disable migration mode when dirty tracking is disabled
+Date:   Mon,  6 Mar 2023 16:33:16 +0100
+Message-Id: <20230306153316.1829-1-nrb@linux.ibm.com>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <167810000636131@kroah.com>
-References: <167810000636131@kroah.com>
+In-Reply-To: <16781000053227@kroah.com>
+References: <16781000053227@kroah.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _lQlWI9sbeVdnu1stAwpA694pGP-nON6
-X-Proofpoint-GUID: _lQlWI9sbeVdnu1stAwpA694pGP-nON6
+X-Proofpoint-GUID: 0h9F8B7GJw263XykKWRlrfk6cHCkwnYK
+X-Proofpoint-ORIG-GUID: 0h9F8B7GJw263XykKWRlrfk6cHCkwnYK
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-06_08,2023-03-06_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- impostorscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
- suspectscore=0 adultscore=0 malwarescore=0 priorityscore=1501
- mlxlogscore=938 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303060133
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=894 clxscore=1015
+ phishscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 spamscore=0 mlxscore=0 impostorscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2303060137
 X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
@@ -121,18 +121,18 @@ Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 (cherry picked from commit f2d3155e2a6bac44d16f04415a321e8707d895c6)
 Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- Documentation/virt/kvm/api.txt        | 18 ++++++++++++------
- Documentation/virt/kvm/devices/vm.txt |  4 ++++
- arch/s390/kvm/kvm-s390.c              | 16 ++++++++++++++++
- 3 files changed, 32 insertions(+), 6 deletions(-)
+ Documentation/virt/kvm/api.rst        | 18 ++++++++++++------
+ Documentation/virt/kvm/devices/vm.rst |  4 ++++
+ arch/s390/kvm/kvm-s390.c              | 17 +++++++++++++++++
+ 3 files changed, 33 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
-index fd22224853e5..180475bcd671 100644
---- a/Documentation/virt/kvm/api.txt
-+++ b/Documentation/virt/kvm/api.txt
-@@ -3615,6 +3615,18 @@ Type: vm ioctl
- Parameters: struct kvm_s390_cmma_log (in, out)
- Returns: 0 on success, a negative value on error
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 2b4b64797191..08295f488d05 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -4031,6 +4031,18 @@ not holding a previously reported uncorrected error).
+ :Parameters: struct kvm_s390_cmma_log (in, out)
+ :Returns: 0 on success, a negative value on error
  
 +Errors:
 +
@@ -148,8 +148,8 @@ index fd22224853e5..180475bcd671 100644
 +
  This ioctl is used to get the values of the CMMA bits on the s390
  architecture. It is meant to be used in two scenarios:
- - During live migration to save the CMMA values. Live migration needs
-@@ -3691,12 +3703,6 @@ mask is unused.
+ 
+@@ -4111,12 +4123,6 @@ mask is unused.
  
  values points to the userspace buffer where the result will be stored.
  
@@ -160,13 +160,13 @@ index fd22224853e5..180475bcd671 100644
 -present for the addresses (e.g. when using hugepages).
 -
  4.108 KVM_S390_SET_CMMA_BITS
+ ----------------------------
  
- Capability: KVM_CAP_S390_CMMA_MIGRATION
-diff --git a/Documentation/virt/kvm/devices/vm.txt b/Documentation/virt/kvm/devices/vm.txt
-index 4ffb82b02468..38ec142a4a84 100644
---- a/Documentation/virt/kvm/devices/vm.txt
-+++ b/Documentation/virt/kvm/devices/vm.txt
-@@ -254,6 +254,10 @@ Allows userspace to start migration mode, needed for PGSTE migration.
+diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
+index 60acc39e0e93..147efec626e5 100644
+--- a/Documentation/virt/kvm/devices/vm.rst
++++ b/Documentation/virt/kvm/devices/vm.rst
+@@ -302,6 +302,10 @@ Allows userspace to start migration mode, needed for PGSTE migration.
  Setting this attribute when migration mode is already active will have
  no effects.
  
@@ -174,17 +174,18 @@ index 4ffb82b02468..38ec142a4a84 100644
 +dirty tracking is disabled on any memslot, migration mode is automatically
 +stopped.
 +
- Parameters: none
- Returns:    -ENOMEM if there is not enough free memory to start migration mode
- 	    -EINVAL if the state of the VM is invalid (e.g. no memory defined)
+ :Parameters: none
+ :Returns:   -ENOMEM if there is not enough free memory to start migration mode;
+ 	    -EINVAL if the state of the VM is invalid (e.g. no memory defined);
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 49dc00d82e5e..9ade970b4232 100644
+index 59db85fb63e1..7ffc73ba220f 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -4527,6 +4527,22 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
- 	if (mem->guest_phys_addr + mem->memory_size > kvm->arch.mem_limit)
+@@ -5012,6 +5012,23 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+ 	/* When we are protected, we should not change the memory slots */
+ 	if (kvm_s390_pv_get_handle(kvm))
  		return -EINVAL;
- 
++
 +	if (!kvm->arch.migration_mode)
 +		return 0;
 +
