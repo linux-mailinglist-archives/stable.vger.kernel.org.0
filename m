@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6D656ABE24
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 12:28:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DF716ABE25
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 12:28:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229685AbjCFL2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 06:28:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45142 "EHLO
+        id S229695AbjCFL2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 06:28:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229457AbjCFL2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 06:28:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA0C9206A7
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 03:28:27 -0800 (PST)
+        with ESMTP id S229457AbjCFL2d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 06:28:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1138920555
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 03:28:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85A6060DF9
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 11:28:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95AA4C433D2;
-        Mon,  6 Mar 2023 11:28:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A829C60DF9
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 11:28:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBBAAC433EF;
+        Mon,  6 Mar 2023 11:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678102106;
-        bh=74HE70QlVCE1rj1OAxEc1oqEqMWJEl6kByFvZZBNZwI=;
+        s=korg; t=1678102111;
+        bh=6Ns0Xte6yCCs9fWm9HUJ+o29IGrEJSSNCjC3/LN0crQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=jyXGjQ3lZawGu+ey6/tmjIippa7wn82j0vesPoFz5xARroja7uOYb5dlH955rBfzt
-         DUgdCrEmbLO4OKGerjTIWRrj71HyTf8cFjtOM7DNNq7zYgggANdNrkv/KMzoRmAj/i
-         c8mzqeejWE57UzrOqVTfiZcTqqVVgiBxj0SIgkLI=
-Subject: FAILED: patch "[PATCH] btrfs: sysfs: update fs features directory asynchronously" failed to apply to 6.1-stable tree
+        b=hH5bMHgPaAWSKEnN8XsUv81KJVxKO+bTukhvsPgi6QSqmKvGjax/hN6qRibtFz6/P
+         s7VU2RZfj6dWJsUw0rEahxbIhiznKkYJGfxvdfou+CDo0tL1N/BspeLN9h1Fo/iIgB
+         bWWbCm71OAZeHnhhBYp/2SJ3tOpti0LlJ44EbTuE=
+Subject: FAILED: patch "[PATCH] btrfs: sysfs: update fs features directory asynchronously" failed to apply to 5.15-stable tree
 To:     wqu@suse.com, anand.jain@oracle.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 12:28:24 +0100
-Message-ID: <1678102104245178@kroah.com>
+Date:   Mon, 06 Mar 2023 12:28:26 +0100
+Message-ID: <167810210618738@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x b7625f461da6734a21c38ba6e7558538a116a2e3
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678102104245178@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167810210618738@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
@@ -77,6 +77,12 @@ c7f13d428ea1 ("btrfs: move fs wide helpers out of ctree.h")
 f1e5c6185ca1 ("btrfs: move flush related definitions to space-info.h")
 4300c58f8090 ("btrfs: move btrfs on-disk definitions out of ctree.h")
 d60d956eb41f ("btrfs: remove unused set/clear_pending_info helpers")
+8bb808c6ad91 ("btrfs: don't print stack trace when transaction is aborted due to ENOMEM")
+0e75f0054a2a ("btrfs: move fs_info forward declarations to the top of ctree.h")
+2103da3b0e3a ("btrfs: move btrfs_swapfile_pin into volumes.h")
+c2e79e865b87 ("btrfs: move btrfs_pinned_by_swapfile prototype into volumes.h")
+43712116f8c8 ("btrfs: move btrfs_init_async_reclaim_work prototype to space-info.h")
+83cf709a89fb ("btrfs: move extent state init and alloc functions to their own file")
 
 thanks,
 
