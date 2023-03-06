@@ -2,76 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 380F16AB3B8
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 01:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D79CC6AB450
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 02:26:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229486AbjCFAjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Mar 2023 19:39:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
+        id S229662AbjCFB0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Mar 2023 20:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbjCFAji (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 19:39:38 -0500
-X-Greylist: delayed 1993 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 05 Mar 2023 16:39:35 PST
-Received: from o3301-623.kagoya.net (o3301-623.kagoya.net [153.127.233.14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C4BA411656
-        for <stable@vger.kernel.org>; Sun,  5 Mar 2023 16:39:35 -0800 (PST)
-Received: by o3301-623.kagoya.net (Postfix, from userid 88551)
-        id 4B03E24303DD; Mon,  6 Mar 2023 09:06:21 +0900 (JST)
-To:     stable@vger.kernel.org
-From:   =?ISO-2022-JP?B?GyRCNmJFaCVhITwlayVVJSkhPCVgGyhC?= 
-        <kaneshima@jak747.co.jp>
-Subject: [20230306654750] =?ISO-2022-JP?B?GyRCJCpMZCQkOWckOyQiJGokLCRIJCYkNCQ2GyhC?=
- =?ISO-2022-JP?B?GyRCJCQkXiQ3JD8bKEI=?=
+        with ESMTP id S229484AbjCFB0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Mar 2023 20:26:35 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBEE8F97C;
+        Sun,  5 Mar 2023 17:26:33 -0800 (PST)
+Received: from dggpeml100012.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4PVLTS4DTLz9tLG;
+        Mon,  6 Mar 2023 09:24:28 +0800 (CST)
+Received: from [10.67.110.218] (10.67.110.218) by
+ dggpeml100012.china.huawei.com (7.185.36.121) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Mon, 6 Mar 2023 09:26:31 +0800
+Message-ID: <acc08af9-fdb3-5451-5c53-44784982fe2a@huawei.com>
+Date:   Mon, 6 Mar 2023 09:26:31 +0800
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-2022-JP
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH 5.15] usb: dwc3: dwc3-qcom: Add missing
+ platform_device_put() in dwc3_qcom_acpi_register_core
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <agross@kernel.org>,
+        <bjorn.andersson@linaro.org>, <balbi@kernel.org>,
+        <lee.jones@linaro.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <20230303023439.774616-1-zhengyejian1@huawei.com>
+ <ZAIW9mkHpKKQyIK+@kroah.com>
+From:   Zheng Yejian <zhengyejian1@huawei.com>
+In-Reply-To: <ZAIW9mkHpKKQyIK+@kroah.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: SYNCK GRAPHICA MAILFORM
-Message-Id: <20230306000621.4B03E24303DD@o3301-623.kagoya.net>
-Date:   Mon,  6 Mar 2023 09:06:21 +0900 (JST)
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_50,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Originating-IP: [10.67.110.218]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpeml100012.china.huawei.com (7.185.36.121)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-天降?包8888
-充?有礼
- www.wk838.com  ，
-存50松38
-朔交麓募募?降没??源娜史醋醋?翰?醋? 様
-────────────────────────────────────
+On 2023/3/3 23:49, Greg KH wrote:
+> On Fri, Mar 03, 2023 at 10:34:39AM +0800, Zheng Yejian wrote:
+>> From: Miaoqian Lin <linmq006@gmail.com>
+>>
+>> commit fa0ef93868a6062babe1144df2807a8b1d4924d2 upstream.
+>>
+>> Add the missing platform_device_put() before return from
+>> dwc3_qcom_acpi_register_core in the error handling case.
+>>
+>> Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+>> Link: https://lore.kernel.org/r/20211231113641.31474-1-linmq006@gmail.com
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> CVE: CVE-2023-22995
+> 
+> That is a bogus CVE, please go revoke it.
 
-この度はお問い合せ頂き誠にありがとうございました。
-改めて担当者よりご連絡をさせていただきます。
+Agree. I see this CVE and its fixes information from NVD,
+so try to backport this patch to fix it:
+Link: https://nvd.nist.gov/vuln/detail/CVE-2023-22995
 
-─ご送信内容の確認───────────────────────────
-受付番号：20230306654750
+Then should I just remove the "CVE: " field and send a v2 patch?
+Or you mean "revoke" the CVE from NVD? I actually don't know how
+to do that :(
 
-[ email ] stable@vger.kernel.org 
-[ 会社名 ] 桂?益 
-[ お名前 ]
- 天降?包8888
-充?有礼
- www.wk838.com  ，
-存50松38
-朔交麓募募?降没??源娜史醋醋?翰?醋? 
-
-[ 電話番号 ] 097-196-9876 
-[ ご用件 ] ?公柯 
-[ 送信確認 ] 送信チェック済み 
-────────────────────────────────────
-
-このメールに心当たりの無い場合は、お手数ですが
-下記連絡先までお問い合わせください。
-
-この度はお問い合わせ重ねてお礼申し上げます。
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-　株式会社金嶋
-　〒160-0021　東京都新宿区歌舞伎町2-13-4　第六金嶋ビル5F
-　TEL：03-3209-2967　FAX：03-3209-2972
-　URL：http://www.kakureya.jp/
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+> 
+> thanks,
+> 
+> greg k-h
