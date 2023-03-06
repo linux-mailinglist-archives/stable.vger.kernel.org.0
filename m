@@ -2,152 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A44C6AB85B
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 09:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8ADC6AB871
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 09:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjCFIch (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 03:32:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
+        id S229600AbjCFIgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 03:36:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229988AbjCFIc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 03:32:28 -0500
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321B421A16;
-        Mon,  6 Mar 2023 00:32:05 -0800 (PST)
-Received: from dggpeml500018.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4PVWwK73JszKqFl;
-        Mon,  6 Mar 2023 16:29:53 +0800 (CST)
-Received: from [10.67.111.186] (10.67.111.186) by
- dggpeml500018.china.huawei.com (7.185.36.186) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Mon, 6 Mar 2023 16:31:57 +0800
-Message-ID: <cf0108ec-d949-a5ab-7367-f358b6685873@huawei.com>
-Date:   Mon, 6 Mar 2023 16:31:57 +0800
+        with ESMTP id S229457AbjCFIgr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 03:36:47 -0500
+Received: from mail.socialglobal.pl (mail.socialglobal.pl [51.195.90.253])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41AA8C7
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 00:36:46 -0800 (PST)
+Received: by mail.socialglobal.pl (Postfix, from userid 1002)
+        id ABFAC2233D; Mon,  6 Mar 2023 08:36:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=socialglobal.pl;
+        s=mail; t=1678091803;
+        bh=XwhyqI/moZPDJ7KCfcA6Gip8fA7ZKcg5SWsKuF/26zk=;
+        h=Date:From:To:Subject:From;
+        b=HFdvrTbw7if+BH9VNafeOrsxLUxljJNoNiiy77qrBVVwLS58cU9VT1LcsNS4nNAAL
+         fGQgyWyXeRYzyiA4/+OPa8aCzs4CbMIaDREoPbHJz5Dl9lg8AIYE8qZa+XY3/Qrr1+
+         RdnuyLC5yUxiAVTi5aAjGqxtPjDDkvCb3XlhM/lh3AEMC/pYjRQYpQSNmeHarm0Gmn
+         qOL5Vp+7Eu//5OmWXJCdW6HxIJZbqPNdPOzL8BnJro8vn49JCYs3dv6W7lvlmHDoMI
+         iRbUQpkqBiKIin+R+TWSRtZ5XWNKMcUxckacEQxGvRR8mrvd1A/A2nXBkFmTms2w6z
+         0sKbSBAJoD2Nw==
+Received: by mail.socialglobal.pl for <stable@vger.kernel.org>; Mon,  6 Mar 2023 08:35:52 GMT
+Message-ID: <20230306074500-0.1.4k.14sbs.0.dmc8j562ow@socialglobal.pl>
+Date:   Mon,  6 Mar 2023 08:35:52 GMT
+From:   "Dominik Perkowski" <dominik.perkowski@socialglobal.pl>
+To:     <stable@vger.kernel.org>
+Subject: Pozycjonowanie- informacja
+X-Mailer: mail.socialglobal.pl
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.1
-Subject: Re: Patch "sched/fair: sanitize vruntime of entity being placed" has
- been added to the 4.14-stable tree
-To:     Sasha Levin <sashal@kernel.org>, <stable-commits@vger.kernel.org>,
-        <stable@vger.kernel.org>
-CC:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>
-References: <20230305040248.1787312-1-sashal@kernel.org>
-From:   Zhang Qiao <zhangqiao22@huawei.com>
-In-Reply-To: <20230305040248.1787312-1-sashal@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.111.186]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpeml500018.china.huawei.com (7.185.36.186)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dzie=C5=84 dobry,=20
+
+jaki=C5=9B czas temu zg=C5=82osi=C5=82a si=C4=99 do nas firma, kt=C3=B3re=
+j strona internetowa nie pozycjonowa=C5=82a si=C4=99 wysoko w wyszukiwarc=
+e Google.=20
+
+Na podstawie wykonanego przez nas audytu SEO zoptymalizowali=C5=9Bmy tre=C5=
+=9Bci na stronie pod k=C4=85tem wcze=C5=9Bniej opracowanych s=C5=82=C3=B3=
+w kluczowych. Nasz wewn=C4=99trzny system codziennie analizuje prawid=C5=82=
+owe dzia=C5=82anie witryny.  Dzi=C4=99ki indywidualnej strategii, firma z=
+dobywa coraz wi=C4=99cej Klient=C3=B3w. =20
+
+Czy chcieliby Pa=C5=84stwo zwi=C4=99kszy=C4=87 liczb=C4=99 os=C3=B3b odwi=
+edzaj=C4=85cych stron=C4=99 internetow=C4=85 firmy? M=C3=B3g=C5=82bym prz=
+edstawi=C4=87 ofert=C4=99?=20
 
 
-在 2023/3/5 12:02, Sasha Levin 写道:
-> This is a note to let you know that I've just added the patch titled
-> 
->     sched/fair: sanitize vruntime of entity being placed
-> 
-> to the 4.14-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      sched-fair-sanitize-vruntime-of-entity-being-placed.patch
-> and it can be found in the queue-4.14 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
-> 
-> 
-> 
-> commit 38247e1de3305a6ef644404ac818bc6129440eae
-
-Hi,
-This patch has significant impact on the hackbench.throughput [1].
-Please don't backport this patch.
-
-[1] https://lore.kernel.org/lkml/202302211553.9738f304-yujie.liu@intel.com/T/#u
-
-Thanks.
-Zhang Qiao.
-
-> Author: Zhang Qiao <zhangqiao22@huawei.com>
-> Date:   Mon Jan 30 13:22:16 2023 +0100
-> 
->     sched/fair: sanitize vruntime of entity being placed
->     
->     [ Upstream commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc ]
->     
->     When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
->     to the base level (around cfs_rq->min_vruntime), so that the entity
->     doesn't gain extra boost when placed backwards.
->     
->     However, if the entity being placed wasn't executed for a long time, its
->     vruntime may get too far behind (e.g. while cfs_rq was executing a
->     low-weight hog), which can inverse the vruntime comparison due to s64
->     overflow.  This results in the entity being placed with its original
->     vruntime way forwards, so that it will effectively never get to the cpu.
->     
->     To prevent that, ignore the vruntime of the entity being placed if it
->     didn't execute for much longer than the characteristic sheduler time
->     scale.
->     
->     [rkagan: formatted, adjusted commit log, comments, cutoff value]
->     Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
->     Co-developed-by: Roman Kagan <rkagan@amazon.de>
->     Signed-off-by: Roman Kagan <rkagan@amazon.de>
->     Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->     Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
->     Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> index 3ff60230710c9..afa21e43477fa 100644
-> --- a/kernel/sched/fair.c
-> +++ b/kernel/sched/fair.c
-> @@ -3615,6 +3615,7 @@ static void
->  place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
->  {
->  	u64 vruntime = cfs_rq->min_vruntime;
-> +	u64 sleep_time;
->  
->  	/*
->  	 * The 'current' period is already promised to the current tasks,
-> @@ -3639,8 +3640,18 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
->  		vruntime -= thresh;
->  	}
->  
-> -	/* ensure we never gain time by being placed backwards. */
-> -	se->vruntime = max_vruntime(se->vruntime, vruntime);
-> +	/*
-> +	 * Pull vruntime of the entity being placed to the base level of
-> +	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
-> +	 * slept for a long time, don't even try to compare its vruntime with
-> +	 * the base as it may be too far off and the comparison may get
-> +	 * inversed due to s64 overflow.
-> +	 */
-> +	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
-> +	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
-> +		se->vruntime = vruntime;
-> +	else
-> +		se->vruntime = max_vruntime(se->vruntime, vruntime);
->  }
->  
->  static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
-> .
-> 
+Pozdrawiam serdecznie,
+Dominik Perkowski
