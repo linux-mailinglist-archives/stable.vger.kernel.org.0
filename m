@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BC106AB799
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:58:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE6B6AB7A5
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 08:58:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbjCFH54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 02:57:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53436 "EHLO
+        id S229941AbjCFH6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 02:58:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229825AbjCFH5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:57:42 -0500
+        with ESMTP id S229832AbjCFH5n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 02:57:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E6861F915;
-        Sun,  5 Mar 2023 23:57:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D871D1A97F;
+        Sun,  5 Mar 2023 23:57:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E046CB80CAE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2164B80CB6;
         Mon,  6 Mar 2023 07:57:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF842C43613;
-        Mon,  6 Mar 2023 07:57:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105BFC433AC;
+        Mon,  6 Mar 2023 07:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678089456;
-        bh=FWxTZ1RqwVoujtqnJ/DHFooDHNoVoslTBxHPXwHinZ0=;
+        s=k20201202; t=1678089457;
+        bh=48FoW8OSDpsHuQ/0wyhq7l25XV/6Z+uv3wlmnHs+SqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rb98aC/USRF/Y/JkuE/QfcURA1eAUgT93VlR7oRB9fIW6LTsoJZ+ysppaHYnfnWFS
-         JUo4ip+MDmAGqm3Qi4xS5sZfVPh6TGaKNm5t4uUpZWZiqRM7WGIsLJoeIMLEvFVYGN
-         1ex8LZf6yrBHihzSG0DXn4MyCQJi+y8DfSlN4EfsS72rhpRhDtBWg8MY0FdjoRpcs4
-         +sfTFxLHx9gl/KqyX2TA8o28BTrBEV067U0ulefeRLls36NP27QnimPaXNaXbbhpFA
-         T/s+QbTaKD6kThWnDslBBc+Cm+V+i3jkHNX0TTvEFBnV3bcyahpekDhSkdmOlM1/HM
-         1UEeB1kxc2Xbw==
+        b=UCJVSfmWTBOzT41dAs/tVH8H3VvdasvSRBCxDjM9qUFAWHAPIwOGeieIjwNoIUT6X
+         WcQq29x8BIPxXtaTfCbsZLf4yrQoSo9hPoA1k3GcL1ara1WHrrBxU3Xp7ALqM159CS
+         xz418JGMPiybro0HTDAQrwCuDAaDN5YM1hcQCUwMj+NrO9tZ+/9YmWmc71pBCjz5JT
+         VyC+IK21rN0gzT2wLoWQa4zBUpRbbTPHpawr47v9N4U5pHGcjfO8KSSNpmBwrApt/I
+         kapqf4HjqCXeM16L9zbdnr28sm2MsGcBmCbFc46V9wMxYazQwu6G7QFomqUPzDQcyr
+         YT8qc0RobDD8w==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pZ5jd-0000iZ-2h; Mon, 06 Mar 2023 08:58:17 +0100
+        id 1pZ5jd-0000if-8M; Mon, 06 Mar 2023 08:58:17 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Georgi Djakov <djakov@kernel.org>
 Cc:     "Shawn Guo" <shawnguo@kernel.org>,
@@ -53,10 +53,11 @@ Cc:     "Shawn Guo" <shawnguo@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         linux-arm-msm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 15/23] interconnect: exynos: fix registration race
-Date:   Mon,  6 Mar 2023 08:56:43 +0100
-Message-Id: <20230306075651.2449-16-johan+linaro@kernel.org>
+        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org,
+        Dmitry Osipenko <digetx@gmail.com>
+Subject: [PATCH v2 17/23] memory: tegra: fix interconnect registration race
+Date:   Mon,  6 Mar 2023 08:56:45 +0100
+Message-Id: <20230306075651.2449-18-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230306075651.2449-1-johan+linaro@kernel.org>
 References: <20230306075651.2449-1-johan+linaro@kernel.org>
@@ -73,80 +74,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 The current interconnect provider registration interface is inherently
 racy as nodes are not added until the after adding the provider. This
-can specifically cause racing DT lookups to trigger a NULL-pointer
-deference when either a NULL pointer or not fully initialised node is
-returned from exynos_generic_icc_xlate().
+can specifically cause racing DT lookups to fail.
 
 Switch to using the new API where the provider is not registered until
 after it has been fully initialised.
 
-Fixes: 2f95b9d5cf0b ("interconnect: Add generic interconnect driver for Exynos SoCs")
+Fixes: 06f079816d4c ("memory: tegra-mc: Add interconnect framework")
 Cc: stable@vger.kernel.org      # 5.11
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/interconnect/samsung/exynos.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/memory/tegra/mc.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/interconnect/samsung/exynos.c b/drivers/interconnect/samsung/exynos.c
-index e70665899482..72e42603823b 100644
---- a/drivers/interconnect/samsung/exynos.c
-+++ b/drivers/interconnect/samsung/exynos.c
-@@ -98,12 +98,13 @@ static int exynos_generic_icc_remove(struct platform_device *pdev)
- 	struct exynos_icc_priv *priv = platform_get_drvdata(pdev);
- 	struct icc_node *parent_node, *node = priv->node;
+diff --git a/drivers/memory/tegra/mc.c b/drivers/memory/tegra/mc.c
+index 592907546ee6..5cd28619ea9f 100644
+--- a/drivers/memory/tegra/mc.c
++++ b/drivers/memory/tegra/mc.c
+@@ -794,16 +794,12 @@ static int tegra_mc_interconnect_setup(struct tegra_mc *mc)
+ 	mc->provider.aggregate = mc->soc->icc_ops->aggregate;
+ 	mc->provider.xlate_extended = mc->soc->icc_ops->xlate_extended;
  
-+	icc_provider_deregister(&priv->provider);
-+
- 	parent_node = exynos_icc_get_parent(priv->dev->parent->of_node);
- 	if (parent_node && !IS_ERR(parent_node))
- 		icc_link_destroy(node, parent_node);
+-	err = icc_provider_add(&mc->provider);
+-	if (err)
+-		return err;
++	icc_provider_init(&mc->provider);
  
- 	icc_nodes_remove(&priv->provider);
--	icc_provider_del(&priv->provider);
- 
- 	return 0;
- }
-@@ -132,15 +133,11 @@ static int exynos_generic_icc_probe(struct platform_device *pdev)
- 	provider->inter_set = true;
- 	provider->data = priv;
- 
--	ret = icc_provider_add(provider);
--	if (ret < 0)
--		return ret;
-+	icc_provider_init(provider);
- 
- 	icc_node = icc_node_create(pdev->id);
--	if (IS_ERR(icc_node)) {
--		ret = PTR_ERR(icc_node);
--		goto err_prov_del;
+ 	/* create Memory Controller node */
+ 	node = icc_node_create(TEGRA_ICC_MC);
+-	if (IS_ERR(node)) {
+-		err = PTR_ERR(node);
+-		goto del_provider;
 -	}
-+	if (IS_ERR(icc_node))
-+		return PTR_ERR(icc_node);
++	if (IS_ERR(node))
++		return PTR_ERR(node);
  
- 	priv->node = icc_node;
- 	icc_node->name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%pOFn",
-@@ -171,14 +168,17 @@ static int exynos_generic_icc_probe(struct platform_device *pdev)
- 			goto err_pmqos_del;
+ 	node->name = "Memory Controller";
+ 	icc_node_add(node, &mc->provider);
+@@ -830,12 +826,14 @@ static int tegra_mc_interconnect_setup(struct tegra_mc *mc)
+ 			goto remove_nodes;
  	}
  
-+	ret = icc_provider_register(provider);
-+	if (ret < 0)
-+		goto err_pmqos_del;
++	err = icc_provider_register(&mc->provider);
++	if (err)
++		goto remove_nodes;
 +
  	return 0;
  
- err_pmqos_del:
- 	dev_pm_qos_remove_request(&priv->qos_req);
- err_node_del:
- 	icc_nodes_remove(provider);
--err_prov_del:
--	icc_provider_del(provider);
-+
- 	return ret;
- }
+ remove_nodes:
+ 	icc_nodes_remove(&mc->provider);
+-del_provider:
+-	icc_provider_del(&mc->provider);
  
+ 	return err;
+ }
 -- 
 2.39.2
 
