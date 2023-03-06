@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0D56AC9E1
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:24:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 508626AC9C8
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230015AbjCFRY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 12:24:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52872 "EHLO
+        id S229564AbjCFRWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 12:22:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229767AbjCFRY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:24:27 -0500
+        with ESMTP id S229660AbjCFRWv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:22:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128A41BDF
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:23:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 227DD67022
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:22:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92E1BB80EDE
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 16:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DE33C433D2;
-        Mon,  6 Mar 2023 16:09:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDDB2B80FE9
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239C1C433A7;
+        Mon,  6 Mar 2023 17:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678118949;
-        bh=MIL3UY2O8PsntkQqMxAhxl2kkqBZp5bIvwdGRMX0V7o=;
+        s=korg; t=1678123342;
+        bh=/bQvRC8srTSFETJJEdnD0FaErCFEAyk0vpDgRWrOEiU=;
         h=Subject:To:Cc:From:Date:From;
-        b=LwbP0c5es1bR7gdj765CvIRBHBaA764InM5lkUK6HsqBT20LVK+rBYI5XsHO+b8T3
-         jN3qRhUHqCM64tLYx96gMt7PyMtU970CbMofiWQHUbzHyuMs0s2prTC+tGX9ZkQj5+
-         ct72DYwqMee4bvQEyVdO2h3s9rCOGBCoPzHnELr8=
-Subject: FAILED: patch "[PATCH] KVM: VMX: Do _all_ initialization before exposing /dev/kvm to" failed to apply to 6.2-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com
+        b=fwa0QaD7jc6BwfDIPsSh1wGhmIMAB3xOKcpr+8bj/t8e7gHk/t6Y1zD+Ogb2Q9xng
+         OVSPd2UxG1uTsyIzYDS3+qikyqRwDKhF7bR6TuKexOQVz5Y67OlyyfeSTn8pV+gpAx
+         x7HlWQI4nKoBRUKODpgXO5QKeEDSSBcNmut+gmwE=
+Subject: FAILED: patch "[PATCH] KVM: x86: Purge "highest ISR" cache when updating APICv state" failed to apply to 5.15-stable tree
+To:     seanjc@google.com, mlevitsk@redhat.com, pbonzini@redhat.com,
+        suravee.suthikulpanit@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 17:09:06 +0100
-Message-ID: <167811894610616@kroah.com>
+Date:   Mon, 06 Mar 2023 18:22:19 +0100
+Message-ID: <167812333979118@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,23 +48,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
-git cherry-pick -x e32b120071ea114efc0b4ddd439547750b85f618
+git cherry-pick -x 97a71c444a147ae41c7d0ab5b3d855d7f762f3ed
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167811894610616@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167812333979118@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
-e32b120071ea ("KVM: VMX: Do _all_ initialization before exposing /dev/kvm to userspace")
+97a71c444a14 ("KVM: x86: Purge "highest ISR" cache when updating APICv state")
+ce0a58f4756c ("KVM: x86: Move "apicv_active" into "struct kvm_lapic"")
+d39850f57d21 ("KVM: x86: Drop @vcpu parameter from kvm_x86_ops.hwapic_isr_update()")
+47e8eec83262 ("Merge tag 'kvmarm-5.19' of git://git.kernel.org/pub/scm/linux/kernel/git/kvmarm/kvmarm into HEAD")
 
 thanks,
 
@@ -71,110 +75,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e32b120071ea114efc0b4ddd439547750b85f618 Mon Sep 17 00:00:00 2001
+From 97a71c444a147ae41c7d0ab5b3d855d7f762f3ed Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 30 Nov 2022 23:08:58 +0000
-Subject: [PATCH] KVM: VMX: Do _all_ initialization before exposing /dev/kvm to
- userspace
+Date: Fri, 6 Jan 2023 01:12:35 +0000
+Subject: [PATCH] KVM: x86: Purge "highest ISR" cache when updating APICv state
 
-Call kvm_init() only after _all_ setup is complete, as kvm_init() exposes
-/dev/kvm to userspace and thus allows userspace to create VMs (and call
-other ioctls).  E.g. KVM will encounter a NULL pointer when attempting to
-add a vCPU to the per-CPU loaded_vmcss_on_cpu list if userspace is able to
-create a VM before vmx_init() configures said list.
+Purge the "highest ISR" cache when updating APICv state on a vCPU.  The
+cache must not be used when APICv is active as hardware may emulate EOIs
+(and other operations) without exiting to KVM.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000008
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 0 P4D 0
- Oops: 0002 [#1] SMP
- CPU: 6 PID: 1143 Comm: stable Not tainted 6.0.0-rc7+ #988
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
- RIP: 0010:vmx_vcpu_load_vmcs+0x68/0x230 [kvm_intel]
-  <TASK>
-  vmx_vcpu_load+0x16/0x60 [kvm_intel]
-  kvm_arch_vcpu_load+0x32/0x1f0 [kvm]
-  vcpu_load+0x2f/0x40 [kvm]
-  kvm_arch_vcpu_create+0x231/0x310 [kvm]
-  kvm_vm_ioctl+0x79f/0xe10 [kvm]
-  ? handle_mm_fault+0xb1/0x220
-  __x64_sys_ioctl+0x80/0xb0
-  do_syscall_64+0x2b/0x50
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
- RIP: 0033:0x7f5a6b05743b
-  </TASK>
- Modules linked in: vhost_net vhost vhost_iotlb tap kvm_intel(+) kvm irqbypass
+This fixes a bug where KVM will effectively block IRQs in perpetuity due
+to the "highest ISR" never getting reset if APICv is activated on a vCPU
+while an IRQ is in-service.  Hardware emulates the EOI and KVM never gets
+a chance to update its cache.
 
+Fixes: b26a695a1d78 ("kvm: lapic: Introduce APICv update helper function")
 Cc: stable@vger.kernel.org
+Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20221130230934.1014142-15-seanjc@google.com>
+Message-Id: <20230106011306.85230-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 1e2eab6bda16..e0e3f2c1f681 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -8564,19 +8564,23 @@ static void vmx_cleanup_l1d_flush(void)
- 	l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index 5c0f93fc073a..33a661d82da7 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2424,6 +2424,7 @@ void kvm_apic_update_apicv(struct kvm_vcpu *vcpu)
+ 		 */
+ 		apic->isr_count = count_vectors(apic->regs + APIC_ISR);
+ 	}
++	apic->highest_isr_cache = -1;
  }
  
--static void vmx_exit(void)
-+static void __vmx_exit(void)
- {
-+	allow_smaller_maxphyaddr = false;
-+
- #ifdef CONFIG_KEXEC_CORE
- 	RCU_INIT_POINTER(crash_vmclear_loaded_vmcss, NULL);
- 	synchronize_rcu();
- #endif
-+	vmx_cleanup_l1d_flush();
-+}
+ void kvm_lapic_reset(struct kvm_vcpu *vcpu, bool init_event)
+@@ -2479,7 +2480,6 @@ void kvm_lapic_reset(struct kvm_vcpu *vcpu, bool init_event)
+ 		kvm_lapic_set_reg(apic, APIC_TMR + 0x10 * i, 0);
+ 	}
+ 	kvm_apic_update_apicv(vcpu);
+-	apic->highest_isr_cache = -1;
+ 	update_divide_count(apic);
+ 	atomic_set(&apic->lapic_timer.pending, 0);
  
-+static void vmx_exit(void)
-+{
- 	kvm_exit();
- 	kvm_x86_vendor_exit();
- 
--	vmx_cleanup_l1d_flush();
--
--	allow_smaller_maxphyaddr = false;
-+	__vmx_exit();
- }
- module_exit(vmx_exit);
- 
-@@ -8594,11 +8598,6 @@ static int __init vmx_init(void)
- 	if (r)
- 		return r;
- 
--	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
--		     __alignof__(struct vcpu_vmx), THIS_MODULE);
--	if (r)
--		goto err_kvm_init;
--
- 	/*
- 	 * Must be called after common x86 init so enable_ept is properly set
- 	 * up. Hand the parameter mitigation value in which was stored in
-@@ -8632,11 +8631,20 @@ static int __init vmx_init(void)
- 	if (!enable_ept)
- 		allow_smaller_maxphyaddr = true;
- 
-+	/*
-+	 * Common KVM initialization _must_ come last, after this, /dev/kvm is
-+	 * exposed to userspace!
-+	 */
-+	r = kvm_init(&vmx_init_ops, sizeof(struct vcpu_vmx),
-+		     __alignof__(struct vcpu_vmx), THIS_MODULE);
-+	if (r)
-+		goto err_kvm_init;
-+
- 	return 0;
- 
--err_l1d_flush:
--	vmx_exit();
- err_kvm_init:
-+	__vmx_exit();
-+err_l1d_flush:
- 	kvm_x86_vendor_exit();
- 	return r;
- }
+@@ -2767,7 +2767,6 @@ int kvm_apic_set_state(struct kvm_vcpu *vcpu, struct kvm_lapic_state *s)
+ 	__start_apic_timer(apic, APIC_TMCCT);
+ 	kvm_lapic_set_reg(apic, APIC_TMCCT, 0);
+ 	kvm_apic_update_apicv(vcpu);
+-	apic->highest_isr_cache = -1;
+ 	if (apic->apicv_active) {
+ 		static_call_cond(kvm_x86_apicv_post_state_restore)(vcpu);
+ 		static_call_cond(kvm_x86_hwapic_irr_update)(vcpu, apic_find_highest_irr(apic));
 
