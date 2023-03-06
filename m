@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2006ACCFF
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 19:49:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0FA6ACD00
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 19:49:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230179AbjCFStL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 13:49:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55470 "EHLO
+        id S230126AbjCFStM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 13:49:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230283AbjCFStG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 13:49:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F25648E13
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:49:03 -0800 (PST)
+        with ESMTP id S230166AbjCFStJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 13:49:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C371ADCF
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:49:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 049DB60ED0
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 18:49:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C21CC433D2;
-        Mon,  6 Mar 2023 18:49:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E637B8107E
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 18:49:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D879AC433D2;
+        Mon,  6 Mar 2023 18:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678128542;
-        bh=OvdT41CP1f07E46hEN4fjgU7sVlZcvpxGad/7xBakCo=;
+        s=korg; t=1678128545;
+        bh=HQb5+/TDwB1f3sKsc/w7LjOBPEVxSBHFqavZlvnMiFI=;
         h=Subject:To:Cc:From:Date:From;
-        b=p3R82Q2pNtFi1PNjhNd78uTw3n3ojPk3rZfQgmDcgYyPoj3YHobJFQiWjHlaOMT5G
-         9dAKuZvKvb5Xk5OsN/2tHhwl3NBp6LrD3bDk2DU6YusGFgoC8900nEPWHkIcwt56WU
-         8W1u7ixMeRvAEL4AaDquvZjYUcLmehNjqznpU/T0=
-Subject: FAILED: patch "[PATCH] irqdomain: Fix mapping-creation race" failed to apply to 4.19-stable tree
+        b=YubbOeH1hnJ4rKgZV37pYtv1lTL29aWroFP3d3zHK2ttKEjTM3px4pYVIa1vWNQms
+         BkFDKQchxC/b+DxSX68VEbdbE6I3HlcDLEZvEX5yfBnUiU42GVDi8NnG0+YGwUXxe5
+         sB73oO60rjUeHq7yU9pvcsNO/7klFHzIEuJpKCSw=
+Subject: FAILED: patch "[PATCH] irqdomain: Fix mapping-creation race" failed to apply to 4.14-stable tree
 To:     johan+linaro@kernel.org, dtor@chromium.org, hsinyi@chromium.org,
         jonathanh@nvidia.com, mark-pk.tsai@mediatek.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 19:48:56 +0100
-Message-ID: <1678128536202237@kroah.com>
+Date:   Mon, 06 Mar 2023 19:48:57 +0100
+Message-ID: <167812853717924@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x 601363cc08da25747feb87c55573dd54de91d66a
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678128536202237@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167812853717924@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
