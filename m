@@ -2,58 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67BCF6ABDF5
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 12:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DF3D6ABE00
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 12:19:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229695AbjCFLPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 06:15:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60744 "EHLO
+        id S229528AbjCFLTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 06:19:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229901AbjCFLPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 06:15:25 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B6823332;
-        Mon,  6 Mar 2023 03:15:09 -0800 (PST)
-Received: from dggpeml500018.china.huawei.com (unknown [172.30.72.55])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4PVb3L4dssz1gwjt;
-        Mon,  6 Mar 2023 18:51:10 +0800 (CST)
-Received: from [10.67.111.186] (10.67.111.186) by
- dggpeml500018.china.huawei.com (7.185.36.186) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Mon, 6 Mar 2023 18:51:15 +0800
-Message-ID: <e0c8a7e2-0560-25a4-ee8f-0eaebd98074a@huawei.com>
-Date:   Mon, 6 Mar 2023 18:51:15 +0800
+        with ESMTP id S229554AbjCFLTh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 06:19:37 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E93914995;
+        Mon,  6 Mar 2023 03:19:36 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id fa28so5474800pfb.12;
+        Mon, 06 Mar 2023 03:19:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1678101576;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bFCElgfs/QgIK9T0+cfVbpNA53kfeis4CLHg1GVIGsg=;
+        b=RM+NAR/av/nWO+TxpY4YWm437b2P1NkyMUJSNCR0cQYRcAw/jYeC0vB7t46tpc2Xjj
+         l+pqnlTMqBBprSW/o8rLjWKrVGxj5lngOi8k3l7YTI/eMBlfh1EehSsurnt1+lfFq63i
+         vHMp9JJYsVywl03/y+FCOGWUDnhBt0qHlAgOWqqs54I4IuwaVxUvHQM1wMt4+F9IOzv/
+         cGDZrHL6u5nlF8PJgkbYimeLWijSBFknZSkgFN/HGmpIjXpL89rFQuJ/FvVjVJKV4QB6
+         pQKg6QQdIY6OeQepD0Ryq56T//oBkK1tPvRiNAir2BKNKp/3S2Cpmgv4nXnzH6NV5Qn9
+         CTfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678101576;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bFCElgfs/QgIK9T0+cfVbpNA53kfeis4CLHg1GVIGsg=;
+        b=MNR2QxJCKszBxHrgkvBV3NMnM9my0bJ7Gx/Q0FvLV+3gEQYCFZFyS4Z0Ixq3SR1/Fp
+         oBjCH6bgCiFLUV/YtYpThMCdswS+/6cby8gkV2k1agvCtPdVBbndawewomaXxXOJIGrD
+         9xKcRteVndTPo6/VVlUpCCiXSmPIL7ncQ7JXHzOcyQcCNbbYLllGhtMHf+QdFAzGkIRw
+         4MzEM+L+Imd+zIkUVa4q23UfL+LwFIEA6KcFdGZ5CZSW3aZ6HH0h0NevkmOxuz0+m6Az
+         /6TFekNr1RXNjhQA2wOKY0bLM4960CIOtmfWQ2hfAa+XedERYs4bMK2I10qeBgH4/XIO
+         t4sw==
+X-Gm-Message-State: AO0yUKXTrHvwdmdsg/7mIGDTvOfv+bKSxTr7dYzIPwtXodP91hTdYk9S
+        ftaYGSm0NjGBPh5/SnHEpYgkDydZ9yaQpVznV44=
+X-Google-Smtp-Source: AK7set/4eWGzcQIyqd1DW2t0+log2GXUXOZ3POkzbF3KhtN1fYJUj+NpaFt2wIJcRtd0sSFMZFht7Uk0w22k3FPuwOI=
+X-Received: by 2002:a63:7453:0:b0:503:bb5:4cec with SMTP id
+ e19-20020a637453000000b005030bb54cecmr3747518pgn.7.1678101576020; Mon, 06 Mar
+ 2023 03:19:36 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.1
-Subject: Re: Patch "sched/fair: sanitize vruntime of entity being placed" has
- been added to the 4.14-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
-        <stable-commits@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>
-References: <20230305040248.1787312-1-sashal@kernel.org>
- <cf0108ec-d949-a5ab-7367-f358b6685873@huawei.com>
- <ZAWwIrMQ2EUikr6t@kroah.com>
- <1f8388a8-39cf-080c-4a6d-36b3059544a5@huawei.com>
- <ZAW69nTPaqHHLzON@kroah.com>
-From:   Zhang Qiao <zhangqiao22@huawei.com>
-In-Reply-To: <ZAW69nTPaqHHLzON@kroah.com>
+References: <20230306060505.11657-1-i.bornyakov@metrotek.ru>
+In-Reply-To: <20230306060505.11657-1-i.bornyakov@metrotek.ru>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Mon, 6 Mar 2023 08:19:25 -0300
+Message-ID: <CAOMZO5DxXTUPHz-1crnr5McE40kW-we1b3pms5zn0UCvsnb82A@mail.gmail.com>
+Subject: Re: [PATCH RESEND] bus: imx-weim: fix branch condition evaluates to a
+ garbage value
+To:     Ivan Bornyakov <i.bornyakov@metrotek.ru>
+Cc:     linux-imx@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
+        kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.111.186]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpeml500018.china.huawei.com (7.185.36.186)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,84 +70,20 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 6, 2023 at 3:05=E2=80=AFAM Ivan Bornyakov <i.bornyakov@metrotek=
+.ru> wrote:
+>
+> If bus type is other than imx50_weim_devtype and have no child devices,
+> variable 'ret' in function weim_parse_dt() will not be initialized, but
+> will be used as branch condition and return value. Fix this by
+> initializing 'ret' with 0.
+>
+> This was discovered with help of clang-analyzer, but the situation is
+> quite possible in real life.
+>
+> Signed-off-by: Ivan Bornyakov <i.bornyakov@metrotek.ru>
+> Cc: stable@vger.kernel.org
 
+Please add a Fixes tag here.
 
-在 2023/3/6 18:05, Greg KH 写道:
-> On Mon, Mar 06, 2023 at 05:28:41PM +0800, Zhang Qiao wrote:
->>
->>
->> 在 2023/3/6 17:19, Greg KH 写道:
->>> On Mon, Mar 06, 2023 at 04:31:57PM +0800, Zhang Qiao wrote:
->>>>
->>>>
->>>> 在 2023/3/5 12:02, Sasha Levin 写道:
->>>>> This is a note to let you know that I've just added the patch titled
->>>>>
->>>>>     sched/fair: sanitize vruntime of entity being placed
->>>>>
->>>>> to the 4.14-stable tree which can be found at:
->>>>>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
->>>>>
->>>>> The filename of the patch is:
->>>>>      sched-fair-sanitize-vruntime-of-entity-being-placed.patch
->>>>> and it can be found in the queue-4.14 subdirectory.
->>>>>
->>>>> If you, or anyone else, feels it should not be added to the stable tree,
->>>>> please let <stable@vger.kernel.org> know about it.
->>>>>
->>>>>
->>>>>
->>>>> commit 38247e1de3305a6ef644404ac818bc6129440eae
->>>>
->>>> Hi,
->>>> This patch has significant impact on the hackbench.throughput [1].
->>>> Please don't backport this patch.
->>>>
->>>> [1] https://lore.kernel.org/lkml/202302211553.9738f304-yujie.liu@intel.com/T/#u
->>>
->>> This link says it made hackbench.throughput faster, not slower, so why
->>> would we NOT want it?
->>
->> Please see this section. In some cases, this patch reset task's vruntime by mistake and
->> will lead to wrong results.
->>
->>
->> On Tue, Feb 21, 2023 at 03:34:16PM +0800, kernel test robot wrote:
->>>
->>> FYI, In addition to that, the commit also has significant impact on the following tests:
->>>
->>> +------------------+--------------------------------------------------+
->>> | testcase: change | hackbench: hackbench.throughput -8.1% regression |
->>> | test machine     | 104 threads 2 sockets (Skylake) with 192G memory |
->>> | test parameters  | cpufreq_governor=performance                     |
->>> |                  | ipc=socket                                       |
->>> |                  | iterations=4                                     |
->>> |                  | mode=process                                     |
->>> |                  | nr_threads=100%                                  |
->>> +------------------+--------------------------------------------------+
->>>
->>> Details are as below:
-> 
-> So one benchmark did better, by a lot, and one did less, by a little?
-> Which one matters "more">
-> 
-> So Linus's tree now has a regression?  Or not?  I'm confused.  We are
-
-Yes, Linus's tree also has a regression, and i have sent a patch[1] for fix this regression.
-
-
-[1]: https://lore.kernel.org/lkml/79850642-ebac-5c23-d32d-b28737dcb91e@huawei.com/
-
-thanks.
-Zhang qiao.
-
-> just matching what is in Linus's tree, if it's wrong here, in a stable
-> tree, it should be wrong there too.  If not, please explain why not?
-> 
-
-
-> thanks,
-> 
-> greg k-h
-> .
-> 
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
