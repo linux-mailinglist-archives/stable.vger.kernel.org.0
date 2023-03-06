@@ -2,45 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E402D6ABD7B
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:57:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BCF6ABDF5
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 12:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230074AbjCFK5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 05:57:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
+        id S229695AbjCFLPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 06:15:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229985AbjCFK5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:57:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C922387E
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:57:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB78DB80CA2
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:57:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BEFCC433EF;
-        Mon,  6 Mar 2023 10:57:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678100229;
-        bh=tENIQp6PuI/qJpj1ERZdhK4BgFtax3rXeEQ9sfbBHQY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=CcpOpAcLUxTX+3UjGzKSz4eErt/5Q6NmeOwsrfFtIvqfrYZJdU4yy4YzmVYwznxg9
-         BDa6xM9E/JSnietVCp719PSTN2gq+otnsON+i+fcI7yzJPL4xo2qKvYCAiz5PVjiJY
-         iMVcRmtX7QTKoZtNyHAldjWSvQbHn18c8j30cqsU=
-Subject: FAILED: patch "[PATCH] media: uvcvideo: Fix race condition with usb_kill_urb" failed to apply to 4.19-stable tree
-To:     ribalda@chromium.org, laurent.pinchart@ideasonboard.com,
-        yunkec@chromium.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 11:56:57 +0100
-Message-ID: <167810021760137@kroah.com>
+        with ESMTP id S229901AbjCFLPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 06:15:25 -0500
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B6823332;
+        Mon,  6 Mar 2023 03:15:09 -0800 (PST)
+Received: from dggpeml500018.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4PVb3L4dssz1gwjt;
+        Mon,  6 Mar 2023 18:51:10 +0800 (CST)
+Received: from [10.67.111.186] (10.67.111.186) by
+ dggpeml500018.china.huawei.com (7.185.36.186) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Mon, 6 Mar 2023 18:51:15 +0800
+Message-ID: <e0c8a7e2-0560-25a4-ee8f-0eaebd98074a@huawei.com>
+Date:   Mon, 6 Mar 2023 18:51:15 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.1
+Subject: Re: Patch "sched/fair: sanitize vruntime of entity being placed" has
+ been added to the 4.14-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        <stable-commits@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Valentin Schneider <vschneid@redhat.com>
+References: <20230305040248.1787312-1-sashal@kernel.org>
+ <cf0108ec-d949-a5ab-7367-f358b6685873@huawei.com>
+ <ZAWwIrMQ2EUikr6t@kroah.com>
+ <1f8388a8-39cf-080c-4a6d-36b3059544a5@huawei.com>
+ <ZAW69nTPaqHHLzON@kroah.com>
+From:   Zhang Qiao <zhangqiao22@huawei.com>
+In-Reply-To: <ZAW69nTPaqHHLzON@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Originating-IP: [10.67.111.186]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500018.china.huawei.com (7.185.36.186)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,183 +62,83 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-To reproduce the conflict and resubmit, you may use the following commands:
+在 2023/3/6 18:05, Greg KH 写道:
+> On Mon, Mar 06, 2023 at 05:28:41PM +0800, Zhang Qiao wrote:
+>>
+>>
+>> 在 2023/3/6 17:19, Greg KH 写道:
+>>> On Mon, Mar 06, 2023 at 04:31:57PM +0800, Zhang Qiao wrote:
+>>>>
+>>>>
+>>>> 在 2023/3/5 12:02, Sasha Levin 写道:
+>>>>> This is a note to let you know that I've just added the patch titled
+>>>>>
+>>>>>     sched/fair: sanitize vruntime of entity being placed
+>>>>>
+>>>>> to the 4.14-stable tree which can be found at:
+>>>>>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>>>>>
+>>>>> The filename of the patch is:
+>>>>>      sched-fair-sanitize-vruntime-of-entity-being-placed.patch
+>>>>> and it can be found in the queue-4.14 subdirectory.
+>>>>>
+>>>>> If you, or anyone else, feels it should not be added to the stable tree,
+>>>>> please let <stable@vger.kernel.org> know about it.
+>>>>>
+>>>>>
+>>>>>
+>>>>> commit 38247e1de3305a6ef644404ac818bc6129440eae
+>>>>
+>>>> Hi,
+>>>> This patch has significant impact on the hackbench.throughput [1].
+>>>> Please don't backport this patch.
+>>>>
+>>>> [1] https://lore.kernel.org/lkml/202302211553.9738f304-yujie.liu@intel.com/T/#u
+>>>
+>>> This link says it made hackbench.throughput faster, not slower, so why
+>>> would we NOT want it?
+>>
+>> Please see this section. In some cases, this patch reset task's vruntime by mistake and
+>> will lead to wrong results.
+>>
+>>
+>> On Tue, Feb 21, 2023 at 03:34:16PM +0800, kernel test robot wrote:
+>>>
+>>> FYI, In addition to that, the commit also has significant impact on the following tests:
+>>>
+>>> +------------------+--------------------------------------------------+
+>>> | testcase: change | hackbench: hackbench.throughput -8.1% regression |
+>>> | test machine     | 104 threads 2 sockets (Skylake) with 192G memory |
+>>> | test parameters  | cpufreq_governor=performance                     |
+>>> |                  | ipc=socket                                       |
+>>> |                  | iterations=4                                     |
+>>> |                  | mode=process                                     |
+>>> |                  | nr_threads=100%                                  |
+>>> +------------------+--------------------------------------------------+
+>>>
+>>> Details are as below:
+> 
+> So one benchmark did better, by a lot, and one did less, by a little?
+> Which one matters "more">
+> 
+> So Linus's tree now has a regression?  Or not?  I'm confused.  We are
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
-git checkout FETCH_HEAD
-git cherry-pick -x 619d9b710cf06f7a00a17120ca92333684ac45a8
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167810021760137@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+Yes, Linus's tree also has a regression, and i have sent a patch[1] for fix this regression.
 
-Possible dependencies:
 
-619d9b710cf0 ("media: uvcvideo: Fix race condition with usb_kill_urb")
-40140eda661e ("media: uvcvideo: Implement mask for V4L2_CTRL_TYPE_MENU")
-adfd3910c27f ("media: uvcvideo: Remove void casting for the status endpoint")
-382075604a68 ("media: uvcvideo: Limit power line control for Quanta UVC Webcam")
-710871163510 ("media: uvcvideo: Add missing value for power_line_frequency")
-70fa906d6fce ("media: uvcvideo: Use control names from framework")
-9b31ea808a44 ("media: uvcvideo: Add support for V4L2_CTRL_TYPE_CTRL_CLASS")
-866c6bdd5663 ("media: uvcvideo: refactor __uvc_ctrl_add_mapping")
-9e56380ae625 ("media: uvcvideo: Rename debug functions")
-ed4c5fa4d804 ("media: uvcvideo: use dev_printk() for uvc_trace()")
-59e92bf62771 ("media: uvcvideo: New macro uvc_trace_cont")
-69df09547e7a ("media: uvcvideo: Use dev_ printk aliases")
-6f6a87eb8266 ("media: uvcvideo: Add Privacy control based on EXT_GPIO")
-2886477ff987 ("media: uvcvideo: Implement UVC_EXT_GPIO_UNIT")
-d9c8763e6129 ("media: uvcvideo: Provide sync and async uvc_ctrl_status_event")
-351509c604dc ("media: uvcvideo: Move guid to entity")
-dc9455ffae02 ("media: uvcvideo: Accept invalid bFormatIndex and bFrameIndex values")
-b400b6f28af0 ("media: uvcvideo: Force UVC version to 1.0a for 1bcf:0b40")
-8a652a17e3c0 ("media: uvcvideo: Ensure all probed info is returned to v4l2")
-f875bcc375c7 ("media: uvcvideo: Fix dereference of out-of-bound list iterator")
+[1]: https://lore.kernel.org/lkml/79850642-ebac-5c23-d32d-b28737dcb91e@huawei.com/
 
-thanks,
+thanks.
+Zhang qiao.
 
-greg k-h
+> just matching what is in Linus's tree, if it's wrong here, in a stable
+> tree, it should be wrong there too.  If not, please explain why not?
+> 
 
------------------- original commit in Linus's tree ------------------
 
-From 619d9b710cf06f7a00a17120ca92333684ac45a8 Mon Sep 17 00:00:00 2001
-From: Ricardo Ribalda <ribalda@chromium.org>
-Date: Thu, 5 Jan 2023 15:31:29 +0100
-Subject: [PATCH] media: uvcvideo: Fix race condition with usb_kill_urb
-
-usb_kill_urb warranties that all the handlers are finished when it
-returns, but does not protect against threads that might be handling
-asynchronously the urb.
-
-For UVC, the function uvc_ctrl_status_event_async() takes care of
-control changes asynchronously.
-
-If the code is executed in the following order:
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-uvc_ctrl_status_event_work()
-					uvc_status_start() -> FAIL
-
-Then uvc_status_start will keep failing and this error will be shown:
-
-<4>[    5.540139] URB 0000000000000000 submitted while active
-drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
-
-Let's improve the current situation, by not re-submiting the urb if
-we are stopping the status event. Also process the queued work
-(if any) during stop.
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-					uvc_status_start()
-uvc_ctrl_status_event_work() -> FAIL
-
-Hopefully, with the usb layer protection this should be enough to cover
-all the cases.
-
-Cc: stable@vger.kernel.org
-Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-Reviewed-by: Yunke Cao <yunkec@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index ee58f0db2763..c3aeba3fe31b 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/bitops.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
-@@ -1571,6 +1572,10 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 
- 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
-+	/* The barrier is needed to synchronize with uvc_status_stop(). */
-+	if (smp_load_acquire(&dev->flush_status))
-+		return;
-+
- 	/* Resubmit the URB. */
- 	w->urb->interval = dev->int_ep->desc.bInterval;
- 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
-diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
-index 602830a8023e..a78a88c710e2 100644
---- a/drivers/media/usb/uvc/uvc_status.c
-+++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/kernel.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-@@ -311,5 +312,41 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
- 
- void uvc_status_stop(struct uvc_device *dev)
- {
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+
-+	/*
-+	 * Prevent the asynchronous control handler from requeing the URB. The
-+	 * barrier is needed so the flush_status change is visible to other
-+	 * CPUs running the asynchronous handler before usb_kill_urb() is
-+	 * called below.
-+	 */
-+	smp_store_release(&dev->flush_status, true);
-+
-+	/*
-+	 * Cancel any pending asynchronous work. If any status event was queued,
-+	 * process it synchronously.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/* Kill the urb. */
- 	usb_kill_urb(dev->int_urb);
-+
-+	/*
-+	 * The URB completion handler may have queued asynchronous work. This
-+	 * won't resubmit the URB as flush_status is set, but it needs to be
-+	 * cancelled before returning or it could then race with a future
-+	 * uvc_status_start() call.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/*
-+	 * From this point, there are no events on the queue and the status URB
-+	 * is dead. No events will be queued until uvc_status_start() is called.
-+	 * The barrier is needed to make sure that flush_status is visible to
-+	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
-+	 * again.
-+	 */
-+	smp_store_release(&dev->flush_status, false);
- }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index e85df8deb965..c0e706fcd2cb 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -577,6 +577,7 @@ struct uvc_device {
- 	struct usb_host_endpoint *int_ep;
- 	struct urb *int_urb;
- 	struct uvc_status *status;
-+	bool flush_status;
- 
- 	struct input_dev *input;
- 	char input_phys[64];
-
+> thanks,
+> 
+> greg k-h
+> .
+> 
