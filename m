@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 665556AC159
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:35:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7AD6AC185
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231265AbjCFNfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 08:35:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50300 "EHLO
+        id S230188AbjCFNjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 08:39:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231184AbjCFNfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:35:17 -0500
+        with ESMTP id S231288AbjCFNj2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:39:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F037D279AE
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:35:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C912C2A6F6
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:39:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7DF2B80E44
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C65D5C4339B;
-        Mon,  6 Mar 2023 13:35:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71F2BB80E40
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:39:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C116AC4339C;
+        Mon,  6 Mar 2023 13:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678109706;
-        bh=PFvcFkjyiWx16iNC8MI17s0SXMFtvJTTHWtM38EqWIk=;
+        s=korg; t=1678109962;
+        bh=fQeSwFM1vfJ7/uIlAEjiu+UNDEg+nAzmJ8H7HPuD4Mw=;
         h=Subject:To:Cc:From:Date:From;
-        b=xgfq9Z0S/cgZzCX2E73LnnrYUDcrv7te7zGBsBVXAqK2yuANtKKIs8adSlp59wFk+
-         iT/efrh5nt68xjZffPSaswkmraYTvIYqjGWJWbmzelJo13tijpsz+Kag71yLvZNFVi
-         H4j340RTHtXDsKQ19ZjTz5BUJWctuCoEf/4ij8Ww=
-Subject: FAILED: patch "[PATCH] f2fs: fix cgroup writeback accounting with fs-layer" failed to apply to 4.19-stable tree
-To:     ebiggers@google.com, chao@kernel.org, jaegeuk@kernel.org,
-        tj@kernel.org, willy@infradead.org
+        b=1NeVFDNJfVOIX0OHiPSPut3G6nWCNL0ZW0roebVuHlgQC7Li7cT6fSS2weKZ2JM2T
+         ki7ES4/4qLDUUUYDZ+genHezJejM+qADty+8Attn/G5KPmi41HAoVBYwTVWjzgbRlN
+         olCjiGCYScSlNg6niKEuBtojCJn4Uz387xVG8E9c=
+Subject: FAILED: patch "[PATCH] udf: Preserve link count of system files" failed to apply to 4.19-stable tree
+To:     jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 14:35:03 +0100
-Message-ID: <1678109703254217@kroah.com>
+Date:   Mon, 06 Mar 2023 14:39:19 +0100
+Message-ID: <167810995913998@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,15 +56,18 @@ To reproduce the conflict and resubmit, you may use the following commands:
 
 git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
-git cherry-pick -x 844545c51a5b2a524b22a2fe9d0b353b827d24b4
+git cherry-pick -x fc8033a34a3ca7d23353e645e6dde5d364ac5f12
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678109703254217@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167810995913998@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
-844545c51a5b ("f2fs: fix cgroup writeback accounting with fs-layer encryption")
-9637d517347e ("Merge tag 'for-linus-20190715' of git://git.kernel.dk/linux-block")
+fc8033a34a3c ("udf: Preserve link count of system files")
+382a2287bf9c ("udf: Remove pointless union in udf_inode_info")
+044e2e26f214 ("udf: Avoid accessing uninitialized data on failed inode read")
+ab9a3a737284 ("udf: reduce leakage of blocks related to named streams")
+d288d95842f1 ("udf: Fix BUG on corrupted inode")
 
 thanks,
 
@@ -73,62 +75,69 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 844545c51a5b2a524b22a2fe9d0b353b827d24b4 Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Thu, 2 Feb 2023 17:02:39 -0800
-Subject: [PATCH] f2fs: fix cgroup writeback accounting with fs-layer
- encryption
+From fc8033a34a3ca7d23353e645e6dde5d364ac5f12 Mon Sep 17 00:00:00 2001
+From: Jan Kara <jack@suse.cz>
+Date: Tue, 3 Jan 2023 09:56:56 +0100
+Subject: [PATCH] udf: Preserve link count of system files
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), f2fs encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+System files in UDF filesystem have link count 0. To not confuse VFS we
+fudge the link count to be 1 when reading such inodes however we forget
+to restore the link count of 0 when writing such inodes. Fix that.
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
-
-Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 754841bce389..8a636500db0e 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -739,7 +739,7 @@ int f2fs_submit_page_bio(struct f2fs_io_info *fio)
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index 31965c3798f2..9ee269d3d546 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -1301,6 +1301,7 @@ static int udf_read_inode(struct inode *inode, bool hidden_inode)
+ 		ret = -EIO;
+ 		goto out;
  	}
++	iinfo->i_hidden = hidden_inode;
+ 	iinfo->i_unique = 0;
+ 	iinfo->i_lenEAttr = 0;
+ 	iinfo->i_lenExtents = 0;
+@@ -1636,8 +1637,12 @@ static int udf_update_inode(struct inode *inode, int do_sync)
  
- 	if (fio->io_wbc && !is_read_io(fio->op))
--		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 	if (S_ISDIR(inode->i_mode) && inode->i_nlink > 0)
+ 		fe->fileLinkCount = cpu_to_le16(inode->i_nlink - 1);
+-	else
+-		fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	else {
++		if (iinfo->i_hidden)
++			fe->fileLinkCount = cpu_to_le16(0);
++		else
++			fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	}
  
- 	inc_page_count(fio->sbi, is_read_io(fio->op) ?
- 			__read_io_type(page) : WB_DATA_TYPE(fio->page));
-@@ -949,7 +949,7 @@ int f2fs_merge_page_bio(struct f2fs_io_info *fio)
- 	}
+ 	fe->informationLength = cpu_to_le64(inode->i_size);
  
- 	if (fio->io_wbc)
--		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	inc_page_count(fio->sbi, WB_DATA_TYPE(page));
- 
-@@ -1023,7 +1023,7 @@ void f2fs_submit_page_write(struct f2fs_io_info *fio)
- 	}
- 
- 	if (fio->io_wbc)
--		wbc_account_cgroup_owner(fio->io_wbc, bio_page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	io->last_block_in_bio = fio->new_blkaddr;
- 
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 06eda8177b5f..241b40e886b3 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -147,6 +147,7 @@ static struct inode *udf_alloc_inode(struct super_block *sb)
+ 	ei->i_next_alloc_goal = 0;
+ 	ei->i_strat4096 = 0;
+ 	ei->i_streamdir = 0;
++	ei->i_hidden = 0;
+ 	init_rwsem(&ei->i_data_sem);
+ 	ei->cached_extent.lstart = -1;
+ 	spin_lock_init(&ei->i_extent_cache_lock);
+diff --git a/fs/udf/udf_i.h b/fs/udf/udf_i.h
+index 06ff7006b822..312b7c9ef10e 100644
+--- a/fs/udf/udf_i.h
++++ b/fs/udf/udf_i.h
+@@ -44,7 +44,8 @@ struct udf_inode_info {
+ 	unsigned		i_use : 1;	/* unallocSpaceEntry */
+ 	unsigned		i_strat4096 : 1;
+ 	unsigned		i_streamdir : 1;
+-	unsigned		reserved : 25;
++	unsigned		i_hidden : 1;	/* hidden system inode */
++	unsigned		reserved : 24;
+ 	__u8			*i_data;
+ 	struct kernel_lb_addr	i_locStreamdir;
+ 	__u64			i_lenStreams;
 
