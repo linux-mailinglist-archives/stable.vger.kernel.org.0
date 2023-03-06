@@ -2,78 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B80266AC574
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 16:35:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8648D6AC5B8
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 16:43:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230424AbjCFPfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 10:35:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
+        id S231238AbjCFPm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 10:42:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231375AbjCFPeo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 10:34:44 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28209366A7
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:34:08 -0800 (PST)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 326EnSmN022144
-        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:33:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : content-transfer-encoding
- : mime-version; s=pp1; bh=EBy8ERUw0EOyggvTnhxwn+PxXcJYr4gkl6B4A8bUwwU=;
- b=Vmlo9f47FnkRa8ppWTj9yLTpKIqSEAgC+UOOnNNlUbxw2JWEljTcQhiESs6lJi7Ll/23
- /eA6VzDA1mW3TPGQuSCPWKpXRx5Q2ibnXisrMb1MOaUHdKvFBMVmizWYGzKi1t5+iwAi
- /Z+3H6vr5g91uCTHyvKXe+eQSFzoWME1zw6dxkEWAw1DjkbpNuL84tKubu5ybmfWa3pj
- UwROE7AABdXft6e4ggLDODz/GzEx/V1RzXgl2gaCfilUpu6LlDutit4icIQPldau/vmh
- Gtp93uh+VXTA/eKqd+HnBhgZJLjWgAXjaQzk0EmCavOaUquTFVgIusbBDP3+7cqaqYEe tA== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p4uaem647-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:33:22 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 326BgUmZ005927
-        for <stable@vger.kernel.org>; Mon, 6 Mar 2023 15:33:20 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3p418ctwka-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 06 Mar 2023 15:33:20 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 326FXGGi60621274
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 6 Mar 2023 15:33:16 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 776A52004B;
-        Mon,  6 Mar 2023 15:33:16 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4FB4920040;
-        Mon,  6 Mar 2023 15:33:16 +0000 (GMT)
-Received: from t35lp63.lnxne.boe (unknown [9.152.108.100])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Mon,  6 Mar 2023 15:33:16 +0000 (GMT)
-From:   Nico Boehr <nrb@linux.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Subject: [PATCH 5.10.y] KVM: s390: disable migration mode when dirty tracking is disabled
-Date:   Mon,  6 Mar 2023 16:33:16 +0100
-Message-Id: <20230306153316.1829-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <16781000053227@kroah.com>
-References: <16781000053227@kroah.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0h9F8B7GJw263XykKWRlrfk6cHCkwnYK
-X-Proofpoint-ORIG-GUID: 0h9F8B7GJw263XykKWRlrfk6cHCkwnYK
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S230398AbjCFPm4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 10:42:56 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86446270D
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 07:41:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678117287;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=H9Z6WV7NL84Kbv4qMj3xuK0nRGtPHbDJeWztjVc85m8=;
+        b=PsynA0PGoJhxDiCNRPc8QwzQGNUyGH7oFW/tI6QTADMvm6gKjw57KH0R+cFR1gxEIuj90V
+        Q8BLzj91Cu3k+scAPNHgHaIzyiAjPQnAbjSLi5KEgkQV6k6kVUjb5nM9Jm5fUezzCIpCLd
+        VUThUNs/d26I4O17CnDdbyRaBLFBqD4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-582-XbZLA3d0PPOqYvGwdX1cqA-1; Mon, 06 Mar 2023 10:35:15 -0500
+X-MC-Unique: XbZLA3d0PPOqYvGwdX1cqA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 47F1B101A52E;
+        Mon,  6 Mar 2023 15:35:15 +0000 (UTC)
+Received: from x1.localdomain.com (unknown [10.39.193.237])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E2FD7175AD;
+        Mon,  6 Mar 2023 15:35:13 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        linux-staging@lists.linux.dev, stable@vger.kernel.org
+Subject: [PATCH 1/2] staging: rtl8723bs: Fix key-store index handling
+Date:   Mon,  6 Mar 2023 16:35:11 +0100
+Message-Id: <20230306153512.162104-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-06_08,2023-03-06_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=894 clxscore=1015
- phishscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
- suspectscore=0 spamscore=0 mlxscore=0 impostorscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303060137
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -81,130 +57,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Migration mode is a VM attribute which enables tracking of changes in
-storage attributes (PGSTE). It assumes dirty tracking is enabled on all
-memslots to keep a dirty bitmap of pages with changed storage attributes.
+There are 2 issues with the key-store index handling
 
-When enabling migration mode, we currently check that dirty tracking is
-enabled for all memslots. However, userspace can disable dirty tracking
-without disabling migration mode.
+1. The non WEP key stores can store keys with indexes 0 - BIP_MAX_KEYID,
+   this means that they should be an array with BIP_MAX_KEYID + 1
+   entries. But some of the arrays where just BIP_MAX_KEYID entries
+   big. While one other array was hardcoded to a size of 6 entries,
+   instead of using the BIP_MAX_KEYID define.
 
-Since migration mode is pointless with dirty tracking disabled, disable
-migration mode whenever userspace disables dirty tracking on any slot.
+2. The rtw_cfg80211_set_encryption() and wpa_set_encryption() functions
+   index check where checking that the passed in key-index would fit
+   inside both the WEP key store (which only has 4 entries) as well as
+   in the non WEP key stores. This breaks any attempts to set non WEP
+   keys with index 4 or 5.
 
-Also update the documentation to clarify that dirty tracking must be
-enabled when enabling migration mode, which is already enforced by the
-code in kvm_s390_vm_start_migration().
+Issue 2. specifically breaks wifi connection with some access points
+which advertise PMF support. Without this fix connecting to these
+access points fails with the following wpa_supplicant messages:
 
-Also highlight in the documentation for KVM_S390_GET_CMMA_BITS that it
-can now fail with -EINVAL when dirty tracking is disabled while
-migration mode is on. Move all the error codes to a table so this stays
-readable.
+ nl80211: kernel reports: key addition failed
+ wlan0: WPA: Failed to configure IGTK to the driver
+ wlan0: RSN: Failed to configure IGTK
+ wlan0: CTRL-EVENT-DISCONNECTED bssid=... reason=1 locally_generated=1
 
-To disable migration mode, slots_lock should be held, which is taken
-in kvm_set_memory_region() and thus held in
-kvm_arch_prepare_memory_region().
-
-Restructure the prepare code a bit so all the sanity checking is done
-before disabling migration mode. This ensures migration mode isn't
-disabled when some sanity check fails.
+Fix 1. by using the right size for the key-stores. After this 2. can
+safely be fixed by checking the right max-index value depending on the
+used algorithm, fixing wifi not working with some PMF capable APs.
 
 Cc: stable@vger.kernel.org
-Fixes: 190df4a212a7 ("KVM: s390: CMMA tracking, ESSA emulation, migration mode")
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230127140532.230651-2-nrb@linux.ibm.com
-Message-Id: <20230127140532.230651-2-nrb@linux.ibm.com>
-[frankja@linux.ibm.com: fixed commit message typo, moved api.rst error table upwards]
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-(cherry picked from commit f2d3155e2a6bac44d16f04415a321e8707d895c6)
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- Documentation/virt/kvm/api.rst        | 18 ++++++++++++------
- Documentation/virt/kvm/devices/vm.rst |  4 ++++
- arch/s390/kvm/kvm-s390.c              | 17 +++++++++++++++++
- 3 files changed, 33 insertions(+), 6 deletions(-)
+ .../staging/rtl8723bs/include/rtw_security.h  |  8 ++---
+ .../staging/rtl8723bs/os_dep/ioctl_cfg80211.c | 26 ++++++++-------
+ .../staging/rtl8723bs/os_dep/ioctl_linux.c    | 33 ++++++++++---------
+ 3 files changed, 36 insertions(+), 31 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 2b4b64797191..08295f488d05 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -4031,6 +4031,18 @@ not holding a previously reported uncorrected error).
- :Parameters: struct kvm_s390_cmma_log (in, out)
- :Returns: 0 on success, a negative value on error
+diff --git a/drivers/staging/rtl8723bs/include/rtw_security.h b/drivers/staging/rtl8723bs/include/rtw_security.h
+index a68b73858462..7587fa888527 100644
+--- a/drivers/staging/rtl8723bs/include/rtw_security.h
++++ b/drivers/staging/rtl8723bs/include/rtw_security.h
+@@ -107,13 +107,13 @@ struct security_priv {
  
-+Errors:
+ 	u32 dot118021XGrpPrivacy;	/*  This specify the privacy algthm. used for Grp key */
+ 	u32 dot118021XGrpKeyid;		/*  key id used for Grp Key (tx key index) */
+-	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID];	/*  802.1x Group Key, for inx0 and inx1 */
+-	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID];
+-	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID];
++	union Keytype	dot118021XGrpKey[BIP_MAX_KEYID + 1];	/*  802.1x Group Key, for inx0 and inx1 */
++	union Keytype	dot118021XGrptxmickey[BIP_MAX_KEYID + 1];
++	union Keytype	dot118021XGrprxmickey[BIP_MAX_KEYID + 1];
+ 	union pn48		dot11Grptxpn;			/*  PN48 used for Grp Key xmit. */
+ 	union pn48		dot11Grprxpn;			/*  PN48 used for Grp Key recv. */
+ 	u32 dot11wBIPKeyid;						/*  key id used for BIP Key (tx key index) */
+-	union Keytype	dot11wBIPKey[6];		/*  BIP Key, for index4 and index5 */
++	union Keytype	dot11wBIPKey[BIP_MAX_KEYID + 1];	/*  BIP Key, for index4 and index5 */
+ 	union pn48		dot11wBIPtxpn;			/*  PN48 used for Grp Key xmit. */
+ 	union pn48		dot11wBIPrxpn;			/*  PN48 used for Grp Key recv. */
+ 
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+index 54004f846cf0..3aba4e6eec8a 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
+@@ -711,6 +711,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
+ static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
+ {
+ 	int ret = 0;
++	u8 max_idx;
+ 	u32 wep_key_idx, wep_key_len;
+ 	struct adapter *padapter = rtw_netdev_priv(dev);
+ 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
+@@ -724,26 +725,29 @@ static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param
+ 		goto exit;
+ 	}
+ 
+-	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
+-	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
+-	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
+-		if (param->u.crypt.idx >= WEP_KEYS
+-			|| param->u.crypt.idx >= BIP_MAX_KEYID) {
+-			ret = -EINVAL;
+-			goto exit;
+-		}
+-	} else {
+-		{
++	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
++	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
++	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
+ 		ret = -EINVAL;
+ 		goto exit;
+ 	}
 +
-+  ======     =============================================================
-+  ENOMEM     not enough memory can be allocated to complete the task
-+  ENXIO      if CMMA is not enabled
-+  EINVAL     if KVM_S390_CMMA_PEEK is not set but migration mode was not enabled
-+  EINVAL     if KVM_S390_CMMA_PEEK is not set but dirty tracking has been
-+             disabled (and thus migration mode was automatically disabled)
-+  EFAULT     if the userspace address is invalid or if no page table is
-+             present for the addresses (e.g. when using hugepages).
-+  ======     =============================================================
++	if (strcmp(param->u.crypt.alg, "WEP") == 0)
++		max_idx = WEP_KEYS - 1;
++	else
++		max_idx = BIP_MAX_KEYID;
 +
- This ioctl is used to get the values of the CMMA bits on the s390
- architecture. It is meant to be used in two scenarios:
++	if (param->u.crypt.idx > max_idx) {
++		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
++		ret = -EINVAL;
++		goto exit;
+ 	}
  
-@@ -4111,12 +4123,6 @@ mask is unused.
+ 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+ 		wep_key_idx = param->u.crypt.idx;
+ 		wep_key_len = param->u.crypt.key_len;
  
- values points to the userspace buffer where the result will be stored.
+-		if ((wep_key_idx >= WEP_KEYS) || (wep_key_len <= 0)) {
++		if (wep_key_len <= 0) {
+ 			ret = -EINVAL;
+ 			goto exit;
+ 		}
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+index 30374a820496..40a3157fb735 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -46,6 +46,7 @@ static int wpa_set_auth_algs(struct net_device *dev, u32 value)
+ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
+ {
+ 	int ret = 0;
++	u8 max_idx;
+ 	u32 wep_key_idx, wep_key_len, wep_total_len;
+ 	struct ndis_802_11_wep	 *pwep = NULL;
+ 	struct adapter *padapter = rtw_netdev_priv(dev);
+@@ -60,19 +61,22 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param,
+ 		goto exit;
+ 	}
  
--This ioctl can fail with -ENOMEM if not enough memory can be allocated to
--complete the task, with -ENXIO if CMMA is not enabled, with -EINVAL if
--KVM_S390_CMMA_PEEK is not set but migration mode was not enabled, with
---EFAULT if the userspace address is invalid or if no page table is
--present for the addresses (e.g. when using hugepages).
+-	if (param->sta_addr[0] == 0xff && param->sta_addr[1] == 0xff &&
+-	    param->sta_addr[2] == 0xff && param->sta_addr[3] == 0xff &&
+-	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
+-		if (param->u.crypt.idx >= WEP_KEYS ||
+-		    param->u.crypt.idx >= BIP_MAX_KEYID) {
+-			ret = -EINVAL;
+-			goto exit;
+-		}
+-	} else {
+-		{
+-			ret = -EINVAL;
+-			goto exit;
+-		}
++	if (param->sta_addr[0] != 0xff || param->sta_addr[1] != 0xff ||
++	    param->sta_addr[2] != 0xff || param->sta_addr[3] != 0xff ||
++	    param->sta_addr[4] != 0xff || param->sta_addr[5] != 0xff) {
++		ret = -EINVAL;
++		goto exit;
++	}
++
++	if (strcmp(param->u.crypt.alg, "WEP") == 0)
++		max_idx = WEP_KEYS - 1;
++	else
++		max_idx = BIP_MAX_KEYID;
++
++	if (param->u.crypt.idx > max_idx) {
++		netdev_err(dev, "Error crypt.idx %d > %d\n", param->u.crypt.idx, max_idx);
++		ret = -EINVAL;
++		goto exit;
+ 	}
+ 
+ 	if (strcmp(param->u.crypt.alg, "WEP") == 0) {
+@@ -84,9 +88,6 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param,
+ 		wep_key_idx = param->u.crypt.idx;
+ 		wep_key_len = param->u.crypt.key_len;
+ 
+-		if (wep_key_idx > WEP_KEYS)
+-			return -EINVAL;
 -
- 4.108 KVM_S390_SET_CMMA_BITS
- ----------------------------
- 
-diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
-index 60acc39e0e93..147efec626e5 100644
---- a/Documentation/virt/kvm/devices/vm.rst
-+++ b/Documentation/virt/kvm/devices/vm.rst
-@@ -302,6 +302,10 @@ Allows userspace to start migration mode, needed for PGSTE migration.
- Setting this attribute when migration mode is already active will have
- no effects.
- 
-+Dirty tracking must be enabled on all memslots, else -EINVAL is returned. When
-+dirty tracking is disabled on any memslot, migration mode is automatically
-+stopped.
-+
- :Parameters: none
- :Returns:   -ENOMEM if there is not enough free memory to start migration mode;
- 	    -EINVAL if the state of the VM is invalid (e.g. no memory defined);
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 59db85fb63e1..7ffc73ba220f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -5012,6 +5012,23 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
- 	/* When we are protected, we should not change the memory slots */
- 	if (kvm_s390_pv_get_handle(kvm))
- 		return -EINVAL;
-+
-+	if (!kvm->arch.migration_mode)
-+		return 0;
-+
-+	/*
-+	 * Turn off migration mode when:
-+	 * - userspace creates a new memslot with dirty logging off,
-+	 * - userspace modifies an existing memslot (MOVE or FLAGS_ONLY) and
-+	 *   dirty logging is turned off.
-+	 * Migration mode expects dirty page logging being enabled to store
-+	 * its dirty bitmap.
-+	 */
-+	if (change != KVM_MR_DELETE &&
-+	    !(mem->flags & KVM_MEM_LOG_DIRTY_PAGES))
-+		WARN(kvm_s390_vm_stop_migration(kvm),
-+		     "Failed to stop migration mode");
-+
- 	return 0;
- }
- 
+ 		if (wep_key_len > 0) {
+ 			wep_key_len = wep_key_len <= 5 ? 5 : 13;
+ 			wep_total_len = wep_key_len + FIELD_OFFSET(struct ndis_802_11_wep, key_material);
 -- 
 2.39.1
 
