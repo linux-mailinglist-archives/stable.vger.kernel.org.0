@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FFB86ACAB1
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:36:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFC0F6ACAB4
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230287AbjCFRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230467AbjCFRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 6 Mar 2023 12:35:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44196 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230381AbjCFRf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:35:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A70A46507D
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:35:14 -0800 (PST)
+        with ESMTP id S230093AbjCFRfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:35:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A9E56A073
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:35:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98BB0B80D2F
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 16:09:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5514C433D2;
-        Mon,  6 Mar 2023 16:08:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5721EB80EF4
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 16:09:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8083C433D2;
+        Mon,  6 Mar 2023 16:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678118939;
-        bh=6NXPStxliQvljsm9dnvUVB4TOAjAFT9p7FklfVZsa74=;
+        s=korg; t=1678118942;
+        bh=WFM30SWUdOJQ2MtLMgprLGjCoIoJeBUSjqrqLlHDBb0=;
         h=Subject:To:Cc:From:Date:From;
-        b=AU1R8nPQovpD8gMKIJqmYNj1gwJqLXDMDdv0EaoRtHJ/J2z87qIo9Z5kYqwnIZP6X
-         13/nTSRcZY+rvPMQCc9e2+DDof0zcSEZ3VNYV/RJFwDskTkzkWyxq69owzZ1REsdv7
-         YL6E5tuAwN/X7XXEzKHfnIy8kiMqARj/Trqvns7E=
-Subject: FAILED: patch "[PATCH] KVM: Register /dev/kvm as the _very_ last thing during" failed to apply to 5.4-stable tree
+        b=YJqmKT/+IsuBVyXRGsOhKfmYdnmECmcFlz8BW2BjWqPgJT0Ja+y/r9MUm+fFvIj+u
+         5toweSZ1KtJ5j8Dq9yQqVaHW3C2+aGkLNDazN315cYXmU16zQNhJ3wNOjYSc1LO85y
+         VJaV2AnGTXp6MDAhXd12zss02mx3tbknBfkwsj1s=
+Subject: FAILED: patch "[PATCH] KVM: Register /dev/kvm as the _very_ last thing during" failed to apply to 4.14-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 17:08:52 +0100
-Message-ID: <1678118932196@kroah.com>
+Date:   Mon, 06 Mar 2023 17:08:53 +0100
+Message-ID: <167811893352@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x 2b01281273738bf2d6551da48d65db2df3f28998
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678118932196@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167811893352@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
@@ -72,6 +72,17 @@ e649b3f0188f ("KVM: x86: Fix APIC page invalidation race")
 54163a346d4a ("KVM: Introduce kvm_make_all_cpus_request_except()")
 db5a95ec166f ("KVM: x86: remove set but not used variable 'called'")
 7ee30bc132c6 ("KVM: x86: deliver KVM IOAPIC scan request to target vCPUs")
+dfcd66604c1c ("mm/mmu_notifier: convert user range->blockable to helper function")
+a3e0d41c2b1f ("mm/hmm: improve driver API to work and wait over a range")
+73231612dc7c ("mm/hmm: improve and rename hmm_vma_fault() to hmm_range_fault()")
+25f23a0c7127 ("mm/hmm: improve and rename hmm_vma_get_pfns() to hmm_range_snapshot()")
+9f454612f602 ("mm/hmm: do not erase snapshot when a range is invalidated")
+704f3f2cf63c ("mm/hmm: use reference counting for HMM struct")
+484d9a844d0d ("drm/i915/userptr: Avoid struct_mutex recursion for mmu_invalidate_range_start")
+ac46d4f3c432 ("mm/mmu_notifier: use structure for invalidate_range_start/end calls v2")
+5d6527a784f7 ("mm/mmu_notifier: use structure for invalidate_range_start/end callback")
+ec131b2d7fa6 ("mm/hmm: invalidate device page table at start of invalidation")
+44532d4c591c ("mm/hmm: use a structure for update callback parameters")
 
 thanks,
 
