@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 681266AC192
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:40:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE00E6AC195
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:40:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230426AbjCFNkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 08:40:25 -0500
+        id S230376AbjCFNk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 08:40:27 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229982AbjCFNkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:40:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F052ED59
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:40:14 -0800 (PST)
+        with ESMTP id S231194AbjCFNk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:40:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899B023851
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:40:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B560A60F21
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDB43C433D2;
-        Mon,  6 Mar 2023 13:40:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2530360F76
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:40:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3724CC433EF;
+        Mon,  6 Mar 2023 13:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678110013;
-        bh=KObiHn38whJxahxbvIARy18EsZJlN8MkFNBV4vrOnoM=;
+        s=korg; t=1678110018;
+        bh=KrmPbGcdPHpG1vjKI0F1O84smN+A8deXndhCd245d1I=;
         h=Subject:To:Cc:From:Date:From;
-        b=yQm2ATosHVU4xC49DHOsKpqn7tMrVBbC3yxuNiLKEzfIyq0w/LyZmQCgNP3iy3raS
-         4o699HZBRv4znvKGWCyAwHIO8lYuPPEXSuLhwSLp7zvW+0BQ28QDjoyFYAV2H2lF6w
-         l7uH4rt3aI4oLdHTfzyA4eCs/XLHROXle+smi5jQ=
-Subject: FAILED: patch "[PATCH] udf: Fix off-by-one error when discarding preallocation" failed to apply to 5.10-stable tree
+        b=wXuvzeDWbTV1CKnXYxVUc1+3XSFPo8ohYCPGzhIXVx1n1j3nH1EUDo+FEZtA2ggJ1
+         vpl+yWT6EMvyT6lB4GVJ7VjtHCzUneWT3kcDKQWwmXon7qosi5onJAsFyZRDmvBV6W
+         r1igYAH5vYYGAG5BjeJh+WYe1Yw5SkPkJrfdamII=
+Subject: FAILED: patch "[PATCH] udf: Fix off-by-one error when discarding preallocation" failed to apply to 4.19-stable tree
 To:     jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 14:40:06 +0100
-Message-ID: <167811000613644@kroah.com>
+Date:   Mon, 06 Mar 2023 14:40:07 +0100
+Message-ID: <1678110007243154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x f54aa97fb7e5329a373f9df4e5e213ced4fc8759
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167811000613644@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678110007243154@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
@@ -70,6 +70,11 @@ a27b2923de7e ("udf: Move udf_expand_dir_adinicb() to its callsite")
 16d055656814 ("udf: Discard preallocation before extending file with a hole")
 979a6e28dd96 ("udf: Get rid of 0-length arrays in struct fileIdentDesc")
 63c9e47a1642 ("udf: fix silent AED tagLocation corruption")
+382a2287bf9c ("udf: Remove pointless union in udf_inode_info")
+044e2e26f214 ("udf: Avoid accessing uninitialized data on failed inode read")
+c3367a1b47d5 ("udf: augment UDF permissions on new inodes")
+ab9a3a737284 ("udf: reduce leakage of blocks related to named streams")
+fa33cdbf3ece ("udf: Fix incorrect final NOT_ALLOCATED (hole) extent length")
 
 thanks,
 
