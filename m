@@ -2,108 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E36E6ABCF5
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD84C6ABD01
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231288AbjCFKdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 05:33:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39098 "EHLO
+        id S231223AbjCFKfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 05:35:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230388AbjCFKdi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:33:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D26993CC;
-        Mon,  6 Mar 2023 02:32:58 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S231538AbjCFKfg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:35:36 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0974A20D3D
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:34:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678098846;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=gTxuKR3DhL9ZVIJ1Rflv2nKBkJajV28K3VX5HuaOoqc=;
+        b=jNqWMYRwBS48Id+ZB5PAFaHUUdK7LhURXZna3p6LTZOK4dAPrTl7fTtr3fKbw+UNfUdITd
+        3JeqX2F+z4cYMpRaXS820DsU7II2rJxTffhHM9/awob7zj0QwrDo6ipdCHGle+CmOR46es
+        5zqRzCQat1w5PX5w+dQATwrvMC+nHGE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-84-EY8_8O5QOSu6OQhvo8FU9A-1; Mon, 06 Mar 2023 05:34:03 -0500
+X-MC-Unique: EY8_8O5QOSu6OQhvo8FU9A-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFF1A60DDD;
-        Mon,  6 Mar 2023 10:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37D54C433D2;
-        Mon,  6 Mar 2023 10:32:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678098777;
-        bh=s2fnw6i03aDUOVRceqTeJE5GhIX+8kNWvjFzOfwDk4s=;
-        h=From:To:Cc:Subject:Date:From;
-        b=jiNOsXJjsaI2JlLF30jApPis06JPgizoX1wFUIyWw21iPDa61V3wQ2GP36JhldSTx
-         bTkJVFUAwDtaJYoUDNbDyW9RoSWiWNmRBRwM5D6Ofb2IHFidkM+dFp0RL4IXwbO5Ad
-         1PS3FDGXFW/SxYoXnJAA4yCQ4gd3n0N9LZXjCeiauPvrFiHfYDln6E0Xd3g4k9ttuF
-         MGLf8Q2wsHlc8eJHiX31wUAZ5WZkT+0Lev32PJJm+urVpV6F743MqNh2JQzj9ISpm5
-         s0SSFUDdbBrEIOMxgsF2dLx4MkEjTqp8bpiv9xbNaUL+xSrwIg2ZlwqQE4thA4QByr
-         8aU+IWpQp7WMA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan+linaro@kernel.org>)
-        id 1pZ89w-0001Fr-MP; Mon, 06 Mar 2023 11:33:37 +0100
-From:   Johan Hovold <johan+linaro@kernel.org>
-To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>
-Cc:     David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] drm/sun4i: fix missing component unbind on bind errors
-Date:   Mon,  6 Mar 2023 11:32:42 +0100
-Message-Id: <20230306103242.4775-1-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A19B01C3A06F;
+        Mon,  6 Mar 2023 10:34:02 +0000 (UTC)
+Received: from x1.localdomain.com (unknown [10.39.195.139])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CAAF640CF8F0;
+        Mon,  6 Mar 2023 10:34:01 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/3] usb: ucsi: Fix NULL pointer deref in ucsi_connector_change()
+Date:   Mon,  6 Mar 2023 11:33:57 +0100
+Message-Id: <20230306103359.6591-2-hdegoede@redhat.com>
+In-Reply-To: <20230306103359.6591-1-hdegoede@redhat.com>
+References: <20230306103359.6591-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make sure to unbind all subcomponents when binding the aggregate device
-fails.
+When ucsi_init() fails, ucsi->connector is NULL, yet in case of
+ucsi_acpi we may still get events which cause the ucs_acpi code to call
+ucsi_connector_change(), which then derefs the NULL ucsi->connector
+pointer.
 
-Fixes: 9026e0d122ac ("drm: Add Allwinner A10 Display Engine support")
-Cc: stable@vger.kernel.org      # 4.7
-Cc: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Fix this by not setting ucsi->ntfy inside ucsi_init() until ucsi_init()
+has succeeded, so that ucsi_connector_change() ignores the events
+because UCSI_ENABLE_NTFY_CONNECTOR_CHANGE is not set in the ntfy mask.
+
+Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
+Changes in v2:
+-Delay setting ucsi->ntfy in ucsi_init() instead of adding a NULL pointer
+ check to ucsi_connector_change()
+---
+ drivers/usb/typec/ucsi/ucsi.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-Note that this one has only been compile tested.
-
-Johan
-
-
- drivers/gpu/drm/sun4i/sun4i_drv.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
-index cc94efbbf2d4..d6c741716167 100644
---- a/drivers/gpu/drm/sun4i/sun4i_drv.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
-@@ -95,12 +95,12 @@ static int sun4i_drv_bind(struct device *dev)
- 	/* drm_vblank_init calls kcalloc, which can fail */
- 	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+index 1cf8947c6d66..8cbbb002fefe 100644
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -1205,7 +1205,7 @@ static int ucsi_register_port(struct ucsi *ucsi, int index)
+ static int ucsi_init(struct ucsi *ucsi)
+ {
+ 	struct ucsi_connector *con;
+-	u64 command;
++	u64 command, ntfy;
+ 	int ret;
+ 	int i;
  
- 	/* Remove early framebuffers (ie. simplefb) */
- 	ret = drm_aperture_remove_framebuffers(false, &sun4i_drv_driver);
- 	if (ret)
--		goto cleanup_mode_config;
-+		goto unbind_all;
+@@ -1217,8 +1217,8 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	}
  
- 	sun4i_framebuffer_init(drm);
+ 	/* Enable basic notifications */
+-	ucsi->ntfy = UCSI_ENABLE_NTFY_CMD_COMPLETE | UCSI_ENABLE_NTFY_ERROR;
+-	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
++	ntfy = UCSI_ENABLE_NTFY_CMD_COMPLETE | UCSI_ENABLE_NTFY_ERROR;
++	command = UCSI_SET_NOTIFICATION_ENABLE | ntfy;
+ 	ret = ucsi_send_command(ucsi, command, NULL, 0);
+ 	if (ret < 0)
+ 		goto err_reset;
+@@ -1250,12 +1250,13 @@ static int ucsi_init(struct ucsi *ucsi)
+ 	}
  
-@@ -119,6 +119,8 @@ static int sun4i_drv_bind(struct device *dev)
+ 	/* Enable all notifications */
+-	ucsi->ntfy = UCSI_ENABLE_NTFY_ALL;
+-	command = UCSI_SET_NOTIFICATION_ENABLE | ucsi->ntfy;
++	ntfy = UCSI_ENABLE_NTFY_ALL;
++	command = UCSI_SET_NOTIFICATION_ENABLE | ntfy;
+ 	ret = ucsi_send_command(ucsi, command, NULL, 0);
+ 	if (ret < 0)
+ 		goto err_unregister;
  
- finish_poll:
- 	drm_kms_helper_poll_fini(drm);
-+unbind_all:
-+	component_unbind_all(dev, NULL);
- cleanup_mode_config:
- 	drm_mode_config_cleanup(drm);
- 	of_reserved_mem_device_release(dev);
++	ucsi->ntfy = ntfy;
+ 	return 0;
+ 
+ err_unregister:
 -- 
-2.39.2
+2.39.1
 
