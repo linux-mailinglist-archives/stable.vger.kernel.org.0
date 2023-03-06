@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 679BA6ABD55
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:50:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C24676ABD5A
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 11:51:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230047AbjCFKuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 05:50:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58950 "EHLO
+        id S229554AbjCFKvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 05:51:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230023AbjCFKuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:50:09 -0500
+        with ESMTP id S230079AbjCFKuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 05:50:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3123925E10
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:49:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 184182411E
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 02:50:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E33BBB80D7E
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:49:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C6E4C433EF;
-        Mon,  6 Mar 2023 10:49:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61185B80D7F
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 10:50:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5BF8C433D2;
+        Mon,  6 Mar 2023 10:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678099794;
-        bh=1yv23C3FqLqE+tbPtDlaE5vUF8OIrX6XfidUDQ95GtE=;
+        s=korg; t=1678099821;
+        bh=clJBD1eqzVI/iuDLSjxzbXw7mifw91cYgkyQGlnCbik=;
         h=Subject:To:Cc:From:Date:From;
-        b=ukBVYizv+WOt49ZQ7q6lNwuaSuzxzBzimr3y11y2Bx/bxuUjduzwovlnr18KYi6vm
-         db/UOrDEcztPEbYAb7Sh0/ofOywc2Ti0azxQlURygBal/7fUBPuqJWLkAmJMX4vC4l
-         EsF248O74rqA5ME/ZCjQi36aHB80Sb3lga+LLHbo=
-Subject: FAILED: patch "[PATCH] io_uring: remove MSG_NOSIGNAL from recvmsg" failed to apply to 5.10-stable tree
-To:     equinox@diac24.net, axboe@kernel.dk, edumazet@google.com
+        b=qRqnSSSJxwQvHl7GPqyrP8Rs6HsoFyOL6E4ACqL16kGr6lmKS2ajfvj1aEGzEVI8s
+         PiAUxv4vpl/zLJMoV0miB4Zaz1EXMFoOkeDyvpKA7/0MAf8ClSqF4U8ZmQliIN7HBg
+         5lQJU5dUlEe6ge3wzVn64u/cf5zonRHrO2CnAseY=
+Subject: FAILED: patch "[PATCH] io_uring/poll: allow some retries for poll triggering" failed to apply to 6.1-stable tree
+To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 11:49:52 +0100
-Message-ID: <1678099792218125@kroah.com>
+Date:   Mon, 06 Mar 2023 11:50:18 +0100
+Message-ID: <167809981810941@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,42 +47,23 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x 7605c43d67face310b4b87dee1a28bc0c8cd8c0f
+git cherry-pick -x c16bda37594f83147b167d381d54c010024efecf
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678099792218125@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167809981810941@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-7605c43d67fa ("io_uring: remove MSG_NOSIGNAL from recvmsg")
-f9ead18c1058 ("io_uring: split network related opcodes into its own file")
-e0da14def1ee ("io_uring: move statx handling to its own file")
-a9c210cebe13 ("io_uring: move epoll handler to its own file")
-4cf90495281b ("io_uring: add a dummy -EOPNOTSUPP prep handler")
-99f15d8d6136 ("io_uring: move uring_cmd handling to its own file")
-cd40cae29ef8 ("io_uring: split out open/close operations")
-453b329be5ea ("io_uring: separate out file table handling code")
-f4c163dd7d4b ("io_uring: split out fadvise/madvise operations")
-0d5847274037 ("io_uring: split out fs related sync/fallocate functions")
-531113bbd5bf ("io_uring: split out splice related operations")
-11aeb71406dd ("io_uring: split out filesystem related operations")
-e28683bdfc2f ("io_uring: move nop into its own file")
-5e2a18d93fec ("io_uring: move xattr related opcodes to its own file")
-97b388d70b53 ("io_uring: handle completions in the core")
-de23077eda61 ("io_uring: set completion results upfront")
-e27f928ee1cb ("io_uring: add io_uring_types.h")
-4d4c9cff4f70 ("io_uring: define a request type cleanup handler")
-890968dc0336 ("io_uring: unify struct io_symlink and io_hardlink")
-9a3a11f977f9 ("io_uring: convert iouring_cmd to io_cmd_type")
+c16bda37594f ("io_uring/poll: allow some retries for poll triggering spuriously")
 
 thanks,
 
@@ -90,37 +71,93 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7605c43d67face310b4b87dee1a28bc0c8cd8c0f Mon Sep 17 00:00:00 2001
-From: David Lamparter <equinox@diac24.net>
-Date: Fri, 24 Feb 2023 16:01:24 +0100
-Subject: [PATCH] io_uring: remove MSG_NOSIGNAL from recvmsg
+From c16bda37594f83147b167d381d54c010024efecf Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Sat, 25 Feb 2023 12:53:53 -0700
+Subject: [PATCH] io_uring/poll: allow some retries for poll triggering
+ spuriously
 
-MSG_NOSIGNAL is not applicable for the receiving side, SIGPIPE is
-generated when trying to write to a "broken pipe".  AF_PACKET's
-packet_recvmsg() does enforce this, giving back EINVAL when MSG_NOSIGNAL
-is set - making it unuseable in io_uring's recvmsg.
+If we get woken spuriously when polling and fail the operation with
+-EAGAIN again, then we generally only allow polling again if data
+had been transferred at some point. This is indicated with
+REQ_F_PARTIAL_IO. However, if the spurious poll triggers when the socket
+was originally empty, then we haven't transferred data yet and we will
+fail the poll re-arm. This either punts the socket to io-wq if it's
+blocking, or it fails the request with -EAGAIN if not. Neither condition
+is desirable, as the former will slow things down, while the latter
+will make the application confused.
 
-Remove MSG_NOSIGNAL from io_recvmsg_prep().
+We want to ensure that a repeated poll trigger doesn't lead to infinite
+work making no progress, that's what the REQ_F_PARTIAL_IO check was
+for. But it doesn't protect against a loop post the first receive, and
+it's unnecessarily strict if we started out with an empty socket.
+
+Add a somewhat random retry count, just to put an upper limit on the
+potential number of retries that will be done. This should be high enough
+that we won't really hit it in practice, unless something needs to be
+aborted anyway.
 
 Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: David Lamparter <equinox@diac24.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230224150123.128346-1-equinox@diac24.net
+Link: https://github.com/axboe/liburing/issues/364
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/io_uring/net.c b/io_uring/net.c
-index cbd4b725f58c..b7f190ca528e 100644
---- a/io_uring/net.c
-+++ b/io_uring/net.c
-@@ -567,7 +567,7 @@ int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	sr->flags = READ_ONCE(sqe->ioprio);
- 	if (sr->flags & ~(RECVMSG_FLAGS))
- 		return -EINVAL;
--	sr->msg_flags = READ_ONCE(sqe->msg_flags) | MSG_NOSIGNAL;
-+	sr->msg_flags = READ_ONCE(sqe->msg_flags);
- 	if (sr->msg_flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	if (sr->msg_flags & MSG_ERRQUEUE)
+diff --git a/io_uring/poll.c b/io_uring/poll.c
+index 8339a92b4510..a82d6830bdfd 100644
+--- a/io_uring/poll.c
++++ b/io_uring/poll.c
+@@ -650,6 +650,14 @@ static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
+ 	__io_queue_proc(&apoll->poll, pt, head, &apoll->double_poll);
+ }
+ 
++/*
++ * We can't reliably detect loops in repeated poll triggers and issue
++ * subsequently failing. But rather than fail these immediately, allow a
++ * certain amount of retries before we give up. Given that this condition
++ * should _rarely_ trigger even once, we should be fine with a larger value.
++ */
++#define APOLL_MAX_RETRY		128
++
+ static struct async_poll *io_req_alloc_apoll(struct io_kiocb *req,
+ 					     unsigned issue_flags)
+ {
+@@ -665,14 +673,18 @@ static struct async_poll *io_req_alloc_apoll(struct io_kiocb *req,
+ 		if (entry == NULL)
+ 			goto alloc_apoll;
+ 		apoll = container_of(entry, struct async_poll, cache);
++		apoll->poll.retries = APOLL_MAX_RETRY;
+ 	} else {
+ alloc_apoll:
+ 		apoll = kmalloc(sizeof(*apoll), GFP_ATOMIC);
+ 		if (unlikely(!apoll))
+ 			return NULL;
++		apoll->poll.retries = APOLL_MAX_RETRY;
+ 	}
+ 	apoll->double_poll = NULL;
+ 	req->apoll = apoll;
++	if (unlikely(!--apoll->poll.retries))
++		return NULL;
+ 	return apoll;
+ }
+ 
+@@ -694,8 +706,6 @@ int io_arm_poll_handler(struct io_kiocb *req, unsigned issue_flags)
+ 		return IO_APOLL_ABORTED;
+ 	if (!file_can_poll(req->file))
+ 		return IO_APOLL_ABORTED;
+-	if ((req->flags & (REQ_F_POLLED|REQ_F_PARTIAL_IO)) == REQ_F_POLLED)
+-		return IO_APOLL_ABORTED;
+ 	if (!(req->flags & REQ_F_APOLL_MULTISHOT))
+ 		mask |= EPOLLONESHOT;
+ 
+diff --git a/io_uring/poll.h b/io_uring/poll.h
+index 5f3bae50fc81..b2393b403a2c 100644
+--- a/io_uring/poll.h
++++ b/io_uring/poll.h
+@@ -12,6 +12,7 @@ struct io_poll {
+ 	struct file			*file;
+ 	struct wait_queue_head		*head;
+ 	__poll_t			events;
++	int				retries;
+ 	struct wait_queue_entry		wait;
+ };
+ 
 
