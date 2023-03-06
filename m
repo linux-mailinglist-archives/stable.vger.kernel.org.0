@@ -2,118 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D92B6AC9FF
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 713A16ACA31
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 18:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbjCFRZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 12:25:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53868 "EHLO
+        id S229618AbjCFR2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 12:28:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230062AbjCFRZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:25:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940B7279AE
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:24:32 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43B0561030
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 17:24:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 555FFC4339B;
-        Mon,  6 Mar 2023 17:24:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678123465;
-        bh=fUEq1OgSTTI8d2f3JC5RBg4LF+jLHlG3LgUiKB9P6ug=;
-        h=Subject:To:Cc:From:Date:From;
-        b=cR3zyCzEh7/m4eCM6US7iBhOwRULNEfgO1sr8macWt1gvJthgkLyfMUEQQAGri6/z
-         GLH6WXhzna/zFYSESi2drI5I81nxZbaH6mZdrLgalYS1gwdnNxb1egqPcF1E/Q0web
-         PFrBwbWCUl5486mqVOqIWJ/BvRZJDRiJb8b8Aogc=
-Subject: FAILED: patch "[PATCH] KVM: x86: Inject #GP on x2APIC WRMSR that sets reserved bits" failed to apply to 5.10-stable tree
-To:     seanjc@google.com, marcorr@google.com, mlevitsk@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 18:24:15 +0100
-Message-ID: <167812345579100@kroah.com>
+        with ESMTP id S229600AbjCFR2D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 12:28:03 -0500
+Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0D867803
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 09:27:30 -0800 (PST)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 4AD9132009AC;
+        Mon,  6 Mar 2023 12:26:08 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 06 Mar 2023 12:26:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1678123567; x=1678209967; bh=ju
+        38mYQin9BlLL+npd5I0vFzjhAY3TVCLiqj8MmEYWY=; b=dpTszYKZdC2eKoxrU6
+        gTaPm1mwiS1kfsIyRM3Np0l8Z4tnXwPSGgO/R4BfhaseDLclP/8qjmZ5AWfgokSr
+        t7PbxnxQu/Vt1apxjE1vjbXZk7lHJM1igmAjUI883BXZiYblV9xGFPwNzTEldcnv
+        gDNbQppY1Rl1tYL231OdyITUnAAxSUEl1VnpROmiTJ3UJBzM5SOe128+QLSj03qw
+        HFG+Kq2gQFOCbYAiU6V1Id5etKT7g/SMwArwjMTpVjHurdecC4IhzcI2SbB+2vOs
+        4F2pgf8VAYggEfkct5Va/iTg/r4Vw/ZKcBpEaXatSvqcXbV59PP2eM7mDE3fvhk9
+        QCLg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; t=1678123567; x=1678209967; bh=ju38mYQin9BlL
+        L+npd5I0vFzjhAY3TVCLiqj8MmEYWY=; b=sv1xZlE5eGT1L+1UH0K6oBFwYEk4L
+        tg4rAMnHDR730r+UsDrCSotZtTXMFkhiGR9LEaHrtacPPTnjpPGFr8yYsq2hU+2c
+        CkfoPoREsdEThMkfm3LifuZaLnIgPv9jzfEK8Wuzlgzx3cXIbJ1gkEEAyPZGlrw9
+        JKANujYvXq2uAL8kAc3A3kzGSUm/mAyl+RMBmo0nFoVRSGuVZffkJbw0AD5/5CRw
+        ni/hRODJGZ6hJw5n7M21q4q9/x3whtJJsI8THujNlVKMhVumGuZBKqhm5vkaEal9
+        aTJ6IbOOtVxKCN8NJ6elZT71MmY69KNa0JGNixWsP2Wew01vlHqQ6eWyQ==
+X-ME-Sender: <xms:LyIGZNxsTlchunWvxjq_-zGZ4pIhV9nMeO7bFA3hGQGQoQDhGMWOaQ>
+    <xme:LyIGZNQd-AwuNFngaVQ6gjFZws3RFzDKOiD1Oehe6kpSTFtzxZwUG0dkhcrswT9ha
+    N5PC80Wg7Wq8g>
+X-ME-Received: <xmr:LyIGZHWDQb999Cy7B8HeKZvv2YuxpydGrlVssrcb2MKVwszXiPivP6Uj7TJlAh8NzByISL1Ots-zebXGXbhqd6ryj85ZvGXI_WwX3w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvddtkedgjedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvvefukfhfgggtuggjsehttd
+    ertddttddvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
+    qeenucggtffrrghtthgvrhhnpeegheeuhefgtdeluddtleekfeegjeetgeeikeehfeduie
+    ffvddufeefleevtddtvdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:LyIGZPiCvzWgHC5_Glgxp_zxUSnw3irT58V_qELejtkUHKfpwNKHLQ>
+    <xmx:LyIGZPBXGfsyagtmWGg6oqj8IcPoXJEU-HnApWfR2cnOeE4iwOhp6g>
+    <xmx:LyIGZIKt8mDGoeG1WzhjO5E6GRY6Ea1tm_JZ9WMgqYIVrIss9kJ9qQ>
+    <xmx:LyIGZB3B4EbyoLCeOR54-fNhuRcxzVOEHDiHG2YfHf4aztBoIKBi2w>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 6 Mar 2023 12:26:07 -0500 (EST)
+Date:   Mon, 6 Mar 2023 18:26:04 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Nico Boehr <nrb@linux.ibm.com>
+Cc:     stable@vger.kernel.org, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Subject: Re: [PATCH 5.4.y] KVM: s390: disable migration mode when dirty
+ tracking is disabled
+Message-ID: <ZAYiLCkl+nuabM4h@kroah.com>
+References: <167810000636131@kroah.com>
+ <20230306151331.4531-1-nrb@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230306151331.4531-1-nrb@linux.ibm.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 06, 2023 at 04:13:31PM +0100, Nico Boehr wrote:
+> Migration mode is a VM attribute which enables tracking of changes in
+> storage attributes (PGSTE). It assumes dirty tracking is enabled on all
+> memslots to keep a dirty bitmap of pages with changed storage attributes.
+> 
+> When enabling migration mode, we currently check that dirty tracking is
+> enabled for all memslots. However, userspace can disable dirty tracking
+> without disabling migration mode.
+> 
+> Since migration mode is pointless with dirty tracking disabled, disable
+> migration mode whenever userspace disables dirty tracking on any slot.
+> 
+> Also update the documentation to clarify that dirty tracking must be
+> enabled when enabling migration mode, which is already enforced by the
+> code in kvm_s390_vm_start_migration().
+> 
+> Also highlight in the documentation for KVM_S390_GET_CMMA_BITS that it
+> can now fail with -EINVAL when dirty tracking is disabled while
+> migration mode is on. Move all the error codes to a table so this stays
+> readable.
+> 
+> To disable migration mode, slots_lock should be held, which is taken
+> in kvm_set_memory_region() and thus held in
+> kvm_arch_prepare_memory_region().
+> 
+> Restructure the prepare code a bit so all the sanity checking is done
+> before disabling migration mode. This ensures migration mode isn't
+> disabled when some sanity check fails.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 190df4a212a7 ("KVM: s390: CMMA tracking, ESSA emulation, migration mode")
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Link: https://lore.kernel.org/r/20230127140532.230651-2-nrb@linux.ibm.com
+> Message-Id: <20230127140532.230651-2-nrb@linux.ibm.com>
+> [frankja@linux.ibm.com: fixed commit message typo, moved api.rst error table upwards]
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> (cherry picked from commit f2d3155e2a6bac44d16f04415a321e8707d895c6)
+> Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
-git checkout FETCH_HEAD
-git cherry-pick -x ab52be1b310bcb39e6745d34a8f0e8475d67381a
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167812345579100@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
-
-Possible dependencies:
-
-ab52be1b310b ("KVM: x86: Inject #GP on x2APIC WRMSR that sets reserved bits 63:32")
-a57a31684d7b ("KVM: x86: Treat x2APIC's ICR as a 64-bit register, not two 32-bit regs")
-5429478d038f ("KVM: x86: Add helpers to handle 64-bit APIC MSR read/writes")
-
-thanks,
+Thanks, all backports now queued up.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ab52be1b310bcb39e6745d34a8f0e8475d67381a Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Sat, 7 Jan 2023 01:10:21 +0000
-Subject: [PATCH] KVM: x86: Inject #GP on x2APIC WRMSR that sets reserved bits
- 63:32
-
-Reject attempts to set bits 63:32 for 32-bit x2APIC registers, i.e. all
-x2APIC registers except ICR.  Per Intel's SDM:
-
-  Non-zero writes (by WRMSR instruction) to reserved bits to these
-  registers will raise a general protection fault exception
-
-Opportunistically fix a typo in a nearby comment.
-
-Reported-by: Marc Orr <marcorr@google.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20230107011025.565472-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 9aca006b2d22..814b65106057 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -3114,13 +3114,17 @@ static int kvm_lapic_msr_read(struct kvm_lapic *apic, u32 reg, u64 *data)
- static int kvm_lapic_msr_write(struct kvm_lapic *apic, u32 reg, u64 data)
- {
- 	/*
--	 * ICR is a 64-bit register in x2APIC mode (and Hyper'v PV vAPIC) and
-+	 * ICR is a 64-bit register in x2APIC mode (and Hyper-V PV vAPIC) and
- 	 * can be written as such, all other registers remain accessible only
- 	 * through 32-bit reads/writes.
- 	 */
- 	if (reg == APIC_ICR)
- 		return kvm_x2apic_icr_write(apic, data);
- 
-+	/* Bits 63:32 are reserved in all other registers. */
-+	if (data >> 32)
-+		return 1;
-+
- 	return kvm_lapic_reg_write(apic, reg, (u32)data);
- }
- 
-
