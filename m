@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A516AC146
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:34:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E7A6AC148
+	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 14:34:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231271AbjCFNeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 08:34:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48752 "EHLO
+        id S231139AbjCFNeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 08:34:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231319AbjCFNeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:34:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27EC9869A
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:33:49 -0800 (PST)
+        with ESMTP id S231218AbjCFNeW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 08:34:22 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6526921A34
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 05:33:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73220B80E17
-        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:33:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D87F3C4339B;
-        Mon,  6 Mar 2023 13:33:01 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 770A5CE1272
+        for <stable@vger.kernel.org>; Mon,  6 Mar 2023 13:33:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97080C433EF;
+        Mon,  6 Mar 2023 13:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678109582;
-        bh=v0c7Il/MxZGXxCUnuTVgn2+FfdERbhf1jnxo9LIahvg=;
+        s=korg; t=1678109586;
+        bh=50u88vsO6fMOGa4+pHYNr9KSDtZz8pAj/YHZusHEc4I=;
         h=Subject:To:Cc:From:Date:From;
-        b=ElsI5UokZ/9pSKpSOj6Hb39qsJiG7K7A/tR0AbxMdaaFoVt3lS8kQqYigR7Zm1S/q
-         KhzlYhrmOClFgjHKiar8oD6IrQy1qepTqRpNKZQQRI1sFyy11eE+J2z2b8+kRBTf7m
-         bcXc2KyUkn+qIsbautfsMXDG/fYC4TsLGJ6+GAsE=
-Subject: FAILED: patch "[PATCH] fs: dlm: fix use after free in midcomms commit" failed to apply to 6.1-stable tree
+        b=xXdrs2oU+JwtcTWtujwgIYkkDJuVYDVOfJa4HGHhWb+VBnJkBwiFlrqnqIqJKzRjS
+         F9EYqgfUIhgmyI7JjB9w90WEelcAcMwUFhorbN0lnglVOtS4NiVnFr5wsBAj7mjx3W
+         DsPCfQwvIlSlIgIrdUE+wXX2IlMX9V+bnpqMSJeM=
+Subject: FAILED: patch "[PATCH] fs: dlm: fix use after free in midcomms commit" failed to apply to 5.15-stable tree
 To:     aahringo@redhat.com, teigland@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Mar 2023 14:32:59 +0100
-Message-ID: <1678109579147225@kroah.com>
+Date:   Mon, 06 Mar 2023 14:33:03 +0100
+Message-ID: <16781095834451@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,24 +48,32 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x 724b6bab0d75f1dc01fdfbf7fe8d4217a5cb90ba
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678109579147225@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781095834451@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 724b6bab0d75 ("fs: dlm: fix use after free in midcomms commit")
 e01c4b7bd415 ("fd: dlm: trace send/recv of dlm message and rcom")
+00e99ccde757 ("dlm: use __le types for dlm messages")
+2f9dbeda8dc0 ("dlm: use __le types for rcom messages")
+3428785a65da ("dlm: use __le types for dlm header")
+a8449f232ee3 ("dlm: add __CHECKER__ for false positives")
+6c2e3bf68f3e ("fs: dlm: filter user dlm messages for kernel locks")
+9af5b8f0ead7 ("fs: dlm: add debugfs rawmsg send functionality")
+92732376fd29 ("fs: dlm: trace socket handling")
+f1d3b8f91d96 ("fs: dlm: initial support for tracepoints")
 
 thanks,
 
