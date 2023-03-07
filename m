@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5386AF1C2
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:47:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B21BE6AF1B4
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233209AbjCGSrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:47:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35406 "EHLO
+        id S232904AbjCGSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:46:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233248AbjCGSqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:46:42 -0500
+        with ESMTP id S233216AbjCGSqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:46:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20144B5B7C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F12B9AF76F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47B956154D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BBBDC433EF;
-        Tue,  7 Mar 2023 18:35:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2ABB6150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7459C433EF;
+        Tue,  7 Mar 2023 18:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214125;
-        bh=5s41Ou5wHXW00sHFCrzuXX0PaP1OOK9Qr+OBvBX2YwU=;
+        s=korg; t=1678214134;
+        bh=LzxOs5VMddDWhrTpVYqWpNappj6ZqW23t5B16fBvJY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HwLppjmcbLFGUUZcezaltpWKipo2dynv3zavjoWNXFzUofWSwXgwAYCnM/UwSrH2i
-         oq0+8qYti/eoG+575MVZVAQaTvW03Nr3gSzBMe3FXM78lzmI7VlJKlATLAP+JLgwbX
-         44YlAQYQoaPfADSdJ3kfqP7EJjwJM/B0PGG2uiYs=
+        b=R8tOQabBTKTHviacfFc6S5VVOI2Im7NaG/S9p32Y6nN0QNCsrqvorZiClrCK3jTtu
+         gFHfUlf8Tl3TbmJ53sOraOVrHIEZt6lKE0mpDre/bNYksskZt9Srxz1FnZQN+QsKZJ
+         9OusNeANxppGYhy2XcewaSMOAiHWTf3AXdEgln8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,9 +39,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
         Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 702/885] ocfs2: fix defrag path triggering jbd2 ASSERT
-Date:   Tue,  7 Mar 2023 18:00:36 +0100
-Message-Id: <20230307170032.592748921@linuxfoundation.org>
+Subject: [PATCH 6.1 703/885] ocfs2: fix non-auto defrag path not working issue
+Date:   Tue,  7 Mar 2023 18:00:37 +0100
+Message-Id: <20230307170032.629103326@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -61,58 +61,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
 
-commit 60eed1e3d45045623e46944ebc7c42c30a4350f0 upstream.
+commit 236b9254f8d1edc273ad88b420aa85fbd84f492d upstream.
 
-code path:
+This fixes three issues on move extents ioctl without auto defrag:
 
-ocfs2_ioctl_move_extents
- ocfs2_move_extents
-  ocfs2_defrag_extent
-   __ocfs2_move_extent
-    + ocfs2_journal_access_di
-    + ocfs2_split_extent  //sub-paths call jbd2_journal_restart
-    + ocfs2_journal_dirty //crash by jbs2 ASSERT
+a) In ocfs2_find_victim_alloc_group(), we have to convert bits to block
+   first in case of global bitmap.
 
-crash stacks:
+b) In ocfs2_probe_alloc_group(), when finding enough bits in block
+   group bitmap, we have to back off move_len to start pos as well,
+   otherwise it may corrupt filesystem.
 
-PID: 11297  TASK: ffff974a676dcd00  CPU: 67  COMMAND: "defragfs.ocfs2"
- #0 [ffffb25d8dad3900] machine_kexec at ffffffff8386fe01
- #1 [ffffb25d8dad3958] __crash_kexec at ffffffff8395959d
- #2 [ffffb25d8dad3a20] crash_kexec at ffffffff8395a45d
- #3 [ffffb25d8dad3a38] oops_end at ffffffff83836d3f
- #4 [ffffb25d8dad3a58] do_trap at ffffffff83833205
- #5 [ffffb25d8dad3aa0] do_invalid_op at ffffffff83833aa6
- #6 [ffffb25d8dad3ac0] invalid_op at ffffffff84200d18
-    [exception RIP: jbd2_journal_dirty_metadata+0x2ba]
-    RIP: ffffffffc09ca54a  RSP: ffffb25d8dad3b70  RFLAGS: 00010207
-    RAX: 0000000000000000  RBX: ffff9706eedc5248  RCX: 0000000000000000
-    RDX: 0000000000000001  RSI: ffff97337029ea28  RDI: ffff9706eedc5250
-    RBP: ffff9703c3520200   R8: 000000000f46b0b2   R9: 0000000000000000
-    R10: 0000000000000001  R11: 00000001000000fe  R12: ffff97337029ea28
-    R13: 0000000000000000  R14: ffff9703de59bf60  R15: ffff9706eedc5250
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb25d8dad3ba8] ocfs2_journal_dirty at ffffffffc137fb95 [ocfs2]
- #8 [ffffb25d8dad3be8] __ocfs2_move_extent at ffffffffc139a950 [ocfs2]
- #9 [ffffb25d8dad3c80] ocfs2_defrag_extent at ffffffffc139b2d2 [ocfs2]
+c) In ocfs2_ioctl_move_extents(), set me_threshold both for non-auto
+   and auto defrag paths.  Otherwise it will set move_max_hop to 0 and
+   finally cause unexpectedly ENOSPC error.
 
-Analysis
+Currently there are no tools triggering the above issues since
+defragfs.ocfs2 enables auto defrag by default.  Tested with manually
+changing defragfs.ocfs2 to run non auto defrag path.
 
-This bug has the same root cause of 'commit 7f27ec978b0e ("ocfs2: call
-ocfs2_journal_access_di() before ocfs2_journal_dirty() in
-ocfs2_write_end_nolock()")'.  For this bug, jbd2_journal_restart() is
-called by ocfs2_split_extent() during defragmenting.
-
-How to fix
-
-For ocfs2_split_extent() can handle journal operations totally by itself.
-Caller doesn't need to call journal access/dirty pair, and caller only
-needs to call journal start/stop pair.  The fix method is to remove
-journal access/dirty from __ocfs2_move_extent().
-
-The discussion for this patch:
-https://oss.oracle.com/pipermail/ocfs2-devel/2023-February/000647.html
-
-Link: https://lkml.kernel.org/r/20230217003717.32469-1-heming.zhao@suse.com
+Link: https://lkml.kernel.org/r/20230220050526.22020-1-heming.zhao@suse.com
 Signed-off-by: Heming Zhao <heming.zhao@suse.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Cc: Mark Fasheh <mark@fasheh.com>
@@ -125,34 +93,57 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/move_extents.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ fs/ocfs2/move_extents.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
 --- a/fs/ocfs2/move_extents.c
 +++ b/fs/ocfs2/move_extents.c
-@@ -105,14 +105,6 @@ static int __ocfs2_move_extent(handle_t
- 	 */
- 	replace_rec.e_flags = ext_flags & ~OCFS2_EXT_REFCOUNTED;
+@@ -434,7 +434,7 @@ static int ocfs2_find_victim_alloc_group
+ 			bg = (struct ocfs2_group_desc *)gd_bh->b_data;
  
--	ret = ocfs2_journal_access_di(handle, INODE_CACHE(inode),
--				      context->et.et_root_bh,
--				      OCFS2_JOURNAL_ACCESS_WRITE);
--	if (ret) {
--		mlog_errno(ret);
--		goto out;
--	}
+ 			if (vict_blkno < (le64_to_cpu(bg->bg_blkno) +
+-						le16_to_cpu(bg->bg_bits))) {
++						(le16_to_cpu(bg->bg_bits) << bits_per_unit))) {
+ 
+ 				*ret_bh = gd_bh;
+ 				*vict_bit = (vict_blkno - blkno) >>
+@@ -549,6 +549,7 @@ static void ocfs2_probe_alloc_group(stru
+ 			last_free_bits++;
+ 
+ 		if (last_free_bits == move_len) {
++			i -= move_len;
+ 			*goal_bit = i;
+ 			*phys_cpos = base_cpos + i;
+ 			break;
+@@ -1020,18 +1021,19 @@ int ocfs2_ioctl_move_extents(struct file
+ 
+ 	context->range = &range;
+ 
++	/*
++	 * ok, the default theshold for the defragmentation
++	 * is 1M, since our maximum clustersize was 1M also.
++	 * any thought?
++	 */
++	if (!range.me_threshold)
++		range.me_threshold = 1024 * 1024;
++
++	if (range.me_threshold > i_size_read(inode))
++		range.me_threshold = i_size_read(inode);
++
+ 	if (range.me_flags & OCFS2_MOVE_EXT_FL_AUTO_DEFRAG) {
+ 		context->auto_defrag = 1;
+-		/*
+-		 * ok, the default theshold for the defragmentation
+-		 * is 1M, since our maximum clustersize was 1M also.
+-		 * any thought?
+-		 */
+-		if (!range.me_threshold)
+-			range.me_threshold = 1024 * 1024;
 -
- 	ret = ocfs2_split_extent(handle, &context->et, path, index,
- 				 &replace_rec, context->meta_ac,
- 				 &context->dealloc);
-@@ -121,8 +113,6 @@ static int __ocfs2_move_extent(handle_t
- 		goto out;
- 	}
+-		if (range.me_threshold > i_size_read(inode))
+-			range.me_threshold = i_size_read(inode);
  
--	ocfs2_journal_dirty(handle, context->et.et_root_bh);
--
- 	context->new_phys_cpos = new_p_cpos;
- 
- 	/*
+ 		if (range.me_flags & OCFS2_MOVE_EXT_FL_PART_DEFRAG)
+ 			context->partial = 1;
 
 
