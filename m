@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E41CE6AEDB1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA2946AE946
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232235AbjCGSGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:06:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
+        id S230191AbjCGRWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:22:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232257AbjCGSGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:06:08 -0500
+        with ESMTP id S230190AbjCGRWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:22:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A3934026
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:59:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 175B898E9D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:17:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BDCC61522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:59:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5247EC433D2;
-        Tue,  7 Mar 2023 17:59:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8D8461506
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:17:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F57CC433D2;
+        Tue,  7 Mar 2023 17:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211959;
-        bh=l8uX+ww20rxdEljzUC7ky+orcyiCrlVXLU7EJWfL7K0=;
+        s=korg; t=1678209451;
+        bh=oBtsLCRt5HsuHdDNr7wqb4hop3WG00XamyWbbcnYOeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoE+WwzMK7LyInB2z3oeqnIt+HLlHbpH7oxexJ0JZvzvDdZfpjMg5f+0mbDU8akLD
-         hE9sjcGFR6vjKG+MPz6BeCBCncX9naBlUCPssyUOk2K6YWBjuNQ9/8C9NhBsQLk6gx
-         ymtEQ7TjtD+ah7dgq0A6xwfKWEg05sQ6bg7J0QLQ=
+        b=FW/lgDKl6lFS5pbe4q+c/nmcq0ubr2e6RHovhHEuotaO+9++CZPImFwCwE9IMSXpV
+         OcXVNtSvCsk8SCvwgG6JnPgAHvZ9I+22iNYDxN7yWQnwa76P+D1dkG8P7ssbAUWfQN
+         /N2amTxZjSqJTWdI5Owxtl1byw/azs3ViUlkyUpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 031/885] cpuidle, intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE *again*
+Subject: [PATCH 6.2 0193/1001] s390/early: fix sclp_early_sccb variable lifetime
 Date:   Tue,  7 Mar 2023 17:49:25 +0100
-Message-Id: <20230307170003.009357914@linuxfoundation.org>
+Message-Id: <20230307170030.271760756@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,56 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 6d9c7f51b1d9179bf7c3542267c656a934e8af23 ]
+[ Upstream commit 639886b71ddef085a0e7bb1f225b8ae3eda5c06f ]
 
-So objtool found this bug:
+Commit ada1da31ce34 ("s390/sclp: sort out physical vs
+virtual pointers usage") fixed the notion of virtual
+address for sclp_early_sccb pointer. However, it did
+not take into account that kasan_early_init() can also
+output messages and sclp_early_sccb should be adjusted
+by the time kasan_early_init() is called.
 
-  vmlinux.o: warning: objtool: intel_idle_irq+0x10c: call to trace_hardirqs_off() leaves .noinstr.text section
+Currently it is not a problem, since virtual and physical
+addresses on s390 are the same. Nevertheless, should they
+ever differ, this would cause an invalid pointer access.
 
-As per commit 32d4fd5751ea ("cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE"):
-
-  "must not have tracing in idle functions"
-
-Clearly people can't read and tinker along until splat dissapears.
-This straight up reverts commit d295ad34f236 ("intel_idle: Fix false
-positive RCU splats due to incorrect hardirqs state").
-
-It doesn't re-introduce the problem because preceding patches fixed it
-properly.
-
-Fixes: d295ad34f236 ("intel_idle: Fix false positive RCU splats due to incorrect hardirqs state")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lore.kernel.org/r/20230112195540.434302128@infradead.org
+Fixes: ada1da31ce34 ("s390/sclp: sort out physical vs virtual pointers usage")
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/idle/intel_idle.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ arch/s390/kernel/early.c       | 1 -
+ arch/s390/kernel/head64.S      | 1 +
+ drivers/s390/char/sclp_early.c | 2 +-
+ 3 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
-index cfeb24d40d378..f060ac7376e69 100644
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -168,13 +168,7 @@ static __cpuidle int intel_idle_irq(struct cpuidle_device *dev,
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 6030fdd6997bc..9693c8630e73f 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -288,7 +288,6 @@ static void __init sort_amode31_extable(void)
  
- 	raw_local_irq_enable();
- 	ret = __intel_idle(dev, drv, index);
--
--	/*
--	 * The lockdep hardirqs state may be changed to 'on' with timer
--	 * tick interrupt followed by __do_softirq(). Use local_irq_disable()
--	 * to keep the hardirqs state correct.
--	 */
--	local_irq_disable();
-+	raw_local_irq_disable();
+ void __init startup_init(void)
+ {
+-	sclp_early_adjust_va();
+ 	reset_tod_clock();
+ 	check_image_bootable();
+ 	time_early_init();
+diff --git a/arch/s390/kernel/head64.S b/arch/s390/kernel/head64.S
+index d7b8b6ad574dc..3b3bf8329e6c1 100644
+--- a/arch/s390/kernel/head64.S
++++ b/arch/s390/kernel/head64.S
+@@ -25,6 +25,7 @@ ENTRY(startup_continue)
+ 	larl	%r14,init_task
+ 	stg	%r14,__LC_CURRENT
+ 	larl	%r15,init_thread_union+THREAD_SIZE-STACK_FRAME_OVERHEAD-__PT_SIZE
++	brasl	%r14,sclp_early_adjust_va	# allow sclp_early_printk
+ #ifdef CONFIG_KASAN
+ 	brasl	%r14,kasan_early_init
+ #endif
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index c1c70a161c0e2..f480d6c7fd399 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -163,7 +163,7 @@ static void __init sclp_early_console_detect(struct init_sccb *sccb)
+ 		sclp.has_linemode = 1;
+ }
  
- 	return ret;
+-void __init sclp_early_adjust_va(void)
++void __init __no_sanitize_address sclp_early_adjust_va(void)
+ {
+ 	sclp_early_sccb = __va((unsigned long)sclp_early_sccb);
  }
 -- 
 2.39.2
