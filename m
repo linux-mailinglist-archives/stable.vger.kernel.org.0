@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF056AEE57
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A50146AE9CA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232477AbjCGSLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46904 "EHLO
+        id S231421AbjCGR1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232426AbjCGSKx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88E2392BF4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:46 -0800 (PST)
+        with ESMTP id S231524AbjCGR1V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6063196608
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:22:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4898DB819BC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EF69C433D2;
-        Tue,  7 Mar 2023 18:05:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AEDFB818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:22:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 549C3C433EF;
+        Tue,  7 Mar 2023 17:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212344;
-        bh=Ko8Vc2wcTXVRbVNhsuUQyIMOvOZVz6s0vDZ+OtsHBjI=;
+        s=korg; t=1678209753;
+        bh=s45eB0R8juTjlWTD+m+madG1BptmyRT70x9JDqDwhck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1lRaL5iWvA68gPcKLwhaXmFBW7lt/3nEQABes7qSL0I7/wMvdo1/MdE/hI1bAv+z
-         zkHyDqgMc+t7E3Ru9Tmy/9K6H/i+0kvKOG0lNNc8gTl5pILZDUDALBKTNOD+yWrSCd
-         mQcEIE8dYO1/uGOrJkD+KtBcBbPPDEdl7xRbAgMs=
+        b=wqAY78Ccd3+8N2nn/UBYe/0WoLlZ9frsVlqOwsePs8VMIm/zSWXJHwC3CKfx+JCI1
+         gfiBf3mYKVzdPBoSIFJufIZfW3iIdo0sJ2+jvpzC8gqnQPEhc61mwpx1K41Z1USAnS
+         nFqHSyCQOYQYcdjrft2x+YUntfcERLhysnw8gfJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 156/885] s390/vfio-ap: fix an error handling path in vfio_ap_mdev_probe_queue()
-Date:   Tue,  7 Mar 2023 17:51:30 +0100
-Message-Id: <20230307170008.691323033@linuxfoundation.org>
+Subject: [PATCH 6.2 0319/1001] selftests/net: Interpret UDP_GRO cmsg data as an int value
+Date:   Tue,  7 Mar 2023 17:51:31 +0100
+Message-Id: <20230307170035.387932238@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,56 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit 08866d34c7099e981918d34aab5d6a437436628f ]
+[ Upstream commit 436864095a95fcc611c20c44a111985fa9848730 ]
 
-The commit in Fixes: has switch the order of a sysfs_create_group() and a
-kzalloc().
+Data passed to user-space with a (SOL_UDP, UDP_GRO) cmsg carries an
+int (see udp_cmsg_recv), not a u16 value, as strace confirms:
 
-It correctly removed the now useless kfree() but forgot to add a
-sysfs_remove_group() in case of (unlikely) memory allocation failure.
+  recvmsg(8, {msg_name=...,
+              msg_iov=[{iov_base="\0\0..."..., iov_len=96000}],
+              msg_iovlen=1,
+              msg_control=[{cmsg_len=20,         <-- sizeof(cmsghdr) + 4
+                            cmsg_level=SOL_UDP,
+                            cmsg_type=0x68}],    <-- UDP_GRO
+                            msg_controllen=24,
+                            msg_flags=0}, 0) = 11200
 
-Add it now.
+Interpreting the data as an u16 value won't work on big-endian platforms.
+Since it is too late to back out of this API decision [1], fix the test.
 
-Fixes: 260f3ea14138 ("s390/vfio-ap: move probe and remove callbacks to vfio_ap_ops.c")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Link: https://lore.kernel.org/r/d0c0a35eec4fa87cb7f3910d8ac4dc0f7dc9008a.1659283738.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+[1]: https://lore.kernel.org/netdev/20230131174601.203127-1-jakub@cloudflare.com/
+
+Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/udpgso_bench_rx.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 0b4cc8c597ae6..a109c59f18f78 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1844,8 +1844,10 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 		return ret;
+diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
+index 4058c7451e70d..f35a924d4a303 100644
+--- a/tools/testing/selftests/net/udpgso_bench_rx.c
++++ b/tools/testing/selftests/net/udpgso_bench_rx.c
+@@ -214,11 +214,10 @@ static void do_verify_udp(const char *data, int len)
  
- 	q = kzalloc(sizeof(*q), GFP_KERNEL);
--	if (!q)
--		return -ENOMEM;
-+	if (!q) {
-+		ret = -ENOMEM;
-+		goto err_remove_group;
-+	}
+ static int recv_msg(int fd, char *buf, int len, int *gso_size)
+ {
+-	char control[CMSG_SPACE(sizeof(uint16_t))] = {0};
++	char control[CMSG_SPACE(sizeof(int))] = {0};
+ 	struct msghdr msg = {0};
+ 	struct iovec iov = {0};
+ 	struct cmsghdr *cmsg;
+-	uint16_t *gsosizeptr;
+ 	int ret;
  
- 	q->apqn = to_ap_queue(&apdev->device)->qid;
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
-@@ -1863,6 +1865,10 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 	release_update_locks_for_mdev(matrix_mdev);
- 
- 	return 0;
-+
-+err_remove_group:
-+	sysfs_remove_group(&apdev->device.kobj, &vfio_queue_attr_group);
-+	return ret;
- }
- 
- void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+ 	iov.iov_base = buf;
+@@ -237,8 +236,7 @@ static int recv_msg(int fd, char *buf, int len, int *gso_size)
+ 		     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+ 			if (cmsg->cmsg_level == SOL_UDP
+ 			    && cmsg->cmsg_type == UDP_GRO) {
+-				gsosizeptr = (uint16_t *) CMSG_DATA(cmsg);
+-				*gso_size = *gsosizeptr;
++				*gso_size = *(int *)CMSG_DATA(cmsg);
+ 				break;
+ 			}
+ 		}
 -- 
 2.39.2
 
