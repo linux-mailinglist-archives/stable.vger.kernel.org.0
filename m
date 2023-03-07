@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4876C6AEAC3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAF36AEF2A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231833AbjCGRhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:37:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42464 "EHLO
+        id S232614AbjCGSVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:21:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231830AbjCGRgu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB39EA54DC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:48 -0800 (PST)
+        with ESMTP id S232628AbjCGSUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:20:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3433BADC25
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:14:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 433046150E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CEFEC4339B;
-        Tue,  7 Mar 2023 17:32:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD223B8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE896C433D2;
+        Tue,  7 Mar 2023 18:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210367;
-        bh=sy24AILUPaEfYDFT/WeQ+y/AMwpO/G8nbiq+P1kbGls=;
+        s=korg; t=1678212888;
+        bh=hLyJt667Aw4j4PzIorJ6E01MWCKul67qH0QIoSd4E+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CPTBeeiMpoFgLdzo9z3LMr0mpawqSOPssyN5ShuaZ69f2v+XveAe+pTO5He6WDf35
-         REEye1QMVnmoDyjT9Qa82QpdA2JWGziP5QOY2Jx/A+rEcpCUhXRSc0XFu0sSpaFbEN
-         xf0MHhkrFbjNm3dRC6dvAdhb4ZXsXKa34OU0UgVM=
+        b=L8SVINAM8rzdoT8MZ2rVg9Y2Gy7G7YMct0pTZvbsvDLO4x8yRZIgXg6tKBqQ/TYcZ
+         uepqjgHzgYixpM/UitW+jkD4qk5/SYlvpMN2JNIudtvnqa9UBIzg2bGwoJ51uOocqi
+         XC9DsB2N18WIpJHG71rgwBzCTPnIS8VaFQ14ULYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        patches@lists.linux.dev,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        Rob Herring <robh@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0491/1001] usb: gadget: fusb300_udc: free irq on the error path in fusb300_probe()
+Subject: [PATCH 6.1 329/885] dt-bindings: display: mediatek: Fix the fallback for mediatek,mt8186-disp-ccorr
 Date:   Tue,  7 Mar 2023 17:54:23 +0100
-Message-Id: <20230307170042.699054231@linuxfoundation.org>
+Message-Id: <20230307170016.473611363@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
 
-[ Upstream commit a8d3392e0e5cfeb03f0cea1f2bc3f5f183c1deb4 ]
+[ Upstream commit 137272ef1b0f17a1815fec00d583515a0163f85e ]
 
-When request_irq(ires1->start) failed in w5300_hw_probe(), irq
-ires->start has not been freed, and on the clean_up3 error path,
-we also need to free ires1->start irq, fix it.
+The mt8186-disp-ccorr is not fully compatible with the mt8183-disp-ccorr
+implementation. It causes a crash when system resumes if it binds to the
+device.
 
-In addition, We should add free_irq in fusb300_remove(), and give
-the lables a proper name so that they can be understood easily,
-so add free_irq in fusb300_remove(), and update clean_up3 to
-err_alloc_request.
+We should use mt8192-disp-ccorr as fallback of mt8186-disp-ccorr.
 
-Fixes: 0fe6f1d1f612 ("usb: udc: add Faraday fusb300 driver")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221123014121.1989721-1-cuigaosheng1@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8a26ea19d4dc ("dt-bindings: display: mediatek: add MT8186 SoC binding")
+Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20230118091829.755-10-allen-kh.cheng@mediatek.com/
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fusb300_udc.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ .../devicetree/bindings/display/mediatek/mediatek,ccorr.yaml    | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/fusb300_udc.c b/drivers/usb/gadget/udc/fusb300_udc.c
-index 5954800d652ca..08ba9c8c1e677 100644
---- a/drivers/usb/gadget/udc/fusb300_udc.c
-+++ b/drivers/usb/gadget/udc/fusb300_udc.c
-@@ -1346,6 +1346,7 @@ static int fusb300_remove(struct platform_device *pdev)
- 	usb_del_gadget_udc(&fusb300->gadget);
- 	iounmap(fusb300->reg);
- 	free_irq(platform_get_irq(pdev, 0), fusb300);
-+	free_irq(platform_get_irq(pdev, 1), fusb300);
+diff --git a/Documentation/devicetree/bindings/display/mediatek/mediatek,ccorr.yaml b/Documentation/devicetree/bindings/display/mediatek/mediatek,ccorr.yaml
+index 63fb02014a56a..117e3db43f84a 100644
+--- a/Documentation/devicetree/bindings/display/mediatek/mediatek,ccorr.yaml
++++ b/Documentation/devicetree/bindings/display/mediatek/mediatek,ccorr.yaml
+@@ -32,7 +32,7 @@ properties:
+       - items:
+           - enum:
+               - mediatek,mt8186-disp-ccorr
+-          - const: mediatek,mt8183-disp-ccorr
++          - const: mediatek,mt8192-disp-ccorr
  
- 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
- 	for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
-@@ -1431,7 +1432,7 @@ static int fusb300_probe(struct platform_device *pdev)
- 			IRQF_SHARED, udc_name, fusb300);
- 	if (ret < 0) {
- 		pr_err("request_irq1 error (%d)\n", ret);
--		goto clean_up;
-+		goto err_request_irq1;
- 	}
- 
- 	INIT_LIST_HEAD(&fusb300->gadget.ep_list);
-@@ -1470,7 +1471,7 @@ static int fusb300_probe(struct platform_device *pdev)
- 				GFP_KERNEL);
- 	if (fusb300->ep0_req == NULL) {
- 		ret = -ENOMEM;
--		goto clean_up3;
-+		goto err_alloc_request;
- 	}
- 
- 	init_controller(fusb300);
-@@ -1485,7 +1486,10 @@ static int fusb300_probe(struct platform_device *pdev)
- err_add_udc:
- 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
- 
--clean_up3:
-+err_alloc_request:
-+	free_irq(ires1->start, fusb300);
-+
-+err_request_irq1:
- 	free_irq(ires->start, fusb300);
- 
- clean_up:
+   reg:
+     maxItems: 1
 -- 
 2.39.2
 
