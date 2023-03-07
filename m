@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43D5F6AEF3F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7DE6AEAB0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:36:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232695AbjCGSWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:22:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46872 "EHLO
+        id S231786AbjCGRg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:36:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbjCGSVy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:21:54 -0500
+        with ESMTP id S231830AbjCGRgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D5A8B3730
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:15:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F51FA1010
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F95F61528
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970B6C433D2;
-        Tue,  7 Mar 2023 18:15:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 221216151E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38305C4339E;
+        Tue,  7 Mar 2023 17:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212943;
-        bh=HRuhTwIMZKalMbqJSBvzh0ZM8EGz5WmyxYuKzj/Ec18=;
+        s=korg; t=1678210318;
+        bh=D+yubnDFXwrN/gENUSmFX9771EZyWlo4SabxxbJ/s1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMgyPbIGYNGv+vTj18Vd0NtkwQJzHSNhFwvjQ5KL8iHOiq+ykyvHPS30Hn542zwpn
-         wajw7pKjXqxR6Uw8SuxDtCFyTCc3yesyfEoJh4cGOz5UsTLpRSZN4BADGLuFDMLO6Q
-         AwvaHswRBvDTIPJTFC7f27fPfTntA7JZUet8pGOA=
+        b=mltR5b+2IAuAUaT3G3oLMNG75XZhmkosQrs29oYFdVC4XDClcsf+ipOgb2RCkZmMe
+         6qYKXwXlcKZF4epHUGNrtNscDX5QwxocnygyVC1DnGj5LYqGse1IlzILMab3QpqsPT
+         VTqSaay8IR9qwIegHv7Lwy0IAc+QWnDfjrmXnEJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Jinlong Mao <quic_jinlmao@quicinc.com>,
+        James Clark <james.clark@arm.com>,
+        Mike Leach <mike.leach@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 340/885] ASoC: mchp-spdifrx: Fix uninitialized use of mr in mchp_spdifrx_hw_params()
-Date:   Tue,  7 Mar 2023 17:54:34 +0100
-Message-Id: <20230307170016.995510116@linuxfoundation.org>
+Subject: [PATCH 6.2 0503/1001] coresight: cti: Prevent negative values of enable count
+Date:   Tue,  7 Mar 2023 17:54:35 +0100
+Message-Id: <20230307170043.224079356@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 218674a45930c700486d27b765bf2f1b43f8cbf7 ]
+[ Upstream commit 3244fb6dbbf1ffc114cdf382cc167bdd8c18088a ]
 
-Clang warns:
+Writing 0 to the enable control repeatedly results in a negative value
+for enable_req_count. After this, writing 1 to the enable control
+appears to not work until the count returns to positive.
 
-  ../sound/soc/atmel/mchp-spdifrx.c:455:3: error: variable 'mr' is uninitialized when used here [-Werror,-Wuninitialized]
-                  mr |= SPDIFRX_MR_ENDIAN_BIG;
-                  ^~
-  ../sound/soc/atmel/mchp-spdifrx.c:432:8: note: initialize the variable 'mr' to silence this warning
-          u32 mr;
-                ^
-                 = 0
-  1 error generated.
+Change it so that it's impossible for enable_req_count to be < 0.
+Return an error to indicate that the disable request was invalid.
 
-Zero initialize mr so that these bitwise OR and assignment operation
-works unconditionally.
-
-Fixes: fa09fa60385a ("ASoC: mchp-spdifrx: fix controls which rely on rsr register")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1797
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230202-mchp-spdifrx-fix-uninit-mr-v1-1-629a045d7a2f@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 835d722ba10a ("coresight: cti: Initial CoreSight CTI Driver")
+Tested-by: Jinlong Mao <quic_jinlmao@quicinc.com>
+Signed-off-by: James Clark <james.clark@arm.com>
+Reviewed-by: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20230110110736.2709917-2-james.clark@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-spdifrx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight-cti-core.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
-index b81fc77728dfc..76ce37f641ebd 100644
---- a/sound/soc/atmel/mchp-spdifrx.c
-+++ b/sound/soc/atmel/mchp-spdifrx.c
-@@ -362,7 +362,7 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
- 				  struct snd_soc_dai *dai)
+diff --git a/drivers/hwtracing/coresight/coresight-cti-core.c b/drivers/hwtracing/coresight/coresight-cti-core.c
+index d2cf4f4848e1b..838872f2484d3 100644
+--- a/drivers/hwtracing/coresight/coresight-cti-core.c
++++ b/drivers/hwtracing/coresight/coresight-cti-core.c
+@@ -151,9 +151,16 @@ static int cti_disable_hw(struct cti_drvdata *drvdata)
  {
- 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
--	u32 mr;
-+	u32 mr = 0;
- 	int ret;
+ 	struct cti_config *config = &drvdata->config;
+ 	struct coresight_device *csdev = drvdata->csdev;
++	int ret = 0;
  
- 	dev_dbg(dev->dev, "%s() rate=%u format=%#x width=%u channels=%u\n",
+ 	spin_lock(&drvdata->spinlock);
+ 
++	/* don't allow negative refcounts, return an error */
++	if (!atomic_read(&drvdata->config.enable_req_count)) {
++		ret = -EINVAL;
++		goto cti_not_disabled;
++	}
++
+ 	/* check refcount - disable on 0 */
+ 	if (atomic_dec_return(&drvdata->config.enable_req_count) > 0)
+ 		goto cti_not_disabled;
+@@ -171,12 +178,12 @@ static int cti_disable_hw(struct cti_drvdata *drvdata)
+ 	coresight_disclaim_device_unlocked(csdev);
+ 	CS_LOCK(drvdata->base);
+ 	spin_unlock(&drvdata->spinlock);
+-	return 0;
++	return ret;
+ 
+ 	/* not disabled this call */
+ cti_not_disabled:
+ 	spin_unlock(&drvdata->spinlock);
+-	return 0;
++	return ret;
+ }
+ 
+ void cti_write_single_reg(struct cti_drvdata *drvdata, int offset, u32 value)
 -- 
 2.39.2
 
