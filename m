@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 779266AF009
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:28:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C386AEB42
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:42:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232574AbjCGS2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:28:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56750 "EHLO
+        id S231967AbjCGRmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:42:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232741AbjCGS1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:27:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F31BB06E7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:52 -0800 (PST)
+        with ESMTP id S231968AbjCGRli (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:41:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C39A6BC0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:37:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62137614E8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78E33C433EF;
-        Tue,  7 Mar 2023 18:20:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2364BB8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C53C4339B;
+        Tue,  7 Mar 2023 17:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213251;
-        bh=9m15ma9Ry7fVbi0COTk9hlqb6TcyuDNFbdcgq6uTU6E=;
+        s=korg; t=1678210652;
+        bh=15sDA5DKukliQb3d+h19ZtlO5w0AT0Qz8DpjVraT9rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QydatI8IDw3v1eiAx4u1MF7NRV5/6z1jkZgKLRkvzltRbiaDPKp+b62gNeuhdYLZU
-         Z9Rp7RFEM1YBuYQGz6UCzOZftkQD3fuFF4q5/rtskfiBOLy+jpMbmLws1ypbOBnwFZ
-         dPM4/LPTOZ4MklkNd3BuYZ6SzFxpWjf0LApPjoqo=
+        b=RwFZT5eP4I+omQQ173po0smiIwGbXB6ocBMk7LWqC2ii/yHZIH+hAtujnayi6kDRs
+         ukQSetRGJmTu4ySTauFiQjRkqKX/TjjRs/rhQlE/F7Iwd/fjVSW81LfhPfYY8o4RG6
+         W8v8+HegPDwkyscdnHOeSADw5OtT0jgINSrXoqIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 448/885] dmaengine: dw-edma: Fix missing src/dst address of interleaved xfers
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0610/1001] media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
 Date:   Tue,  7 Mar 2023 17:56:22 +0100
-Message-Id: <20230307170021.942640730@linuxfoundation.org>
+Message-Id: <20230307170047.983019663@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,53 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 13b6299cf66165a442089fa895a7f70250703584 ]
+[ Upstream commit 29b0589a865b6f66d141d79b2dd1373e4e50fe17 ]
 
-Interleaved DMA transfer support was added by 85e7518f42c8 ("dmaengine:
-dw-edma: Add device_prep_interleave_dma() support"), but depending on the
-selected channel, either source or destination address are left
-uninitialized which was obviously wrong.
+When the ene device is detaching, function ene_remove() will
+be called. But there is no function to cancel tx_sim_timer
+in ene_remove(), the timer handler ene_tx_irqsim() could race
+with ene_remove(). As a result, the UAF bugs could happen,
+the process is shown below.
 
-Initialize the destination address of the eDMA burst descriptors for
-DEV_TO_MEM interleaved operations and the source address for MEM_TO_DEV
-operations.
+    (cleanup routine)          |        (timer routine)
+                               | mod_timer(&dev->tx_sim_timer, ..)
+ene_remove()                   | (wait a time)
+                               | ene_tx_irqsim()
+                               |   dev->hw_lock //USE
+                               |   ene_tx_sample(dev) //USE
 
-Link: https://lore.kernel.org/r/20230113171409.30470-5-Sergey.Semin@baikalelectronics.ru
-Fixes: 85e7518f42c8 ("dmaengine: dw-edma: Add device_prep_interleave_dma() support")
-Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Acked-by: Vinod Koul <vkoul@kernel.org>
+Fix by adding del_timer_sync(&dev->tx_sim_timer) in ene_remove(),
+The tx_sim_timer could stop before ene device is deallocated.
+
+What's more, The rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove() and the deallocated
+functions such as free_irq(), release_region() and so on
+should be called behind them. Because the rc_unregister_device()
+is well synchronized. Otherwise, race conditions may happen. The
+situations that may lead to race conditions are shown below.
+
+Firstly, the rx receiver is disabled with ene_rx_disable()
+before rc_unregister_device() in ene_remove(), which means it
+can be enabled again if a process opens /dev/lirc0 between
+ene_rx_disable() and rc_unregister_device().
+
+Secondly, the irqaction descriptor is freed by free_irq()
+before the rc device is unregistered, which means irqaction
+descriptor may be accessed again after it is deallocated.
+
+Thirdly, the timer can call ene_tx_sample() that can write
+to the io ports, which means the io ports could be accessed
+again after they are deallocated by release_region().
+
+Therefore, the rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove().
+
+Suggested by: Sean Young <sean@mess.org>
+
+Fixes: 9ea53b74df9c ("V4L/DVB: STAGING: remove lirc_ene0100 driver")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw-edma/dw-edma-core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/rc/ene_ir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
-index c54b24ff5206a..52bdf04aff511 100644
---- a/drivers/dma/dw-edma/dw-edma-core.c
-+++ b/drivers/dma/dw-edma/dw-edma-core.c
-@@ -455,6 +455,8 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
- 				 * and destination addresses are increased
- 				 * by the same portion (data length)
- 				 */
-+			} else if (xfer->type == EDMA_XFER_INTERLEAVED) {
-+				burst->dar = dst_addr;
- 			}
- 		} else {
- 			burst->dar = dst_addr;
-@@ -470,6 +472,8 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
- 				 * and destination addresses are increased
- 				 * by the same portion (data length)
- 				 */
-+			}  else if (xfer->type == EDMA_XFER_INTERLEAVED) {
-+				burst->sar = src_addr;
- 			}
- 		}
+diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
+index e09270916fbca..11ee21a7db8f0 100644
+--- a/drivers/media/rc/ene_ir.c
++++ b/drivers/media/rc/ene_ir.c
+@@ -1106,6 +1106,8 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 	struct ene_device *dev = pnp_get_drvdata(pnp_dev);
+ 	unsigned long flags;
+ 
++	rc_unregister_device(dev->rdev);
++	del_timer_sync(&dev->tx_sim_timer);
+ 	spin_lock_irqsave(&dev->hw_lock, flags);
+ 	ene_rx_disable(dev);
+ 	ene_rx_restore_hw_buffer(dev);
+@@ -1113,7 +1115,6 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 
+ 	free_irq(dev->irq, dev);
+ 	release_region(dev->hw_io, ENE_IO_SIZE);
+-	rc_unregister_device(dev->rdev);
+ 	kfree(dev);
+ }
  
 -- 
 2.39.2
