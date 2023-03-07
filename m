@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C6D6AE85A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:15:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 743786AE860
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229986AbjCGRPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:15:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59726 "EHLO
+        id S229910AbjCGRP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:15:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231348AbjCGROz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:14:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 179F192BEA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:10:15 -0800 (PST)
+        with ESMTP id S231370AbjCGRO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:14:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC6F94F76
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:10:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2A33B8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:10:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBEF0C433EF;
-        Tue,  7 Mar 2023 17:10:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE18661508
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:10:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093CCC4339B;
+        Tue,  7 Mar 2023 17:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209012;
-        bh=tQ6Idm7z1CwL5iMmUpAUStbdZ7snpY7vAE2Gb/Hqoh8=;
+        s=korg; t=1678209015;
+        bh=4jnSMzRt7kAs1B2RsLrqVHzvL7Pxaz9mnNvYatVFz2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJECMRK+whxlyybaJSN9nuNvqzUq5X4150eENvtO8j+79R0+Aly1mdxr0BPqsmPjy
-         HKqk1uyXQTZc3w/mCmNihyRATl+PkCnvawzB7w1VL851upxkI8PljEmlROZilzbdmW
-         FnhT7W0b186QA3j9PZQEJoPUGlnJhln0nMJgUj8s=
+        b=MJ+XGiGrEANrH22WKQ4Yc55Lh/TmjFgIrNWTJiy6hJBTH8yrwrn+/HCKYiqvq+xKc
+         BMwiSPnBBjLEo7zJyqSxbRs8HUF5kiQeSVrBhHyGgKISnGUddWx1qOs63IPAAAiXFJ
+         htUJgkow+I1bBC03clQCiIzFGgxX1pMARjWOboNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
+        patches@lists.linux.dev, Ricardo Pardini <ricardo@pardini.net>,
         Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0082/1001] arm64: dts: amlogic: meson-g12b-odroid-go-ultra: fix rk818 pmic properties
-Date:   Tue,  7 Mar 2023 17:47:34 +0100
-Message-Id: <20230307170025.659728092@linuxfoundation.org>
+Subject: [PATCH 6.2 0083/1001] arm64: dts: amlogic: meson-sm1-odroid-hc4: fix active fan thermal trip
+Date:   Tue,  7 Mar 2023 17:47:35 +0100
+Message-Id: <20230307170025.697423067@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -56,41 +56,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Neil Armstrong <neil.armstrong@linaro.org>
 
-[ Upstream commit ce9999722656f2433af9029571bc2b99448dda74 ]
+[ Upstream commit 1d2f14117aa7773efff50f832b85fc7779e586e0 ]
 
-Fixes:
-pmic@1c: '#clock-cells' is a required property
-pmic@1c: 'switch-supply' does not match any of the regexes: 'pinctrl-[0-9]+'
+Add an active trip tied to the on-board fan cooling device, which is better
+than describing it along the passive cooling maps.
 
-The switch supply is described by vcc9-supply per bindings documentation.
-
-Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-14-44351528957e@linaro.org
+Fixes: 33b14f663df8 ("arm64: dts: meson: add initial device-tree for ODROID-HC4")
+Reported-by: Ricardo Pardini <ricardo@pardini.net>
+Link: https://lore.kernel.org/r/20230124-topic-odroid-hc4-upstream-fix-fan-trip-v1-1-b0c6aa355d93@linaro.org
+Tested-by: Ricardo Pardini <ricardo@pardini.net>
+[narmstrong: added Ricardo's tested-by from off-list chat]
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12b-odroid-go-ultra.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-go-ultra.dts b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-go-ultra.dts
-index 1e40709610c52..c8e5a0a42b898 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-go-ultra.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-go-ultra.dts
-@@ -381,6 +381,7 @@ rk818: pmic@1c {
- 		reg = <0x1c>;
- 		interrupt-parent = <&gpio_intc>;
- 		interrupts = <7 IRQ_TYPE_LEVEL_LOW>; /* GPIOAO_7 */
-+		#clock-cells = <1>;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
+index a1f0c38ccadda..74088e7280fee 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
+@@ -76,9 +76,17 @@ sound {
+ };
  
- 		vcc1-supply = <&vdd_sys>;
- 		vcc2-supply = <&vdd_sys>;
-@@ -391,7 +392,6 @@ rk818: pmic@1c {
- 		vcc8-supply = <&vcc_2v3>;
- 		vcc9-supply = <&vddao_3v3>;
- 		boost-supply = <&vdd_sys>;
--		switch-supply = <&vdd_sys>;
- 
- 		regulators {
- 			vddcpu_a: DCDC_REG1 {
+ &cpu_thermal {
++	trips {
++		cpu_active: cpu-active {
++			temperature = <60000>; /* millicelsius */
++			hysteresis = <2000>; /* millicelsius */
++			type = "active";
++		};
++	};
++
+ 	cooling-maps {
+ 		map {
+-			trip = <&cpu_passive>;
++			trip = <&cpu_active>;
+ 			cooling-device = <&fan0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+ 		};
+ 	};
 -- 
 2.39.2
 
