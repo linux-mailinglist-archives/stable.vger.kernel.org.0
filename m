@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2F96AEA50
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D04B56AEEAD
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231718AbjCGRcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:32:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57924 "EHLO
+        id S232529AbjCGSOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:14:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231213AbjCGRcX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DD71BDC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:56 -0800 (PST)
+        with ESMTP id S232544AbjCGSOR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF818A6BDF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:09:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2123D61510
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161C6C4339C;
-        Tue,  7 Mar 2023 17:27:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 731ACB8191D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D812C433A7;
+        Tue,  7 Mar 2023 18:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210075;
-        bh=c+ndX111tC9lWe3VYu++yDkD69SK+5J+sSOWu1Hnlk8=;
+        s=korg; t=1678212587;
+        bh=dcmblC/SePZoK3dQ7BTm3TrmLyO1R9FmNJq34zUxykk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftB2YvRA+MwZ5n8ucm5/UGqh/PHwpppoHLHkUjWNro405URlCRTrs4y1n82NnttPX
-         jDCBznamxDpkdRzgWk6lhDyz3vAnNuRHM+7RcA3bE7YOmErEX7e1aIXPt08xizteWg
-         0RdtYPqCGjw6JGg3cUHlUfZr/3cwfcJYwHpoJkPI=
+        b=iH+hQGTEoe/oLNe1Z3TkDZCP6BEBqKmduFfoxjZC/vDPodDzHH8fH2IDeBA+ZlH4B
+         QBpB8wTU9JUmBL8ojfQZj2G/cWix7WFaHXvEz8RPF/QgWRU847bUJhTzo/evNNQKxz
+         p+ImpgPe0/LdZ+cfbEe4/z8CPWRdcdrHHCYvEdj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, Adam Niederer <adam.niederer@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0393/1001] drm/msm/dpu: set pdpu->is_rt_pipe early in dpu_plane_sspp_atomic_update()
+Subject: [PATCH 6.1 231/885] ACPI: resource: Add IRQ overrides for MAINGEAR Vector Pro 2 models
 Date:   Tue,  7 Mar 2023 17:52:45 +0100
-Message-Id: <20230307170038.404908977@linuxfoundation.org>
+Message-Id: <20230307170012.053246864@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Adam Niederer <adam.niederer@gmail.com>
 
-[ Upstream commit 1d233b1cb149ec78c20fac58331b27bb460f9558 ]
+[ Upstream commit cb18703c179713056bd7e3bdfc2260ab4e8658f0 ]
 
-The function dpu_plane_sspp_atomic_update() updates pdpu->is_rt_pipe
-flag, but after the commit 854f6f1c653b ("drm/msm/dpu: update the qos
-remap only if the client type changes") it sets the flag late, after all
-the qos functions have updated QoS programming. Move the flag update
-back to the place where it happened before the mentioned commit to let
-the pipe be programmed according to its current RT/non-RT state.
+Fix a regression introduced by commit 9946e39fe8d0 ("ACPI: resource: skip
+IRQ override on AMD Zen platforms") on MAINGEAR Vector Pro 2 systems, which
+causes the built-in keyboard to not work. This restores the functionality
+by adding an IRQ override.
 
-Fixes: 854f6f1c653b ("drm/msm/dpu: update the qos remap only if the client type changes")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/516239/
-Link: https://lore.kernel.org/r/20221229191856.3508092-2-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+No other IRQs were being overridden before, so this should be all that is
+needed for these systems. I have personally tested this on the 15" model
+(MG-VCP2-15A3070T), and I have confirmation that the issue is present on
+the 17" model (MG-VCP2-17A3070T).
+
+Fixes: 9946e39fe8d0 ("ACPI: resource: skip IRQ override on AMD Zen platforms")
+Signed-off-by: Adam Niederer <adam.niederer@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ drivers/acpi/resource.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
-index 86719020afe20..bfd5be89e8b8d 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
-@@ -1126,7 +1126,7 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
- 	struct dpu_plane_state *pstate = to_dpu_plane_state(state);
- 	struct drm_crtc *crtc = state->crtc;
- 	struct drm_framebuffer *fb = state->fb;
--	bool is_rt_pipe, update_qos_remap;
-+	bool is_rt_pipe;
- 	const struct dpu_format *fmt =
- 		to_dpu_format(msm_framebuffer_format(fb));
- 	struct dpu_hw_pipe_cfg pipe_cfg;
-@@ -1138,6 +1138,9 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
- 	pstate->pending = true;
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index 192d1784e409b..1d9d3364bc2b5 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -478,6 +478,24 @@ static const struct dmi_system_id schenker_gm_rg[] = {
+ 	{ }
+ };
  
- 	is_rt_pipe = (dpu_crtc_get_client_type(crtc) != NRT_CLIENT);
-+	pstate->needs_qos_remap |= (is_rt_pipe != pdpu->is_rt_pipe);
-+	pdpu->is_rt_pipe = is_rt_pipe;
++static const struct dmi_system_id maingear_laptop[] = {
++	{
++		.ident = "MAINGEAR Vector Pro 2 15",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Micro Electronics Inc"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MG-VCP2-15A3070T"),
++		}
++	},
++	{
++		.ident = "MAINGEAR Vector Pro 2 17",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Micro Electronics Inc"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MG-VCP2-17A3070T"),
++		},
++	},
++	{ }
++};
 +
- 	_dpu_plane_set_qos_ctrl(plane, false, DPU_PLANE_QOS_PANIC_CTRL);
+ struct irq_override_cmp {
+ 	const struct dmi_system_id *system;
+ 	unsigned char irq;
+@@ -493,6 +511,7 @@ static const struct irq_override_cmp override_table[] = {
+ 	{ lenovo_laptop, 6, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
+ 	{ lenovo_laptop, 10, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
+ 	{ schenker_gm_rg, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
++	{ maingear_laptop, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
+ };
  
- 	DPU_DEBUG_PLANE(pdpu, "FB[%u] " DRM_RECT_FP_FMT "->crtc%u " DRM_RECT_FMT
-@@ -1219,14 +1222,8 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
- 		_dpu_plane_set_ot_limit(plane, crtc, &pipe_cfg);
- 	}
- 
--	update_qos_remap = (is_rt_pipe != pdpu->is_rt_pipe) ||
--			pstate->needs_qos_remap;
--
--	if (update_qos_remap) {
--		if (is_rt_pipe != pdpu->is_rt_pipe)
--			pdpu->is_rt_pipe = is_rt_pipe;
--		else if (pstate->needs_qos_remap)
--			pstate->needs_qos_remap = false;
-+	if (pstate->needs_qos_remap) {
-+		pstate->needs_qos_remap = false;
- 		_dpu_plane_set_qos_remap(plane);
- 	}
- 
+ static bool acpi_dev_irq_override(u32 gsi, u8 triggering, u8 polarity,
 -- 
 2.39.2
 
