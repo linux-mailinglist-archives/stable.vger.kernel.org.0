@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A392E6AEC75
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58DC86AF160
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230095AbjCGRz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S230001AbjCGSmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:42:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232313AbjCGRyu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE0713500
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:41 -0800 (PST)
+        with ESMTP id S231373AbjCGSmZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37EE196A6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94BF06150C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B80BC433EF;
-        Tue,  7 Mar 2023 17:49:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 561B06153B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:32:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58C27C433EF;
+        Tue,  7 Mar 2023 18:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211380;
-        bh=E6grqiW+07SwF9r2lMOOUaNn5k1CsHyOWIfCSWOHr6U=;
+        s=korg; t=1678213974;
+        bh=ADptdmh2tNWasfKW0aQORL4yIY4ow1X2A90pLbQUuE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czRr4Zng29xDMMyR5LCZFy+cpD1Tb0SDwu/w/TElj8Y5VV8X998l08WIW+5qg+nkQ
-         8okAr14adZaFFKvSsHv2jo2HqrhxzGaBg7LnxquD4efASVPAfL1fDLOMQDoJdmCHKM
-         xs3gpZOn8RRyA5/mwXBnz/4kX8+pJvSTjcISerHc=
+        b=OK/KkSP7pNJJe5fQ2ZZ3c5CbqJNOKTF7jpTbizpJ7UDIUz65q8+0LtCWYtLZiYnhf
+         NCKeunEPXlOL742fvFevT2ZFrRd+oGenKTsL65FAaaxlu7BYV3R/X1EVUNrpMMS/sM
+         ygRIjKCWo+pSIIh+on2ZBs+ZC+HZBZL76e2NK1qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 6.2 0843/1001] x86/microcode/AMD: Add a @cpu parameter to the reloading functions
+        patches@lists.linux.dev, Boris Burkov <boris@bur.io>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 681/885] btrfs: hold block group refcount during async discard
 Date:   Tue,  7 Mar 2023 18:00:15 +0100
-Message-Id: <20230307170058.372692408@linuxfoundation.org>
+Message-Id: <20230307170031.706754885@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,96 +53,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Boris Burkov <boris@bur.io>
 
-commit a5ad92134bd153a9ccdcddf09a95b088f36c3cce upstream.
+commit 2b5463fcbdfb24e898916bcae2b1359042d26963 upstream.
 
-Will be used in a subsequent change.
+Async discard does not acquire the block group reference count while it
+holds a reference on the discard list. This is generally OK, as the
+paths which destroy block groups tend to try to synchronize on
+cancelling async discard work. However, relying on cancelling work
+requires careful analysis to be sure it is safe from races with
+unpinning scheduling more work.
 
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-3-bp@alien8.de
+While I am unable to find a race with unpinning in the current code for
+either the unused bgs or relocation paths, I believe we have one in an
+older version of auto relocation in a Meta internal build. This suggests
+that this is in fact an error prone model, and could be fragile to
+future changes to these bg deletion paths.
+
+To make this ownership more clear, add a refcount for async discard. If
+work is queued for a block group, its refcount should be incremented,
+and when work is completed or canceled, it should be decremented.
+
+CC: stable@vger.kernel.org # 5.15+
+Signed-off-by: Boris Burkov <boris@bur.io>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/microcode.h     |    4 ++--
- arch/x86/include/asm/microcode_amd.h |    4 ++--
- arch/x86/kernel/cpu/microcode/amd.c  |    2 +-
- arch/x86/kernel/cpu/microcode/core.c |    6 +++---
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ fs/btrfs/discard.c |   41 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 38 insertions(+), 3 deletions(-)
 
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -125,13 +125,13 @@ static inline unsigned int x86_cpuid_fam
- #ifdef CONFIG_MICROCODE
- extern void __init load_ucode_bsp(void);
- extern void load_ucode_ap(void);
--void reload_early_microcode(void);
-+void reload_early_microcode(unsigned int cpu);
- extern bool initrd_gone;
- void microcode_bsp_resume(void);
- #else
- static inline void __init load_ucode_bsp(void)			{ }
- static inline void load_ucode_ap(void)				{ }
--static inline void reload_early_microcode(void)			{ }
-+static inline void reload_early_microcode(unsigned int cpu)	{ }
- static inline void microcode_bsp_resume(void)			{ }
- #endif
- 
---- a/arch/x86/include/asm/microcode_amd.h
-+++ b/arch/x86/include/asm/microcode_amd.h
-@@ -47,12 +47,12 @@ struct microcode_amd {
- extern void __init load_ucode_amd_bsp(unsigned int family);
- extern void load_ucode_amd_ap(unsigned int family);
- extern int __init save_microcode_in_initrd_amd(unsigned int family);
--void reload_ucode_amd(void);
-+void reload_ucode_amd(unsigned int cpu);
- #else
- static inline void __init load_ucode_amd_bsp(unsigned int family) {}
- static inline void load_ucode_amd_ap(unsigned int family) {}
- static inline int __init
- save_microcode_in_initrd_amd(unsigned int family) { return -EINVAL; }
--static inline void reload_ucode_amd(void) {}
-+static inline void reload_ucode_amd(unsigned int cpu) {}
- #endif
- #endif /* _ASM_X86_MICROCODE_AMD_H */
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -578,7 +578,7 @@ int __init save_microcode_in_initrd_amd(
- 	return 0;
- }
- 
--void reload_ucode_amd(void)
-+void reload_ucode_amd(unsigned int cpu)
+--- a/fs/btrfs/discard.c
++++ b/fs/btrfs/discard.c
+@@ -77,6 +77,7 @@ static struct list_head *get_discard_lis
+ static void __add_to_discard_list(struct btrfs_discard_ctl *discard_ctl,
+ 				  struct btrfs_block_group *block_group)
  {
- 	struct microcode_amd *mc;
- 	u32 rev, dummy __always_unused;
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -298,7 +298,7 @@ struct cpio_data find_microcode_in_initr
- #endif
- }
++	lockdep_assert_held(&discard_ctl->lock);
+ 	if (!btrfs_run_discard_work(discard_ctl))
+ 		return;
  
--void reload_early_microcode(void)
-+void reload_early_microcode(unsigned int cpu)
+@@ -88,6 +89,8 @@ static void __add_to_discard_list(struct
+ 						      BTRFS_DISCARD_DELAY);
+ 		block_group->discard_state = BTRFS_DISCARD_RESET_CURSOR;
+ 	}
++	if (list_empty(&block_group->discard_list))
++		btrfs_get_block_group(block_group);
+ 
+ 	list_move_tail(&block_group->discard_list,
+ 		       get_discard_list(discard_ctl, block_group));
+@@ -107,8 +110,12 @@ static void add_to_discard_list(struct b
+ static void add_to_discard_unused_list(struct btrfs_discard_ctl *discard_ctl,
+ 				       struct btrfs_block_group *block_group)
  {
- 	int vendor, family;
++	bool queued;
++
+ 	spin_lock(&discard_ctl->lock);
  
-@@ -312,7 +312,7 @@ void reload_early_microcode(void)
- 		break;
- 	case X86_VENDOR_AMD:
- 		if (family >= 0x10)
--			reload_ucode_amd();
-+			reload_ucode_amd(cpu);
- 		break;
- 	default:
- 		break;
-@@ -567,7 +567,7 @@ void microcode_bsp_resume(void)
- 	if (uci->mc)
- 		microcode_ops->apply_microcode(cpu);
- 	else
--		reload_early_microcode();
-+		reload_early_microcode(cpu);
++	queued = !list_empty(&block_group->discard_list);
++
+ 	if (!btrfs_run_discard_work(discard_ctl)) {
+ 		spin_unlock(&discard_ctl->lock);
+ 		return;
+@@ -120,6 +127,8 @@ static void add_to_discard_unused_list(s
+ 	block_group->discard_eligible_time = (ktime_get_ns() +
+ 					      BTRFS_DISCARD_UNUSED_DELAY);
+ 	block_group->discard_state = BTRFS_DISCARD_RESET_CURSOR;
++	if (!queued)
++		btrfs_get_block_group(block_group);
+ 	list_add_tail(&block_group->discard_list,
+ 		      &discard_ctl->discard_list[BTRFS_DISCARD_INDEX_UNUSED]);
+ 
+@@ -130,6 +139,7 @@ static bool remove_from_discard_list(str
+ 				     struct btrfs_block_group *block_group)
+ {
+ 	bool running = false;
++	bool queued = false;
+ 
+ 	spin_lock(&discard_ctl->lock);
+ 
+@@ -139,7 +149,16 @@ static bool remove_from_discard_list(str
+ 	}
+ 
+ 	block_group->discard_eligible_time = 0;
++	queued = !list_empty(&block_group->discard_list);
+ 	list_del_init(&block_group->discard_list);
++	/*
++	 * If the block group is currently running in the discard workfn, we
++	 * don't want to deref it, since it's still being used by the workfn.
++	 * The workfn will notice this case and deref the block group when it is
++	 * finished.
++	 */
++	if (queued && !running)
++		btrfs_put_block_group(block_group);
+ 
+ 	spin_unlock(&discard_ctl->lock);
+ 
+@@ -212,10 +231,12 @@ again:
+ 	if (block_group && now >= block_group->discard_eligible_time) {
+ 		if (block_group->discard_index == BTRFS_DISCARD_INDEX_UNUSED &&
+ 		    block_group->used != 0) {
+-			if (btrfs_is_block_group_data_only(block_group))
++			if (btrfs_is_block_group_data_only(block_group)) {
+ 				__add_to_discard_list(discard_ctl, block_group);
+-			else
++			} else {
+ 				list_del_init(&block_group->discard_list);
++				btrfs_put_block_group(block_group);
++			}
+ 			goto again;
+ 		}
+ 		if (block_group->discard_state == BTRFS_DISCARD_RESET_CURSOR) {
+@@ -502,6 +523,15 @@ static void btrfs_discard_workfn(struct
+ 	spin_lock(&discard_ctl->lock);
+ 	discard_ctl->prev_discard = trimmed;
+ 	discard_ctl->prev_discard_time = now;
++	/*
++	 * If the block group was removed from the discard list while it was
++	 * running in this workfn, then we didn't deref it, since this function
++	 * still owned that reference. But we set the discard_ctl->block_group
++	 * back to NULL, so we can use that condition to know that now we need
++	 * to deref the block_group.
++	 */
++	if (discard_ctl->block_group == NULL)
++		btrfs_put_block_group(block_group);
+ 	discard_ctl->block_group = NULL;
+ 	__btrfs_discard_schedule_work(discard_ctl, now, false);
+ 	spin_unlock(&discard_ctl->lock);
+@@ -638,8 +668,12 @@ void btrfs_discard_punt_unused_bgs_list(
+ 	list_for_each_entry_safe(block_group, next, &fs_info->unused_bgs,
+ 				 bg_list) {
+ 		list_del_init(&block_group->bg_list);
+-		btrfs_put_block_group(block_group);
+ 		btrfs_discard_queue_work(&fs_info->discard_ctl, block_group);
++		/*
++		 * This put is for the get done by btrfs_mark_bg_unused.
++		 * Queueing discard incremented it for discard's reference.
++		 */
++		btrfs_put_block_group(block_group);
+ 	}
+ 	spin_unlock(&fs_info->unused_bgs_lock);
  }
- 
- static struct syscore_ops mc_syscore_ops = {
+@@ -669,6 +703,7 @@ static void btrfs_discard_purge_list(str
+ 			if (block_group->used == 0)
+ 				btrfs_mark_bg_unused(block_group);
+ 			spin_lock(&discard_ctl->lock);
++			btrfs_put_block_group(block_group);
+ 		}
+ 	}
+ 	spin_unlock(&discard_ctl->lock);
 
 
