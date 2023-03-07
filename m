@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC006AED6B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:04:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C54346AF288
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230205AbjCGSEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:04:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
+        id S233240AbjCGSxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:53:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbjCGSDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:03:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDF3A4005
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:45 -0800 (PST)
+        with ESMTP id S233253AbjCGSx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1572AF0D2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D23916150B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D59A4C433D2;
-        Tue,  7 Mar 2023 17:56:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7ACAAB819D5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C55DEC433EF;
+        Tue,  7 Mar 2023 18:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211804;
-        bh=yXf+aPFI/AJXU7tbHHFYrZ37GFUxPR/coCUegubzZiw=;
+        s=korg; t=1678214435;
+        bh=RZ5bfbO1ah2+t1w4mLCtDOfadBmUwEphvgprnu5E+o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbiIcs8Dn7N6EjhyWEvNpTB174EHz8THVBKdrQepPeuUtZcHrbWTbbq6mOlhx2tAM
-         6DSk6aY8yLj+AXxATK+TAJlT/HOWuoZjtRoQR5AFg/asQIG7SUGa6E1Ec6Q5r9J4z8
-         1yZS6KsDIES46iIfoR7eb/dJzhIryCOb9q46yfFo=
+        b=kV1M5FQxGvYNAsEh9H9uSe/T0hI9QlZEsVy8GbvMWV5Drkj8yg5HDlL6Bvtlftllj
+         D4Ghp5ZS6kMq3D7mgUSLfRLLuvJibLms/njWqd0lkmSsXEpSF0bry5t/ZMotLRZGS8
+         8GbCkuvSHc6B/riw8QSm0fpsarBqjBX7BYzCUf5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 6.2 0982/1001] PCI/DPC: Await readiness of secondary bus after reset
-Date:   Tue,  7 Mar 2023 18:02:34 +0100
-Message-Id: <20230307170104.844482290@linuxfoundation.org>
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 6.1 821/885] ceph: update the time stamps and try to drop the suid/sgid
+Date:   Tue,  7 Mar 2023 18:02:35 +0100
+Message-Id: <20230307170037.531393552@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,81 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit 53b54ad074de1896f8b021615f65b27f557ce874 upstream.
+commit e027253c4b77d395798600a90b6a96fe4adf4d5e upstream.
 
-pci_bridge_wait_for_secondary_bus() is called after a Secondary Bus
-Reset, but not after a DPC-induced Hot Reset.
+The fallocate will try to clear the suid/sgid if a unprevileged user
+changed the file.
 
-As a result, the delays prescribed by PCIe r6.0 sec 6.6.1 are not
-observed and devices on the secondary bus may be accessed before
-they're ready.
+There is no POSIX item requires that we should clear the suid/sgid
+in fallocate code path but this is the default behaviour for most of
+the filesystems and the VFS layer. And also the same for the write
+code path, which have already support it.
 
-One affected device is Intel's Ponte Vecchio HPC GPU.  It comprises a
-PCIe switch whose upstream port is not immediately ready after reset.
-Because its config space is restored too early, it remains in
-D0uninitialized, its subordinate devices remain inaccessible and DPC
-recovery fails with messages such as:
+And also we need to update the time stamps since the fallocate will
+change the file contents.
 
-  i915 0000:8c:00.0: can't change power state from D3cold to D0 (config space inaccessible)
-  intel_vsec 0000:8e:00.1: can't change power state from D3cold to D0 (config space inaccessible)
-  pcieport 0000:89:02.0: AER: device recovery failed
-
-Fix it.
-
-Link: https://lore.kernel.org/r/9f5ff00e1593d8d9a4b452398b98aa14d23fca11.1673769517.git.lukas@wunner.de
-Tested-by: Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: stable@vger.kernel.org
+Link: https://tracker.ceph.com/issues/58054
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci.c      |    3 ---
- drivers/pci/pci.h      |    6 ++++++
- drivers/pci/pcie/dpc.c |    4 ++--
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ fs/ceph/file.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -167,9 +167,6 @@ static int __init pcie_port_pm_setup(cha
- }
- __setup("pcie_port_pm=", pcie_port_pm_setup);
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -2095,6 +2095,9 @@ static long ceph_fallocate(struct file *
+ 	loff_t endoff = 0;
+ 	loff_t size;
  
--/* Time to wait after a reset for device to become responsive */
--#define PCIE_RESET_READY_POLL_MS 60000
--
- /**
-  * pci_bus_max_busnr - returns maximum PCI bus number of given bus' children
-  * @bus: pointer to PCI bus structure to search
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -70,6 +70,12 @@ struct pci_cap_saved_state *pci_find_sav
-  * Reset (PCIe r6.0 sec 5.8).
-  */
- #define PCI_RESET_WAIT		1000	/* msec */
-+/*
-+ * Devices may extend the 1 sec period through Request Retry Status completions
-+ * (PCIe r6.0 sec 2.3.1).  The spec does not provide an upper limit, but 60 sec
-+ * ought to be enough for any device to become responsive.
-+ */
-+#define PCIE_RESET_READY_POLL_MS 60000	/* msec */
++	dout("%s %p %llx.%llx mode %x, offset %llu length %llu\n", __func__,
++	     inode, ceph_vinop(inode), mode, offset, length);
++
+ 	if (mode != (FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
+ 		return -EOPNOTSUPP;
  
- void pci_update_current_state(struct pci_dev *dev, pci_power_t state);
- void pci_refresh_power_state(struct pci_dev *dev);
---- a/drivers/pci/pcie/dpc.c
-+++ b/drivers/pci/pcie/dpc.c
-@@ -170,8 +170,8 @@ pci_ers_result_t dpc_reset_link(struct p
- 	pci_write_config_word(pdev, cap + PCI_EXP_DPC_STATUS,
- 			      PCI_EXP_DPC_STATUS_TRIGGER);
+@@ -2129,6 +2132,10 @@ static long ceph_fallocate(struct file *
+ 	if (ret < 0)
+ 		goto unlock;
  
--	if (!pcie_wait_for_link(pdev, true)) {
--		pci_info(pdev, "Data Link Layer Link Active not set in 1000 msec\n");
-+	if (pci_bridge_wait_for_secondary_bus(pdev, "DPC",
-+					      PCIE_RESET_READY_POLL_MS)) {
- 		clear_bit(PCI_DPC_RECOVERED, &pdev->priv_flags);
- 		ret = PCI_ERS_RESULT_DISCONNECT;
- 	} else {
++	ret = file_modified(file);
++	if (ret)
++		goto put_caps;
++
+ 	filemap_invalidate_lock(inode->i_mapping);
+ 	ceph_fscache_invalidate(inode, false);
+ 	ceph_zero_pagecache_range(inode, offset, length);
+@@ -2144,6 +2151,7 @@ static long ceph_fallocate(struct file *
+ 	}
+ 	filemap_invalidate_unlock(inode->i_mapping);
+ 
++put_caps:
+ 	ceph_put_cap_refs(ci, got);
+ unlock:
+ 	inode_unlock(inode);
 
 
