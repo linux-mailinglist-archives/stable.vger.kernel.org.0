@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F466AEAA1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34E086AEEF7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231824AbjCGRfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:35:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41684 "EHLO
+        id S232620AbjCGSTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:19:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231675AbjCGRfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:11 -0500
+        with ESMTP id S231134AbjCGSSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03695A676F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ECDD8EA13
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9260AB819A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC41AC433D2;
-        Tue,  7 Mar 2023 17:31:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF779B8191D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4352AC433D2;
+        Tue,  7 Mar 2023 18:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210276;
-        bh=magvKc9oqzhBIkVOZeadV4RVHiBsvGCswlVrCNyeDcE=;
+        s=korg; t=1678212795;
+        bh=HOxsuVUBfl+D7F19ZyIKj47BOtbQP8UHZbQBJrSecwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EerPGRg3iJHqROTOoja++VwlmeR0sBZW650XHJEdDFt7Gk/w+Zj/9G3P2+J41XWaD
-         yBJFGExNh9gVlWsBOoxnzVD/jDzcQJARTxbOJixePiJmN4ZV4EKLBB0pzFWRyNO2M/
-         qUb4y0pLhYomzPGkT9h5bPU5QuJZr8YypD7l0ges=
+        b=ywWd8bFtk7kag418JfpPiYxQzXCVvH4FPRyCtt4Zm73IiP5BWU9DyWBB+49T00kpW
+         bJU5o3utNDrUA3RLyDH7sHkpjS+4+IhJUxxjwLkqoJvJd/nkGt3WQw73S+G63EkKqX
+         HMo86rDh37tXg85aBmYQrEVcU6MbguUvgwGkwYKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Gruenbacher <agruenba@redhat.com>,
+        patches@lists.linux.dev,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0460/1001] gfs2: jdata writepage fix
-Date:   Tue,  7 Mar 2023 17:53:52 +0100
-Message-Id: <20230307170041.352618068@linuxfoundation.org>
+Subject: [PATCH 6.1 299/885] drm/bridge: lt9611: fix HPD reenablement
+Date:   Tue,  7 Mar 2023 17:53:53 +0100
+Message-Id: <20230307170015.074202886@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit cbb60951ce18c9b6e91d2eb97deb41d8ff616622 ]
+[ Upstream commit a7790f6bd38f3642b60ae3504a2c749135b89451 ]
 
-The ->writepage() and ->writepages() operations are supposed to write
-entire pages.  However, on filesystems with a block size smaller than
-PAGE_SIZE, __gfs2_jdata_writepage() only adds the first block to the
-current transaction instead of adding the entire page.  Fix that.
+The driver will reset the bridge in the atomic_pre_enable(). However
+this will also drop the HPD interrupt state. Instead of resetting the
+bridge, properly wake it up. This fixes the HPD interrupt delivery after
+the disable/enable cycle.
 
-Fixes: 18ec7d5c3f43 ("[GFS2] Make journaled data files identical to normal files on disk")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-3-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/aops.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/aops.c b/fs/gfs2/aops.c
-index e782b4f1d1043..2f04c0ff7470b 100644
---- a/fs/gfs2/aops.c
-+++ b/fs/gfs2/aops.c
-@@ -127,7 +127,6 @@ static int __gfs2_jdata_writepage(struct page *page, struct writeback_control *w
+diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
+index 2714184cc53f4..58f39b2792179 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -856,12 +856,18 @@ static enum drm_mode_status lt9611_bridge_mode_valid(struct drm_bridge *bridge,
+ static void lt9611_bridge_pre_enable(struct drm_bridge *bridge)
  {
- 	struct inode *inode = page->mapping->host;
- 	struct gfs2_inode *ip = GFS2_I(inode);
--	struct gfs2_sbd *sdp = GFS2_SB(inode);
+ 	struct lt9611 *lt9611 = bridge_to_lt9611(bridge);
++	static const struct reg_sequence reg_cfg[] = {
++		{ 0x8102, 0x12 },
++		{ 0x8123, 0x40 },
++		{ 0x8130, 0xea },
++		{ 0x8011, 0xfa },
++	};
  
- 	if (PageChecked(page)) {
- 		ClearPageChecked(page);
-@@ -135,7 +134,7 @@ static int __gfs2_jdata_writepage(struct page *page, struct writeback_control *w
- 			create_empty_buffers(page, inode->i_sb->s_blocksize,
- 					     BIT(BH_Dirty)|BIT(BH_Uptodate));
- 		}
--		gfs2_page_add_databufs(ip, page, 0, sdp->sd_vfs->s_blocksize);
-+		gfs2_page_add_databufs(ip, page, 0, PAGE_SIZE);
- 	}
- 	return gfs2_write_jdata_page(page, wbc);
+ 	if (!lt9611->sleep)
+ 		return;
+ 
+-	lt9611_reset(lt9611);
+-	regmap_write(lt9611->regmap, 0x80ee, 0x01);
++	regmap_multi_reg_write(lt9611->regmap,
++			       reg_cfg, ARRAY_SIZE(reg_cfg));
+ 
+ 	lt9611->sleep = false;
  }
 -- 
 2.39.2
