@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0BFE6AEA0C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 473136AEEA9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230216AbjCGRaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57564 "EHLO
+        id S232408AbjCGSOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:14:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230076AbjCGRaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7CE8E3FB;
-        Tue,  7 Mar 2023 09:25:13 -0800 (PST)
+        with ESMTP id S232524AbjCGSNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9A99F209
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:09:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B657B8199E;
-        Tue,  7 Mar 2023 17:25:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC575C4339B;
-        Tue,  7 Mar 2023 17:25:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 039B861539
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13FA3C43443;
+        Tue,  7 Mar 2023 18:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209911;
-        bh=n+sYdglaMEvderyK4mj/+bor45xNcgO8npFFKiV++ac=;
+        s=korg; t=1678212574;
+        bh=QIY4WRLGyp1gduhGmVfQFdHf05jMUPSHY/6F033D5xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mo5VVQU4iLGV9saV4zbwYjw2iCQmz9/EIT8JDbJD6hlQKS+w+ZglZ+af7x5JOJ6Dp
-         BR4NYEA11LivwtmLR0Dz7015tYv8NW3TYYnROSyQg73k2S+0XjXLhrQs5GZdtc87rw
-         EUs6Xcv+rVEs57lCqZAn9PWs4sEkd2u0mOYKmTis=
+        b=M/YuP6efyebaXrsrWlXeuUfFpS0D9+BwebKqirtKQYmkLfgKY7IS46JHIS4e+JR7K
+         PSxDfKbkuyG/1YNYkiLH6SgGz9RWGyRPnqVWyNhk6njHWwBL+sQzvZf2TFJDZUme5l
+         e3DPDxbvsfLtimkUQTznPlkMzVJ9d0N4t/IwPJPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Jerome Neanne <jneanne@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0372/1001] regulator: tps65219: use IS_ERR() to detect an error pointer
+Subject: [PATCH 6.1 210/885] tap: tap_open(): correctly initialize socket uid
 Date:   Tue,  7 Mar 2023 17:52:24 +0100
-Message-Id: <20230307170037.513069003@linuxfoundation.org>
+Message-Id: <20230307170011.184886842@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,49 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 2bbba115c3c9a647bcb3201b014fcc3728fe75c8 ]
+[ Upstream commit 66b2c338adce580dfce2199591e65e2bab889cff ]
 
-Fix pointer comparison to integer warning from gcc & sparse:
+sock_init_data() assumes that the `struct socket` passed in input is
+contained in a `struct socket_alloc` allocated with sock_alloc().
+However, tap_open() passes a `struct socket` embedded in a `struct
+tap_queue` allocated with sk_alloc().
+This causes a type confusion when issuing a container_of() with
+SOCK_INODE() in sock_init_data() which results in assigning a wrong
+sk_uid to the `struct sock` in input.
+On default configuration, the type confused field overlaps with
+padding bytes between `int vnet_hdr_sz` and `struct tap_dev __rcu
+*tap` in `struct tap_queue`, which makes the uid of all tap sockets 0,
+i.e., the root one.
+Fix the assignment by using sock_init_data_uid().
 
-GCC:
-../drivers/regulator/tps65219-regulator.c:370:26: warning: ordered comparison of pointer with integer zero [-Wextra]
-  370 |                 if (rdev < 0) {
-      |                          ^
-
-sparse warning:
-drivers/regulator/tps65219-regulator.c:370:26: sparse: error: incompatible types for operation (<):
-drivers/regulator/tps65219-regulator.c:370:26: sparse:    struct regulator_dev *[assigned] rdev
-drivers/regulator/tps65219-regulator.c:370:26: sparse:    int
-
-Fixes: c12ac5fc3e0a ("regulator: drivers: Add TI TPS65219 PMIC regulators support")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jerome Neanne <jneanne@baylibre.com>
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: linux-omap@vger.kernel.org
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20230114185736.2076-1-rdunlap@infradead.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 86741ec25462 ("net: core: Add a UID field to struct sock.")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/tps65219-regulator.c | 2 +-
+ drivers/net/tap.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/tps65219-regulator.c b/drivers/regulator/tps65219-regulator.c
-index c484c943e4675..070159cb5f094 100644
---- a/drivers/regulator/tps65219-regulator.c
-+++ b/drivers/regulator/tps65219-regulator.c
-@@ -367,7 +367,7 @@ static int tps65219_regulator_probe(struct platform_device *pdev)
- 		irq_data[i].type = irq_type;
- 
- 		tps65219_get_rdev_by_name(irq_type->regulator_name, rdevtbl, rdev);
--		if (rdev < 0) {
-+		if (IS_ERR(rdev)) {
- 			dev_err(tps->dev, "Failed to get rdev for %s\n",
- 				irq_type->regulator_name);
- 			return -EINVAL;
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 9e75ed3f08ce5..760d8d1b6cba4 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -533,7 +533,7 @@ static int tap_open(struct inode *inode, struct file *file)
+ 	q->sock.state = SS_CONNECTED;
+ 	q->sock.file = file;
+ 	q->sock.ops = &tap_socket_ops;
+-	sock_init_data(&q->sock, &q->sk);
++	sock_init_data_uid(&q->sock, &q->sk, inode->i_uid);
+ 	q->sk.sk_write_space = tap_sock_write_space;
+ 	q->sk.sk_destruct = tap_sock_destruct;
+ 	q->flags = IFF_VNET_HDR | IFF_NO_PI | IFF_TAP;
 -- 
 2.39.2
 
