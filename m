@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C46036AED98
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB056AEDA9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231638AbjCGSFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:05:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37812 "EHLO
+        id S230432AbjCGSGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:06:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232240AbjCGSFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 951C79E64D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:35 -0800 (PST)
+        with ESMTP id S230397AbjCGSGA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:06:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21603433A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:59:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54EA461524
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BF44C433D2;
-        Tue,  7 Mar 2023 17:58:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 330F2B819BF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76145C4339B;
+        Tue,  7 Mar 2023 17:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211914;
-        bh=mkvU2wlEMwNJJYoh/3n1OiSpTRZ1WNPSUojezGiE2sc=;
+        s=korg; t=1678211918;
+        bh=BvY+/T1nsD8ySAE+lIunsZ+RPtsqBPS+v+ljTNAb6/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUE3T5Vhe7TizpCKZIl5jtRpbf/jPQIOwIOxtuPykDIY1j2KD06lOm+jDkrc0d6U/
-         +W441hOX2URacgua0q8dd+1abgtDpEHLPwkTYblwBNfQyx9FLlBDYyPnTu4oZuintu
-         roLnt+FNOjhZE5C/yQYQg62FLwnrzkH9Fi2Q39UY=
+        b=1NP82z5Cz+KPdgua5jAl4j0apfXB1HIRVR42xN3jQ2x2drlEGiUbc4LkU01HbVrn/
+         mWMURMQXyXO1/tQl/CIolNaD0tjOfJPXpltuP/MFPicE7uSxZ5p3l0xvh/l5J9KY/K
+         uzebPfqFO4UZU01OHgUoOr80j4eC2xScVDnaDgb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marijn Suijten <marijn.suijten@somainline.org>,
+        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 008/885] arm64: dts: qcom: sm8150-kumano: Panel framebuffer is 2.5k instead of 4k
-Date:   Tue,  7 Mar 2023 17:49:02 +0100
-Message-Id: <20230307170001.997721581@linuxfoundation.org>
+Subject: [PATCH 6.1 009/885] arm64: dts: qcom: sm6350: Fix up the ramoops node
+Date:   Tue,  7 Mar 2023 17:49:03 +0100
+Message-Id: <20230307170002.037659692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,45 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit be8de06dc397c45cb0f3fe04084089c3f06c419f ]
+[ Upstream commit 3b2ff50da499178cc418f4b319e279d1b52958ed ]
 
-The framebuffer configuration for kumano griffin, written in kumano dtsi
-(which is overwritten in bahamut dts for its smaller panel) has to use a
-1096x2560 configuration as this is what the panel (and framebuffer area)
-has been initialized to.  Downstream userspace also has access to (and
-uses) this 2.5k mode by default, and only switches the panel to 4k when
-requested.
+Fix up the ramoops node to make it match bindings and style:
 
-Fixes: d0a6ce59ea4e ("arm64: dts: qcom: sm8150: Add support for SONY Xperia 1 / 5 (Kumano platform)")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+- remove "removed-dma-pool"
+- don't pad size to 8 hex digits
+- change cc-size to ecc-size so that it's used
+- increase ecc-size from to 16
+- remove the zeroed ftrace-size
+
+Fixes: 5f82b9cda61e ("arm64: dts: qcom: Add SM6350 device tree")
+Reported-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221209191733.1458031-1-marijn.suijten@somainline.org
+Link: https://lore.kernel.org/r/20221210102600.589028-1-konrad.dybcio@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sm6350.dtsi | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi b/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi
-index fb6e5a140c9f6..04c71f74ab72d 100644
---- a/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi
-@@ -33,9 +33,10 @@ chosen {
- 		framebuffer: framebuffer@9c000000 {
- 			compatible = "simple-framebuffer";
- 			reg = <0 0x9c000000 0 0x2300000>;
--			width = <1644>;
--			height = <3840>;
--			stride = <(1644 * 4)>;
-+			/* Griffin BL initializes in 2.5k mode, not 4k */
-+			width = <1096>;
-+			height = <2560>;
-+			stride = <(1096 * 4)>;
- 			format = "a8r8g8b8";
- 			/*
- 			 * That's (going to be) a lot of clocks, but it's necessary due
+diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+index 7be5fc8dec671..35f621ef9da54 100644
+--- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+@@ -342,13 +342,12 @@ last_log_region: memory@ffbc0000 {
+ 		};
+ 
+ 		ramoops: ramoops@ffc00000 {
+-			compatible = "removed-dma-pool", "ramoops";
+-			reg = <0 0xffc00000 0 0x00100000>;
++			compatible = "ramoops";
++			reg = <0 0xffc00000 0 0x100000>;
+ 			record-size = <0x1000>;
+ 			console-size = <0x40000>;
+-			ftrace-size = <0x0>;
+ 			msg-size = <0x20000 0x20000>;
+-			cc-size = <0x0>;
++			ecc-size = <16>;
+ 			no-map;
+ 		};
+ 
 -- 
 2.39.2
 
