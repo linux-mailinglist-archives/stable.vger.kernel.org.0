@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93C3E6AF263
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B3F6AED79
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233234AbjCGSwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:52:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45604 "EHLO
+        id S231475AbjCGSEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:04:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231377AbjCGSwU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:20 -0500
+        with ESMTP id S230016AbjCGSEL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:04:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5C0A7289
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BDFEA42D1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:57:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E1DDB8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F101C433D2;
-        Tue,  7 Mar 2023 18:40:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8FEEB819BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23D6FC433EF;
+        Tue,  7 Mar 2023 17:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214449;
-        bh=8DKi6jLJWsddrL9oib5V4aPk3dIfsblAxqKeXaXfbN8=;
+        s=korg; t=1678211822;
+        bh=kQCBMZKPgC0BBAkomBebG0Dn8XBn8KNowm/ti9tQE14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fg4EMmqXhYfaemx+OE00b9HPjq1WEE86yoI/wU4+NAYifPD1znOhwGDkCd0P6v/GR
-         pMkJuO6RJ1y5JmkoU+LkQiRchWvkJ1FQVnmpy+Jad1C1tPgqL6grgzxRuHF7NT1cF5
-         XRaSVdpm8mFAVesOsn32lwVFRZ+JQzuwFhOpukqU=
+        b=dCi23mNgnl73WS7ag/VoXuzZYJzAr73pLT1fARWLCW9BpPZKFnx41nOWeFU7geZq7
+         6Ns0RIMee69MpjG6yWb6QYOWkWxOY8pGY1dD1gxs75soAJy7MaWl6biEvHIAKQb+rQ
+         Ej5hwoXnXjIgFJNjBOFxdTqjidiv3EZqPTDz3aMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 6.1 826/885] dax/kmem: Fix leak of memory-hotplug resources
+        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Sanjay Kumar <sanjay.k.kumar@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 6.2 0988/1001] iommu/vt-d: Avoid superfluous IOTLB tracking in lazy mode
 Date:   Tue,  7 Mar 2023 18:02:40 +0100
-Message-Id: <20230307170037.747894317@linuxfoundation.org>
+Message-Id: <20230307170105.128550099@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,136 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Jacob Pan <jacob.jun.pan@linux.intel.com>
 
-commit e686c32590f40bffc45f105c04c836ffad3e531a upstream.
+commit 16a75bbe480c3598b3af57a2504ea89b1e32c3ac upstream.
 
-While experimenting with CXL region removal the following corruption of
-/proc/iomem appeared.
+Intel IOMMU driver implements IOTLB flush queue with domain selective
+or PASID selective invalidations. In this case there's no need to track
+IOVA page range and sync IOTLBs, which may cause significant performance
+hit.
 
-Before:
-f010000000-f04fffffff : CXL Window 0
-  f010000000-f02fffffff : region4
-    f010000000-f02fffffff : dax4.0
-      f010000000-f02fffffff : System RAM (kmem)
+This patch adds a check to avoid IOVA gather page and IOTLB sync for
+the lazy path.
 
-After (modprobe -r cxl_test):
-f010000000-f02fffffff : **redacted binary garbage**
-  f010000000-f02fffffff : System RAM (kmem)
+The performance difference on Sapphire Rapids 100Gb NIC is improved by
+the following (as measured by iperf send):
 
-...and testing further the same is visible with persistent memory
-assigned to kmem:
+w/o this fix~48 Gbits/s. with this fix ~54 Gbits/s
 
-Before:
-480000000-243fffffff : Persistent Memory
-  480000000-57e1fffff : namespace3.0
-  580000000-243fffffff : dax3.0
-    580000000-243fffffff : System RAM (kmem)
-
-After (ndctl disable-region all):
-480000000-243fffffff : Persistent Memory
-  580000000-243fffffff : ***redacted binary garbage***
-    580000000-243fffffff : System RAM (kmem)
-
-The corrupted data is from a use-after-free of the "dax4.0" and "dax3.0"
-resources, and it also shows that the "System RAM (kmem)" resource is
-not being removed. The bug does not appear after "modprobe -r kmem", it
-requires the parent of "dax4.0" and "dax3.0" to be removed which
-re-parents the leaked "System RAM (kmem)" instances. Those in turn
-reference the freed resource as a parent.
-
-First up for the fix is release_mem_region_adjustable() needs to
-reliably delete the resource inserted by add_memory_driver_managed().
-That is thwarted by a check for IORESOURCE_SYSRAM that predates the
-dax/kmem driver, from commit:
-
-65c78784135f ("kernel, resource: check for IORESOURCE_SYSRAM in release_mem_region_adjustable")
-
-That appears to be working around the behavior of HMM's
-"MEMORY_DEVICE_PUBLIC" facility that has since been deleted. With that
-check removed the "System RAM (kmem)" resource gets removed, but
-corruption still occurs occasionally because the "dax" resource is not
-reliably removed.
-
-The dax range information is freed before the device is unregistered, so
-the driver can not reliably recall (another use after free) what it is
-meant to release. Lastly if that use after free got lucky, the driver
-was covering up the leak of "System RAM (kmem)" due to its use of
-release_resource() which detaches, but does not free, child resources.
-The switch to remove_resource() forces remove_memory() to be responsible
-for the deletion of the resource added by add_memory_driver_managed().
-
-Fixes: c2f3011ee697 ("device-dax: add an allocation interface for device-dax instances")
 Cc: <stable@vger.kernel.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Reviewed-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/167653656244.3147810.5705900882794040229.stgit@dwillia2-xfh.jf.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 2a2b8eaa5b25 ("iommu: Handle freelists when using deferred flushing in iommu drivers")
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Tested-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Signed-off-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Link: https://lore.kernel.org/r/20230209175330.1783556-1-jacob.jun.pan@linux.intel.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dax/bus.c  |    2 +-
- drivers/dax/kmem.c |    4 ++--
- kernel/resource.c  |   14 --------------
- 3 files changed, 3 insertions(+), 17 deletions(-)
+ drivers/iommu/intel/iommu.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/dax/bus.c
-+++ b/drivers/dax/bus.c
-@@ -427,8 +427,8 @@ static void unregister_dev_dax(void *dev
- 	dev_dbg(dev, "%s\n", __func__);
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -4347,7 +4347,12 @@ static size_t intel_iommu_unmap(struct i
+ 	if (dmar_domain->max_addr == iova + size)
+ 		dmar_domain->max_addr = iova;
  
- 	kill_dev_dax(dev_dax);
--	free_dev_dax_ranges(dev_dax);
- 	device_del(dev);
-+	free_dev_dax_ranges(dev_dax);
- 	put_device(dev);
+-	iommu_iotlb_gather_add_page(domain, gather, iova, size);
++	/*
++	 * We do not use page-selective IOTLB invalidation in flush queue,
++	 * so there is no need to track page and sync iotlb.
++	 */
++	if (!iommu_iotlb_gather_queued(gather))
++		iommu_iotlb_gather_add_page(domain, gather, iova, size);
+ 
+ 	return size;
  }
- 
---- a/drivers/dax/kmem.c
-+++ b/drivers/dax/kmem.c
-@@ -146,7 +146,7 @@ static int dev_dax_kmem_probe(struct dev
- 		if (rc) {
- 			dev_warn(dev, "mapping%d: %#llx-%#llx memory add failed\n",
- 					i, range.start, range.end);
--			release_resource(res);
-+			remove_resource(res);
- 			kfree(res);
- 			data->res[i] = NULL;
- 			if (mapped)
-@@ -195,7 +195,7 @@ static void dev_dax_kmem_remove(struct d
- 
- 		rc = remove_memory(range.start, range_len(&range));
- 		if (rc == 0) {
--			release_resource(data->res[i]);
-+			remove_resource(data->res[i]);
- 			kfree(data->res[i]);
- 			data->res[i] = NULL;
- 			success++;
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -1345,20 +1345,6 @@ retry:
- 			continue;
- 		}
- 
--		/*
--		 * All memory regions added from memory-hotplug path have the
--		 * flag IORESOURCE_SYSTEM_RAM. If the resource does not have
--		 * this flag, we know that we are dealing with a resource coming
--		 * from HMM/devm. HMM/devm use another mechanism to add/release
--		 * a resource. This goes via devm_request_mem_region and
--		 * devm_release_mem_region.
--		 * HMM/devm take care to release their resources when they want,
--		 * so if we are dealing with them, let us just back off here.
--		 */
--		if (!(res->flags & IORESOURCE_SYSRAM)) {
--			break;
--		}
--
- 		if (!(res->flags & IORESOURCE_MEM))
- 			break;
- 
 
 
