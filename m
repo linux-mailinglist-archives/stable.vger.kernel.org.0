@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 925606AF247
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 684066AED59
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233328AbjCGSwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:52:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46632 "EHLO
+        id S231185AbjCGSDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:03:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233331AbjCGSvx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:51:53 -0500
+        with ESMTP id S231610AbjCGSDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:03:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE5EA64BE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8F3ACE3F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0D28B8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049BAC433D2;
-        Tue,  7 Mar 2023 18:40:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0922DB819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75019C4339C;
+        Tue,  7 Mar 2023 17:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214401;
-        bh=KMoasy6dsHqrsxvau8h7dyR+PS523r/BCCpRftr7K1s=;
+        s=korg; t=1678211774;
+        bh=SImXVM1pVWr+m/iM8SNl9XtBcn1kvgY9BQxWI+guvak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQl/wsHloMhoRDgSW1pQtBrTZ0WCsbzZwnA1/MYRWj7EEhhKHppHFGqdJUNQy8bsz
-         q9V9u0852issjHUtn4wUUq8+gFqh20v4/cNyn7pCZ5j2Phnk12o2kB6GWW9KPbOMdg
-         3YhBX9Kp+tcVSinac0I39kXipjNfPS6JR3dehPBU=
+        b=iSHahpwWo55hJWhnogflx9ifeW1gwapssA7EMSskQd04qozZ2Mg2Mz7C5S0ra2RAE
+         +mKH1yxbdVxDKXuF1trZZWHxZQ9xhNyheRJCP05YbU29aVJ5goZUtpw0qnRPuQbSHL
+         FhXy9Sk2YMXATYqBIdJAmfsdomx4ME1cUtzhDSMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.1 811/885] ARM: dts: qcom: sdx55: Add Qcom SMMU-500 as the fallback for IOMMU node
+        patches@lists.linux.dev, Andy Chiu <andy.chiu@sifive.com>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.2 0973/1001] riscv: ftrace: Fixup panic by disabling preemption
 Date:   Tue,  7 Mar 2023 18:02:25 +0100
-Message-Id: <20230307170037.106401351@linuxfoundation.org>
+Message-Id: <20230307170104.449974155@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Andy Chiu <andy.chiu@sifive.com>
 
-commit af4ab377543853b690cc85b4c46cf976ab560dc2 upstream.
+commit 8547649981e6631328cd64f583667501ae385531 upstream.
 
-SDX55 uses the Qcom version of the SMMU-500 IP. So use "qcom,smmu-500"
-compatible as the fallback to the SoC specific compatible.
+In RISCV, we must use an AUIPC + JALR pair to encode an immediate,
+forming a jump that jumps to an address over 4K. This may cause errors
+if we want to enable kernel preemption and remove dependency from
+patching code with stop_machine(). For example, if a task was switched
+out on auipc. And, if we changed the ftrace function before it was
+switched back, then it would jump to an address that has updated 11:0
+bits mixing with previous XLEN:12 part.
 
-Cc: <stable@vger.kernel.org> # 5.12
-Fixes: a2bdfdfba2af ("ARM: dts: qcom: sdx55: Enable ARM SMMU")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230123131931.263024-3-manivannan.sadhasivam@linaro.org
+p: patched area performed by dynamic ftrace
+ftrace_prologue:
+p|      REG_S   ra, -SZREG(sp)
+p|      auipc   ra, 0x? ------------> preempted
+					...
+				change ftrace function
+					...
+p|      jalr    -?(ra) <------------- switched back
+p|      REG_L   ra, -SZREG(sp)
+func:
+	xxx
+	ret
+
+Fixes: afc76b8b8011 ("riscv: Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT")
+Signed-off-by: Andy Chiu <andy.chiu@sifive.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20230112090603.1295340-2-guoren@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/qcom-sdx55.dtsi |    2 +-
+ arch/riscv/Kconfig |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/qcom-sdx55.dtsi
-+++ b/arch/arm/boot/dts/qcom-sdx55.dtsi
-@@ -577,7 +577,7 @@
- 		};
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -138,7 +138,7 @@ config RISCV
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS if HAVE_DYNAMIC_FTRACE
+ 	select HAVE_FTRACE_MCOUNT_RECORD if !XIP_KERNEL
+ 	select HAVE_FUNCTION_GRAPH_TRACER
+-	select HAVE_FUNCTION_TRACER if !XIP_KERNEL
++	select HAVE_FUNCTION_TRACER if !XIP_KERNEL && !PREEMPTION
  
- 		apps_smmu: iommu@15000000 {
--			compatible = "qcom,sdx55-smmu-500", "arm,mmu-500";
-+			compatible = "qcom,sdx55-smmu-500", "qcom,smmu-500", "arm,mmu-500";
- 			reg = <0x15000000 0x20000>;
- 			#iommu-cells = <2>;
- 			#global-interrupts = <1>;
+ config ARCH_MMAP_RND_BITS_MIN
+ 	default 18 if 64BIT
 
 
