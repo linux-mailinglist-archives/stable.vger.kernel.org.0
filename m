@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7B46AED36
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:02:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 284C06AF22E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:51:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbjCGSCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:02:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57720 "EHLO
+        id S233342AbjCGSvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:51:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231204AbjCGSCN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:13 -0500
+        with ESMTP id S232917AbjCGSul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E847AAA26A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A7EBBB1D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:39:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD46EB81850
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D91C433D2;
-        Tue,  7 Mar 2023 17:55:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FE3CB819F0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:39:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE87C4339E;
+        Tue,  7 Mar 2023 18:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211721;
-        bh=7FPfhsixwY3MuYbT2s87ZFNTbxb179HSMv+1ZtweWWA=;
+        s=korg; t=1678214349;
+        bh=UOg8cjxUMEGqTi1wRTkaMoon6t5/I+kBalTaZ3uoNFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xt5i63ijSkpl465vHKn6/V8PVkFr8sqCo+xk2lCQg83eekEIVZ7ryLCihs0tJkKwt
-         v9gCGjPmNIG5XkOweO28TwgMHy00Ls53ptr1YuHU6Eop4X9HGROwEdGRyyuRrWvGHD
-         OWcf/9XqJVkrEXI/dLdzANgBE7WKb2hXVx03Bqog=
+        b=HPcRSPtelOFZXE6wNQZboBaz+2zRwt3SrtOEjZdDnnmgeS0jwPm9s9Hxf8cbLINN3
+         EX/E9ZUnkVwREaZpAW8yIJpwH+MDyjNVNwfPX4BkYRhapsvjyQRrsehwwXViWf4v/f
+         8esaIoLB6iQGeC2Cpdhuo51kYQUjln7ZX+ntICEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.2 0954/1001] tracing/eprobe: Fix to add filter on eprobe description in README file
-Date:   Tue,  7 Mar 2023 18:02:06 +0100
-Message-Id: <20230307170103.554455128@linuxfoundation.org>
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Peter Rajnoha <prajnoha@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.1 793/885] dm: send just one event on resize, not two
+Date:   Tue,  7 Mar 2023 18:02:07 +0100
+Message-Id: <20230307170036.356975738@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 133921530c42960c07d25d12677f9e131a2b0cdf upstream.
+commit 7533afa1d27ba1234146d31d2402c195cf195962 upstream.
 
-Fix to add a description of the filter on eprobe in README file. This
-is required to identify the kernel supports the filter on eprobe or not.
+Device mapper sends an uevent when the device is suspended, using the
+function set_capacity_and_notify. However, this causes a race condition
+with udev.
 
-Link: https://lore.kernel.org/all/167309833728.640500.12232259238201433587.stgit@devnote3/
+Udev skips scanning dm devices that are suspended. If we send an uevent
+while we are suspended, udev will be racing with device mapper resume
+code. If the device mapper resume code wins the race, udev will process
+the uevent after the device is resumed and it will properly scan the
+device.
 
-Fixes: 752be5c5c910 ("tracing/eprobe: Add eprobe filter support")
+However, if udev wins the race, it will receive the uevent, find out that
+the dm device is suspended and skip scanning the device. This causes bugs
+such as systemd unmounting the device - see
+https://bugzilla.redhat.com/show_bug.cgi?id=2158628
+
+This commit fixes this race.
+
+We replace the function set_capacity_and_notify with set_capacity, so that
+the uevent is not sent at this point. In do_resume, we detect if the
+capacity has changed and we pass a boolean variable need_resize_uevent to
+dm_kobject_uevent. dm_kobject_uevent adds "RESIZE=1" to the uevent if
+need_resize_uevent is set.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Tested-by: Peter Rajnoha <prajnoha@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-ioctl.c |   13 ++++++++++---
+ drivers/md/dm.c       |   27 +++++++++++++--------------
+ drivers/md/dm.h       |    2 +-
+ 3 files changed, 24 insertions(+), 18 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5598,7 +5598,7 @@ static const char readme_msg[] =
- #ifdef CONFIG_HIST_TRIGGERS
- 	"\t           s:[synthetic/]<event> <field> [<field>]\n"
- #endif
--	"\t           e[:[<group>/][<event>]] <attached-group>.<attached-event> [<args>]\n"
-+	"\t           e[:[<group>/][<event>]] <attached-group>.<attached-event> [<args>] [if <filter>]\n"
- 	"\t           -:[<group>/][<event>]\n"
- #ifdef CONFIG_KPROBE_EVENTS
- 	"\t    place: [<module>:]<symbol>[+<offset>]|<memaddr>\n"
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -482,7 +482,7 @@ static struct mapped_device *dm_hash_ren
+ 		dm_table_event(table);
+ 	dm_put_live_table(hc->md, srcu_idx);
+ 
+-	if (!dm_kobject_uevent(hc->md, KOBJ_CHANGE, param->event_nr))
++	if (!dm_kobject_uevent(hc->md, KOBJ_CHANGE, param->event_nr, false))
+ 		param->flags |= DM_UEVENT_GENERATED_FLAG;
+ 
+ 	md = hc->md;
+@@ -995,7 +995,7 @@ static int dev_remove(struct file *filp,
+ 
+ 	dm_ima_measure_on_device_remove(md, false);
+ 
+-	if (!dm_kobject_uevent(md, KOBJ_REMOVE, param->event_nr))
++	if (!dm_kobject_uevent(md, KOBJ_REMOVE, param->event_nr, false))
+ 		param->flags |= DM_UEVENT_GENERATED_FLAG;
+ 
+ 	dm_put(md);
+@@ -1129,6 +1129,7 @@ static int do_resume(struct dm_ioctl *pa
+ 	struct hash_cell *hc;
+ 	struct mapped_device *md;
+ 	struct dm_table *new_map, *old_map = NULL;
++	bool need_resize_uevent = false;
+ 
+ 	down_write(&_hash_lock);
+ 
+@@ -1149,6 +1150,8 @@ static int do_resume(struct dm_ioctl *pa
+ 
+ 	/* Do we need to load a new map ? */
+ 	if (new_map) {
++		sector_t old_size, new_size;
++
+ 		/* Suspend if it isn't already suspended */
+ 		if (param->flags & DM_SKIP_LOCKFS_FLAG)
+ 			suspend_flags &= ~DM_SUSPEND_LOCKFS_FLAG;
+@@ -1157,6 +1160,7 @@ static int do_resume(struct dm_ioctl *pa
+ 		if (!dm_suspended_md(md))
+ 			dm_suspend(md, suspend_flags);
+ 
++		old_size = dm_get_size(md);
+ 		old_map = dm_swap_table(md, new_map);
+ 		if (IS_ERR(old_map)) {
+ 			dm_sync_table(md);
+@@ -1164,6 +1168,9 @@ static int do_resume(struct dm_ioctl *pa
+ 			dm_put(md);
+ 			return PTR_ERR(old_map);
+ 		}
++		new_size = dm_get_size(md);
++		if (old_size && new_size && old_size != new_size)
++			need_resize_uevent = true;
+ 
+ 		if (dm_table_get_mode(new_map) & FMODE_WRITE)
+ 			set_disk_ro(dm_disk(md), 0);
+@@ -1176,7 +1183,7 @@ static int do_resume(struct dm_ioctl *pa
+ 		if (!r) {
+ 			dm_ima_measure_on_device_resume(md, new_map ? true : false);
+ 
+-			if (!dm_kobject_uevent(md, KOBJ_CHANGE, param->event_nr))
++			if (!dm_kobject_uevent(md, KOBJ_CHANGE, param->event_nr, need_resize_uevent))
+ 				param->flags |= DM_UEVENT_GENERATED_FLAG;
+ 		}
+ 	}
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -2184,10 +2184,7 @@ static struct dm_table *__bind(struct ma
+ 	if (size != dm_get_size(md))
+ 		memset(&md->geometry, 0, sizeof(md->geometry));
+ 
+-	if (!get_capacity(md->disk))
+-		set_capacity(md->disk, size);
+-	else
+-		set_capacity_and_notify(md->disk, size);
++	set_capacity(md->disk, size);
+ 
+ 	dm_table_event_callback(t, event_callback, md);
+ 
+@@ -2980,23 +2977,25 @@ EXPORT_SYMBOL_GPL(dm_internal_resume_fas
+  * Event notification.
+  *---------------------------------------------------------------*/
+ int dm_kobject_uevent(struct mapped_device *md, enum kobject_action action,
+-		       unsigned cookie)
++		      unsigned cookie, bool need_resize_uevent)
+ {
+ 	int r;
+ 	unsigned noio_flag;
+ 	char udev_cookie[DM_COOKIE_LENGTH];
+-	char *envp[] = { udev_cookie, NULL };
+-
+-	noio_flag = memalloc_noio_save();
+-
+-	if (!cookie)
+-		r = kobject_uevent(&disk_to_dev(md->disk)->kobj, action);
+-	else {
++	char *envp[3] = { NULL, NULL, NULL };
++	char **envpp = envp;
++	if (cookie) {
+ 		snprintf(udev_cookie, DM_COOKIE_LENGTH, "%s=%u",
+ 			 DM_COOKIE_ENV_VAR_NAME, cookie);
+-		r = kobject_uevent_env(&disk_to_dev(md->disk)->kobj,
+-				       action, envp);
++		*envpp++ = udev_cookie;
+ 	}
++	if (need_resize_uevent) {
++		*envpp++ = "RESIZE=1";
++	}
++
++	noio_flag = memalloc_noio_save();
++
++	r = kobject_uevent_env(&disk_to_dev(md->disk)->kobj, action, envp);
+ 
+ 	memalloc_noio_restore(noio_flag);
+ 
+--- a/drivers/md/dm.h
++++ b/drivers/md/dm.h
+@@ -203,7 +203,7 @@ int dm_get_table_device(struct mapped_de
+ void dm_put_table_device(struct mapped_device *md, struct dm_dev *d);
+ 
+ int dm_kobject_uevent(struct mapped_device *md, enum kobject_action action,
+-		      unsigned cookie);
++		      unsigned cookie, bool need_resize_uevent);
+ 
+ void dm_internal_suspend(struct mapped_device *md);
+ void dm_internal_resume(struct mapped_device *md);
 
 
