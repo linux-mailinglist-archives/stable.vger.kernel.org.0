@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6022F6AEC05
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:51:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B606AF14D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232178AbjCGRvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:51:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S229850AbjCGSmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:42:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232233AbjCGRuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEC2EAB89F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:42 -0800 (PST)
+        with ESMTP id S229544AbjCGSlq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAC4699669
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51B4A6150C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B25C433A1;
-        Tue,  7 Mar 2023 17:45:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD3636153B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1402C433D2;
+        Tue,  7 Mar 2023 18:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211141;
-        bh=ZL78J4zIHwT43MjmXKkUgboMX/gi8vgI6IZm0T1mZCs=;
+        s=korg; t=1678213836;
+        bh=8JL3bT9i44hJKKcT8evIpzAZ9F3lTIfuymCR/s290UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FFlDYpJbvGWvq612cqZXLmG5qjV7nxgyZQ/7tNkCSqvjLcBNkcblk3kS6gqyAeTlG
-         tlRf2zmIKgTIM6XkSPZvMng83Yqo3wJG6I5BiEEW2BA29PSk7gWFUszjQ00L0bVING
-         ZF9Q3Qgsn+b96WRtE/5a1mqr+lyCtvS61JhsFK7E=
+        b=2vMAkO9MBHggcbMeCOO9N65iDjmv1fm5YlJhlHbMNgDh4us/ske2XjQTeaPebNbBc
+         ogI55TzsynqYg9ARdu6mVXZWDJKIkyHeBbIQQGpa57CnLz4AXsjyx9ghSk1yXOx48A
+         HEZTHtMARUe1YEGCxpC/c+j0Y3bJDUCeBjGJ6N1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 6.2 0767/1001] s390/kprobes: fix irq mask clobbering on kprobe reenter from post_handler
+        patches@lists.linux.dev, Thomas Zimmermann <tzimmermann@suse.de>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 605/885] Revert "fbcon: dont lose the console font across generic->chip driver switch"
 Date:   Tue,  7 Mar 2023 17:58:59 +0100
-Message-Id: <20230307170055.053333938@linuxfoundation.org>
+Message-Id: <20230307170028.639026702@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,80 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-commit 42e19e6f04984088b6f9f0507c4c89a8152d9730 upstream.
+[ Upstream commit 12d5796d55f9fd9e4b621003127c99e176665064 ]
 
-Recent test_kprobe_missed kprobes kunit test uncovers the following error
-(reported when CONFIG_DEBUG_ATOMIC_SLEEP is enabled):
+This reverts commit ae1287865f5361fa138d4d3b1b6277908b54eac9.
 
-BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
-in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 662, name: kunit_try_catch
-preempt_count: 0, expected: 0
-RCU nest depth: 0, expected: 0
-no locks held by kunit_try_catch/662.
-irq event stamp: 280
-hardirqs last  enabled at (279): [<00000003e60a3d42>] __do_pgm_check+0x17a/0x1c0
-hardirqs last disabled at (280): [<00000003e3bd774a>] kprobe_exceptions_notify+0x27a/0x318
-softirqs last  enabled at (0): [<00000003e3c5c890>] copy_process+0x14a8/0x4c80
-softirqs last disabled at (0): [<0000000000000000>] 0x0
-CPU: 46 PID: 662 Comm: kunit_try_catch Tainted: G                 N 6.2.0-173644-g44c18d77f0c0 #2
-Hardware name: IBM 3931 A01 704 (LPAR)
-Call Trace:
- [<00000003e60a3a00>] dump_stack_lvl+0x120/0x198
- [<00000003e3d02e82>] __might_resched+0x60a/0x668
- [<00000003e60b9908>] __mutex_lock+0xc0/0x14e0
- [<00000003e60bad5a>] mutex_lock_nested+0x32/0x40
- [<00000003e3f7b460>] unregister_kprobe+0x30/0xd8
- [<00000003e51b2602>] test_kprobe_missed+0xf2/0x268
- [<00000003e51b5406>] kunit_try_run_case+0x10e/0x290
- [<00000003e51b7dfa>] kunit_generic_run_threadfn_adapter+0x62/0xb8
- [<00000003e3ce30f8>] kthread+0x2d0/0x398
- [<00000003e3b96afa>] __ret_from_fork+0x8a/0xe8
- [<00000003e60ccada>] ret_from_fork+0xa/0x40
+Always free the console font when deinitializing the framebuffer
+console. Subsequent framebuffer consoles will then use the default
+font. Rely on userspace to load any user-configured font for these
+consoles.
 
-The reason for this error report is that kprobes handling code failed
-to restore irqs.
+Commit ae1287865f53 ("fbcon: don't lose the console font across
+generic->chip driver switch") was introduced to work around losing
+the font during graphics-device handover. [1][2] It kept a dangling
+pointer with the font data between loading the two consoles, which is
+fairly adventurous hack. It also never covered cases when the other
+consoles, such as VGA text mode, where involved.
 
-The problem is that when kprobe is triggered from another kprobe
-post_handler current sequence of enable_singlestep / disable_singlestep
-is the following:
-enable_singlestep  <- original kprobe (saves kprobe_saved_imask)
-enable_singlestep  <- kprobe triggered from post_handler (clobbers kprobe_saved_imask)
-disable_singlestep <- kprobe triggered from post_handler (restores kprobe_saved_imask)
-disable_singlestep <- original kprobe (restores wrong clobbered kprobe_saved_imask)
+The problem has meanwhile been solved in userspace. Systemd comes
+with a udev rule that re-installs the configured font when a console
+comes up. [3] So the kernel workaround can be removed.
 
-There is just one kprobe_ctlblk per cpu and both calls saves and
-loads irq mask to kprobe_saved_imask. To fix the problem simply move
-resume_execution (which calls disable_singlestep) before calling
-post_handler. This also fixes the problem that post_handler is called
-with pt_regs which were not yet adjusted after single-stepping.
+This also removes one of the two special cases triggered by setting
+FBINFO_MISC_FIRMWARE in an fbdev driver.
 
-Cc: stable@vger.kernel.org
-Fixes: 4ba069b802c2 ("[S390] add kprobes support.")
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested during device handover from efifb and simpledrm to radeon. Udev
+reloads the configured console font for the new driver's terminal.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=892340 # 1
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1074624 # 2
+Link: https://cgit.freedesktop.org/systemd/systemd/tree/src/vconsole/90-vconsole.rules.in?h=v222 # 3
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221219160516.23436-3-tzimmermann@suse.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/kprobes.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbcon.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
---- a/arch/s390/kernel/kprobes.c
-+++ b/arch/s390/kernel/kprobes.c
-@@ -432,12 +432,11 @@ static int post_kprobe_handler(struct pt
- 	if (!p)
- 		return 0;
+diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+index 1b14c21af2b74..2bc8baa90c0f2 100644
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -958,7 +958,7 @@ static const char *fbcon_startup(void)
+ 	set_blitting_type(vc, info);
  
-+	resume_execution(p, regs);
- 	if (kcb->kprobe_status != KPROBE_REENTER && p->post_handler) {
- 		kcb->kprobe_status = KPROBE_HIT_SSDONE;
- 		p->post_handler(p, regs, 0);
+ 	/* Setup default font */
+-	if (!p->fontdata && !vc->vc_font.data) {
++	if (!p->fontdata) {
+ 		if (!fontname[0] || !(font = find_font(fontname)))
+ 			font = get_default_font(info->var.xres,
+ 						info->var.yres,
+@@ -968,8 +968,6 @@ static const char *fbcon_startup(void)
+ 		vc->vc_font.height = font->height;
+ 		vc->vc_font.data = (void *)(p->fontdata = font->data);
+ 		vc->vc_font.charcount = font->charcount;
+-	} else {
+-		p->fontdata = vc->vc_font.data;
  	}
--
--	resume_execution(p, regs);
- 	pop_kprobe(kcb);
- 	preempt_enable_no_resched();
  
+ 	cols = FBCON_SWAP(ops->rotate, info->var.xres, info->var.yres);
+@@ -1135,9 +1133,9 @@ static void fbcon_init(struct vc_data *vc, int init)
+ 	ops->p = &fb_display[fg_console];
+ }
+ 
+-static void fbcon_free_font(struct fbcon_display *p, bool freefont)
++static void fbcon_free_font(struct fbcon_display *p)
+ {
+-	if (freefont && p->userfont && p->fontdata && (--REFCOUNT(p->fontdata) == 0))
++	if (p->userfont && p->fontdata && (--REFCOUNT(p->fontdata) == 0))
+ 		kfree(p->fontdata - FONT_EXTRA_WORDS * sizeof(int));
+ 	p->fontdata = NULL;
+ 	p->userfont = 0;
+@@ -1172,8 +1170,8 @@ static void fbcon_deinit(struct vc_data *vc)
+ 	struct fb_info *info;
+ 	struct fbcon_ops *ops;
+ 	int idx;
+-	bool free_font = true;
+ 
++	fbcon_free_font(p);
+ 	idx = con2fb_map[vc->vc_num];
+ 
+ 	if (idx == -1)
+@@ -1184,8 +1182,6 @@ static void fbcon_deinit(struct vc_data *vc)
+ 	if (!info)
+ 		goto finished;
+ 
+-	if (info->flags & FBINFO_MISC_FIRMWARE)
+-		free_font = false;
+ 	ops = info->fbcon_par;
+ 
+ 	if (!ops)
+@@ -1197,9 +1193,8 @@ static void fbcon_deinit(struct vc_data *vc)
+ 	ops->initialized = false;
+ finished:
+ 
+-	fbcon_free_font(p, free_font);
+-	if (free_font)
+-		vc->vc_font.data = NULL;
++	fbcon_free_font(p);
++	vc->vc_font.data = NULL;
+ 
+ 	if (vc->vc_hi_font_mask && vc->vc_screenbuf)
+ 		set_vc_hi_font(vc, false);
+-- 
+2.39.2
+
 
 
