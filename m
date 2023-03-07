@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37FB76AEB1A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:40:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3879F6AF2FB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231835AbjCGRk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:40:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50336 "EHLO
+        id S233542AbjCGS6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:58:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231947AbjCGRkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:12 -0500
+        with ESMTP id S233507AbjCGS5x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694DD9E51E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:36:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DCCB79E9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08EC261520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:36:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F24C3C433D2;
-        Tue,  7 Mar 2023 17:36:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 316286150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25C23C4339C;
+        Tue,  7 Mar 2023 18:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210570;
-        bh=FO9ouAa5rATCJduQ6vm2USYRmIMUEfyeNf+JC8crKXs=;
+        s=korg; t=1678214718;
+        bh=nN9UHVg1y2giMF2UVgCSbCKVXlVc41JyuHah5rIo2X8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pep9T9LYfN4k568sDRpKlnYdq3TTDYNY50tlKyaoeY8DA3Q90Jj4xVKWOqiz7euAy
-         ofGDrQImisD4EiCabq/yiKyUW11mB87UTr1nxfgugy/GmGva8u645WUBsiAXl4wMBV
-         6KUCIBp3ETftmsKPUbvz8OnTlIUEoQ0oIjAlzJC0=
+        b=V8OPn3M3uakjAAf65QrMOkGsCed9tYDaIz3DEJauoHPBR2WZqxdnz68iy7zz5oYZw
+         Yle50nA/EEebu9ffvDDU3lUY6VM1GXfWbWOgIHxHAxe6sA3MNWJ5q3Ekmzw04qMPF6
+         msKkb1CilFeYEgNg1L5vzRvr4zHBbOCelZTPCIEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Petr Vorel <petr.vorel@gmail.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0583/1001] media: ti: cal: fix possible memory leak in cal_ctx_create()
+Subject: [PATCH 5.15 019/567] arm64: dts: qcom: msm8992-bullhead: Fix cont_splash_mem size
 Date:   Tue,  7 Mar 2023 17:55:55 +0100
-Message-Id: <20230307170046.780671838@linuxfoundation.org>
+Message-Id: <20230307165906.670510550@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-[ Upstream commit 7acd650a0484d92985a0d6d867d980c6dd019885 ]
+[ Upstream commit 26a91359aea4d89e7d3646d806eed0f3755b74bd ]
 
-The memory of ctx is allocated in cal_ctx_create(), but it will
-not be freed when cal_ctx_v4l2_init() fails, so add kfree() when
-cal_ctx_v4l2_init() fails to fix it.
+Original google firmware reports 12 MiB:
+[    0.000000] cma: Found cont_splash_mem@0, memory base 0x0000000003400000, size 12 MiB, limit 0xffffffffffffffff
 
-Fixes: d68a94e98a89 ("media: ti-vpe: cal: Split video device initialization and registration")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+which is actually 12*1024*1024 = 0xc00000.
+
+This matches the aosp source [1]:
+&cont_splash_mem {
+	reg = <0 0x03400000 0 0xc00000>;
+};
+
+Fixes: 3cb6a271f4b0 ("arm64: dts: qcom: msm8992-bullhead: Fix cont_splash_mem mapping")
+Fixes: 976d321f32dc ("arm64: dts: qcom: msm8992: Make the DT an overlay on top of 8994")
+
+[1] https://android.googlesource.com/kernel/msm.git/+/android-7.0.0_r0.17/arch/arm64/boot/dts/lge/msm8992-bullhead.dtsi#141
+
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221226185440.440968-2-pevik@seznam.cz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti/cal/cal.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/ti/cal/cal.c b/drivers/media/platform/ti/cal/cal.c
-index 56b61c0583cf8..1236215ec70eb 100644
---- a/drivers/media/platform/ti/cal/cal.c
-+++ b/drivers/media/platform/ti/cal/cal.c
-@@ -1050,8 +1050,10 @@ static struct cal_ctx *cal_ctx_create(struct cal_dev *cal, int inst)
- 	ctx->cport = inst;
+diff --git a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
+index d7d06553bf9ec..8e20bb13bd65e 100644
+--- a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
++++ b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /* Copyright (c) 2015, LGE Inc. All rights reserved.
+  * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+- * Copyright (c) 2021, Petr Vorel <petr.vorel@gmail.com>
++ * Copyright (c) 2021-2022, Petr Vorel <petr.vorel@gmail.com>
+  * Copyright (c) 2022, Dominik Kobinski <dominikkobinski314@gmail.com>
+  */
  
- 	ret = cal_ctx_v4l2_init(ctx);
--	if (ret)
-+	if (ret) {
-+		kfree(ctx);
- 		return NULL;
-+	}
+@@ -48,7 +48,7 @@ ramoops@1ff00000 {
+ 		};
  
- 	return ctx;
- }
+ 		cont_splash_mem: memory@3400000 {
+-			reg = <0 0x03400000 0 0x1200000>;
++			reg = <0 0x03400000 0 0xc00000>;
+ 			no-map;
+ 		};
+ 
 -- 
 2.39.2
 
