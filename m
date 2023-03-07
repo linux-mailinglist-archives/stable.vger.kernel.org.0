@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF256AF03F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA676AF315
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233009AbjCGS3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:29:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58116 "EHLO
+        id S232299AbjCGTAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:00:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232869AbjCGS3N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:13 -0500
+        with ESMTP id S233576AbjCGS7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:59:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C6AB04AD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:22:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC561CDA37
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23B4061526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:22:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F3CC4339B;
-        Tue,  7 Mar 2023 18:22:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66CFB61535
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:46:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D449C433EF;
+        Tue,  7 Mar 2023 18:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213334;
-        bh=sudEGX5W3BmZp3WlcZvi252H6S5xawGJzPodbomXd9o=;
+        s=korg; t=1678214766;
+        bh=+rws6bpR+C+r6X1Nh5EPieRoYEXi11Jx82BT558iZSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bro+9CM2qaxqRFRKa0C4KgJn7x78glqSeidi/BQdumYKAR7TSUYcE52O0Obwrk/GR
-         JTAU2FCQegxMdv+fs1EHTR4U4u2sL5J/PqlI9FkLgDuTosuN56MRxtX5r26pZcxyzr
-         HNZdEXv0N5GbuXwHqDhu6h+nnONpa9qpg5cis2Hg=
+        b=ckebioMI2cIAdmSg9+yqPtH8vYdhk5N8Ng0mGt2wx/fwlG6kcIsmznSBZR4+2IhlI
+         blEBsSCKYcZhdG+91wXOxAOSBJJSjcAzF+6xm59zazqhLgxArvHtpmLIQl3Sjngh2v
+         AADEunraYENwpraVd1EBp6kjmrHto/0HWNFjnRmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 444/885] drivers: base: transport_class: fix possible memory leak
+Subject: [PATCH 5.15 042/567] arm64: dts: amlogic: meson-sm1-bananapi-m5: fix adc keys node names
 Date:   Tue,  7 Mar 2023 17:56:18 +0100
-Message-Id: <20230307170021.735702114@linuxfoundation.org>
+Message-Id: <20230307165907.758234544@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Neil Armstrong <neil.armstrong@linaro.org>
 
-[ Upstream commit a86367803838b369fe5486ac18771d14723c258c ]
+[ Upstream commit d519a73332b6c3d14e15f8fd20d7c6f29ed13d41 ]
 
-Current some drivers(like iscsi) call transport_register_device()
-failed, they don't call transport_destroy_device() to release the
-memory allocated in transport_setup_device(), because they don't
-know what was done, it should be internal thing to release the
-resource in register function. So fix this leak by calling destroy
-function inside register function.
+Fixes:
+adc_keys: 'key' does not match any of the regexes: '^button-', 'pinctrl-[0-9]+'
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221110102307.3492557-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also fix the invalid "adc_keys" node name.
+
+Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-11-44351528957e@linaro.org
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/transport_class.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/transport_class.h b/include/linux/transport_class.h
-index 63076fb835e34..2efc271a96fa6 100644
---- a/include/linux/transport_class.h
-+++ b/include/linux/transport_class.h
-@@ -70,8 +70,14 @@ void transport_destroy_device(struct device *);
- static inline int
- transport_register_device(struct device *dev)
- {
-+	int ret;
-+
- 	transport_setup_device(dev);
--	return transport_add_device(dev);
-+	ret = transport_add_device(dev);
-+	if (ret)
-+		transport_destroy_device(dev);
-+
-+	return ret;
- }
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
+index cadba194b149b..6d0db667581fa 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
+@@ -17,13 +17,13 @@ / {
+ 	compatible = "bananapi,bpi-m5", "amlogic,sm1";
+ 	model = "Banana Pi BPI-M5";
  
- static inline void
+-	adc_keys {
++	adc-keys {
+ 		compatible = "adc-keys";
+ 		io-channels = <&saradc 2>;
+ 		io-channel-names = "buttons";
+ 		keyup-threshold-microvolt = <1800000>;
+ 
+-		key {
++		button-sw3 {
+ 			label = "SW3";
+ 			linux,code = <BTN_3>;
+ 			press-threshold-microvolt = <1700000>;
 -- 
 2.39.2
 
