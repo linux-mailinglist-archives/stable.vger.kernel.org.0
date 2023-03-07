@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D896AF29B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F03666AF29D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233442AbjCGSyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:54:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49758 "EHLO
+        id S231462AbjCGSyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:54:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233444AbjCGSyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:01 -0500
+        with ESMTP id S233352AbjCGSyD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97373C223A;
-        Tue,  7 Mar 2023 10:41:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C936B3713
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E728661522;
-        Tue,  7 Mar 2023 18:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D588CC433EF;
-        Tue,  7 Mar 2023 18:41:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2B5B61526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:41:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0103C4339C;
+        Tue,  7 Mar 2023 18:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214498;
-        bh=SSTfoSVqUu/8IxWgP9kZoKE212j3zuX6BvOE1s6sczc=;
+        s=korg; t=1678214501;
+        bh=5yor1Maca0M3D9PlV2OKvTT10RlgUPW9wJN8/wPzutg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzwtyBxGPgNr/gJ25y0rNzY/XpBESBjACk3nFx4j8wswW9rVnFvEGeIyC8/wXW1PE
-         N+nCiuAo/BQxZ6PKNN6cY2BP57BFve7nQEq4LdaYGVApQi5biisVpt/NeXxXPwXdp5
-         C4H3lj6GjcIf1ex+mzwIUf8qc4kViVAfB10hg5KU=
+        b=P3SwDkaqmd/bcN7+SAqNZRGaCJe8o9m7vMt2+EvlVkKqjgFJQl65EujKr2weAjesO
+         Ino1ygaK/3SfWBMS5LM0gcgOG6TwAjk3s4iphV+9uZxIgxUKVCULTnT4o6BHRYZo3W
+         RXMegGVThxCMN4IGE4ZNRYXWuOr+n4psnEMBCByw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.de>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Adaptec OEM Raid Solutions <aacraid@microsemi.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Vegard Nossum <vegard.nossum@oracle.com>
-Subject: [PATCH 6.1 843/885] scsi: aacraid: Allocate cmd_priv with scsicmd
-Date:   Tue,  7 Mar 2023 18:02:57 +0100
-Message-Id: <20230307170038.454065418@linuxfoundation.org>
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Yi Zhang <yi.zhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.1 844/885] scsi: core: Remove the /proc/scsi/${proc_name} directory earlier
+Date:   Tue,  7 Mar 2023 18:02:58 +0100
+Message-Id: <20230307170038.484933728@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -59,77 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 7ab734fc759828707dae22fe48b1eb4dcf70beea upstream.
+commit fc663711b94468f4e1427ebe289c9f05669699c9 upstream.
 
-The aac_priv() helper assumes that the private cmd area immediately follows
-struct scsi_cmnd. Allocate this space as part of scsicmd, else there is a
-risk of heap overflow. Seen with GCC 13:
+Remove the /proc/scsi/${proc_name} directory earlier to fix a race
+condition between unloading and reloading kernel modules. This fixes a bug
+introduced in 2009 by commit 77c019768f06 ("[SCSI] fix /proc memory leak in
+the SCSI core").
 
-../drivers/scsi/aacraid/aachba.c: In function 'aac_probe_container':
-../drivers/scsi/aacraid/aachba.c:841:26: warning: array subscript 16 is outside array bounds of 'void[392]' [-Warray-bounds=]
-  841 |         status = cmd_priv->status;
-      |                          ^~
-In file included from ../include/linux/resource_ext.h:11,
-                 from ../include/linux/pci.h:40,
-                 from ../drivers/scsi/aacraid/aachba.c:22:
-In function 'kmalloc',
-    inlined from 'kzalloc' at ../include/linux/slab.h:720:9,
-    inlined from 'aac_probe_container' at ../drivers/scsi/aacraid/aachba.c:821:30:
-../include/linux/slab.h:580:24: note: at offset 392 into object of size 392 allocated by 'kmalloc_trace'
-  580 |                 return kmalloc_trace(
-      |                        ^~~~~~~~~~~~~~
-  581 |                                 kmalloc_caches[kmalloc_type(flags)][index],
-      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  582 |                                 flags, size);
-      |                                 ~~~~~~~~~~~~
+Fix the following kernel warning:
 
-Fixes: 76a3451b64c6 ("scsi: aacraid: Move the SCSI pointer to private command data")
-Link: https://lore.kernel.org/r/20230128000409.never.976-kees@kernel.org
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Hannes Reinecke <hare@suse.de>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-Cc: Adaptec OEM Raid Solutions <aacraid@microsemi.com>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org
+proc_dir_entry 'scsi/scsi_debug' already registered
+WARNING: CPU: 19 PID: 27986 at fs/proc/generic.c:376 proc_register+0x27d/0x2e0
+Call Trace:
+ proc_mkdir+0xb5/0xe0
+ scsi_proc_hostdir_add+0xb5/0x170
+ scsi_host_alloc+0x683/0x6c0
+ sdebug_driver_probe+0x6b/0x2d0 [scsi_debug]
+ really_probe+0x159/0x540
+ __driver_probe_device+0xdc/0x230
+ driver_probe_device+0x4f/0x120
+ __device_attach_driver+0xef/0x180
+ bus_for_each_drv+0xe5/0x130
+ __device_attach+0x127/0x290
+ device_initial_probe+0x17/0x20
+ bus_probe_device+0x110/0x130
+ device_add+0x673/0xc80
+ device_register+0x1e/0x30
+ sdebug_add_host_helper+0x1a7/0x3b0 [scsi_debug]
+ scsi_debug_init+0x64f/0x1000 [scsi_debug]
+ do_one_initcall+0xd7/0x470
+ do_init_module+0xe7/0x330
+ load_module+0x122a/0x12c0
+ __do_sys_finit_module+0x124/0x1a0
+ __x64_sys_finit_module+0x46/0x50
+ do_syscall_64+0x38/0x80
+ entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Link: https://lore.kernel.org/r/20230210205200.36973-3-bvanassche@acm.org
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Yi Zhang <yi.zhang@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Vegard Nossum <vegard.nossum@oracle.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Fixes: 77c019768f06 ("[SCSI] fix /proc memory leak in the SCSI core")
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/aacraid/aachba.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/hosts.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/aacraid/aachba.c b/drivers/scsi/aacraid/aachba.c
-index 4d4cb47b3846..24c049eff157 100644
---- a/drivers/scsi/aacraid/aachba.c
-+++ b/drivers/scsi/aacraid/aachba.c
-@@ -818,8 +818,8 @@ static void aac_probe_container_scsi_done(struct scsi_cmnd *scsi_cmnd)
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -181,6 +181,7 @@ void scsi_remove_host(struct Scsi_Host *
+ 	scsi_forget_host(shost);
+ 	mutex_unlock(&shost->scan_mutex);
+ 	scsi_proc_host_rm(shost);
++	scsi_proc_hostdir_rm(shost->hostt);
  
- int aac_probe_container(struct aac_dev *dev, int cid)
- {
--	struct scsi_cmnd *scsicmd = kzalloc(sizeof(*scsicmd), GFP_KERNEL);
--	struct aac_cmd_priv *cmd_priv = aac_priv(scsicmd);
-+	struct aac_cmd_priv *cmd_priv;
-+	struct scsi_cmnd *scsicmd = kzalloc(sizeof(*scsicmd) + sizeof(*cmd_priv), GFP_KERNEL);
- 	struct scsi_device *scsidev = kzalloc(sizeof(*scsidev), GFP_KERNEL);
- 	int status;
+ 	/*
+ 	 * New SCSI devices cannot be attached anymore because of the SCSI host
+@@ -340,6 +341,7 @@ static void scsi_host_dev_release(struct
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
  
-@@ -838,6 +838,7 @@ int aac_probe_container(struct aac_dev *dev, int cid)
- 		while (scsicmd->device == scsidev)
- 			schedule();
- 	kfree(scsidev);
-+	cmd_priv = aac_priv(scsicmd);
- 	status = cmd_priv->status;
- 	kfree(scsicmd);
- 	return status;
--- 
-2.39.2
-
++	/* In case scsi_remove_host() has not been called. */
+ 	scsi_proc_hostdir_rm(shost->hostt);
+ 
+ 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
 
 
