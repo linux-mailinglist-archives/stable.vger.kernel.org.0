@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EDF76AE979
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C556AEE06
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbjCGRYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:24:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
+        id S232332AbjCGSJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:09:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231454AbjCGRYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:24:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84438A2278
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:37 -0800 (PST)
+        with ESMTP id S232334AbjCGSIw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6215231CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F7626150C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16BB9C433A4;
-        Tue,  7 Mar 2023 17:19:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FD51B819BA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5F79C433EF;
+        Tue,  7 Mar 2023 18:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209576;
-        bh=8VzJnpP/vL8Hm15qv9EuWG9UjYcoPmucC/2RrPSwafs=;
+        s=korg; t=1678212182;
+        bh=Dt9QAMKPw+Z1C0SFGdnrRflwdCKsaO31FmicX3CvGnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jF2uzowHyaPDMzmDi04sw7q9WAe9SM+gLxTG+txWn+OrbXkl2U+2hnbZJNIJaW1V+
-         eGrV16DdmrSazKnl1VNzPorRcmSJr10AE9lCWPALHPhbNB+dt2X5BY9JjGa++teg0K
-         l7I7wO1iFHVXATlm3N9Q20uaLpJZIsvukAgfStjI=
+        b=uoFzz/5lkwAZ+S9YGNHffe911/OKe1n2LqqAhhJaCVpFIZAwdEoR37mT+FqPPj1Eb
+         JlDlOn2ew3jFQoCza9kPGfNV66OklpFMss1gwMb4O5HXdaQhZmDEalryHt3mnTS4BM
+         O019CrLmTVUVRnOo7/yPWLoO19FRgTbx4GfiGkjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Liu Xiaodong <xiaodong.liu@intel.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0264/1001] net: add sock_init_data_uid()
-Date:   Tue,  7 Mar 2023 17:50:36 +0100
-Message-Id: <20230307170033.197562037@linuxfoundation.org>
+Subject: [PATCH 6.1 103/885] block: ublk: check IO buffer based on flag need_get_data
+Date:   Tue,  7 Mar 2023 17:50:37 +0100
+Message-Id: <20230307170006.348647958@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Liu Xiaodong <xiaodong.liu@intel.com>
 
-[ Upstream commit 584f3742890e966d2f0a1f3c418c9ead70b2d99e ]
+[ Upstream commit 2f1e07dda1e1310873647abc40bbc49eaf3b10e3 ]
 
-Add sock_init_data_uid() to explicitly initialize the socket uid.
-To initialise the socket uid, sock_init_data() assumes a the struct
-socket* sock is always embedded in a struct socket_alloc, used to
-access the corresponding inode uid. This may not be true.
-Examples are sockets created in tun_chr_open() and tap_open().
+Currently, uring_cmd with UBLK_IO_FETCH_REQ or
+UBLK_IO_COMMIT_AND_FETCH_REQ is always checked whether
+userspace server has provided IO buffer even flag
+UBLK_F_NEED_GET_DATA is configured.
 
-Fixes: 86741ec25462 ("net: core: Add a UID field to struct sock.")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is a excessive check. If UBLK_F_NEED_GET_DATA is
+configured, FETCH_RQ doesn't need to provide IO buffer;
+COMMIT_AND_FETCH_REQ also doesn't need to do that if
+the IO type is not READ.
+
+Check ub_cmd->addr together with ublk_need_get_data()
+and IO type in ublk_ch_uring_cmd().
+
+With this fix, userspace server doesn't need to preserve
+buffers for every ublk_io when flag UBLK_F_NEED_GET_DATA
+is configured, in order to save memory.
+
+Signed-off-by: Liu Xiaodong <xiaodong.liu@intel.com>
+Fixes: c86019ff75c1 ("ublk_drv: add support for UBLK_IO_NEED_GET_DATA")
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20230210141356.112321-1-xiaodong.liu@intel.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h |  7 ++++++-
- net/core/sock.c    | 15 ++++++++++++---
- 2 files changed, 18 insertions(+), 4 deletions(-)
+ drivers/block/ublk_drv.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 5562097276336..c6584a3524638 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1956,7 +1956,12 @@ void sk_common_release(struct sock *sk);
-  *	Default socket callbacks and setup code
-  */
+diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
+index 450bd54fd0061..4aec9be0ab77e 100644
+--- a/drivers/block/ublk_drv.c
++++ b/drivers/block/ublk_drv.c
+@@ -1206,6 +1206,7 @@ static int ublk_ch_uring_cmd(struct io_uring_cmd *cmd, unsigned int issue_flags)
+ 	u32 cmd_op = cmd->cmd_op;
+ 	unsigned tag = ub_cmd->tag;
+ 	int ret = -EINVAL;
++	struct request *req;
  
--/* Initialise core socket variables */
-+/* Initialise core socket variables using an explicit uid. */
-+void sock_init_data_uid(struct socket *sock, struct sock *sk, kuid_t uid);
-+
-+/* Initialise core socket variables.
-+ * Assumes struct socket *sock is embedded in a struct socket_alloc.
-+ */
- void sock_init_data(struct socket *sock, struct sock *sk);
- 
- /*
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 6f27c24016fee..63680f999bf6d 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3381,7 +3381,7 @@ void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer)
- }
- EXPORT_SYMBOL(sk_stop_timer_sync);
- 
--void sock_init_data(struct socket *sock, struct sock *sk)
-+void sock_init_data_uid(struct socket *sock, struct sock *sk, kuid_t uid)
- {
- 	sk_init_common(sk);
- 	sk->sk_send_head	=	NULL;
-@@ -3401,11 +3401,10 @@ void sock_init_data(struct socket *sock, struct sock *sk)
- 		sk->sk_type	=	sock->type;
- 		RCU_INIT_POINTER(sk->sk_wq, &sock->wq);
- 		sock->sk	=	sk;
--		sk->sk_uid	=	SOCK_INODE(sock)->i_uid;
- 	} else {
- 		RCU_INIT_POINTER(sk->sk_wq, NULL);
--		sk->sk_uid	=	make_kuid(sock_net(sk)->user_ns, 0);
- 	}
-+	sk->sk_uid	=	uid;
- 
- 	rwlock_init(&sk->sk_callback_lock);
- 	if (sk->sk_kern_sock)
-@@ -3463,6 +3462,16 @@ void sock_init_data(struct socket *sock, struct sock *sk)
- 	refcount_set(&sk->sk_refcnt, 1);
- 	atomic_set(&sk->sk_drops, 0);
- }
-+EXPORT_SYMBOL(sock_init_data_uid);
-+
-+void sock_init_data(struct socket *sock, struct sock *sk)
-+{
-+	kuid_t uid = sock ?
-+		SOCK_INODE(sock)->i_uid :
-+		make_kuid(sock_net(sk)->user_ns, 0);
-+
-+	sock_init_data_uid(sock, sk, uid);
-+}
- EXPORT_SYMBOL(sock_init_data);
- 
- void lock_sock_nested(struct sock *sk, int subclass)
+ 	pr_devel("%s: received: cmd op %d queue %d tag %d result %d\n",
+ 			__func__, cmd->cmd_op, ub_cmd->q_id, tag,
+@@ -1256,8 +1257,8 @@ static int ublk_ch_uring_cmd(struct io_uring_cmd *cmd, unsigned int issue_flags)
+ 		 */
+ 		if (io->flags & UBLK_IO_FLAG_OWNED_BY_SRV)
+ 			goto out;
+-		/* FETCH_RQ has to provide IO buffer */
+-		if (!ub_cmd->addr)
++		/* FETCH_RQ has to provide IO buffer if NEED GET DATA is not enabled */
++		if (!ub_cmd->addr && !ublk_need_get_data(ubq))
+ 			goto out;
+ 		io->cmd = cmd;
+ 		io->flags |= UBLK_IO_FLAG_ACTIVE;
+@@ -1266,8 +1267,12 @@ static int ublk_ch_uring_cmd(struct io_uring_cmd *cmd, unsigned int issue_flags)
+ 		ublk_mark_io_ready(ub, ubq);
+ 		break;
+ 	case UBLK_IO_COMMIT_AND_FETCH_REQ:
+-		/* FETCH_RQ has to provide IO buffer */
+-		if (!ub_cmd->addr)
++		req = blk_mq_tag_to_rq(ub->tag_set.tags[ub_cmd->q_id], tag);
++		/*
++		 * COMMIT_AND_FETCH_REQ has to provide IO buffer if NEED GET DATA is
++		 * not enabled or it is Read IO.
++		 */
++		if (!ub_cmd->addr && (!ublk_need_get_data(ubq) || req_op(req) == REQ_OP_READ))
+ 			goto out;
+ 		if (!(io->flags & UBLK_IO_FLAG_OWNED_BY_SRV))
+ 			goto out;
 -- 
 2.39.2
 
