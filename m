@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EAAF6AF168
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:43:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4EAA6AEBB5
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232771AbjCGSnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:43:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55214 "EHLO
+        id S232147AbjCGRsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:48:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233099AbjCGSnB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:43:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A3D92BED
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:33:20 -0800 (PST)
+        with ESMTP id S232200AbjCGRro (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29AEF6233A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BF6CB819DC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5800EC433D2;
-        Tue,  7 Mar 2023 18:27:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94399614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E12BC433EF;
+        Tue,  7 Mar 2023 17:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213635;
-        bh=iOmt3RrNlbIEjx/KReScnh9+gup0ENoJQXZIu7UBVKU=;
+        s=korg; t=1678210936;
+        bh=HHqz1FCC9gX9Ud92cqAbmZ7w/4XG6y8eRiWOVWIJ4zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEq1zwOQCSUwB/HHXdxBb8Y2sfeUp5BMUNWWc4/QvjY8yRkWtuq4Oul95+JHxZm7M
-         +YRfNyt2THFdOZis3dSSZgSESZaA2G3I2pJ5RsoKuKezsID6TKCnYuSNsjiCxyiNIA
-         N+u1QNF7UYP+7t4G0uf6J2LhKigFuEtynJfh9MxI=
+        b=0QQpVMcfgXsBXMnDBchk+y2uMu9IMvvJPWzWWz28Z8wa7ZSuoc18WkPG3Uz9AR4FY
+         abwcBF0wL1RBluIZztY7FhC0WJzEbEd0+3wfWspHPivnbL93eU1HVfuo6BMi4107kL
+         10lgosb+XEMd5Ora1Is/NW7oBrVn7/OV9vLgiMXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Daniel Wheeler <Daniel.Wheeler@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Brandon Syu <Brandon.Syu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 540/885] cpuidle, intel_idle: Fix CPUIDLE_FLAG_INIT_XSTATE
+Subject: [PATCH 6.2 0702/1001] drm/amd/display: fix mapping to non-allocated address
 Date:   Tue,  7 Mar 2023 17:57:54 +0100
-Message-Id: <20230307170025.957571795@linuxfoundation.org>
+Message-Id: <20230307170052.085637256@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,84 +57,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Brandon Syu <Brandon.Syu@amd.com>
 
-[ Upstream commit 821ad23d0eaff73ef599ece39ecc77482df20a8c ]
+[ Upstream commit 9190d4a263264eabf715f5fc1827da45e3fdc247 ]
 
-Fix instrumentation bugs objtool found:
+[Why]
+There is an issue mapping non-allocated location of memory.
+It would allocate gpio registers from an array out of bounds.
 
-  vmlinux.o: warning: objtool: intel_idle_s2idle+0xd5: call to fpu_idle_fpregs() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: intel_idle_xstate+0x11: call to fpu_idle_fpregs() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: fpu_idle_fpregs+0x9: call to xfeatures_in_use() leaves .noinstr.text section
+[How]
+Patch correct numbers of bounds for using.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lore.kernel.org/r/20230112195540.494977795@infradead.org
+Tested-by: Daniel Wheeler <Daniel.Wheeler@amd.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Brandon Syu <Brandon.Syu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fpu/xcr.h       | 4 ++--
- arch/x86/include/asm/special_insns.h | 2 +-
- arch/x86/kernel/fpu/core.c           | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ .../gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c   | 6 ++++--
+ .../gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c   | 6 ++++--
+ .../gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c   | 6 ++++--
+ drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h             | 7 +++++++
+ 4 files changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
-index 9656a5bc6feae..9a710c0604457 100644
---- a/arch/x86/include/asm/fpu/xcr.h
-+++ b/arch/x86/include/asm/fpu/xcr.h
-@@ -5,7 +5,7 @@
- #define XCR_XFEATURE_ENABLED_MASK	0x00000000
- #define XCR_XFEATURE_IN_USE_MASK	0x00000001
+diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c
+index 9b63c6c0cc844..e0bd0c722e006 100644
+--- a/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c
+@@ -138,7 +138,8 @@ static const struct ddc_sh_mask ddc_shift[] = {
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 3),
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 4),
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 5),
+-	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6)
++	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6),
++	DDC_MASK_SH_LIST_DCN2_VGA(__SHIFT)
+ };
  
--static inline u64 xgetbv(u32 index)
-+static __always_inline u64 xgetbv(u32 index)
- {
- 	u32 eax, edx;
+ static const struct ddc_sh_mask ddc_mask[] = {
+@@ -147,7 +148,8 @@ static const struct ddc_sh_mask ddc_mask[] = {
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 3),
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 4),
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 5),
+-	DDC_MASK_SH_LIST_DCN2(_MASK, 6)
++	DDC_MASK_SH_LIST_DCN2(_MASK, 6),
++	DDC_MASK_SH_LIST_DCN2_VGA(_MASK)
+ };
  
-@@ -27,7 +27,7 @@ static inline void xsetbv(u32 index, u64 value)
-  *
-  * Callers should check X86_FEATURE_XGETBV1.
-  */
--static inline u64 xfeatures_in_use(void)
-+static __always_inline u64 xfeatures_in_use(void)
- {
- 	return xgetbv(XCR_XFEATURE_IN_USE_MASK);
- }
-diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
-index 35f709f619fb4..c2e322189f853 100644
---- a/arch/x86/include/asm/special_insns.h
-+++ b/arch/x86/include/asm/special_insns.h
-@@ -295,7 +295,7 @@ static inline int enqcmds(void __iomem *dst, const void *src)
- 	return 0;
- }
+ #include "../generic_regs.h"
+diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
+index 687d4f128480e..36a5736c58c92 100644
+--- a/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
+@@ -145,7 +145,8 @@ static const struct ddc_sh_mask ddc_shift[] = {
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 3),
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 4),
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 5),
+-	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6)
++	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6),
++	DDC_MASK_SH_LIST_DCN2_VGA(__SHIFT)
+ };
  
--static inline void tile_release(void)
-+static __always_inline void tile_release(void)
- {
- 	/*
- 	 * Instruction opcode for TILERELEASE; supported in binutils
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index 9baa89a8877d0..dccce58201b7c 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -853,12 +853,12 @@ int fpu__exception_code(struct fpu *fpu, int trap_nr)
-  * Initialize register state that may prevent from entering low-power idle.
-  * This function will be invoked from the cpuidle driver only when needed.
-  */
--void fpu_idle_fpregs(void)
-+noinstr void fpu_idle_fpregs(void)
- {
- 	/* Note: AMX_TILE being enabled implies XGETBV1 support */
- 	if (cpu_feature_enabled(X86_FEATURE_AMX_TILE) &&
- 	    (xfeatures_in_use() & XFEATURE_MASK_XTILE)) {
- 		tile_release();
--		fpregs_deactivate(&current->thread.fpu);
-+		__this_cpu_write(fpu_fpregs_owner_ctx, NULL);
- 	}
- }
+ static const struct ddc_sh_mask ddc_mask[] = {
+@@ -154,7 +155,8 @@ static const struct ddc_sh_mask ddc_mask[] = {
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 3),
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 4),
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 5),
+-	DDC_MASK_SH_LIST_DCN2(_MASK, 6)
++	DDC_MASK_SH_LIST_DCN2(_MASK, 6),
++	DDC_MASK_SH_LIST_DCN2_VGA(_MASK)
+ };
+ 
+ #include "../generic_regs.h"
+diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
+index 9fd8b269dd79c..985f10b397509 100644
+--- a/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
+@@ -149,7 +149,8 @@ static const struct ddc_sh_mask ddc_shift[] = {
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 3),
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 4),
+ 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 5),
+-	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6)
++	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6),
++	DDC_MASK_SH_LIST_DCN2_VGA(__SHIFT)
+ };
+ 
+ static const struct ddc_sh_mask ddc_mask[] = {
+@@ -158,7 +159,8 @@ static const struct ddc_sh_mask ddc_mask[] = {
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 3),
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 4),
+ 	DDC_MASK_SH_LIST_DCN2(_MASK, 5),
+-	DDC_MASK_SH_LIST_DCN2(_MASK, 6)
++	DDC_MASK_SH_LIST_DCN2(_MASK, 6),
++	DDC_MASK_SH_LIST_DCN2_VGA(_MASK)
+ };
+ 
+ #include "../generic_regs.h"
+diff --git a/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h b/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h
+index 308a543178a56..59884ef651b39 100644
+--- a/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h
++++ b/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h
+@@ -113,6 +113,13 @@
+ 	(PHY_AUX_CNTL__AUX## cd ##_PAD_RXSEL## mask_sh),\
+ 	(DC_GPIO_AUX_CTRL_5__DDC_PAD## cd ##_I2CMODE## mask_sh)}
+ 
++#define DDC_MASK_SH_LIST_DCN2_VGA(mask_sh) \
++	{DDC_MASK_SH_LIST_COMMON(mask_sh),\
++	0,\
++	0,\
++	0,\
++	0}
++
+ struct ddc_registers {
+ 	struct gpio_registers gpio;
+ 	uint32_t ddc_setup;
 -- 
 2.39.2
 
