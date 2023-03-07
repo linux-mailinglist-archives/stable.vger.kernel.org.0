@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D0C6AE9E5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76BCE6AEE96
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229792AbjCGR2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:28:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51282 "EHLO
+        id S232536AbjCGSNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:13:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231587AbjCGR21 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC03594F5B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:35 -0800 (PST)
+        with ESMTP id S232493AbjCGSNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:11 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28AB799BDA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65FB5614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71664C4339B;
-        Tue,  7 Mar 2023 17:23:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 94E34CE1C6A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 757F9C433D2;
+        Tue,  7 Mar 2023 18:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209814;
-        bh=4Y+yreR7X+ht2CtqaoXGWFUnfZuZSXTGmPNS9JkUrWA=;
+        s=korg; t=1678212518;
+        bh=ROvuxhesmS7DdQKc583UisrZHiN5yyH2TekAT5Ghnlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zxhublTHOajAC8f9wK3afu5opyVOkpbEc+hQTUAkWDoP7HWBIpWFdeCYDCATXNsJg
-         ODBh6SLYhIN0pErjXmcttnOAwPi9CMNk0YksiQC62qbR2InnJD0xn5J3LAZVZzFrmu
-         PLpOPFYD9L37A6HJyk0PixAVkRYUQLfDp86Lrk3E=
+        b=h5I+B/c/BlMEBGAuIFqbugg+LT/O3v/IReq0w9E/Gau4rncWt+kiceCztyf2ORUnr
+         ao9lcVhCH+BRpcVW+X3XlMMc+NOf1S6SGXDaUSRLc1yOyJZbxkrAnu+klZscLzmeME
+         6Xa9XJInPpyAWz/yDyZEUXCqNTJ/66JkPjeQa7jQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Wahren <stefan.wahren@i2se.com>,
-        =?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        patches@lists.linux.dev, Ashok Raj <ashok.raj@intel.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0341/1001] drm/vc4: drop all currently held locks if deadlock happens
+Subject: [PATCH 6.1 179/885] x86/microcode: Add a parameter to microcode_check() to store CPU capabilities
 Date:   Tue,  7 Mar 2023 17:51:53 +0100
-Message-Id: <20230307170036.268823097@linuxfoundation.org>
+Message-Id: <20230307170009.754455565@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maíra Canal <mcanal@igalia.com>
+From: Ashok Raj <ashok.raj@intel.com>
 
-[ Upstream commit 479d4f0be4237ba33bc9432787aeb62c90e30f95 ]
+[ Upstream commit ab31c74455c64e69342ddab21fd9426fcbfefde7 ]
 
-If vc4_hdmi_reset_link() returns -EDEADLK, it means that a deadlock
-happened in the locking context. This situation should be addressed by
-dropping all currently held locks and block until the contended lock
-becomes available. Currently, vc4 is not dealing with the deadlock
-properly, producing the following output when PROVE_LOCKING is enabled:
+Add a parameter to store CPU capabilities before performing a microcode
+update so that CPU capabilities can be compared before and after update.
 
-[  825.612809] ------------[ cut here ]------------
-[  825.612852] WARNING: CPU: 1 PID: 116 at drivers/gpu/drm/drm_modeset_lock.c:276 drm_modeset_drop_locks+0x60/0x68 [drm]
-[  825.613458] Modules linked in: 8021q mrp garp stp llc
-raspberrypi_cpufreq brcmfmac brcmutil crct10dif_ce hci_uart cfg80211
-btqca btbcm bluetooth vc4 raspberrypi_hwmon snd_soc_hdmi_codec cec
-clk_raspberrypi ecdh_generic drm_display_helper ecc rfkill
-drm_dma_helper drm_kms_helper pwm_bcm2835 bcm2835_thermal bcm2835_rng
-rng_core i2c_bcm2835 drm fuse ip_tables x_tables ipv6
-[  825.613735] CPU: 1 PID: 116 Comm: kworker/1:2 Tainted: G        W 6.1.0-rc6-01399-g941aae326315 #3
-[  825.613759] Hardware name: Raspberry Pi 3 Model B Rev 1.2 (DT)
-[  825.613777] Workqueue: events output_poll_execute [drm_kms_helper]
-[  825.614038] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  825.614063] pc : drm_modeset_drop_locks+0x60/0x68 [drm]
-[  825.614603] lr : drm_helper_probe_detect+0x120/0x1b4 [drm_kms_helper]
-[  825.614829] sp : ffff800008313bf0
-[  825.614844] x29: ffff800008313bf0 x28: ffffcd7778b8b000 x27: 0000000000000000
-[  825.614883] x26: 0000000000000001 x25: 0000000000000001 x24: ffff677cc35c2758
-[  825.614920] x23: ffffcd7707d01430 x22: ffffcd7707c3edc7 x21: 0000000000000001
-[  825.614958] x20: 0000000000000000 x19: ffff800008313c10 x18: 000000000000b6d3
-[  825.614995] x17: ffffcd777835e214 x16: ffffcd7777cef870 x15: fffff81000000000
-[  825.615033] x14: 0000000000000000 x13: 0000000000000099 x12: 0000000000000002
-[  825.615070] x11: 72917988020af800 x10: 72917988020af800 x9 : 72917988020af800
-[  825.615108] x8 : ffff677cc665e0a8 x7 : d00a8c180000110c x6 : ffffcd77774c0054
-[  825.615145] x5 : 0000000000000000 x4 : 0000000000000001 x3 : 0000000000000000
-[  825.615181] x2 : ffff677cc55e1880 x1 : ffffcd7777cef8ec x0 : ffff800008313c10
-[  825.615219] Call trace:
-[  825.615232]  drm_modeset_drop_locks+0x60/0x68 [drm]
-[  825.615773]  drm_helper_probe_detect+0x120/0x1b4 [drm_kms_helper]
-[  825.616003]  output_poll_execute+0xe4/0x224 [drm_kms_helper]
-[  825.616233]  process_one_work+0x2b4/0x618
-[  825.616264]  worker_thread+0x24c/0x464
-[  825.616288]  kthread+0xec/0x110
-[  825.616310]  ret_from_fork+0x10/0x20
-[  825.616335] irq event stamp: 7634
-[  825.616349] hardirqs last  enabled at (7633): [<ffffcd777831ee90>] _raw_spin_unlock_irq+0x3c/0x78
-[  825.616384] hardirqs last disabled at (7634): [<ffffcd7778315a78>] __schedule+0x134/0x9f0
-[  825.616411] softirqs last  enabled at (7630): [<ffffcd7707aacea0>] local_bh_enable+0x4/0x30 [ipv6]
-[  825.617019] softirqs last disabled at (7618): [<ffffcd7707aace70>] local_bh_disable+0x4/0x30 [ipv6]
-[  825.617586] ---[ end trace 0000000000000000 ]---
+  [ bp: Massage. ]
 
-Therefore, deal with the deadlock as suggested by [1], using the
-function drm_modeset_backoff().
-
-[1] https://docs.kernel.org/gpu/drm-kms.html?highlight=kms#kms-locking
-
-Fixes: 6bed2ea3cb38 ("drm/vc4: hdmi: Reset link on hotplug")
-Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Maíra Canal <mcanal@igalia.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221229194638.178712-1-mcanal@igalia.com
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Link: https://lore.kernel.org/r/20230109153555.4986-2-ashok.raj@intel.com
+Stable-dep-of: c0dd9245aa9e ("x86/microcode: Check CPU capabilities after late microcode update correctly")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/processor.h     |  2 +-
+ arch/x86/kernel/cpu/common.c         | 21 +++++++++++++--------
+ arch/x86/kernel/cpu/microcode/core.c |  3 ++-
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 7546103f14997..21338e6a95056 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -406,6 +406,7 @@ static void vc4_hdmi_handle_hotplug(struct vc4_hdmi *vc4_hdmi,
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
+index 67c9d73b31faa..2288ef4ba17c5 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -835,7 +835,7 @@ bool xen_set_default_idle(void);
+ #endif
+ 
+ void __noreturn stop_this_cpu(void *dummy);
+-void microcode_check(void);
++void microcode_check(struct cpuinfo_x86 *prev_info);
+ 
+ enum l1tf_mitigations {
+ 	L1TF_MITIGATION_OFF,
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index e80572b674b7a..3c08985ed70c9 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -2311,30 +2311,35 @@ void cpu_init_secondary(void)
+ #endif
+ 
+ #ifdef CONFIG_MICROCODE_LATE_LOADING
+-/*
++/**
++ * microcode_check() - Check if any CPU capabilities changed after an update.
++ * @prev_info:	CPU capabilities stored before an update.
++ *
+  * The microcode loader calls this upon late microcode load to recheck features,
+  * only when microcode has been updated. Caller holds microcode_mutex and CPU
+  * hotplug lock.
++ *
++ * Return: None
+  */
+-void microcode_check(void)
++void microcode_check(struct cpuinfo_x86 *prev_info)
  {
- 	struct drm_connector *connector = &vc4_hdmi->connector;
- 	struct edid *edid;
-+	int ret;
+-	struct cpuinfo_x86 info;
+-
+ 	perf_check_microcode();
+ 
+ 	/* Reload CPUID max function as it might've changed. */
+-	info.cpuid_level = cpuid_eax(0);
++	prev_info->cpuid_level = cpuid_eax(0);
  
  	/*
- 	 * NOTE: This function should really be called with
-@@ -434,7 +435,15 @@ static void vc4_hdmi_handle_hotplug(struct vc4_hdmi *vc4_hdmi,
- 	cec_s_phys_addr_from_edid(vc4_hdmi->cec_adap, edid);
- 	kfree(edid);
+ 	 * Copy all capability leafs to pick up the synthetic ones so that
+ 	 * memcmp() below doesn't fail on that. The ones coming from CPUID will
+ 	 * get overwritten in get_cpu_cap().
+ 	 */
+-	memcpy(&info.x86_capability, &boot_cpu_data.x86_capability, sizeof(info.x86_capability));
++	memcpy(&prev_info->x86_capability, &boot_cpu_data.x86_capability,
++	       sizeof(prev_info->x86_capability));
  
--	vc4_hdmi_reset_link(connector, ctx);
-+	for (;;) {
-+		ret = vc4_hdmi_reset_link(connector, ctx);
-+		if (ret == -EDEADLK) {
-+			drm_modeset_backoff(ctx);
-+			continue;
-+		}
-+
-+		break;
-+	}
- }
+-	get_cpu_cap(&info);
++	get_cpu_cap(prev_info);
  
- static int vc4_hdmi_connector_detect_ctx(struct drm_connector *connector,
+-	if (!memcmp(&info.x86_capability, &boot_cpu_data.x86_capability, sizeof(info.x86_capability)))
++	if (!memcmp(&prev_info->x86_capability, &boot_cpu_data.x86_capability,
++		    sizeof(prev_info->x86_capability)))
+ 		return;
+ 
+ 	pr_warn("x86/CPU: CPU features have changed after loading microcode, but might not take effect.\n");
+diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
+index 6a41cee242f6d..9d006ff58edc9 100644
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -492,6 +492,7 @@ static int __reload_late(void *info)
+ static int microcode_reload_late(void)
+ {
+ 	int old = boot_cpu_data.microcode, ret;
++	struct cpuinfo_x86 prev_info;
+ 
+ 	pr_err("Attempting late microcode loading - it is dangerous and taints the kernel.\n");
+ 	pr_err("You should switch to early loading, if possible.\n");
+@@ -501,7 +502,7 @@ static int microcode_reload_late(void)
+ 
+ 	ret = stop_machine_cpuslocked(__reload_late, NULL, cpu_online_mask);
+ 	if (ret == 0)
+-		microcode_check();
++		microcode_check(&prev_info);
+ 
+ 	pr_info("Reload completed, microcode revision: 0x%x -> 0x%x\n",
+ 		old, boot_cpu_data.microcode);
 -- 
 2.39.2
 
