@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDA16AF158
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC9C6AEC3F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233160AbjCGSmc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:42:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
+        id S230355AbjCGRxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233171AbjCGSmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2556FB3710
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:39 -0800 (PST)
+        with ESMTP id S230422AbjCGRxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE28DD31D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1E176152C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109AEC433D2;
-        Tue,  7 Mar 2023 18:30:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89EBCB819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDD2FC433D2;
+        Tue,  7 Mar 2023 17:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213857;
-        bh=WyLxs2JmSa1Vi9gT4wf2UTh1bGvh1g+JnyHMZm2Whh0=;
+        s=korg; t=1678211259;
+        bh=70y1U63keAodOZJFq4PorxI2kI6/zEqyIpIvlOXZUuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHxJvL5iAohaXS8WJesm8MAXVJJjfM3WGy++BqLCKsLnNRcWfGC9xbB5sHbgNocOa
-         lNm6irNueUjwM7xjF5m84e/+ZOgQy0faQWPR+FmLCdqMs3Pijb+4rKaO75hp6ZhKRf
-         mbjDDnnNpJkqu7+nxyuEcISl2pvIZbmqjQ/oWd0k=
+        b=FlO5iv8UvxoRoy4f0iSJaHoINqtX07p37BfTq5mIs/Zmbu8NqTho/SVks6iR99INW
+         KMELv8yRDMcp1KGR9g22ywO+/dMaYisa3ofrDJYvfc/raf0uMEfXPd3xsji4LJj5V7
+         kSF5UP9rZSbxBH7o9JT/Nr098l4Ds77L9iO4MHRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 642/885] nfsd: zero out pointers after putting nfsd_files on COPY setup error
-Date:   Tue,  7 Mar 2023 17:59:36 +0100
-Message-Id: <20230307170030.042935324@linuxfoundation.org>
+        patches@lists.linux.dev, Randall Huang <huangrandall@google.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.2 0805/1001] f2fs: retry to update the inode page given data corruption
+Date:   Tue,  7 Mar 2023 17:59:37 +0100
+Message-Id: <20230307170056.665594541@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,42 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 1f0001d43d0c0ac2a19a34a914f6595ad97cbc1d ]
+commit 3aa51c61cb4a4dcb40df51ac61171e9ac5a35321 upstream.
 
-At first, I thought this might be a source of nfsd_file overputs, but
-the current callers seem to avoid an extra put when nfsd4_verify_copy
-returns an error.
+If the storage gives a corrupted node block due to short power failure and
+reset, f2fs stops the entire operations by setting the checkpoint failure flag.
 
-Still, it's "bad form" to leave the pointers filled out when we don't
-have a reference to them anymore, and that might lead to bugs later.
-Zero them out as a defensive coding measure.
+Let's give more chances to live by re-issuing IOs for a while in such critical
+path.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Suggested-by: Randall Huang <huangrandall@google.com>
+Suggested-by: Chao Yu <chao@kernel.org>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4proc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/inode.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 53113976e6424..a90e792a94d77 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1227,8 +1227,10 @@ nfsd4_verify_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- 	return status;
- out_put_dst:
- 	nfsd_file_put(*dst);
-+	*dst = NULL;
- out_put_src:
- 	nfsd_file_put(*src);
-+	*src = NULL;
- 	goto out;
- }
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -714,18 +714,19 @@ void f2fs_update_inode_page(struct inode
+ {
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 	struct page *node_page;
++	int count = 0;
+ retry:
+ 	node_page = f2fs_get_node_page(sbi, inode->i_ino);
+ 	if (IS_ERR(node_page)) {
+ 		int err = PTR_ERR(node_page);
  
--- 
-2.39.2
-
+-		if (err == -ENOMEM) {
+-			cond_resched();
++		/* The node block was truncated. */
++		if (err == -ENOENT)
++			return;
++
++		if (err == -ENOMEM || ++count <= DEFAULT_RETRY_IO_COUNT)
+ 			goto retry;
+-		} else if (err != -ENOENT) {
+-			f2fs_stop_checkpoint(sbi, false,
+-					STOP_CP_REASON_UPDATE_INODE);
+-		}
++		f2fs_stop_checkpoint(sbi, false, STOP_CP_REASON_UPDATE_INODE);
+ 		return;
+ 	}
+ 	f2fs_update_inode(inode, node_page);
 
 
