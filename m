@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A02506AF41A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A42BF6AF420
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233737AbjCGTNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:13:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32986 "EHLO
+        id S233811AbjCGTNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:13:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233749AbjCGTNK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D97960A4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:56:53 -0800 (PST)
+        with ESMTP id S233810AbjCGTN3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22389B56E3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18D01B819DC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:56:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CB91C4339B;
-        Tue,  7 Mar 2023 18:56:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFA2F61520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD872C4339B;
+        Tue,  7 Mar 2023 18:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215410;
-        bh=Ed/Gnb6Dioor4lM/pwGnTJjJuZQFFzidX40torlALKo=;
+        s=korg; t=1678215429;
+        bh=OsTvTladaaV6kytI5+x/CU4Kp+1XIzI4wSRH++SDxak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYkR2Pwz2ocq9vkRGwKwxKcH1VenMgk4nBAbScIaMf13kyQnVqDpWi4TgadX84hSp
-         ZhrUi8poNXsmyfM0V8XSd9CHClzEOZusWWV4LzUd+ianzuHTwhOMZ2WQepSUDzaaYb
-         AnKZ5mHYFvfU+7i7GJaiSsqLHLRQ7cggdfAZU0Lc=
+        b=JXb/docX+s6yu8GfpKZoQSMyTigHg9c8kJEo3XiZVJPvZG6yBvRHs6sYaPajPRUYU
+         7J4UxTRoJTZ7/GLgUtwsxKvMVesiCt13gqkBC+ahMQHk9eDrLS3TXKCAG8kyK1ADLA
+         CzlMg5zH7E+it3LVs542yPP8dYtUaSZp8bi6vj/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 225/567] ASoC: rsnd: fixup #endif position
-Date:   Tue,  7 Mar 2023 17:59:21 +0100
-Message-Id: <20230307165915.667030836@linuxfoundation.org>
+Subject: [PATCH 5.15 226/567] ASoC: mchp-spdifrx: Fix uninitialized use of mr in mchp_spdifrx_hw_params()
+Date:   Tue,  7 Mar 2023 17:59:22 +0100
+Message-Id: <20230307165915.716761342@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,42 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 49123b51cd896e00b256a27c2ce9e6bfe1bbc22f ]
+[ Upstream commit 218674a45930c700486d27b765bf2f1b43f8cbf7 ]
 
-commit 1f9c82b5ab83ff2 ("ASoC: rsnd: add debugfs support") added
-CONFIG_DEBUG_FS related definitions on rsnd.h, but it should be
-added inside of RSND_H. This patch fixup it.
+Clang warns:
 
-Fixes: 1f9c82b5ab83 ("ASoC: rsnd: add debugfs support")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/877cx26t7r.wl-kuninori.morimoto.gx@renesas.com
+  ../sound/soc/atmel/mchp-spdifrx.c:455:3: error: variable 'mr' is uninitialized when used here [-Werror,-Wuninitialized]
+                  mr |= SPDIFRX_MR_ENDIAN_BIG;
+                  ^~
+  ../sound/soc/atmel/mchp-spdifrx.c:432:8: note: initialize the variable 'mr' to silence this warning
+          u32 mr;
+                ^
+                 = 0
+  1 error generated.
+
+Zero initialize mr so that these bitwise OR and assignment operation
+works unconditionally.
+
+Fixes: fa09fa60385a ("ASoC: mchp-spdifrx: fix controls which rely on rsr register")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1797
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230202-mchp-spdifrx-fix-uninit-mr-v1-1-629a045d7a2f@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/rsnd.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/atmel/mchp-spdifrx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sh/rcar/rsnd.h b/sound/soc/sh/rcar/rsnd.h
-index d9cd190d7e198..f8ef6836ef84e 100644
---- a/sound/soc/sh/rcar/rsnd.h
-+++ b/sound/soc/sh/rcar/rsnd.h
-@@ -901,8 +901,6 @@ void rsnd_mod_make_sure(struct rsnd_mod *mod, enum rsnd_mod_type type);
- 	if (!IS_BUILTIN(RSND_DEBUG_NO_DAI_CALL))	\
- 		dev_dbg(dev, param)
+diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
+index 03b7037239b85..39a3c2a33bdbb 100644
+--- a/sound/soc/atmel/mchp-spdifrx.c
++++ b/sound/soc/atmel/mchp-spdifrx.c
+@@ -362,7 +362,7 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
+ 				  struct snd_soc_dai *dai)
+ {
+ 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
+-	u32 mr;
++	u32 mr = 0;
+ 	int ret;
  
--#endif
--
- #ifdef CONFIG_DEBUG_FS
- int rsnd_debugfs_probe(struct snd_soc_component *component);
- void rsnd_debugfs_reg_show(struct seq_file *m, phys_addr_t _addr,
-@@ -913,3 +911,5 @@ void rsnd_debugfs_mod_reg_show(struct seq_file *m, struct rsnd_mod *mod,
- #else
- #define rsnd_debugfs_probe  NULL
- #endif
-+
-+#endif /* RSND_H */
+ 	dev_dbg(dev->dev, "%s() rate=%u format=%#x width=%u channels=%u\n",
 -- 
 2.39.2
 
