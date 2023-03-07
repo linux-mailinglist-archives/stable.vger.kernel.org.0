@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7776AED84
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3746AF276
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230052AbjCGSFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:05:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36000 "EHLO
+        id S233358AbjCGSx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:53:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231193AbjCGSEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:04:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85A7A42EF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:57:27 -0800 (PST)
+        with ESMTP id S231377AbjCGSwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67A08EA3C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDFA6B819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D8AC433D2;
-        Tue,  7 Mar 2023 17:57:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A73FD6150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:41:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD014C433EF;
+        Tue,  7 Mar 2023 18:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211841;
-        bh=zbHdM+cbzGQiOmIbpd0CNF9byRk2JC9BkULvN/xnVw0=;
+        s=korg; t=1678214465;
+        bh=T6mTpMVzcnfdsX/jVA0WmAs8XLAYTQOOl3CAuaVSy+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLqzACQJjDTxRlvpmkAA0Uz8xuFIMxS8Irg1OyYIUvVenpWwI4frEGCb6L0dexpee
-         J384v+9pcKQlgq3IPEkzE9uDL2dIlecm5V2VsQxU8YIj9D8dLjIEv0DKJLssUZNJ+X
-         XfMTjsHj9suvSeHi7WxTiQQeiyRZ5hY8uwWRxpQQ=
+        b=m/GGDOgUUbtKmg76357L0/Y7FjGphAGRu3t//U/Ej23O1MLoHni3P7thzoifmJ5mV
+         pVUtEg9JXrb6X7uN8J8Q0p764md+FklkyB+J9VBDC6fBzcxEZTWykEUkWtIWyBX5w1
+         js+++d0y2vm8joM6Q+WE/meg9WF3AFzQriHsNbAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.2 0963/1001] scsi: qla2xxx: Remove increment of interface err cnt
+        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thierry Reding <treding@nvidia.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.1 801/885] cpuidle: add ARCH_SUSPEND_POSSIBLE dependencies
 Date:   Tue,  7 Mar 2023 18:02:15 +0100
-Message-Id: <20230307170103.987595416@linuxfoundation.org>
+Message-Id: <20230307170036.698188908@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit d676a9e3d9efb7e93df460bcf4c445496c16314f upstream.
+commit 7787943a3a8ade6594a68db28c166adbb1d3708c upstream.
 
-Residual underrun is not an interface error, hence no need to increment
-that count.
+Some ARMv4 processors don't support suspend, which leads
+to a build failure with the tegra and qualcomm cpuidle driver:
 
-Fixes: dbf1f53cfd23 ("scsi: qla2xxx: Implementation to get and manage host, target stats and initiator port")
-Cc: stable@vger.kernel.org
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+WARNING: unmet direct dependencies detected for ARM_CPU_SUSPEND
+  Depends on [n]: ARCH_SUSPEND_POSSIBLE [=n]
+  Selected by [y]:
+  - ARM_TEGRA_CPUIDLE [=y] && CPU_IDLE [=y] && (ARM [=y] || ARM64) && (ARCH_TEGRA [=n] || COMPILE_TEST [=y]) && !ARM64 && MMU [=y]
+
+arch/arm/kernel/sleep.o: in function `__cpu_suspend':
+(.text+0x68): undefined reference to `cpu_sa110_suspend_size'
+(.text+0x68): undefined reference to `cpu_fa526_suspend_size'
+
+Add an explicit dependency to make randconfig builds avoid
+this combination.
+
+Fixes: faae6c9f2e68 ("cpuidle: tegra: Enable compile testing")
+Fixes: a871be6b8eee ("cpuidle: Convert Qualcomm SPM driver to a generic CPUidle driver")
+Link: https://lore.kernel.org/all/20211013160125.772873-1-arnd@kernel.org/
+Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/cpuidle/Kconfig.arm |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3363,8 +3363,6 @@ qla2x00_status_entry(scsi_qla_host_t *vh
- 				       "Dropped frame(s) detected (0x%x of 0x%x bytes).\n",
- 				       resid, scsi_bufflen(cp));
- 
--				vha->interface_err_cnt++;
--
- 				res = DID_ERROR << 16 | lscsi_status;
- 				goto check_scsi_status;
- 			}
+--- a/drivers/cpuidle/Kconfig.arm
++++ b/drivers/cpuidle/Kconfig.arm
+@@ -102,6 +102,7 @@ config ARM_MVEBU_V7_CPUIDLE
+ config ARM_TEGRA_CPUIDLE
+ 	bool "CPU Idle Driver for NVIDIA Tegra SoCs"
+ 	depends on (ARCH_TEGRA || COMPILE_TEST) && !ARM64 && MMU
++	depends on ARCH_SUSPEND_POSSIBLE
+ 	select ARCH_NEEDS_CPU_IDLE_COUPLED if SMP
+ 	select ARM_CPU_SUSPEND
+ 	help
+@@ -110,6 +111,7 @@ config ARM_TEGRA_CPUIDLE
+ config ARM_QCOM_SPM_CPUIDLE
+ 	bool "CPU Idle Driver for Qualcomm Subsystem Power Manager (SPM)"
+ 	depends on (ARCH_QCOM || COMPILE_TEST) && !ARM64 && MMU
++	depends on ARCH_SUSPEND_POSSIBLE
+ 	select ARM_CPU_SUSPEND
+ 	select CPU_IDLE_MULTIPLE_DRIVERS
+ 	select DT_IDLE_STATES
 
 
