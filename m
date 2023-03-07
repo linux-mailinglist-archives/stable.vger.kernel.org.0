@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E87226AEB19
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E8E6AEF93
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231925AbjCGRk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:40:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
+        id S232675AbjCGSY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:24:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231922AbjCGRkH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400D49E51F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:36:08 -0800 (PST)
+        with ESMTP id S232753AbjCGSXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74FE994382
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFAB26150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:36:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E081CC433EF;
-        Tue,  7 Mar 2023 17:36:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C395614E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0030FC433EF;
+        Tue,  7 Mar 2023 18:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210567;
-        bh=J3DgztScLcw0ouFfoWklO/PBZZoV7epEz4o3lbl1bgo=;
+        s=korg; t=1678213168;
+        bh=D+yubnDFXwrN/gENUSmFX9771EZyWlo4SabxxbJ/s1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WYV0iJxhAWrTj1q5ZlG9hP9OgARxLsuW/63jbZWLj932N4pFD9MU1SbVgX3cXodrh
-         c73iSOS1TWVbpHIG8nRQdSLyYFR3OyzHJhPuz0lLjeX2V9P8cw45eQ3IFK/ovAaWnh
-         d3s+r0F3A4pRbiIGNWkQvbWD4CADCYvwqwBZ2SVU=
+        b=C90arAzdiPeyfY5UiJ9dJDii1H6K99Wpah93qV/ikEfflBmq4ZQH2xGDjCxkifPxw
+         vq0I5Xm54XJXPwNzP4gZ8f6y8oRBak7XQr9aKNOnDVcQ8xZ2X09sInCX92tQS3Q5/q
+         quMF+aUYj/nAo8rytpfKIwZRVI06o0OribfubaoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sibi Sankar <quic_sibis@quicinc.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Amit Pundir <amit.pundir@linaro.org>
-Subject: [PATCH 6.2 0582/1001] remoteproc: qcom_q6v5_mss: Use a carveout to authenticate modem headers
-Date:   Tue,  7 Mar 2023 17:55:54 +0100
-Message-Id: <20230307170046.730210923@linuxfoundation.org>
+        patches@lists.linux.dev, Jinlong Mao <quic_jinlmao@quicinc.com>,
+        James Clark <james.clark@arm.com>,
+        Mike Leach <mike.leach@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 421/885] coresight: cti: Prevent negative values of enable count
+Date:   Tue,  7 Mar 2023 17:55:55 +0100
+Message-Id: <20230307170020.720321381@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,136 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sibi Sankar <quic_sibis@quicinc.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 57f72170a2b2a362c35bb9407fc844eac5afdec1 ]
+[ Upstream commit 3244fb6dbbf1ffc114cdf382cc167bdd8c18088a ]
 
-Any access to the dynamically allocated metadata region by the application
-processor after assigning it to the remote Q6 will result in a XPU
-violation. Fix this by replacing the dynamically allocated memory region
-with a no-map carveout and unmap the modem metadata memory region before
-passing control to the remote Q6.
+Writing 0 to the enable control repeatedly results in a negative value
+for enable_req_count. After this, writing 1 to the enable control
+appears to not work until the count returns to positive.
 
-Reported-and-tested-by: Amit Pundir <amit.pundir@linaro.org>
-Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
-Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230117085840.32356-7-quic_sibis@quicinc.com
+Change it so that it's impossible for enable_req_count to be < 0.
+Return an error to indicate that the disable request was invalid.
+
+Fixes: 835d722ba10a ("coresight: cti: Initial CoreSight CTI Driver")
+Tested-by: Jinlong Mao <quic_jinlmao@quicinc.com>
+Signed-off-by: James Clark <james.clark@arm.com>
+Reviewed-by: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20230110110736.2709917-2-james.clark@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_mss.c | 59 +++++++++++++++++++++++++++---
- 1 file changed, 53 insertions(+), 6 deletions(-)
+ drivers/hwtracing/coresight/coresight-cti-core.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
-index a8b141db4de63..7dbab5fcbe1e7 100644
---- a/drivers/remoteproc/qcom_q6v5_mss.c
-+++ b/drivers/remoteproc/qcom_q6v5_mss.c
-@@ -17,6 +17,7 @@
- #include <linux/module.h>
- #include <linux/of_address.h>
- #include <linux/of_device.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/platform_device.h>
- #include <linux/pm_domain.h>
- #include <linux/pm_runtime.h>
-@@ -210,6 +211,9 @@ struct q6v5 {
- 	size_t mba_size;
- 	size_t dp_size;
- 
-+	phys_addr_t mdata_phys;
-+	size_t mdata_size;
-+
- 	phys_addr_t mpss_phys;
- 	phys_addr_t mpss_reloc;
- 	size_t mpss_size;
-@@ -945,15 +949,35 @@ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw,
- 	if (IS_ERR(metadata))
- 		return PTR_ERR(metadata);
- 
--	ptr = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
--	if (!ptr) {
--		kfree(metadata);
--		dev_err(qproc->dev, "failed to allocate mdt buffer\n");
--		return -ENOMEM;
-+	if (qproc->mdata_phys) {
-+		if (size > qproc->mdata_size) {
-+			ret = -EINVAL;
-+			dev_err(qproc->dev, "metadata size outside memory range\n");
-+			goto free_metadata;
-+		}
-+
-+		phys = qproc->mdata_phys;
-+		ptr = memremap(qproc->mdata_phys, size, MEMREMAP_WC);
-+		if (!ptr) {
-+			ret = -EBUSY;
-+			dev_err(qproc->dev, "unable to map memory region: %pa+%zx\n",
-+				&qproc->mdata_phys, size);
-+			goto free_metadata;
-+		}
-+	} else {
-+		ptr = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
-+		if (!ptr) {
-+			ret = -ENOMEM;
-+			dev_err(qproc->dev, "failed to allocate mdt buffer\n");
-+			goto free_metadata;
-+		}
- 	}
- 
- 	memcpy(ptr, metadata, size);
- 
-+	if (qproc->mdata_phys)
-+		memunmap(ptr);
-+
- 	/* Hypervisor mapping to access metadata by modem */
- 	mdata_perm = BIT(QCOM_SCM_VMID_HLOS);
- 	ret = q6v5_xfer_mem_ownership(qproc, &mdata_perm, false, true,
-@@ -982,7 +1006,9 @@ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw,
- 			 "mdt buffer not reclaimed system may become unstable\n");
- 
- free_dma_attrs:
--	dma_free_attrs(qproc->dev, size, ptr, phys, dma_attrs);
-+	if (!qproc->mdata_phys)
-+		dma_free_attrs(qproc->dev, size, ptr, phys, dma_attrs);
-+free_metadata:
- 	kfree(metadata);
- 
- 	return ret < 0 ? ret : 0;
-@@ -1810,6 +1836,7 @@ static int q6v5_init_reset(struct q6v5 *qproc)
- static int q6v5_alloc_memory_region(struct q6v5 *qproc)
+diff --git a/drivers/hwtracing/coresight/coresight-cti-core.c b/drivers/hwtracing/coresight/coresight-cti-core.c
+index d2cf4f4848e1b..838872f2484d3 100644
+--- a/drivers/hwtracing/coresight/coresight-cti-core.c
++++ b/drivers/hwtracing/coresight/coresight-cti-core.c
+@@ -151,9 +151,16 @@ static int cti_disable_hw(struct cti_drvdata *drvdata)
  {
- 	struct device_node *child;
-+	struct reserved_mem *rmem;
- 	struct device_node *node;
- 	struct resource r;
- 	int ret;
-@@ -1856,6 +1883,26 @@ static int q6v5_alloc_memory_region(struct q6v5 *qproc)
- 	qproc->mpss_phys = qproc->mpss_reloc = r.start;
- 	qproc->mpss_size = resource_size(&r);
+ 	struct cti_config *config = &drvdata->config;
+ 	struct coresight_device *csdev = drvdata->csdev;
++	int ret = 0;
  
-+	if (!child) {
-+		node = of_parse_phandle(qproc->dev->of_node, "memory-region", 2);
-+	} else {
-+		child = of_get_child_by_name(qproc->dev->of_node, "metadata");
-+		node = of_parse_phandle(child, "memory-region", 0);
-+		of_node_put(child);
+ 	spin_lock(&drvdata->spinlock);
+ 
++	/* don't allow negative refcounts, return an error */
++	if (!atomic_read(&drvdata->config.enable_req_count)) {
++		ret = -EINVAL;
++		goto cti_not_disabled;
 +	}
 +
-+	if (!node)
-+		return 0;
-+
-+	rmem = of_reserved_mem_lookup(node);
-+	if (!rmem) {
-+		dev_err(qproc->dev, "unable to resolve metadata region\n");
-+		return -EINVAL;
-+	}
-+
-+	qproc->mdata_phys = rmem->base;
-+	qproc->mdata_size = rmem->size;
-+
- 	return 0;
+ 	/* check refcount - disable on 0 */
+ 	if (atomic_dec_return(&drvdata->config.enable_req_count) > 0)
+ 		goto cti_not_disabled;
+@@ -171,12 +178,12 @@ static int cti_disable_hw(struct cti_drvdata *drvdata)
+ 	coresight_disclaim_device_unlocked(csdev);
+ 	CS_LOCK(drvdata->base);
+ 	spin_unlock(&drvdata->spinlock);
+-	return 0;
++	return ret;
+ 
+ 	/* not disabled this call */
+ cti_not_disabled:
+ 	spin_unlock(&drvdata->spinlock);
+-	return 0;
++	return ret;
  }
  
+ void cti_write_single_reg(struct cti_drvdata *drvdata, int offset, u32 value)
 -- 
 2.39.2
 
