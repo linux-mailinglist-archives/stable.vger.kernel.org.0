@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2CF6AEBB4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FBF6AF0B3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:34:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbjCGRsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34682 "EHLO
+        id S230267AbjCGSeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:34:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231933AbjCGRrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:36 -0500
+        with ESMTP id S231430AbjCGSdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:33:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AFC899BE1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5E9A42C5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:26:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC57E614B5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A12C433D2;
-        Tue,  7 Mar 2023 17:42:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09A9F6154A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F4DC433EF;
+        Tue,  7 Mar 2023 18:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210953;
-        bh=riMf5SxrLeuRWUIGTjusgq++cSOS0wh+J6QtasIKR7o=;
+        s=korg; t=1678213560;
+        bh=QioM45GSu6RlvuZ3KG0MQZMzy2hWYn1NtDAf7zdVdq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AltL6uTWEHrAs5lL8IHXSbyNgb7O8/HhmLxESevZqwexomQLaDOGFs/kHEHedKG2z
-         pe4iTuIvPaXo05wE/Gbyo7MBkqKzaUZsbf+JqqtLlGe2gE9gCnlIi80xHOuA9M36Mg
-         E1wQ59zgYoT0+95bvQI5ISXWu4xLU4YCjP1gvFH0=
+        b=yltMOrb5A387Av8IaE+1UhElihDb7fb9nUmlGR8gj54nwjTW733M2APpTd0HQybJB
+         B2N2Ij94RhLg+qkOfPsudT1oFzdSWjd1vL9SksuL/9ouwmWlucNXudYXI+bFCw1C9e
+         kqJDxPQ1nd/tiQ+1eosKG0slppkB8L2xV8TB4WTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        patches@lists.linux.dev, Florian Schmidt <florian@fls.name>,
+        Nagarajan Maran <quic_nmaran@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0708/1001] drm: rcar-du: Add quirk for H3 ES1.x pclk workaround
+Subject: [PATCH 6.1 546/885] wifi: ath11k: fix monitor mode bringup crash
 Date:   Tue,  7 Mar 2023 17:58:00 +0100
-Message-Id: <20230307170052.344640934@linuxfoundation.org>
+Message-Id: <20230307170026.225157268@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,163 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
+From: Nagarajan Maran <quic_nmaran@quicinc.com>
 
-[ Upstream commit 4f548bc48a2b4c4e54eecfddb6f7d24aa1b98768 ]
+[ Upstream commit 950b43f8bd8a4d476d2da6d2a083a89bcd3c90d7 ]
 
-rcar_du_crtc.c does a soc_device_match() in
-rcar_du_crtc_set_display_timing() to find out if the SoC is H3 ES1.x, and
-if so, apply a workaround.
+When the interface is brought up in monitor mode, it leads
+to NULL pointer dereference crash. This crash happens when
+the packet type is extracted for a SKB. This extraction
+which is present in the received msdu delivery path,is
+not needed for the monitor ring packets since they are
+all RAW packets. Hence appending the flags with
+"RX_FLAG_ONLY_MONITOR" to skip that extraction.
 
-We will need another H3 ES1.x check in the following patch, so rather than
-adding more soc_device_match() calls, let's add a rcar_du_device_info
-entry for the ES1, and a quirk flag,
-RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY, for the workaround.
+Observed calltrace:
 
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000000000064
+Mem abort info:
+  ESR = 0x0000000096000004
+  EC = 0x25: DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+  FSC = 0x04: level 0 translation fault
+Data abort info:
+  ISV = 0, ISS = 0x00000004
+  CM = 0, WnR = 0
+user pgtable: 4k pages, 48-bit VAs, pgdp=0000000048517000
+[0000000000000064] pgd=0000000000000000, p4d=0000000000000000
+Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
+Modules linked in: ath11k_pci ath11k qmi_helpers
+CPU: 2 PID: 1781 Comm: napi/-271 Not tainted
+6.1.0-rc5-wt-ath-656295-gef907406320c-dirty #6
+Hardware name: Qualcomm Technologies, Inc. IPQ8074/AP-HK10-C2 (DT)
+pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : ath11k_hw_qcn9074_rx_desc_get_decap_type+0x34/0x60 [ath11k]
+lr : ath11k_hw_qcn9074_rx_desc_get_decap_type+0x5c/0x60 [ath11k]
+sp : ffff80000ef5bb10
+x29: ffff80000ef5bb10 x28: 0000000000000000 x27: ffff000007baafa0
+x26: ffff000014a91ed0 x25: 0000000000000000 x24: 0000000000000000
+x23: ffff800002b77378 x22: ffff000014a91ec0 x21: ffff000006c8d600
+x20: 0000000000000000 x19: ffff800002b77740 x18: 0000000000000006
+x17: 736564203634343a x16: 656e694c20657079 x15: 0000000000000143
+x14: 00000000ffffffea x13: ffff80000ef5b8b8 x12: ffff80000ef5b8c8
+x11: ffff80000a591d30 x10: ffff80000a579d40 x9 : c0000000ffffefff
+x8 : 0000000000000003 x7 : 0000000000017fe8 x6 : ffff80000a579ce8
+x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
+x2 : 3a35ec12ed7f8900 x1 : 0000000000000000 x0 : 0000000000000052
+Call trace:
+ ath11k_hw_qcn9074_rx_desc_get_decap_type+0x34/0x60 [ath11k]
+ ath11k_dp_rx_deliver_msdu.isra.42+0xa4/0x3d0 [ath11k]
+ ath11k_dp_rx_mon_deliver.isra.43+0x2f8/0x458 [ath11k]
+ ath11k_dp_rx_process_mon_rings+0x310/0x4c0 [ath11k]
+ ath11k_dp_service_srng+0x234/0x338 [ath11k]
+ ath11k_pcic_ext_grp_napi_poll+0x30/0xb8 [ath11k]
+ __napi_poll+0x5c/0x190
+ napi_threaded_poll+0xf0/0x118
+ kthread+0xf4/0x110
+ ret_from_fork+0x10/0x20
+
+Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.7.0.1-01744-QCAHKSWPL_SILICONZ-1
+Reported-by: Florian Schmidt <florian@fls.name>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216573
+Signed-off-by: Nagarajan Maran <quic_nmaran@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20221129142532.23421-1-quic_nmaran@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_crtc.c |  8 +----
- drivers/gpu/drm/rcar-du/rcar_du_drv.c  | 48 ++++++++++++++++++++++++++
- drivers/gpu/drm/rcar-du/rcar_du_drv.h  |  1 +
- 3 files changed, 50 insertions(+), 7 deletions(-)
+ drivers/net/wireless/ath/ath11k/dp_rx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-index 3619e1ddeb620..f2d3266509cc1 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-@@ -10,7 +10,6 @@
- #include <linux/clk.h>
- #include <linux/mutex.h>
- #include <linux/platform_device.h>
--#include <linux/sys_soc.h>
- 
- #include <drm/drm_atomic.h>
- #include <drm/drm_atomic_helper.h>
-@@ -204,11 +203,6 @@ static void rcar_du_escr_divider(struct clk *clk, unsigned long target,
- 	}
- }
- 
--static const struct soc_device_attribute rcar_du_r8a7795_es1[] = {
--	{ .soc_id = "r8a7795", .revision = "ES1.*" },
--	{ /* sentinel */ }
--};
--
- static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- {
- 	const struct drm_display_mode *mode = &rcrtc->crtc.state->adjusted_mode;
-@@ -238,7 +232,7 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- 		 * no post-divider when a display PLL is present (as shown by
- 		 * the workaround breaking HDMI output on M3-W during testing).
- 		 */
--		if (soc_device_match(rcar_du_r8a7795_es1)) {
-+		if (rcdu->info->quirks & RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY) {
- 			target *= 2;
- 			div = 1;
+diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
+index 0c53d88293eb7..e964e1b722871 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -5023,6 +5023,7 @@ static int ath11k_dp_rx_mon_deliver(struct ath11k *ar, u32 mac_id,
+ 		} else {
+ 			rxs->flag |= RX_FLAG_ALLOW_SAME_PN;
  		}
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index d003e8d9e7a26..c479996f8e91e 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -16,6 +16,7 @@
- #include <linux/platform_device.h>
- #include <linux/pm.h>
- #include <linux/slab.h>
-+#include <linux/sys_soc.h>
- #include <linux/wait.h>
++		rxs->flag |= RX_FLAG_ONLY_MONITOR;
+ 		ath11k_update_radiotap(ar, ppduinfo, mon_skb, rxs);
  
- #include <drm/drm_atomic_helper.h>
-@@ -386,6 +387,42 @@ static const struct rcar_du_device_info rcar_du_r8a7795_info = {
- 	.dpll_mask =  BIT(2) | BIT(1),
- };
- 
-+static const struct rcar_du_device_info rcar_du_r8a7795_es1_info = {
-+	.gen = 3,
-+	.features = RCAR_DU_FEATURE_CRTC_IRQ
-+		  | RCAR_DU_FEATURE_CRTC_CLOCK
-+		  | RCAR_DU_FEATURE_VSP1_SOURCE
-+		  | RCAR_DU_FEATURE_INTERLACED
-+		  | RCAR_DU_FEATURE_TVM_SYNC,
-+	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY,
-+	.channels_mask = BIT(3) | BIT(2) | BIT(1) | BIT(0),
-+	.routes = {
-+		/*
-+		 * R8A7795 has one RGB output, two HDMI outputs and one
-+		 * LVDS output.
-+		 */
-+		[RCAR_DU_OUTPUT_DPAD0] = {
-+			.possible_crtcs = BIT(3),
-+			.port = 0,
-+		},
-+		[RCAR_DU_OUTPUT_HDMI0] = {
-+			.possible_crtcs = BIT(1),
-+			.port = 1,
-+		},
-+		[RCAR_DU_OUTPUT_HDMI1] = {
-+			.possible_crtcs = BIT(2),
-+			.port = 2,
-+		},
-+		[RCAR_DU_OUTPUT_LVDS0] = {
-+			.possible_crtcs = BIT(0),
-+			.port = 3,
-+		},
-+	},
-+	.num_lvds = 1,
-+	.num_rpf = 5,
-+	.dpll_mask =  BIT(2) | BIT(1),
-+};
-+
- static const struct rcar_du_device_info rcar_du_r8a7796_info = {
- 	.gen = 3,
- 	.features = RCAR_DU_FEATURE_CRTC_IRQ
-@@ -554,6 +591,11 @@ static const struct of_device_id rcar_du_of_table[] = {
- 
- MODULE_DEVICE_TABLE(of, rcar_du_of_table);
- 
-+static const struct soc_device_attribute rcar_du_soc_table[] = {
-+	{ .soc_id = "r8a7795", .revision = "ES1.*", .data = &rcar_du_r8a7795_es1_info },
-+	{ /* sentinel */ }
-+};
-+
- const char *rcar_du_output_name(enum rcar_du_output output)
- {
- 	static const char * const names[] = {
-@@ -645,6 +687,7 @@ static void rcar_du_shutdown(struct platform_device *pdev)
- 
- static int rcar_du_probe(struct platform_device *pdev)
- {
-+	const struct soc_device_attribute *soc_attr;
- 	struct rcar_du_device *rcdu;
- 	unsigned int mask;
- 	int ret;
-@@ -659,8 +702,13 @@ static int rcar_du_probe(struct platform_device *pdev)
- 		return PTR_ERR(rcdu);
- 
- 	rcdu->dev = &pdev->dev;
-+
- 	rcdu->info = of_device_get_match_data(rcdu->dev);
- 
-+	soc_attr = soc_device_match(rcar_du_soc_table);
-+	if (soc_attr)
-+		rcdu->info = soc_attr->data;
-+
- 	platform_set_drvdata(pdev, rcdu);
- 
- 	/* I/O resources */
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-index 5cfa2bb7ad93d..df87ccab146f4 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-@@ -34,6 +34,7 @@ struct rcar_du_device;
- #define RCAR_DU_FEATURE_NO_BLENDING	BIT(5)	/* PnMR.SPIM does not have ALP nor EOR bits */
- 
- #define RCAR_DU_QUIRK_ALIGN_128B	BIT(0)	/* Align pitches to 128 bytes */
-+#define RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY BIT(1)	/* H3 ES1 has pclk stability issue */
- 
- enum rcar_du_output {
- 	RCAR_DU_OUTPUT_DPAD0,
+ 		ath11k_dp_rx_deliver_msdu(ar, napi, mon_skb, rxs);
 -- 
 2.39.2
 
