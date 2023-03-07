@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9005F6AEEEE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B8A56AEEF0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:18:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232640AbjCGSSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:18:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41294 "EHLO
+        id S230083AbjCGSSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:18:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232598AbjCGSSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:17 -0500
+        with ESMTP id S232499AbjCGSSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE4D9EEC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64AE91E1DC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5D47614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC82C433D2;
-        Tue,  7 Mar 2023 18:12:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADBC961527
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC633C433EF;
+        Tue,  7 Mar 2023 18:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212780;
-        bh=TmxFtEw7KhU1RzzrGh5HxGYCPOlDXYdhPs95T0EZ154=;
+        s=korg; t=1678212783;
+        bh=WUG1ZwEXYSO6O1GBcmoMqpZcjtg+A3F1uKJDiGnLUr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+dV5XF27Lh3W1UogiFuMXrYyd9WlkIt1w+XjgIJSed3058oA9jnpwCkRoqq3PFZ1
-         b4MJYf2KroKCaDEFiBtsvzXfJUwVHJSV2tBLqI1i8GNKKqVt72mAaHy8xBna7f942a
-         xcb6jbMxKOz8OvynVAklOdbTjQSnJo2vVzdIlD00=
+        b=jfbaXhYxu20JUOsRX9Qc0Dyn79MJ1J4k1FJhwrZ3SJYbE93BZDMxo9LYyBlO5aCr5
+         3zuFe/3ZIRcxgybTg1VCPU+bfLo9+lzGaMmWAkdZ5inQiqJTXTtgxJTPMAR8j0ovsq
+         JtciHTE59Qs5lSJmSM2l4BU5lPEpdn0BOmGClojs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Alexey V. Vissarionov" <gremlin@altlinux.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 294/885] ALSA: hda/ca0132: minor fix for allocation size
-Date:   Tue,  7 Mar 2023 17:53:48 +0100
-Message-Id: <20230307170014.851279568@linuxfoundation.org>
+        patches@lists.linux.dev, Leo Liu <leo.liu@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 295/885] drm/amdgpu: Use the sched from entity for amdgpu_cs trace
+Date:   Tue,  7 Mar 2023 17:53:49 +0100
+Message-Id: <20230307170014.897122307@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -54,38 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey V. Vissarionov <gremlin@altlinux.org>
+From: Leo Liu <leo.liu@amd.com>
 
-[ Upstream commit 3ee0fe7fa39b14d1cea455b7041f2df933bd97d2 ]
+[ Upstream commit cf22ef78f22ce4df4757472c5dbd33c430c5b659 ]
 
-Although the "dma_chan" pointer occupies more or equal space compared
-to "*dma_chan", the allocation size should use the size of variable
-itself.
+The problem is that base sched hasn't been assigned yet at this moment,
+causing something like "ring=0" all the time from trace.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+mpv:cs0-3473    [002] ..... 129.047431: amdgpu_cs: ring=0, dw=48, fences=0
+mpv:cs0-3473    [002] ..... 129.089125: amdgpu_cs: ring=0, dw=48, fences=0
+mpv:cs0-3473    [002] ..... 129.130987: amdgpu_cs: ring=0, dw=48, fences=0
+mpv:cs0-3473    [002] ..... 129.172478: amdgpu_cs: ring=0, dw=48, fences=0
 
-Fixes: 01ef7dbffb41 ("ALSA: hda - Update CA0132 codec to load DSP firmware binary")
-Signed-off-by: Alexey V. Vissarionov <gremlin@altlinux.org>
-Link: https://lore.kernel.org/r/20230117111522.GA15213@altlinux.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 4624459c84d7 ("drm/amdgpu: add gang submit frontend v6")
+Signed-off-by: Leo Liu <leo.liu@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index 0a292bf271f2e..acde4cd58785e 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -2455,7 +2455,7 @@ static int dspio_set_uint_param(struct hda_codec *codec, int mod_id,
- static int dspio_alloc_dma_chan(struct hda_codec *codec, unsigned int *dma_chan)
- {
- 	int status = 0;
--	unsigned int size = sizeof(dma_chan);
-+	unsigned int size = sizeof(*dma_chan);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
+index 5e6ddc7e101c6..6cd6ea765d37f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
+@@ -153,10 +153,10 @@ TRACE_EVENT(amdgpu_cs,
  
- 	codec_dbg(codec, "     dspio_alloc_dma_chan() -- begin\n");
- 	status = dspio_scp(codec, MASTERCONTROL, 0x20,
+ 	    TP_fast_assign(
+ 			   __entry->bo_list = p->bo_list;
+-			   __entry->ring = to_amdgpu_ring(job->base.sched)->idx;
++			   __entry->ring = to_amdgpu_ring(job->base.entity->rq->sched)->idx;
+ 			   __entry->dw = ib->length_dw;
+ 			   __entry->fences = amdgpu_fence_count_emitted(
+-				to_amdgpu_ring(job->base.sched));
++				to_amdgpu_ring(job->base.entity->rq->sched));
+ 			   ),
+ 	    TP_printk("bo_list=%p, ring=%u, dw=%u, fences=%u",
+ 		      __entry->bo_list, __entry->ring, __entry->dw,
 -- 
 2.39.2
 
