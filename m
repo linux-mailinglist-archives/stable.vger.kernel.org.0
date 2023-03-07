@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB436AE902
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:20:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBE376AEDC7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:07:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbjCGRUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:20:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
+        id S231611AbjCGSH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229919AbjCGRTo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:19:44 -0500
+        with ESMTP id S231224AbjCGSHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F09C93129
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:15:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1EF485379
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:00:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7F1B614E7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:15:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1108C433EF;
-        Tue,  7 Mar 2023 17:15:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CFE46150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:00:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E1F9C4339E;
+        Tue,  7 Mar 2023 18:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209313;
-        bh=up6qC0/r8UCIkxxOhewsCOHEOalIuMXqtT1/m2gv+xw=;
+        s=korg; t=1678212005;
+        bh=K0PjAwaLIhioEy3O2E8Eo/dUpsnarRb9VXrWAQjoRZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rsfikbJk/Z1uDYDWnz+kyZHi5XOEicXEXr//hrcwuI5Ithu4Ifep3wAMSpXMEfQ5
-         8KJv9Wey8M5Vz4Aa+8vbRwydU7mztoLCJmYQvmXA6H46AXwZre0xrGn4kuIVD0ZHYw
-         h6nVls9CbIOmdR1BI15snSgcOoMM0N0+BQOR4+qI=
+        b=P+mQzxN6Sfb2+NYmlUTSiGaIOnqDtFNqGgDzUgMs6TVhBRpbt9PgJcm2kPT0bvwDA
+         JhID9WNFPJBgIPQDfr2tpw7krnWNgCkfPTijmLsqrdMFCDWsP77JDQk/1Y6yPScd07
+         8mEG1dgk1UREDMQAtbZjCrSNpBiRzBFTEUleSdCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Boqun Feng <boqun.feng@gmail.com>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0178/1001] rcu-tasks: Improve comments explaining tasks_rcu_exit_srcu purpose
+Subject: [PATCH 6.1 016/885] arm64: dts: mediatek: mt8192: Fix systimer 13 MHz clock description
 Date:   Tue,  7 Mar 2023 17:49:10 +0100
-Message-Id: <20230307170029.649087590@linuxfoundation.org>
+Message-Id: <20230307170002.354085005@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,97 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit e4e1e8089c5fd948da12cb9f4adc93821036945f ]
+[ Upstream commit f19f68e56b0c6631984a9f5023035d4bd09612bb ]
 
-Make sure we don't need to look again into the depths of git blame in
-order not to miss a subtle part about how rcu-tasks is dealing with
-exiting tasks.
+The systimer block derives its 13 MHz clock by dividing the main 26 MHz
+oscillator clock by 2 internally, not through the TOPCKGEN clock
+controller.
 
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Suggested-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Suggested-by: Paul E. McKenney <paulmck@kernel.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Stable-dep-of: 28319d6dc5e2 ("rcu-tasks: Fix synchronize_rcu_tasks() VS zap_pid_ns_processes()")
+On the MT8192 this divider is fixed to /2 and is not configurable.
+
+Making the systimer block take the 26 MHz clock directly requires
+changing the implementations. As an ABI compatible fix, change the
+input clock of the systimer block a fixed factor divide-by-2 clock
+that takes the 26 MHz oscillator as its input.
+
+Fixes: 48489980e27e ("arm64: dts: Add Mediatek SoC MT8192 and evaluation board dts and Makefile")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221201084229.3464449-3-wenst@chromium.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 37 +++++++++++++++++++++++++++++--------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8192.dtsi | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index fe9840d90e960..488ba8adf132c 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -827,11 +827,21 @@ static void rcu_tasks_pertask(struct task_struct *t, struct list_head *hop)
- static void rcu_tasks_postscan(struct list_head *hop)
- {
- 	/*
--	 * Wait for tasks that are in the process of exiting.  This
--	 * does only part of the job, ensuring that all tasks that were
--	 * previously exiting reach the point where they have disabled
--	 * preemption, allowing the later synchronize_rcu() to finish
--	 * the job.
-+	 * Exiting tasks may escape the tasklist scan. Those are vulnerable
-+	 * until their final schedule() with TASK_DEAD state. To cope with
-+	 * this, divide the fragile exit path part in two intersecting
-+	 * read side critical sections:
-+	 *
-+	 * 1) An _SRCU_ read side starting before calling exit_notify(),
-+	 *    which may remove the task from the tasklist, and ending after
-+	 *    the final preempt_disable() call in do_exit().
-+	 *
-+	 * 2) An _RCU_ read side starting with the final preempt_disable()
-+	 *    call in do_exit() and ending with the final call to schedule()
-+	 *    with TASK_DEAD state.
-+	 *
-+	 * This handles the part 1). And postgp will handle part 2) with a
-+	 * call to synchronize_rcu().
- 	 */
- 	synchronize_srcu(&tasks_rcu_exit_srcu);
- }
-@@ -898,7 +908,10 @@ static void rcu_tasks_postgp(struct rcu_tasks *rtp)
- 	 *
- 	 * In addition, this synchronize_rcu() waits for exiting tasks
- 	 * to complete their final preempt_disable() region of execution,
--	 * cleaning up after the synchronize_srcu() above.
-+	 * cleaning up after synchronize_srcu(&tasks_rcu_exit_srcu),
-+	 * enforcing the whole region before tasklist removal until
-+	 * the final schedule() with TASK_DEAD state to be an RCU TASKS
-+	 * read side critical section.
- 	 */
- 	synchronize_rcu();
- }
-@@ -988,7 +1001,11 @@ void show_rcu_tasks_classic_gp_kthread(void)
- EXPORT_SYMBOL_GPL(show_rcu_tasks_classic_gp_kthread);
- #endif // !defined(CONFIG_TINY_RCU)
+diff --git a/arch/arm64/boot/dts/mediatek/mt8192.dtsi b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
+index 6b20376191a75..8163684a23f6e 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8192.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
+@@ -29,6 +29,15 @@ aliases {
+ 		rdma4 = &rdma4;
+ 	};
  
--/* Do the srcu_read_lock() for the above synchronize_srcu().  */
-+/*
-+ * Contribute to protect against tasklist scan blind spot while the
-+ * task is exiting and may be removed from the tasklist. See
-+ * corresponding synchronize_srcu() for further details.
-+ */
- void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
- {
- 	preempt_disable();
-@@ -996,7 +1013,11 @@ void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
- 	preempt_enable();
- }
++	clk13m: fixed-factor-clock-13m {
++		compatible = "fixed-factor-clock";
++		#clock-cells = <0>;
++		clocks = <&clk26m>;
++		clock-div = <2>;
++		clock-mult = <1>;
++		clock-output-names = "clk13m";
++	};
++
+ 	clk26m: oscillator0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+@@ -531,8 +540,7 @@ systimer: timer@10017000 {
+ 				     "mediatek,mt6765-timer";
+ 			reg = <0 0x10017000 0 0x1000>;
+ 			interrupts = <GIC_SPI 233 IRQ_TYPE_LEVEL_HIGH 0>;
+-			clocks = <&topckgen CLK_TOP_CSW_F26M_D2>;
+-			clock-names = "clk13m";
++			clocks = <&clk13m>;
+ 		};
  
--/* Do the srcu_read_unlock() for the above synchronize_srcu().  */
-+/*
-+ * Contribute to protect against tasklist scan blind spot while the
-+ * task is exiting and may be removed from the tasklist. See
-+ * corresponding synchronize_srcu() for further details.
-+ */
- void exit_tasks_rcu_finish(void) __releases(&tasks_rcu_exit_srcu)
- {
- 	struct task_struct *t = current;
+ 		pwrap: pwrap@10026000 {
 -- 
 2.39.2
 
