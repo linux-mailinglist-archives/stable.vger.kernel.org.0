@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B556AEA13
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B006AEA1D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbjCGRag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57924 "EHLO
+        id S231580AbjCGRay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:30:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231504AbjCGRaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2558DA2F13
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:23 -0800 (PST)
+        with ESMTP id S230431AbjCGRag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA5C69C99E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEE4BB81995
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DD9AC433D2;
-        Tue,  7 Mar 2023 17:25:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49D69614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F41AC433EF;
+        Tue,  7 Mar 2023 17:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209920;
-        bh=T4HSnj3hRQvb4TbMAapOvZxjFQ0fvPs5arkL2ZvTA3o=;
+        s=korg; t=1678209954;
+        bh=tfqhrKl/67BgqJ5hefqE8ljkPntiYXdBO9A2lEcM0cA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Il6SVkBoxFaSj7ef2RbiEuxaWyiI3Rz/g5fsfUpN5eFcwu4Qi0vjaA6/X4MHHT23A
-         Z+Y3E9ik5BEQ0HW/uHui3w5nDwkUvmmOMRlL0bTmifEqr1j9o0328HAOJjz7qDtSqU
-         H4aNIfp4JAE/I+imcZBqEYwALY/9aeEErU2GhyFk=
+        b=Ee8aUxRC+3vnznWW0vAzbjN11knnqFrA45EnLxDe/VbH2CCubl0UwgjHCvAsW1S8Q
+         em1d5+/FI+GxJHxr5uJUa6+hncwuQuRJywRj+PCZsfC/zyD8EgUOd9WR1WKumRuBdU
+         UOeeV6Bdvaq0JmFs8NurxjM5bsuWLIrY7x8rOt+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0357/1001] scsi: qla2xxx: Fix exchange oversubscription for management commands
-Date:   Tue,  7 Mar 2023 17:52:09 +0100
-Message-Id: <20230307170036.930894429@linuxfoundation.org>
+Subject: [PATCH 6.2 0358/1001] scsi: qla2xxx: edif: Fix clang warning
+Date:   Tue,  7 Mar 2023 17:52:10 +0100
+Message-Id: <20230307170036.969560258@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -57,190 +58,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 5f63a163ed2f12c34dd4ae9b2757962ec7bb86e5 ]
+[ Upstream commit 2f5fab1b6c3a8efc93ba52c28539c45a8d0142ad ]
 
-Add resource checking for management (non-I/O) commands.
+clang warning:
 
-Fixes: 89c72f4245a8 ("scsi: qla2xxx: Add IOCB resource tracking")
+  drivers/scsi/qla2xxx/qla_edif_bsg.h:93:12: warning: field remote_pid
+  within 'struct app_pinfo_req' is less aligned than 'port_id_t' and is
+  usually due to 'struct app_pinfo_req' being packed, which can lead to
+  unaligned accesses [-Wunaligned-access]
+  port_id_t remote_pid;
+	        ^
+  2 warnings generated.
+
+Remove u32 field in remote_pid to silence warning.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 7ebb336e45ef ("scsi: qla2xxx: edif: Add start + stop bsgs")
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_dfs.c    | 10 ++++-
- drivers/scsi/qla2xxx/qla_inline.h |  5 ++-
- drivers/scsi/qla2xxx/qla_iocb.c   | 67 +++++++++++++++++++++++++++++++
- drivers/scsi/qla2xxx/qla_isr.c    |  1 +
- 4 files changed, 80 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_edif.c     |  4 +++-
+ drivers/scsi/qla2xxx/qla_edif_bsg.h | 15 ++++++++++++++-
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_dfs.c b/drivers/scsi/qla2xxx/qla_dfs.c
-index 777808af56347..1925cc6897b68 100644
---- a/drivers/scsi/qla2xxx/qla_dfs.c
-+++ b/drivers/scsi/qla2xxx/qla_dfs.c
-@@ -235,7 +235,7 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 	uint16_t mb[MAX_IOCB_MB_REG];
- 	int rc;
- 	struct qla_hw_data *ha = vha->hw;
--	u16 iocbs_used, i;
-+	u16 iocbs_used, i, exch_used;
+diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
+index 53186a1459629..38d5bda1f2748 100644
+--- a/drivers/scsi/qla2xxx/qla_edif.c
++++ b/drivers/scsi/qla2xxx/qla_edif.c
+@@ -925,7 +925,9 @@ qla_edif_app_getfcinfo(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ 			if (!(fcport->flags & FCF_FCSP_DEVICE))
+ 				continue;
  
- 	rc = qla24xx_res_count_wait(vha, mb, SIZEOF_IOCB_MB_REG);
- 	if (rc != QLA_SUCCESS) {
-@@ -263,13 +263,19 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 	if (ql2xenforce_iocb_limit) {
- 		/* lock is not require. It's an estimate. */
- 		iocbs_used = ha->base_qpair->fwres.iocbs_used;
-+		exch_used = ha->base_qpair->fwres.exch_used;
- 		for (i = 0; i < ha->max_qpairs; i++) {
--			if (ha->queue_pair_map[i])
-+			if (ha->queue_pair_map[i]) {
- 				iocbs_used += ha->queue_pair_map[i]->fwres.iocbs_used;
-+				exch_used += ha->queue_pair_map[i]->fwres.exch_used;
-+			}
- 		}
+-			tdid = app_req.remote_pid;
++			tdid.b.domain = app_req.remote_pid.domain;
++			tdid.b.area = app_req.remote_pid.area;
++			tdid.b.al_pa = app_req.remote_pid.al_pa;
  
- 		seq_printf(s, "Driver: estimate iocb used [%d] high water limit [%d]\n",
- 			   iocbs_used, ha->base_qpair->fwres.iocbs_limit);
-+
-+		seq_printf(s, "estimate exchange used[%d] high water limit [%d] n",
-+			   exch_used, ha->base_qpair->fwres.exch_limit);
- 	}
- 
- 	return 0;
-diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
-index 2d5a275d8b000..b0ee307b5d4b9 100644
---- a/drivers/scsi/qla2xxx/qla_inline.h
-+++ b/drivers/scsi/qla2xxx/qla_inline.h
-@@ -380,7 +380,7 @@ qla2xxx_get_fc4_priority(struct scsi_qla_host *vha)
- 
- enum {
- 	RESOURCE_NONE,
--	RESOURCE_IOCB  = BIT_0,
-+	RESOURCE_IOCB = BIT_0,
- 	RESOURCE_EXCH = BIT_1,  /* exchange */
- 	RESOURCE_FORCE = BIT_2,
- };
-@@ -396,6 +396,8 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
- 		iores->res_type = RESOURCE_NONE;
- 		return 0;
- 	}
-+	if (iores->res_type & RESOURCE_FORCE)
-+		goto force;
- 
- 	if ((iores->iocb_cnt + qp->fwres.iocbs_used) >= qp->fwres.iocbs_qp_limit) {
- 		/* no need to acquire qpair lock. It's just rough calculation */
-@@ -423,6 +425,7 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
- 			return -ENOSPC;
- 		}
- 	}
-+force:
- 	qp->fwres.iocbs_used += iores->iocb_cnt;
- 	qp->fwres.exch_used += iores->exch_cnt;
- 	return 0;
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index 399ec8da2d73c..4f48f098ea5a6 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -3817,6 +3817,65 @@ qla24xx_prlo_iocb(srb_t *sp, struct logio_entry_24xx *logio)
- 	logio->vp_index = sp->fcport->vha->vp_idx;
- }
- 
-+int qla_get_iocbs_resource(struct srb *sp)
-+{
-+	bool get_exch;
-+	bool push_it_through = false;
-+
-+	if (!ql2xenforce_iocb_limit) {
-+		sp->iores.res_type = RESOURCE_NONE;
-+		return 0;
-+	}
-+	sp->iores.res_type = RESOURCE_NONE;
-+
-+	switch (sp->type) {
-+	case SRB_TM_CMD:
-+	case SRB_PRLI_CMD:
-+	case SRB_ADISC_CMD:
-+		push_it_through = true;
-+		fallthrough;
-+	case SRB_LOGIN_CMD:
-+	case SRB_ELS_CMD_RPT:
-+	case SRB_ELS_CMD_HST:
-+	case SRB_ELS_CMD_HST_NOLOGIN:
-+	case SRB_CT_CMD:
-+	case SRB_NVME_LS:
-+	case SRB_ELS_DCMD:
-+		get_exch = true;
-+		break;
-+
-+	case SRB_FXIOCB_DCMD:
-+	case SRB_FXIOCB_BCMD:
-+		sp->iores.res_type = RESOURCE_NONE;
-+		return 0;
-+
-+	case SRB_SA_UPDATE:
-+	case SRB_SA_REPLACE:
-+	case SRB_MB_IOCB:
-+	case SRB_ABT_CMD:
-+	case SRB_NACK_PLOGI:
-+	case SRB_NACK_PRLI:
-+	case SRB_NACK_LOGO:
-+	case SRB_LOGOUT_CMD:
-+	case SRB_CTRL_VP:
-+		push_it_through = true;
-+		fallthrough;
-+	default:
-+		get_exch = false;
-+	}
-+
-+	sp->iores.res_type |= RESOURCE_IOCB;
-+	sp->iores.iocb_cnt = 1;
-+	if (get_exch) {
-+		sp->iores.res_type |= RESOURCE_EXCH;
-+		sp->iores.exch_cnt = 1;
-+	}
-+	if (push_it_through)
-+		sp->iores.res_type |= RESOURCE_FORCE;
-+
-+	return qla_get_fw_resources(sp->qpair, &sp->iores);
-+}
-+
- int
- qla2x00_start_sp(srb_t *sp)
- {
-@@ -3831,6 +3890,12 @@ qla2x00_start_sp(srb_t *sp)
- 		return -EIO;
- 
- 	spin_lock_irqsave(qp->qp_lock_ptr, flags);
-+	rval = qla_get_iocbs_resource(sp);
-+	if (rval) {
-+		spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
-+		return -EAGAIN;
-+	}
-+
- 	pkt = __qla2x00_alloc_iocbs(sp->qpair, sp);
- 	if (!pkt) {
- 		rval = EAGAIN;
-@@ -3931,6 +3996,8 @@ qla2x00_start_sp(srb_t *sp)
- 	wmb();
- 	qla2x00_start_iocbs(vha, qp->req);
- done:
-+	if (rval)
-+		qla_put_fw_resources(sp->qpair, &sp->iores);
- 	spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
- 	return rval;
- }
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index 42d3d2de3d31f..759bea69de120 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3112,6 +3112,7 @@ qla25xx_process_bidir_status_iocb(scsi_qla_host_t *vha, void *pkt,
- 	}
- 	bsg_reply->reply_payload_rcv_len = 0;
- 
-+	qla_put_fw_resources(sp->qpair, &sp->iores);
- done:
- 	/* Return the vendor specific reply to API */
- 	bsg_reply->reply_data.vendor_reply.vendor_rsp[0] = rval;
+ 			ql_dbg(ql_dbg_edif, vha, 0x2058,
+ 			    "APP request entry - portid=%06x.\n", tdid.b24);
+diff --git a/drivers/scsi/qla2xxx/qla_edif_bsg.h b/drivers/scsi/qla2xxx/qla_edif_bsg.h
+index 0931f4e4e127a..514c265ba86e2 100644
+--- a/drivers/scsi/qla2xxx/qla_edif_bsg.h
++++ b/drivers/scsi/qla2xxx/qla_edif_bsg.h
+@@ -89,7 +89,20 @@ struct app_plogi_reply {
+ struct app_pinfo_req {
+ 	struct app_id app_info;
+ 	uint8_t	 num_ports;
+-	port_id_t remote_pid;
++	struct {
++#ifdef __BIG_ENDIAN
++		uint8_t domain;
++		uint8_t area;
++		uint8_t al_pa;
++#elif defined(__LITTLE_ENDIAN)
++		uint8_t al_pa;
++		uint8_t area;
++		uint8_t domain;
++#else
++#error "__BIG_ENDIAN or __LITTLE_ENDIAN must be defined!"
++#endif
++		uint8_t rsvd_1;
++	} remote_pid;
+ 	uint8_t		version;
+ 	uint8_t		pad[VND_CMD_PAD_SIZE];
+ 	uint8_t		reserved[VND_CMD_APP_RESERVED_SIZE];
 -- 
 2.39.2
 
