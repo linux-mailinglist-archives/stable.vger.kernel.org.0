@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 698236AEC82
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:56:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D286AF18F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230388AbjCGR4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:56:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46178 "EHLO
+        id S233210AbjCGSpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:45:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230473AbjCGRzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:55:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C9CD95E33
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:50:15 -0800 (PST)
+        with ESMTP id S229627AbjCGSpK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BCC9B7890
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8AC461507
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:50:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A7D6C433EF;
-        Tue,  7 Mar 2023 17:50:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0488AB819D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53272C433EF;
+        Tue,  7 Mar 2023 18:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211414;
-        bh=rsc6DeU+Ch57SmvyZGQKPDccSe/DsX+OxfnQCkjRClk=;
+        s=korg; t=1678214009;
+        bh=9q2CjSzVFzF+6ST2/NI9U+Wb5Hesf4447CQCQOBdN/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umQi2j542BJ8gsU0OB5Ljhea0+M58u6XexdlXYjpHHkUtMl+hjyinSKM73olPRzHf
-         Hh/d2vCoyXmiogqSKe5ZGQlhDtGTHQpU1mXMJblNVYvwOaqbN0ax4t+yMizBJXbiu/
-         TOpaUmJIg+qvC7GTkYTTnH6djgk/lrU9LScdjj64=
+        b=e3ZBnnf0e4Dsiru12uxS11/41aqu9/bXIcBJDWzrT0T2EZGVVIFKlX20z+i0ANiF8
+         noTwvzWSLl61q1ygZ7mKv6XUyNJhQER3EE/9tg5KBIkbSrQRMZSBqoLQqub6sPV+b1
+         ABYUkTNIOaqqgbVt9cGkmrOC0MC3tS5V96A1vSYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 6.2 0853/1001] powerpc/boot: Dont always pass -mcpu=powerpc when building 32-bit uImage
+        patches@lists.linux.dev, Yuezhang Mo <Yuezhang.Mo@sony.com>,
+        Andy Wu <Andy.Wu@sony.com>,
+        Aoyama Wataru <wataru.aoyama@sony.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 6.1 691/885] exfat: fix reporting fs error when reading dir beyond EOF
 Date:   Tue,  7 Mar 2023 18:00:25 +0100
-Message-Id: <20230307170058.835639374@linuxfoundation.org>
+Message-Id: <20230307170032.130487134@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Yuezhang Mo <Yuezhang.Mo@sony.com>
 
-commit ff7c76f66d8bad4e694c264c789249e1d3a8205d upstream.
+commit 706fdcac002316893434d753be8cfb549fe1d40d upstream.
 
-When CONFIG_TARGET_CPU is specified then pass its value to the compiler
--mcpu option. This fixes following build error when building kernel with
-powerpc e500 SPE capable cross compilers:
+Since seekdir() does not check whether the position is valid, the
+position may exceed the size of the directory. We found that for
+a directory with discontinuous clusters, if the position exceeds
+the size of the directory and the excess size is greater than or
+equal to the cluster size, exfat_readdir() will return -EIO,
+causing a file system error and making the file system unavailable.
 
-    BOOTAS  arch/powerpc/boot/crt0.o
-  powerpc-linux-gnuspe-gcc: error: unrecognized argument in option ‘-mcpu=powerpc’
-  powerpc-linux-gnuspe-gcc: note: valid arguments to ‘-mcpu=’ are: 8540 8548 native
-  make[1]: *** [arch/powerpc/boot/Makefile:231: arch/powerpc/boot/crt0.o] Error 1
+Reproduce this bug by:
 
-Similar change was already introduced for the main powerpc Makefile in
-commit 446cda1b21d9 ("powerpc/32: Don't always pass -mcpu=powerpc to the
-compiler").
+seekdir(dir, dir_size + cluster_size);
+dirent = readdir(dir);
 
-Fixes: 40a75584e526 ("powerpc/boot: Build wrapper for an appropriate CPU")
-Cc: stable@vger.kernel.org # v5.19+
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/2ae3ae5887babfdacc34435bff0944b3f336100a.1674632329.git.christophe.leroy@csgroup.eu
+The following log will be printed if mount with 'errors=remount-ro'.
+
+[11166.712896] exFAT-fs (sdb1): error, invalid access to FAT (entry 0xffffffff)
+[11166.712905] exFAT-fs (sdb1): Filesystem has been set read-only
+
+Fixes: 1e5654de0f51 ("exfat: handle wrong stream entry size in exfat_readdir()")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+Reviewed-by: Andy Wu <Andy.Wu@sony.com>
+Reviewed-by: Aoyama Wataru <wataru.aoyama@sony.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/boot/Makefile |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ fs/exfat/dir.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/boot/Makefile
-+++ b/arch/powerpc/boot/Makefile
-@@ -39,13 +39,19 @@ BOOTCFLAGS    := -Wall -Wundef -Wstrict-
- 		 $(LINUXINCLUDE)
+--- a/fs/exfat/dir.c
++++ b/fs/exfat/dir.c
+@@ -102,7 +102,7 @@ static int exfat_readdir(struct inode *i
+ 			clu.dir = ei->hint_bmap.clu;
+ 		}
  
- ifdef CONFIG_PPC64_BOOT_WRAPPER
--ifdef CONFIG_CPU_LITTLE_ENDIAN
--BOOTCFLAGS	+= -m64 -mcpu=powerpc64le
-+BOOTCFLAGS	+= -m64
- else
--BOOTCFLAGS	+= -m64 -mcpu=powerpc64
-+BOOTCFLAGS	+= -m32
- endif
-+
-+ifdef CONFIG_TARGET_CPU_BOOL
-+BOOTCFLAGS	+= -mcpu=$(CONFIG_TARGET_CPU)
-+else ifdef CONFIG_PPC64_BOOT_WRAPPER
-+ifdef CONFIG_CPU_LITTLE_ENDIAN
-+BOOTCFLAGS	+= -mcpu=powerpc64le
- else
--BOOTCFLAGS	+= -m32 -mcpu=powerpc
-+BOOTCFLAGS	+= -mcpu=powerpc64
-+endif
- endif
+-		while (clu_offset > 0) {
++		while (clu_offset > 0 && clu.dir != EXFAT_EOF_CLUSTER) {
+ 			if (exfat_get_next_cluster(sb, &(clu.dir)))
+ 				return -EIO;
  
- BOOTCFLAGS	+= -isystem $(shell $(BOOTCC) -print-file-name=include)
 
 
