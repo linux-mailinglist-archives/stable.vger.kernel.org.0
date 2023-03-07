@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE32E6AF07C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:31:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8145D6AEB61
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231200AbjCGSa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:30:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60576 "EHLO
+        id S231443AbjCGRoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:44:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229850AbjCGSaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D996A42
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:51 -0800 (PST)
+        with ESMTP id S232101AbjCGRn2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:43:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EEF96625
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15FDEB819C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76259C433D2;
-        Tue,  7 Mar 2023 18:23:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45D70B81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF72C433EF;
+        Tue,  7 Mar 2023 17:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213428;
-        bh=1CgsFkOgc2peu48zLHkDMJzEWQg/q7F0Np9YA8DF9l4=;
+        s=korg; t=1678210730;
+        bh=D6mfpTfXfmaJp3MilcD9lThAN0ztm6tyMqyrIOeUpiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmtvsB8KFzJqsZhJUo8rm/UTLrmg4XqxoZDCNizx+znqLw+zCPanOE6o1Bc676vlz
-         zfQif3bocrYTFz1T3ITDCIm0HcOJ/xe3pTHYoUoiM8Y/5rLUc9igIPskdG+cO/qmm3
-         JrI7s/AXTERLrPcibdvVr+OCCM9FcQ6nkh3R45JQ=
+        b=N0Flyxa8ZRYCt03IsoKCvgSZRNKZe9OKGwDxX5ugsHEU7GowjuTMP4DZip1lPP1Ck
+         60k14mu+LQbUA8x2NIS5q5wN+gV6UXsz1uw2rzQA8qZaTb2uAFr2bCCfoke+2iUjAJ
+         lBXWRakeG93SvoqbuJ+iRyYsDM6GazurjORogCuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        Luca Weiss <luca.weiss@fairphone.com>
-Subject: [PATCH 6.1 474/885] driver core: fw_devlink: Make cycle detection more robust
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0636/1001] wifi: ath9k: Fix use-after-free in ath9k_hif_usb_disconnect()
 Date:   Tue,  7 Mar 2023 17:56:48 +0100
-Message-Id: <20230307170023.095065922@linuxfoundation.org>
+Message-Id: <20230307170049.185683901@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,401 +57,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit 3fb16866b51ded6c016b664caad53f8d4fd9dc56 ]
+[ Upstream commit f099c5c9e2ba08a379bd354a82e05ef839ae29ac ]
 
-fw_devlink could only detect a single and simple cycle because it relied
-mainly on device link cycle detection code that only checked for cycles
-between devices. The expectation was that the firmware wouldn't have
-complicated cycles and multiple cycles between devices. That expectation
-has been proven to be wrong.
+This patch fixes a use-after-free in ath9k that occurs in
+ath9k_hif_usb_disconnect() when ath9k_destroy_wmi() is trying to access
+'drv_priv' that has already been freed by ieee80211_free_hw(), called by
+ath9k_htc_hw_deinit(). The patch moves ath9k_destroy_wmi() before
+ieee80211_free_hw(). Note that urbs from the driver should be killed
+before freeing 'wmi' with ath9k_destroy_wmi() as their callbacks will
+access 'wmi'.
 
-For example, fw_devlink could handle:
+Found by a modified version of syzkaller.
 
-+-+        +-+
-|A+------> |B+
-+-+        +++
- ^          |
- |          |
- +----------+
+==================================================================
+BUG: KASAN: use-after-free in ath9k_destroy_wmi+0x38/0x40
+Read of size 8 at addr ffff8881069132a0 by task kworker/0:1/7
 
-But it couldn't handle even something as "simple" as:
+CPU: 0 PID: 7 Comm: kworker/0:1 Tainted: G O 5.14.0+ #131
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack_lvl+0x8e/0xd1
+ print_address_description.constprop.0.cold+0x93/0x334
+ ? ath9k_destroy_wmi+0x38/0x40
+ ? ath9k_destroy_wmi+0x38/0x40
+ kasan_report.cold+0x83/0xdf
+ ? ath9k_destroy_wmi+0x38/0x40
+ ath9k_destroy_wmi+0x38/0x40
+ ath9k_hif_usb_disconnect+0x329/0x3f0
+ ? ath9k_hif_usb_suspend+0x120/0x120
+ ? usb_disable_interface+0xfc/0x180
+ usb_unbind_interface+0x19b/0x7e0
+ ? usb_autoresume_device+0x50/0x50
+ device_release_driver_internal+0x44d/0x520
+ bus_remove_device+0x2e5/0x5a0
+ device_del+0x5b2/0xe30
+ ? __device_link_del+0x370/0x370
+ ? usb_remove_ep_devs+0x43/0x80
+ ? remove_intf_ep_devs+0x112/0x1a0
+ usb_disable_device+0x1e3/0x5a0
+ usb_disconnect+0x267/0x870
+ hub_event+0x168d/0x3950
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? hub_port_debounce+0x2e0/0x2e0
+ ? check_irq_usage+0x860/0xf20
+ ? drain_workqueue+0x281/0x360
+ ? lock_release+0x640/0x640
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ process_one_work+0x92b/0x1460
+ ? pwq_dec_nr_in_flight+0x330/0x330
+ ? rwlock_bug.part.0+0x90/0x90
+ worker_thread+0x95/0xe00
+ ? __kthread_parkme+0x115/0x1e0
+ ? process_one_work+0x1460/0x1460
+ kthread+0x3a1/0x480
+ ? set_kthread_struct+0x120/0x120
+ ret_from_fork+0x1f/0x30
 
- +---------------------+
- |                     |
- v                     |
-+-+        +-+        +++
-|A+------> |B+------> |C|
-+-+        +++        +-+
- ^          |
- |          |
- +----------+
+The buggy address belongs to the page:
+page:ffffea00041a44c0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x106913
+flags: 0x200000000000000(node=0|zone=2)
+raw: 0200000000000000 0000000000000000 dead000000000122 0000000000000000
+raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as freed
+page last allocated via order 3, migratetype Unmovable, gfp_mask 0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO), pid 7, ts 38347963444, free_ts 41399957635
+ prep_new_page+0x1aa/0x240
+ get_page_from_freelist+0x159a/0x27c0
+ __alloc_pages+0x2da/0x6a0
+ alloc_pages+0xec/0x1e0
+ kmalloc_order+0x39/0xf0
+ kmalloc_order_trace+0x19/0x120
+ __kmalloc+0x308/0x390
+ wiphy_new_nm+0x6f5/0x1dd0
+ ieee80211_alloc_hw_nm+0x36d/0x2230
+ ath9k_htc_probe_device+0x9d/0x1e10
+ ath9k_htc_hw_init+0x34/0x50
+ ath9k_hif_usb_firmware_cb+0x25f/0x4e0
+ request_firmware_work_func+0x131/0x240
+ process_one_work+0x92b/0x1460
+ worker_thread+0x95/0xe00
+ kthread+0x3a1/0x480
+page last free stack trace:
+ free_pcp_prepare+0x3d3/0x7f0
+ free_unref_page+0x1e/0x3d0
+ device_release+0xa4/0x240
+ kobject_put+0x186/0x4c0
+ put_device+0x20/0x30
+ ath9k_htc_disconnect_device+0x1cf/0x2c0
+ ath9k_htc_hw_deinit+0x26/0x30
+ ath9k_hif_usb_disconnect+0x2d9/0x3f0
+ usb_unbind_interface+0x19b/0x7e0
+ device_release_driver_internal+0x44d/0x520
+ bus_remove_device+0x2e5/0x5a0
+ device_del+0x5b2/0xe30
+ usb_disable_device+0x1e3/0x5a0
+ usb_disconnect+0x267/0x870
+ hub_event+0x168d/0x3950
+ process_one_work+0x92b/0x1460
 
-But firmware has even more complicated cycles like:
+Memory state around the buggy address:
+ ffff888106913180: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888106913200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>ffff888106913280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                               ^
+ ffff888106913300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888106913380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+==================================================================
 
-    +---------------------+
-    |                     |
-    v                     |
-   +-+       +---+       +++
-+--+A+------>| B +-----> |C|<--+
-|  +-+       ++--+       +++   |
-|   ^         | ^         |    |
-|   |         | |         |    |
-|   +---------+ +---------+    |
-|                              |
-+------------------------------+
-
-And this is without including parent child dependencies or nodes in the
-cycle that are just firmware nodes that'll never have a struct device
-created for them.
-
-The proper way to treat these devices it to not force any probe ordering
-between them, while still enforce dependencies between node in the
-cycles (A, B and C) and their consumers.
-
-So this patch goes all out and just deals with all types of cycles. It
-does this by:
-
-1. Following dependencies across device links, parent-child and fwnode
-   links.
-2. When it find cycles, it mark the device links and fwnode links as
-   such instead of just deleting them or making the indistinguishable
-   from proxy SYNC_STATE_ONLY device links.
-
-This way, when new nodes get added, we can immediately find and mark any
-new cycles whether the new node is a device or firmware node.
-
-Fixes: 2de9d8e0d2fe ("driver core: fw_devlink: Improve handling of cyclic dependencies")
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Tested-by: Colin Foster <colin.foster@in-advantage.com>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
-Link: https://lore.kernel.org/r/20230207014207.1678715-9-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20221205014308.1617597-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c | 248 +++++++++++++++++++++++---------------------
- 1 file changed, 129 insertions(+), 119 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c      | 2 --
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index bf053e351a277..ac08d475e2828 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1865,47 +1865,6 @@ static void fw_devlink_unblock_consumers(struct device *dev)
- 	device_links_write_unlock();
- }
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index de6c0824c9cab..f521dfa2f1945 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -1424,8 +1424,6 @@ static void ath9k_hif_usb_disconnect(struct usb_interface *interface)
  
--/**
-- * fw_devlink_relax_cycle - Convert cyclic links to SYNC_STATE_ONLY links
-- * @con: Device to check dependencies for.
-- * @sup: Device to check against.
-- *
-- * Check if @sup depends on @con or any device dependent on it (its child or
-- * its consumer etc).  When such a cyclic dependency is found, convert all
-- * device links created solely by fw_devlink into SYNC_STATE_ONLY device links.
-- * This is the equivalent of doing fw_devlink=permissive just between the
-- * devices in the cycle. We need to do this because, at this point, fw_devlink
-- * can't tell which of these dependencies is not a real dependency.
-- *
-- * Return 1 if a cycle is found. Otherwise, return 0.
-- */
--static int fw_devlink_relax_cycle(struct device *con, void *sup)
--{
--	struct device_link *link;
--	int ret;
--
--	if (con == sup)
--		return 1;
--
--	ret = device_for_each_child(con, sup, fw_devlink_relax_cycle);
--	if (ret)
--		return ret;
--
--	list_for_each_entry(link, &con->links.consumers, s_node) {
--		if (!(link->flags & DL_FLAG_CYCLE) &&
--		    device_link_flag_is_sync_state_only(link->flags))
--			continue;
--
--		if (!fw_devlink_relax_cycle(link->consumer, sup))
--			continue;
--
--		ret = 1;
--
--		fw_devlink_relax_link(link);
--		link->flags |= DL_FLAG_CYCLE;
--	}
--	return ret;
--}
- 
- static bool fwnode_init_without_drv(struct fwnode_handle *fwnode)
- {
-@@ -1936,6 +1895,111 @@ static bool fwnode_ancestor_init_without_drv(struct fwnode_handle *fwnode)
- 	return false;
- }
- 
-+/**
-+ * __fw_devlink_relax_cycles - Relax and mark dependency cycles.
-+ * @con: Potential consumer device.
-+ * @sup_handle: Potential supplier's fwnode.
-+ *
-+ * Needs to be called with fwnode_lock and device link lock held.
-+ *
-+ * Check if @sup_handle or any of its ancestors or suppliers direct/indirectly
-+ * depend on @con. This function can detect multiple cyles between @sup_handle
-+ * and @con. When such dependency cycles are found, convert all device links
-+ * created solely by fw_devlink into SYNC_STATE_ONLY device links. Also, mark
-+ * all fwnode links in the cycle with FWLINK_FLAG_CYCLE so that when they are
-+ * converted into a device link in the future, they are created as
-+ * SYNC_STATE_ONLY device links. This is the equivalent of doing
-+ * fw_devlink=permissive just between the devices in the cycle. We need to do
-+ * this because, at this point, fw_devlink can't tell which of these
-+ * dependencies is not a real dependency.
-+ *
-+ * Return true if one or more cycles were found. Otherwise, return false.
-+ */
-+static bool __fw_devlink_relax_cycles(struct device *con,
-+				 struct fwnode_handle *sup_handle)
-+{
-+	struct device *sup_dev = NULL, *par_dev = NULL;
-+	struct fwnode_link *link;
-+	struct device_link *dev_link;
-+	bool ret = false;
-+
-+	if (!sup_handle)
-+		return false;
-+
-+	/*
-+	 * We aren't trying to find all cycles. Just a cycle between con and
-+	 * sup_handle.
-+	 */
-+	if (sup_handle->flags & FWNODE_FLAG_VISITED)
-+		return false;
-+
-+	sup_handle->flags |= FWNODE_FLAG_VISITED;
-+
-+	sup_dev = get_dev_from_fwnode(sup_handle);
-+
-+	/* Termination condition. */
-+	if (sup_dev == con) {
-+		ret = true;
-+		goto out;
-+	}
-+
-+	/*
-+	 * If sup_dev is bound to a driver and @con hasn't started binding to a
-+	 * driver, sup_dev can't be a consumer of @con. So, no need to check
-+	 * further.
-+	 */
-+	if (sup_dev && sup_dev->links.status ==  DL_DEV_DRIVER_BOUND &&
-+	    con->links.status == DL_DEV_NO_DRIVER) {
-+		ret = false;
-+		goto out;
-+	}
-+
-+	list_for_each_entry(link, &sup_handle->suppliers, c_hook) {
-+		if (__fw_devlink_relax_cycles(con, link->supplier)) {
-+			__fwnode_link_cycle(link);
-+			ret = true;
-+		}
-+	}
-+
-+	/*
-+	 * Give priority to device parent over fwnode parent to account for any
-+	 * quirks in how fwnodes are converted to devices.
-+	 */
-+	if (sup_dev)
-+		par_dev = get_device(sup_dev->parent);
-+	else
-+		par_dev = fwnode_get_next_parent_dev(sup_handle);
-+
-+	if (par_dev && __fw_devlink_relax_cycles(con, par_dev->fwnode))
-+		ret = true;
-+
-+	if (!sup_dev)
-+		goto out;
-+
-+	list_for_each_entry(dev_link, &sup_dev->links.suppliers, c_node) {
-+		/*
-+		 * Ignore a SYNC_STATE_ONLY flag only if it wasn't marked as
-+		 * such due to a cycle.
-+		 */
-+		if (device_link_flag_is_sync_state_only(dev_link->flags) &&
-+		    !(dev_link->flags & DL_FLAG_CYCLE))
-+			continue;
-+
-+		if (__fw_devlink_relax_cycles(con,
-+					      dev_link->supplier->fwnode)) {
-+			fw_devlink_relax_link(dev_link);
-+			dev_link->flags |= DL_FLAG_CYCLE;
-+			ret = true;
-+		}
-+	}
-+
-+out:
-+	sup_handle->flags &= ~FWNODE_FLAG_VISITED;
-+	put_device(sup_dev);
-+	put_device(par_dev);
-+	return ret;
-+}
-+
- /**
-  * fw_devlink_create_devlink - Create a device link from a consumer to fwnode
-  * @con: consumer device for the device link
-@@ -1988,6 +2052,21 @@ static int fw_devlink_create_devlink(struct device *con,
- 	    fwnode_is_ancestor_of(sup_handle, con->fwnode))
- 		return -EINVAL;
- 
-+	/*
-+	 * SYNC_STATE_ONLY device links don't block probing and supports cycles.
-+	 * So cycle detection isn't necessary and shouldn't be done.
-+	 */
-+	if (!(flags & DL_FLAG_SYNC_STATE_ONLY)) {
-+		device_links_write_lock();
-+		if (__fw_devlink_relax_cycles(con, sup_handle)) {
-+			__fwnode_link_cycle(link);
-+			flags = fw_devlink_get_flags(link->flags);
-+			dev_info(con, "Fixed dependency cycle(s) with %pfwf\n",
-+				 sup_handle);
-+		}
-+		device_links_write_unlock();
-+	}
-+
- 	if (sup_handle->flags & FWNODE_FLAG_NOT_DEVICE)
- 		sup_dev = fwnode_get_next_parent_dev(sup_handle);
- 	else
-@@ -2001,23 +2080,16 @@ static int fw_devlink_create_devlink(struct device *con,
- 		 */
- 		if (sup_dev->links.status == DL_DEV_NO_DRIVER &&
- 		    sup_handle->flags & FWNODE_FLAG_INITIALIZED) {
-+			dev_dbg(con,
-+				"Not linking %pfwf - dev might never probe\n",
-+				sup_handle);
- 			ret = -EINVAL;
- 			goto out;
- 		}
- 
--		/*
--		 * If this fails, it is due to cycles in device links.  Just
--		 * give up on this link and treat it as invalid.
--		 */
--		if (!device_link_add(con, sup_dev, flags) &&
--		    !(flags & DL_FLAG_SYNC_STATE_ONLY)) {
--			dev_info(con, "Fixing up cyclic dependency with %s\n",
--				 dev_name(sup_dev));
--			device_links_write_lock();
--			fw_devlink_relax_cycle(con, sup_dev);
--			device_links_write_unlock();
--			device_link_add(con, sup_dev,
--					FW_DEVLINK_FLAGS_PERMISSIVE);
-+		if (!device_link_add(con, sup_dev, flags)) {
-+			dev_err(con, "Failed to create device link with %s\n",
-+				dev_name(sup_dev));
- 			ret = -EINVAL;
- 		}
- 
-@@ -2030,49 +2102,12 @@ static int fw_devlink_create_devlink(struct device *con,
- 	 */
- 	if (fwnode_init_without_drv(sup_handle) ||
- 	    fwnode_ancestor_init_without_drv(sup_handle)) {
--		dev_dbg(con, "Not linking %pfwP - Might never probe\n",
-+		dev_dbg(con, "Not linking %pfwf - might never become dev\n",
- 			sup_handle);
- 		return -EINVAL;
+ 	if (hif_dev->flags & HIF_USB_READY) {
+ 		ath9k_htc_hw_deinit(hif_dev->htc_handle, unplugged);
+-		ath9k_hif_usb_dev_deinit(hif_dev);
+-		ath9k_destroy_wmi(hif_dev->htc_handle->drv_priv);
+ 		ath9k_htc_hw_free(hif_dev->htc_handle);
  	}
  
--	/*
--	 * DL_FLAG_SYNC_STATE_ONLY doesn't block probing and supports
--	 * cycles. So cycle detection isn't necessary and shouldn't be
--	 * done.
--	 */
--	if (flags & DL_FLAG_SYNC_STATE_ONLY)
--		return -EAGAIN;
--
--	/*
--	 * If we can't find the supplier device from its fwnode, it might be
--	 * due to a cyclic dependency between fwnodes. Some of these cycles can
--	 * be broken by applying logic. Check for these types of cycles and
--	 * break them so that devices in the cycle probe properly.
--	 *
--	 * If the supplier's parent is dependent on the consumer, then the
--	 * consumer and supplier have a cyclic dependency. Since fw_devlink
--	 * can't tell which of the inferred dependencies are incorrect, don't
--	 * enforce probe ordering between any of the devices in this cyclic
--	 * dependency. Do this by relaxing all the fw_devlink device links in
--	 * this cycle and by treating the fwnode link between the consumer and
--	 * the supplier as an invalid dependency.
--	 */
--	sup_dev = fwnode_get_next_parent_dev(sup_handle);
--	if (sup_dev && device_is_dependent(con, sup_dev)) {
--		dev_info(con, "Fixing up cyclic dependency with %pfwP (%s)\n",
--			 sup_handle, dev_name(sup_dev));
--		device_links_write_lock();
--		fw_devlink_relax_cycle(con, sup_dev);
--		device_links_write_unlock();
--		ret = -EINVAL;
--	} else {
--		/*
--		 * Can't check for cycles or no cycles. So let's try
--		 * again later.
--		 */
--		ret = -EAGAIN;
--	}
--
-+	ret = -EAGAIN;
- out:
- 	put_device(sup_dev);
- 	return ret;
-@@ -2155,10 +2190,7 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
-  *
-  * The function creates normal (non-SYNC_STATE_ONLY) device links between @dev
-  * and the real suppliers of @dev. Once these device links are created, the
-- * fwnode links are deleted. When such device links are successfully created,
-- * this function is called recursively on those supplier devices. This is
-- * needed to detect and break some invalid cycles in fwnode links.  See
-- * fw_devlink_create_devlink() for more details.
-+ * fwnode links are deleted.
-  *
-  * In addition, it also looks at all the suppliers of the entire fwnode tree
-  * because some of the child devices of @dev that have not been added yet
-@@ -2179,7 +2211,6 @@ static void __fw_devlink_link_to_suppliers(struct device *dev,
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index 07ac88fb1c577..96a3185a96d75 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -988,6 +988,8 @@ void ath9k_htc_disconnect_device(struct htc_target *htc_handle, bool hotunplug)
  
- 	list_for_each_entry_safe(link, tmp, &fwnode->suppliers, c_hook) {
- 		int ret;
--		struct device *sup_dev;
- 		struct fwnode_handle *sup = link->supplier;
- 
- 		ret = fw_devlink_create_devlink(dev, sup, link);
-@@ -2187,27 +2218,6 @@ static void __fw_devlink_link_to_suppliers(struct device *dev,
- 			continue;
- 
- 		__fwnode_link_del(link);
--
--		/* If no device link was created, nothing more to do. */
--		if (ret)
--			continue;
--
--		/*
--		 * If a device link was successfully created to a supplier, we
--		 * now need to try and link the supplier to all its suppliers.
--		 *
--		 * This is needed to detect and delete false dependencies in
--		 * fwnode links that haven't been converted to a device link
--		 * yet. See comments in fw_devlink_create_devlink() for more
--		 * details on the false dependency.
--		 *
--		 * Without deleting these false dependencies, some devices will
--		 * never probe because they'll keep waiting for their false
--		 * dependency fwnode links to be converted to device links.
--		 */
--		sup_dev = get_dev_from_fwnode(sup);
--		__fw_devlink_link_to_suppliers(sup_dev, sup_dev->fwnode);
--		put_device(sup_dev);
+ 		ath9k_deinit_device(htc_handle->drv_priv);
+ 		ath9k_stop_wmi(htc_handle->drv_priv);
++		ath9k_hif_usb_dealloc_urbs((struct hif_device_usb *)htc_handle->hif_dev);
++		ath9k_destroy_wmi(htc_handle->drv_priv);
+ 		ieee80211_free_hw(htc_handle->drv_priv->hw);
  	}
- 
- 	/*
+ }
 -- 
 2.39.2
 
