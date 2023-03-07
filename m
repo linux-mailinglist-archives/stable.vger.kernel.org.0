@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 132686AEADF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E45F36AEF86
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbjCGRiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:38:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44896 "EHLO
+        id S232758AbjCGSYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:24:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231772AbjCGRhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:37:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B8752923
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:37 -0800 (PST)
+        with ESMTP id S231742AbjCGSXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE99C2384B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89234B817AE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87A24C43442;
-        Tue,  7 Mar 2023 17:33:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A73C614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECCAC4339B;
+        Tue,  7 Mar 2023 18:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210415;
-        bh=YtKYInGt8VBTJB2alN4aCTeQ4DKlAicfnwsCC2NacNY=;
+        s=korg; t=1678213140;
+        bh=JL8FWiKFOfWk3h+VT1ug0sPxierfnzzUvRYELMr4JVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=poDH2EqOVhuxtqw4XzGdiCUVG04VqCipS7tJKW0Gv9r1YB38MzdRNq6j7alvUjAd6
-         BDaRvXJjF+gbenzTa5G45kmu/KBqwBv+KlWzfqr5ONGHllxkWPbC/sEOVTmLxZi9Dl
-         8no6U0+dAZ3kZ87jwaHrH5vb3zuativH1uX1eaAo=
+        b=causDadFLRVqcM00D6aFdnjBzf+ddu0KcQ1SHxGinQPy5ahbO1jAc7PEBk5Blec/n
+         wA+pRcWCVSLHqCywDXw+pwoswvdajFUCwRP2so8MuuADHdZwn9xt7R/i+TG/9QajQg
+         2B724wIxtkq+ZkPJhwraP+n6OW+Wh+2TezO8oOlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ivan Bornyakov <i.bornyakov@metrotek.ru>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Xu Yilun <yilun.xu@intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0534/1001] fpga: microchip-spi: rewrite status polling in a time measurable way
+        patches@lists.linux.dev, Asahi Lina <lina@asahilina.net>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 372/885] drm/shmem-helper: Fix locking for drm_gem_shmem_get_pages_sgt()
 Date:   Tue,  7 Mar 2023 17:55:06 +0100
-Message-Id: <20230307170044.620428819@linuxfoundation.org>
+Message-Id: <20230307170018.478513666@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Bornyakov <i.bornyakov@metrotek.ru>
+From: Asahi Lina <lina@asahilina.net>
 
-[ Upstream commit 88e705697e801299a13ecaf2ba54599964fe711c ]
+[ Upstream commit ddddedaa0db99481c5e5abe628ad54f65e8765bc ]
 
-Original busy loop with retries count in mpf_poll_status() is not too
-reliable, as it takes different times on different systems. Replace it
-with read_poll_timeout() macro.
+Other functions touching shmem->sgt take the pages lock, so do that here
+too. drm_gem_shmem_get_pages() & co take the same lock, so move to the
+_locked() variants to avoid recursive locking.
 
-While at it, fix polling stop condition to met function's original
-intention declared in the comment. The issue with original polling stop
-condition is that it stops if any of mask bits is set, while intention
-was to stop if all mask bits is set. This was not noticible because only
-MPF_STATUS_READY is passed as mask argument and it is BIT(1).
+Discovered while auditing locking to write the Rust abstractions.
 
-Fixes: 5f8d4a900830 ("fpga: microchip-spi: add Microchip MPF FPGA manager")
-Signed-off-by: Ivan Bornyakov <i.bornyakov@metrotek.ru>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Acked-by: Xu Yilun <yilun.xu@intel.com>
-Link: https://lore.kernel.org/r/20221230092922.18822-3-i.bornyakov@metrotek.ru
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
+Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
+Fixes: 4fa3d66f132b ("drm/shmem: Do dma_unmap_sg before purging pages")
+Signed-off-by: Asahi Lina <lina@asahilina.net>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230205125124.2260-1-lina@asahilina.net
+(cherry picked from commit aa8c85affe3facd3842c8912186623415931cc72)
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/microchip-spi.c | 32 +++++++++++++++++---------------
- 1 file changed, 17 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c | 54 ++++++++++++++++----------
+ 1 file changed, 34 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/fpga/microchip-spi.c b/drivers/fpga/microchip-spi.c
-index bb69f5beefe78..137fafdf57a6f 100644
---- a/drivers/fpga/microchip-spi.c
-+++ b/drivers/fpga/microchip-spi.c
-@@ -6,6 +6,7 @@
- #include <asm/unaligned.h>
- #include <linux/delay.h>
- #include <linux/fpga/fpga-mgr.h>
-+#include <linux/iopoll.h>
- #include <linux/module.h>
- #include <linux/of_device.h>
- #include <linux/spi/spi.h>
-@@ -33,7 +34,7 @@
- 
- #define	MPF_BITS_PER_COMPONENT_SIZE	22
- 
--#define	MPF_STATUS_POLL_RETRIES		10000
-+#define	MPF_STATUS_POLL_TIMEOUT		(2 * USEC_PER_SEC)
- #define	MPF_STATUS_BUSY			BIT(0)
- #define	MPF_STATUS_READY		BIT(1)
- #define	MPF_STATUS_SPI_VIOLATION	BIT(2)
-@@ -194,24 +195,25 @@ static int mpf_ops_parse_header(struct fpga_manager *mgr,
- 	return 0;
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index b602cd72a1205..2c559b310cad3 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -681,23 +681,7 @@ struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem)
  }
+ EXPORT_SYMBOL_GPL(drm_gem_shmem_get_sg_table);
  
--/* Poll HW status until busy bit is cleared and mask bits are set. */
- static int mpf_poll_status(struct mpf_priv *priv, u8 mask)
+-/**
+- * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
+- *				 scatter/gather table for a shmem GEM object.
+- * @shmem: shmem GEM object
+- *
+- * This function returns a scatter/gather table suitable for driver usage. If
+- * the sg table doesn't exist, the pages are pinned, dma-mapped, and a sg
+- * table created.
+- *
+- * This is the main function for drivers to get at backing storage, and it hides
+- * and difference between dma-buf imported and natively allocated objects.
+- * drm_gem_shmem_get_sg_table() should not be directly called by drivers.
+- *
+- * Returns:
+- * A pointer to the scatter/gather table of pinned pages or errno on failure.
+- */
+-struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
++static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_object *shmem)
  {
--	int status, retries = MPF_STATUS_POLL_RETRIES;
-+	int ret, status;
+ 	struct drm_gem_object *obj = &shmem->base;
+ 	int ret;
+@@ -708,7 +692,7 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
  
--	while (retries--) {
--		status = mpf_read_status(priv);
--		if (status < 0)
--			return status;
--
--		if (status & MPF_STATUS_BUSY)
--			continue;
--
--		if (!mask || (status & mask))
--			return status;
--	}
-+	/*
-+	 * Busy poll HW status. Polling stops if any of the following
-+	 * conditions are met:
-+	 *  - timeout is reached
-+	 *  - mpf_read_status() returns an error
-+	 *  - busy bit is cleared AND mask bits are set
-+	 */
-+	ret = read_poll_timeout(mpf_read_status, status,
-+				(status < 0) ||
-+				((status & (MPF_STATUS_BUSY | mask)) == mask),
-+				0, MPF_STATUS_POLL_TIMEOUT, false, priv);
-+	if (ret < 0)
-+		return ret;
+ 	WARN_ON(obj->import_attach);
  
--	return -EBUSY;
-+	return status;
+-	ret = drm_gem_shmem_get_pages(shmem);
++	ret = drm_gem_shmem_get_pages_locked(shmem);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+@@ -730,10 +714,40 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
+ 	sg_free_table(sgt);
+ 	kfree(sgt);
+ err_put_pages:
+-	drm_gem_shmem_put_pages(shmem);
++	drm_gem_shmem_put_pages_locked(shmem);
+ 	return ERR_PTR(ret);
  }
+-EXPORT_SYMBOL_GPL(drm_gem_shmem_get_pages_sgt);
++
++/**
++ * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
++ *				 scatter/gather table for a shmem GEM object.
++ * @shmem: shmem GEM object
++ *
++ * This function returns a scatter/gather table suitable for driver usage. If
++ * the sg table doesn't exist, the pages are pinned, dma-mapped, and a sg
++ * table created.
++ *
++ * This is the main function for drivers to get at backing storage, and it hides
++ * and difference between dma-buf imported and natively allocated objects.
++ * drm_gem_shmem_get_sg_table() should not be directly called by drivers.
++ *
++ * Returns:
++ * A pointer to the scatter/gather table of pinned pages or errno on failure.
++ */
++struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
++{
++	int ret;
++	struct sg_table *sgt;
++
++	ret = mutex_lock_interruptible(&shmem->pages_lock);
++	if (ret)
++		return ERR_PTR(ret);
++	sgt = drm_gem_shmem_get_pages_sgt_locked(shmem);
++	mutex_unlock(&shmem->pages_lock);
++
++	return sgt;
++}
++EXPORT_SYMBOL(drm_gem_shmem_get_pages_sgt);
  
- static int mpf_spi_write(struct mpf_priv *priv, const void *buf, size_t buf_size)
+ /**
+  * drm_gem_shmem_prime_import_sg_table - Produce a shmem GEM object from
 -- 
 2.39.2
 
