@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 362956AED31
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DF1B6AF22C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:51:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231305AbjCGSCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:02:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34650 "EHLO
+        id S233348AbjCGSvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:51:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230180AbjCGSBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:01:49 -0500
+        with ESMTP id S233325AbjCGSug (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71205AA268
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE22EA8EB2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:39:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5100A6150B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 657C6C433D2;
-        Tue,  7 Mar 2023 17:55:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1143D6150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:39:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBDF3C433D2;
+        Tue,  7 Mar 2023 18:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211718;
-        bh=iYX5qWHMaH8B8G9kRwtvIs+1rTAjqHYKdfBR7y97xeI=;
+        s=korg; t=1678214342;
+        bh=CTQge/NrzhBmvbY55gPnYq5RnVPHKKbzrJu6dLdWwnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=op3Xn/fwmMvUM0r5osdUTLJdP7/6bzhmtaMrEQetRRCU/ZgfSdhkOtu98DLzInVal
-         nDG2eGxTqF8C2QijhB7bh6iKttpJoOIPJtxizKmwsOoeQ4hVOfEeoEp0MBfn5/CN1k
-         JngfsgAeNeUVlfHkNnnmccRFAXyTABSTPPpiByeI=
+        b=AzGdxL9o/QwgnxCvwRyXV0IKv94gfasvHsZFOxsIs9jgAa/5PMCNB/qoD0U23JC9C
+         JjyrwnVREemngPp9RHz3YSjmCmqkcIhgGeXe31uurvAIEzPf8WcI576TxeLocwnfz5
+         KO/N22pJ0PFdG9Vf8WiF5qVl3cR4qc/HngtGGzbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Antonio Alvarez Feijoo <antonio.feijoo@suse.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 6.2 0953/1001] tools/bootconfig: fix single & used for logical condition
+        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>,
+        Dhruva Gole <d-gole@ti.com>, Pratyush Yadav <ptyadav@amazon.de>
+Subject: [PATCH 6.1 791/885] mtd: spi-nor: spansion: Consider reserved bits in CFR5 register
 Date:   Tue,  7 Mar 2023 18:02:05 +0100
-Message-Id: <20230307170103.505918598@linuxfoundation.org>
+Message-Id: <20230307170036.264924204@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+From: Tudor Ambarus <tudor.ambarus@linaro.org>
 
-commit cf8c59a3756b2735c409a9b3ac1e4ec556546a7a upstream.
+commit 3f592a869f87723314f0cb1ac232bd3bf8245be8 upstream.
 
-A single & will create a background process and return true, so the grep
-command will run even if the file checked in the first condition does not
-exist.
+CFR5[6] is reserved bit and must be always 1. Set it to comply with flash
+requirements. While fixing SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_{EN, DS}
+definition, stop using magic numbers and describe the missing bit fields
+in CFR5 register. This is useful for both readability and future possible
+addition of Octal STR mode support.
 
-Link: https://lore.kernel.org/all/20230112114215.17103-1-antonio.feijoo@suse.com/
-
-Fixes: 1eaad3ac3f39 ("tools/bootconfig: Use per-group/all enable option in ftrace2bconf script")
-Signed-off-by: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Fixes: c3266af101f2 ("mtd: spi-nor: spansion: add support for Cypress Semper flash")
 Cc: stable@vger.kernel.org
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reported-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Reviewed-by: Dhruva Gole <d-gole@ti.com>
+Reviewed-by: Pratyush Yadav <ptyadav@amazon.de>
+Tested-by: Dhruva Gole <d-gole@ti.com>
+Link: https://lore.kernel.org/linux-mtd/20230110164703.83413-1-tudor.ambarus@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/bootconfig/scripts/ftrace2bconf.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/spi-nor/spansion.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/tools/bootconfig/scripts/ftrace2bconf.sh
-+++ b/tools/bootconfig/scripts/ftrace2bconf.sh
-@@ -93,7 +93,7 @@ referred_vars() {
- }
+--- a/drivers/mtd/spi-nor/spansion.c
++++ b/drivers/mtd/spi-nor/spansion.c
+@@ -21,8 +21,13 @@
+ #define SPINOR_REG_CYPRESS_CFR3V		0x00800004
+ #define SPINOR_REG_CYPRESS_CFR3V_PGSZ		BIT(4) /* Page size. */
+ #define SPINOR_REG_CYPRESS_CFR5V		0x00800006
+-#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN	0x3
+-#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS	0
++#define SPINOR_REG_CYPRESS_CFR5_BIT6		BIT(6)
++#define SPINOR_REG_CYPRESS_CFR5_DDR		BIT(1)
++#define SPINOR_REG_CYPRESS_CFR5_OPI		BIT(0)
++#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN				\
++	(SPINOR_REG_CYPRESS_CFR5_BIT6 |	SPINOR_REG_CYPRESS_CFR5_DDR |	\
++	 SPINOR_REG_CYPRESS_CFR5_OPI)
++#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS	SPINOR_REG_CYPRESS_CFR5_BIT6
+ #define SPINOR_OP_CYPRESS_RD_FAST		0xee
  
- event_is_enabled() { # enable-file
--	test -f $1 & grep -q "1" $1
-+	test -f $1 && grep -q "1" $1
- }
- 
- per_event_options() { # event-dir
+ /* Cypress SPI NOR flash operations. */
 
 
