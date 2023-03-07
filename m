@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D913E6AEB6D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F3FB6AF060
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231888AbjCGRoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:44:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52478 "EHLO
+        id S230132AbjCGSaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231912AbjCGRoF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:05 -0500
+        with ESMTP id S233133AbjCGS3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 679BEA189B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392162A16A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FB4461520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2614EC433D2;
-        Tue,  7 Mar 2023 17:39:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C32AD61537
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D706CC433D2;
+        Tue,  7 Mar 2023 18:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210790;
-        bh=xBDwSXuA3yINWpZ6P1uSHZ99/ZTv5m0eqAsNKnV+XRo=;
+        s=korg; t=1678213388;
+        bh=SqsO+dNSrha6bEz5DkV35TiHBZEQJowDcfNfTh1nQbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QP4MudxugY11Tu1eGsaD4+cJuhVuKKCwkxMQI2JRAMK2bTytmiAwToA2Yt9lIyX0T
-         6YrKM9NK/eOQBAKS/Zc6+Y+IO9jQH4uZRGKI+SwV6RDX3hVKijFcXHw0aN1j1xA5E/
-         Uqdc8sWGugmbzF2fRIAUsy8u7SmBCDQ8UKSR2QYk=
+        b=C/UiuBdB+GWGuwJeQiQUhi5LdE8PKuNZvWrD7z2sYdOYfm0Mep4hiPVRopv5Bwpd+
+         +NCZcM9QcwbY/CRn1JFKIZD/CMi2vzZXLJXLHVum87+Y8GPhKaEPHW3UyNPg9P4i1t
+         PMRFQ6G3gkTpgq9Tdu1xdTd3cA/7t+CTnSum6M18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Siddaraju DH <siddaraju.dh@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.2 0653/1001] ice: restrict PTP HW clock freq adjustments to 100, 000, 000 PPB
+        patches@lists.linux.dev,
+        Brendan Cunningham <bcunningham@cornelisnetworks.com>,
+        Patrick Kelsey <pat.kelsey@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 491/885] IB/hfi1: Fix math bugs in hfi1_can_pin_pages()
 Date:   Tue,  7 Mar 2023 17:57:05 +0100
-Message-Id: <20230307170049.927022810@linuxfoundation.org>
+Message-Id: <20230307170023.798360103@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +57,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddaraju DH <siddaraju.dh@intel.com>
+From: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
 
-[ Upstream commit 8aa4318c3a122b8670bc09af142de3872ca63b88 ]
+[ Upstream commit a0d198f79a8d033bd46605b779859193649f1f99 ]
 
-The PHY provides only 39b timestamp. With current timing
-implementation, we discard lower 7b, leaving 32b timestamp.
-The driver reconstructs the full 64b timestamp by correlating the
-32b timestamp with cached_time for performance. The reconstruction
-algorithm does both forward & backward interpolation.
+Fix arithmetic and logic errors in hfi1_can_pin_pages() that  would allow
+hfi1 to attempt pinning pages in cases where it should not because of
+resource limits or lack of required capability.
 
-The 32b timeval has overflow duration of 2^32 counts ~= 4.23 second.
-Due to interpolation in both direction, its now ~= 2.125 second
-IIRC, going with at least half a duration, the cached_time is updated
-with periodic thread of 1 second (worst-case) periodicity.
-
-But the 1 second periodicity is based on System-timer.
-With PPB adjustments, if the 1588 timers increments at say
-double the rate, (2s in-place of 1s), the Nyquist rate/half duration
-sampling/update of cached_time with 1 second periodic thread will
-lead to incorrect interpolations.
-
-Hence we should restrict the PPB adjustments to at least half duration
-of cached_time update which translates to 500,000,000 PPB.
-
-Since the periodicity of the cached-time system thread can vary,
-it is good to have some buffer time and considering practicality of
-PPB adjustments, limiting the max_adj to 100,000,000.
-
-Signed-off-by: Siddaraju DH <siddaraju.dh@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 2c97ce4f3c29 ("IB/hfi1: Add pin query function")
+Link: https://lore.kernel.org/r/167656658362.2223096.10954762619837718026.stgit@awfm-02.cornelisnetworks.com
+Signed-off-by: Brendan Cunningham <bcunningham@cornelisnetworks.com>
+Signed-off-by: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ptp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/user_pages.c | 61 ++++++++++++++++---------
+ 1 file changed, 40 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-index d63161d73eb16..3abc8db1d0659 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-@@ -2269,7 +2269,7 @@ static void ice_ptp_set_caps(struct ice_pf *pf)
- 	snprintf(info->name, sizeof(info->name) - 1, "%s-%s-clk",
- 		 dev_driver_string(dev), dev_name(dev));
- 	info->owner = THIS_MODULE;
--	info->max_adj = 999999999;
-+	info->max_adj = 100000000;
- 	info->adjtime = ice_ptp_adjtime;
- 	info->adjfine = ice_ptp_adjfine;
- 	info->gettimex64 = ice_ptp_gettimex64;
+diff --git a/drivers/infiniband/hw/hfi1/user_pages.c b/drivers/infiniband/hw/hfi1/user_pages.c
+index 7bce963e2ae69..36aaedc651456 100644
+--- a/drivers/infiniband/hw/hfi1/user_pages.c
++++ b/drivers/infiniband/hw/hfi1/user_pages.c
+@@ -29,33 +29,52 @@ MODULE_PARM_DESC(cache_size, "Send and receive side cache size limit (in MB)");
+ bool hfi1_can_pin_pages(struct hfi1_devdata *dd, struct mm_struct *mm,
+ 			u32 nlocked, u32 npages)
+ {
+-	unsigned long ulimit = rlimit(RLIMIT_MEMLOCK), pinned, cache_limit,
+-		size = (cache_size * (1UL << 20)); /* convert to bytes */
+-	unsigned int usr_ctxts =
+-			dd->num_rcv_contexts - dd->first_dyn_alloc_ctxt;
+-	bool can_lock = capable(CAP_IPC_LOCK);
++	unsigned long ulimit_pages;
++	unsigned long cache_limit_pages;
++	unsigned int usr_ctxts;
+ 
+ 	/*
+-	 * Calculate per-cache size. The calculation below uses only a quarter
+-	 * of the available per-context limit. This leaves space for other
+-	 * pinning. Should we worry about shared ctxts?
++	 * Perform RLIMIT_MEMLOCK based checks unless CAP_IPC_LOCK is present.
+ 	 */
+-	cache_limit = (ulimit / usr_ctxts) / 4;
+-
+-	/* If ulimit isn't set to "unlimited" and is smaller than cache_size. */
+-	if (ulimit != (-1UL) && size > cache_limit)
+-		size = cache_limit;
+-
+-	/* Convert to number of pages */
+-	size = DIV_ROUND_UP(size, PAGE_SIZE);
+-
+-	pinned = atomic64_read(&mm->pinned_vm);
++	if (!capable(CAP_IPC_LOCK)) {
++		ulimit_pages =
++			DIV_ROUND_DOWN_ULL(rlimit(RLIMIT_MEMLOCK), PAGE_SIZE);
++
++		/*
++		 * Pinning these pages would exceed this process's locked memory
++		 * limit.
++		 */
++		if (atomic64_read(&mm->pinned_vm) + npages > ulimit_pages)
++			return false;
++
++		/*
++		 * Only allow 1/4 of the user's RLIMIT_MEMLOCK to be used for HFI
++		 * caches.  This fraction is then equally distributed among all
++		 * existing user contexts.  Note that if RLIMIT_MEMLOCK is
++		 * 'unlimited' (-1), the value of this limit will be > 2^42 pages
++		 * (2^64 / 2^12 / 2^8 / 2^2).
++		 *
++		 * The effectiveness of this check may be reduced if I/O occurs on
++		 * some user contexts before all user contexts are created.  This
++		 * check assumes that this process is the only one using this
++		 * context (e.g., the corresponding fd was not passed to another
++		 * process for concurrent access) as there is no per-context,
++		 * per-process tracking of pinned pages.  It also assumes that each
++		 * user context has only one cache to limit.
++		 */
++		usr_ctxts = dd->num_rcv_contexts - dd->first_dyn_alloc_ctxt;
++		if (nlocked + npages > (ulimit_pages / usr_ctxts / 4))
++			return false;
++	}
+ 
+-	/* First, check the absolute limit against all pinned pages. */
+-	if (pinned + npages >= ulimit && !can_lock)
++	/*
++	 * Pinning these pages would exceed the size limit for this cache.
++	 */
++	cache_limit_pages = cache_size * (1024 * 1024) / PAGE_SIZE;
++	if (nlocked + npages > cache_limit_pages)
+ 		return false;
+ 
+-	return ((nlocked + npages) <= size) || can_lock;
++	return true;
+ }
+ 
+ int hfi1_acquire_user_pages(struct mm_struct *mm, unsigned long vaddr, size_t npages,
 -- 
 2.39.2
 
