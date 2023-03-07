@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A72E6AEC52
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:54:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DDE96AF14A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230074AbjCGRyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:54:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45750 "EHLO
+        id S232555AbjCGSmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:42:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbjCGRxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA86090099
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:29 -0800 (PST)
+        with ESMTP id S231899AbjCGSli (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B81B9967F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2598C614B2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:48:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17811C433EF;
-        Tue,  7 Mar 2023 17:48:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DBB0B819EE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:31:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FF3C433EF;
+        Tue,  7 Mar 2023 18:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211308;
-        bh=E8mGD/X1uzfRgTWDGZKg5PwJIBL8ByMynmT4/SfvfCM=;
+        s=korg; t=1678213909;
+        bh=k6NO6Lmlzk7HMv9q5V/O+LmveDGRRdckY038h6mhHj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdT+fnHYi4tZEJRbNhUWaZ37GH0pUOYBgB6eis7PZjHzXBO/sziBQTZnc6Mfnr8ok
-         oQI7NNFXG7RLPkZJAB5pzrrZp92+ymf1CVooowvYXZUenQgsF2dCltwkqDASuM3K0u
-         dNFqwBIwkNWnd77suJ/p5oFSd9I3AoFKfXlG5KaA=
+        b=cLDafpebo/ohYJ/3wjO0fwNYQ5vLBAPpj1qNe6tg9DopLqsuZ2nComVAqy7zr+3jj
+         umZJ67vjz0cvs4/hdXS5haGsbMW1CxFeHlbBVSYsF+dRH2s6OeBpOs2cBz2+MZyrqo
+         VTP+xMtzMMpRXBlWhp8TCFAOcZQ4D9Yw3B8oEDyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 6.2 0819/1001] udf: Fix file corruption when appending just after end of preallocated extent
-Date:   Tue,  7 Mar 2023 17:59:51 +0100
-Message-Id: <20230307170057.301320244@linuxfoundation.org>
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 658/885] io_uring: use user visible tail in io_uring_poll()
+Date:   Tue,  7 Mar 2023 17:59:52 +0100
+Message-Id: <20230307170030.747196792@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,63 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 36ec52ea038b18a53e198116ef7d7e70c87db046 upstream.
+commit c10bb64684813a326174c3eebcafb3ee5af52ca3 upstream.
 
-When we append new block just after the end of preallocated extent, the
-code in inode_getblk() wrongly determined we're going to use the
-preallocated extent which resulted in adding block into a wrong logical
-offset in the file. Sequence like this manifests it:
+We return POLLIN from io_uring_poll() depending on whether there are
+CQEs for the userspace, and so we should use the user visible tail
+pointer instead of a transient cached value.
 
-xfs_io -f -c "pwrite 0x2cacf 0xd122" -c "truncate 0x2dd6f" \
-  -c "pwrite 0x27fd9 0x69a9" -c "pwrite 0x32981 0x7244" <file>
-
-The code that determined the use of preallocated extent is actually
-stale because udf_do_extend_file() does not create preallocation anymore
-so after calling that function we are sure there's no usable
-preallocation. Just remove the faulty condition.
-
-CC: stable@vger.kernel.org
-Fixes: 16d055656814 ("udf: Discard preallocation before extending file with a hole")
-Signed-off-by: Jan Kara <jack@suse.cz>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/228ffcbf30ba98856f66ffdb9a6a60ead1dd96c0.1674484266.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c |   24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ io_uring/io_uring.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -799,19 +799,17 @@ static sector_t inode_getblk(struct inod
- 		c = 0;
- 		offset = 0;
- 		count += ret;
--		/* We are not covered by a preallocated extent? */
--		if ((laarr[0].extLength & UDF_EXTENT_FLAG_MASK) !=
--						EXT_NOT_RECORDED_ALLOCATED) {
--			/* Is there any real extent? - otherwise we overwrite
--			 * the fake one... */
--			if (count)
--				c = !c;
--			laarr[c].extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
--				inode->i_sb->s_blocksize;
--			memset(&laarr[c].extLocation, 0x00,
--				sizeof(struct kernel_lb_addr));
--			count++;
--		}
-+		/*
-+		 * Is there any real extent? - otherwise we overwrite the fake
-+		 * one...
-+		 */
-+		if (count)
-+			c = !c;
-+		laarr[c].extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
-+			inode->i_sb->s_blocksize;
-+		memset(&laarr[c].extLocation, 0x00,
-+			sizeof(struct kernel_lb_addr));
-+		count++;
- 		endnum = c + 1;
- 		lastblock = 1;
- 	} else {
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2653,7 +2653,7 @@ static __poll_t io_uring_poll(struct fil
+ 	 * pushs them to do the flush.
+ 	 */
+ 
+-	if (io_cqring_events(ctx) || io_has_work(ctx))
++	if (__io_cqring_events_user(ctx) || io_has_work(ctx))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+ 
+ 	return mask;
 
 
