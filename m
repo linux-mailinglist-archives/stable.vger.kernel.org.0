@@ -2,142 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9716ADABC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:44:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D576ADAC6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:45:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230019AbjCGJoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:44:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38636 "EHLO
+        id S229671AbjCGJpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:45:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230472AbjCGJos (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:44:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B92F3B842
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:44:41 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DD766126D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3336FC4339C;
-        Tue,  7 Mar 2023 09:44:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182279;
-        bh=VRMd3q6a/O9tSqIrByW0O/hgLxYDqRMi6Y9tM9uJavc=;
-        h=Subject:To:Cc:From:Date:From;
-        b=EBwjxjVKFSWOOyQvSvdKCC3ATiQmKb7SrqxgeiPLSuoUBIpmQ5FZ2bMB5gAfxcAiX
-         HsyMuvfZKvWG3eA/EqBzcM23JxrXwx+VNTzoifw0QbaRy9kvHk/xxdPFctvEF2UsUn
-         UsgysOWCb1e3e6C4W9TCugoaWKXuD1eNjycpFuQE=
-Subject: FAILED: patch "[PATCH] arm64: Reset KASAN tag in copy_highpage with HW tags only" failed to apply to 5.15-stable tree
-To:     pcc@google.com, Kuan-Ying.Lee@mediatek.com, andreyknvl@gmail.com,
-        catalin.marinas@arm.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:44:28 +0100
-Message-ID: <16781822685041@kroah.com>
+        with ESMTP id S230113AbjCGJpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:45:53 -0500
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1603B5BC85
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:45:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678182351; x=1709718351;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=SJ/2AwXzarDVShG6oGH338mQVh6Nfv4yMwFXH/EgR/U=;
+  b=Zk0whIY3K85dbvTDxxPEY882hC/hFPf53kkWTr5rOi+Jygi8WfjbuF37
+   63Qn14h0TmtN8CTz0815oyhq2dRLJLVQMxmBeanVkWEznJPdyBbCaGSGQ
+   YR6AKgRuRMTGhO+kjSNeucavTGZqkjBWFEKjMK8RowxGbdTX+gJN5oUXY
+   zeUeuc0EcWvnI3r8Gejg5BNw1ib/svBZxl249ETTaoaLqflL8MrPcfXuh
+   qzyu8ua+/LUoYsV+iTudTddrrfiGKcDY+xuSf/hvHt1qGZctCQI7KkTb8
+   QJhhTRKPdZG9xtlAiGg3uoECv52imZv6bhDrZFYaWqxWK2+1DnUdUuc7X
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10641"; a="334525635"
+X-IronPort-AV: E=Sophos;i="5.98,240,1673942400"; 
+   d="scan'208";a="334525635"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2023 01:45:30 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10641"; a="819697635"
+X-IronPort-AV: E=Sophos;i="5.98,240,1673942400"; 
+   d="scan'208";a="819697635"
+Received: from gaertgee-mobl.ger.corp.intel.com (HELO intel.com) ([10.249.43.130])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2023 01:45:28 -0800
+Date:   Tue, 7 Mar 2023 10:45:26 +0100
+From:   Andi Shyti <andi.shyti@linux.intel.com>
+To:     Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
+Cc:     Andi Shyti <andi.shyti@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        stable@vger.kernel.org,
+        Chris Wilson <chris.p.wilson@linux.intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Maciej Patelczyk <maciej.patelczyk@intel.com>
+Subject: Re: [Intel-gfx] [PATCH v3 0/2] Fix error propagation amongst request
+Message-ID: <ZAcHtsmKkwlPwCz7@ashyti-mobl2.lan>
+References: <20230228021142.1905349-1-andi.shyti@linux.intel.com>
+ <24b04551-8f13-3669-e3b7-d567ca8b35f6@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <24b04551-8f13-3669-e3b7-d567ca8b35f6@intel.com>
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi GG,
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Tue, Mar 07, 2023 at 09:33:12AM +0200, Gwan-gyeong Mun wrote:
+> Hi Andi,
+> 
+> After applying these two patches, deadlock is being detected in the call
+> stack below. Please review whether the patch to update the
+> intel_context_migrate_copy() part affected the deadlock.
+> 
+> https://intel-gfx-ci.01.org/tree/drm-tip/Patchwork_114451v1/bat-dg2-8/igt@i915_module_load@load.html#dmesg-warnings1037
 
-To reproduce the conflict and resubmit, you may use the following commands:
+Thanks for looking into this. Yes, there is a basic locking issue
+here coming from migrate. migrate() takes the timeline lock and
+then calls the request_create() which tries to lock again. We
+inevitably fall into deadlock.
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
-git checkout FETCH_HEAD
-git cherry-pick -x e74a68468062d7ebd8ce17069e12ccc64cc6a58c
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781822685041@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+The locking of the timeline is quite exotic, it's started in
+request_create() and released in request_add().
 
-Possible dependencies:
+It's still in trybot, but this is supposed to be the next
+version:
 
-e74a68468062 ("arm64: Reset KASAN tag in copy_highpage with HW tags only")
-d77e59a8fccd ("arm64: mte: Lock a page for MTE tag initialisation")
-e059853d14ca ("arm64: mte: Fix/clarify the PG_mte_tagged semantics")
-a8e5e5146ad0 ("arm64: mte: Avoid setting PG_mte_tagged if no tags cleared or restored")
-20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags"")
-70c248aca9e7 ("mm: kasan: Skip unpoisoning of user pages")
-da08e9b79323 ("mm/shmem: convert shmem_swapin_page() to shmem_swapin_folio()")
-b1d0ec3a9a25 ("mm/shmem: convert shmem_getpage_gfp to use a folio")
-72827e5c2bcb ("mm/shmem: convert shmem_alloc_and_acct_page to use a folio")
-069d849cde3a ("mm/shmem: turn shmem_should_replace_page into shmem_should_replace_folio")
-b7dd44a12cf2 ("mm/shmem: convert shmem_add_to_page_cache to take a folio")
-dfe98499ef28 ("shmem: convert shmem_alloc_hugepage() to use vma_alloc_folio()")
-e9d0ca922816 ("kasan, page_alloc: rework kasan_unpoison_pages call site")
-7e3cbba65de2 ("kasan, page_alloc: move kernel_init_free_pages in post_alloc_hook")
-89b271163328 ("kasan, page_alloc: move SetPageSkipKASanPoison in post_alloc_hook")
-9294b1281d0a ("kasan, page_alloc: combine tag_clear_highpage calls in post_alloc_hook")
-b42090ae6f3a ("kasan, page_alloc: merge kasan_alloc_pages into post_alloc_hook")
-b8491b9052fe ("kasan, page_alloc: refactor init checks in post_alloc_hook")
-1c0e5b24f117 ("kasan: only apply __GFP_ZEROTAGS when memory is zeroed")
-7c13c163e036 ("kasan, page_alloc: merge kasan_free_pages into free_pages_prepare")
+https://patchwork.freedesktop.org/series/114645/
 
-thanks,
+This creates new version of request_create_locked() and
+request_add_locked() where there the timeline is not locked in
+the process.
 
-greg k-h
+There are still some selftests that need to be fixed, though.
 
------------------- original commit in Linus's tree ------------------
+Andi
 
-From e74a68468062d7ebd8ce17069e12ccc64cc6a58c Mon Sep 17 00:00:00 2001
-From: Peter Collingbourne <pcc@google.com>
-Date: Tue, 14 Feb 2023 21:09:11 -0800
-Subject: [PATCH] arm64: Reset KASAN tag in copy_highpage with HW tags only
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-During page migration, the copy_highpage function is used to copy the
-page data to the target page. If the source page is a userspace page
-with MTE tags, the KASAN tag of the target page must have the match-all
-tag in order to avoid tag check faults during subsequent accesses to the
-page by the kernel. However, the target page may have been allocated in
-a number of ways, some of which will use the KASAN allocator and will
-therefore end up setting the KASAN tag to a non-match-all tag. Therefore,
-update the target page's KASAN tag to match the source page.
-
-We ended up unintentionally fixing this issue as a result of a bad
-merge conflict resolution between commit e059853d14ca ("arm64: mte:
-Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm64:
-kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
-preserved a tag reset for PG_mte_tagged pages which was considered to be
-unnecessary at the time. Because SW tags KASAN uses separate tag storage,
-update the code to only reset the tags when HW tags KASAN is enabled.
-
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Link: https://linux-review.googlesource.com/id/If303d8a709438d3ff5af5fd85706505830f52e0c
-Reported-by: "Kuan-Ying Lee (李冠穎)" <Kuan-Ying.Lee@mediatek.com>
-Cc: <stable@vger.kernel.org> # 6.1
-Fixes: 20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags"")
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Link: https://lore.kernel.org/r/20230215050911.1433132-1-pcc@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-
-diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
-index 8dd5a8fe64b4..4aadcfb01754 100644
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -22,7 +22,8 @@ void copy_highpage(struct page *to, struct page *from)
- 	copy_page(kto, kfrom);
- 
- 	if (system_supports_mte() && page_mte_tagged(from)) {
--		page_kasan_tag_reset(to);
-+		if (kasan_hw_tags_enabled())
-+			page_kasan_tag_reset(to);
- 		/* It's a new page, shouldn't have been tagged yet */
- 		WARN_ON_ONCE(!try_page_mte_tagging(to));
- 		mte_copy_page_tags(kto, kfrom);
-
+> <4> [33.070967] ============================================
+> <4> [33.070968] WARNING: possible recursive locking detected
+> <4> [33.070969] 6.2.0-Patchwork_114451v1-g8589fd9227ca+ #1 Not tainted
+> <4> [33.070970] --------------------------------------------
+> <4> [33.070971] i915_module_loa/948 is trying to acquire lock:
+> <4> [33.070972] ffff8881127f0478 (migrate){+.+.}-{3:3}, at:
+> i915_request_create+0x1c6/0x230 [i915]
+> <4> [33.071215]
+> but task is already holding lock:
+> <4> [33.071235] ffff8881127f0478 (migrate){+.+.}-{3:3}, at:
+> intel_context_migrate_copy+0x1b3/0xa80 [i915]
+> <4> [33.071484]
+> other info that might help us debug this:
+> <4> [33.071504]  Possible unsafe locking scenario:
+> <4> [33.071522]        CPU0
+> <4> [33.071532]        ----
+> <4> [33.071541]   lock(migrate);
+> <4> [33.071554]   lock(migrate);
+> <4> [33.071567]
+>  *** DEADLOCK ***
+> <4> [33.071585]  May be due to missing lock nesting notation
+> <4> [33.071606] 3 locks held by i915_module_loa/948:
+> <4> [33.071622]  #0: ffffc90001eb7b70
+> (reservation_ww_class_acquire){+.+.}-{0:0}, at:
+> i915_gem_do_execbuffer+0xae2/0x21c0 [i915]
+> <4> [33.071893]  #1: ffff8881127b9c28
+> (reservation_ww_class_mutex){+.+.}-{3:3}, at:
+> __intel_context_do_pin_ww+0x7a/0xa30 [i915]
+> <4> [33.072133]  #2: ffff8881127f0478 (migrate){+.+.}-{3:3}, at:
+> intel_context_migrate_copy+0x1b3/0xa80 [i915]
+> <4> [33.072384]
+> stack backtrace:
+> <4> [33.072399] CPU: 7 PID: 948 Comm: i915_module_loa Not tainted
+> 6.2.0-Patchwork_114451v1-g8589fd9227ca+ #1
+> <4> [33.072428] Hardware name: Intel Corporation CoffeeLake Client
+> Platform/CoffeeLake S UDIMM RVP, BIOS CNLSFWR1.R00.X220.B00.2103302221
+> 03/30/2021
+> <4> [33.072465] Call Trace:
+> <4> [33.072475]  <TASK>
+> <4> [33.072486]  dump_stack_lvl+0x5b/0x85
+> <4> [33.072503]  __lock_acquire.cold+0x158/0x33b
+> <4> [33.072524]  lock_acquire+0xd6/0x310
+> <4> [33.072541]  ? i915_request_create+0x1c6/0x230 [i915]
+> <4> [33.072812]  __mutex_lock+0x95/0xf40
+> <4> [33.072829]  ? i915_request_create+0x1c6/0x230 [i915]
+> <4> [33.073093]  ? rcu_read_lock_sched_held+0x55/0x80
+> <4> [33.073112]  ? __mutex_lock+0x133/0xf40
+> <4> [33.073128]  ? i915_request_create+0x1c6/0x230 [i915]
+> <4> [33.073388]  ? intel_context_migrate_copy+0x1b3/0xa80 [i915]
+> <4> [33.073619]  ? i915_request_create+0x1c6/0x230 [i915]
+> <4> [33.073876]  i915_request_create+0x1c6/0x230 [i915]
+> <4> [33.074135]  intel_context_migrate_copy+0x1d0/0xa80 [i915]
+> <4> [33.074360]  __i915_ttm_move+0x7a8/0x940 [i915]
+> <4> [33.074538]  ? _raw_spin_unlock_irqrestore+0x41/0x70
+> <4> [33.074552]  ? dma_resv_iter_next+0x91/0xb0
+> <4> [33.074564]  ? dma_resv_iter_first+0x42/0xb0
+> <4> [33.074576]  ? i915_deps_add_resv+0x4c/0xc0 [i915]
+> <4> [33.074744]  i915_ttm_move+0x2ac/0x430 [i915]
+> <4> [33.074910]  ttm_bo_handle_move_mem+0xb5/0x140 [ttm]
+> <4> [33.074930]  ttm_bo_validate+0xe9/0x1a0 [ttm]
+> <4> [33.074947]  __i915_ttm_get_pages+0x4e/0x190 [i915]
+> <4> [33.075112]  i915_ttm_get_pages+0xf3/0x160 [i915]
+> <4> [33.075280]  ____i915_gem_object_get_pages+0x36/0xb0 [i915]
+> <4> [33.075446]  __i915_gem_object_get_pages+0x95/0xa0 [i915]
+> <4> [33.075608]  i915_vma_get_pages+0xfa/0x160 [i915]
+> <4> [33.075779]  i915_vma_pin_ww+0xdc/0xb50 [i915]
+> <4> [33.075953]  eb_validate_vmas+0x1c6/0xac0 [i915]
+> <4> [33.076114]  i915_gem_do_execbuffer+0xb2a/0x21c0 [i915]
+> <4> [33.076276]  ? __stack_depot_save+0x3f/0x4e0
+> <4> [33.076292]  ? 0xffffffff81000000
+> <4> [33.076301]  ? _raw_spin_unlock_irq+0x41/0x50
+> <4> [33.076312]  ? lockdep_hardirqs_on+0xc3/0x140
+> <4> [33.076325]  ? set_track_update+0x25/0x50
+> <4> [33.076338]  ? __lock_acquire+0x5f2/0x2130
+> <4> [33.076356]  i915_gem_execbuffer2_ioctl+0x123/0x2e0 [i915]
+> <4> [33.076519]  ? __pfx_i915_gem_execbuffer2_ioctl+0x10/0x10 [i915]
+> <4> [33.076679]  drm_ioctl_kernel+0xb4/0x150
+> <4> [33.076692]  drm_ioctl+0x21d/0x420
+> <4> [33.076703]  ? __pfx_i915_gem_execbuffer2_ioctl+0x10/0x10 [i915]
+> <4> [33.076864]  ? __vm_munmap+0xd3/0x170
+> <4> [33.076877]  __x64_sys_ioctl+0x76/0xb0
+> <4> [33.076889]  do_syscall_64+0x3c/0x90
+> <4> [33.076900]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+> <4> [33.076913] RIP: 0033:0x7f304aa903ab
+> <4> [33.076923] Code: 0f 1e fa 48 8b 05 e5 7a 0d 00 64 c7 00 26 00 00 00 48
+> c7 c0 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48>
+> 3d 01 f0 ff ff 73 01 c3 48 8b 0d b5 7a 0d 00 f7 d8 64 89 01 48
+> <4> [33.076957] RSP: 002b:00007fffb1424cf8 EFLAGS: 00000246 ORIG_RAX:
+> 0000000000000010
+> <4> [33.076975] RAX: ffffffffffffffda RBX: 00007fffb1424da0 RCX:
+> 00007f304aa903ab
+> <4> [33.076990] RDX: 00007fffb1424da0 RSI: 0000000040406469 RDI:
+> 0000000000000005
+> <4> [33.077004] RBP: 0000000040406469 R08: 0000000000000005 R09:
+> 0000000100003000
+> <4> [33.077019] R10: 0000000000000001 R11: 0000000000000246 R12:
+> 0000000000010000
+> <4> [33.077034] R13: 0000000000000005 R14: 00000000ffffffff R15:
+> 00000000000056a0
+> <4> [33.077052]  </TASK>
+> 
+> Br,
+> 
+> G.G.
+> 
+> On 2/28/23 4:11 AM, Andi Shyti wrote:
+> > Hi,
+> > 
+> > This series of two patches fixes the issue introduced in
+> > cf586021642d80 ("drm/i915/gt: Pipelined page migration") where,
+> > as reported by Matt, in a chain of requests an error is reported
+> > only if happens in the last request.
+> > 
+> > However Chris noticed that without ensuring exclusivity in the
+> > locking we might end up in some deadlock. That's why patch 1
+> > throttles for the ringspace in order to make sure that no one is
+> > holding it.
+> > 
+> > Version 1 of this patch has been reviewed by matt and this
+> > version is adding Chris exclusive locking.
+> > 
+> > Thanks Chris for this work.
+> > 
+> > Andi
+> > 
+> > Changelog
+> > =========
+> > v1 -> v2
+> >   - Add patch 1 for ensuring exclusive locking of the timeline
+> >   - Reword git commit of patch 2.
+> > 
+> > Andi Shyti (1):
+> >    drm/i915/gt: Make sure that errors are propagated through request
+> >      chains
+> > 
+> > Chris Wilson (1):
+> >    drm/i915: Throttle for ringspace prior to taking the timeline mutex
+> > 
+> >   drivers/gpu/drm/i915/gt/intel_context.c | 41 +++++++++++++++++++++++++
+> >   drivers/gpu/drm/i915/gt/intel_context.h |  2 ++
+> >   drivers/gpu/drm/i915/gt/intel_migrate.c | 39 +++++++++++++++++------
+> >   drivers/gpu/drm/i915/i915_request.c     |  3 ++
+> >   4 files changed, 75 insertions(+), 10 deletions(-)
+> > 
