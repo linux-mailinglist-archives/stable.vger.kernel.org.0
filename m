@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0406AE895
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:17:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E8C36AE896
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:17:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230467AbjCGRRf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:17:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
+        id S229963AbjCGRRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:17:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229963AbjCGRRP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:17:15 -0500
+        with ESMTP id S229864AbjCGRRR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:17:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591959CFD2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:12:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849923C3E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:12:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12EB3B819A3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:12:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C834C433D2;
-        Tue,  7 Mar 2023 17:12:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33EF8B8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:12:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F745C433EF;
+        Tue,  7 Mar 2023 17:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209163;
-        bh=SR5GGAjnjRTbljJp+bT/tA8WRvkhJjjGC5XvychYUdI=;
+        s=korg; t=1678209166;
+        bh=g7LA7gJVmd7MenBk4WFEPNIZtEEhoLZUHGMu4bfqYO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PviwvCGA1AI+WkROGYyl0FDD5yiXmSyeNJpMZ3iXGZo0yuMc0I0mubwaoXWrUxf/T
-         aPPuFBGvaYmE8K8fTXUAHs/5TUmJ4XXP7tqqTaYPucpv1aKeuJ8jGXQjdCrqdIZW8L
-         +JiXWdYjidBmDt2FqcGCcCj/YPC2eNajNQ9FVo0E=
+        b=mIX1yeQTHK1mBnmN+344m1ovkzwy9ZxRrpRhJKqtPKWiVfOjthja1PXyu7fmDGin5
+         PkqUTV5gvO2vg0tKoEbq2+VALxCpWD8Igb0sdd+fsKvbctr5N0r2YLwxVguUNXJ4fZ
+         Hhafyk87sam6OKLkjEQy2Zzug7pO7Uv/AUM1Umlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0131/1001] block: use proper return value from bio_failfast()
-Date:   Tue,  7 Mar 2023 17:48:23 +0100
-Message-Id: <20230307170027.750593873@linuxfoundation.org>
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0132/1001] wifi: mt76: mt7915: add missing of_node_put()
+Date:   Tue,  7 Mar 2023 17:48:24 +0100
+Message-Id: <20230307170027.793698928@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -53,43 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit f3ca73862453ac1e64fc6968a14bf66d839cd2d8 ]
+[ Upstream commit 18425d7d74c5be88b13b970a21e52e2498abf4ba ]
 
-kernel test robot complains about a type mismatch:
+Add missing of_node_put() after of_reserved_mem_lookup()
 
-   block/blk-merge.c:984:42: sparse:     expected restricted blk_opf_t const [usertype] ff
-   block/blk-merge.c:984:42: sparse:     got unsigned int
-   block/blk-merge.c:1010:42: sparse: sparse: incorrect type in initializer (different base types) @@     expected restricted blk_opf_t const [usertype] ff @@     got unsigned int @@
-   block/blk-merge.c:1010:42: sparse:     expected restricted blk_opf_t const [usertype] ff
-   block/blk-merge.c:1010:42: sparse:     got unsigned int
-
-because bio_failfast() is return an unsigned int rather than the
-appropriate blk_opt_f type. Fix it up.
-
-Fixes: 3ce6a115980c ("block: sync mixed merged request's failfast with 1st bio's")
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/oe-kbuild-all/202302170743.GXypM9Rt-lkp@intel.com/
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 99ad32a4ca3a ("mt76: mt7915: add support for MT7986")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-merge.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/soc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index 30e4a99c2276b..808b58129d3e4 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -757,7 +757,7 @@ void blk_rq_set_mixed_merge(struct request *rq)
- 	rq->rq_flags |= RQF_MIXED_MERGE;
- }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/soc.c b/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
+index c06c56a0270d6..686c9bbd59293 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/soc.c
+@@ -278,6 +278,7 @@ static int mt7986_wmac_coninfra_setup(struct mt7915_dev *dev)
+ 		return -EINVAL;
  
--static inline unsigned int bio_failfast(const struct bio *bio)
-+static inline blk_opf_t bio_failfast(const struct bio *bio)
- {
- 	if (bio->bi_opf & REQ_RAHEAD)
- 		return REQ_FAILFAST_MASK;
+ 	rmem = of_reserved_mem_lookup(np);
++	of_node_put(np);
+ 	if (!rmem)
+ 		return -EINVAL;
+ 
 -- 
 2.39.2
 
