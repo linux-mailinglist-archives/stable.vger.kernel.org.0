@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E17B16AF2DE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 484716AEB04
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233512AbjCGS5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:57:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
+        id S231996AbjCGRjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:39:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233322AbjCGS46 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:58 -0500
+        with ESMTP id S231998AbjCGRi4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BF31B4216
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74A879CFDE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 212FCB8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C6FFC433EF;
-        Tue,  7 Mar 2023 18:44:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12669B81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79360C433D2;
+        Tue,  7 Mar 2023 17:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214662;
-        bh=GjvjnOfbtDgiNtegm4vmHgUnByAR8MiO2Owo4p2grgI=;
+        s=korg; t=1678210510;
+        bh=7fymXT6a76Kfg39zLL2wxjZ6QOHP06Z+W0Vp4ZfdjD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erv5koTlZ07n3mymOq930/irqSIq9zmaZ8VuTHYAw/ECv8ZDPYupEL/y9TyasPtWw
-         0nXS6zNnRz+L2IKx6UUxbZlSyGTbnXUknqU/TuC6FhzTv1W7Gym4uDtfTXzK41WD+I
-         Wc1Uhx4l9Bb1AAsF3HnB78VnbRjbqBnKnypwDN6k=
+        b=nw0+cG3MvfQ/aqyDxXtdHjSy0EuvVz4vfugCGkwkV/VjWxiTdnfMPfAtoLifCRZXx
+         L6+Rv3cYsux6BFZImeIwihXfhXCmOPHqrqUqeyPZiDugt3/bgqFElubDpy0IfvhEi9
+         QHGZiVn+n61wuXLIn2mNNcb7S6NqFUdY/Lq1LLD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 5.15 001/567] HID: asus: use spinlock to protect concurrent accesses
+        Shravan Chippa <shravan.chippa@microchip.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0565/1001] dmaengine: sf-pdma: pdma_desc memory leak fix
 Date:   Tue,  7 Mar 2023 17:55:37 +0100
-Message-Id: <20230307165905.895651226@linuxfoundation.org>
+Message-Id: <20230307170045.997667637@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,98 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Shravan Chippa <shravan.chippa@microchip.com>
 
-commit 315c537068a13f0b5681d33dd045a912f4bece6f upstream.
+[ Upstream commit b02e07015a5ac7bbc029da931ae17914b8ae0339 ]
 
-asus driver has a worker that may access data concurrently.
-Proct the accesses using a spinlock.
+Commit b2cc5c465c2c ("dmaengine: sf-pdma: Add multithread support for a
+DMA channel") changed sf_pdma_prep_dma_memcpy() to unconditionally
+allocate a new sf_pdma_desc each time it is called.
 
-Fixes: af22a610bc38 ("HID: asus: support backlight on USB keyboards")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-4-7860c5763c38@diag.uniroma1.it
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The driver previously recycled descs, by checking the in_use flag, only
+allocating additional descs if the existing one was in use. This logic
+was removed in commit b2cc5c465c2c ("dmaengine: sf-pdma: Add multithread
+support for a DMA channel"), but sf_pdma_free_desc() was not changed to
+handle the new behaviour.
+
+As a result, each time sf_pdma_prep_dma_memcpy() is called, the previous
+descriptor is leaked, over time leading to memory starvation:
+
+  unreferenced object 0xffffffe008447300 (size 192):
+  comm "irq/39-mchp_dsc", pid 343, jiffies 4294906910 (age 981.200s)
+  hex dump (first 32 bytes):
+    00 00 00 ff 00 00 00 00 b8 c1 00 00 00 00 00 00  ................
+    00 00 70 08 10 00 00 00 00 00 00 c0 00 00 00 00  ..p.............
+  backtrace:
+    [<00000000064a04f4>] kmemleak_alloc+0x1e/0x28
+    [<00000000018927a7>] kmem_cache_alloc+0x11e/0x178
+    [<000000002aea8d16>] sf_pdma_prep_dma_memcpy+0x40/0x112
+
+Add the missing kfree() to sf_pdma_free_desc(), and remove the redundant
+in_use flag.
+
+Fixes: b2cc5c465c2c ("dmaengine: sf-pdma: Add multithread support for a DMA channel")
+Signed-off-by: Shravan Chippa <shravan.chippa@microchip.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230120100623.3530634-1-shravan.chippa@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/dma/sf-pdma/sf-pdma.c | 3 +--
+ drivers/dma/sf-pdma/sf-pdma.h | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -98,6 +98,7 @@ struct asus_kbd_leds {
- 	struct hid_device *hdev;
- 	struct work_struct work;
- 	unsigned int brightness;
-+	spinlock_t lock;
- 	bool removed;
+diff --git a/drivers/dma/sf-pdma/sf-pdma.c b/drivers/dma/sf-pdma/sf-pdma.c
+index 6b524eb6bcf3a..e578ad5569494 100644
+--- a/drivers/dma/sf-pdma/sf-pdma.c
++++ b/drivers/dma/sf-pdma/sf-pdma.c
+@@ -96,7 +96,6 @@ sf_pdma_prep_dma_memcpy(struct dma_chan *dchan,	dma_addr_t dest, dma_addr_t src,
+ 	if (!desc)
+ 		return NULL;
+ 
+-	desc->in_use = true;
+ 	desc->dirn = DMA_MEM_TO_MEM;
+ 	desc->async_tx = vchan_tx_prep(&chan->vchan, &desc->vdesc, flags);
+ 
+@@ -290,7 +289,7 @@ static void sf_pdma_free_desc(struct virt_dma_desc *vdesc)
+ 	struct sf_pdma_desc *desc;
+ 
+ 	desc = to_sf_pdma_desc(vdesc);
+-	desc->in_use = false;
++	kfree(desc);
+ }
+ 
+ static void sf_pdma_donebh_tasklet(struct tasklet_struct *t)
+diff --git a/drivers/dma/sf-pdma/sf-pdma.h b/drivers/dma/sf-pdma/sf-pdma.h
+index dcb3687bd5da2..5c398a83b491a 100644
+--- a/drivers/dma/sf-pdma/sf-pdma.h
++++ b/drivers/dma/sf-pdma/sf-pdma.h
+@@ -78,7 +78,6 @@ struct sf_pdma_desc {
+ 	u64				src_addr;
+ 	struct virt_dma_desc		vdesc;
+ 	struct sf_pdma_chan		*chan;
+-	bool				in_use;
+ 	enum dma_transfer_direction	dirn;
+ 	struct dma_async_tx_descriptor *async_tx;
  };
- 
-@@ -497,7 +498,12 @@ static void asus_kbd_backlight_set(struc
- {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&led->lock, flags);
- 	led->brightness = brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
-+
- 	schedule_work(&led->work);
- }
- 
-@@ -505,8 +511,14 @@ static enum led_brightness asus_kbd_back
- {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
-+	enum led_brightness brightness;
-+	unsigned long flags;
- 
--	return led->brightness;
-+	spin_lock_irqsave(&led->lock, flags);
-+	brightness = led->brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
-+
-+	return brightness;
- }
- 
- static void asus_kbd_backlight_work(struct work_struct *work)
-@@ -514,11 +526,14 @@ static void asus_kbd_backlight_work(stru
- 	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
- 	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
- 	int ret;
-+	unsigned long flags;
- 
- 	if (led->removed)
- 		return;
- 
-+	spin_lock_irqsave(&led->lock, flags);
- 	buf[4] = led->brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
- 
- 	ret = asus_kbd_set_report(led->hdev, buf, sizeof(buf));
- 	if (ret < 0)
-@@ -586,6 +601,7 @@ static int asus_kbd_register_leds(struct
- 	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
- 	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
- 	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
-+	spin_lock_init(&drvdata->kbd_backlight->lock);
- 
- 	ret = devm_led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
- 	if (ret < 0) {
-@@ -1121,9 +1137,13 @@ err_stop_hw:
- static void asus_remove(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	unsigned long flags;
- 
- 	if (drvdata->kbd_backlight) {
-+		spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
- 		drvdata->kbd_backlight->removed = true;
-+		spin_unlock_irqrestore(&drvdata->kbd_backlight->lock, flags);
-+
- 		cancel_work_sync(&drvdata->kbd_backlight->work);
- 	}
- 
+-- 
+2.39.2
+
 
 
