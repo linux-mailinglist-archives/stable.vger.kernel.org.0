@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 743786AE860
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5AB06AE861
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:15:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229910AbjCGRP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:15:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
+        id S229819AbjCGRPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:15:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231370AbjCGRO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:14:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC6F94F76
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:10:16 -0800 (PST)
+        with ESMTP id S231400AbjCGRO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:14:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA0F93E17
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:10:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE18661508
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:10:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093CCC4339B;
-        Tue,  7 Mar 2023 17:10:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF73461505
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:10:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E217BC433EF;
+        Tue,  7 Mar 2023 17:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209015;
-        bh=4jnSMzRt7kAs1B2RsLrqVHzvL7Pxaz9mnNvYatVFz2k=;
+        s=korg; t=1678209018;
+        bh=9h6R7RBQpKzyBaLqKeRHPV03rq46PwuKgXF7ADSdT2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJ+XGiGrEANrH22WKQ4Yc55Lh/TmjFgIrNWTJiy6hJBTH8yrwrn+/HCKYiqvq+xKc
-         BMwiSPnBBjLEo7zJyqSxbRs8HUF5kiQeSVrBhHyGgKISnGUddWx1qOs63IPAAAiXFJ
-         htUJgkow+I1bBC03clQCiIzFGgxX1pMARjWOboNk=
+        b=xm+fmntJPtcrq48OpTxuB2eEkOVHBKUVEmu/VXkln9Ud4dacrd/4a4cZcmm5wjQwu
+         atWtmxxmmPtqBhFh4nZFfW+Cw2hJW6IvvNnXZ1f210kit6A4lP0FOHQ/8z5gSwXucN
+         lR7MX+BeGpaUYU5tA6u6SUM1OL9dtsOGqTlI2REI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Pardini <ricardo@pardini.net>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0083/1001] arm64: dts: amlogic: meson-sm1-odroid-hc4: fix active fan thermal trip
-Date:   Tue,  7 Mar 2023 17:47:35 +0100
-Message-Id: <20230307170025.697423067@linuxfoundation.org>
+        patches@lists.linux.dev, Mukesh Ojha <quic_mojha@quicinc.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0084/1001] locking/rwsem: Disable preemption in all down_read*() and up_read() code paths
+Date:   Tue,  7 Mar 2023 17:47:36 +0100
+Message-Id: <20230307170025.738321018@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,47 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <neil.armstrong@linaro.org>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 1d2f14117aa7773efff50f832b85fc7779e586e0 ]
+[ Upstream commit 3f5245538a1964ae186ab7e1636020a41aa63143 ]
 
-Add an active trip tied to the on-board fan cooling device, which is better
-than describing it along the passive cooling maps.
+Commit:
 
-Fixes: 33b14f663df8 ("arm64: dts: meson: add initial device-tree for ODROID-HC4")
-Reported-by: Ricardo Pardini <ricardo@pardini.net>
-Link: https://lore.kernel.org/r/20230124-topic-odroid-hc4-upstream-fix-fan-trip-v1-1-b0c6aa355d93@linaro.org
-Tested-by: Ricardo Pardini <ricardo@pardini.net>
-[narmstrong: added Ricardo's tested-by from off-list chat]
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+  91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
+
+... assumes that when the owner field is changed to NULL, the lock will
+become free soon. But commit:
+
+  48dfb5d2560d ("locking/rwsem: Disable preemption while trying for rwsem lock")
+
+... disabled preemption when acquiring rwsem for write.
+
+However, preemption has not yet been disabled when acquiring a read lock
+on a rwsem.  So a reader can add a RWSEM_READER_BIAS to count without
+setting owner to signal a reader, got preempted out by a RT task which
+then spins in the writer slowpath as owner remains NULL leading to live lock.
+
+One easy way to fix this problem is to disable preemption at all the
+down_read*() and up_read() code paths as implemented in this patch.
+
+Fixes: 91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
+Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20230126003628.365092-3-longman@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ kernel/locking/rwsem.c | 30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
-index a1f0c38ccadda..74088e7280fee 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
-@@ -76,9 +76,17 @@ sound {
- };
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index 44873594de031..324fc370b6a68 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -1092,7 +1092,7 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, unsigned int stat
+ 			/* Ordered by sem->wait_lock against rwsem_mark_wake(). */
+ 			break;
+ 		}
+-		schedule();
++		schedule_preempt_disabled();
+ 		lockevent_inc(rwsem_sleep_reader);
+ 	}
  
- &cpu_thermal {
-+	trips {
-+		cpu_active: cpu-active {
-+			temperature = <60000>; /* millicelsius */
-+			hysteresis = <2000>; /* millicelsius */
-+			type = "active";
-+		};
-+	};
-+
- 	cooling-maps {
- 		map {
--			trip = <&cpu_passive>;
-+			trip = <&cpu_active>;
- 			cooling-device = <&fan0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
- 		};
- 	};
+@@ -1254,14 +1254,20 @@ static struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem)
+  */
+ static inline int __down_read_common(struct rw_semaphore *sem, int state)
+ {
++	int ret = 0;
+ 	long count;
+ 
++	preempt_disable();
+ 	if (!rwsem_read_trylock(sem, &count)) {
+-		if (IS_ERR(rwsem_down_read_slowpath(sem, count, state)))
+-			return -EINTR;
++		if (IS_ERR(rwsem_down_read_slowpath(sem, count, state))) {
++			ret = -EINTR;
++			goto out;
++		}
+ 		DEBUG_RWSEMS_WARN_ON(!is_rwsem_reader_owned(sem), sem);
+ 	}
+-	return 0;
++out:
++	preempt_enable();
++	return ret;
+ }
+ 
+ static inline void __down_read(struct rw_semaphore *sem)
+@@ -1281,19 +1287,23 @@ static inline int __down_read_killable(struct rw_semaphore *sem)
+ 
+ static inline int __down_read_trylock(struct rw_semaphore *sem)
+ {
++	int ret = 0;
+ 	long tmp;
+ 
+ 	DEBUG_RWSEMS_WARN_ON(sem->magic != sem, sem);
+ 
++	preempt_disable();
+ 	tmp = atomic_long_read(&sem->count);
+ 	while (!(tmp & RWSEM_READ_FAILED_MASK)) {
+ 		if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
+ 						    tmp + RWSEM_READER_BIAS)) {
+ 			rwsem_set_reader_owned(sem);
+-			return 1;
++			ret = 1;
++			break;
+ 		}
+ 	}
+-	return 0;
++	preempt_enable();
++	return ret;
+ }
+ 
+ /*
+@@ -1335,6 +1345,7 @@ static inline void __up_read(struct rw_semaphore *sem)
+ 	DEBUG_RWSEMS_WARN_ON(sem->magic != sem, sem);
+ 	DEBUG_RWSEMS_WARN_ON(!is_rwsem_reader_owned(sem), sem);
+ 
++	preempt_disable();
+ 	rwsem_clear_reader_owned(sem);
+ 	tmp = atomic_long_add_return_release(-RWSEM_READER_BIAS, &sem->count);
+ 	DEBUG_RWSEMS_WARN_ON(tmp < 0, sem);
+@@ -1343,6 +1354,7 @@ static inline void __up_read(struct rw_semaphore *sem)
+ 		clear_nonspinnable(sem);
+ 		rwsem_wake(sem);
+ 	}
++	preempt_enable();
+ }
+ 
+ /*
+@@ -1662,6 +1674,12 @@ void down_read_non_owner(struct rw_semaphore *sem)
+ {
+ 	might_sleep();
+ 	__down_read(sem);
++	/*
++	 * The owner value for a reader-owned lock is mostly for debugging
++	 * purpose only and is not critical to the correct functioning of
++	 * rwsem. So it is perfectly fine to set it in a preempt-enabled
++	 * context here.
++	 */
+ 	__rwsem_set_reader_owned(sem, NULL);
+ }
+ EXPORT_SYMBOL(down_read_non_owner);
 -- 
 2.39.2
 
