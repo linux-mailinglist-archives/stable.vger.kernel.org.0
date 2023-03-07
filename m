@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2886AF528
+	by mail.lfdr.de (Postfix) with ESMTP id 322796AF527
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233976AbjCGTWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:22:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54404 "EHLO
+        id S233967AbjCGTWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:22:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234064AbjCGTW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC646A769E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:28 -0800 (PST)
+        with ESMTP id S233968AbjCGTW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E24A769B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 59D77CE1B2F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A1DCC433EF;
-        Tue,  7 Mar 2023 19:07:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CFFF61522
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 839DDC433D2;
+        Tue,  7 Mar 2023 19:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216045;
-        bh=tWrxZm5sp9FheXzdVQaf6pRhAfFHsWhD/g6bWrw3Szg=;
+        s=korg; t=1678216049;
+        bh=Nv0SRZOkvEd+Wqj8rD2L46h/SZFJrMvVfaj+rjtnFw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l42GdEWf7+/5ysDLYzETUM04gTmca856vFrqeIQo9gDUxP+0owef8uiJ490ea6ISF
-         2KoqsXENBbQytJhiuZB86cub8BC3NeLT9W1gcTZcGgyKS8EU2x0usNXe4BzRnJdc2U
-         p0qZWUpXpR9Trn9Z3JZgkaTsDfH5IA3aVR7MTz7o=
+        b=Nbviy3M+wqVddjoub5MYCCycYBNLP1jR0rZj0l0c1MCrgf+Pl0RJPkxk8KXdy/Cs5
+         N8Y/DOhuyFDVpuBP7dY1nfhRCvz0vV/Ck+t8z7zvQCW0X908LwrLU79iPZCOCIhXZ4
+         Pn8jxXKGzhO/kr2qnWQrfNq00L8KRTsSQBNPp5KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Jeff Xu <jeffxu@google.com>,
-        Guenter Roeck <groeck@chromium.org>,
         =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.15 457/567] selftests/landlock: Skip overlayfs tests when not supported
-Date:   Tue,  7 Mar 2023 18:03:13 +0100
-Message-Id: <20230307165925.705784139@linuxfoundation.org>
+Subject: [PATCH 5.15 458/567] selftests/landlock: Test ptrace as much as possible with Yama
+Date:   Tue,  7 Mar 2023 18:03:14 +0100
+Message-Id: <20230307165925.738835393@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -44,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,113 +55,210 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeff Xu <jeffxu@google.com>
 
-commit 366617a69e60610912836570546f118006ebc7cb upstream.
+commit 8677e555f17f51321d0730b945aeb7d4b95f998f upstream.
 
-overlayfs may be disabled in the kernel configuration, causing related
-tests to fail.  Check that overlayfs is supported at runtime, so we can
-skip layout2_overlay.* accordingly.
+Update ptrace tests according to all potential Yama security policies.
+This is required to make such tests pass even if Yama is enabled.
+
+Tests are not skipped but they now check both Landlock and Yama boundary
+restrictions at run time to keep a maximum test coverage (i.e. positive
+and negative testing).
 
 Signed-off-by: Jeff Xu <jeffxu@google.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Link: https://lore.kernel.org/r/20230114020306.1407195-2-jeffxu@google.com
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230113053229.1281774-2-jeffxu@google.com
-[mic: Reword comments and constify variables]
+[mic: Add curly braces around EXPECT_EQ() to make it build, and improve
+commit message]
+Co-developed-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/landlock/fs_test.c |   47 +++++++++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+ tools/testing/selftests/landlock/ptrace_test.c |  113 +++++++++++++++++++++----
+ 1 file changed, 96 insertions(+), 17 deletions(-)
 
---- a/tools/testing/selftests/landlock/fs_test.c
-+++ b/tools/testing/selftests/landlock/fs_test.c
-@@ -11,6 +11,7 @@
- #include <fcntl.h>
- #include <linux/landlock.h>
- #include <sched.h>
-+#include <stdio.h>
- #include <string.h>
- #include <sys/capability.h>
- #include <sys/mount.h>
-@@ -87,6 +88,40 @@ static const char dir_s3d3[] = TMP_DIR "
-  *         └── s3d3
-  */
+--- a/tools/testing/selftests/landlock/ptrace_test.c
++++ b/tools/testing/selftests/landlock/ptrace_test.c
+@@ -19,6 +19,12 @@
  
-+static bool fgrep(FILE *const inf, const char *const str)
+ #include "common.h"
+ 
++/* Copied from security/yama/yama_lsm.c */
++#define YAMA_SCOPE_DISABLED 0
++#define YAMA_SCOPE_RELATIONAL 1
++#define YAMA_SCOPE_CAPABILITY 2
++#define YAMA_SCOPE_NO_ATTACH 3
++
+ static void create_domain(struct __test_metadata *const _metadata)
+ {
+ 	int ruleset_fd;
+@@ -60,6 +66,25 @@ static int test_ptrace_read(const pid_t
+ 	return 0;
+ }
+ 
++static int get_yama_ptrace_scope(void)
 +{
-+	char line[32];
-+	const int slen = strlen(str);
++	int ret;
++	char buf[2] = {};
++	const int fd = open("/proc/sys/kernel/yama/ptrace_scope", O_RDONLY);
 +
-+	while (!feof(inf)) {
-+		if (!fgets(line, sizeof(line), inf))
-+			break;
-+		if (strncmp(line, str, slen))
-+			continue;
++	if (fd < 0)
++		return 0;
 +
-+		return true;
++	if (read(fd, buf, 1) < 0) {
++		close(fd);
++		return -1;
 +	}
 +
-+	return false;
++	ret = atoi(buf);
++	close(fd);
++	return ret;
 +}
 +
-+static bool supports_overlayfs(void)
-+{
-+	bool res;
-+	FILE *const inf = fopen("/proc/filesystems", "r");
+ /* clang-format off */
+ FIXTURE(hierarchy) {};
+ /* clang-format on */
+@@ -232,8 +257,51 @@ TEST_F(hierarchy, trace)
+ 	pid_t child, parent;
+ 	int status, err_proc_read;
+ 	int pipe_child[2], pipe_parent[2];
++	int yama_ptrace_scope;
+ 	char buf_parent;
+ 	long ret;
++	bool can_read_child, can_trace_child, can_read_parent, can_trace_parent;
++
++	yama_ptrace_scope = get_yama_ptrace_scope();
++	ASSERT_LE(0, yama_ptrace_scope);
++
++	if (yama_ptrace_scope > YAMA_SCOPE_DISABLED)
++		TH_LOG("Incomplete tests due to Yama restrictions (scope %d)",
++		       yama_ptrace_scope);
 +
 +	/*
-+	 * Consider that the filesystem is supported if we cannot get the
-+	 * supported ones.
++	 * can_read_child is true if a parent process can read its child
++	 * process, which is only the case when the parent process is not
++	 * isolated from the child with a dedicated Landlock domain.
 +	 */
-+	if (!inf)
-+		return true;
++	can_read_child = !variant->domain_parent;
 +
-+	res = fgrep(inf, "nodev\toverlay\n");
-+	fclose(inf);
-+	return res;
-+}
++	/*
++	 * can_trace_child is true if a parent process can trace its child
++	 * process.  This depends on two conditions:
++	 * - The parent process is not isolated from the child with a dedicated
++	 *   Landlock domain.
++	 * - Yama allows tracing children (up to YAMA_SCOPE_RELATIONAL).
++	 */
++	can_trace_child = can_read_child &&
++			  yama_ptrace_scope <= YAMA_SCOPE_RELATIONAL;
 +
- static void mkdir_parents(struct __test_metadata *const _metadata,
- 			  const char *const path)
- {
-@@ -2650,6 +2685,9 @@ FIXTURE(layout2_overlay) {};
++	/*
++	 * can_read_parent is true if a child process can read its parent
++	 * process, which is only the case when the child process is not
++	 * isolated from the parent with a dedicated Landlock domain.
++	 */
++	can_read_parent = !variant->domain_child;
++
++	/*
++	 * can_trace_parent is true if a child process can trace its parent
++	 * process.  This depends on two conditions:
++	 * - The child process is not isolated from the parent with a dedicated
++	 *   Landlock domain.
++	 * - Yama is disabled (YAMA_SCOPE_DISABLED).
++	 */
++	can_trace_parent = can_read_parent &&
++			   yama_ptrace_scope <= YAMA_SCOPE_DISABLED;
  
- FIXTURE_SETUP(layout2_overlay)
- {
-+	if (!supports_overlayfs())
-+		SKIP(return, "overlayfs is not supported");
-+
- 	prepare_layout(_metadata);
+ 	/*
+ 	 * Removes all effective and permitted capabilities to not interfere
+@@ -264,16 +332,21 @@ TEST_F(hierarchy, trace)
+ 		/* Waits for the parent to be in a domain, if any. */
+ 		ASSERT_EQ(1, read(pipe_parent[0], &buf_child, 1));
  
- 	create_directory(_metadata, LOWER_BASE);
-@@ -2686,6 +2724,9 @@ FIXTURE_SETUP(layout2_overlay)
- 
- FIXTURE_TEARDOWN(layout2_overlay)
- {
-+	if (!supports_overlayfs())
-+		SKIP(return, "overlayfs is not supported");
+-		/* Tests PTRACE_ATTACH and PTRACE_MODE_READ on the parent. */
++		/* Tests PTRACE_MODE_READ on the parent. */
+ 		err_proc_read = test_ptrace_read(parent);
++		if (can_read_parent) {
++			EXPECT_EQ(0, err_proc_read);
++		} else {
++			EXPECT_EQ(EACCES, err_proc_read);
++		}
 +
- 	EXPECT_EQ(0, remove_path(lower_do1_fl3));
- 	EXPECT_EQ(0, remove_path(lower_dl1_fl2));
- 	EXPECT_EQ(0, remove_path(lower_fl1));
-@@ -2717,6 +2758,9 @@ FIXTURE_TEARDOWN(layout2_overlay)
++		/* Tests PTRACE_ATTACH on the parent. */
+ 		ret = ptrace(PTRACE_ATTACH, parent, NULL, 0);
+-		if (variant->domain_child) {
++		if (can_trace_parent) {
++			EXPECT_EQ(0, ret);
++		} else {
+ 			EXPECT_EQ(-1, ret);
+ 			EXPECT_EQ(EPERM, errno);
+-			EXPECT_EQ(EACCES, err_proc_read);
+-		} else {
+-			EXPECT_EQ(0, ret);
+-			EXPECT_EQ(0, err_proc_read);
+ 		}
+ 		if (ret == 0) {
+ 			ASSERT_EQ(parent, waitpid(parent, &status, 0));
+@@ -283,11 +356,11 @@ TEST_F(hierarchy, trace)
  
- TEST_F_FORK(layout2_overlay, no_restriction)
- {
-+	if (!supports_overlayfs())
-+		SKIP(return, "overlayfs is not supported");
-+
- 	ASSERT_EQ(0, test_open(lower_fl1, O_RDONLY));
- 	ASSERT_EQ(0, test_open(lower_dl1, O_RDONLY));
- 	ASSERT_EQ(0, test_open(lower_dl1_fl2, O_RDONLY));
-@@ -2880,6 +2924,9 @@ TEST_F_FORK(layout2_overlay, same_conten
- 	size_t i;
- 	const char *path_entry;
+ 		/* Tests child PTRACE_TRACEME. */
+ 		ret = ptrace(PTRACE_TRACEME);
+-		if (variant->domain_parent) {
++		if (can_trace_child) {
++			EXPECT_EQ(0, ret);
++		} else {
+ 			EXPECT_EQ(-1, ret);
+ 			EXPECT_EQ(EPERM, errno);
+-		} else {
+-			EXPECT_EQ(0, ret);
+ 		}
  
-+	if (!supports_overlayfs())
-+		SKIP(return, "overlayfs is not supported");
+ 		/*
+@@ -296,7 +369,7 @@ TEST_F(hierarchy, trace)
+ 		 */
+ 		ASSERT_EQ(1, write(pipe_child[1], ".", 1));
+ 
+-		if (!variant->domain_parent) {
++		if (can_trace_child) {
+ 			ASSERT_EQ(0, raise(SIGSTOP));
+ 		}
+ 
+@@ -321,7 +394,7 @@ TEST_F(hierarchy, trace)
+ 	ASSERT_EQ(1, read(pipe_child[0], &buf_parent, 1));
+ 
+ 	/* Tests child PTRACE_TRACEME. */
+-	if (!variant->domain_parent) {
++	if (can_trace_child) {
+ 		ASSERT_EQ(child, waitpid(child, &status, 0));
+ 		ASSERT_EQ(1, WIFSTOPPED(status));
+ 		ASSERT_EQ(0, ptrace(PTRACE_DETACH, child, NULL, 0));
+@@ -331,17 +404,23 @@ TEST_F(hierarchy, trace)
+ 		EXPECT_EQ(ESRCH, errno);
+ 	}
+ 
+-	/* Tests PTRACE_ATTACH and PTRACE_MODE_READ on the child. */
++	/* Tests PTRACE_MODE_READ on the child. */
+ 	err_proc_read = test_ptrace_read(child);
++	if (can_read_child) {
++		EXPECT_EQ(0, err_proc_read);
++	} else {
++		EXPECT_EQ(EACCES, err_proc_read);
++	}
 +
- 	/* Sets rules on base directories (i.e. outside overlay scope). */
- 	ruleset_fd = create_ruleset(_metadata, ACCESS_RW, layer1_base);
- 	ASSERT_LE(0, ruleset_fd);
++	/* Tests PTRACE_ATTACH on the child. */
+ 	ret = ptrace(PTRACE_ATTACH, child, NULL, 0);
+-	if (variant->domain_parent) {
++	if (can_trace_child) {
++		EXPECT_EQ(0, ret);
++	} else {
+ 		EXPECT_EQ(-1, ret);
+ 		EXPECT_EQ(EPERM, errno);
+-		EXPECT_EQ(EACCES, err_proc_read);
+-	} else {
+-		EXPECT_EQ(0, ret);
+-		EXPECT_EQ(0, err_proc_read);
+ 	}
++
+ 	if (ret == 0) {
+ 		ASSERT_EQ(child, waitpid(child, &status, 0));
+ 		ASSERT_EQ(1, WIFSTOPPED(status));
 
 
