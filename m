@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8D206AEBDC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E69516AF113
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:39:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232197AbjCGRtk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:49:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36688 "EHLO
+        id S231965AbjCGSjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:39:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232198AbjCGRtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:49:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD45C9CBE2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:05 -0800 (PST)
+        with ESMTP id S232897AbjCGSij (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C565BA1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:30:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DC53B81850
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:44:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C66AEC433EF;
-        Tue,  7 Mar 2023 17:44:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10AD561526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07B57C433A1;
+        Tue,  7 Mar 2023 18:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211043;
-        bh=Tf7jTMEQeWZDw0zdKoXOGgIkF3bnwREM27msHOSKLc8=;
+        s=korg; t=1678213745;
+        bh=cBopPsmVC1oHkIdN1ogjU77k9vjErSZGtPZ9rTiruSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KiMqzc3tRfsWUuiwwRa/oU4hFEvlc403wvj7axv7lF0qbVOa3oVeXZLaHBK6J5Ieh
-         DU4ovbHzNYv9ruDhn27QDe3W4eSzQi5Wlzt6VvU69kKxGJTd1JuVwLPDIxklOycp7s
-         7tWWzV4Arsuf4w4jijY9mzjOMOWwPo3/gVj6s9E8=
+        b=UDW1Xi6vAkEsYrSSzaXFfH/I1Xi61on23GRbCehL2tbRdC2/WKQUYjlTu/76BcJe5
+         xQNw/GAX9Cj4j3YIugZwI2L9WeIEICvZCh9V/1hSRyI30rDFbSNPKQNJmptqfV/uE9
+         hEVQFSgA3bR5urKg/6/u1A9RloswGoevatAVbI24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Snitzer <snitzer@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0736/1001] dm thin: add cond_resched() to various workqueue loops
-Date:   Tue,  7 Mar 2023 17:58:28 +0100
-Message-Id: <20230307170053.655024942@linuxfoundation.org>
+        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 575/885] wifi: mt76: dma: free rx_head in mt76_dma_rx_cleanup
+Date:   Tue,  7 Mar 2023 17:58:29 +0100
+Message-Id: <20230307170027.370508249@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,39 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@kernel.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit e4f80303c2353952e6e980b23914e4214487f2a6 ]
+[ Upstream commit 1b88b47e898edef0e56e3a2f4e49f052a136153d ]
 
-Otherwise on resource constrained systems these workqueues may be too
-greedy.
+Free rx_head skb in mt76_dma_rx_cleanup routine in order to avoid
+possible memory leak at module unload.
 
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-thin.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/mediatek/mt76/dma.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
-index 64cfcf46881dc..e4c1a8a21bbd0 100644
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -2207,6 +2207,7 @@ static void process_thin_deferred_bios(struct thin_c *tc)
- 			throttle_work_update(&pool->throttle);
- 			dm_pool_issue_prefetches(pool->pmd);
- 		}
-+		cond_resched();
- 	}
- 	blk_finish_plug(&plug);
- }
-@@ -2289,6 +2290,7 @@ static void process_thin_deferred_cells(struct thin_c *tc)
- 			else
- 				pool->process_cell(tc, cell);
- 		}
-+		cond_resched();
- 	} while (!list_empty(&cells));
+diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
+index 7378c4d1e1567..478bffb7418d9 100644
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -573,6 +573,7 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
+ 		return;
+ 
+ 	spin_lock_bh(&q->lock);
++
+ 	do {
+ 		buf = mt76_dma_dequeue(dev, q, true, NULL, NULL, &more);
+ 		if (!buf)
+@@ -580,6 +581,12 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
+ 
+ 		skb_free_frag(buf);
+ 	} while (1);
++
++	if (q->rx_head) {
++		dev_kfree_skb(q->rx_head);
++		q->rx_head = NULL;
++	}
++
+ 	spin_unlock_bh(&q->lock);
+ 
+ 	if (!q->rx_page.va)
+@@ -605,12 +612,6 @@ mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
+ 	mt76_dma_rx_cleanup(dev, q);
+ 	mt76_dma_sync_idx(dev, q);
+ 	mt76_dma_rx_fill(dev, q);
+-
+-	if (!q->rx_head)
+-		return;
+-
+-	dev_kfree_skb(q->rx_head);
+-	q->rx_head = NULL;
  }
  
+ static void
 -- 
 2.39.2
 
