@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADEC36AE971
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 169226AEDDB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:07:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231500AbjCGRYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:24:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41620 "EHLO
+        id S232348AbjCGSHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:07:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231484AbjCGRXv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:23:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC4FD9B994
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:20 -0800 (PST)
+        with ESMTP id S232346AbjCGSHh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F113498872
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87BDBB819A3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB900C433D2;
-        Tue,  7 Mar 2023 17:19:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2CE06151D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C732AC433EF;
+        Tue,  7 Mar 2023 18:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209558;
-        bh=YuYhB/dKHorjUyZL4Inu0z7kFjwTLil0DAr9I6YhTa0=;
+        s=korg; t=1678212064;
+        bh=L+aTUrahQJCBAVXMC+g+vY3FIrPFT5v0XGIFDGbny5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLDaVpLj+/9XS19rUn3PEP0TyOLXHz4b+G8g3gCBJ/fN4qXFxi74wbreFP8O19/3I
-         WpODy9PXVOcAXpGVGsJPZXEoAJsH85UVEp+BjO9UXyDNWjWhu/uB+PArN8Mcr81IaJ
-         l0a60d3eOLtiCGqzYNeMOyFBSceXRQxx/hu52oDU=
+        b=1o+f5+EsLQGjdQevfetIKewy2GIni1+fudtPwDXvLkuGfY45y/rcrx0IidR9CfQfF
+         q1fRS4V7KO/e5QObHypwAZ7MdSNF+lepjUPdR3DopUN6nfB9/9dnqNn31TlWVoRifH
+         Ipzya9OusAcrO2HTQn3kAIt1hIDCjuky1PJpuktw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        patches@lists.linux.dev, Ricardo Pardini <ricardo@pardini.net>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0226/1001] crypto: xts - Handle EBUSY correctly
-Date:   Tue,  7 Mar 2023 17:49:58 +0100
-Message-Id: <20230307170031.688873742@linuxfoundation.org>
+Subject: [PATCH 6.1 065/885] arm64: dts: amlogic: meson-sm1-odroid-hc4: fix active fan thermal trip
+Date:   Tue,  7 Mar 2023 17:49:59 +0100
+Message-Id: <20230307170004.605738656@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Neil Armstrong <neil.armstrong@linaro.org>
 
-[ Upstream commit 51c082514c2dedf2711c99d93c196cc4eedceb40 ]
+[ Upstream commit 1d2f14117aa7773efff50f832b85fc7779e586e0 ]
 
-As it is xts only handles the special return value of EINPROGRESS,
-which means that in all other cases it will free data related to the
-request.
+Add an active trip tied to the on-board fan cooling device, which is better
+than describing it along the passive cooling maps.
 
-However, as the caller of xts may specify MAY_BACKLOG, we also need
-to expect EBUSY and treat it in the same way.  Otherwise backlogged
-requests will trigger a use-after-free.
-
-Fixes: 8083b1bf8163 ("crypto: xts - add support for ciphertext stealing")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 33b14f663df8 ("arm64: dts: meson: add initial device-tree for ODROID-HC4")
+Reported-by: Ricardo Pardini <ricardo@pardini.net>
+Link: https://lore.kernel.org/r/20230124-topic-odroid-hc4-upstream-fix-fan-trip-v1-1-b0c6aa355d93@linaro.org
+Tested-by: Ricardo Pardini <ricardo@pardini.net>
+[narmstrong: added Ricardo's tested-by from off-list chat]
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/xts.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/crypto/xts.c b/crypto/xts.c
-index 63c85b9e64e08..de6cbcf69bbd6 100644
---- a/crypto/xts.c
-+++ b/crypto/xts.c
-@@ -203,12 +203,12 @@ static void xts_encrypt_done(struct crypto_async_request *areq, int err)
- 	if (!err) {
- 		struct xts_request_ctx *rctx = skcipher_request_ctx(req);
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
+index e3486f60645a4..3d642d739c359 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
+@@ -76,9 +76,17 @@ sound {
+ };
  
--		rctx->subreq.base.flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
-+		rctx->subreq.base.flags &= CRYPTO_TFM_REQ_MAY_BACKLOG;
- 		err = xts_xor_tweak_post(req, true);
- 
- 		if (!err && unlikely(req->cryptlen % XTS_BLOCK_SIZE)) {
- 			err = xts_cts_final(req, crypto_skcipher_encrypt);
--			if (err == -EINPROGRESS)
-+			if (err == -EINPROGRESS || err == -EBUSY)
- 				return;
- 		}
- 	}
-@@ -223,12 +223,12 @@ static void xts_decrypt_done(struct crypto_async_request *areq, int err)
- 	if (!err) {
- 		struct xts_request_ctx *rctx = skcipher_request_ctx(req);
- 
--		rctx->subreq.base.flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
-+		rctx->subreq.base.flags &= CRYPTO_TFM_REQ_MAY_BACKLOG;
- 		err = xts_xor_tweak_post(req, false);
- 
- 		if (!err && unlikely(req->cryptlen % XTS_BLOCK_SIZE)) {
- 			err = xts_cts_final(req, crypto_skcipher_decrypt);
--			if (err == -EINPROGRESS)
-+			if (err == -EINPROGRESS || err == -EBUSY)
- 				return;
- 		}
- 	}
+ &cpu_thermal {
++	trips {
++		cpu_active: cpu-active {
++			temperature = <60000>; /* millicelsius */
++			hysteresis = <2000>; /* millicelsius */
++			type = "active";
++		};
++	};
++
+ 	cooling-maps {
+ 		map {
+-			trip = <&cpu_passive>;
++			trip = <&cpu_active>;
+ 			cooling-device = <&fan0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+ 		};
+ 	};
 -- 
 2.39.2
 
