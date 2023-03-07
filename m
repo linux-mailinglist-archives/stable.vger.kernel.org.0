@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F75D6AF228
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:50:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E006AED23
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231687AbjCGSur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:50:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45084 "EHLO
+        id S230300AbjCGSBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:01:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbjCGSu2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:28 -0500
+        with ESMTP id S230221AbjCGSBL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:01:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC474B06E7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:38:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94CFE9E51C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A688C61522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C48DC433D2;
-        Tue,  7 Mar 2023 18:38:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 329AD614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 328A1C433EF;
+        Tue,  7 Mar 2023 17:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214330;
-        bh=/AB8lLe797xuZkQqfz2Nwf4tUFQyMaiXEGMDWX7ZdMw=;
+        s=korg; t=1678211705;
+        bh=7X6BhX2fwA+5wJpYcHMj+mH8rqrsWR9QRautTfciUiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYcYRYTLgggC9h7bx6FKk4Zyfyh6VSbR6Zxz+Al+ybjfU/9PLBI9Kqxct6gSRegU/
-         1CKivZskR5u0DrzfhH3IdB1yECQBqGZA0LoAZlR8AKhzsz4gSXOOtrm0G0k5nN4ru6
-         mjWU4lzBrpmxcobRbVm0/VTdkJRSjYbX+QDhMbvI=
+        b=s4RFv321CrKnREPku6ev8otJOvJa3vVA/TlCXXdidZqrHJfHRCA3B9ip5VWMjCRB7
+         jRF6hRJvtHNapnu5DTrrmHUnNPBVJ4YuWsjqOyL7gr3H/FTHxLTSSMk0sSMlyCE4VS
+         x0n0V9jXpTaypIQXbB5FqMCY9MUUEzOHFo48+1dA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com,
-        stable@kernel.org, Jun Nie <jun.nie@linaro.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 787/885] ext4: refuse to create ea block when umounted
+        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 6.2 0949/1001] ktest.pl: Fix missing "end_monitor" when machine check fails
 Date:   Tue,  7 Mar 2023 18:02:01 +0100
-Message-Id: <20230307170036.093704036@linuxfoundation.org>
+Message-Id: <20230307170103.323177437@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun Nie <jun.nie@linaro.org>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-commit f31173c19901a96bb2ebf6bcfec8a08df7095c91 upstream.
+commit e8bf9b98d40dbdf4e39362e3b85a70c61da68cb7 upstream.
 
-The ea block expansion need to access s_root while it is
-already set as NULL when umount is triggered. Refuse this
-request to avoid panic.
+In the "reboot" command, it does a check of the machine to see if it is
+still alive with a simple "ssh echo" command. If it fails, it will assume
+that a normal "ssh reboot" is not possible and force a power cycle.
 
-Reported-by: syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
-Link: https://lore.kernel.org/r/20230103014517.495275-3-jun.nie@linaro.org
-Cc: stable@kernel.org
-Signed-off-by: Jun Nie <jun.nie@linaro.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+In this case, the "start_monitor" is executed, but the "end_monitor" is
+not, and this causes the screen will not be given back to the console. That
+is, after the test, a "reset" command needs to be performed, as "echo" is
+turned off.
+
+Cc: stable@vger.kernel.org
+Fixes: 6474ace999edd ("ktest.pl: Powercycle the box on reboot if no connection can be made")
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ tools/testing/ktest/ktest.pl |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1422,6 +1422,13 @@ static struct inode *ext4_xattr_inode_cr
- 	uid_t owner[2] = { i_uid_read(inode), i_gid_read(inode) };
- 	int err;
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -1495,7 +1495,8 @@ sub reboot {
  
-+	if (inode->i_sb->s_root == NULL) {
-+		ext4_warning(inode->i_sb,
-+			     "refuse to create EA inode when umounting");
-+		WARN_ON(1);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
- 	/*
- 	 * Let the next inode be the goal, so we try and allocate the EA inode
- 	 * in the same group, or nearby one.
+ 	# Still need to wait for the reboot to finish
+ 	wait_for_monitor($time, $reboot_success_line);
+-
++    }
++    if ($powercycle || $time) {
+ 	end_monitor;
+     }
+ }
 
 
