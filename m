@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B0A66AEEA5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BD296AEA21
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232533AbjCGSNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:13:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56384 "EHLO
+        id S229624AbjCGRbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:31:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232539AbjCGSNg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:36 -0500
+        with ESMTP id S231623AbjCGRap (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:45 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967A17A937
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:09:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A13A6755
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E3BA8CE1C6A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:09:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA29BC433EF;
-        Tue,  7 Mar 2023 18:09:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93323CE1C5B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 941F5C433EF;
+        Tue,  7 Mar 2023 17:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212562;
-        bh=QWiufvSY18xyAYhN9U/7BhkGAcbUi0Aa4xBhKUhlFrs=;
+        s=korg; t=1678209961;
+        bh=mKWjptEvwkgkWXnqZmXIE43nr8ICtlDlOqa14lCg+eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bxyc3k3LX5Uk0ivy/dwr0mytncgrbYfBjlOKpLSO3+Mex9jWnI/9gfHs76u1U04U7
-         4Y90K6SpoAqKU39K0oK5tBFXPUm1cYLHfdoKkaNxwBdny4hmKdGPBIhqmeNGc8fuvB
-         dHJFHgCzZFuEIpSQB4XGC+LKza5ghPbCpH1z2qf4=
+        b=VrYd/4dr9ELNKFMV9KE3yYZ4EnJirLCNd00rb/hGMb9KBJsJoa/uz3yOew5moU4i1
+         fOgS4v1pSL1ZdPR+9sdYFSGoWS/M7v586Hihcr9dtVvG/jsxqH3ZGMsGXuIgK/yoPA
+         TVP4ljtrpn71NYBwarQtCPcitASp4RaVcuUABDK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Mikko Perttunen <mperttunen@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 224/885] m68k: /proc/hardware should depend on PROC_FS
+Subject: [PATCH 6.2 0386/1001] gpu: host1x: Fix mask for syncpoint increment register
 Date:   Tue,  7 Mar 2023 17:52:38 +0100
-Message-Id: <20230307170011.785470958@linuxfoundation.org>
+Message-Id: <20230307170038.139108604@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Mikko Perttunen <mperttunen@nvidia.com>
 
-[ Upstream commit 1e5b5df65af99013b4d31607ddb3ca5731dbe44d ]
+[ Upstream commit 79aad29c7d2d2cd64790115d3a6ebac28c00a8ec ]
 
-When CONFIG_PROC_FS is not set, there is a build error for an unused
-function. Make PROC_HARDWARE depend on PROC_FS to prevent this error.
+On Tegra186+, the syncpoint ID has 10 bits of space. To allow
+using more than 256 syncpoints, fix the mask.
 
-In file included from ../arch/m68k/kernel/setup.c:3:
-../arch/m68k/kernel/setup_mm.c:477:12: error: 'hardware_proc_show' defined but not used [-Werror=unused-function]
-  477 | static int hardware_proc_show(struct seq_file *m, void *v)
-      |            ^~~~~~~~~~~~~~~~~~
-
-Fixes: 66d857b08b8c ("m68k: merge m68k and m68knommu arch directories") # v3.0
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230209010825.24136-1-rdunlap@infradead.org
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: 9abdd497cd0a ("gpu: host1x: Tegra234 device data and headers")
+Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.devices | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/host1x/hw/hw_host1x06_uclass.h | 2 +-
+ drivers/gpu/host1x/hw/hw_host1x07_uclass.h | 2 +-
+ drivers/gpu/host1x/hw/hw_host1x08_uclass.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.devices b/arch/m68k/Kconfig.devices
-index 6a87b4a5fcac2..e6e3efac18407 100644
---- a/arch/m68k/Kconfig.devices
-+++ b/arch/m68k/Kconfig.devices
-@@ -19,6 +19,7 @@ config HEARTBEAT
- # We have a dedicated heartbeat LED. :-)
- config PROC_HARDWARE
- 	bool "/proc/hardware support"
-+	depends on PROC_FS
- 	help
- 	  Say Y here to support the /proc/hardware file, which gives you
- 	  access to information about the machine you're running on,
+diff --git a/drivers/gpu/host1x/hw/hw_host1x06_uclass.h b/drivers/gpu/host1x/hw/hw_host1x06_uclass.h
+index 5f831438d19bb..50c32de452fb1 100644
+--- a/drivers/gpu/host1x/hw/hw_host1x06_uclass.h
++++ b/drivers/gpu/host1x/hw/hw_host1x06_uclass.h
+@@ -53,7 +53,7 @@ static inline u32 host1x_uclass_incr_syncpt_cond_f(u32 v)
+ 	host1x_uclass_incr_syncpt_cond_f(v)
+ static inline u32 host1x_uclass_incr_syncpt_indx_f(u32 v)
+ {
+-	return (v & 0xff) << 0;
++	return (v & 0x3ff) << 0;
+ }
+ #define HOST1X_UCLASS_INCR_SYNCPT_INDX_F(v) \
+ 	host1x_uclass_incr_syncpt_indx_f(v)
+diff --git a/drivers/gpu/host1x/hw/hw_host1x07_uclass.h b/drivers/gpu/host1x/hw/hw_host1x07_uclass.h
+index 8cd2ef087d5d0..887b878f92f79 100644
+--- a/drivers/gpu/host1x/hw/hw_host1x07_uclass.h
++++ b/drivers/gpu/host1x/hw/hw_host1x07_uclass.h
+@@ -53,7 +53,7 @@ static inline u32 host1x_uclass_incr_syncpt_cond_f(u32 v)
+ 	host1x_uclass_incr_syncpt_cond_f(v)
+ static inline u32 host1x_uclass_incr_syncpt_indx_f(u32 v)
+ {
+-	return (v & 0xff) << 0;
++	return (v & 0x3ff) << 0;
+ }
+ #define HOST1X_UCLASS_INCR_SYNCPT_INDX_F(v) \
+ 	host1x_uclass_incr_syncpt_indx_f(v)
+diff --git a/drivers/gpu/host1x/hw/hw_host1x08_uclass.h b/drivers/gpu/host1x/hw/hw_host1x08_uclass.h
+index 724cccd71aa1a..4fb1d090edae5 100644
+--- a/drivers/gpu/host1x/hw/hw_host1x08_uclass.h
++++ b/drivers/gpu/host1x/hw/hw_host1x08_uclass.h
+@@ -53,7 +53,7 @@ static inline u32 host1x_uclass_incr_syncpt_cond_f(u32 v)
+ 	host1x_uclass_incr_syncpt_cond_f(v)
+ static inline u32 host1x_uclass_incr_syncpt_indx_f(u32 v)
+ {
+-	return (v & 0xff) << 0;
++	return (v & 0x3ff) << 0;
+ }
+ #define HOST1X_UCLASS_INCR_SYNCPT_INDX_F(v) \
+ 	host1x_uclass_incr_syncpt_indx_f(v)
 -- 
 2.39.2
 
