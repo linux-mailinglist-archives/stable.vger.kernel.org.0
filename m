@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA4D6AECD5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:58:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 325366AF172
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230262AbjCGR6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:58:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51020 "EHLO
+        id S233030AbjCGSoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:44:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230117AbjCGR56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:57:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666BAA4B06;
-        Tue,  7 Mar 2023 09:52:28 -0800 (PST)
+        with ESMTP id S233099AbjCGSnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:43:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B52EAA90B5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:33:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 460F4B818F6;
-        Tue,  7 Mar 2023 17:52:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A40BC433EF;
-        Tue,  7 Mar 2023 17:52:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9245161514
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89611C433EF;
+        Tue,  7 Mar 2023 18:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211546;
-        bh=/ooHOkNY9mnKWxMy7OT2dF9ymgmUJhRB6jQOXArb1YE=;
+        s=korg; t=1678214028;
+        bh=hD2BvJLSd/M3aiKh7/fdmWlFxABG0f6fyzt4dUZfTZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JC7ol2btuyy8ZqRTMo08DKuMntAn09OLuaXDO3mXdAV2bsWDqmalTJNIi8Mj8HsZp
-         3tWweT07subEj1/jfmSedJ0erh38ZOXVUevIR77unqapsOrxRZzmyodCrlnlWOWADN
-         90CGFoNeA04fhgyMXERI2SOEIGtpieO9dpXbX8vA=
+        b=aWwrunPuhl5uKtQc2QIA9t+aVrm/cmyd3zXrGg2M/7KaGNkzTilGYWBZuc/3hKXDg
+         cS0QmEOqbiAWylmxR/BwF3B4qF5rA7VPbJGmnwkCWyQdedDmJvlVHC8DwV37Nv0e3A
+         Bj9/HwmdQtciss6roMQ1iWHGWLiWutMm5XbtFwdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 6.2 0857/1001] selftests: core: Fix incorrect kernel headers search path
-Date:   Tue,  7 Mar 2023 18:00:29 +0100
-Message-Id: <20230307170059.023368304@linuxfoundation.org>
+        patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>
+Subject: [PATCH 6.1 696/885] fs: dlm: move sending fin message into state change handling
+Date:   Tue,  7 Mar 2023 18:00:30 +0100
+Message-Id: <20230307170032.338734383@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,34 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit 145df2fdc38f24b3e52e4c2a59b02d874a074fbd upstream.
+commit a58496361802070996f9bd76e941d109c4a85ebd upstream.
 
-Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
-building against kernel headers from the build environment in scenarios
-where kernel headers are installed into a specific output directory
-(O=...).
+This patch moves the send fin handling, which should appear in a specific
+state change, into the state change handling while the per node
+state_lock is held. I experienced issues with other messages because
+we changed the state and a fin message was sent out in a different state.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: <stable@vger.kernel.org> # 5.18+
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 489d8e559c65 ("fs: dlm: add reliable connection if reconnect")
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/core/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/midcomms.c |   33 +++++++++------------------------
+ 1 file changed, 9 insertions(+), 24 deletions(-)
 
---- a/tools/testing/selftests/core/Makefile
-+++ b/tools/testing/selftests/core/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
--CFLAGS += -g -I../../../../usr/include/
-+CFLAGS += -g $(KHDR_INCLUDES)
+--- a/fs/dlm/midcomms.c
++++ b/fs/dlm/midcomms.c
+@@ -401,7 +401,7 @@ static int dlm_send_fin(struct midcomms_
+ 	struct dlm_mhandle *mh;
+ 	char *ppc;
  
- TEST_GEN_PROGS := close_range_test
+-	mh = dlm_midcomms_get_mhandle(node->nodeid, mb_len, GFP_NOFS, &ppc);
++	mh = dlm_midcomms_get_mhandle(node->nodeid, mb_len, GFP_ATOMIC, &ppc);
+ 	if (!mh)
+ 		return -ENOMEM;
  
+@@ -503,8 +503,8 @@ static void dlm_midcomms_receive_buffer(
+ 					node->state = DLM_LAST_ACK;
+ 					pr_debug("switch node %d to state %s case 1\n",
+ 						 node->nodeid, dlm_state_str(node->state));
+-					spin_unlock(&node->state_lock);
+-					goto send_fin;
++					set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
++					dlm_send_fin(node, dlm_pas_fin_ack_rcv);
+ 				}
+ 				break;
+ 			case DLM_FIN_WAIT1:
+@@ -547,12 +547,6 @@ static void dlm_midcomms_receive_buffer(
+ 		log_print_ratelimited("ignore dlm msg because seq mismatch, seq: %u, expected: %u, nodeid: %d",
+ 				      seq, node->seq_next, node->nodeid);
+ 	}
+-
+-	return;
+-
+-send_fin:
+-	set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
+-	dlm_send_fin(node, dlm_pas_fin_ack_rcv);
+ }
+ 
+ static struct midcomms_node *
+@@ -1286,11 +1280,11 @@ void dlm_midcomms_remove_member(int node
+ 		case DLM_CLOSE_WAIT:
+ 			/* passive shutdown DLM_LAST_ACK case 2 */
+ 			node->state = DLM_LAST_ACK;
+-			spin_unlock(&node->state_lock);
+-
+ 			pr_debug("switch node %d to state %s case 2\n",
+ 				 node->nodeid, dlm_state_str(node->state));
+-			goto send_fin;
++			set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
++			dlm_send_fin(node, dlm_pas_fin_ack_rcv);
++			break;
+ 		case DLM_LAST_ACK:
+ 			/* probably receive fin caught it, do nothing */
+ 			break;
+@@ -1306,12 +1300,6 @@ void dlm_midcomms_remove_member(int node
+ 	spin_unlock(&node->state_lock);
+ 
+ 	srcu_read_unlock(&nodes_srcu, idx);
+-	return;
+-
+-send_fin:
+-	set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
+-	dlm_send_fin(node, dlm_pas_fin_ack_rcv);
+-	srcu_read_unlock(&nodes_srcu, idx);
+ }
+ 
+ static void midcomms_node_release(struct rcu_head *rcu)
+@@ -1342,6 +1330,7 @@ static void midcomms_shutdown(struct mid
+ 		node->state = DLM_FIN_WAIT1;
+ 		pr_debug("switch node %d to state %s case 2\n",
+ 			 node->nodeid, dlm_state_str(node->state));
++		dlm_send_fin(node, dlm_act_fin_ack_rcv);
+ 		break;
+ 	case DLM_CLOSED:
+ 		/* we have what we want */
+@@ -1355,12 +1344,8 @@ static void midcomms_shutdown(struct mid
+ 	}
+ 	spin_unlock(&node->state_lock);
+ 
+-	if (node->state == DLM_FIN_WAIT1) {
+-		dlm_send_fin(node, dlm_act_fin_ack_rcv);
+-
+-		if (DLM_DEBUG_FENCE_TERMINATION)
+-			msleep(5000);
+-	}
++	if (DLM_DEBUG_FENCE_TERMINATION)
++		msleep(5000);
+ 
+ 	/* wait for other side dlm + fin */
+ 	ret = wait_event_timeout(node->shutdown_wait,
 
 
