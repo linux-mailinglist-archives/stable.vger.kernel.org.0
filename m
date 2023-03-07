@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFAF76AF2B4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88F3A6AF10F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:39:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233396AbjCGSzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:55:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59410 "EHLO
+        id S232821AbjCGSi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:38:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233555AbjCGSy7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429A5AF2B1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:43 -0800 (PST)
+        with ESMTP id S232893AbjCGSij (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 327FC5B95
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:30:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9C8761530
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D82C433EF;
-        Tue,  7 Mar 2023 18:28:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2023B819F0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2980C4339B;
+        Tue,  7 Mar 2023 18:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213705;
-        bh=ZZxxS825Kwy+hbv47KxsyrgqDuuIejy6PlMltNlw5lM=;
+        s=korg; t=1678213708;
+        bh=s5xNDgT8kC3ed3qLOqVYpAxprENKIvqZW96oK1Jgzes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2dB7s4Agc6kKfCorZwVMaNUAqzILQyYKqa8kcTCYgDfX2FUD2Y1hhricpMKSVBw1
-         VYxzOZJJrW481s78qppBXKBJAaKwXWDJ+OJseq42oJ3U3KJvbDcVbKTeTLnyMwxfCg
-         qsZVIabdzBD1EDT//i9SE7dWp4O0aqBmmUTe1PoY=
+        b=FwACguGoQgXW2sFfEZJB987fTb9MxadJsoyRPg4tNeSS9amo0NPF4+tzN6TBqlVgR
+         4KLHaw8XHUA4T1q7QhdxnB5MehlwWld3qqKK38lW5A+4OOkt/poSwmn6HW8dL+z7L8
+         cIERHJ30+SkqnMC4yqeMLYXm5bPWFT+Uam6jaOwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
+        patches@lists.linux.dev, Allen Ballway <ballway@chromium.org>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 592/885] drm: panel-orientation-quirks: Add quirk for Lenovo Yoga Tab 3 X90F
-Date:   Tue,  7 Mar 2023 17:58:46 +0100
-Message-Id: <20230307170028.091422153@linuxfoundation.org>
+Subject: [PATCH 6.1 593/885] drm: panel-orientation-quirks: Add quirk for DynaBook K50
+Date:   Tue,  7 Mar 2023 17:58:47 +0100
+Message-Id: <20230307170028.129502547@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,52 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Allen Ballway <ballway@chromium.org>
 
-[ Upstream commit 8a238d7f7eea7592e0764bc3b9e79e7c6354b04c ]
+[ Upstream commit a3caf7ea0c3d5872ed0f2c51f5476aee0c47a73a ]
 
-The Lenovo Yoga Tab 3 X90F has a portrait 1600x2560 LCD used in
-landscape mode, add a quirk for this.
+Like the ASUS T100HAN for which there is already a quirk,
+the DynaBook K50 has a 800x1280 portrait screen mounted
+in the tablet part of a landscape oriented 2-in-1.
+Update the quirk to be more generic and apply to this device.
 
+Signed-off-by: Allen Ballway <ballway@chromium.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221127181539.104223-1-hdegoede@redhat.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20221130170811.1.Iee9a494547541dade9eeee9521cc8b811e76a8a0@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ .../gpu/drm/drm_panel_orientation_quirks.c    | 20 ++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 3659f0465a724..23d63a4d42d9c 100644
+index 23d63a4d42d9c..b409fe256fd0a 100644
 --- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
 +++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -127,6 +127,12 @@ static const struct drm_dmi_panel_orientation_data lcd1600x2560_leftside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
+@@ -30,12 +30,6 @@ struct drm_dmi_panel_orientation_data {
+ 	int orientation;
  };
  
-+static const struct drm_dmi_panel_orientation_data lcd1600x2560_rightside_up = {
-+	.width = 1600,
-+	.height = 2560,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+-static const struct drm_dmi_panel_orientation_data asus_t100ha = {
+-	.width = 800,
+-	.height = 1280,
+-	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
+-};
+-
+ static const struct drm_dmi_panel_orientation_data gpd_micropc = {
+ 	.width = 720,
+ 	.height = 1280,
+@@ -97,6 +91,12 @@ static const struct drm_dmi_panel_orientation_data lcd720x1280_rightside_up = {
+ 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+ };
+ 
++static const struct drm_dmi_panel_orientation_data lcd800x1280_leftside_up = {
++	.width = 800,
++	.height = 1280,
++	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
 +};
 +
- static const struct dmi_system_id orientation_data[] = {
- 	{	/* Acer One 10 (S1003) */
+ static const struct drm_dmi_panel_orientation_data lcd800x1280_rightside_up = {
+ 	.width = 800,
+ 	.height = 1280,
+@@ -157,7 +157,7 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100HAN"),
+ 		},
+-		.driver_data = (void *)&asus_t100ha,
++		.driver_data = (void *)&lcd800x1280_leftside_up,
+ 	}, {	/* Asus T101HA */
  		.matches = {
-@@ -331,6 +337,13 @@ static const struct dmi_system_id orientation_data[] = {
- 		 DMI_MATCH(DMI_BIOS_VERSION, "BLADE_21"),
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+@@ -202,6 +202,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Hi10 pro tablet"),
  		},
  		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* Lenovo Yoga Tab 3 X90F */
++	}, {	/* Dynabook K50 */
 +		.matches = {
-+		 DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
-+		 DMI_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
-+		 DMI_MATCH(DMI_PRODUCT_VERSION, "Blade3-10A-001"),
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dynabook Inc."),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "dynabook K50/FR"),
 +		},
-+		.driver_data = (void *)&lcd1600x2560_rightside_up,
- 	}, {	/* Nanote UMPC-01 */
++		.driver_data = (void *)&lcd800x1280_leftside_up,
+ 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
  		.matches = {
- 		 DMI_MATCH(DMI_SYS_VENDOR, "RWC CO.,LTD"),
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
 -- 
 2.39.2
 
