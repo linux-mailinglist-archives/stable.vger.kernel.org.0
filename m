@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 564216AF52C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF266AF52D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234068AbjCGTWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:22:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53850 "EHLO
+        id S229774AbjCGTWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:22:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234077AbjCGTWd (ORCPT
+        with ESMTP id S234074AbjCGTWd (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:33 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE40AA76AC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:44 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF73C0811
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 26D3CCE1C5D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F35C433EF;
-        Tue,  7 Mar 2023 19:07:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AE626150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0228CC433D2;
+        Tue,  7 Mar 2023 19:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216061;
-        bh=MvdYw3jbdfjJE1iBHegemyYKVmUMm17bIwoW/vTva/Q=;
+        s=korg; t=1678216064;
+        bh=ADlTvH+eOCe934n/yvLqLJF7qcx9TGoxxA+xrKP4ReM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jtz+EgGgCFqmC5FwpqGER1+midUaiQGNdmLKE7G6YnHFfafb9hdfeFGqq8vzz6qAU
-         YR/ttES8wQH33Sj1UvtR8sgftMzFR1YhdjN1eHm8utT+DC3wRUdIezTEoVUlRc7Efa
-         T0KCU5cnIrYqNqcOLZKrpZKH5Uu9OkSyeJ3O+Ea4=
+        b=ECrqtPRTEFffOOKCRpC5PRx6Twebho3hisK/dqderqr+yyHiZOYAc9HQhUjmzx885
+         q1WEjf8+OYJE5IimC6Io2OgOltrWtRcTACtvqNZeWs9pfREO5l84QtoYcGyizLw3Eu
+         kSH/+7SVrzg3QAZM+L5Lrn6ld1bcmXGGm7Us+Zyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+0937935b993956ba28ab@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.15 461/567] udf: Do not update file length for failed writes to inline files
-Date:   Tue,  7 Mar 2023 18:03:17 +0100
-Message-Id: <20230307165925.850081224@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.15 462/567] udf: Preserve link count of system files
+Date:   Tue,  7 Mar 2023 18:03:18 +0100
+Message-Id: <20230307165925.892884318@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -56,60 +54,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit 256fe4162f8b5a1625b8603ca5f7ff79725bfb47 upstream.
+commit fc8033a34a3ca7d23353e645e6dde5d364ac5f12 upstream.
 
-When write to inline file fails (or happens only partly), we still
-updated length of inline data as if the whole write succeeded. Fix the
-update of length of inline data to happen only if the write succeeds.
+System files in UDF filesystem have link count 0. To not confuse VFS we
+fudge the link count to be 1 when reading such inodes however we forget
+to restore the link count of 0 when writing such inodes. Fix that.
 
-Reported-by: syzbot+0937935b993956ba28ab@syzkaller.appspotmail.com
 CC: stable@vger.kernel.org
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/file.c |   26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ fs/udf/inode.c |    9 +++++++--
+ fs/udf/super.c |    1 +
+ fs/udf/udf_i.h |    3 ++-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
---- a/fs/udf/file.c
-+++ b/fs/udf/file.c
-@@ -148,26 +148,24 @@ static ssize_t udf_file_write_iter(struc
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -1385,6 +1385,7 @@ reread:
+ 		ret = -EIO;
  		goto out;
+ 	}
++	iinfo->i_hidden = hidden_inode;
+ 	iinfo->i_unique = 0;
+ 	iinfo->i_lenEAttr = 0;
+ 	iinfo->i_lenExtents = 0;
+@@ -1720,8 +1721,12 @@ static int udf_update_inode(struct inode
  
- 	down_write(&iinfo->i_data_sem);
--	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB) {
--		loff_t end = iocb->ki_pos + iov_iter_count(from);
--
--		if (inode->i_sb->s_blocksize <
--				(udf_file_entry_alloc_offset(inode) + end)) {
--			err = udf_expand_file_adinicb(inode);
--			if (err) {
--				inode_unlock(inode);
--				udf_debug("udf_expand_adinicb: err=%d\n", err);
--				return err;
--			}
--		} else {
--			iinfo->i_lenAlloc = max(end, inode->i_size);
--			up_write(&iinfo->i_data_sem);
-+	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB &&
-+	    inode->i_sb->s_blocksize < (udf_file_entry_alloc_offset(inode) +
-+				 iocb->ki_pos + iov_iter_count(from))) {
-+		err = udf_expand_file_adinicb(inode);
-+		if (err) {
-+			inode_unlock(inode);
-+			udf_debug("udf_expand_adinicb: err=%d\n", err);
-+			return err;
- 		}
- 	} else
- 		up_write(&iinfo->i_data_sem);
+ 	if (S_ISDIR(inode->i_mode) && inode->i_nlink > 0)
+ 		fe->fileLinkCount = cpu_to_le16(inode->i_nlink - 1);
+-	else
+-		fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	else {
++		if (iinfo->i_hidden)
++			fe->fileLinkCount = cpu_to_le16(0);
++		else
++			fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	}
  
- 	retval = __generic_file_write_iter(iocb, from);
- out:
-+	down_write(&iinfo->i_data_sem);
-+	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB && retval > 0)
-+		iinfo->i_lenAlloc = inode->i_size;
-+	up_write(&iinfo->i_data_sem);
- 	inode_unlock(inode);
+ 	fe->informationLength = cpu_to_le64(inode->i_size);
  
- 	if (retval > 0) {
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -147,6 +147,7 @@ static struct inode *udf_alloc_inode(str
+ 	ei->i_next_alloc_goal = 0;
+ 	ei->i_strat4096 = 0;
+ 	ei->i_streamdir = 0;
++	ei->i_hidden = 0;
+ 	init_rwsem(&ei->i_data_sem);
+ 	ei->cached_extent.lstart = -1;
+ 	spin_lock_init(&ei->i_extent_cache_lock);
+--- a/fs/udf/udf_i.h
++++ b/fs/udf/udf_i.h
+@@ -44,7 +44,8 @@ struct udf_inode_info {
+ 	unsigned		i_use : 1;	/* unallocSpaceEntry */
+ 	unsigned		i_strat4096 : 1;
+ 	unsigned		i_streamdir : 1;
+-	unsigned		reserved : 25;
++	unsigned		i_hidden : 1;	/* hidden system inode */
++	unsigned		reserved : 24;
+ 	__u8			*i_data;
+ 	struct kernel_lb_addr	i_locStreamdir;
+ 	__u64			i_lenStreams;
 
 
