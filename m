@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 291516AE839
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:14:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2345D6AE83B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:14:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230146AbjCGROU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:14:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50364 "EHLO
+        id S230444AbjCGROY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:14:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229886AbjCGRNV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:13:21 -0500
+        with ESMTP id S229696AbjCGRNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:13:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E3914EBB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:08:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58666B44F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:08:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FA15B819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:08:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B3F8C433EF;
-        Tue,  7 Mar 2023 17:08:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F401FB819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5718BC433EF;
+        Tue,  7 Mar 2023 17:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678208910;
-        bh=l8uX+ww20rxdEljzUC7ky+orcyiCrlVXLU7EJWfL7K0=;
+        s=korg; t=1678208913;
+        bh=i4hSPmS7YESfCTYV3AZbwVmg+b6YqJ2b2DpelSaNBbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gicC987WPtnpgv416Ip0+slHf8Y1g86qC3OT06ld7GNQLd+7i9Jq/YuJhZs1GgfGi
-         bieGOvJujnlIJ0TX3sIBu6wJIpDPzCrLs1Bu4GWVMX+JHDvrIZ7XWblRSk0EErW3ln
-         84+tBjYip1xwYNuiFDgA96BseEPvF/LNOiQFEeLg=
+        b=feZAPAUcvADiap2GfJbdOHF2rDW/FSj5M+/yraSDGPnA7buCB/gIqHrcRnSrzEwXF
+         MTG7rWb4rnsGyjARW5b0O6jmHBGu6/FYqaimrycDB1e+UYiLwI9oz39/CdjrDkO+pn
+         nQMQSTpF3oN07Ayq17k+hbH83+PTGOIam3GIcvYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Bryan Brattlof <bb@ti.com>,
+        Dhruva Gole <d-gole@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0049/1001] cpuidle, intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE *again*
-Date:   Tue,  7 Mar 2023 17:47:01 +0100
-Message-Id: <20230307170024.245725542@linuxfoundation.org>
+Subject: [PATCH 6.2 0050/1001] arm64: dts: ti: k3-am62-main: Fix clocks for McSPI
+Date:   Tue,  7 Mar 2023 17:47:02 +0100
+Message-Id: <20230307170024.296970298@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -59,57 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Dhruva Gole <d-gole@ti.com>
 
-[ Upstream commit 6d9c7f51b1d9179bf7c3542267c656a934e8af23 ]
+[ Upstream commit 6be5d8e5d1804eb4cec29cd8a85dc9cb18683b5d ]
 
-So objtool found this bug:
+Fixes the clock Device ID's in the DT according to the tisci docs clock
+identifiers for AM62x
 
-  vmlinux.o: warning: objtool: intel_idle_irq+0x10c: call to trace_hardirqs_off() leaves .noinstr.text section
-
-As per commit 32d4fd5751ea ("cpuidle,intel_idle: Fix CPUIDLE_FLAG_IRQ_ENABLE"):
-
-  "must not have tracing in idle functions"
-
-Clearly people can't read and tinker along until splat dissapears.
-This straight up reverts commit d295ad34f236 ("intel_idle: Fix false
-positive RCU splats due to incorrect hardirqs state").
-
-It doesn't re-introduce the problem because preceding patches fixed it
-properly.
-
-Fixes: d295ad34f236 ("intel_idle: Fix false positive RCU splats due to incorrect hardirqs state")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lore.kernel.org/r/20230112195540.434302128@infradead.org
+Fixes: c37c58fdeb8a ("arm64: dts: ti: k3-am62: Add more peripheral nodes")
+Reviewed-by: Bryan Brattlof <bb@ti.com>
+Signed-off-by: Dhruva Gole <d-gole@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20230103054840.1133711-1-d-gole@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/idle/intel_idle.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ arch/arm64/boot/dts/ti/k3-am62-main.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
-index cfeb24d40d378..f060ac7376e69 100644
---- a/drivers/idle/intel_idle.c
-+++ b/drivers/idle/intel_idle.c
-@@ -168,13 +168,7 @@ static __cpuidle int intel_idle_irq(struct cpuidle_device *dev,
+diff --git a/arch/arm64/boot/dts/ti/k3-am62-main.dtsi b/arch/arm64/boot/dts/ti/k3-am62-main.dtsi
+index 072903649d6ee..ae1ec58117c35 100644
+--- a/arch/arm64/boot/dts/ti/k3-am62-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am62-main.dtsi
+@@ -413,7 +413,7 @@ main_spi0: spi@20100000 {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		power-domains = <&k3_pds 141 TI_SCI_PD_EXCLUSIVE>;
+-		clocks = <&k3_clks 172 0>;
++		clocks = <&k3_clks 141 0>;
+ 		status = "disabled";
+ 	};
  
- 	raw_local_irq_enable();
- 	ret = __intel_idle(dev, drv, index);
--
--	/*
--	 * The lockdep hardirqs state may be changed to 'on' with timer
--	 * tick interrupt followed by __do_softirq(). Use local_irq_disable()
--	 * to keep the hardirqs state correct.
--	 */
--	local_irq_disable();
-+	raw_local_irq_disable();
+@@ -424,7 +424,7 @@ main_spi1: spi@20110000 {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		power-domains = <&k3_pds 142 TI_SCI_PD_EXCLUSIVE>;
+-		clocks = <&k3_clks 173 0>;
++		clocks = <&k3_clks 142 0>;
+ 		status = "disabled";
+ 	};
  
- 	return ret;
- }
+@@ -435,7 +435,7 @@ main_spi2: spi@20120000 {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		power-domains = <&k3_pds 143 TI_SCI_PD_EXCLUSIVE>;
+-		clocks = <&k3_clks 174 0>;
++		clocks = <&k3_clks 143 0>;
+ 		status = "disabled";
+ 	};
+ 
 -- 
 2.39.2
 
