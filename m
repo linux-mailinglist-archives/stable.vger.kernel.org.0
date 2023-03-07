@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 466656AEE1D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FB076AE8F0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:19:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229812AbjCGSJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:09:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46904 "EHLO
+        id S230352AbjCGRTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:19:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232377AbjCGSJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:13 -0500
+        with ESMTP id S231298AbjCGRS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:18:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B9C94F76
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93064497C4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07A7A6150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1E96C433D2;
-        Tue,  7 Mar 2023 17:58:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29DFB614E1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3951BC433EF;
+        Tue,  7 Mar 2023 17:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211905;
-        bh=37AzPDB6qsEfN8uuFhA/55KyMtG4UOzpPHgcE+i4lvA=;
+        s=korg; t=1678209275;
+        bh=ohdntRFfOliWEJKT1CWgFm99kHzGzUiz44HWOm+Dmps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2U5jEf/qICRuJ4XnKwTs7gqXjH6MfFyb5LAomdXwZ4TWOP7jiE+DyqTYhFs5nBLx
-         AHq96oeXshLzE0m/rO8cnuwQr5dZ52jkLTfddx3GrzLZFhoMeYxTcxiAmBbrwdj5U/
-         JcDAUpR+Gb1AcodZ+s4q6MwbKiM6xG3ET5tPS0RE=
+        b=KTskgbxkvZn1ddHjlY+AwG8pYlfyjbwLrhoH98HqrnRaNZ+enY6AmzmU/a5rpw4hk
+         /uSYh1VkGy48i3/j5ZiLXL4zT5+tC1sFFWMcTCgNBJ/ei7PeQ3aLTY21uAv5EOaebk
+         gE/mulGidWWuKvs+IP7hSDU1ly13Uh6FDLfbZpuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Hui <judy.chenhui@huawei.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 005/885] ARM: OMAP2+: Fix memory leak in realtime_counter_init()
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0167/1001] wifi: brcmfmac: unmap dma buffer in brcmf_msgbuf_alloc_pktid()
 Date:   Tue,  7 Mar 2023 17:48:59 +0100
-Message-Id: <20230307170001.870219885@linuxfoundation.org>
+Message-Id: <20230307170029.240233597@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Hui <judy.chenhui@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit ed8167cbf65c2b6ff6faeb0f96ded4d6d581e1ac ]
+[ Upstream commit b9f420032f2ba1e634b22ca7b433e5c40ea663af ]
 
-The "sys_clk" resource is malloced by clk_get(),
-it is not released when the function return.
+After the DMA buffer is mapped to a physical address, address is stored
+in pktids in brcmf_msgbuf_alloc_pktid(). Then, pktids is parsed in
+brcmf_msgbuf_get_pktid()/brcmf_msgbuf_release_array() to obtain physaddr
+and later unmap the DMA buffer. But when count is always equal to
+pktids->array_size, physaddr isn't stored in pktids and the DMA buffer
+will not be unmapped anyway.
 
-Fixes: fa6d79d27614 ("ARM: OMAP: Add initialisation for the real-time counter.")
-Signed-off-by: Chen Hui <judy.chenhui@huawei.com>
-Message-Id: <20221108141917.46796-1-judy.chenhui@huawei.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 9a1bb60250d2 ("brcmfmac: Adding msgbuf protocol.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207013114.1748936-1-shaozhengchao@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/timer.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/timer.c b/arch/arm/mach-omap2/timer.c
-index 620ba69c8f114..5677c4a08f376 100644
---- a/arch/arm/mach-omap2/timer.c
-+++ b/arch/arm/mach-omap2/timer.c
-@@ -76,6 +76,7 @@ static void __init realtime_counter_init(void)
- 	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+index cec53f934940a..45fbcbdc7d9e4 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+@@ -347,8 +347,11 @@ brcmf_msgbuf_alloc_pktid(struct device *dev,
+ 		count++;
+ 	} while (count < pktids->array_size);
  
- 	rate = clk_get_rate(sys_clk);
-+	clk_put(sys_clk);
+-	if (count == pktids->array_size)
++	if (count == pktids->array_size) {
++		dma_unmap_single(dev, *physaddr, skb->len - data_offset,
++				 pktids->direction);
+ 		return -ENOMEM;
++	}
  
- 	if (soc_is_dra7xx()) {
- 		/*
+ 	array[*idx].data_offset = data_offset;
+ 	array[*idx].physaddr = *physaddr;
 -- 
 2.39.2
 
