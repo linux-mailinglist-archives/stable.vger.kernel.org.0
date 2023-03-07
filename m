@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0236AF02B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A43AC6AEBC0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233096AbjCGS3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:29:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52676 "EHLO
+        id S232179AbjCGRst (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:48:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232770AbjCGS2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:28:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A6EC9EF75
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:28 -0800 (PST)
+        with ESMTP id S232089AbjCGRsR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CB255047
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAE1AB819D1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA54C433D2;
-        Tue,  7 Mar 2023 18:21:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C8ACB8191D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC63EC433EF;
+        Tue,  7 Mar 2023 17:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213285;
-        bh=IgAoI9427T+gYYcZbwy8LGbidteJ248lklD8EmzOeLM=;
+        s=korg; t=1678210687;
+        bh=HqGKXdBJs5isKSytWpXh57H8LBpivFV4RXaR+qad+50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+J8WFRjjyvFrU+P6dqEBHeTyRXXmB8SVwJ/xy7kf3WTDQcOKCWwdbP0tnrrC1/rl
-         MBWEBKIZlhHEkZD9G/k0G0cM7OCZi8aWkb1F3J8/RMkv3nxwsgYsuDg31+pHABE+EA
-         R+iwF6APedXoNWi/43rnfdn8t6i2calEur0Rln00=
+        b=FsRh0XZmMVMZkcU7qViqKkhfbhtr7gPqWAfsVUYNCSrEcYjdMgXzOeRt+FhdDhmCr
+         P3TgV9bdMZnnFm1UVBWJp1h5vlVmxODAfmtFXW5lUEdmHyj26FGcae8ddnSex33BvH
+         fjofdJvtX78woXKFgmxfXf/y9Q1C+ADz4hcvTrz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
-        Hector Martin <marcan@marcan.st>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 458/885] iommu: dart: Add suspend/resume support
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0620/1001] udf: Define EFSCORRUPTED error code
 Date:   Tue,  7 Mar 2023 17:56:32 +0100
-Message-Id: <20230307170022.398259145@linuxfoundation.org>
+Message-Id: <20230307170048.463067735@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,91 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 3d68bbb81b1a64e279180eee1ed0e2c590b5029e ]
+[ Upstream commit 3d2d7e61553dbcc8ba45201d8ae4f383742c8202 ]
 
-We need to save/restore the TCR/TTBR registers, since they are lost
-on power gate.
+Similarly to other filesystems define EFSCORRUPTED error code for
+reporting internal filesystem corruption.
 
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20230113105029.26654-3-marcan@marcan.st
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Stable-dep-of: cf5c1c87c239 ("iommu/dart: Fix apple_dart_device_group for PCI groups")
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/apple-dart.c | 43 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ fs/udf/udf_sb.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
-index 4f4a323be0d0f..2458416122f8d 100644
---- a/drivers/iommu/apple-dart.c
-+++ b/drivers/iommu/apple-dart.c
-@@ -121,6 +121,9 @@ struct apple_dart {
+diff --git a/fs/udf/udf_sb.h b/fs/udf/udf_sb.h
+index 291b56dd011ee..6bccff3c70f54 100644
+--- a/fs/udf/udf_sb.h
++++ b/fs/udf/udf_sb.h
+@@ -55,6 +55,8 @@
+ #define MF_DUPLICATE_MD		0x01
+ #define MF_MIRROR_FE_LOADED	0x02
  
- 	struct iommu_group *sid2group[DART_MAX_STREAMS];
- 	struct iommu_device iommu;
++#define EFSCORRUPTED EUCLEAN
 +
-+	u32 save_tcr[DART_MAX_STREAMS];
-+	u32 save_ttbr[DART_MAX_STREAMS][DART_MAX_TTBR];
- };
- 
- /*
-@@ -932,6 +935,45 @@ static const struct apple_dart_hw apple_dart_hw_t6000 = {
- 	.fmt = APPLE_DART2,
- };
- 
-+static __maybe_unused int apple_dart_suspend(struct device *dev)
-+{
-+	struct apple_dart *dart = dev_get_drvdata(dev);
-+	unsigned int sid, idx;
-+
-+	for (sid = 0; sid < DART_MAX_STREAMS; sid++) {
-+		dart->save_tcr[sid] = readl_relaxed(dart->regs + DART_TCR(sid));
-+		for (idx = 0; idx < DART_MAX_TTBR; idx++)
-+			dart->save_ttbr[sid][idx] =
-+				readl(dart->regs + DART_TTBR(sid, idx));
-+	}
-+
-+	return 0;
-+}
-+
-+static __maybe_unused int apple_dart_resume(struct device *dev)
-+{
-+	struct apple_dart *dart = dev_get_drvdata(dev);
-+	unsigned int sid, idx;
-+	int ret;
-+
-+	ret = apple_dart_hw_reset(dart);
-+	if (ret) {
-+		dev_err(dev, "Failed to reset DART on resume\n");
-+		return ret;
-+	}
-+
-+	for (sid = 0; sid < DART_MAX_STREAMS; sid++) {
-+		for (idx = 0; idx < DART_MAX_TTBR; idx++)
-+			writel(dart->save_ttbr[sid][idx],
-+			       dart->regs + DART_TTBR(sid, idx));
-+		writel(dart->save_tcr[sid], dart->regs + DART_TCR(sid));
-+	}
-+
-+	return 0;
-+}
-+
-+DEFINE_SIMPLE_DEV_PM_OPS(apple_dart_pm_ops, apple_dart_suspend, apple_dart_resume);
-+
- static const struct of_device_id apple_dart_of_match[] = {
- 	{ .compatible = "apple,t8103-dart", .data = &apple_dart_hw_t8103 },
- 	{ .compatible = "apple,t6000-dart", .data = &apple_dart_hw_t6000 },
-@@ -944,6 +986,7 @@ static struct platform_driver apple_dart_driver = {
- 		.name			= "apple-dart",
- 		.of_match_table		= apple_dart_of_match,
- 		.suppress_bind_attrs    = true,
-+		.pm			= pm_sleep_ptr(&apple_dart_pm_ops),
- 	},
- 	.probe	= apple_dart_probe,
- 	.remove	= apple_dart_remove,
+ struct udf_meta_data {
+ 	__u32	s_meta_file_loc;
+ 	__u32	s_mirror_file_loc;
 -- 
 2.39.2
 
