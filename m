@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6D06AEA6D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F866AEF13
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:20:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230211AbjCGRdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:33:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33008 "EHLO
+        id S231279AbjCGSUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:20:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229994AbjCGRdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:33:21 -0500
+        with ESMTP id S232572AbjCGSTa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:19:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7519C96614
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:29:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EEF39E076
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E10861501
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:29:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92843C433EF;
-        Tue,  7 Mar 2023 17:28:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B82E614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3200DC4339E;
+        Tue,  7 Mar 2023 18:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210140;
-        bh=6/OwhqZEoCnWMvzWTG606iTH0y7ZrDpAltPe5w4+44o=;
+        s=korg; t=1678212835;
+        bh=YztqTdRYKo6cqEj+HtcKx/RTQmFLC3HRBXy6WYGoYwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHbEbc3274JqQhhZK5E8uGQydRDvidTmeCNj2VHyZr4QyxHfh35G79jI8U7KS9592
-         O+ZZ13t4X/ABg0hoXN4Aa5L8D2801z5RAdlUFyFS0fmRc7KsnjKmmDvJF/wizjAJwA
-         7Xu2VQ3H6kZOYeDabqZ6B1qkAcqiZ2x4LajMkHts=
+        b=sYid810d26TwjFM9+AjSffFUlMpm5FWupRmgkMUIzxmh9liovtDb3Ravp0H29rCLR
+         tv5I4Njlr3zXLdDnY2blxDJIF684F3gZf77QPQm7AudjyCBQfN+rkh715r+G3DS8rf
+         lClvfvvedVOb0CKvUrmJGWi0ZFGrs28aQ2F78Q3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0445/1001] HID: bigben: use spinlock to safely schedule workers
+Subject: [PATCH 6.1 283/885] drm/vc4: hvs: Correct interrupt masking bit assignment for HVS5
 Date:   Tue,  7 Mar 2023 17:53:37 +0100
-Message-Id: <20230307170040.665533798@linuxfoundation.org>
+Message-Id: <20230307170014.312516957@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 76ca8da989c7d97a7f76c75d475fe95a584439d7 ]
+[ Upstream commit 87551ec650bb87d35f1b29bba6a2430896e08da0 ]
 
-Use spinlocks to deal with workers introducing a wrapper
-bigben_schedule_work(), and several spinlock checks.
-Otherwise, bigben_set_led() may schedule bigben->worker after the
-structure has been freed, causing a use-after-free.
+HVS5 has moved the interrupt enable bits around within the
+DISPCTRL register, therefore the configuration has to be updated
+to account for this.
 
-Fixes: 4eb1b01de5b9 ("HID: hid-bigbenff: fix race condition for scheduled work during removal")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-3-7860c5763c38@diag.uniroma1.it
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Fixes: c54619b0bfb3 ("drm/vc4: Add support for the BCM2711 HVS5")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://lore.kernel.org/r/20221207-rpi-hvs-crtc-misc-v1-4-1f8e0770798b@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hvs.c  | 52 +++++++++++++++++++++++-----------
+ drivers/gpu/drm/vc4/vc4_regs.h | 10 +++++--
+ 2 files changed, 44 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index b98c5f31c184b..9d6560db762b1 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -185,6 +185,15 @@ struct bigben_device {
- 	struct work_struct worker;
- };
- 
-+static inline void bigben_schedule_work(struct bigben_device *bigben)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&bigben->lock, flags);
-+	if (!bigben->removed)
-+		schedule_work(&bigben->worker);
-+	spin_unlock_irqrestore(&bigben->lock, flags);
-+}
- 
- static void bigben_worker(struct work_struct *work)
- {
-@@ -197,9 +206,6 @@ static void bigben_worker(struct work_struct *work)
- 	u32 len;
- 	unsigned long flags;
- 
--	if (bigben->removed)
--		return;
--
- 	buf = hid_alloc_report_buf(bigben->report, GFP_KERNEL);
- 	if (!buf)
+diff --git a/drivers/gpu/drm/vc4/vc4_hvs.c b/drivers/gpu/drm/vc4/vc4_hvs.c
+index 413ebb6f56a23..47990ecbfc4df 100644
+--- a/drivers/gpu/drm/vc4/vc4_hvs.c
++++ b/drivers/gpu/drm/vc4/vc4_hvs.c
+@@ -658,7 +658,8 @@ void vc4_hvs_mask_underrun(struct vc4_hvs *hvs, int channel)
  		return;
-@@ -285,7 +291,7 @@ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
- 		bigben->work_ff = true;
- 		spin_unlock_irqrestore(&bigben->lock, flags);
  
--		schedule_work(&bigben->worker);
-+		bigben_schedule_work(bigben);
- 	}
+ 	dispctrl = HVS_READ(SCALER_DISPCTRL);
+-	dispctrl &= ~SCALER_DISPCTRL_DSPEISLUR(channel);
++	dispctrl &= ~(hvs->vc4->is_vc5 ? SCALER5_DISPCTRL_DSPEISLUR(channel) :
++					 SCALER_DISPCTRL_DSPEISLUR(channel));
  
- 	return 0;
-@@ -320,7 +326,7 @@ static void bigben_set_led(struct led_classdev *led,
+ 	HVS_WRITE(SCALER_DISPCTRL, dispctrl);
  
- 			if (work) {
- 				bigben->work_led = true;
--				schedule_work(&bigben->worker);
-+				bigben_schedule_work(bigben);
- 			}
- 			return;
- 		}
-@@ -450,7 +456,7 @@ static int bigben_probe(struct hid_device *hid,
- 	bigben->left_motor_force = 0;
- 	bigben->work_led = true;
- 	bigben->work_ff = true;
--	schedule_work(&bigben->worker);
-+	bigben_schedule_work(bigben);
+@@ -675,7 +676,8 @@ void vc4_hvs_unmask_underrun(struct vc4_hvs *hvs, int channel)
+ 		return;
  
- 	hid_info(hid, "LED and force feedback support for BigBen gamepad\n");
+ 	dispctrl = HVS_READ(SCALER_DISPCTRL);
+-	dispctrl |= SCALER_DISPCTRL_DSPEISLUR(channel);
++	dispctrl |= (hvs->vc4->is_vc5 ? SCALER5_DISPCTRL_DSPEISLUR(channel) :
++					SCALER_DISPCTRL_DSPEISLUR(channel));
  
+ 	HVS_WRITE(SCALER_DISPSTAT,
+ 		  SCALER_DISPSTAT_EUFLOW(channel));
+@@ -701,6 +703,7 @@ static irqreturn_t vc4_hvs_irq_handler(int irq, void *data)
+ 	int channel;
+ 	u32 control;
+ 	u32 status;
++	u32 dspeislur;
+ 
+ 	/*
+ 	 * NOTE: We don't need to protect the register access using
+@@ -717,9 +720,11 @@ static irqreturn_t vc4_hvs_irq_handler(int irq, void *data)
+ 	control = HVS_READ(SCALER_DISPCTRL);
+ 
+ 	for (channel = 0; channel < SCALER_CHANNELS_COUNT; channel++) {
++		dspeislur = vc4->is_vc5 ? SCALER5_DISPCTRL_DSPEISLUR(channel) :
++					  SCALER_DISPCTRL_DSPEISLUR(channel);
+ 		/* Interrupt masking is not always honored, so check it here. */
+ 		if (status & SCALER_DISPSTAT_EUFLOW(channel) &&
+-		    control & SCALER_DISPCTRL_DSPEISLUR(channel)) {
++		    control & dspeislur) {
+ 			vc4_hvs_mask_underrun(hvs, channel);
+ 			vc4_hvs_report_underrun(dev);
+ 
+@@ -872,19 +877,34 @@ static int vc4_hvs_bind(struct device *dev, struct device *master, void *data)
+ 		    SCALER_DISPCTRL_DISPEIRQ(1) |
+ 		    SCALER_DISPCTRL_DISPEIRQ(2);
+ 
+-	dispctrl &= ~(SCALER_DISPCTRL_DMAEIRQ |
+-		      SCALER_DISPCTRL_SLVWREIRQ |
+-		      SCALER_DISPCTRL_SLVRDEIRQ |
+-		      SCALER_DISPCTRL_DSPEIEOF(0) |
+-		      SCALER_DISPCTRL_DSPEIEOF(1) |
+-		      SCALER_DISPCTRL_DSPEIEOF(2) |
+-		      SCALER_DISPCTRL_DSPEIEOLN(0) |
+-		      SCALER_DISPCTRL_DSPEIEOLN(1) |
+-		      SCALER_DISPCTRL_DSPEIEOLN(2) |
+-		      SCALER_DISPCTRL_DSPEISLUR(0) |
+-		      SCALER_DISPCTRL_DSPEISLUR(1) |
+-		      SCALER_DISPCTRL_DSPEISLUR(2) |
+-		      SCALER_DISPCTRL_SCLEIRQ);
++	if (!vc4->is_vc5)
++		dispctrl &= ~(SCALER_DISPCTRL_DMAEIRQ |
++			      SCALER_DISPCTRL_SLVWREIRQ |
++			      SCALER_DISPCTRL_SLVRDEIRQ |
++			      SCALER_DISPCTRL_DSPEIEOF(0) |
++			      SCALER_DISPCTRL_DSPEIEOF(1) |
++			      SCALER_DISPCTRL_DSPEIEOF(2) |
++			      SCALER_DISPCTRL_DSPEIEOLN(0) |
++			      SCALER_DISPCTRL_DSPEIEOLN(1) |
++			      SCALER_DISPCTRL_DSPEIEOLN(2) |
++			      SCALER_DISPCTRL_DSPEISLUR(0) |
++			      SCALER_DISPCTRL_DSPEISLUR(1) |
++			      SCALER_DISPCTRL_DSPEISLUR(2) |
++			      SCALER_DISPCTRL_SCLEIRQ);
++	else
++		dispctrl &= ~(SCALER_DISPCTRL_DMAEIRQ |
++			      SCALER5_DISPCTRL_SLVEIRQ |
++			      SCALER5_DISPCTRL_DSPEIEOF(0) |
++			      SCALER5_DISPCTRL_DSPEIEOF(1) |
++			      SCALER5_DISPCTRL_DSPEIEOF(2) |
++			      SCALER5_DISPCTRL_DSPEIEOLN(0) |
++			      SCALER5_DISPCTRL_DSPEIEOLN(1) |
++			      SCALER5_DISPCTRL_DSPEIEOLN(2) |
++			      SCALER5_DISPCTRL_DSPEISLUR(0) |
++			      SCALER5_DISPCTRL_DSPEISLUR(1) |
++			      SCALER5_DISPCTRL_DSPEISLUR(2) |
++			      SCALER_DISPCTRL_SCLEIRQ);
++
+ 
+ 	/* Set AXI panic mode.
+ 	 * VC4 panics when < 2 lines in FIFO.
+diff --git a/drivers/gpu/drm/vc4/vc4_regs.h b/drivers/gpu/drm/vc4/vc4_regs.h
+index 95deacdc31e77..1256f0877ff66 100644
+--- a/drivers/gpu/drm/vc4/vc4_regs.h
++++ b/drivers/gpu/drm/vc4/vc4_regs.h
+@@ -234,15 +234,21 @@
+  * always enabled.
+  */
+ # define SCALER_DISPCTRL_DSPEISLUR(x)		BIT(13 + (x))
++# define SCALER5_DISPCTRL_DSPEISLUR(x)		BIT(9 + ((x) * 4))
+ /* Enables Display 0 end-of-line-N contribution to
+  * SCALER_DISPSTAT_IRQDISP0
+  */
+ # define SCALER_DISPCTRL_DSPEIEOLN(x)		BIT(8 + ((x) * 2))
++# define SCALER5_DISPCTRL_DSPEIEOLN(x)		BIT(8 + ((x) * 4))
+ /* Enables Display 0 EOF contribution to SCALER_DISPSTAT_IRQDISP0 */
+ # define SCALER_DISPCTRL_DSPEIEOF(x)		BIT(7 + ((x) * 2))
++# define SCALER5_DISPCTRL_DSPEIEOF(x)		BIT(7 + ((x) * 4))
+ 
+-# define SCALER_DISPCTRL_SLVRDEIRQ		BIT(6)
+-# define SCALER_DISPCTRL_SLVWREIRQ		BIT(5)
++# define SCALER5_DISPCTRL_DSPEIVST(x)		BIT(6 + ((x) * 4))
++
++# define SCALER_DISPCTRL_SLVRDEIRQ		BIT(6)	/* HVS4 only */
++# define SCALER_DISPCTRL_SLVWREIRQ		BIT(5)	/* HVS4 only */
++# define SCALER5_DISPCTRL_SLVEIRQ		BIT(5)
+ # define SCALER_DISPCTRL_DMAEIRQ		BIT(4)
+ /* Enables interrupt generation on the enabled EOF/EOLN/EISLUR
+  * bits and short frames..
 -- 
 2.39.2
 
