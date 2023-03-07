@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F12B6AEE99
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 813AB6AE9ED
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:29:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232542AbjCGSNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:13:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57082 "EHLO
+        id S231316AbjCGR3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:29:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232507AbjCGSNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF44B9BA77
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:50 -0800 (PST)
+        with ESMTP id S231438AbjCGR2c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9778497B5B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8700AB819BA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C257EC4339B;
-        Tue,  7 Mar 2023 18:08:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35243614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA21C433D2;
+        Tue,  7 Mar 2023 17:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212528;
-        bh=/gXLjJrSdJ8V+i+NJPjzu4J4scImOg5kv0BpxiEY7T4=;
+        s=korg; t=1678209827;
+        bh=02vWBm+mhOMDWp7RWBi6DfF/rLZdRClP5gSKOq/mbpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bY1NjGU6zXDg85deHvAtCuP7laezSB2eU2lCF+S9QrARSFzW7XW2MJ8CIj95xCPhR
-         UzDRR2agzShnQb9wdCycObebAdfRxTXqUyovcW70V+gKvW6nUgpnSOY5uKuEGmJLAr
-         9A2IcptvtAbYdKqrs1HHn7D3msWfiGY/Pso0kIHI=
+        b=DohE20YE7OhPUnW/QNtQk9CcLJfpfMjrBP/jWA5fdSxq7Qo5skfG5F/WnJiI9LeG2
+         EEhLlvk8elGdK2XPfLhjwroofhOjn28am5s5jBN2IxwiYnyxpxMFXort15PQKJT64J
+         0KJMlTuH6zL5lYhO9H6NNCwhm9irC25GwemYfnoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Artem Savkov <asavkov@redhat.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        KP Singh <kpsingh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 182/885] selftests/bpf: Use consistent build-id type for liburandom_read.so
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0344/1001] drm/msm/hdmi: Add missing check for alloc_ordered_workqueue
 Date:   Tue,  7 Mar 2023 17:51:56 +0100
-Message-Id: <20230307170009.899849165@linuxfoundation.org>
+Message-Id: <20230307170036.390844043@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Savkov <asavkov@redhat.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 61fc5e66f755db24d27ba37ce1ee4873def1a074 ]
+[ Upstream commit afe4cb96153a0d8003e4e4ebd91b5c543e10df84 ]
 
-lld produces "fast" style build-ids by default, which is inconsistent
-with ld's "sha1" style. Explicitly specify build-id style to be "sha1"
-when linking liburandom_read.so the same way it is already done for
-urandom_read.
+Add check for the return value of alloc_ordered_workqueue as it may return
+NULL pointer and cause NULL pointer dereference in `hdmi_hdcp.c` and
+`hdmi_hpd.c`.
 
-Signed-off-by: Artem Savkov <asavkov@redhat.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: KP Singh <kpsingh@kernel.org>
-Link: https://lore.kernel.org/bpf/20221104094016.102049-1-asavkov@redhat.com
-Stable-dep-of: 2514a31241e1 ("selftests/bpf: Fix vmtest static compilation error")
+Fixes: c6a57a50ad56 ("drm/msm/hdmi: add hdmi hdcp support (V3)")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/517211/
+Link: https://lore.kernel.org/r/20230106023011.3985-1-jiasheng@iscas.ac.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/hdmi/hdmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index e6cf21fad69f0..5a8fd8b3fb4a5 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -182,14 +182,15 @@ endif
- $(OUTPUT)/liburandom_read.so: urandom_read_lib1.c urandom_read_lib2.c
- 	$(call msg,LIB,,$@)
- 	$(Q)$(CLANG) $(filter-out -static,$(CFLAGS) $(LDFLAGS)) $^ $(LDLIBS)   \
--		     -fuse-ld=$(LLD) -Wl,-znoseparate-code -fPIC -shared -o $@
-+		     -fuse-ld=$(LLD) -Wl,-znoseparate-code -Wl,--build-id=sha1 \
-+		     -fPIC -shared -o $@
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
+index 97372bb241d89..4ad36bc8fe5ed 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -120,6 +120,10 @@ static int msm_hdmi_init(struct hdmi *hdmi)
+ 	int ret;
  
- $(OUTPUT)/urandom_read: urandom_read.c urandom_read_aux.c $(OUTPUT)/liburandom_read.so
- 	$(call msg,BINARY,,$@)
- 	$(Q)$(CLANG) $(filter-out -static,$(CFLAGS) $(LDFLAGS)) $(filter %.c,$^) \
- 		     liburandom_read.so $(LDLIBS)			       \
--		     -fuse-ld=$(LLD) -Wl,-znoseparate-code		       \
--		     -Wl,-rpath=. -Wl,--build-id=sha1 -o $@
-+		     -fuse-ld=$(LLD) -Wl,-znoseparate-code -Wl,--build-id=sha1 \
-+		     -Wl,-rpath=. -o $@
+ 	hdmi->workq = alloc_ordered_workqueue("msm_hdmi", 0);
++	if (!hdmi->workq) {
++		ret = -ENOMEM;
++		goto fail;
++	}
  
- $(OUTPUT)/sign-file: ../../../../scripts/sign-file.c
- 	$(call msg,SIGN-FILE,,$@)
+ 	hdmi->i2c = msm_hdmi_i2c_init(hdmi);
+ 	if (IS_ERR(hdmi->i2c)) {
 -- 
 2.39.2
 
