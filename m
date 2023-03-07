@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74F86AE9FF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F31436AEE68
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230266AbjCGRaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50894 "EHLO
+        id S232422AbjCGSLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:11:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231594AbjCGR3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:24 -0500
+        with ESMTP id S232396AbjCGSLH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0C6DA02AA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:24:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F6DABACC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55A90614D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C362C433EF;
-        Tue,  7 Mar 2023 17:24:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F5866152C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8365CC4339B;
+        Tue,  7 Mar 2023 18:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209871;
-        bh=qAkJwvDNj/QkE9DY1RcAzs7HpzFux2BMkiKzaOByEuA=;
+        s=korg; t=1678212377;
+        bh=vfUAMRT1qE9J1/aqt0rnCESVFB3WSq9+Qg8UAOepUoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRDWrEBM8N3QIp1tSBxma6OJXjrWAlam3D8RKkDmOs78NCbH+Subx4b82lZM3vkJa
-         v7OaivNXQXQYd4tS/QvWo6UJCUQtCRYuuCtLPItTrowCA9Ta9OTgre5qydX0hJ6jzN
-         +j2PyJmYFmbjewIYdfK4Usk0IWHImgSH07mz2cd8=
+        b=sdPiElK0NrWtUq/bfiOqlvEFuFAqY0MT3ShKCwjJzZZP2ubVG6W6iVd3SgefZjVgF
+         xfgKTH9qGYk+/P8zXvba+SgtgZLlQeC6lAvERRIA3PbbP3+Fn3V7WEKgBRnoe+JXgt
+         oOt8zk+ctmmWV9DN2p2DD3sTWyQC7RmH5N5clCBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0328/1001] drm/fourcc: Add missing big-endian XRGB1555 and RGB565 formats
+Subject: [PATCH 6.1 166/885] thermal/drivers/imx_sc_thermal: Drop empty platform remove function
 Date:   Tue,  7 Mar 2023 17:51:40 +0100
-Message-Id: <20230307170035.739019746@linuxfoundation.org>
+Message-Id: <20230307170009.145303437@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 6fb6c979ca628583d4d0c59a0f8ff977e581ecc0 ]
+[ Upstream commit 5011a110295d25418f5918a6af7bfcdb00dd4e34 ]
 
-As of commit eae06120f1974e1a ("drm: refuse ADDFB2 ioctl for broken
-bigendian drivers"), drivers must set the
-quirk_addfb_prefer_host_byte_order quirk to make the drm_mode_addfb()
-compat code work correctly on big-endian machines.
+A remove callback just returning 0 is equivalent to no remove callback
+at all. So drop the useless function.
 
-While that works fine for big-endian XRGB8888 and ARGB8888, which are
-mapped to the existing little-endian BGRX8888 and BGRA8888 formats, it
-does not work for big-endian XRGB1555 and RGB565, as the latter are not
-listed in the format database.
-
-Fix this by adding the missing formats.  Limit this to big-endian
-platforms, as there is currently no need to support these formats on
-little-endian platforms.
-
-Fixes: 6960e6da9cec3f66 ("drm: fix drm_mode_addfb() on big endian machines.")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/3ee1f8144feb96c28742b22384189f1f83bcfc1a.1669221671.git.geert@linux-m68k.org
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20221212220217.3777176-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
+Stable-dep-of: 4b26b7c9cdef ("thermal/drivers/imx_sc_thermal: Fix the loop condition")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_fourcc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/thermal/imx_sc_thermal.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
-index 6242dfbe92402..0f17dfa8702b4 100644
---- a/drivers/gpu/drm/drm_fourcc.c
-+++ b/drivers/gpu/drm/drm_fourcc.c
-@@ -190,6 +190,10 @@ const struct drm_format_info *__drm_format_info(u32 format)
- 		{ .format = DRM_FORMAT_BGRA5551,	.depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1, .has_alpha = true },
- 		{ .format = DRM_FORMAT_RGB565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_BGR565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+#ifdef __BIG_ENDIAN
-+		{ .format = DRM_FORMAT_XRGB1555 | DRM_FORMAT_BIG_ENDIAN, .depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+		{ .format = DRM_FORMAT_RGB565 | DRM_FORMAT_BIG_ENDIAN, .depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+#endif
- 		{ .format = DRM_FORMAT_RGB888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_BGR888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_XRGB8888,	.depth = 24, .num_planes = 1, .cpp = { 4, 0, 0 }, .hsub = 1, .vsub = 1 },
+diff --git a/drivers/thermal/imx_sc_thermal.c b/drivers/thermal/imx_sc_thermal.c
+index 5d92b70a5d53a..4df925e3a80bd 100644
+--- a/drivers/thermal/imx_sc_thermal.c
++++ b/drivers/thermal/imx_sc_thermal.c
+@@ -127,11 +127,6 @@ static int imx_sc_thermal_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int imx_sc_thermal_remove(struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-
+ static int imx_sc_sensors[] = { IMX_SC_R_SYSTEM, IMX_SC_R_PMIC_0, -1 };
+ 
+ static const struct of_device_id imx_sc_thermal_table[] = {
+@@ -142,7 +137,6 @@ MODULE_DEVICE_TABLE(of, imx_sc_thermal_table);
+ 
+ static struct platform_driver imx_sc_thermal_driver = {
+ 		.probe = imx_sc_thermal_probe,
+-		.remove	= imx_sc_thermal_remove,
+ 		.driver = {
+ 			.name = "imx-sc-thermal",
+ 			.of_match_table = imx_sc_thermal_table,
 -- 
 2.39.2
 
