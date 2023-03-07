@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D764A6AEF60
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E97036AEAB9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:36:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232523AbjCGSXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:23:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46322 "EHLO
+        id S231801AbjCGRgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:36:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbjCGSXB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD6CAB8BE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:19 -0800 (PST)
+        with ESMTP id S231282AbjCGRgc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6948F9E668
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E698B8184E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB868C433D2;
-        Tue,  7 Mar 2023 18:17:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AA2FB819B5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE58C433D2;
+        Tue,  7 Mar 2023 17:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213037;
-        bh=0TFvKDh/z/L3r5jPYIYlJrigoOErlR9z55wvhV3BUxk=;
+        s=korg; t=1678210341;
+        bh=AJslyw4d2AombI42miWC+tWmcPS6kuHhGNmdBY459S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LUHTb6yMXSfV8ZUdSaJRkM5gNzOfpZZic555nTGPYcl8r2/y30c3R/sTEWuXhZI1v
-         ATkdgt32xmf3cLHzFk+ks2/PgSv33DXsp5qRzVjxlY48kInxNqQfd/Ya/i7ZQAwU38
-         sl9u1G2MAyDkOcO5zVYGdcUXWmy+4G3i66Fan0s4=
+        b=F6c/VBn0EIz1AJylxxxdr+aWdG9fnz+Xhntc1rftXyknFghpf9jZQLVKU5cITyjJS
+         3kcb9jxst2w+I4Me8TktHDQ+SUQOlMSOzatf0q6yAB4dV64kpRTKYhU9tqZX4I+Lyi
+         LCWq9317j9TBInfQJPsGo6aIzbicZuVHzwK07IYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jason Yan <yanaijie@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 348/885] scsi: aic94xx: Add missing check for dma_map_single()
+Subject: [PATCH 6.2 0510/1001] tty: serial: fsl_lpuart: disable Rx/Tx DMA in lpuart32_shutdown()
 Date:   Tue,  7 Mar 2023 17:54:42 +0100
-Message-Id: <20230307170017.363314306@linuxfoundation.org>
+Message-Id: <20230307170043.560268040@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,37 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 32fe45274edb5926abc0fac7263d9f889d02d9cf ]
+[ Upstream commit 1d4bd0e4ae4ba95892bef919a8d4d3f08f122d7e ]
 
-Add check for dma_map_single() and return error if it fails in order to
-avoid invalid DMA address.
+UARTBAUD_RDMAE and UARTBAUD_TDMAE are enabled in lpuart32_startup(), but
+lpuart32_shutdown() not disable them, only free the dma ring buffer and
+release the dma channels, so here disable the Rx/Tx DMA first in
+lpuart32_shutdown().
 
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Link: https://lore.kernel.org/r/20230128110832.6792-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 42b68768e51b ("serial: fsl_lpuart: DMA support for 32-bit variant")
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20221125101953.18753-3-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic94xx/aic94xx_task.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/fsl_lpuart.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/aic94xx/aic94xx_task.c b/drivers/scsi/aic94xx/aic94xx_task.c
-index ed119a3f6f2ed..7f02083001100 100644
---- a/drivers/scsi/aic94xx/aic94xx_task.c
-+++ b/drivers/scsi/aic94xx/aic94xx_task.c
-@@ -50,6 +50,9 @@ static int asd_map_scatterlist(struct sas_task *task,
- 		dma_addr_t dma = dma_map_single(&asd_ha->pcidev->dev, p,
- 						task->total_xfer_len,
- 						task->data_dir);
-+		if (dma_mapping_error(&asd_ha->pcidev->dev, dma))
-+			return -ENOMEM;
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 5e69fb73f570f..5d1c28e094bb2 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1796,6 +1796,11 @@ static void lpuart32_shutdown(struct uart_port *port)
+ 
+ 	spin_lock_irqsave(&port->lock, flags);
+ 
++	/* disable Rx/Tx DMA */
++	temp = lpuart32_read(port, UARTBAUD);
++	temp &= ~(UARTBAUD_TDMAE | UARTBAUD_RDMAE);
++	lpuart32_write(port, temp, UARTBAUD);
 +
- 		sg_arr[0].bus_addr = cpu_to_le64((u64)dma);
- 		sg_arr[0].size = cpu_to_le32(task->total_xfer_len);
- 		sg_arr[0].flags |= ASD_SG_EL_LIST_EOL;
+ 	/* disable Rx/Tx and interrupts */
+ 	temp = lpuart32_read(port, UARTCTRL);
+ 	temp &= ~(UARTCTRL_TE | UARTCTRL_RE |
 -- 
 2.39.2
 
