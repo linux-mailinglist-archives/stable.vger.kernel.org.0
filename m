@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F5C6AF4EF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 724DF6AF4F0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233938AbjCGTVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:21:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45484 "EHLO
+        id S233958AbjCGTVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:21:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233945AbjCGTU4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:20:56 -0500
+        with ESMTP id S233931AbjCGTU5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:20:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1628481D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:04:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD45ABE5EC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:04:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15A8F61532
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:04:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C630C433D2;
-        Tue,  7 Mar 2023 19:04:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5948C6150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:04:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F44C433EF;
+        Tue,  7 Mar 2023 19:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215891;
-        bh=hcYadmEJj+Lbci0jiExsyYRO0RmaZ0EHAwfueXVfj40=;
+        s=korg; t=1678215894;
+        bh=JrBdIOR7sHwHRztkJbAsayZghRMtbWnelfE2JL5Y6m4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzvonLRhtVLK6tFowaH1PWabHjn4Z5ztK5rZ+LVHo1PaHNHoEYmeo60KavAC/zO7+
-         wWIhWIPoP9RRaxtw0Rby7ACXxmPRrU3HXdzZAogljsMfX9Q2mFQYO6VqY7JfUpXy70
-         rvBCTeBKBisp6q45ZGvNUUnPIDJV1rQgQpafzXp0=
+        b=IL9z1Wa25CNAO+600A7yc67+G7L8ZLJmS1tPgBd1+6ST3aplA1P8pOK6ke0vVwDwf
+         TKFd9vE+e2Kjt2jdtcWZDOc0KKmT3zTRZ9EoTdx93z/3YfNqGD8SkQH/ChSBEcBEhM
+         zdHXYLq56A84vqJ1sUTeNnoQVkhZIBVXMc6Mp5mQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liwei Song <liwei.song@windriver.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Justin Tee <justin.tee@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 408/567] drm/radeon: free iio for atombios when driver shutdown
-Date:   Tue,  7 Mar 2023 18:02:24 +0100
-Message-Id: <20230307165923.526097588@linuxfoundation.org>
+Subject: [PATCH 5.15 409/567] scsi: lpfc: Fix use-after-free KFENCE violation during sysfs firmware write
+Date:   Tue,  7 Mar 2023 18:02:25 +0100
+Message-Id: <20230307165923.577758958@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,58 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liwei Song <liwei.song@windriver.com>
+From: Justin Tee <justin.tee@broadcom.com>
 
-[ Upstream commit 4773fadedca918faec443daaca5e4ea1c0ced144 ]
+[ Upstream commit 21681b81b9ae548c5dae7ae00d931197a27f480c ]
 
-Fix below kmemleak when unload radeon driver:
+During the sysfs firmware write process, a use-after-free read warning is
+logged from the lpfc_wr_object() routine:
 
-unreferenced object 0xffff9f8608ede200 (size 512):
-  comm "systemd-udevd", pid 326, jiffies 4294682822 (age 716.338s)
-  hex dump (first 32 bytes):
-    00 00 00 00 c4 aa ec aa 14 ab 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000062fadebe>] kmem_cache_alloc_trace+0x2f1/0x500
-    [<00000000b6883cea>] atom_parse+0x117/0x230 [radeon]
-    [<00000000158c23fd>] radeon_atombios_init+0xab/0x170 [radeon]
-    [<00000000683f672e>] si_init+0x57/0x750 [radeon]
-    [<00000000566cc31f>] radeon_device_init+0x559/0x9c0 [radeon]
-    [<0000000046efabb3>] radeon_driver_load_kms+0xc1/0x1a0 [radeon]
-    [<00000000b5155064>] drm_dev_register+0xdd/0x1d0
-    [<0000000045fec835>] radeon_pci_probe+0xbd/0x100 [radeon]
-    [<00000000e69ecca3>] pci_device_probe+0xe1/0x160
-    [<0000000019484b76>] really_probe.part.0+0xc1/0x2c0
-    [<000000003f2649da>] __driver_probe_device+0x96/0x130
-    [<00000000231c5bb1>] driver_probe_device+0x24/0xf0
-    [<0000000000a42377>] __driver_attach+0x77/0x190
-    [<00000000d7574da6>] bus_for_each_dev+0x7f/0xd0
-    [<00000000633166d2>] driver_attach+0x1e/0x30
-    [<00000000313b05b8>] bus_add_driver+0x12c/0x1e0
+  BUG: KFENCE: use-after-free read in lpfc_wr_object+0x235/0x310 [lpfc]
+  Use-after-free read at 0x0000000000cf164d (in kfence-#111):
+  lpfc_wr_object+0x235/0x310 [lpfc]
+  lpfc_write_firmware.cold+0x206/0x30d [lpfc]
+  lpfc_sli4_request_firmware_update+0xa6/0x100 [lpfc]
+  lpfc_request_firmware_upgrade_store+0x66/0xb0 [lpfc]
+  kernfs_fop_write_iter+0x121/0x1b0
+  new_sync_write+0x11c/0x1b0
+  vfs_write+0x1ef/0x280
+  ksys_write+0x5f/0xe0
+  do_syscall_64+0x59/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-iio was allocated in atom_index_iio() called by atom_parse(),
-but it doesn't got released when the dirver is shutdown.
-Fix this kmemleak by free it in radeon_atombios_fini().
+The driver accessed wr_object pointer data, which was initialized into
+mailbox payload memory, after the mailbox object was released back to the
+mailbox pool.
 
-Signed-off-by: Liwei Song <liwei.song@windriver.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix by moving the mailbox free calls to the end of the routine ensuring
+that we don't reference internal mailbox memory after release.
+
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/lpfc/lpfc_sli.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 92905ebb7b459..1c005e0ddd388 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1022,6 +1022,7 @@ void radeon_atombios_fini(struct radeon_device *rdev)
- {
- 	if (rdev->mode_info.atom_context) {
- 		kfree(rdev->mode_info.atom_context->scratch);
-+		kfree(rdev->mode_info.atom_context->iio);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index df3b190fccd16..7d333167047f5 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -21066,6 +21066,7 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 	struct lpfc_mbx_wr_object *wr_object;
+ 	LPFC_MBOXQ_t *mbox;
+ 	int rc = 0, i = 0;
++	int mbox_status = 0;
+ 	uint32_t shdr_status, shdr_add_status, shdr_add_status_2;
+ 	uint32_t shdr_change_status = 0, shdr_csf = 0;
+ 	uint32_t mbox_tmo;
+@@ -21111,11 +21112,15 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 	wr_object->u.request.bde_count = i;
+ 	bf_set(lpfc_wr_object_write_length, &wr_object->u.request, written);
+ 	if (!phba->sli4_hba.intr_enable)
+-		rc = lpfc_sli_issue_mbox(phba, mbox, MBX_POLL);
++		mbox_status = lpfc_sli_issue_mbox(phba, mbox, MBX_POLL);
+ 	else {
+ 		mbox_tmo = lpfc_mbox_tmo_val(phba, mbox);
+-		rc = lpfc_sli_issue_mbox_wait(phba, mbox, mbox_tmo);
++		mbox_status = lpfc_sli_issue_mbox_wait(phba, mbox, mbox_tmo);
  	}
- 	kfree(rdev->mode_info.atom_context);
- 	rdev->mode_info.atom_context = NULL;
++
++	/* The mbox status needs to be maintained to detect MBOX_TIMEOUT. */
++	rc = mbox_status;
++
+ 	/* The IOCTL status is embedded in the mailbox subheader. */
+ 	shdr_status = bf_get(lpfc_mbox_hdr_status,
+ 			     &wr_object->header.cfg_shdr.response);
+@@ -21130,10 +21135,6 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 				  &wr_object->u.response);
+ 	}
+ 
+-	if (!phba->sli4_hba.intr_enable)
+-		mempool_free(mbox, phba->mbox_mem_pool);
+-	else if (rc != MBX_TIMEOUT)
+-		mempool_free(mbox, phba->mbox_mem_pool);
+ 	if (shdr_status || shdr_add_status || shdr_add_status_2 || rc) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+ 				"3025 Write Object mailbox failed with "
+@@ -21151,6 +21152,12 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 		lpfc_log_fw_write_cmpl(phba, shdr_status, shdr_add_status,
+ 				       shdr_add_status_2, shdr_change_status,
+ 				       shdr_csf);
++
++	if (!phba->sli4_hba.intr_enable)
++		mempool_free(mbox, phba->mbox_mem_pool);
++	else if (mbox_status != MBX_TIMEOUT)
++		mempool_free(mbox, phba->mbox_mem_pool);
++
+ 	return rc;
+ }
+ 
 -- 
 2.39.2
 
