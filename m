@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6C096AF4E8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:21:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D203D6AF4E7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:21:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234022AbjCGTVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:21:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52832 "EHLO
+        id S234012AbjCGTVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:21:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233785AbjCGTUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:20:44 -0500
+        with ESMTP id S234011AbjCGTUp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:20:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB411E9FF;
-        Tue,  7 Mar 2023 11:04:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF4F41EFC7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:04:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B80861522;
-        Tue,  7 Mar 2023 19:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E06C433D2;
-        Tue,  7 Mar 2023 19:04:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66E216152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:04:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CB75C433D2;
+        Tue,  7 Mar 2023 19:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215872;
-        bh=dFncEYxzp4fxw/6dqAiNEGbjwMW6fJDfmWHBfGObDsc=;
+        s=korg; t=1678215875;
+        bh=D6mfpTfXfmaJp3MilcD9lThAN0ztm6tyMqyrIOeUpiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvYzZRF47r8GyNO71QSCyS3CMiHVSJTNBgLTnQwft1HQkO6JaWOVpphRFUQhScJBo
-         yQU4qKG9o5903FBPaYo6mJK9bC+JCQYnCptmJmusfI02U9ENV2mNUQ8F8VADTqlAS7
-         9Dxn/SIr6nTaEn7vERl2GatpCTcSaFdVwOj/9QZg=
+        b=uJCG+MSh++2LiZXHQSX8HVXmzZs5GG8Echh0a7R8RnVhbWYBmgnCIK2ghxWGP3dIe
+         Y1nFPjcQS5ptI4Cn/lovA7Vd/MhinYJeqFxcmlUXv8xgQ4FDN38sz0cf43UOKuPBSG
+         N360oRD/BYLmRWRTJjB1RFZRxkmNmwcDdnaDnEV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 368/567] trace/blktrace: fix memory leak with using debugfs_lookup()
-Date:   Tue,  7 Mar 2023 18:01:44 +0100
-Message-Id: <20230307165921.799977578@linuxfoundation.org>
+Subject: [PATCH 5.15 369/567] wifi: ath9k: Fix use-after-free in ath9k_hif_usb_disconnect()
+Date:   Tue,  7 Mar 2023 18:01:45 +0100
+Message-Id: <20230307165921.837916139@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -58,45 +57,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit 83e8864fee26f63a7435e941b7c36a20fd6fe93e ]
+[ Upstream commit f099c5c9e2ba08a379bd354a82e05ef839ae29ac ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+This patch fixes a use-after-free in ath9k that occurs in
+ath9k_hif_usb_disconnect() when ath9k_destroy_wmi() is trying to access
+'drv_priv' that has already been freed by ieee80211_free_hw(), called by
+ath9k_htc_hw_deinit(). The patch moves ath9k_destroy_wmi() before
+ieee80211_free_hw(). Note that urbs from the driver should be killed
+before freeing 'wmi' with ath9k_destroy_wmi() as their callbacks will
+access 'wmi'.
 
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: linux-block@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-trace-kernel@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20230202141956.2299521-1-gregkh@linuxfoundation.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Found by a modified version of syzkaller.
+
+==================================================================
+BUG: KASAN: use-after-free in ath9k_destroy_wmi+0x38/0x40
+Read of size 8 at addr ffff8881069132a0 by task kworker/0:1/7
+
+CPU: 0 PID: 7 Comm: kworker/0:1 Tainted: G O 5.14.0+ #131
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack_lvl+0x8e/0xd1
+ print_address_description.constprop.0.cold+0x93/0x334
+ ? ath9k_destroy_wmi+0x38/0x40
+ ? ath9k_destroy_wmi+0x38/0x40
+ kasan_report.cold+0x83/0xdf
+ ? ath9k_destroy_wmi+0x38/0x40
+ ath9k_destroy_wmi+0x38/0x40
+ ath9k_hif_usb_disconnect+0x329/0x3f0
+ ? ath9k_hif_usb_suspend+0x120/0x120
+ ? usb_disable_interface+0xfc/0x180
+ usb_unbind_interface+0x19b/0x7e0
+ ? usb_autoresume_device+0x50/0x50
+ device_release_driver_internal+0x44d/0x520
+ bus_remove_device+0x2e5/0x5a0
+ device_del+0x5b2/0xe30
+ ? __device_link_del+0x370/0x370
+ ? usb_remove_ep_devs+0x43/0x80
+ ? remove_intf_ep_devs+0x112/0x1a0
+ usb_disable_device+0x1e3/0x5a0
+ usb_disconnect+0x267/0x870
+ hub_event+0x168d/0x3950
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? hub_port_debounce+0x2e0/0x2e0
+ ? check_irq_usage+0x860/0xf20
+ ? drain_workqueue+0x281/0x360
+ ? lock_release+0x640/0x640
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ process_one_work+0x92b/0x1460
+ ? pwq_dec_nr_in_flight+0x330/0x330
+ ? rwlock_bug.part.0+0x90/0x90
+ worker_thread+0x95/0xe00
+ ? __kthread_parkme+0x115/0x1e0
+ ? process_one_work+0x1460/0x1460
+ kthread+0x3a1/0x480
+ ? set_kthread_struct+0x120/0x120
+ ret_from_fork+0x1f/0x30
+
+The buggy address belongs to the page:
+page:ffffea00041a44c0 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x106913
+flags: 0x200000000000000(node=0|zone=2)
+raw: 0200000000000000 0000000000000000 dead000000000122 0000000000000000
+raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as freed
+page last allocated via order 3, migratetype Unmovable, gfp_mask 0x40dc0(GFP_KERNEL|__GFP_COMP|__GFP_ZERO), pid 7, ts 38347963444, free_ts 41399957635
+ prep_new_page+0x1aa/0x240
+ get_page_from_freelist+0x159a/0x27c0
+ __alloc_pages+0x2da/0x6a0
+ alloc_pages+0xec/0x1e0
+ kmalloc_order+0x39/0xf0
+ kmalloc_order_trace+0x19/0x120
+ __kmalloc+0x308/0x390
+ wiphy_new_nm+0x6f5/0x1dd0
+ ieee80211_alloc_hw_nm+0x36d/0x2230
+ ath9k_htc_probe_device+0x9d/0x1e10
+ ath9k_htc_hw_init+0x34/0x50
+ ath9k_hif_usb_firmware_cb+0x25f/0x4e0
+ request_firmware_work_func+0x131/0x240
+ process_one_work+0x92b/0x1460
+ worker_thread+0x95/0xe00
+ kthread+0x3a1/0x480
+page last free stack trace:
+ free_pcp_prepare+0x3d3/0x7f0
+ free_unref_page+0x1e/0x3d0
+ device_release+0xa4/0x240
+ kobject_put+0x186/0x4c0
+ put_device+0x20/0x30
+ ath9k_htc_disconnect_device+0x1cf/0x2c0
+ ath9k_htc_hw_deinit+0x26/0x30
+ ath9k_hif_usb_disconnect+0x2d9/0x3f0
+ usb_unbind_interface+0x19b/0x7e0
+ device_release_driver_internal+0x44d/0x520
+ bus_remove_device+0x2e5/0x5a0
+ device_del+0x5b2/0xe30
+ usb_disable_device+0x1e3/0x5a0
+ usb_disconnect+0x267/0x870
+ hub_event+0x168d/0x3950
+ process_one_work+0x92b/0x1460
+
+Memory state around the buggy address:
+ ffff888106913180: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888106913200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>ffff888106913280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                               ^
+ ffff888106913300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888106913380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+==================================================================
+
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20221205014308.1617597-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c      | 2 --
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 16b0d3fa56e00..e6d03cf148597 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -319,8 +319,8 @@ static void blk_trace_free(struct request_queue *q, struct blk_trace *bt)
- 	 * under 'q->debugfs_dir', thus lookup and remove them.
- 	 */
- 	if (!bt->dir) {
--		debugfs_remove(debugfs_lookup("dropped", q->debugfs_dir));
--		debugfs_remove(debugfs_lookup("msg", q->debugfs_dir));
-+		debugfs_lookup_and_remove("dropped", q->debugfs_dir);
-+		debugfs_lookup_and_remove("msg", q->debugfs_dir);
- 	} else {
- 		debugfs_remove(bt->dir);
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index de6c0824c9cab..f521dfa2f1945 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -1424,8 +1424,6 @@ static void ath9k_hif_usb_disconnect(struct usb_interface *interface)
+ 
+ 	if (hif_dev->flags & HIF_USB_READY) {
+ 		ath9k_htc_hw_deinit(hif_dev->htc_handle, unplugged);
+-		ath9k_hif_usb_dev_deinit(hif_dev);
+-		ath9k_destroy_wmi(hif_dev->htc_handle->drv_priv);
+ 		ath9k_htc_hw_free(hif_dev->htc_handle);
  	}
+ 
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index 07ac88fb1c577..96a3185a96d75 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -988,6 +988,8 @@ void ath9k_htc_disconnect_device(struct htc_target *htc_handle, bool hotunplug)
+ 
+ 		ath9k_deinit_device(htc_handle->drv_priv);
+ 		ath9k_stop_wmi(htc_handle->drv_priv);
++		ath9k_hif_usb_dealloc_urbs((struct hif_device_usb *)htc_handle->hif_dev);
++		ath9k_destroy_wmi(htc_handle->drv_priv);
+ 		ieee80211_free_hw(htc_handle->drv_priv->hw);
+ 	}
+ }
 -- 
 2.39.2
 
