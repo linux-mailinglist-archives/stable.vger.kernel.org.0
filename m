@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C7F6AF567
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABC8A6AF56A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234029AbjCGTYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:24:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54150 "EHLO
+        id S234140AbjCGTYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:24:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233993AbjCGTY2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:24:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2EA8C70B8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:10:31 -0800 (PST)
+        with ESMTP id S234145AbjCGTYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:24:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8830C80A6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:10:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BE9F61522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:10:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A984C433EF;
-        Tue,  7 Mar 2023 19:10:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4603E6150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:10:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49789C433D2;
+        Tue,  7 Mar 2023 19:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216230;
-        bh=Lr/k4R5Dqp1IQhSV4OfB8ht77k2DDGyB/TM5qz+sgMU=;
+        s=korg; t=1678216236;
+        bh=he0L/6n//NZ+pa80MhPk30R3PwOstPVfulCqOfESuqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gW3VD6rQTA9TQScEtxjPQ2dtcdRjl3JGYK966be4A1hcnU4jpLuRDlsE9cqI/aa1Q
-         Cp26svm7J4xbQ9wCtteQZ2XTnxH7cxa3R+oV0yCQvjABYDMenFzvcVduW4WSzVEH5M
-         QFesBT85rLgCXZmRCcxx6ZjqIQnB/yue0gfWuPBs=
+        b=NTNbB7L7v64WaYOblAzeGSpc0c3YqXSHkYJXOASR1ON6sVDI0UrjCebxKT+6lcu2e
+         qXgTHrONmXLwG6AxQ2DpZosFDQCabPOS1n/2kjUNNTTc92+v3waXGLSEseGoxmMmqP
+         lKQzwgXvHkWKK9C02R+JWAHQOBnzN+jsJUrz4cVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.15 518/567] ARM: dts: exynos: correct TMU phandle in Odroid XU3 family
-Date:   Tue,  7 Mar 2023 18:04:14 +0100
-Message-Id: <20230307165928.409655646@linuxfoundation.org>
+Subject: [PATCH 5.15 519/567] ARM: dts: exynos: correct TMU phandle in Exynos5250
+Date:   Tue,  7 Mar 2023 18:04:15 +0100
+Message-Id: <20230307165928.448780094@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -43,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,75 +55,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit a3583e92d188ec6c58c7f603ac5e72dd8a11c21a upstream.
+commit 33e2c595e2e4016991ead44933a29d1ef93d5f26 upstream.
 
 TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
-it must not have an argument to phandle.  This was not critical before,
-but since rework of thermal Devicetree initialization in the
-commit 3fd6d6e2b4e8 ("thermal/of: Rework the thermal device tree
-initialization"), this leads to errors registering thermal zones other
-than first one:
+it must not have an argument to phandle.
 
-  thermal_sys: cpu0-thermal: Failed to read thermal-sensors cells: -2
-  thermal_sys: Failed to find thermal zone for tmu id=0
-  exynos-tmu 10064000.tmu: Failed to register sensor: -2
-  exynos-tmu: probe of 10064000.tmu failed with error -2
-
-Fixes: f1722d7dd8b8 ("ARM: dts: Define default thermal-zones for exynos5422")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230209105841.779596-6-krzysztof.kozlowski@linaro.org
+Fixes: 9843a2236003 ("ARM: dts: Provide dt bindings identical for Exynos TMU")
+Link: https://lore.kernel.org/r/20230209105841.779596-3-krzysztof.kozlowski@linaro.org
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/exynos5250.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
-+++ b/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
-@@ -50,7 +50,7 @@
+--- a/arch/arm/boot/dts/exynos5250.dtsi
++++ b/arch/arm/boot/dts/exynos5250.dtsi
+@@ -1119,7 +1119,7 @@
+ &cpu_thermal {
+ 	polling-delay-passive = <0>;
+ 	polling-delay = <0>;
+-	thermal-sensors = <&tmu 0>;
++	thermal-sensors = <&tmu>;
  
- 	thermal-zones {
- 		cpu0_thermal: cpu0-thermal {
--			thermal-sensors = <&tmu_cpu0 0>;
-+			thermal-sensors = <&tmu_cpu0>;
- 			polling-delay-passive = <250>;
- 			polling-delay = <0>;
- 			trips {
-@@ -139,7 +139,7 @@
- 			};
- 		};
- 		cpu1_thermal: cpu1-thermal {
--			thermal-sensors = <&tmu_cpu1 0>;
-+			thermal-sensors = <&tmu_cpu1>;
- 			polling-delay-passive = <250>;
- 			polling-delay = <0>;
- 			trips {
-@@ -212,7 +212,7 @@
- 			};
- 		};
- 		cpu2_thermal: cpu2-thermal {
--			thermal-sensors = <&tmu_cpu2 0>;
-+			thermal-sensors = <&tmu_cpu2>;
- 			polling-delay-passive = <250>;
- 			polling-delay = <0>;
- 			trips {
-@@ -285,7 +285,7 @@
- 			};
- 		};
- 		cpu3_thermal: cpu3-thermal {
--			thermal-sensors = <&tmu_cpu3 0>;
-+			thermal-sensors = <&tmu_cpu3>;
- 			polling-delay-passive = <250>;
- 			polling-delay = <0>;
- 			trips {
-@@ -358,7 +358,7 @@
- 			};
- 		};
- 		gpu_thermal: gpu-thermal {
--			thermal-sensors = <&tmu_gpu 0>;
-+			thermal-sensors = <&tmu_gpu>;
- 			polling-delay-passive = <250>;
- 			polling-delay = <0>;
- 			trips {
+ 	cooling-maps {
+ 		map0 {
 
 
