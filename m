@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F80F6AEF4D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85C5E6AEAD9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232619AbjCGSWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:22:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39868 "EHLO
+        id S231843AbjCGRiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:38:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232628AbjCGSWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:23 -0500
+        with ESMTP id S231899AbjCGRh0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:37:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62837AA26A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D60D68482C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEEB661522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0314DC433EF;
-        Tue,  7 Mar 2023 18:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A962461506
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAD9BC433EF;
+        Tue,  7 Mar 2023 17:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212982;
-        bh=FhsPD37uhCaYegaZVO0Wd6at01E0tB2o3+l5rgJBV+o=;
+        s=korg; t=1678210405;
+        bh=bNdLOrut/MxMwffJRAd7KmhP+FhXy8QO33dC+Y1UdKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dx+Uf2JmrP6QtNNhobvrRJ9Xfi9V+58j9M5PzUZdbQ8dzX5weSXJKOaQSysWvx1vF
-         cSMDvjyO5JCGn70x6bgpK6xEtuCEsyOcCLrnl1RBXyJdTGcioPwFZT3mSuBZUFpzjx
-         +cqFKTi7hdZe/DPfJEP47yXR+rAJdMaOrW2Veojs=
+        b=aWo5lBWlnOo1MngGK4R47LktRq6l5tH8W5PZnYTNkFH7IRqnvjerJmDz98w8YRCuw
+         6uEjsuNdJCJO4nSLjlxzMzXa3CohtEe2M5bsoO9PYDBlYlDSddIcUWb94dqPOAksZE
+         CWmXaahoeu2+w8x+C5FGY6UQJtUMRcc3uYHT6JUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vadim Pasternak <vadimp@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 360/885] hwmon: (mlxreg-fan) Return zero speed for broken fan
-Date:   Tue,  7 Mar 2023 17:54:54 +0100
-Message-Id: <20230307170017.912679505@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0523/1001] iommu/exynos: Fix error handling in exynos_iommu_init()
+Date:   Tue,  7 Mar 2023 17:54:55 +0100
+Message-Id: <20230307170044.144071812@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a1ffd3c46267ee5c807acd780e15df9bb692223f ]
+[ Upstream commit 53719876e064643a6e58b5e6067a149a0fd191ec ]
 
-Currently for broken fan driver returns value calculated based on error
-code (0xFF) in related fan speed register.
-Thus, for such fan user gets fan{n}_fault to 1 and fan{n}_input with
-misleading value.
+If platform_driver_register() fails, it don't need unregister and call
+kmem_cache_free() to free the memory allocated before calling register.
 
-Add check for fan fault prior return speed value and return zero if
-fault is detected.
-
-Fixes: 65afb4c8e7e4 ("hwmon: (mlxreg-fan) Add support for Mellanox FAN driver")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Link: https://lore.kernel.org/r/20230212145730.24247-1-vadimp@nvidia.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: bbc4d205d93f ("iommu/exynos: Fix driver initialization sequence")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+Link: https://lore.kernel.org/r/20230104095702.2591122-1-yangyingliang@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/mlxreg-fan.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iommu/exynos-iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/mlxreg-fan.c b/drivers/hwmon/mlxreg-fan.c
-index b48bd7c961d66..96017cc8da7ec 100644
---- a/drivers/hwmon/mlxreg-fan.c
-+++ b/drivers/hwmon/mlxreg-fan.c
-@@ -155,6 +155,12 @@ mlxreg_fan_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
- 			if (err)
- 				return err;
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index b0cde22119875..c1d579c24740b 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -1446,7 +1446,7 @@ static int __init exynos_iommu_init(void)
  
-+			if (MLXREG_FAN_GET_FAULT(regval, tacho->mask)) {
-+				/* FAN is broken - return zero for FAN speed. */
-+				*val = 0;
-+				return 0;
-+			}
-+
- 			*val = MLXREG_FAN_GET_RPM(regval, fan->divider,
- 						  fan->samples);
- 			break;
+ 	return 0;
+ err_reg_driver:
+-	platform_driver_unregister(&exynos_sysmmu_driver);
++	kmem_cache_free(lv2table_kmem_cache, zero_lv2_table);
+ err_zero_lv2:
+ 	kmem_cache_destroy(lv2table_kmem_cache);
+ 	return ret;
 -- 
 2.39.2
 
