@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A82C6AEC3E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FDA16AF158
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232129AbjCGRx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46064 "EHLO
+        id S233160AbjCGSmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:42:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbjCGRxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4EA6E8B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:38 -0800 (PST)
+        with ESMTP id S233171AbjCGSmM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2556FB3710
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F388B819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B1ECC433D2;
-        Tue,  7 Mar 2023 17:47:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1E176152C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109AEC433D2;
+        Tue,  7 Mar 2023 18:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211256;
-        bh=a/kFXoq5FFwyZxffgqmGvSqcyjnYnHAmNQk2zFqw274=;
+        s=korg; t=1678213857;
+        bh=WyLxs2JmSa1Vi9gT4wf2UTh1bGvh1g+JnyHMZm2Whh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZ8evUEJVmDFZ/LWDcWHZU+pUvSqTHBhZZ+oVSzJM68reOayZgM8fRN0xTlfezYR5
-         zmJgLS+bcaU/RQr4TTKAniGkC5MAG2pCub6aVbuabiUVKmzCtX3/EgI26zP4tGstK5
-         Sfkf9jIXe8rUborSwIASyBB6U9IyczI8uEKnZoA8=
+        b=YHxJvL5iAohaXS8WJesm8MAXVJJjfM3WGy++BqLCKsLnNRcWfGC9xbB5sHbgNocOa
+         lNm6irNueUjwM7xjF5m84e/+ZOgQy0faQWPR+FmLCdqMs3Pijb+4rKaO75hp6ZhKRf
+         mbjDDnnNpJkqu7+nxyuEcISl2pvIZbmqjQ/oWd0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 6.2 0804/1001] f2fs: fix information leak in f2fs_move_inline_dirents()
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 642/885] nfsd: zero out pointers after putting nfsd_files on COPY setup error
 Date:   Tue,  7 Mar 2023 17:59:36 +0100
-Message-Id: <20230307170056.615328460@linuxfoundation.org>
+Message-Id: <20230307170030.042935324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 9a5571cff4ffcfc24847df9fd545cc5799ac0ee5 upstream.
+[ Upstream commit 1f0001d43d0c0ac2a19a34a914f6595ad97cbc1d ]
 
-When converting an inline directory to a regular one, f2fs is leaking
-uninitialized memory to disk because it doesn't initialize the entire
-directory block.  Fix this by zero-initializing the block.
+At first, I thought this might be a source of nfsd_file overputs, but
+the current callers seem to avoid an extra put when nfsd4_verify_copy
+returns an error.
 
-This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
-initializing when converting inline dentry"), which didn't consider the
-security implications of leaking uninitialized memory to disk.
+Still, it's "bad form" to leave the pointers filled out when we don't
+have a reference to them anymore, and that might lead to bugs later.
+Zero them out as a defensive coding measure.
 
-This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
-
-Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
-Cc: <stable@vger.kernel.org> # v4.3+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inline.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/nfsd/nfs4proc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -422,18 +422,17 @@ static int f2fs_move_inline_dirents(stru
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 53113976e6424..a90e792a94d77 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1227,8 +1227,10 @@ nfsd4_verify_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	return status;
+ out_put_dst:
+ 	nfsd_file_put(*dst);
++	*dst = NULL;
+ out_put_src:
+ 	nfsd_file_put(*src);
++	*src = NULL;
+ 	goto out;
+ }
  
- 	dentry_blk = page_address(page);
- 
-+	/*
-+	 * Start by zeroing the full block, to ensure that all unused space is
-+	 * zeroed and no uninitialized memory is leaked to disk.
-+	 */
-+	memset(dentry_blk, 0, F2FS_BLKSIZE);
-+
- 	make_dentry_ptr_inline(dir, &src, inline_dentry);
- 	make_dentry_ptr_block(dir, &dst, dentry_blk);
- 
- 	/* copy data from inline dentry block to new dentry block */
- 	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
--	memset(dst.bitmap + src.nr_bitmap, 0, dst.nr_bitmap - src.nr_bitmap);
--	/*
--	 * we do not need to zero out remainder part of dentry and filename
--	 * field, since we have used bitmap for marking the usage status of
--	 * them, besides, we can also ignore copying/zeroing reserved space
--	 * of dentry block, because them haven't been used so far.
--	 */
- 	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
- 	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
- 
+-- 
+2.39.2
+
 
 
