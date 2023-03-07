@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DDE96AF14A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 655D76AEC53
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:54:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232555AbjCGSmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:42:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54934 "EHLO
+        id S232239AbjCGRyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:54:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231899AbjCGSli (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B81B9967F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:18 -0800 (PST)
+        with ESMTP id S230344AbjCGRxo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA3684F78
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DBB0B819EE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FF3C433EF;
-        Tue,  7 Mar 2023 18:31:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31F5C614B2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:48:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D96C433EF;
+        Tue,  7 Mar 2023 17:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213909;
-        bh=k6NO6Lmlzk7HMv9q5V/O+LmveDGRRdckY038h6mhHj0=;
+        s=korg; t=1678211311;
+        bh=3SFzK4ThqB2p2K+QiLL72N9vSkMVILJ7cqcgws5JYKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLDafpebo/ohYJ/3wjO0fwNYQ5vLBAPpj1qNe6tg9DopLqsuZ2nComVAqy7zr+3jj
-         umZJ67vjz0cvs4/hdXS5haGsbMW1CxFeHlbBVSYsF+dRH2s6OeBpOs2cBz2+MZyrqo
-         VTP+xMtzMMpRXBlWhp8TCFAOcZQ4D9Yw3B8oEDyk=
+        b=nN0q3P/3tDr6yeEu4aKK071/LMrBpaGht1Kcib+YJprRhGMx4Bq87ks6dqvoQEPn5
+         aVvqQh8J9t4/Zoqo1rdTI6gf8ycsPlrj9COsycNCTMkFCJwGJYbe46aCb9EI/WybLC
+         gTpHmdNGN1MjwfPWE46QT+q8ovzLYxSK4HXyJHb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 658/885] io_uring: use user visible tail in io_uring_poll()
+        patches@lists.linux.dev, Hou Tao <houtao1@huawei.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 6.2 0820/1001] md: dont update recovery_cp when curr_resync is ACTIVE
 Date:   Tue,  7 Mar 2023 17:59:52 +0100
-Message-Id: <20230307170030.747196792@linuxfoundation.org>
+Message-Id: <20230307170057.341065333@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,33 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit c10bb64684813a326174c3eebcafb3ee5af52ca3 upstream.
+commit 1d1f25bfda432a6b61bd0205d426226bbbd73504 upstream.
 
-We return POLLIN from io_uring_poll() depending on whether there are
-CQEs for the userspace, and so we should use the user visible tail
-pointer instead of a transient cached value.
+Don't update recovery_cp when curr_resync is MD_RESYNC_ACTIVE, otherwise
+md may skip the resync of the first 3 sectors if the resync procedure is
+interrupted before the first calling of ->sync_request() as shown below:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/228ffcbf30ba98856f66ffdb9a6a60ead1dd96c0.1674484266.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+md_do_sync thread          control thread
+  // setup resync
+  mddev->recovery_cp = 0
+  j = 0
+  mddev->curr_resync = MD_RESYNC_ACTIVE
+
+                             // e.g., set array as idle
+                             set_bit(MD_RECOVERY_INTR, &&mddev_recovery)
+  // resync loop
+  // check INTR before calling sync_request
+  !test_bit(MD_RECOVERY_INTR, &mddev->recovery
+
+  // resync interrupted
+  // update recovery_cp from 0 to 3
+  // the resync of three 3 sectors will be skipped
+  mddev->recovery_cp = 3
+
+Fixes: eac58d08d493 ("md: Use enum for overloaded magic numbers used by mddev->curr_resync")
+Cc: stable@vger.kernel.org # 6.0+
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c |    2 +-
+ drivers/md/md.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -2653,7 +2653,7 @@ static __poll_t io_uring_poll(struct fil
- 	 * pushs them to do the flush.
- 	 */
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -9030,7 +9030,7 @@ void md_do_sync(struct md_thread *thread
+ 	mddev->pers->sync_request(mddev, max_sectors, &skipped);
  
--	if (io_cqring_events(ctx) || io_has_work(ctx))
-+	if (__io_cqring_events_user(ctx) || io_has_work(ctx))
- 		mask |= EPOLLIN | EPOLLRDNORM;
- 
- 	return mask;
+ 	if (!test_bit(MD_RECOVERY_CHECK, &mddev->recovery) &&
+-	    mddev->curr_resync >= MD_RESYNC_ACTIVE) {
++	    mddev->curr_resync > MD_RESYNC_ACTIVE) {
+ 		if (test_bit(MD_RECOVERY_SYNC, &mddev->recovery)) {
+ 			if (test_bit(MD_RECOVERY_INTR, &mddev->recovery)) {
+ 				if (mddev->curr_resync >= mddev->recovery_cp) {
 
 
