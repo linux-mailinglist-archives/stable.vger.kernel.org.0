@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A816AEA2B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A766D6AEE8E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230111AbjCGRbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:31:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33334 "EHLO
+        id S232520AbjCGSNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:13:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231623AbjCGRbB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:01 -0500
+        with ESMTP id S232504AbjCGSMy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE7C697B67
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EADF746E0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56DB9614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65693C433D2;
-        Tue,  7 Mar 2023 17:26:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B1C76152C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01EA6C433EF;
+        Tue,  7 Mar 2023 18:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209982;
-        bh=jpBP50eqTo7SSYBTia3Ca07dGzCXmu1FNczCPNMhzOA=;
+        s=korg; t=1678212494;
+        bh=ls1ww7wUoZdGfmdpDQ/rsvnyM2uFK2RBvTwDXaamC4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+0nkcEqrIs9YSAdNjyOFko8ZI5skJYCdcapV4spWYWRB8e31C3eM7SWy5DRuqk3Z
-         OWU296L93MzZ/z5JGcXA+C+Ws+YGl7/Ba6xus6EfRXjVrW1FgTjoglvaJ/P5JJZ3Nv
-         Og0VpMwjUtTPKWZxO3g7HfxjtHDo8ZEnCcsFgrts=
+        b=pQLRvaZ5Uhyg00PMqOy0YHqHE21szNWDMB3YHevp9oehrm4z7xm4g4KIhkh30an1R
+         kzQ8KyFHjhesTaeepT2Ag9eXGkth04fhupCh8cW6tieE+ojAUlIb8eD0qPAarTmpAz
+         +R2xxP0vlSpQ+vLoz64QzxJSqtiqOKiZZrAtOp7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Liu <leo.liu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0363/1001] drm/amdgpu: Use the sched from entity for amdgpu_cs trace
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 201/885] irqchip/irq-mvebu-gicp: Fix refcount leak in mvebu_gicp_probe
 Date:   Tue,  7 Mar 2023 17:52:15 +0100
-Message-Id: <20230307170037.152398597@linuxfoundation.org>
+Message-Id: <20230307170010.770477387@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Liu <leo.liu@amd.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit cf22ef78f22ce4df4757472c5dbd33c430c5b659 ]
+[ Upstream commit 9419e700021a393f67be36abd0c4f3acc6139041 ]
 
-The problem is that base sched hasn't been assigned yet at this moment,
-causing something like "ring=0" all the time from trace.
+of_irq_find_parent() returns a node pointer with refcount incremented,
+We should use of_node_put() on it when not needed anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-mpv:cs0-3473    [002] ..... 129.047431: amdgpu_cs: ring=0, dw=48, fences=0
-mpv:cs0-3473    [002] ..... 129.089125: amdgpu_cs: ring=0, dw=48, fences=0
-mpv:cs0-3473    [002] ..... 129.130987: amdgpu_cs: ring=0, dw=48, fences=0
-mpv:cs0-3473    [002] ..... 129.172478: amdgpu_cs: ring=0, dw=48, fences=0
-
-Fixes: 4624459c84d7 ("drm/amdgpu: add gang submit frontend v6")
-Signed-off-by: Leo Liu <leo.liu@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: a68a63cb4dfc ("irqchip/irq-mvebu-gicp: Add new driver for Marvell GICP")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230102084208.3951758-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-mvebu-gicp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
-index 677ad2016976d..98d91ebf5c26b 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
-@@ -153,10 +153,10 @@ TRACE_EVENT(amdgpu_cs,
+diff --git a/drivers/irqchip/irq-mvebu-gicp.c b/drivers/irqchip/irq-mvebu-gicp.c
+index fe88a782173dd..c43a345061d53 100644
+--- a/drivers/irqchip/irq-mvebu-gicp.c
++++ b/drivers/irqchip/irq-mvebu-gicp.c
+@@ -221,6 +221,7 @@ static int mvebu_gicp_probe(struct platform_device *pdev)
+ 	}
  
- 	    TP_fast_assign(
- 			   __entry->bo_list = p->bo_list;
--			   __entry->ring = to_amdgpu_ring(job->base.sched)->idx;
-+			   __entry->ring = to_amdgpu_ring(job->base.entity->rq->sched)->idx;
- 			   __entry->dw = ib->length_dw;
- 			   __entry->fences = amdgpu_fence_count_emitted(
--				to_amdgpu_ring(job->base.sched));
-+				to_amdgpu_ring(job->base.entity->rq->sched));
- 			   ),
- 	    TP_printk("bo_list=%p, ring=%u, dw=%u, fences=%u",
- 		      __entry->bo_list, __entry->ring, __entry->dw,
+ 	parent_domain = irq_find_host(irq_parent_dn);
++	of_node_put(irq_parent_dn);
+ 	if (!parent_domain) {
+ 		dev_err(&pdev->dev, "failed to find parent IRQ domain\n");
+ 		return -ENODEV;
 -- 
 2.39.2
 
