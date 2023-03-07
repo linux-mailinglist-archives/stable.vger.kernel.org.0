@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0C06AF216
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:50:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6F16AEBEB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233309AbjCGSuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:50:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51158 "EHLO
+        id S232202AbjCGRuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:50:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233341AbjCGStu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9191299C36
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:38:19 -0800 (PST)
+        with ESMTP id S232224AbjCGRuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 141FA97B7D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C62906150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD1B8C433D2;
-        Tue,  7 Mar 2023 18:28:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82FE8614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:44:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D494C433EF;
+        Tue,  7 Mar 2023 17:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213683;
-        bh=nQVJSc7NhdDfzT2ZJgEfxc1F5GvXQwFqJP/j4UvjFx4=;
+        s=korg; t=1678211086;
+        bh=1o2mLik9JMFN5RS5AAgbpFCbLG9aIgPhAZQQTi9YMCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Z+R7H0Nd2q8HGDiOF8dl6cmyPWTD2o53yj23H0yjnw8+H+G0tzbp+iX1Vz8+GuOm
-         SU2jFcoPMFLasXjfUp78spA242cLhfe/znMvawOo4jvBNhhRSjz/WUFsCDH3Ce2/XG
-         AuPBmsmEBtp5WYCeZa1B3xLnNLQE9eP8j1c+qZIE=
+        b=zPG7fovrhSlafvGLYLEtxLVH0PvToOiCg20G1Lcs6WYbYQb9ELJbt6I5h/JSj/Xaw
+         9izf/omgK/mplEFJLqEtffiIaGNZjBRUJ7ed8T0DGOn9tR5qzpuQnTnNcjs7PF8pYn
+         pqc5dMlqEgxoP4hXQMuChr0T3ElZEzIExbD/JIFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Moises Cardona <moisesmcardona@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 586/885] Bluetooth: btusb: Add VID:PID 13d3:3529 for Realtek RTL8821CE
+        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Wei Zhang <wzhang@meta.com>
+Subject: [PATCH 6.2 0748/1001] block: be a bit more careful in checking for NULL bdev while polling
 Date:   Tue,  7 Mar 2023 17:58:40 +0100
-Message-Id: <20230307170027.838406862@linuxfoundation.org>
+Message-Id: <20230307170054.180205328@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,70 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moises Cardona <moisesmcardona@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 1eec3b95b5ce7fb2cdd273ac4f8b24b1ed6776a1 ]
+commit 310726c33ad76cebdee312dbfafc12c1b44bf977 upstream.
 
-This patch adds VID:PID 13d3:3529 to the btusb.c file.
+Wei reports a crash with an application using polled IO:
 
-This VID:PID is found in the Realtek RTL8821CE module
-(M.2 module AW-CB304NF on an ASUS E210MA laptop)
+PGD 14265e067 P4D 14265e067 PUD 47ec50067 PMD 0
+Oops: 0000 [#1] SMP
+CPU: 0 PID: 21915 Comm: iocore_0 Kdump: loaded Tainted: G S                5.12.0-0_fbk12_clang_7346_g1bb6f2e7058f #1
+Hardware name: Wiwynn Delta Lake MP T8/Delta Lake-Class2, BIOS Y3DLM08 04/10/2022
+RIP: 0010:bio_poll+0x25/0x200
+Code: 0f 1f 44 00 00 0f 1f 44 00 00 55 41 57 41 56 41 55 41 54 53 48 83 ec 28 65 48 8b 04 25 28 00 00 00 48 89 44 24 20 48 8b 47 08 <48> 8b 80 70 02 00 00 4c 8b 70 50 8b 6f 34 31 db 83 fd ff 75 25 65
+RSP: 0018:ffffc90005fafdf8 EFLAGS: 00010292
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 74b43cd65dd66600
+RDX: 0000000000000003 RSI: ffffc90005fafe78 RDI: ffff8884b614e140
+RBP: ffff88849964df78 R08: 0000000000000000 R09: 0000000000000008
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff88849964df00
+R13: ffffc90005fafe78 R14: ffff888137d3c378 R15: 0000000000000001
+FS:  00007fd195000640(0000) GS:ffff88903f400000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000270 CR3: 0000000466121001 CR4: 00000000007706f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ iocb_bio_iopoll+0x1d/0x30
+ io_do_iopoll+0xac/0x250
+ __se_sys_io_uring_enter+0x3c5/0x5a0
+ ? __x64_sys_write+0x89/0xd0
+ do_syscall_64+0x2d/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x94f225d
+Code: 24 cc 00 00 00 41 8b 84 24 d0 00 00 00 c1 e0 04 83 e0 10 41 09 c2 8b 33 8b 53 04 4c 8b 43 18 4c 63 4b 0c b8 aa 01 00 00 0f 05 <85> c0 0f 88 85 00 00 00 29 03 45 84 f6 0f 84 88 00 00 00 41 f6 c7
+RSP: 002b:00007fd194ffcd88 EFLAGS: 00000202 ORIG_RAX: 00000000000001aa
+RAX: ffffffffffffffda RBX: 00007fd194ffcdc0 RCX: 00000000094f225d
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000007
+RBP: 00007fd194ffcdb0 R08: 0000000000000000 R09: 0000000000000008
+R10: 0000000000000001 R11: 0000000000000202 R12: 00007fd269d68030
+R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000000
 
-Output of /sys/kernel/debug/usb/devices:
+which is due to bio->bi_bdev being NULL. This can happen if we have two
+tasks doing polled IO, and task B ends up completing IO from task A if
+they are sharing a poll queue. If task B completes the IO and puts the
+bio into our cache, then it can allocate that bio again before task A
+is done polling for it. As that would necessitate a preempt between the
+two tasks, it's enough to just be a bit more careful in checking for
+whether or not bio->bi_bdev is NULL.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=07 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
-D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=13d3 ProdID=3529 Rev= 1.10
-S:  Manufacturer=Realtek
-S:  Product=Bluetooth Radio
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-
-Signed-off-by: Moises Cardona <moisesmcardona@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: Wei Zhang <wzhang@meta.com>
+Cc: stable@vger.kernel.org
+Fixes: be4d234d7aeb ("bio: add allocation cache abstraction")
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ block/blk-core.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index b8cd42d81d5ca..952dc9d2404ed 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -492,6 +492,10 @@ static const struct usb_device_id blacklist_table[] = {
- 	{ USB_VENDOR_AND_INTERFACE_INFO(0x8087, 0xe0, 0x01, 0x01),
- 	  .driver_info = BTUSB_IGNORE },
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -854,10 +854,16 @@ EXPORT_SYMBOL(submit_bio);
+  */
+ int bio_poll(struct bio *bio, struct io_comp_batch *iob, unsigned int flags)
+ {
+-	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
+ 	blk_qc_t cookie = READ_ONCE(bio->bi_cookie);
++	struct block_device *bdev;
++	struct request_queue *q;
+ 	int ret = 0;
  
-+	/* Realtek 8821CE Bluetooth devices */
-+	{ USB_DEVICE(0x13d3, 0x3529), .driver_info = BTUSB_REALTEK |
-+						     BTUSB_WIDEBAND_SPEECH },
++	bdev = READ_ONCE(bio->bi_bdev);
++	if (!bdev)
++		return 0;
 +
- 	/* Realtek 8822CE Bluetooth devices */
- 	{ USB_DEVICE(0x0bda, 0xb00c), .driver_info = BTUSB_REALTEK |
- 						     BTUSB_WIDEBAND_SPEECH },
--- 
-2.39.2
-
++	q = bdev_get_queue(bdev);
+ 	if (cookie == BLK_QC_T_NONE ||
+ 	    !test_bit(QUEUE_FLAG_POLL, &q->queue_flags))
+ 		return 0;
+@@ -917,7 +923,7 @@ int iocb_bio_iopoll(struct kiocb *kiocb,
+ 	 */
+ 	rcu_read_lock();
+ 	bio = READ_ONCE(kiocb->private);
+-	if (bio && bio->bi_bdev)
++	if (bio)
+ 		ret = bio_poll(bio, iob, flags);
+ 	rcu_read_unlock();
+ 
 
 
