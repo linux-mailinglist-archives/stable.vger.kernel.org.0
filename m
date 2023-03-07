@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 201806AF099
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:32:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B360A6AEB97
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbjCGScX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:32:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59198 "EHLO
+        id S232111AbjCGRqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:46:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230028AbjCGSb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:31:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9CFB3710
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:24:38 -0800 (PST)
+        with ESMTP id S232100AbjCGRps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:45:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2C1A4B18
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:41:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5260ACE1C88
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:24:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE58C433D2;
-        Tue,  7 Mar 2023 18:24:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40D59614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582C2C433EF;
+        Tue,  7 Mar 2023 17:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213475;
-        bh=GxxFSXMNTqKtNsSPRZSLW+3w8I9CBF/zqPlg4wgMPYg=;
+        s=korg; t=1678210875;
+        bh=0UrN5Ya4jNeVaBqvPSKD6LjakYrw8VQiuRe0x97UxME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cV+tg4dA20BmBnooqlXqJh6uUA+0vdDgZzFvR/j5OCHzjx40ntx43um7BDn/NBcZx
-         nMGj6XJl5iPK9oQoDkOg2O7ad0k0Durvt58N+WhYfG4Ls+mgj5QK5sROnb5CbrcjBf
-         ny+HRMhvF7kfSDjVINTYgOf2/HndtjqooMhr87/A=
+        b=qr0u6QVO30i0nqjeRpN6l2gF+g23c+fvhFub8Ghcj+Qh7FN1TnxH8yLXIwiVJSiQW
+         PdrDQDjmlyZRykM81W6rA+TAAwqlMOOWjoObd+SJbdDnYb2NXi0txEFWUfj3YQfwmY
+         zAHJ1PyPjHLYYfc9V9mtkk+B9+tkL69OCa8JknEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dong Chuanjian <chuanjian@nfschina.com>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 519/885] media: drivers/media/v4l2-core/v4l2-h264 : add detection of null pointers
-Date:   Tue,  7 Mar 2023 17:57:33 +0100
-Message-Id: <20230307170025.021370090@linuxfoundation.org>
+Subject: [PATCH 6.2 0682/1001] hv_netvsc: Check status in SEND_RNDIS_PKT completion message
+Date:   Tue,  7 Mar 2023 17:57:34 +0100
+Message-Id: <20230307170051.192194367@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,47 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dong Chuanjian <chuanjian@nfschina.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit be3ae7cf4326e95bb1d5413b63baabc26f4a1324 ]
+[ Upstream commit dca5161f9bd052e9e73be90716ffd57e8762c697 ]
 
-When the pointer variable is judged to be null, null is returned
-directly.
+Completion responses to SEND_RNDIS_PKT messages are currently processed
+regardless of the status in the response, so that resources associated
+with the request are freed.  While this is appropriate, code bugs that
+cause sending a malformed message, or errors on the Hyper-V host, go
+undetected. Fix this by checking the status and outputting a rate-limited
+message if there is an error.
 
-[hverkuil: fix two checkpatch warnings]
-
-Signed-off-by: Dong Chuanjian <chuanjian@nfschina.com>
-Acked-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Fixes: d3f756ad629b ("media: v4l2: Trace calculated p/b0/b1 initial reflist")
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Link: https://lore.kernel.org/r/1676264881-48928-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-h264.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/hyperv/netvsc.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/media/v4l2-core/v4l2-h264.c b/drivers/media/v4l2-core/v4l2-h264.c
-index 72bd64f651981..c00197d095e75 100644
---- a/drivers/media/v4l2-core/v4l2-h264.c
-+++ b/drivers/media/v4l2-core/v4l2-h264.c
-@@ -305,6 +305,8 @@ static const char *format_ref_list_p(const struct v4l2_h264_reflist_builder *bui
- 	int n = 0, i;
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index 79f4e13620a46..da737d959e81c 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -851,6 +851,7 @@ static void netvsc_send_completion(struct net_device *ndev,
+ 	u32 msglen = hv_pkt_datalen(desc);
+ 	struct nvsp_message *pkt_rqst;
+ 	u64 cmd_rqst;
++	u32 status;
  
- 	*out_str = kmalloc(tmp_str_size, GFP_KERNEL);
-+	if (!(*out_str))
-+		return NULL;
+ 	/* First check if this is a VMBUS completion without data payload */
+ 	if (!msglen) {
+@@ -922,6 +923,23 @@ static void netvsc_send_completion(struct net_device *ndev,
+ 		break;
  
- 	n += snprintf(*out_str + n, tmp_str_size - n, "|");
- 
-@@ -343,6 +345,8 @@ static const char *format_ref_list_b(const struct v4l2_h264_reflist_builder *bui
- 	int n = 0, i;
- 
- 	*out_str = kmalloc(tmp_str_size, GFP_KERNEL);
-+	if (!(*out_str))
-+		return NULL;
- 
- 	n += snprintf(*out_str + n, tmp_str_size - n, "|");
- 
+ 	case NVSP_MSG1_TYPE_SEND_RNDIS_PKT_COMPLETE:
++		if (msglen < sizeof(struct nvsp_message_header) +
++		    sizeof(struct nvsp_1_message_send_rndis_packet_complete)) {
++			if (net_ratelimit())
++				netdev_err(ndev, "nvsp_rndis_pkt_complete length too small: %u\n",
++					   msglen);
++			return;
++		}
++
++		/* If status indicates an error, output a message so we know
++		 * there's a problem. But process the completion anyway so the
++		 * resources are released.
++		 */
++		status = nvsp_packet->msg.v1_msg.send_rndis_pkt_complete.status;
++		if (status != NVSP_STAT_SUCCESS && net_ratelimit())
++			netdev_err(ndev, "nvsp_rndis_pkt_complete error status: %x\n",
++				   status);
++
+ 		netvsc_send_tx_complete(ndev, net_device, incoming_channel,
+ 					desc, budget);
+ 		break;
 -- 
 2.39.2
 
