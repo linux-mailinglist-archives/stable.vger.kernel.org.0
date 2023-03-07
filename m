@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5D36ADE8E
+	by mail.lfdr.de (Postfix) with ESMTP id 685866ADE8F
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 13:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229657AbjCGMUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 07:20:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38222 "EHLO
+        id S230521AbjCGMUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 07:20:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231602AbjCGMUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 07:20:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A612CFF4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 04:20:07 -0800 (PST)
+        with ESMTP id S231613AbjCGMUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 07:20:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE186311CF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 04:20:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2DC1B816D5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 12:20:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C55C433EF;
-        Tue,  7 Mar 2023 12:20:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B62460C02
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 12:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A3DC433D2;
+        Tue,  7 Mar 2023 12:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678191605;
-        bh=V8aPUjM1k8Nz4KbKETJ0nly3S5r57noTb/5PNWamkoM=;
+        s=korg; t=1678191608;
+        bh=p4wrZM/8KAPEET5J+Fn/kgBIjlzX4MQkLlC3TbGx2mY=;
         h=Subject:To:Cc:From:Date:From;
-        b=wl/+dMrzk4N9EXH8l9dpIyShRpWZELzdlE//mTyopi4MXQzlZg7Q7Hny9xBUYnjSd
-         Vmvgt36KWpmn4N3U1q43ViEinoY43xAl8HPKDnxJAmkY2guzYeimP1RR8hD7/oJ7q6
-         5oesQWX/583kCxkPHbG94BqAWxfTDcFem6CqGEtU=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Check if port is online before sending ELS" failed to apply to 4.19-stable tree
+        b=jMFEVVCDnO+NWKnYdhcdZpdlEONy4DUazoxU3SKc37Mol7so0mMIfY0pcUXlYLEw0
+         c3PmmkMSiN+20QJ/Xep6qMPgJDgcFnN2Llo4NmKfy/knaqMxEo96M/igavaADwxFQr
+         G5fjg/CTRgYgfB+Q+SAgLix2gGdPlqP6jyUVz0yo=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Check if port is online before sending ELS" failed to apply to 4.14-stable tree
 To:     sdeodhar@marvell.com, himanshu.madhani@oracle.com,
         martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 13:19:51 +0100
-Message-ID: <1678191591182209@kroah.com>
+Date:   Tue, 07 Mar 2023 13:19:52 +0100
+Message-ID: <167819159220160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,19 +49,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x 0c227dc22ca18856055983f27594feb2e0149965
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678191591182209@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167819159220160@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
