@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BA06AEE86
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96F516AE9E6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbjCGSMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:12:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
+        id S229881AbjCGR2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:28:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232476AbjCGSM1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7401C93DB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:54 -0800 (PST)
+        with ESMTP id S231571AbjCGR20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62DB492712
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28978B81851
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A8CC4339B;
-        Tue,  7 Mar 2023 18:07:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18F90B819A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65065C433D2;
+        Tue,  7 Mar 2023 17:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212471;
-        bh=BIhkWpejoZ3l+rZwaG1tUWyCBcb8lBzrRwfwYwceka4=;
+        s=korg; t=1678209811;
+        bh=5/a51Nfi6YYbil90NZNM0K4WgsFihGtPP9T9zaNPPhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8tqWMi11fnLotDUWJjxY+0YShZWehV946oh62Z07CIQ0HcdDmRHPFI13NLbzamSH
-         K6i6iWQPJFPZATyMtwdNKOZ7bNjc8MYBff796iV9xFUhJu21kSyZPpZfNvb9ufuydi
-         ujofhlXjhY65s3zp78I+QxBDfndYvsRuTeCYByxQ=
+        b=wPUL9cZVNOtWIb7o0R+paMBeDSzx3E9PSB/lWV7DFkc7nulqeE29nsVWSgEPMceto
+         tiDD5EoB+CiZHmYdQmakM1c/xP7D4ap2oX+aj0ormyF07CdW1pW0G6wXhBWrRvk2uY
+         05yLnDWh/+3MeLYQZOB2r/dq6ps81SpclngKmUw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 177/885] crypto: seqiv - Handle EBUSY correctly
-Date:   Tue,  7 Mar 2023 17:51:51 +0100
-Message-Id: <20230307170009.659496598@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Jocelyn Falempe <jfalempe@redhat.com>,
+        Dave Airlie <airlied@redhat.com>,
+        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0340/1001] drm/ast: Init iosys_map pointer as I/O memory for damage handling
+Date:   Tue,  7 Mar 2023 17:51:52 +0100
+Message-Id: <20230307170036.228522811@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,38 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 32e62025e5e52fbe4812ef044759de7010b15dbc ]
+[ Upstream commit b1def7fadfa544bd2467581ce40b659583eb7e79 ]
 
-As it is seqiv only handles the special return value of EINPROGERSS,
-which means that in all other cases it will free data related to the
-request.
+Ast hardware scans out the primary plane from video memory, which
+is in I/O-memory space. Hence init the damage handler's iosys_map
+pointer as I/O memory.
 
-However, as the caller of seqiv may specify MAY_BACKLOG, we also need
-to expect EBUSY and treat it in the same way.  Otherwise backlogged
-requests will trigger a use-after-free.
+Not all platforms support accessing I/O memory as system memory,
+although it's usually not a problem in ast's x86-based systems.
 
-Fixes: 0a270321dbf9 ("[CRYPTO] seqiv: Add Sequence Number IV Generator")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The error report is at [1].
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Jocelyn Falempe <jfalempe@redhat.com>
+Fixes: f2fa5a99ca81 ("drm/ast: Convert ast to SHMEM")
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Jocelyn Falempe <jfalempe@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Link: https://lore.kernel.org/lkml/202212170111.eInM0unS-lkp@intel.com/T/#u # 1
+Link: https://patchwork.freedesktop.org/patch/msgid/20221216193005.30280-1-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/seqiv.c | 2 +-
+ drivers/gpu/drm/ast/ast_mode.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/crypto/seqiv.c b/crypto/seqiv.c
-index 0899d527c2845..b1bcfe537daf1 100644
---- a/crypto/seqiv.c
-+++ b/crypto/seqiv.c
-@@ -23,7 +23,7 @@ static void seqiv_aead_encrypt_complete2(struct aead_request *req, int err)
- 	struct aead_request *subreq = aead_request_ctx(req);
- 	struct crypto_aead *geniv;
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 66a4a41c3fe94..d314b9e7c05f9 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -636,7 +636,7 @@ static void ast_handle_damage(struct ast_plane *ast_plane, struct iosys_map *src
+ 			      struct drm_framebuffer *fb,
+ 			      const struct drm_rect *clip)
+ {
+-	struct iosys_map dst = IOSYS_MAP_INIT_VADDR(ast_plane->vaddr);
++	struct iosys_map dst = IOSYS_MAP_INIT_VADDR_IOMEM(ast_plane->vaddr);
  
--	if (err == -EINPROGRESS)
-+	if (err == -EINPROGRESS || err == -EBUSY)
- 		return;
- 
- 	if (err)
+ 	iosys_map_incr(&dst, drm_fb_clip_offset(fb->pitches[0], fb->format, clip));
+ 	drm_fb_memcpy(&dst, fb->pitches, src, fb, clip);
 -- 
 2.39.2
 
