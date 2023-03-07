@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FDA26AF12D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:40:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 042556AEC06
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:51:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233076AbjCGSkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:40:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
+        id S232203AbjCGRvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:51:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233110AbjCGSkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:40:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02DE528D11
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:31:19 -0800 (PST)
+        with ESMTP id S232128AbjCGRup (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:45 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DCFA42C5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CD28B819F0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095EBC433A1;
-        Tue,  7 Mar 2023 18:30:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F087FCE1C5D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D4C2C433D2;
+        Tue,  7 Mar 2023 17:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213839;
-        bh=VWUA6089KicX3g4n2fMMBNcBw71J3oA/4zbv6JceSIA=;
+        s=korg; t=1678211144;
+        bh=buivVYHNrykFg0AVJxaEa6pHFwY3uD8KremudBJ8co4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x810zNRHATyd7e51tvu4e2wEvG8aGpmRkjUSmW38KekBeCqKZ6lrCRH1t5dgufy00
-         Y1YslZzP9FjCeJkU2TrXe5i54zydSw5X7p9GKAmZJGoQEA3FI1/PGQxBLLljqov714
-         YDgSYBrQKnH5XRRH9mbuWkjFnC/bkvAxFsMm+Yjs=
+        b=ijlMFTqY2CEINjLs8aOw2soH12/vrqJ4zs46B+cQXI9wDesCwOmvAw7nVruv4O3Zp
+         lUf4aUtL9X+ioFr9qT9Qjux4HOL4T2Ij6ZfLkoF/nMmLi1NB/M1pfVbvSZHGalJG7u
+         5K5DbtFNh1+B9qpf057Wb3gj2PsxcyoH5Vr9EwEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 606/885] drm/amd: Avoid ASSERT for some message failures
+        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 6.2 0768/1001] s390/kprobes: fix current_kprobe never cleared after kprobes reenter
 Date:   Tue,  7 Mar 2023 17:59:00 +0100
-Message-Id: <20230307170028.679267071@linuxfoundation.org>
+Message-Id: <20230307170055.101633272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 3e5019ee67760cd61b2a5fd605e1289c2f92d983 ]
+commit cd57953936f2213dfaccce10d20f396956222c7d upstream.
 
-On DCN314 when resuming from s0i3 an ASSERT is shown indicating that
-`VBIOSSMC_MSG_SetHardMinDcfclkByFreq` returned `VBIOSSMC_Result_Failed`.
+Recent test_kprobe_missed kprobes kunit test uncovers the following
+problem. Once kprobe is triggered from another kprobe (kprobe reenter),
+all future kprobes on this cpu are considered as kprobe reenter, thus
+pre_handler and post_handler are not being called and kprobes are counted
+as "missed".
 
-This isn't a driver bug; it's a BIOS/configuration bug. To make this
-easier to triage, add an explicit warning when this issue happens.
+Commit b9599798f953 ("[S390] kprobes: activation and deactivation")
+introduced a simpler scheme for kprobes (de)activation and status
+tracking by using push_kprobe/pop_kprobe, which supposed to work for
+both initial kprobe entry as well as kprobe reentry and helps to avoid
+handling those two cases differently. The problem is that a sequence of
+calls in case of kprobes reenter:
+push_kprobe() <- NULL (current_kprobe)
+push_kprobe() <- kprobe1 (current_kprobe)
+pop_kprobe() -> kprobe1 (current_kprobe)
+pop_kprobe() -> kprobe1 (current_kprobe)
+leaves "kprobe1" as "current_kprobe" on this cpu, instead of setting it
+to NULL. In fact push_kprobe/pop_kprobe can only store a single state
+(there is just one prev_kprobe in kprobe_ctlblk). Which is a hack but
+sufficient, there is no need to have another prev_kprobe just to store
+NULL. To make a simple and backportable fix simply reset "prev_kprobe"
+when kprobe is poped from this "stack". No need to worry about
+"kprobe_status" in this case, because its value is only checked when
+current_kprobe != NULL.
 
-This matches the behavior utilized for failures with
-`VBIOSSMC_MSG_TransferTableDram2Smu` configuration.
-
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: b9599798f953 ("[S390] kprobes: activation and deactivation")
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/kernel/kprobes.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
-index 2db595672a469..aa264c600408d 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
-@@ -146,6 +146,9 @@ static int dcn314_smu_send_msg_with_param(struct clk_mgr_internal *clk_mgr,
- 		if (msg_id == VBIOSSMC_MSG_TransferTableDram2Smu &&
- 		    param == TABLE_WATERMARKS)
- 			DC_LOG_WARNING("Watermarks table not configured properly by SMU");
-+		else if (msg_id == VBIOSSMC_MSG_SetHardMinDcfclkByFreq ||
-+			 msg_id == VBIOSSMC_MSG_SetMinDeepSleepDcfclk)
-+			DC_LOG_WARNING("DCFCLK_DPM is not enabled by BIOS");
- 		else
- 			ASSERT(0);
- 		REG_WRITE(MP1_SMN_C2PMSG_91, VBIOSSMC_Result_OK);
--- 
-2.39.2
-
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -278,6 +278,7 @@ static void pop_kprobe(struct kprobe_ctl
+ {
+ 	__this_cpu_write(current_kprobe, kcb->prev_kprobe.kp);
+ 	kcb->kprobe_status = kcb->prev_kprobe.status;
++	kcb->prev_kprobe.kp = NULL;
+ }
+ NOKPROBE_SYMBOL(pop_kprobe);
+ 
 
 
