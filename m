@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAED6AEF88
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F03126AF2F5
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232742AbjCGSYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:24:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46922 "EHLO
+        id S233378AbjCGS55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:57:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230513AbjCGSXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E728C2B2B2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:07 -0800 (PST)
+        with ESMTP id S233529AbjCGS5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F63BBB1B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6996D614E8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6190DC433D2;
-        Tue,  7 Mar 2023 18:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4DC9B8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26C3C4339E;
+        Tue,  7 Mar 2023 18:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213146;
-        bh=40Co9P6NsDMzASnmnviVdBBA5DO5zO5SE/gdKvOebV0=;
+        s=korg; t=1678214672;
+        bh=VDXw3QNAIXMOOn50f84rT3GivhAFTxmQ0s7eG439JW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LWyZYu3JCs2F24hjxHFTMwHU/Hbv/Ty0SikU8Y284r18Qqi8Se7/Cczlqmbc46ggA
-         HevC7JnOG8+EXUSCES3AfEyE9fAU6zYZaPE0Ae70JUNvSZ1hbJ5Sz+iV+tQ7YRLp4W
-         M9xg9DNfmUagrbzm8Ys4b77154j0bTPH2pOLvF3k=
+        b=u+Rsx4yfoNDkpXIIGituxho1pu8TX/IhRQ94HClEMOUbQYVqpGnSsvzTBGCt+nFQu
+         05f/T26Wk91jJv412BgdMd7pKjTqkJMTAX+bfU0iFcVRjztGt72tBzgWlIfs4Eu74v
+         dH0MrCTvsJe57zHWDqDkeioO5C9SBb7eecyxVj0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Hai <wanghai38@huawei.com>,
+        patches@lists.linux.dev, Doug Anderson <dianders@chromium.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 414/885] kobject: Fix slab-out-of-bounds in fill_kobj_path()
+Subject: [PATCH 5.15 012/567] arm64: dts: qcom: sdm845-db845c: fix audio codec interrupt pin name
 Date:   Tue,  7 Mar 2023 17:55:48 +0100
-Message-Id: <20230307170020.411800228@linuxfoundation.org>
+Message-Id: <20230307165906.370598223@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,146 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 3bb2a01caa813d3a1845d378bbe4169ef280d394 ]
+[ Upstream commit 740862bb5f59b93efb390a417995f88a64bdc323 ]
 
-In kobject_get_path(), if kobj->name is changed between calls
-get_kobj_path_length() and fill_kobj_path() and the length becomes
-longer, then fill_kobj_path() will have an out-of-bounds bug.
+The pin config entry should have a string, not number, for the GPIO used
+as WCD9340 audio codec interrupt.
 
-The actual current problem occurs when the ixgbe probe.
-
-In ixgbe_mii_bus_init(), if the length of netdev->dev.kobj.name
-length becomes longer, out-of-bounds will occur.
-
-cpu0                                         cpu1
-ixgbe_probe
- register_netdev(netdev)
-  netdev_register_kobject
-   device_add
-    kobject_uevent // Sending ADD events
-                                             systemd-udevd // rename netdev
-                                              dev_change_name
-                                               device_rename
-                                                kobject_rename
- ixgbe_mii_bus_init                             |
-  mdiobus_register                              |
-   __mdiobus_register                           |
-    device_register                             |
-     device_add                                 |
-      kobject_uevent                            |
-       kobject_get_path                         |
-        len = get_kobj_path_length // old name  |
-        path = kzalloc(len, gfp_mask);          |
-                                                kobj->name = name;
-                                                /* name length becomes
-                                                 * longer
-                                                 */
-        fill_kobj_path /* kobj path length is
-                        * longer than path,
-                        * resulting in out of
-                        * bounds when filling path
-                        */
-
-This is the kasan report:
-
-==================================================================
-BUG: KASAN: slab-out-of-bounds in fill_kobj_path+0x50/0xc0
-Write of size 7 at addr ff1100090573d1fd by task kworker/28:1/673
-
- Workqueue: events work_for_cpu_fn
- Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x48
- print_address_description.constprop.0+0x86/0x1e7
- print_report+0x36/0x4f
- kasan_report+0xad/0x130
- kasan_check_range+0x35/0x1c0
- memcpy+0x39/0x60
- fill_kobj_path+0x50/0xc0
- kobject_get_path+0x5a/0xc0
- kobject_uevent_env+0x140/0x460
- device_add+0x5c7/0x910
- __mdiobus_register+0x14e/0x490
- ixgbe_probe.cold+0x441/0x574 [ixgbe]
- local_pci_probe+0x78/0xc0
- work_for_cpu_fn+0x26/0x40
- process_one_work+0x3b6/0x6a0
- worker_thread+0x368/0x520
- kthread+0x165/0x1a0
- ret_from_fork+0x1f/0x30
-
-This reproducer triggers that bug:
-
-while:
-do
-    rmmod ixgbe
-    sleep 0.5
-    modprobe ixgbe
-    sleep 0.5
-
-When calling fill_kobj_path() to fill path, if the name length of
-kobj becomes longer, return failure and retry. This fixes the problem.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20221220012143.52141-1-wanghai38@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 89a32a4e769c ("arm64: dts: qcom: db845c: add analog audio support")
+Reported-by: Doug Anderson <dianders@chromium.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221222151319.122398-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kobject.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/sdm845-db845c.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/kobject.c b/lib/kobject.c
-index 0380ec889a6af..aa375a5d94419 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -112,7 +112,7 @@ static int get_kobj_path_length(const struct kobject *kobj)
- 	return length;
- }
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+index 146d3cd3f1b31..5ce270f0b2ec1 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
++++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+@@ -896,7 +896,7 @@ sdc2_card_det_n: sd-card-det-n {
+ 	};
  
--static void fill_kobj_path(const struct kobject *kobj, char *path, int length)
-+static int fill_kobj_path(const struct kobject *kobj, char *path, int length)
- {
- 	const struct kobject *parent;
+ 	wcd_intr_default: wcd_intr_default {
+-		pins = <54>;
++		pins = "gpio54";
+ 		function = "gpio";
  
-@@ -121,12 +121,16 @@ static void fill_kobj_path(const struct kobject *kobj, char *path, int length)
- 		int cur = strlen(kobject_name(parent));
- 		/* back up enough to print this name with '/' */
- 		length -= cur;
-+		if (length <= 0)
-+			return -EINVAL;
- 		memcpy(path + length, kobject_name(parent), cur);
- 		*(path + --length) = '/';
- 	}
- 
- 	pr_debug("kobject: '%s' (%p): %s: path = '%s'\n", kobject_name(kobj),
- 		 kobj, __func__, path);
-+
-+	return 0;
- }
- 
- /**
-@@ -141,13 +145,17 @@ char *kobject_get_path(const struct kobject *kobj, gfp_t gfp_mask)
- 	char *path;
- 	int len;
- 
-+retry:
- 	len = get_kobj_path_length(kobj);
- 	if (len == 0)
- 		return NULL;
- 	path = kzalloc(len, gfp_mask);
- 	if (!path)
- 		return NULL;
--	fill_kobj_path(kobj, path, len);
-+	if (fill_kobj_path(kobj, path, len)) {
-+		kfree(path);
-+		goto retry;
-+	}
- 
- 	return path;
- }
+ 		input-enable;
 -- 
 2.39.2
 
