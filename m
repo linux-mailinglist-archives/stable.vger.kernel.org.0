@@ -2,99 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7C16AD223
-	for <lists+stable@lfdr.de>; Mon,  6 Mar 2023 23:58:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F2B26AD373
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 01:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229872AbjCFW6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Mar 2023 17:58:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40778 "EHLO
+        id S229636AbjCGAtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Mar 2023 19:49:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229646AbjCFW6W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 17:58:22 -0500
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7EFE2B282;
-        Mon,  6 Mar 2023 14:58:19 -0800 (PST)
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [10.196.197.202])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S229570AbjCGAtC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Mar 2023 19:49:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 416C832E4D;
+        Mon,  6 Mar 2023 16:49:01 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4PVvBF497Wz9swL;
-        Mon,  6 Mar 2023 23:58:13 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hauke-m.de; s=MBO0001;
-        t=1678143493;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=u2Gi+zIBBx3EwQ5U8SSGElwnTAsXc+kwYEwilJbCjyA=;
-        b=ppRp6Ikx3RbPxXeSX1G6IdNunR8qlLxTWgxVPFkPCPtIC17132g1ux8QJ/vxWHLletn23t
-        KDH0cby5khbO4OtwovtJPZ/n7nWZXSN/Oqh2cHzkZwQQVhtZ4g41d4o9l19AhPCd4hD+ut
-        Hlp5bj2nrozFFRMQ2sxQTha46Tt6AkGU98OJL2rQ/OCc9SSqESad4GV7YyKaHM/GIzWuwT
-        ISyhUl8PKL3gko6/rOmEP4XlmO72MvAy4EpMtc1sG1s5JN2FtBw6p/S23jWP7V72oZHkiw
-        aYQ+SHZu5ow15H47vVkXeuxxVQTeDy5s9yDzzboopF7GeVVcdEf7U4KU0ribyw==
-Message-ID: <e6e2df31-6327-f2ad-3049-0cbfa214ae5c@hauke-m.de>
-Date:   Mon, 6 Mar 2023 23:58:12 +0100
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFF9FB81201;
+        Tue,  7 Mar 2023 00:48:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 805A1C433EF;
+        Tue,  7 Mar 2023 00:48:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678150138;
+        bh=zQIEMnEBtNLscoBzoZrW13CYG48psh/0hSKscCNvEQI=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=BoSkQJyOAuQAbEdPtt9KI0jx3jogk0TeILp/i9CmU/ARmQxR4JepdbtAp1USgmpwg
+         kvw/9Q3OO4pZE+7zyViBl3bx2fV3YHsC3UDNJqM5MQmwaKLDDhC35YbTq2Ds7XMJ8A
+         8feUN195WkQuz94VJxDLRWSzRljW6F9hv4S+2Za5/foBrlHj6nqhZVPKUblGzzyMgJ
+         IKskGioZNpG8ow+rh8uDur5Fk7gD2avyM5J9Qp4kxAKFLrsy9ytDBlXN85G3ekIk3K
+         GiKhCVTr9wW1APyvE3BoZ8WlCIJQIrSb6ll88GVYa+rAD3XckooymuyDlYoXubY5bV
+         HbZ4pbJoz0R8Q==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 600A0E4FC50;
+        Tue,  7 Mar 2023 00:48:58 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Language: en-US
-To:     stable <stable@vger.kernel.org>
-From:   Hauke Mehrtens <hauke@hauke-m.de>
-Cc:     Andres Freund <andres@anarazel.de>,
-        Quentin Monnet <quentin@isovalent.com>, bpf@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: stable backport of patches fixing perf, libbpf and bpftools
- compilation with binutils 2.40
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 02/10] cpuidle, riscv: Push RCU-idle into driver
+From:   patchwork-bot+linux-riscv@kernel.org
+Message-Id: <167815013838.19612.5396346808460094460.git-patchwork-notify@kernel.org>
+Date:   Tue, 07 Mar 2023 00:48:58 +0000
+References: <20230303092347.4825-3-cheng-jui.wang@mediatek.com>
+In-Reply-To: <20230303092347.4825-3-cheng-jui.wang@mediatek.com>
+To:     Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
+Cc:     linux-riscv@lists.infradead.org, stable@vger.kernel.org,
+        anup@brainfault.org, rafael@kernel.org, daniel.lezcano@linaro.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, matthias.bgg@gmail.com,
+        peterz@infradead.org, mingo@kernel.org, surenb@google.com,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Hello:
 
-The following patches are fixing the compilation of perf, bpf_jit_disasm 
-and bpftools with binutils 2.40.
+This series was applied to riscv/linux.git (fixes)
+by Ingo Molnar <mingo@kernel.org>:
 
-commit cfd59ca91467056bb2c36907b2fa67b8e1af9952
-Subject: tools build: Add feature test for init_disassemble_info API changes
+On Fri, 3 Mar 2023 17:23:24 +0800 you wrote:
+> From: Peter Zijlstra <peterz@infradead.org>
+> 
+> commit 8e9ab9e8da1eae61fdff35690d998eaf8cd527dc upstream.
+> 
+> Doing RCU-idle outside the driver, only to then temporarily enable it
+> again, at least twice, before going idle is suboptimal.
+> 
+> [...]
 
-commit a45b3d6926231c3d024ea0de4f7bd967f83709ee
-Subject: tools include: add dis-asm-compat.h to handle version differences
+Here is the summary with links:
+  - [02/10] cpuidle, riscv: Push RCU-idle into driver
+    https://git.kernel.org/riscv/c/8e9ab9e8da1e
+  - [10/10] cpuidle: Fix ct_idle_*() usage
+    (no matching commit)
 
-commit 83aa0120487e8bc3f231e72c460add783f71f17c
-Subject: tools perf: Fix compilation error with new binutils
-
-commit 96ed066054abf11c7d3e106e3011a51f3f1227a3
-Subject: tools bpf_jit_disasm: Fix compilation error with new binutils
-
-commit 600b7b26c07a070d0153daa76b3806c1e52c9e00
-Subject: tools bpftool: Fix compilation error with new binutils
-
-
-Please backport these patches to kernel 5.15. Backporting them to 5.10 
-resulted in more merge conflicts for me so I did not continue if it.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
-The patches are applying cleanly on top of 5.15.98 expect for a trivial 
-merge conflict in the last one:
------
---- a/tools/bpf/bpftool/Makefile
-+++ b/tools/bpf/bpftool/Makefile
-@@@ -76,7 -93,7 +76,7 @@@ INSTALL ?= instal
-   RM ?= rm -f
-
-   FEATURE_USER = .bpftool
-- FEATURE_TESTS = libbfd disassembler-four-args reallocarray zlib libcap \
-  -FEATURE_TESTS = libbfd disassembler-four-args 
-disassembler-init-styled zlib libcap \
-++FEATURE_TESTS = libbfd disassembler-four-args disassembler-init-styled 
-reallocarray zlib libcap \
-         clang-bpf-co-re
-   FEATURE_DISPLAY = libbfd disassembler-four-args zlib libcap \
-         clang-bpf-co-re
--------
-
-Hauke
