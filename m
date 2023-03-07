@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90FBF6AF0B3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:34:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C4A6AEBB7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230267AbjCGSeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:34:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42502 "EHLO
+        id S232144AbjCGRsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:48:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231430AbjCGSdw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:33:52 -0500
+        with ESMTP id S232157AbjCGRro (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5E9A42C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:26:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1643F8FBF8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09A9F6154A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F4DC433EF;
-        Tue,  7 Mar 2023 18:25:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D676F614B2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6EC8C433EF;
+        Tue,  7 Mar 2023 17:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213560;
-        bh=QioM45GSu6RlvuZ3KG0MQZMzy2hWYn1NtDAf7zdVdq8=;
+        s=korg; t=1678210960;
+        bh=+6yOvgwhFE3OBRCBGisye5Z6hoN93WHURUERdVYLqCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yltMOrb5A387Av8IaE+1UhElihDb7fb9nUmlGR8gj54nwjTW733M2APpTd0HQybJB
-         B2N2Ij94RhLg+qkOfPsudT1oFzdSWjd1vL9SksuL/9ouwmWlucNXudYXI+bFCw1C9e
-         kqJDxPQ1nd/tiQ+1eosKG0slppkB8L2xV8TB4WTM=
+        b=tC3XZykBaX5E4HyOhWQs0z7FHRN4S8BE+oEjqBwYZh0LVF0+0swHqy9AuBCn11Z5r
+         +4GjRalssfG5VPO3aQZCezAU8KCqHiWFPX1D/h15nNeSyYea4M1df4oTzWID+8lasR
+         QPm0U26c0I60ZImMl1nyTwcRDbVUBRS96RPBes40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Schmidt <florian@fls.name>,
-        Nagarajan Maran <quic_nmaran@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev,
+        Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 546/885] wifi: ath11k: fix monitor mode bringup crash
-Date:   Tue,  7 Mar 2023 17:58:00 +0100
-Message-Id: <20230307170026.225157268@linuxfoundation.org>
+Subject: [PATCH 6.2 0709/1001] drm: rcar-du: Fix setting a reserved bit in DPLLCR
+Date:   Tue,  7 Mar 2023 17:58:01 +0100
+Message-Id: <20230307170052.393325899@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,87 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nagarajan Maran <quic_nmaran@quicinc.com>
+From: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
 
-[ Upstream commit 950b43f8bd8a4d476d2da6d2a083a89bcd3c90d7 ]
+[ Upstream commit 5fbc2f3b91d27e12b614947048764099570cbb55 ]
 
-When the interface is brought up in monitor mode, it leads
-to NULL pointer dereference crash. This crash happens when
-the packet type is extracted for a SKB. This extraction
-which is present in the received msdu delivery path,is
-not needed for the monitor ring packets since they are
-all RAW packets. Hence appending the flags with
-"RX_FLAG_ONLY_MONITOR" to skip that extraction.
+On H3 ES1.x two bits in DPLLCR are used to select the DU input dot clock
+source. These are bits 20 and 21 for DU2, and bits 22 and 23 for DU1. On
+non-ES1.x, only the higher bits are used (bits 21 and 23), and the lower
+bits are reserved and should be set to 0.
 
-Observed calltrace:
+The current code always sets the lower bits, even on non-ES1.x.
 
-Unable to handle kernel NULL pointer dereference at virtual address
-0000000000000064
-Mem abort info:
-  ESR = 0x0000000096000004
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-  FSC = 0x04: level 0 translation fault
-Data abort info:
-  ISV = 0, ISS = 0x00000004
-  CM = 0, WnR = 0
-user pgtable: 4k pages, 48-bit VAs, pgdp=0000000048517000
-[0000000000000064] pgd=0000000000000000, p4d=0000000000000000
-Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-Modules linked in: ath11k_pci ath11k qmi_helpers
-CPU: 2 PID: 1781 Comm: napi/-271 Not tainted
-6.1.0-rc5-wt-ath-656295-gef907406320c-dirty #6
-Hardware name: Qualcomm Technologies, Inc. IPQ8074/AP-HK10-C2 (DT)
-pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : ath11k_hw_qcn9074_rx_desc_get_decap_type+0x34/0x60 [ath11k]
-lr : ath11k_hw_qcn9074_rx_desc_get_decap_type+0x5c/0x60 [ath11k]
-sp : ffff80000ef5bb10
-x29: ffff80000ef5bb10 x28: 0000000000000000 x27: ffff000007baafa0
-x26: ffff000014a91ed0 x25: 0000000000000000 x24: 0000000000000000
-x23: ffff800002b77378 x22: ffff000014a91ec0 x21: ffff000006c8d600
-x20: 0000000000000000 x19: ffff800002b77740 x18: 0000000000000006
-x17: 736564203634343a x16: 656e694c20657079 x15: 0000000000000143
-x14: 00000000ffffffea x13: ffff80000ef5b8b8 x12: ffff80000ef5b8c8
-x11: ffff80000a591d30 x10: ffff80000a579d40 x9 : c0000000ffffefff
-x8 : 0000000000000003 x7 : 0000000000017fe8 x6 : ffff80000a579ce8
-x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
-x2 : 3a35ec12ed7f8900 x1 : 0000000000000000 x0 : 0000000000000052
-Call trace:
- ath11k_hw_qcn9074_rx_desc_get_decap_type+0x34/0x60 [ath11k]
- ath11k_dp_rx_deliver_msdu.isra.42+0xa4/0x3d0 [ath11k]
- ath11k_dp_rx_mon_deliver.isra.43+0x2f8/0x458 [ath11k]
- ath11k_dp_rx_process_mon_rings+0x310/0x4c0 [ath11k]
- ath11k_dp_service_srng+0x234/0x338 [ath11k]
- ath11k_pcic_ext_grp_napi_poll+0x30/0xb8 [ath11k]
- __napi_poll+0x5c/0x190
- napi_threaded_poll+0xf0/0x118
- kthread+0xf4/0x110
- ret_from_fork+0x10/0x20
+For both DU1 and DU2, on all SoC versions, when writing zeroes to those
+bits the input clock is DCLKIN, and thus there's no difference between
+ES1.x and non-ES1.x.
 
-Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.7.0.1-01744-QCAHKSWPL_SILICONZ-1
-Reported-by: Florian Schmidt <florian@fls.name>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216573
-Signed-off-by: Nagarajan Maran <quic_nmaran@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221129142532.23421-1-quic_nmaran@quicinc.com
+For DU1, writing 0b10 to the bits (or only writing the higher bit)
+results in using PLL0 as the input clock, so in this case there's also
+no difference between ES1.x and non-ES1.x.
+
+However, for DU2, writing 0b10 to the bits results in using PLL0 as the
+input clock on ES1.x, whereas on non-ES1.x it results in using PLL1. On
+ES1.x you need to write 0b11 to select PLL1.
+
+The current code always writes 0b11 to PLCS0 field to select PLL1 on all
+SoC versions, which works but causes an illegal (in the sense of not
+allowed by the documentation) write to a reserved bit field.
+
+To remove the illegal bit write on PLSC0 we need to handle the input dot
+clock selection differently for ES1.x and non-ES1.x.
+
+Add a new quirk, RCAR_DU_QUIRK_H3_ES1_PLL, for this. This way we can
+always set the bit 21 on PLSC0 when choosing the PLL as the source
+clock, and additionally set the bit 20 when on ES1.x.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 23 ++++++++++++++++++++---
+ drivers/gpu/drm/rcar-du/rcar_du_drv.c  |  3 ++-
+ drivers/gpu/drm/rcar-du/rcar_du_drv.h  |  1 +
+ drivers/gpu/drm/rcar-du/rcar_du_regs.h |  8 ++------
+ 4 files changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 0c53d88293eb7..e964e1b722871 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -5023,6 +5023,7 @@ static int ath11k_dp_rx_mon_deliver(struct ath11k *ar, u32 mac_id,
- 		} else {
- 			rxs->flag |= RX_FLAG_ALLOW_SAME_PN;
- 		}
-+		rxs->flag |= RX_FLAG_ONLY_MONITOR;
- 		ath11k_update_radiotap(ar, ppduinfo, mon_skb, rxs);
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index f2d3266509cc1..b7dd59fe119e6 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -245,13 +245,30 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 		       | DPLLCR_N(dpll.n) | DPLLCR_M(dpll.m)
+ 		       | DPLLCR_STBY;
  
- 		ath11k_dp_rx_deliver_msdu(ar, napi, mon_skb, rxs);
+-		if (rcrtc->index == 1)
++		if (rcrtc->index == 1) {
+ 			dpllcr |= DPLLCR_PLCS1
+ 			       |  DPLLCR_INCS_DOTCLKIN1;
+-		else
+-			dpllcr |= DPLLCR_PLCS0
++		} else {
++			dpllcr |= DPLLCR_PLCS0_PLL
+ 			       |  DPLLCR_INCS_DOTCLKIN0;
+ 
++			/*
++			 * On ES2.x we have a single mux controlled via bit 21,
++			 * which selects between DCLKIN source (bit 21 = 0) and
++			 * a PLL source (bit 21 = 1), where the PLL is always
++			 * PLL1.
++			 *
++			 * On ES1.x we have an additional mux, controlled
++			 * via bit 20, for choosing between PLL0 (bit 20 = 0)
++			 * and PLL1 (bit 20 = 1). We always want to use PLL1,
++			 * so on ES1.x, in addition to setting bit 21, we need
++			 * to set the bit 20.
++			 */
++
++			if (rcdu->info->quirks & RCAR_DU_QUIRK_H3_ES1_PLL)
++				dpllcr |= DPLLCR_PLCS0_H3ES1X_PLL1;
++		}
++
+ 		rcar_du_group_write(rcrtc->group, DPLLCR, dpllcr);
+ 
+ 		escr = ESCR_DCLKSEL_DCLKIN | div;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
+index c479996f8e91e..53c9669a3851c 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
+@@ -394,7 +394,8 @@ static const struct rcar_du_device_info rcar_du_r8a7795_es1_info = {
+ 		  | RCAR_DU_FEATURE_VSP1_SOURCE
+ 		  | RCAR_DU_FEATURE_INTERLACED
+ 		  | RCAR_DU_FEATURE_TVM_SYNC,
+-	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY,
++	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY
++		| RCAR_DU_QUIRK_H3_ES1_PLL,
+ 	.channels_mask = BIT(3) | BIT(2) | BIT(1) | BIT(0),
+ 	.routes = {
+ 		/*
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
+index df87ccab146f4..acc3673fefe18 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
++++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
+@@ -35,6 +35,7 @@ struct rcar_du_device;
+ 
+ #define RCAR_DU_QUIRK_ALIGN_128B	BIT(0)	/* Align pitches to 128 bytes */
+ #define RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY BIT(1)	/* H3 ES1 has pclk stability issue */
++#define RCAR_DU_QUIRK_H3_ES1_PLL	BIT(2)	/* H3 ES1 PLL setup differs from non-ES1 */
+ 
+ enum rcar_du_output {
+ 	RCAR_DU_OUTPUT_DPAD0,
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_regs.h b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
+index c1bcb0e8b5b4e..789ae9285108e 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_regs.h
++++ b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
+@@ -283,12 +283,8 @@
+ #define DPLLCR			0x20044
+ #define DPLLCR_CODE		(0x95 << 24)
+ #define DPLLCR_PLCS1		(1 << 23)
+-/*
+- * PLCS0 is bit 21, but H3 ES1.x requires bit 20 to be set as well. As bit 20
+- * isn't implemented by other SoC in the Gen3 family it can safely be set
+- * unconditionally.
+- */
+-#define DPLLCR_PLCS0		(3 << 20)
++#define DPLLCR_PLCS0_PLL	(1 << 21)
++#define DPLLCR_PLCS0_H3ES1X_PLL1	(1 << 20)
+ #define DPLLCR_CLKE		(1 << 18)
+ #define DPLLCR_FDPLL(n)		((n) << 12)
+ #define DPLLCR_N(n)		((n) << 5)
 -- 
 2.39.2
 
