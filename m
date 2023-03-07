@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18CC06AEA83
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90FE36AEEF8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231673AbjCGReb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:34:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32874 "EHLO
+        id S230465AbjCGSTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:19:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231589AbjCGReP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCB7497C4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:29:59 -0800 (PST)
+        with ESMTP id S232453AbjCGSSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5CD7900A7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8116E61519
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75D5CC4339B;
-        Tue,  7 Mar 2023 17:29:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67C61B819C7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B607EC4339B;
+        Tue,  7 Mar 2023 18:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210198;
-        bh=4Nt92KzbsqU8PigjDhTRfGAusiZGoIGgOoXHeJkDaRM=;
+        s=korg; t=1678212786;
+        bh=uMMRkka7MO9kSLuvXjgl9gzeh6ChBpCwmmI2fu5W9Y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yhf7BuVGF4vnbrJetJy2yNT5MXZfekPFIClOVNSEpD05ipFOIMPJVmEDFXyxr57ec
-         eA21QLhPACvLKOQkcSSDq7lwoAW2WXA1TyUn4EoxscV9VQyqG4pDjBzTvRQ3s9Gjpe
-         1CL+anJCI4sRR6pD41+ho2WQ1om1SaMujkp1ZZMk=
+        b=kCSSc821sSZB9BHDKssr1gQPW+Vb7opeGlLk8w05CjnWXCe1Hai0hWGC4TpZSfeYM
+         1CumqiGHLZyTiSq1VCdxdnnChu68Vea4NUlgtNYCvpS40NJOa8Nq2729ssW4DejRgv
+         HJcwC5lhtLs2FLFkvj5tRI7BnwC/3s2kLQMVRdnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        David Howells <dhowells@redhat.com>,
-        Tom Talpey <tom@talpey.com>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0457/1001] cifs: Fix lost destroy smbd connection when MR allocate failed
-Date:   Tue,  7 Mar 2023 17:53:49 +0100
-Message-Id: <20230307170041.205711239@linuxfoundation.org>
+Subject: [PATCH 6.1 296/885] drm/msm/gem: Add check for kmalloc
+Date:   Tue,  7 Mar 2023 17:53:50 +0100
+Message-Id: <20230307170014.942565555@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit e9d3401d95d62a9531082cd2453ed42f2740e3fd ]
+[ Upstream commit d839f0811a31322c087a859c2b181e2383daa7be ]
 
-If the MR allocate failed, the smb direct connection info is NULL,
-then smbd_destroy() will directly return, then the connection info
-will be leaked.
+Add the check for the return value of kmalloc in order to avoid
+NULL pointer dereference in copy_from_user.
 
-Let's set the smb direct connection info to the server before call
-smbd_destroy().
-
-Fixes: c7398583340a ("CIFS: SMBD: Implement RDMA memory registration")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 20224d715a88 ("drm/msm/submit: Move copy_from_user ahead of locking bos")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/514678/
+Link: https://lore.kernel.org/r/20221212091117.43511-1-jiasheng@iscas.ac.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smbdirect.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/msm_gem_submit.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/cifs/smbdirect.c b/fs/cifs/smbdirect.c
-index 8c816b25ce7c6..101dab87cad1a 100644
---- a/fs/cifs/smbdirect.c
-+++ b/fs/cifs/smbdirect.c
-@@ -1700,6 +1700,7 @@ static struct smbd_connection *_smbd_get_connection(
- 
- allocate_mr_failed:
- 	/* At this point, need to a full transport shutdown */
-+	server->smbd_conn = info;
- 	smbd_destroy(server);
- 	return NULL;
- 
+diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
+index 45a3e5cadc7da..7c2cc1262c05d 100644
+--- a/drivers/gpu/drm/msm/msm_gem_submit.c
++++ b/drivers/gpu/drm/msm/msm_gem_submit.c
+@@ -209,6 +209,10 @@ static int submit_lookup_cmds(struct msm_gem_submit *submit,
+ 			goto out;
+ 		}
+ 		submit->cmd[i].relocs = kmalloc(sz, GFP_KERNEL);
++		if (!submit->cmd[i].relocs) {
++			ret = -ENOMEM;
++			goto out;
++		}
+ 		ret = copy_from_user(submit->cmd[i].relocs, userptr, sz);
+ 		if (ret) {
+ 			ret = -EFAULT;
 -- 
 2.39.2
 
