@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 717176AF52A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 564216AF52C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234087AbjCGTWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:22:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52798 "EHLO
+        id S234068AbjCGTWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:22:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233985AbjCGTWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A9FCABB15
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:36 -0800 (PST)
+        with ESMTP id S234077AbjCGTWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:33 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE40AA76AC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C91426150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0440C433EF;
-        Tue,  7 Mar 2023 19:07:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 26D3CCE1C5D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F35C433EF;
+        Tue,  7 Mar 2023 19:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216055;
-        bh=Ljwq8bY827BH8isU9XavIxjsZnWl+5a0r7JlOvRTxMw=;
+        s=korg; t=1678216061;
+        bh=MvdYw3jbdfjJE1iBHegemyYKVmUMm17bIwoW/vTva/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vc2J8pQ29ropACW5zlZSIZupA2pKZTAq9Z1LOAZnfkFFusmk1PXNx3+j2w4+HiWN9
-         jVCb4nk7VYHOe2BDJaYafcloHw5RAvy5UJLBCSTtPzdrEtvb/ZAHWHFGCAlLoXWf2x
-         9qXswIaSg/5zC3s8HGqzh8BMqoxvFG8lJiGhHmtE=
+        b=Jtz+EgGgCFqmC5FwpqGER1+midUaiQGNdmLKE7G6YnHFfafb9hdfeFGqq8vzz6qAU
+         YR/ttES8wQH33Sj1UvtR8sgftMzFR1YhdjN1eHm8utT+DC3wRUdIezTEoVUlRc7Efa
+         T0KCU5cnIrYqNqcOLZKrpZKH5Uu9OkSyeJ3O+Ea4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com,
+        syzbot+0937935b993956ba28ab@syzkaller.appspotmail.com,
         Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.15 460/567] udf: Do not bother merging very long extents
-Date:   Tue,  7 Mar 2023 18:03:16 +0100
-Message-Id: <20230307165925.809252796@linuxfoundation.org>
+Subject: [PATCH 5.15 461/567] udf: Do not update file length for failed writes to inline files
+Date:   Tue,  7 Mar 2023 18:03:17 +0100
+Message-Id: <20230307165925.850081224@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,50 +56,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit 53cafe1d6d8ef9f93318e5bfccc0d24f27d41ced upstream.
+commit 256fe4162f8b5a1625b8603ca5f7ff79725bfb47 upstream.
 
-When merging very long extents we try to push as much length as possible
-to the first extent. However this is unnecessarily complicated and not
-really worth the trouble. Furthermore there was a bug in the logic
-resulting in corrupting extents in the file as syzbot reproducer shows.
-So just don't bother with the merging of extents that are too long
-together.
+When write to inline file fails (or happens only partly), we still
+updated length of inline data as if the whole write succeeded. Fix the
+update of length of inline data to happen only if the write succeeds.
 
+Reported-by: syzbot+0937935b993956ba28ab@syzkaller.appspotmail.com
 CC: stable@vger.kernel.org
-Reported-by: syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c |   19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ fs/udf/file.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -1093,23 +1093,8 @@ static void udf_merge_extents(struct ino
- 			blocksize - 1) >> blocksize_bits)))) {
+--- a/fs/udf/file.c
++++ b/fs/udf/file.c
+@@ -148,26 +148,24 @@ static ssize_t udf_file_write_iter(struc
+ 		goto out;
  
- 			if (((li->extLength & UDF_EXTENT_LENGTH_MASK) +
--				(lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
--				blocksize - 1) & ~UDF_EXTENT_LENGTH_MASK) {
--				lip1->extLength = (lip1->extLength -
--						  (li->extLength &
--						   UDF_EXTENT_LENGTH_MASK) +
--						   UDF_EXTENT_LENGTH_MASK) &
--							~(blocksize - 1);
--				li->extLength = (li->extLength &
--						 UDF_EXTENT_FLAG_MASK) +
--						(UDF_EXTENT_LENGTH_MASK + 1) -
--						blocksize;
--				lip1->extLocation.logicalBlockNum =
--					li->extLocation.logicalBlockNum +
--					((li->extLength &
--						UDF_EXTENT_LENGTH_MASK) >>
--						blocksize_bits);
--			} else {
-+			     (lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
-+			     blocksize - 1) <= UDF_EXTENT_LENGTH_MASK) {
- 				li->extLength = lip1->extLength +
- 					(((li->extLength &
- 						UDF_EXTENT_LENGTH_MASK) +
+ 	down_write(&iinfo->i_data_sem);
+-	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB) {
+-		loff_t end = iocb->ki_pos + iov_iter_count(from);
+-
+-		if (inode->i_sb->s_blocksize <
+-				(udf_file_entry_alloc_offset(inode) + end)) {
+-			err = udf_expand_file_adinicb(inode);
+-			if (err) {
+-				inode_unlock(inode);
+-				udf_debug("udf_expand_adinicb: err=%d\n", err);
+-				return err;
+-			}
+-		} else {
+-			iinfo->i_lenAlloc = max(end, inode->i_size);
+-			up_write(&iinfo->i_data_sem);
++	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB &&
++	    inode->i_sb->s_blocksize < (udf_file_entry_alloc_offset(inode) +
++				 iocb->ki_pos + iov_iter_count(from))) {
++		err = udf_expand_file_adinicb(inode);
++		if (err) {
++			inode_unlock(inode);
++			udf_debug("udf_expand_adinicb: err=%d\n", err);
++			return err;
+ 		}
+ 	} else
+ 		up_write(&iinfo->i_data_sem);
+ 
+ 	retval = __generic_file_write_iter(iocb, from);
+ out:
++	down_write(&iinfo->i_data_sem);
++	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB && retval > 0)
++		iinfo->i_lenAlloc = inode->i_size;
++	up_write(&iinfo->i_data_sem);
+ 	inode_unlock(inode);
+ 
+ 	if (retval > 0) {
 
 
