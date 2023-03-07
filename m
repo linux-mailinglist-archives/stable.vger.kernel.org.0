@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B83D06AEA9C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 271F16AEA9F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231815AbjCGRfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:35:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32874 "EHLO
+        id S231802AbjCGRf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:35:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231893AbjCGRfG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:06 -0500
+        with ESMTP id S231600AbjCGRfK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DDA39BA6A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584E2A2F12
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0D8F61517
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7544C433D2;
-        Tue,  7 Mar 2023 17:31:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2E2B61514
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA108C433D2;
+        Tue,  7 Mar 2023 17:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210270;
-        bh=oPU6qUz5ZF+zMnR8ofn4lmGbaBzavbEGU4Z5bJEbaeU=;
+        s=korg; t=1678210273;
+        bh=f6W7bCcTSiDUU65TmuctwK2LGw8w6jQmgWm8k5T/kqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z/6dfA/svsDdg99flxDBjoOiwmMlp/QZYum8qY+tN7+/q4e59iDEv34kQUA1YwIIx
-         y8qPv3fJrl8tMr4dGHlZL23XwK1laocpxBAP2BmybKXp/+GGvuJz8bBTybD8goCHyp
-         oqVIuU46Lu6oB9lE3kHu/p5EwrhXpofRU4r0hvRI=
+        b=SXXiQCfeUG+aHt28ghZjiOzYVmfkkXmdYfTpt1UebqLdWTduc2kdDIrFq/TLmAeWz
+         +88Gc+9ZRZQthezXnmPwKryjTQuSHsfjULUEHU6+Xzl7OWLicLmylV3qOcYOAVn4lh
+         W9/G5tARKc39P6gg3NIIElOPKX+wij6/MqK8IxSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fenghua Yu <fenghua.yu@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0486/1001] dmaengine: idxd: Set traffic class values in GRPCFG on DSA 2.0
-Date:   Tue,  7 Mar 2023 17:54:18 +0100
-Message-Id: <20230307170042.487264280@linuxfoundation.org>
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Cheng Xu <chengyou@linux.alibaba.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0487/1001] RDMA/erdma: Fix refcount leak in erdma_mmap
+Date:   Tue,  7 Mar 2023 17:54:19 +0100
+Message-Id: <20230307170042.524346399@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -54,77 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fenghua Yu <fenghua.yu@intel.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9735bde36487da43d3c3fc910df49639f72decbf ]
+[ Upstream commit ee84146c05ad2316b9a7222d0ec4413e0bf30eeb ]
 
-On DSA/IAX 1.0, TC-A and TC-B in GRPCFG are set as 1 to have best
-performance and cannot be changed through sysfs knobs unless override
-option is given.
+rdma_user_mmap_entry_get() take reference, we should release it when not
+need anymore, add the missing rdma_user_mmap_entry_put() in the error
+path to fix it.
 
-The same values should be set on DSA 2.0 as well.
-
-Fixes: ea7c8f598c32 ("dmaengine: idxd: restore traffic class defaults after wq reset")
-Fixes: ade8a86b512c ("dmaengine: idxd: Set defaults for GRPCFG traffic class")
-Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20221209172141.562648-1-fenghua.yu@intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 155055771704 ("RDMA/erdma: Add verbs implementation")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20221220121139.1540564-1-linmq006@gmail.com
+Acked-by: Cheng Xu <chengyou@linux.alibaba.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c | 2 +-
- drivers/dma/idxd/init.c   | 2 +-
- drivers/dma/idxd/sysfs.c  | 4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/erdma/erdma_verbs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index 29dbb0f52e186..8b4573dc7ecc5 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -701,7 +701,7 @@ static void idxd_groups_clear_state(struct idxd_device *idxd)
- 		group->use_rdbuf_limit = false;
- 		group->rdbufs_allowed = 0;
- 		group->rdbufs_reserved = 0;
--		if (idxd->hw.version < DEVICE_VERSION_2 && !tc_override) {
-+		if (idxd->hw.version <= DEVICE_VERSION_2 && !tc_override) {
- 			group->tc_a = 1;
- 			group->tc_b = 1;
- 		} else {
-diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
-index 529ea09c90940..e63b0c674d883 100644
---- a/drivers/dma/idxd/init.c
-+++ b/drivers/dma/idxd/init.c
-@@ -295,7 +295,7 @@ static int idxd_setup_groups(struct idxd_device *idxd)
- 		}
+diff --git a/drivers/infiniband/hw/erdma/erdma_verbs.c b/drivers/infiniband/hw/erdma/erdma_verbs.c
+index 5dab1e87975ba..9c30d78730aa1 100644
+--- a/drivers/infiniband/hw/erdma/erdma_verbs.c
++++ b/drivers/infiniband/hw/erdma/erdma_verbs.c
+@@ -1110,12 +1110,14 @@ int erdma_mmap(struct ib_ucontext *ctx, struct vm_area_struct *vma)
+ 		prot = pgprot_device(vma->vm_page_prot);
+ 		break;
+ 	default:
+-		return -EINVAL;
++		err = -EINVAL;
++		goto put_entry;
+ 	}
  
- 		idxd->groups[i] = group;
--		if (idxd->hw.version < DEVICE_VERSION_2 && !tc_override) {
-+		if (idxd->hw.version <= DEVICE_VERSION_2 && !tc_override) {
- 			group->tc_a = 1;
- 			group->tc_b = 1;
- 		} else {
-diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
-index 3229dfc786507..18cd8151dee02 100644
---- a/drivers/dma/idxd/sysfs.c
-+++ b/drivers/dma/idxd/sysfs.c
-@@ -387,7 +387,7 @@ static ssize_t group_traffic_class_a_store(struct device *dev,
- 	if (idxd->state == IDXD_DEV_ENABLED)
- 		return -EPERM;
+ 	err = rdma_user_mmap_io(ctx, vma, PFN_DOWN(entry->address), PAGE_SIZE,
+ 				prot, rdma_entry);
  
--	if (idxd->hw.version < DEVICE_VERSION_2 && !tc_override)
-+	if (idxd->hw.version <= DEVICE_VERSION_2 && !tc_override)
- 		return -EPERM;
- 
- 	if (val < 0 || val > 7)
-@@ -429,7 +429,7 @@ static ssize_t group_traffic_class_b_store(struct device *dev,
- 	if (idxd->state == IDXD_DEV_ENABLED)
- 		return -EPERM;
- 
--	if (idxd->hw.version < DEVICE_VERSION_2 && !tc_override)
-+	if (idxd->hw.version <= DEVICE_VERSION_2 && !tc_override)
- 		return -EPERM;
- 
- 	if (val < 0 || val > 7)
++put_entry:
+ 	rdma_user_mmap_entry_put(rdma_entry);
+ 	return err;
+ }
 -- 
 2.39.2
 
