@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98BBA6AF4B9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:19:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 249F56AF4BA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:19:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233978AbjCGTTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:19:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43726 "EHLO
+        id S233941AbjCGTTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:19:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233923AbjCGTSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:18:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC3B93E22
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:37 -0800 (PST)
+        with ESMTP id S231602AbjCGTS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:18:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5640FC5607
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05A8B61531
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F05FDC4331E;
-        Tue,  7 Mar 2023 19:02:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC0C7B818C4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E99EC433EF;
+        Tue,  7 Mar 2023 19:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215756;
-        bh=r74qzv206EakRA3oQ31TZZP6Q5nPJwU5jb7SK+MfzJ4=;
+        s=korg; t=1678215759;
+        bh=LyS52ZdUmkFWrdZCetlWPBKIXllnA4u4qEPNsencQ1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFJ0gyMFxCXUiQpyD4ot/iop3wRtRElJVQHYeWbBAbdWnqUpe6sFP4obnxpe6W3Lq
-         rfL++ID5OpiqWaLhBoXegPO+LLs/51Xj3yv2xQvhFITzdIEL7fcR5gub0oW8jLJGMn
-         BFlMtrNNOxT7afDDJmY0BIpEHseItReM1I/hh6V4=
+        b=vCGiLXxTVgFolV+BB5pAiJzrOcM7AUUHfa9Zk+IGaSDos1VvKbNSFx3GUflSAiwGM
+         cE6WuSdt8hl+Ca1grYOSA36CNqoqbMtVMqzUGx3kcYIUzC+qpQWVW0q53qHjkbuxdp
+         rPFcwZh/HgRF5cJ2TfaxgeWpfPan6MNvJS3cYZHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 333/567] iw_cxgb4: Fix potential NULL dereference in c4iw_fill_res_cm_id_entry()
-Date:   Tue,  7 Mar 2023 18:01:09 +0100
-Message-Id: <20230307165920.319307490@linuxfoundation.org>
+        patches@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 334/567] iommu: Fix error unwind in iommu_group_alloc()
+Date:   Tue,  7 Mar 2023 18:01:10 +0100
+Message-Id: <20230307165920.370364552@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,37 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 4ca446b127c568b59cb8d9748b6f70499624bb18 ]
+[ Upstream commit 4daa861174d56023c2068ddb03de0752f07fa199 ]
 
-This condition needs to match the previous "if (epcp->state == LISTEN) {"
-exactly to avoid a NULL dereference of either "listen_ep" or "ep". The
-problem is that "epcp" has been re-assigned so just testing
-"if (epcp->state == LISTEN) {" a second time is not sufficient.
+If either iommu_group_grate_file() fails then the
+iommu_group is leaked.
 
-Fixes: 116aeb887371 ("iw_cxgb4: provide detailed provider-specific CM_ID information")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Link: https://lore.kernel.org/r/Y+usKuWIKr4dimZh@kili
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Destroy it on these error paths.
+
+Found by kselftest/iommu/iommufd_fail_nth
+
+Fixes: bc7d12b91bd3 ("iommu: Implement reserved_regions iommu-group sysfs file")
+Fixes: c52c72d3dee8 ("iommu: Add sysfs attribyte for domain type")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/0-v1-8f616bee028d+8b-iommu_group_alloc_leak_jgg@nvidia.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/restrack.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/iommu.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/restrack.c b/drivers/infiniband/hw/cxgb4/restrack.c
-index ff645b955a082..fd22c85d35f4f 100644
---- a/drivers/infiniband/hw/cxgb4/restrack.c
-+++ b/drivers/infiniband/hw/cxgb4/restrack.c
-@@ -238,7 +238,7 @@ int c4iw_fill_res_cm_id_entry(struct sk_buff *msg,
- 	if (rdma_nl_put_driver_u64_hex(msg, "history", epcp->history))
- 		goto err_cancel_table;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 7f409e9eea4b7..d06dbf035c7c7 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -656,12 +656,16 @@ struct iommu_group *iommu_group_alloc(void)
  
--	if (epcp->state == LISTEN) {
-+	if (listen_ep) {
- 		if (rdma_nl_put_driver_u32(msg, "stid", listen_ep->stid))
- 			goto err_cancel_table;
- 		if (rdma_nl_put_driver_u32(msg, "backlog", listen_ep->backlog))
+ 	ret = iommu_group_create_file(group,
+ 				      &iommu_group_attr_reserved_regions);
+-	if (ret)
++	if (ret) {
++		kobject_put(group->devices_kobj);
+ 		return ERR_PTR(ret);
++	}
+ 
+ 	ret = iommu_group_create_file(group, &iommu_group_attr_type);
+-	if (ret)
++	if (ret) {
++		kobject_put(group->devices_kobj);
+ 		return ERR_PTR(ret);
++	}
+ 
+ 	pr_debug("Allocated group %d\n", group->id);
+ 
 -- 
 2.39.2
 
