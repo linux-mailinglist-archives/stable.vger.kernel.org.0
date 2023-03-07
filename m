@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 545D76AEACE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7906AEACF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231879AbjCGRhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:37:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42544 "EHLO
+        id S231812AbjCGRhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:37:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231859AbjCGRhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:37:06 -0500
+        with ESMTP id S231886AbjCGRhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:37:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65A02A6D3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1104C6D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61C7161520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E22C4339B;
-        Tue,  7 Mar 2023 17:33:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A57086151D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3F8C4339B;
+        Tue,  7 Mar 2023 17:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210389;
-        bh=f89zt+GWq/gBP07AjQpUXgAS8lN7LySw7iSWOYP0dYs=;
+        s=korg; t=1678210393;
+        bh=rAfTvp/zOhvD7wyTYJAujxQudDl7HmMD/QhKJbxAtGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGL+xL7c1NacxwLkbOhbkOK2j5qNjsXvHhE4VjjGyK9I5teH19UptJ3mMkyn2Pv/0
-         r3sK8LxBzVB04JDhBQciRdqMmq20ltePDReRgr4HRbVKcbn7jszY0x/bIe//WR0dfm
-         +V1xildlGUvMj/WJic4+8CYreI9eOlRgWoytzB40=
+        b=ak5Pvv/98Wn87iatYg3Seg/HTgCYEdKM3zjoljFBeqQJOajsDhaW9rkyTT1u15f1o
+         Sw6w46tj2MJEm/xmmG1bLndNp0M4nPmFSciiZv6uhigoylY9E9uNLGUwhQDkSH8pwl
+         3OmHygjZNH44cdi45nqt1xof9Zdi5iiUn2rYvB4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0494/1001] soundwire: cadence: Dont overflow the command FIFOs
-Date:   Tue,  7 Mar 2023 17:54:26 +0100
-Message-Id: <20230307170042.818512254@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0495/1001] driver core: fix potential null-ptr-deref in device_add()
+Date:   Tue,  7 Mar 2023 17:54:27 +0100
+Message-Id: <20230307170042.860427575@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -55,46 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7cbfee2e2e40d2be54196362a845a3ea0a3f877d ]
+[ Upstream commit f6837f34a34973ef6600c08195ed300e24e97317 ]
 
-The command FIFOs in the Cadence IP can be configured during design
-up to 32 entries, and the code in cadence_master.c was assuming the
-full 32-entry FIFO. But all current Intel implementations use an 8-entry
-FIFO.
+I got the following null-ptr-deref report while doing fault injection test:
 
-Up to now the longest message used was 6 entries so this wasn't
-causing any problem. But future Cirrus Logic codecs have downloadable
-firmware or tuning blobs. It is more efficient for the codec driver to
-issue long transfers that can take advantage of any queuing in the
-Soundwire controller and avoid the overhead of repeatedly writing the
-page registers.
+BUG: kernel NULL pointer dereference, address: 0000000000000058
+CPU: 2 PID: 278 Comm: 37-i2c-ds2482 Tainted: G    B   W        N 6.1.0-rc3+
+RIP: 0010:klist_put+0x2d/0xd0
+Call Trace:
+ <TASK>
+ klist_remove+0xf1/0x1c0
+ device_release_driver_internal+0x196/0x210
+ bus_remove_device+0x1bd/0x240
+ device_add+0xd3d/0x1100
+ w1_add_master_device+0x476/0x490 [wire]
+ ds2482_probe+0x303/0x3e0 [ds2482]
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Fixes: 2f52a5177caa ("soundwire: cdns: Add cadence library")
-Link: https://lore.kernel.org/r/20221202161812.4186897-2-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+This is how it happened:
+
+w1_alloc_dev()
+  // The dev->driver is set to w1_master_driver.
+  memcpy(&dev->dev, device, sizeof(struct device));
+  device_add()
+    bus_add_device()
+    dpm_sysfs_add() // It fails, calls bus_remove_device.
+
+    // error path
+    bus_remove_device()
+      // The dev->driver is not null, but driver is not bound.
+      __device_release_driver()
+        klist_remove(&dev->p->knode_driver) <-- It causes null-ptr-deref.
+
+    // normal path
+    bus_probe_device() // It's not called yet.
+      device_bind_driver()
+
+If dev->driver is set, in the error path after calling bus_add_device()
+in device_add(), bus_remove_device() is called, then the device will be
+detached from driver. But device_bind_driver() is not called yet, so it
+causes null-ptr-deref while access the 'knode_driver'. To fix this, set
+dev->driver to null in the error path before calling bus_remove_device().
+
+Fixes: 57eee3d23e88 ("Driver core: Call device_pm_add() after bus_add_device() in device_add()")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221205034904.2077765-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/base/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index a1de363eba3ff..27699f341f2c5 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -127,7 +127,8 @@ MODULE_PARM_DESC(cdns_mcp_int_mask, "Cadence MCP IntMask");
- 
- #define CDNS_MCP_CMD_BASE			0x80
- #define CDNS_MCP_RESP_BASE			0x80
--#define CDNS_MCP_CMD_LEN			0x20
-+/* FIFO can hold 8 commands */
-+#define CDNS_MCP_CMD_LEN			8
- #define CDNS_MCP_CMD_WORD_LEN			0x4
- 
- #define CDNS_MCP_CMD_SSP_TAG			BIT(31)
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index a3e14143ec0cf..506289e6b04dd 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -3513,6 +3513,7 @@ int device_add(struct device *dev)
+ 	device_pm_remove(dev);
+ 	dpm_sysfs_remove(dev);
+  DPMError:
++	dev->driver = NULL;
+ 	bus_remove_device(dev);
+  BusError:
+ 	device_remove_attrs(dev);
 -- 
 2.39.2
 
