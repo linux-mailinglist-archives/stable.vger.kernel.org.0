@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E41216AEA2F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD176AEE83
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231269AbjCGRb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:31:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33174 "EHLO
+        id S232502AbjCGSMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:12:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231536AbjCGRbQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2250B9DE1D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:32 -0800 (PST)
+        with ESMTP id S232478AbjCGSMY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22A9F9AFD6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35397B819A3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA24C4339E;
-        Tue,  7 Mar 2023 17:26:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6E524CE1C6A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50491C433D2;
+        Tue,  7 Mar 2023 18:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209988;
-        bh=FvEl1Q8ErGKGiCOg5wgqLkzdK1EW1aYIcBHkpOsoiHY=;
+        s=korg; t=1678212465;
+        bh=+6vKQ+fkkp1RKf/iZ/ZkmhBRSR4wJlzmnF8EPw6d4jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M49+4o1T3KaHeNG0dBrEaCxaNTdXjjZKAsuOlcJZ4YPfs3xY37HJEzEyaN9qEdQMq
-         IsapuJpVTxEIUesQ+21wr503jTWInPq3z5auDCVeJ3uO+zPz4MN8BxvPAgHp8KAiUt
-         AoKNJWO8cNb29LWYP6FBXYZPsPwoHYfp/xqeqtx8=
+        b=F2Bl4C6GEvyLmsurauIkA+422LIBb2raQavkdX7TZ7lkQRjVQbCQ/D/iIUUc6lBji
+         l8xHHVt5FGZMZpECqXSgoAdJrq0O8E+jm5FwcQU9n4YbF8u//f9m+ZKJDL6hHXw6l2
+         ZHMzNXABTt6AsvQ+BxGjRdhegUOp1q0VaoY6rKoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abel Vesa <abel.vesa@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Steev Klimaszewski <steev@kali.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0355/1001] drm/panel-edp: fix name for IVO product id 854b
+        patches@lists.linux.dev, Ryder Lee <ryder.lee@mediatek.com>,
+        Howard Hsu <howard-yh.hsu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 193/885] wifi: mt76: mt7915: call mt7915_mcu_set_thermal_throttling() only after init_work
 Date:   Tue,  7 Mar 2023 17:52:07 +0100
-Message-Id: <20230307170036.847399491@linuxfoundation.org>
+Message-Id: <20230307170010.411888716@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@linaro.org>
+From: Howard Hsu <howard-yh.hsu@mediatek.com>
 
-[ Upstream commit 9cce08cadc6ce8670280d0a042cf0b6d2987d9f9 ]
+[ Upstream commit 7d12b38ab6f6b77198cd3a66db19587bbdd3308c ]
 
-The actual name is R133NW4K-R0.
+Enable thermal management by default shall not be executed during mcu
+init. This causes thermal configuration being reset to the firmware
+default settings.
 
-Fixes: 0f9fa5f58c78 ("drm/panel-edp: add IVO M133NW4J-R3 panel entry")
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
-Tested-by: Steev Klimaszewski <steev@kali.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221231142721.338643-1-abel.vesa@linaro.org
+Fixes: 0063b86c9120 ("mt76: mt7915e: Enable thermal management by default")
+Reviewed-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Howard Hsu <howard-yh.hsu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-edp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/init.c | 3 +--
+ drivers/net/wireless/mediatek/mt76/mt7915/main.c | 6 ++++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-edp.c b/drivers/gpu/drm/panel/panel-edp.c
-index 5cb8dc2ebe184..ef70928c3ccbc 100644
---- a/drivers/gpu/drm/panel/panel-edp.c
-+++ b/drivers/gpu/drm/panel/panel-edp.c
-@@ -1891,7 +1891,7 @@ static const struct edp_panel_entry edp_panels[] = {
- 	EDP_PANEL_ENTRY('C', 'M', 'N', 0x1247, &delay_200_500_e80_d50, "N120ACA-EA1"),
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+index cc2aac86bcfb6..38e94187d5eda 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+@@ -200,8 +200,7 @@ static int mt7915_thermal_init(struct mt7915_phy *phy)
+ 	phy->throttle_temp[0] = 110;
+ 	phy->throttle_temp[1] = 120;
  
- 	EDP_PANEL_ENTRY('I', 'V', 'O', 0x057d, &delay_200_500_e200, "R140NWF5 RH"),
--	EDP_PANEL_ENTRY('I', 'V', 'O', 0x854b, &delay_200_500_p2e100, "M133NW4J-R3"),
-+	EDP_PANEL_ENTRY('I', 'V', 'O', 0x854b, &delay_200_500_p2e100, "R133NW4K-R0"),
+-	return mt7915_mcu_set_thermal_throttling(phy,
+-						 MT7915_THERMAL_THROTTLE_MAX);
++	return 0;
+ }
  
- 	EDP_PANEL_ENTRY('K', 'D', 'B', 0x0624, &kingdisplay_kd116n21_30nv_a010.delay, "116N21-30NV-A010"),
- 	EDP_PANEL_ENTRY('K', 'D', 'B', 0x1120, &delay_200_500_e80_d50, "116N29-30NK-C007"),
+ static void mt7915_led_set_config(struct led_classdev *led_cdev,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/main.c b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+index 89b519cfd14c3..060cb88e82e30 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+@@ -57,6 +57,12 @@ static int mt7915_start(struct ieee80211_hw *hw)
+ 		mt7915_mac_enable_nf(dev, 1);
+ 	}
+ 
++	ret = mt7915_mcu_set_thermal_throttling(phy,
++						MT7915_THERMAL_THROTTLE_MAX);
++
++	if (ret)
++		goto out;
++
+ 	ret = mt76_connac_mcu_set_rts_thresh(&dev->mt76, 0x92b,
+ 					     phy != &dev->phy);
+ 	if (ret)
 -- 
 2.39.2
 
