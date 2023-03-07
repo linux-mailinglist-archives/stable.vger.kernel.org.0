@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 379066AED2C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:02:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 825976AF22A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231218AbjCGSCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:02:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37828 "EHLO
+        id S233169AbjCGSu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:50:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231264AbjCGSB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:01:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E5FBA8C43
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:13 -0800 (PST)
+        with ESMTP id S233294AbjCGSud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5242CB1A43
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:39:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FC2361525
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702C7C433EF;
-        Tue,  7 Mar 2023 17:55:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FF5C6150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:38:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15172C433EF;
+        Tue,  7 Mar 2023 18:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211711;
-        bh=7M9L0T+QRG74zQ5bRM7S4EarUW3h2ESkps+ret8hdQE=;
+        s=korg; t=1678214336;
+        bh=coSofe3UYko18P9rkEyENItiL7QL+e9k1FrigDpCrkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDo7qrYNiy22J/ZoEpsBZvUfw0XImWprudwo3pGtiDM8tVc7dh3JjhTdRa5KYtWzA
-         C0+4BsGNHBTcn+cj5VCTidoGWGY7UvTNvHVpPSYxvsfUjKv3Jy8rBNVscdAEpq55/7
-         y5zD9/DOCWNW4n/7ITeNkKPsyk0D+R6ifaU+WZSo=
+        b=i14cUGiUYvks641vej/96oMqSBCV3h819dSRQJ/v5eJaAg+GWMqRD8vSm5KGxApmh
+         TCMb4pU6bE5TzhT0Enobuw5k7UHQttwB9kvbK2oQBXdslCQJAHJ22Wn8Mvl2q5ivBw
+         ns/MsZYcHXnXJQPWm1XbyujAqjErTZpQgkzahdgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tong Tiangen <tongtiangen@huawei.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 0951/1001] memory tier: release the new_memtier in find_create_memory_tier()
+        patches@lists.linux.dev, Dave Jiang <dave.jiang@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 6.1 789/885] cxl/pmem: Fix nvdimm registration races
 Date:   Tue,  7 Mar 2023 18:02:03 +0100
-Message-Id: <20230307170103.419580868@linuxfoundation.org>
+Message-Id: <20230307170036.171331761@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,39 +53,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Tiangen <tongtiangen@huawei.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 93419139fa14124c1c507d804f2b28866ebee28d upstream.
+commit f57aec443c24d2e8e1f3b5b4856aea12ddda4254 upstream.
 
-In find_create_memory_tier(), if failed to register device, then we should
-release new_memtier from the tier list and put device instead of memtier.
+A loop of the form:
 
-Link: https://lkml.kernel.org/r/20230129040651.1329208-1-tongtiangen@huawei.com
-Fixes: 9832fb87834e ("mm/demotion: expose memory tier details via sysfs")
-Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Guohanjun <guohanjun@huawei.com>
+    while true; do modprobe cxl_pci; modprobe -r cxl_pci; done
+
+...fails with the following crash signature:
+
+    BUG: kernel NULL pointer dereference, address: 0000000000000040
+    [..]
+    RIP: 0010:cxl_internal_send_cmd+0x5/0xb0 [cxl_core]
+    [..]
+    Call Trace:
+     <TASK>
+     cxl_pmem_ctl+0x121/0x240 [cxl_pmem]
+     nvdimm_get_config_data+0xd6/0x1a0 [libnvdimm]
+     nd_label_data_init+0x135/0x7e0 [libnvdimm]
+     nvdimm_probe+0xd6/0x1c0 [libnvdimm]
+     nvdimm_bus_probe+0x7a/0x1e0 [libnvdimm]
+     really_probe+0xde/0x380
+     __driver_probe_device+0x78/0x170
+     driver_probe_device+0x1f/0x90
+     __device_attach_driver+0x85/0x110
+     bus_for_each_drv+0x7d/0xc0
+     __device_attach+0xb4/0x1e0
+     bus_probe_device+0x9f/0xc0
+     device_add+0x445/0x9c0
+     nd_async_device_register+0xe/0x40 [libnvdimm]
+     async_run_entry_fn+0x30/0x130
+
+...namely that the bottom half of async nvdimm device registration runs
+after the CXL has already torn down the context that cxl_pmem_ctl()
+needs. Unlike the ACPI NFIT case that benefits from launching multiple
+nvdimm device registrations in parallel from those listed in the table,
+CXL is already marked PROBE_PREFER_ASYNCHRONOUS. So provide for a
+synchronous registration path to preclude this scenario.
+
+Fixes: 21083f51521f ("cxl/pmem: Register 'pmem' / cxl_nvdimm devices")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Dave Jiang <dave.jiang@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-tiers.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/cxl/pmem.c         |    1 +
+ drivers/nvdimm/bus.c       |   19 ++++++++++++++++---
+ drivers/nvdimm/dimm_devs.c |    5 ++++-
+ drivers/nvdimm/nd-core.h   |    1 +
+ include/linux/libnvdimm.h  |    3 +++
+ 5 files changed, 25 insertions(+), 4 deletions(-)
 
---- a/mm/memory-tiers.c
-+++ b/mm/memory-tiers.c
-@@ -211,8 +211,8 @@ static struct memory_tier *find_create_m
+--- a/drivers/cxl/pmem.c
++++ b/drivers/cxl/pmem.c
+@@ -75,6 +75,7 @@ static int cxl_nvdimm_probe(struct devic
+ 		goto out;
  
- 	ret = device_register(&new_memtier->dev);
- 	if (ret) {
--		list_del(&memtier->list);
--		put_device(&memtier->dev);
-+		list_del(&new_memtier->list);
-+		put_device(&new_memtier->dev);
- 		return ERR_PTR(ret);
+ 	set_bit(NDD_LABELING, &flags);
++	set_bit(NDD_REGISTER_SYNC, &flags);
+ 	set_bit(ND_CMD_GET_CONFIG_SIZE, &cmd_mask);
+ 	set_bit(ND_CMD_GET_CONFIG_DATA, &cmd_mask);
+ 	set_bit(ND_CMD_SET_CONFIG_DATA, &cmd_mask);
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -508,7 +508,7 @@ static void nd_async_device_unregister(v
+ 	put_device(dev);
+ }
+ 
+-void nd_device_register(struct device *dev)
++static void __nd_device_register(struct device *dev, bool sync)
+ {
+ 	if (!dev)
+ 		return;
+@@ -531,11 +531,24 @@ void nd_device_register(struct device *d
  	}
- 	memtier = new_memtier;
+ 	get_device(dev);
+ 
+-	async_schedule_dev_domain(nd_async_device_register, dev,
+-				  &nd_async_domain);
++	if (sync)
++		nd_async_device_register(dev, 0);
++	else
++		async_schedule_dev_domain(nd_async_device_register, dev,
++					  &nd_async_domain);
++}
++
++void nd_device_register(struct device *dev)
++{
++	__nd_device_register(dev, false);
+ }
+ EXPORT_SYMBOL(nd_device_register);
+ 
++void nd_device_register_sync(struct device *dev)
++{
++	__nd_device_register(dev, true);
++}
++
+ void nd_device_unregister(struct device *dev, enum nd_async_mode mode)
+ {
+ 	bool killed;
+--- a/drivers/nvdimm/dimm_devs.c
++++ b/drivers/nvdimm/dimm_devs.c
+@@ -617,7 +617,10 @@ struct nvdimm *__nvdimm_create(struct nv
+ 	nvdimm->sec.ext_flags = nvdimm_security_flags(nvdimm, NVDIMM_MASTER);
+ 	device_initialize(dev);
+ 	lockdep_set_class(&dev->mutex, &nvdimm_key);
+-	nd_device_register(dev);
++	if (test_bit(NDD_REGISTER_SYNC, &flags))
++		nd_device_register_sync(dev);
++	else
++		nd_device_register(dev);
+ 
+ 	return nvdimm;
+ }
+--- a/drivers/nvdimm/nd-core.h
++++ b/drivers/nvdimm/nd-core.h
+@@ -107,6 +107,7 @@ int nvdimm_bus_create_ndctl(struct nvdim
+ void nvdimm_bus_destroy_ndctl(struct nvdimm_bus *nvdimm_bus);
+ void nd_synchronize(void);
+ void nd_device_register(struct device *dev);
++void nd_device_register_sync(struct device *dev);
+ struct nd_label_id;
+ char *nd_label_gen_id(struct nd_label_id *label_id, const uuid_t *uuid,
+ 		      u32 flags);
+--- a/include/linux/libnvdimm.h
++++ b/include/linux/libnvdimm.h
+@@ -36,6 +36,9 @@ enum {
+ 	/* dimm supports namespace labels */
+ 	NDD_LABELING = 6,
+ 
++	/* dimm provider wants synchronous registration by __nvdimm_create() */
++	NDD_REGISTER_SYNC = 8,
++
+ 	/* need to set a limit somewhere, but yes, this is likely overkill */
+ 	ND_IOCTL_MAX_BUFLEN = SZ_4M,
+ 	ND_CMD_MAX_ELEM = 5,
 
 
