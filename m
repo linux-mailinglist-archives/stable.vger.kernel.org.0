@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAFB36AE5D1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:04:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 111826AE5C7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231281AbjCGQEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:04:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52036 "EHLO
+        id S231600AbjCGQDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:03:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231261AbjCGQDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:03:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66F7B80918
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:01:35 -0800 (PST)
+        with ESMTP id S231602AbjCGQCy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:02:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08CB59226B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:00:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C54CCB81977
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:00:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3521C4339C;
-        Tue,  7 Mar 2023 16:00:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B747261492
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:00:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A79D0C4339B;
+        Tue,  7 Mar 2023 16:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678204821;
-        bh=kOW19JHVNKShcOtGjPM4ucBgp/Uo0ugUK2s1X6PnR4A=;
+        s=korg; t=1678204834;
+        bh=bMOxqG++01wltjER6yXkVZut7u7kk9k93glUTUCoxcg=;
         h=Subject:To:Cc:From:Date:From;
-        b=CmqjxGY0MN8mt2Y2Rszn+grNUsE9mRFzMDgyKTBaMZuG9ixJ0qWaVZkrE1zPsTKoF
-         6IWECHrLygKBgTwJ/Pj/n8bSXFA3I1hQaQWXB/lFIzVmVw9L//JUhqq63txrLxpaGl
-         IIiNtIpkYRetj2O7izVogNH6M787x46CWLm/wYTI=
-Subject: FAILED: patch "[PATCH] riscv: hwcap: Don't alphabetize ISA extension IDs" failed to apply to 6.2-stable tree
-To:     ajones@ventanamicro.com, conor.dooley@microchip.com,
-        palmer@rivosinc.com
+        b=mKl8/iTD2C+XE9iVw129hb9oPshWtq1AuViRlVciYp1ElMJKyG6Xkl85rZ40uADfm
+         sbD0CDiI/Kh/1efvZHZQD+C6dQ+iqWFzyIKUIpnxkGkwpiELry5pM+3B59BOuHow/C
+         9nuBzcpdDFLQ1vXaImQyCjgoPUBFm7CadXMY+kTk=
+Subject: FAILED: patch "[PATCH] RISC-V: fix ordering of Zbb extension" failed to apply to 6.2-stable tree
+To:     heiko.stuebner@vrull.eu, ajones@ventanamicro.com,
+        conor.dooley@microchip.com, palmer@rivosinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:00:15 +0100
-Message-ID: <167820481563250@kroah.com>
+Date:   Tue, 07 Mar 2023 17:00:25 +0100
+Message-ID: <167820482516243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,15 +58,15 @@ To reproduce the conflict and resubmit, you may use the following commands:
 
 git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
 git checkout FETCH_HEAD
-git cherry-pick -x dac8bf14bb49aecd1de99ebb5498fa03152f2d40
+git cherry-pick -x 1eac28201ac0725192f5ced34192d281a06692e5
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820481563250@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820482516243@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
 Possible dependencies:
 
-dac8bf14bb49 ("riscv: hwcap: Don't alphabetize ISA extension IDs")
-9daca9a5b9ac ("Merge patch series "riscv: improve boot time isa extensions handling"")
+1eac28201ac0 ("RISC-V: fix ordering of Zbb extension")
+80c200b34ee8 ("RISC-V: resort all extensions in consistent orders")
 
 thanks,
 
@@ -74,79 +74,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dac8bf14bb49aecd1de99ebb5498fa03152f2d40 Mon Sep 17 00:00:00 2001
-From: Andrew Jones <ajones@ventanamicro.com>
-Date: Thu, 9 Feb 2023 13:36:36 +0100
-Subject: [PATCH] riscv: hwcap: Don't alphabetize ISA extension IDs
+From 1eac28201ac0725192f5ced34192d281a06692e5 Mon Sep 17 00:00:00 2001
+From: Heiko Stuebner <heiko.stuebner@vrull.eu>
+Date: Wed, 8 Feb 2023 23:53:27 +0100
+Subject: [PATCH] RISC-V: fix ordering of Zbb extension
 
-While the comment above the ISA extension ID definitions says
-"Entries are sorted alphabetically.", this stopped being good
-advice with commit d8a3d8a75206 ("riscv: hwcap: make ISA extension
-ids can be used in asm"), as we now use macros instead of enums.
-Reshuffling defines is error-prone, so, since they don't need to be
-in any particular order, change the advice to just adding new
-extensions at the bottom. Also, take the opportunity to change
-spaces to tabs, merge three comments into one, and move the base
-and max defines into more logical locations wrt the ID definitions.
+As Andrew reported,
+    Zb* comes after Zi* according 27.11 "Subset Naming Convention"
+so fix the ordering accordingly.
 
-Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
+Reported-by: Andrew Jones <ajones@ventanamicro.com>
+Signed-off-by: Heiko Stuebner <heiko.stuebner@vrull.eu>
 Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20230209123636.123537-1-ajones@ventanamicro.com
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230208225328.1636017-2-heiko@sntech.de
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-diff --git a/arch/riscv/include/asm/hwcap.h b/arch/riscv/include/asm/hwcap.h
-index 831bebacb7fb..8f3994a7f0ca 100644
---- a/arch/riscv/include/asm/hwcap.h
-+++ b/arch/riscv/include/asm/hwcap.h
-@@ -24,29 +24,27 @@
- #define RISCV_ISA_EXT_u		('u' - 'a')
- 
- /*
-- * Increse this to higher value as kernel support more ISA extensions.
-- */
--#define RISCV_ISA_EXT_MAX	64
--#define RISCV_ISA_EXT_NAME_LEN_MAX 32
--
--/* The base ID for multi-letter ISA extensions */
--#define RISCV_ISA_EXT_BASE 26
--
--/*
-- * These macros represent the logical ID for each multi-letter RISC-V ISA extension.
-- * The logical ID should start from RISCV_ISA_EXT_BASE and must not exceed
-- * RISCV_ISA_EXT_MAX. 0-25 range is reserved for single letter
-- * extensions while all the multi-letter extensions should define the next
-- * available logical extension id.
-- * Entries are sorted alphabetically.
-+ * These macros represent the logical IDs of each multi-letter RISC-V ISA
-+ * extension and are used in the ISA bitmap. The logical IDs start from
-+ * RISCV_ISA_EXT_BASE, which allows the 0-25 range to be reserved for single
-+ * letter extensions. The maximum, RISCV_ISA_EXT_MAX, is defined in order
-+ * to allocate the bitmap and may be increased when necessary.
-+ *
-+ * New extensions should just be added to the bottom, rather than added
-+ * alphabetically, in order to avoid unnecessary shuffling.
+diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c
+index 420228e219f7..8400f0cc9704 100644
+--- a/arch/riscv/kernel/cpu.c
++++ b/arch/riscv/kernel/cpu.c
+@@ -185,9 +185,9 @@ arch_initcall(riscv_cpuinfo_init);
+  * New entries to this struct should follow the ordering rules described above.
   */
--#define RISCV_ISA_EXT_SSCOFPMF         26
--#define RISCV_ISA_EXT_SSTC             27
--#define RISCV_ISA_EXT_SVINVAL          28
--#define RISCV_ISA_EXT_SVPBMT           29
--#define RISCV_ISA_EXT_ZBB              30
--#define RISCV_ISA_EXT_ZICBOM           31
--#define RISCV_ISA_EXT_ZIHINTPAUSE      32
-+#define RISCV_ISA_EXT_BASE		26
-+
-+#define RISCV_ISA_EXT_SSCOFPMF		26
-+#define RISCV_ISA_EXT_SSTC		27
-+#define RISCV_ISA_EXT_SVINVAL		28
-+#define RISCV_ISA_EXT_SVPBMT		29
-+#define RISCV_ISA_EXT_ZBB		30
-+#define RISCV_ISA_EXT_ZICBOM		31
-+#define RISCV_ISA_EXT_ZIHINTPAUSE	32
-+
-+#define RISCV_ISA_EXT_MAX		64
-+#define RISCV_ISA_EXT_NAME_LEN_MAX	32
- 
- #ifndef __ASSEMBLY__
- 
+ static struct riscv_isa_ext_data isa_ext_arr[] = {
+-	__RISCV_ISA_EXT_DATA(zbb, RISCV_ISA_EXT_ZBB),
+ 	__RISCV_ISA_EXT_DATA(zicbom, RISCV_ISA_EXT_ZICBOM),
+ 	__RISCV_ISA_EXT_DATA(zihintpause, RISCV_ISA_EXT_ZIHINTPAUSE),
++	__RISCV_ISA_EXT_DATA(zbb, RISCV_ISA_EXT_ZBB),
+ 	__RISCV_ISA_EXT_DATA(sscofpmf, RISCV_ISA_EXT_SSCOFPMF),
+ 	__RISCV_ISA_EXT_DATA(sstc, RISCV_ISA_EXT_SSTC),
+ 	__RISCV_ISA_EXT_DATA(svinval, RISCV_ISA_EXT_SVINVAL),
 
