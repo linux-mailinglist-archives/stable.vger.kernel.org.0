@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A3F6AF054
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E6D6AF33B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230406AbjCGSaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:30:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
+        id S233589AbjCGTCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:02:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232983AbjCGS30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C0C6AA241;
-        Tue,  7 Mar 2023 10:22:46 -0800 (PST)
+        with ESMTP id S233588AbjCGTBt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:01:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C80D97481
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB4C261501;
-        Tue,  7 Mar 2023 18:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06EC4C4339B;
-        Tue,  7 Mar 2023 18:22:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2E736153D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8ACEC433EF;
+        Tue,  7 Mar 2023 18:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213365;
-        bh=X5Kev56y7YGnAKASzygP7QcKaEky7kIxHJKVW2nbC40=;
+        s=korg; t=1678214895;
+        bh=CLrIDpY1AvUvg/+7PZJhkmOq5FDpaiQ2Q31wMp+HxoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oBlDCavI3A6VAhvkheEQNTHbMHasZKouo4AlPxEfW849NFFIK2PCpZZDzqwrEC06p
-         4r8JYy2Ys5bYx95BzYAJdiMum5GJtrifPDDqkZaLoSPJ0GtE+cGDWh8aqF+mBywH+a
-         8mIRRrNU0ztuoqqE/XcLWJ/xOPSffgmpXmf+WldE=
+        b=mbGiA3JeYewkyFmfW+J0QnX4Dvrny8UA/eFtc+OHap4wRHLlL3KNmUGh4+MJLr3VN
+         DknJG1Bbjevr4IGWKG4ASeFxaA2dpWoneOia1expxcd9XQraK+Z+uGjDphn6si5rnw
+         R7sWPof2L2NEJZE4Rlx+MEoYlhc9kYlQv0AbbGME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        Vinod Koul <vkoul@kernel.org>, dmaengine@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 485/885] dmaengine: dw-axi-dmac: Do not dereference NULL structure
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 083/567] wifi: libertas: cmdresp: dont call kfree_skb() under spin_lock_irqsave()
 Date:   Tue,  7 Mar 2023 17:56:59 +0100
-Message-Id: <20230307170023.538433020@linuxfoundation.org>
+Message-Id: <20230307165909.475675448@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,45 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit be4d46edeee4b2459d2f53f37ada88bbfb634b6c ]
+[ Upstream commit 708a49a64237f19bd404852f297aaadbc9e7fee0 ]
 
-If "vdesc" is NULL, it cannot be used with vd_to_axi_desc(). Leave
-"bytes" unchanged at 0. Seen under GCC 13 with -Warray-bounds:
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
+tested only.
 
-../drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c: In function 'dma_chan_tx_status':
-../drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c:329:46: warning: array subscript 0 is outside array bounds of 'struct
-virt_dma_desc[46116860184273879]' [-Warray-bounds=]
-  329 |                 bytes = vd_to_axi_desc(vdesc)->length;
-      |                                              ^~
-
-Fixes: 8e55444da65c ("dmaengine: dw-axi-dmac: Support burst residue granularity")
-Cc: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: dmaengine@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20230127223623.never.507-kees@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: f52b041aed77 ("libertas: Add spinlock to avoid race condition")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207150008.111743-5-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/wireless/marvell/libertas/cmdresp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-index bf85aa0979ecb..152c5d98524d7 100644
---- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-+++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-@@ -325,8 +325,6 @@ dma_chan_tx_status(struct dma_chan *dchan, dma_cookie_t cookie,
- 		len = vd_to_axi_desc(vdesc)->hw_desc[0].len;
- 		completed_length = completed_blocks * len;
- 		bytes = length - completed_length;
--	} else {
--		bytes = vd_to_axi_desc(vdesc)->length;
- 	}
+diff --git a/drivers/net/wireless/marvell/libertas/cmdresp.c b/drivers/net/wireless/marvell/libertas/cmdresp.c
+index cb515c5584c1f..74cb7551f4275 100644
+--- a/drivers/net/wireless/marvell/libertas/cmdresp.c
++++ b/drivers/net/wireless/marvell/libertas/cmdresp.c
+@@ -48,7 +48,7 @@ void lbs_mac_event_disconnected(struct lbs_private *priv,
  
- 	spin_unlock_irqrestore(&chan->vc.lock, flags);
+ 	/* Free Tx and Rx packets */
+ 	spin_lock_irqsave(&priv->driver_lock, flags);
+-	kfree_skb(priv->currenttxskb);
++	dev_kfree_skb_irq(priv->currenttxskb);
+ 	priv->currenttxskb = NULL;
+ 	priv->tx_pending_len = 0;
+ 	spin_unlock_irqrestore(&priv->driver_lock, flags);
 -- 
 2.39.2
 
