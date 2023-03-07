@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC706AEF6C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4126AEAF5
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232646AbjCGSXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:23:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49070 "EHLO
+        id S231772AbjCGRiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:38:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232651AbjCGSXO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 494FD3C2C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:53 -0800 (PST)
+        with ESMTP id S231783AbjCGRia (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 990569B2FE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 091FAB81851
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3356EC4339B;
-        Tue,  7 Mar 2023 18:17:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 318106151F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3545DC433D2;
+        Tue,  7 Mar 2023 17:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213070;
-        bh=LEy2NUR4IdIAeTTVC+T0c/xKK8EYO/cdcUB77P4ccG0=;
+        s=korg; t=1678210470;
+        bh=73/jf5tayVahqmoE7BYGHFk8bN8s9t7hPJj2tipDwgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7hph50iU9SKzp8cDhGKb7KfKXtoyifob0zelT4unrkRVEgPX9gJEyyG1TwxsrgAa
-         sJ7qEzohpisw6wgS+uBdfr2Ot7ALYPy1YrN9JVRkS7F/Y4OlhFwzXhpHht1Ltsn0ld
-         m6SlX5L7ZCGcpYoHBRrqcUXWC7VTeSNNA3YYTcwY=
+        b=ffhXQrb3RXAZOLk8X3PaV8hYIln3LZptk8tvB95x0P2IK581D44jaJfZj0Cun+fYb
+         ZHC4L6hij3hJB/PvDStZPlbk2q/eC8kaYpuYZzPJIU5GI1C/uNWz1MgBuCmDdkppwD
+         RigOlkoV5+qyX+Bv+1iQ5RqNgtSt84lj0KZgWJjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Ziegler <br015@umbiko.net>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 389/885] tools/tracing/rtla: osnoise_hist: use total duration for average calculation
+        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        Luca Weiss <luca.weiss@fairphone.com>
+Subject: [PATCH 6.2 0551/1001] driver core: fw_devlink: Dont purge child fwnodes consumer links
 Date:   Tue,  7 Mar 2023 17:55:23 +0100
-Message-Id: <20230307170019.259355383@linuxfoundation.org>
+Message-Id: <20230307170045.379172082@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,53 +58,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Ziegler <br015@umbiko.net>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit fe137a4fe0e77eb95396cfc5c3dd7df404421aa4 ]
+[ Upstream commit 3a2dbc510c437ca392516b0105bad8e7970e6614 ]
 
-Sampled durations must be weighted by observed quantity, to arrive at a correct
-average duration value.
+When a device X is bound successfully to a driver, if it has a child
+firmware node Y that doesn't have a struct device created by then, we
+delete fwnode links where the child firmware node Y is the supplier. We
+did this to avoid blocking the consumers of the child firmware node Y
+from deferring probe indefinitely.
 
-Perform calculation of total duration by summing (duration * count).
+While that a step in the right direction, it's better to make the
+consumers of the child firmware node Y to be consumers of the device X
+because device X is probably implementing whatever functionality is
+represented by child firmware node Y. By doing this, we capture the
+device dependencies more accurately and ensure better
+probe/suspend/resume ordering.
 
-Link: https://lkml.kernel.org/r/20230103103400.275566-2-br015@umbiko.net
-
-Fixes: 829a6c0b5698 ("rtla/osnoise: Add the hist mode")
-
-Signed-off-by: Andreas Ziegler <br015@umbiko.net>
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Tested-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
+Link: https://lore.kernel.org/r/20230207014207.1678715-2-saravanak@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 6a6dfdf8b3ff ("driver core: fw_devlink: Allow marking a fwnode link as being part of a cycle")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/tracing/rtla/src/osnoise_hist.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/base/core.c | 97 ++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 79 insertions(+), 18 deletions(-)
 
-diff --git a/tools/tracing/rtla/src/osnoise_hist.c b/tools/tracing/rtla/src/osnoise_hist.c
-index 5d7ea479ac89f..fe34452fc4ec0 100644
---- a/tools/tracing/rtla/src/osnoise_hist.c
-+++ b/tools/tracing/rtla/src/osnoise_hist.c
-@@ -121,6 +121,7 @@ static void osnoise_hist_update_multiple(struct osnoise_tool *tool, int cpu,
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 609d1b04ee75a..b29c483e9ca7b 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -54,11 +54,12 @@ static LIST_HEAD(deferred_sync);
+ static unsigned int defer_sync_state_count = 1;
+ static DEFINE_MUTEX(fwnode_link_lock);
+ static bool fw_devlink_is_permissive(void);
++static void __fw_devlink_link_to_consumers(struct device *dev);
+ static bool fw_devlink_drv_reg_done;
+ static bool fw_devlink_best_effort;
+ 
+ /**
+- * fwnode_link_add - Create a link between two fwnode_handles.
++ * __fwnode_link_add - Create a link between two fwnode_handles.
+  * @con: Consumer end of the link.
+  * @sup: Supplier end of the link.
+  *
+@@ -74,22 +75,18 @@ static bool fw_devlink_best_effort;
+  * Attempts to create duplicate links between the same pair of fwnode handles
+  * are ignored and there is no reference counting.
+  */
+-int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
++static int __fwnode_link_add(struct fwnode_handle *con,
++			     struct fwnode_handle *sup)
  {
- 	struct osnoise_hist_params *params = tool->params;
- 	struct osnoise_hist_data *data = tool->data;
-+	unsigned long long total_duration;
- 	int entries = data->entries;
- 	int bucket;
- 	int *hist;
-@@ -131,10 +132,12 @@ static void osnoise_hist_update_multiple(struct osnoise_tool *tool, int cpu,
- 	if (data->bucket_size)
- 		bucket = duration / data->bucket_size;
+ 	struct fwnode_link *link;
+-	int ret = 0;
+-
+-	mutex_lock(&fwnode_link_lock);
  
-+	total_duration = duration * count;
+ 	list_for_each_entry(link, &sup->consumers, s_hook)
+ 		if (link->consumer == con)
+-			goto out;
++			return 0;
+ 
+ 	link = kzalloc(sizeof(*link), GFP_KERNEL);
+-	if (!link) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
++	if (!link)
++		return -ENOMEM;
+ 
+ 	link->supplier = sup;
+ 	INIT_LIST_HEAD(&link->s_hook);
+@@ -100,9 +97,17 @@ int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
+ 	list_add(&link->c_hook, &con->suppliers);
+ 	pr_debug("%pfwP Linked as a fwnode consumer to %pfwP\n",
+ 		 con, sup);
+-out:
+-	mutex_unlock(&fwnode_link_lock);
+ 
++	return 0;
++}
 +
- 	hist = data->hist[cpu].samples;
- 	data->hist[cpu].count += count;
- 	update_min(&data->hist[cpu].min_sample, &duration);
--	update_sum(&data->hist[cpu].sum_sample, &duration);
-+	update_sum(&data->hist[cpu].sum_sample, &total_duration);
- 	update_max(&data->hist[cpu].max_sample, &duration);
++int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
++{
++	int ret;
++
++	mutex_lock(&fwnode_link_lock);
++	ret = __fwnode_link_add(con, sup);
++	mutex_unlock(&fwnode_link_lock);
+ 	return ret;
+ }
  
- 	if (bucket < entries)
+@@ -181,6 +186,51 @@ void fw_devlink_purge_absent_suppliers(struct fwnode_handle *fwnode)
+ }
+ EXPORT_SYMBOL_GPL(fw_devlink_purge_absent_suppliers);
+ 
++/**
++ * __fwnode_links_move_consumers - Move consumer from @from to @to fwnode_handle
++ * @from: move consumers away from this fwnode
++ * @to: move consumers to this fwnode
++ *
++ * Move all consumer links from @from fwnode to @to fwnode.
++ */
++static void __fwnode_links_move_consumers(struct fwnode_handle *from,
++					  struct fwnode_handle *to)
++{
++	struct fwnode_link *link, *tmp;
++
++	list_for_each_entry_safe(link, tmp, &from->consumers, s_hook) {
++		__fwnode_link_add(link->consumer, to);
++		__fwnode_link_del(link);
++	}
++}
++
++/**
++ * __fw_devlink_pickup_dangling_consumers - Pick up dangling consumers
++ * @fwnode: fwnode from which to pick up dangling consumers
++ * @new_sup: fwnode of new supplier
++ *
++ * If the @fwnode has a corresponding struct device and the device supports
++ * probing (that is, added to a bus), then we want to let fw_devlink create
++ * MANAGED device links to this device, so leave @fwnode and its descendant's
++ * fwnode links alone.
++ *
++ * Otherwise, move its consumers to the new supplier @new_sup.
++ */
++static void __fw_devlink_pickup_dangling_consumers(struct fwnode_handle *fwnode,
++						   struct fwnode_handle *new_sup)
++{
++	struct fwnode_handle *child;
++
++	if (fwnode->dev && fwnode->dev->bus)
++		return;
++
++	fwnode->flags |= FWNODE_FLAG_NOT_DEVICE;
++	__fwnode_links_move_consumers(fwnode, new_sup);
++
++	fwnode_for_each_available_child_node(fwnode, child)
++		__fw_devlink_pickup_dangling_consumers(child, new_sup);
++}
++
+ #ifdef CONFIG_SRCU
+ static DEFINE_MUTEX(device_links_lock);
+ DEFINE_STATIC_SRCU(device_links_srcu);
+@@ -1274,16 +1324,23 @@ void device_links_driver_bound(struct device *dev)
+ 	 * them. So, fw_devlink no longer needs to create device links to any
+ 	 * of the device's suppliers.
+ 	 *
+-	 * Also, if a child firmware node of this bound device is not added as
+-	 * a device by now, assume it is never going to be added and make sure
+-	 * other devices don't defer probe indefinitely by waiting for such a
+-	 * child device.
++	 * Also, if a child firmware node of this bound device is not added as a
++	 * device by now, assume it is never going to be added. Make this bound
++	 * device the fallback supplier to the dangling consumers of the child
++	 * firmware node because this bound device is probably implementing the
++	 * child firmware node functionality and we don't want the dangling
++	 * consumers to defer probe indefinitely waiting for a device for the
++	 * child firmware node.
+ 	 */
+ 	if (dev->fwnode && dev->fwnode->dev == dev) {
+ 		struct fwnode_handle *child;
+ 		fwnode_links_purge_suppliers(dev->fwnode);
++		mutex_lock(&fwnode_link_lock);
+ 		fwnode_for_each_available_child_node(dev->fwnode, child)
+-			fw_devlink_purge_absent_suppliers(child);
++			__fw_devlink_pickup_dangling_consumers(child,
++							       dev->fwnode);
++		__fw_devlink_link_to_consumers(dev);
++		mutex_unlock(&fwnode_link_lock);
+ 	}
+ 	device_remove_file(dev, &dev_attr_waiting_for_supplier);
+ 
+@@ -1863,7 +1920,11 @@ static int fw_devlink_create_devlink(struct device *con,
+ 	    fwnode_is_ancestor_of(sup_handle, con->fwnode))
+ 		return -EINVAL;
+ 
+-	sup_dev = get_dev_from_fwnode(sup_handle);
++	if (sup_handle->flags & FWNODE_FLAG_NOT_DEVICE)
++		sup_dev = fwnode_get_next_parent_dev(sup_handle);
++	else
++		sup_dev = get_dev_from_fwnode(sup_handle);
++
+ 	if (sup_dev) {
+ 		/*
+ 		 * If it's one of those drivers that don't actually bind to
 -- 
 2.39.2
 
