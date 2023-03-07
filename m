@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D746AF536
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 759AB6AF515
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbjCGTXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:23:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52962 "EHLO
+        id S234051AbjCGTV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:21:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234001AbjCGTWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8DC90B46
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:13 -0800 (PST)
+        with ESMTP id S234052AbjCGTVe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:21:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6D4BD7A0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:06:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 902AF61520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85D37C433D2;
-        Tue,  7 Mar 2023 19:08:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93F2FCE1B2F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70172C433EF;
+        Tue,  7 Mar 2023 19:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216092;
-        bh=RHUy4B4vQ0PoXxZpg2RQcAls5hVdGjFUXWY8DAE5pOU=;
+        s=korg; t=1678215989;
+        bh=pk1fJ71Ws6Sna2RKK2QmJ6j3WF2xsqDP4/Xz52YcsH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vtL06XPyYN8VYnSArl4f+73Nuq5IKatuEOy/SnyWn7gkHH4lV/7JuTITZ9DunIRBW
-         tJWZwQ7ViS1Bc0tx4I09HxMiXMrHpXPUclZ52Sm+81gbxdjpG2o44z/tGeQ6Yd46IC
-         JlMO6tTmC+K5uPsdAlh/kx7V+RwQcQoCVy2QRyhg=
+        b=RhZLH6hfXxrRQAIQLHoNkD6ttCr8nbbsKKaASbTaThyjcg2BvEVNJ5YZv6ukHOhY1
+         gGax2R7HlGi5YA2OH72P/qcoTzHc3S0V4n168LVy3XacfwNq6eulUCQdskgi1ohwa/
+         3RxDou8HlnPgyu/wMnDGIY+R1id6goWq3HBeZFIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        David Collins <quic_collinsd@quicinc.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.15 431/567] rtc: pm8xxx: fix set-alarm race
-Date:   Tue,  7 Mar 2023 18:02:47 +0100
-Message-Id: <20230307165924.575499073@linuxfoundation.org>
+        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.15 432/567] ipmi:ssif: resend_msg() cannot fail
+Date:   Tue,  7 Mar 2023 18:02:48 +0100
+Message-Id: <20230307165924.624591164@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,74 +52,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Corey Minyard <cminyard@mvista.com>
 
-commit c88db0eff9722fc2b6c4d172a50471d20e08ecc6 upstream.
+commit 95767ed78a181d5404202627499f9cde56053b96 upstream.
 
-Make sure to disable the alarm before updating the four alarm time
-registers to avoid spurious alarms during the update.
+The resend_msg() function cannot fail, but there was error handling
+around using it.  Rework the handling of the error, and fix the out of
+retries debug reporting that was wrong around this, too.
 
-Note that the disable needs to be done outside of the ctrl_reg_lock
-section to prevent a racing alarm interrupt from disabling the newly set
-alarm when the lock is released.
-
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Cc: stable@vger.kernel.org      # 3.1
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: David Collins <quic_collinsd@quicinc.com>
-Link: https://lore.kernel.org/r/20230202155448.6715-2-johan+linaro@kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-pm8xxx.c |   24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/char/ipmi/ipmi_ssif.c |   28 +++++++---------------------
+ 1 file changed, 7 insertions(+), 21 deletions(-)
 
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -220,7 +220,6 @@ static int pm8xxx_rtc_set_alarm(struct d
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -602,7 +602,7 @@ static void ssif_alert(struct i2c_client
+ 		start_get(ssif_info);
+ }
+ 
+-static int start_resend(struct ssif_info *ssif_info);
++static void start_resend(struct ssif_info *ssif_info);
+ 
+ static void msg_done_handler(struct ssif_info *ssif_info, int result,
+ 			     unsigned char *data, unsigned int len)
+@@ -909,31 +909,17 @@ static void msg_written_handler(struct s
+ 	if (result < 0) {
+ 		ssif_info->retries_left--;
+ 		if (ssif_info->retries_left > 0) {
+-			if (!start_resend(ssif_info)) {
+-				ssif_inc_stat(ssif_info, send_retries);
+-				return;
+-			}
+-			/* request failed, just return the error. */
+-			ssif_inc_stat(ssif_info, send_errors);
+-
+-			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
+-				dev_dbg(&ssif_info->client->dev,
+-					"%s: Out of retries\n", __func__);
+-			msg_done_handler(ssif_info, -EIO, NULL, 0);
++			start_resend(ssif_info);
+ 			return;
+ 		}
+ 
+ 		ssif_inc_stat(ssif_info, send_errors);
+ 
+-		/*
+-		 * Got an error on transmit, let the done routine
+-		 * handle it.
+-		 */
+ 		if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
+ 			dev_dbg(&ssif_info->client->dev,
+-				"%s: Error  %d\n", __func__, result);
++				"%s: Out of retries\n", __func__);
+ 
+-		msg_done_handler(ssif_info, result, NULL, 0);
++		msg_done_handler(ssif_info, -EIO, NULL, 0);
+ 		return;
+ 	}
+ 
+@@ -996,7 +982,7 @@ static void msg_written_handler(struct s
+ 	}
+ }
+ 
+-static int start_resend(struct ssif_info *ssif_info)
++static void start_resend(struct ssif_info *ssif_info)
  {
- 	int rc, i;
- 	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned int ctrl_reg;
- 	unsigned long secs, irq_flags;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-@@ -232,6 +231,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		secs >>= 8;
- 	}
+ 	int command;
  
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+				regs->alarm_en, 0);
-+	if (rc)
-+		return rc;
-+
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+@@ -1021,7 +1007,6 @@ static int start_resend(struct ssif_info
  
- 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
-@@ -241,19 +245,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		goto rtc_rw_fail;
- 	}
+ 	ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
+ 		   command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
+-	return 0;
+ }
  
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
--	if (rc)
--		goto rtc_rw_fail;
--
--	if (alarm->enabled)
--		ctrl_reg |= regs->alarm_en;
--	else
--		ctrl_reg &= ~regs->alarm_en;
--
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
--	if (rc) {
--		dev_err(dev, "Write to RTC alarm control register failed\n");
--		goto rtc_rw_fail;
-+	if (alarm->enabled) {
-+		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+					regs->alarm_en, regs->alarm_en);
-+		if (rc)
-+			goto rtc_rw_fail;
- 	}
+ static int start_send(struct ssif_info *ssif_info,
+@@ -1036,7 +1021,8 @@ static int start_send(struct ssif_info *
+ 	ssif_info->retries_left = SSIF_SEND_RETRIES;
+ 	memcpy(ssif_info->data + 1, data, len);
+ 	ssif_info->data_len = len;
+-	return start_resend(ssif_info);
++	start_resend(ssif_info);
++	return 0;
+ }
  
- 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
+ /* Must be called with the message lock held. */
 
 
