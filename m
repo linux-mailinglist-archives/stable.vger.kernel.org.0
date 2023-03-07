@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC3C6AEC55
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F556AF152
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231244AbjCGRyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:54:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
+        id S233152AbjCGSmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:42:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232274AbjCGRxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:52 -0500
+        with ESMTP id S232750AbjCGSl5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9ED455047
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F02B9E330
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76898614B5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:48:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762B2C433EF;
-        Tue,  7 Mar 2023 17:48:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 503E4614E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:32:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D9F5C433EF;
+        Tue,  7 Mar 2023 18:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211320;
-        bh=E6z6rz0dQnw2nsSMO4qKxHhvPbdDUHaJhcMXbG3YpsU=;
+        s=korg; t=1678213953;
+        bh=e4YscJl5TohBZAQifQViDfIjK77JxwbAEk8jyzIyJCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfdI1BkwftFz50iRThWLAdlCyRBBefPsYUXQhAw62a76LhJ0RjXKhygi2khuP3vOQ
-         /mGMYrZR5q0GHX0t6OzWSUsJ0oajvONWXoPZ9kY4ybpM3shm/Nf0wEK+i17RyJ7925
-         1CYxoqsTOPV33Bb4E1IUDXh3hpLlYuTpXhJN0m+s=
+        b=jAhoFEZncjgAX9ffF+Hh0elI9pq4mm3eU8RTyEUPd8WD39Z3BKDRJb1/oSn3m9sRS
+         qcV0CjHnHrY+c+9yxGclgohHBCJiEQFoMiy/NlKn6qWvMcu0TAOwyKJSF2B1ttfTtD
+         Jkv5P12Y/9PKQmW4ljVHvrA4e1ktN9rDTxXFzIYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuezhang Mo <Yuezhang.Mo@sony.com>,
-        Andy Wu <Andy.Wu@sony.com>,
-        Aoyama Wataru <wataru.aoyama@sony.com>,
-        Sungjong Seo <sj1557.seo@samsung.com>,
-        Namjae Jeon <linkinjeon@kernel.org>
-Subject: [PATCH 6.2 0793/1001] exfat: fix reporting fs error when reading dir beyond EOF
-Date:   Tue,  7 Mar 2023 17:59:25 +0100
-Message-Id: <20230307170056.164448205@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 632/885] pinctrl: at91: use devm_kasprintf() to avoid potential leaks
+Date:   Tue,  7 Mar 2023 17:59:26 +0100
+Message-Id: <20230307170029.664150667@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuezhang Mo <Yuezhang.Mo@sony.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit 706fdcac002316893434d753be8cfb549fe1d40d upstream.
+[ Upstream commit 1c4e5c470a56f7f7c649c0c70e603abc1eab15c4 ]
 
-Since seekdir() does not check whether the position is valid, the
-position may exceed the size of the directory. We found that for
-a directory with discontinuous clusters, if the position exceeds
-the size of the directory and the excess size is greater than or
-equal to the cluster size, exfat_readdir() will return -EIO,
-causing a file system error and making the file system unavailable.
+Use devm_kasprintf() instead of kasprintf() to avoid any potential
+leaks. At the moment drivers have no remove functionality thus
+there is no need for fixes tag.
 
-Reproduce this bug by:
-
-seekdir(dir, dir_size + cluster_size);
-dirent = readdir(dir);
-
-The following log will be printed if mount with 'errors=remount-ro'.
-
-[11166.712896] exFAT-fs (sdb1): error, invalid access to FAT (entry 0xffffffff)
-[11166.712905] exFAT-fs (sdb1): Filesystem has been set read-only
-
-Fixes: 1e5654de0f51 ("exfat: handle wrong stream entry size in exfat_readdir()")
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
-Reviewed-by: Andy Wu <Andy.Wu@sony.com>
-Reviewed-by: Aoyama Wataru <wataru.aoyama@sony.com>
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230203132714.1931596-1-claudiu.beznea@microchip.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exfat/dir.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-at91-pio4.c | 4 ++--
+ drivers/pinctrl/pinctrl-at91.c      | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/exfat/dir.c
-+++ b/fs/exfat/dir.c
-@@ -100,7 +100,7 @@ static int exfat_readdir(struct inode *i
- 			clu.dir = ei->hint_bmap.clu;
- 		}
+diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
+index 82b921fd630d5..7f193f2b1566a 100644
+--- a/drivers/pinctrl/pinctrl-at91-pio4.c
++++ b/drivers/pinctrl/pinctrl-at91-pio4.c
+@@ -1120,8 +1120,8 @@ static int atmel_pinctrl_probe(struct platform_device *pdev)
  
--		while (clu_offset > 0) {
-+		while (clu_offset > 0 && clu.dir != EXFAT_EOF_CLUSTER) {
- 			if (exfat_get_next_cluster(sb, &(clu.dir)))
- 				return -EIO;
+ 		pin_desc[i].number = i;
+ 		/* Pin naming convention: P(bank_name)(bank_pin_number). */
+-		pin_desc[i].name = kasprintf(GFP_KERNEL, "P%c%d",
+-					     bank + 'A', line);
++		pin_desc[i].name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "P%c%d",
++						  bank + 'A', line);
  
+ 		group->name = group_names[i] = pin_desc[i].name;
+ 		group->pin = pin_desc[i].number;
+diff --git a/drivers/pinctrl/pinctrl-at91.c b/drivers/pinctrl/pinctrl-at91.c
+index 81dbffab621fb..ff3b6a8a0b170 100644
+--- a/drivers/pinctrl/pinctrl-at91.c
++++ b/drivers/pinctrl/pinctrl-at91.c
+@@ -1883,7 +1883,7 @@ static int at91_gpio_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	for (i = 0; i < chip->ngpio; i++)
+-		names[i] = kasprintf(GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
++		names[i] = devm_kasprintf(&pdev->dev, GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
+ 
+ 	chip->names = (const char *const *)names;
+ 
+-- 
+2.39.2
+
 
 
