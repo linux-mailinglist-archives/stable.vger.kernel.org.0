@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4717E6AF24B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4256AED93
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233267AbjCGSwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:52:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47250 "EHLO
+        id S230273AbjCGSFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:05:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231377AbjCGSwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41DDDA76A0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:23 -0800 (PST)
+        with ESMTP id S230398AbjCGSFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8F694A73
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 530C0B819CA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:39:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9075CC433EF;
-        Tue,  7 Mar 2023 18:39:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D445614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B743C433EF;
+        Tue,  7 Mar 2023 17:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214363;
-        bh=DL9zdsVcBkA+iysQ1e0QVDqz16DQQ4b/8I28LZ/+zsM=;
+        s=korg; t=1678211859;
+        bh=tXeg5/dxj+YI6JBqpG3Z6J2/hg9i6L80Dzb3gRlYmgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIuaYBAYuG0bw6j57XyHXPgeXQlqxULknXJS0t1g1US/q8xBJ9QLiBcXiPZNGuhR0
-         9TqZmg9tqIbZNHP272Dzv5nNbXB68tukTFXlpCkOJ7W6hUEJoZkQeMxRDETUQnxAIs
-         eesr9MZ9fMtTTdrXVmPk3ujVjHuchEqeo4ya+8Cg=
+        b=fyi8gAApEoqjXc5Po6EAWU0AsnVHh/WT2QmiPNKjGbJ4YxcYH+epDGhHAwULGcFXm
+         EeI3UOoy81K0664OmO32E0X+XUrAWn525c5KMDGfvpX26jagK9x0N7J35sTC1eRBZE
+         pLQkwjT+TwQrfxQs4GnZYH1jnrFYw5eLUwIZg5m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Gover <pmw.gover@yahoo.co.uk>,
-        Stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 6.1 796/885] wifi: rtw88: use RTW_FLAG_POWERON flag to prevent to power on/off twice
-Date:   Tue,  7 Mar 2023 18:02:10 +0100
-Message-Id: <20230307170036.484906926@linuxfoundation.org>
+        patches@lists.linux.dev, Shreyas Deodhar <sdeodhar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.2 0959/1001] scsi: qla2xxx: Check if port is online before sending ELS
+Date:   Tue,  7 Mar 2023 18:02:11 +0100
+Message-Id: <20230307170103.797309358@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,125 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Shreyas Deodhar <sdeodhar@marvell.com>
 
-commit 4a267bc5ea8f159b614d0549030216d0434eccca upstream.
+commit 0c227dc22ca18856055983f27594feb2e0149965 upstream.
 
-Use power state to decide whether we can enter or leave IPS accurately,
-and then prevent to power on/off twice.
+CT Ping and ELS cmds fail for NVMe targets.  Check if port is online before
+sending ELS instead of sending login.
 
-The commit 6bf3a083407b ("wifi: rtw88: add flag check before enter or leave IPS")
-would like to prevent this as well, but it still can't entirely handle all
-cases. The exception is that WiFi gets connected and does suspend/resume,
-it will power on twice and cause it failed to power on after resuming,
-like:
-
-  rtw_8723de 0000:03:00.0: failed to poll offset=0x6 mask=0x2 value=0x2
-  rtw_8723de 0000:03:00.0: mac power on failed
-  rtw_8723de 0000:03:00.0: failed to power on mac
-  rtw_8723de 0000:03:00.0: leave idle state failed
-  rtw_8723de 0000:03:00.0: failed to leave ips state
-  rtw_8723de 0000:03:00.0: failed to leave idle state
-  rtw_8723de 0000:03:00.0: failed to send h2c command
-
-To fix this, introduce new flag RTW_FLAG_POWERON to reflect power state,
-and call rtw_mac_pre_system_cfg() to configure registers properly between
-power-off/-on.
-
-Reported-by: Paul Gover <pmw.gover@yahoo.co.uk>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217016
-Fixes: 6bf3a083407b ("wifi: rtw88: add flag check before enter or leave IPS")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230216053633.20366-1-pkshih@realtek.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Shreyas Deodhar <sdeodhar@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtw88/coex.c |    2 +-
- drivers/net/wireless/realtek/rtw88/mac.c  |   10 ++++++++++
- drivers/net/wireless/realtek/rtw88/main.h |    2 +-
- drivers/net/wireless/realtek/rtw88/ps.c   |    4 ++--
- drivers/net/wireless/realtek/rtw88/wow.c  |    2 +-
- 5 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/scsi/qla2xxx/qla_bsg.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtw88/coex.c
-+++ b/drivers/net/wireless/realtek/rtw88/coex.c
-@@ -4057,7 +4057,7 @@ void rtw_coex_display_coex_info(struct r
- 		   rtwdev->stats.tx_throughput, rtwdev->stats.rx_throughput);
- 	seq_printf(m, "%-40s = %u/ %u/ %u\n",
- 		   "IPS/ Low Power/ PS mode",
--		   test_bit(RTW_FLAG_INACTIVE_PS, rtwdev->flags),
-+		   !test_bit(RTW_FLAG_POWERON, rtwdev->flags),
- 		   test_bit(RTW_FLAG_LEISURE_PS_DEEP, rtwdev->flags),
- 		   rtwdev->lps_conf.mode);
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -278,8 +278,8 @@ qla2x00_process_els(struct bsg_job *bsg_
+ 	const char *type;
+ 	int req_sg_cnt, rsp_sg_cnt;
+ 	int rval =  (DID_ERROR << 16);
+-	uint16_t nextlid = 0;
+ 	uint32_t els_cmd = 0;
++	int qla_port_allocated = 0;
  
---- a/drivers/net/wireless/realtek/rtw88/mac.c
-+++ b/drivers/net/wireless/realtek/rtw88/mac.c
-@@ -273,6 +273,11 @@ static int rtw_mac_power_switch(struct r
- 	if (rtw_pwr_seq_parser(rtwdev, pwr_seq))
- 		return -EINVAL;
+ 	if (bsg_request->msgcode == FC_BSG_RPT_ELS) {
+ 		rport = fc_bsg_to_rport(bsg_job);
+@@ -329,9 +329,9 @@ qla2x00_process_els(struct bsg_job *bsg_
+ 		/* make sure the rport is logged in,
+ 		 * if not perform fabric login
+ 		 */
+-		if (qla2x00_fabric_login(vha, fcport, &nextlid)) {
++		if (atomic_read(&fcport->state) != FCS_ONLINE) {
+ 			ql_dbg(ql_dbg_user, vha, 0x7003,
+-			    "Failed to login port %06X for ELS passthru.\n",
++			    "Port %06X is not online for ELS passthru.\n",
+ 			    fcport->d_id.b24);
+ 			rval = -EIO;
+ 			goto done;
+@@ -348,6 +348,7 @@ qla2x00_process_els(struct bsg_job *bsg_
+ 			goto done;
+ 		}
  
-+	if (pwr_on)
-+		set_bit(RTW_FLAG_POWERON, rtwdev->flags);
-+	else
-+		clear_bit(RTW_FLAG_POWERON, rtwdev->flags);
-+
- 	return 0;
- }
++		qla_port_allocated = 1;
+ 		/* Initialize all required  fields of fcport */
+ 		fcport->vha = vha;
+ 		fcport->d_id.b.al_pa =
+@@ -432,7 +433,7 @@ done_unmap_sg:
+ 	goto done_free_fcport;
  
-@@ -335,6 +340,11 @@ int rtw_mac_power_on(struct rtw_dev *rtw
- 	ret = rtw_mac_power_switch(rtwdev, true);
- 	if (ret == -EALREADY) {
- 		rtw_mac_power_switch(rtwdev, false);
-+
-+		ret = rtw_mac_pre_system_cfg(rtwdev);
-+		if (ret)
-+			goto err;
-+
- 		ret = rtw_mac_power_switch(rtwdev, true);
- 		if (ret)
- 			goto err;
---- a/drivers/net/wireless/realtek/rtw88/main.h
-+++ b/drivers/net/wireless/realtek/rtw88/main.h
-@@ -356,7 +356,7 @@ enum rtw_flags {
- 	RTW_FLAG_RUNNING,
- 	RTW_FLAG_FW_RUNNING,
- 	RTW_FLAG_SCANNING,
--	RTW_FLAG_INACTIVE_PS,
-+	RTW_FLAG_POWERON,
- 	RTW_FLAG_LEISURE_PS,
- 	RTW_FLAG_LEISURE_PS_DEEP,
- 	RTW_FLAG_DIG_DISABLE,
---- a/drivers/net/wireless/realtek/rtw88/ps.c
-+++ b/drivers/net/wireless/realtek/rtw88/ps.c
-@@ -25,7 +25,7 @@ static int rtw_ips_pwr_up(struct rtw_dev
- 
- int rtw_enter_ips(struct rtw_dev *rtwdev)
- {
--	if (test_and_set_bit(RTW_FLAG_INACTIVE_PS, rtwdev->flags))
-+	if (!test_bit(RTW_FLAG_POWERON, rtwdev->flags))
- 		return 0;
- 
- 	rtw_coex_ips_notify(rtwdev, COEX_IPS_ENTER);
-@@ -50,7 +50,7 @@ int rtw_leave_ips(struct rtw_dev *rtwdev
- {
- 	int ret;
- 
--	if (!test_and_clear_bit(RTW_FLAG_INACTIVE_PS, rtwdev->flags))
-+	if (test_bit(RTW_FLAG_POWERON, rtwdev->flags))
- 		return 0;
- 
- 	rtw_hci_link_ps(rtwdev, false);
---- a/drivers/net/wireless/realtek/rtw88/wow.c
-+++ b/drivers/net/wireless/realtek/rtw88/wow.c
-@@ -592,7 +592,7 @@ static int rtw_wow_leave_no_link_ps(stru
- 		if (rtw_get_lps_deep_mode(rtwdev) != LPS_DEEP_MODE_NONE)
- 			rtw_leave_lps_deep(rtwdev);
- 	} else {
--		if (test_bit(RTW_FLAG_INACTIVE_PS, rtwdev->flags)) {
-+		if (!test_bit(RTW_FLAG_POWERON, rtwdev->flags)) {
- 			rtw_wow->ips_enabled = true;
- 			ret = rtw_leave_ips(rtwdev);
- 			if (ret)
+ done_free_fcport:
+-	if (bsg_request->msgcode != FC_BSG_RPT_ELS)
++	if (qla_port_allocated)
+ 		qla2x00_free_fcport(fcport);
+ done:
+ 	return rval;
 
 
