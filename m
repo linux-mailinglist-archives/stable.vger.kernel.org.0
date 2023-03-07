@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2A9B6AF2EF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7CE6AEB07
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233536AbjCGS5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:57:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34042 "EHLO
+        id S231839AbjCGRj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:39:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233434AbjCGS5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50390B5ABA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:54 -0800 (PST)
+        with ESMTP id S232013AbjCGRi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA819E671
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 317076150E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2784BC433D2;
-        Tue,  7 Mar 2023 18:44:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D40F0B8191D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C92C433D2;
+        Tue,  7 Mar 2023 17:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214693;
-        bh=qeLeNIXxJNYpEDWqTqqrZTf0gnfv31fFidcds7kY8fs=;
+        s=korg; t=1678210517;
+        bh=tNejX0fv5fKZWIl0iCnjhAFVMzbG39fQ+7fL/GDEqfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BALeeXZUM8yZX4182zFGDbPTOgPbLcyJLK3tHIX1nlkjoIjeosx9iIgyGeCmV2b20
-         q0C/u2aj9L3+5k68paVsezvw9FpGr3hvE6Wk/MBgIdAwq8RURxT0xmSAA/LVmzwLGs
-         MiVhpWG/6Frukq/2mYJ5tu5j5s/9KTOaMp55m+ho=
+        b=eXmbXNjUrzBWvvEU9D0YMdtNJ1at9QYRVwIZO7klOEBfzfjmhTqEsp4HQpWHP1h9p
+         Nk8Jbm1h1jSOfSgSv6+FrKWat0x684Zld3T8lW9sF/2ayxY8dDUw7s58QFj9vZDUDY
+         2xysKMYiDR9zml2wM/OQ0o69GfZ8Skw0moGXnPmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>
-Subject: [PATCH 5.15 003/567] powerpc/mm: Rearrange if-else block to avoid clang warning
+        patches@lists.linux.dev, Eric Pilmore <epilmore@gigaio.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0567/1001] dmaengine: ptdma: check for null desc before calling pt_cmd_callback
 Date:   Tue,  7 Mar 2023 17:55:39 +0100
-Message-Id: <20230307165905.969362083@linuxfoundation.org>
+Message-Id: <20230307170046.078166671@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Eric Pilmore <epilmore@gigaio.com>
 
-commit d78c8e32890ef7eca79ffd67c96022c7f9d8cce4 upstream.
+[ Upstream commit 928469986171a6f763b34b039427f5667ba3fd50 ]
 
-Clang warns:
+Resolves a panic that can occur on AMD systems, typically during host
+shutdown, after the PTDMA driver had been exercised. The issue was
+the pt_issue_pending() function is mistakenly assuming that there will
+be at least one descriptor in the Submitted queue when the function
+is called. However, it is possible that both the Submitted and Issued
+queues could be empty, which could result in pt_cmd_callback() being
+mistakenly called with a NULL pointer.
+Ref: Bugzilla Bug 216856.
 
-  arch/powerpc/mm/book3s64/radix_tlb.c:1191:23: error: variable 'hstart' is uninitialized when used here
-    __tlbiel_va_range(hstart, hend, pid,
-                      ^~~~~~
-  arch/powerpc/mm/book3s64/radix_tlb.c:1191:31: error: variable 'hend' is uninitialized when used here
-    __tlbiel_va_range(hstart, hend, pid,
-                              ^~~~
-
-Rework the 'if (IS_ENABLE(CONFIG_TRANSPARENT_HUGEPAGE))' so hstart/hend
-is always initialized to silence the warnings. That will also simplify
-the 'else' path. Clang is getting confused with these warnings, but the
-warnings is a false-positive.
-
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220810114318.3220630-1-anders.roxell@linaro.org
-Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6fa7e0e836e2 ("dmaengine: ptdma: fix concurrency issue with multiple dma transfer")
+Signed-off-by: Eric Pilmore <epilmore@gigaio.com>
+Link: https://lore.kernel.org/r/20230210075142.58253-1-epilmore@gigaio.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/radix_tlb.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/dma/ptdma/ptdma-dmaengine.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/book3s64/radix_tlb.c
-+++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-@@ -1171,15 +1171,12 @@ static inline void __radix__flush_tlb_ra
- 			}
- 		}
- 	} else {
--		bool hflush = false;
-+		bool hflush;
- 		unsigned long hstart, hend;
+diff --git a/drivers/dma/ptdma/ptdma-dmaengine.c b/drivers/dma/ptdma/ptdma-dmaengine.c
+index cc22d162ce250..1aa65e5de0f3a 100644
+--- a/drivers/dma/ptdma/ptdma-dmaengine.c
++++ b/drivers/dma/ptdma/ptdma-dmaengine.c
+@@ -254,7 +254,7 @@ static void pt_issue_pending(struct dma_chan *dma_chan)
+ 	spin_unlock_irqrestore(&chan->vc.lock, flags);
  
--		if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
--			hstart = (start + PMD_SIZE - 1) & PMD_MASK;
--			hend = end & PMD_MASK;
--			if (hstart < hend)
--				hflush = true;
--		}
-+		hstart = (start + PMD_SIZE - 1) & PMD_MASK;
-+		hend = end & PMD_MASK;
-+		hflush = IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && hstart < hend;
+ 	/* If there was nothing active, start processing */
+-	if (engine_is_idle)
++	if (engine_is_idle && desc)
+ 		pt_cmd_callback(desc, 0);
+ }
  
- 		if (type == FLUSH_TYPE_LOCAL) {
- 			asm volatile("ptesync": : :"memory");
+-- 
+2.39.2
+
 
 
