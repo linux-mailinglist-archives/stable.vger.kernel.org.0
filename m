@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC89C6AF397
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D457C6AF399
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:06:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229743AbjCGTGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:06:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51534 "EHLO
+        id S233428AbjCGTG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:06:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233655AbjCGTGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:06:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A0FA7AAB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:51:45 -0800 (PST)
+        with ESMTP id S233491AbjCGTG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:06:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D556C708C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:51:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A71DEB819D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:51:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4DCFC4339B;
-        Tue,  7 Mar 2023 18:51:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F6061549
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D13F0C433D2;
+        Tue,  7 Mar 2023 18:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215103;
-        bh=PJ7wA9HpVFcAQKP+05gDCPFDPCQxapM6QJwPf2u/G5I=;
+        s=korg; t=1678215106;
+        bh=n3ZhEP9KsXAw4++LidweLuAekS5fPFKekHszB/1TUwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MpP/ro3rR/GCd9v7VtA4KpsZwGnVGMpcWtumTQH44kRvJMi5qiTXkNA1kFCPorA+N
-         w25k3Hqu8ZFJVIkiWpldyBz73d1CAikzL+mGjDFG/aQI55/yoOsf8SKS3wJgqyA4Ah
-         YGBsuwBvPGsPh0THzP4dyFTXgkVCFAlY+P7igoG0=
+        b=eK2JlCHl3S/wmRhryg0ibYHRLxQkDWaGuQUH5yc0zhO9rWrtiRqYzB+d/lbgZcoLv
+         022Ml5fT/88f2sAkq4Qg9B5DG0jau26FHIO3mMlWu2VgavMY3lNHoYKvJ882OsVF5D
+         EcshZUpFBspJRbJk80Sx4kYW90m+n2XoJW8Svrq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Werner Sembach <wse@tuxedocomputers.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
+        Christian Lamparter <chunkeey@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 151/567] ACPI: resource: Do IRQ override on all TongFang GMxRGxx
-Date:   Tue,  7 Mar 2023 17:58:07 +0100
-Message-Id: <20230307165912.480954194@linuxfoundation.org>
+Subject: [PATCH 5.15 152/567] crypto: crypto4xx - Call dma_unmap_page when done
+Date:   Tue,  7 Mar 2023 17:58:08 +0100
+Message-Id: <20230307165912.527783323@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,48 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 17bb7046e7ce038a73ee97eaa804e0300c5199e2 ]
+[ Upstream commit bcdda4301bdc4955d45f7e1ffefb6207967b067e ]
 
-Apply commit 7592b79ba4a9 ("ACPI: resource: do IRQ override on XMG Core 15")
-override for all vendors using this mainboard.
+In crypto4xx_cipher_done, we should be unmapping the dst page, not
+mapping it.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Fixes: 9946e39fe8d0 ("ACPI: resource: skip IRQ override on AMD Zen platforms")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This was flagged by a sparse warning about the unused addr variable.
+While we're at it, also fix a sparse warning regarding the unused
+ctx variable in crypto4xx_ahash_done (by actually using it).
+
+Fixes: 049359d65527 ("crypto: amcc - Add crypt4xx driver")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Tested-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/resource.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/crypto/amcc/crypto4xx_core.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index b153e434a796d..f6317bc417ab1 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -435,11 +435,10 @@ static const struct dmi_system_id lenovo_laptop[] = {
- 	{ }
- };
+diff --git a/drivers/crypto/amcc/crypto4xx_core.c b/drivers/crypto/amcc/crypto4xx_core.c
+index 8278d98074e9a..e1556a3582a30 100644
+--- a/drivers/crypto/amcc/crypto4xx_core.c
++++ b/drivers/crypto/amcc/crypto4xx_core.c
+@@ -522,7 +522,6 @@ static void crypto4xx_cipher_done(struct crypto4xx_device *dev,
+ {
+ 	struct skcipher_request *req;
+ 	struct scatterlist *dst;
+-	dma_addr_t addr;
  
--static const struct dmi_system_id schenker_gm_rg[] = {
-+static const struct dmi_system_id tongfang_gm_rg[] = {
- 	{
--		.ident = "XMG CORE 15 (M22)",
-+		.ident = "TongFang GMxRGxx/XMG CORE 15 (M22)/TUXEDO Stellaris 15 Gen4 AMD",
- 		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SchenkerTechnologiesGmbH"),
- 			DMI_MATCH(DMI_BOARD_NAME, "GMxRGxx"),
- 		},
- 	},
-@@ -478,7 +477,7 @@ static const struct irq_override_cmp override_table[] = {
- 	{ asus_laptop, 1, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, false },
- 	{ lenovo_laptop, 6, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
- 	{ lenovo_laptop, 10, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
--	{ schenker_gm_rg, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
-+	{ tongfang_gm_rg, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
- 	{ maingear_laptop, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
- };
+ 	req = skcipher_request_cast(pd_uinfo->async_req);
  
+@@ -531,8 +530,8 @@ static void crypto4xx_cipher_done(struct crypto4xx_device *dev,
+ 					  req->cryptlen, req->dst);
+ 	} else {
+ 		dst = pd_uinfo->dest_va;
+-		addr = dma_map_page(dev->core_dev->device, sg_page(dst),
+-				    dst->offset, dst->length, DMA_FROM_DEVICE);
++		dma_unmap_page(dev->core_dev->device, pd->dest, dst->length,
++			       DMA_FROM_DEVICE);
+ 	}
+ 
+ 	if (pd_uinfo->sa_va->sa_command_0.bf.save_iv == SA_SAVE_IV) {
+@@ -557,10 +556,9 @@ static void crypto4xx_ahash_done(struct crypto4xx_device *dev,
+ 	struct ahash_request *ahash_req;
+ 
+ 	ahash_req = ahash_request_cast(pd_uinfo->async_req);
+-	ctx  = crypto_tfm_ctx(ahash_req->base.tfm);
++	ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(ahash_req));
+ 
+-	crypto4xx_copy_digest_to_dst(ahash_req->result, pd_uinfo,
+-				     crypto_tfm_ctx(ahash_req->base.tfm));
++	crypto4xx_copy_digest_to_dst(ahash_req->result, pd_uinfo, ctx);
+ 	crypto4xx_ret_sg_desc(dev, pd_uinfo);
+ 
+ 	if (pd_uinfo->state & PD_ENTRY_BUSY)
 -- 
 2.39.2
 
