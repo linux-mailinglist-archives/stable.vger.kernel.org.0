@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2FA6AEA61
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFE516AEA62
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231705AbjCGRdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:33:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33280 "EHLO
+        id S231584AbjCGRdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:33:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231682AbjCGRcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:50 -0500
+        with ESMTP id S231578AbjCGRcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3517C8482A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FBAA28235
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C13C86150C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5CACC433EF;
-        Tue,  7 Mar 2023 17:28:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFBE0614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7B8FC433D2;
+        Tue,  7 Mar 2023 17:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210112;
-        bh=bPidgu5Mn4F6JXnlGpJzBju1CCgh/IdAdrSNXD8Kpa8=;
+        s=korg; t=1678210115;
+        bh=MfUxuhAKXY+ENTkDF0Qsyqs6F6Tniek0qUM65TSR9ZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQAKcUadP+GqM0QwrABiOWcA8LvMEQW6gnm/We73nfTYvLzrwWD/VYxXq6LHVpEgk
-         O6y2qx5Wci/Xa/SLIG7pAmrJ3k42FDXpyVqxZ626dMo/1uvrd3oVTlELjLon116usX
-         zhQ2y3NEO9hpsda3Fy8XXtanBkf54WublNjZsp0Q=
+        b=UWtXP3DSmBRqgouVH/st1XE4izTlPzhfbS02A64RQmAQTmXgQC105kY1tZt9T83VR
+         FZTPgXKOIHSZYJnJPRPXSRzDrD3yTeGl3yOBzqGSctbYiwDp9VbitLmgDM0dqP6XQS
+         az1z9ZJHrWocGTbV6TK0llcVgoXkBKSZpRFmbWOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olga Kornievskaia <aglo@umich.edu>,
-        NeilBrown <neilb@suse.de>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Wayne Boyer <wayne.boyer@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0437/1001] NFS: fix disabling of swap
-Date:   Tue,  7 Mar 2023 17:53:29 +0100
-Message-Id: <20230307170040.319549230@linuxfoundation.org>
+Subject: [PATCH 6.2 0438/1001] drm/i915/pvc: Implement recommended caching policy
+Date:   Tue,  7 Mar 2023 17:53:30 +0100
+Message-Id: <20230307170040.366549124@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -55,67 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Wayne Boyer <wayne.boyer@intel.com>
 
-[ Upstream commit 5bab56fff53ce161ed859d9559a10361d4f79578 ]
+[ Upstream commit e3995e08a39a41691742b380023a0d480247afb0 ]
 
-When swap is activated to a file on an NFSv4 mount we arrange that the
-state manager thread is always present as starting a new thread requires
-memory allocations that might block waiting for swap.
+As per the performance tuning guide, set the HOSTCACHEEN bit to
+implement the recommended caching policy on PVC.
 
-Unfortunately the code for allowing the state manager thread to exit when
-swap is disabled was not tested properly and does not work.
-This can be seen by examining /proc/fs/nfsfs/servers after disabling swap
-and unmounting the filesystem.  The servers file will still list one
-entry.  Also a "ps" listing will show the state manager thread is still
-present.
-
-There are two problems.
- 1/ rpc_clnt_swap_deactivate() doesn't walk up the ->cl_parent list to
-    find the primary client on which the state manager runs.
-
- 2/ The thread is not woken up properly and it immediately goes back to
-    sleep without checking whether it is really needed.  Using
-    nfs4_schedule_state_manager() ensures a proper wake-up.
-
-Reported-by: Olga Kornievskaia <aglo@umich.edu>
-Fixes: 4dc73c679114 ("NFSv4: keep state manager thread active if swap is enabled")
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Wayne Boyer <wayne.boyer@intel.com>
+Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221130170723.2460014-1-wayne.boyer@intel.com
+Stable-dep-of: effc0905d741 ("drm/i915/pvc: Annotate two more workaround/tuning registers as MCR")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 4 +++-
- net/sunrpc/clnt.c | 2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gt/intel_gt_regs.h     | 1 +
+ drivers/gpu/drm/i915/gt/intel_workarounds.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 40d749f29ed3f..4214286e01450 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -10604,7 +10604,9 @@ static void nfs4_disable_swap(struct inode *inode)
- 	/* The state manager thread will now exit once it is
- 	 * woken.
- 	 */
--	wake_up_var(&NFS_SERVER(inode)->nfs_client->cl_state);
-+	struct nfs_client *clp = NFS_SERVER(inode)->nfs_client;
-+
-+	nfs4_schedule_state_manager(clp);
- }
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_regs.h b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
+index 0c7e7972cc1c4..838f73165ebbc 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_regs.h
++++ b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
+@@ -970,6 +970,7 @@
+ #define   GEN7_L3AGDIS				(1 << 19)
  
- static const struct inode_operations nfs4_dir_inode_operations = {
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index 0b0b9f1eed469..fd7e1c630493e 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -3350,6 +3350,8 @@ rpc_clnt_swap_deactivate_callback(struct rpc_clnt *clnt,
- void
- rpc_clnt_swap_deactivate(struct rpc_clnt *clnt)
- {
-+	while (clnt != clnt->cl_parent)
-+		clnt = clnt->cl_parent;
- 	if (atomic_dec_if_positive(&clnt->cl_swapper) == 0)
- 		rpc_clnt_iterate_for_each_xprt(clnt,
- 				rpc_clnt_swap_deactivate_callback, NULL);
+ #define XEHPC_LNCFMISCCFGREG0			_MMIO(0xb01c)
++#define   XEHPC_HOSTCACHEEN			REG_BIT(1)
+ #define   XEHPC_OVRLSCCC			REG_BIT(0)
+ 
+ #define GEN7_L3CNTLREG2				_MMIO(0xb020)
+diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+index dcc694b8bc8c7..c2d9d07af7ee9 100644
+--- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+@@ -2973,6 +2973,7 @@ add_render_compute_tuning_settings(struct drm_i915_private *i915,
+ 	if (IS_PONTEVECCHIO(i915)) {
+ 		wa_write(wal, XEHPC_L3SCRUB,
+ 			 SCRUB_CL_DWNGRADE_SHARED | SCRUB_RATE_4B_PER_CLK);
++		wa_masked_en(wal, XEHPC_LNCFMISCCFGREG0, XEHPC_HOSTCACHEEN);
+ 	}
+ 
+ 	if (IS_DG2(i915)) {
 -- 
 2.39.2
 
