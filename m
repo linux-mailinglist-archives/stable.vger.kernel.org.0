@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 714FF6AF295
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D43D16AF297
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233426AbjCGSyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:54:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52268 "EHLO
+        id S233301AbjCGSyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:54:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233259AbjCGSxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:53 -0500
+        with ESMTP id S233338AbjCGSx5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB930C2227
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5955AF0F9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F7BCB819CA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6408C433D2;
-        Tue,  7 Mar 2023 18:41:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67FB1B8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:41:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBD98C4339B;
+        Tue,  7 Mar 2023 18:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214507;
-        bh=tXeg5/dxj+YI6JBqpG3Z6J2/hg9i6L80Dzb3gRlYmgs=;
+        s=korg; t=1678214510;
+        bh=qyS0z/UqbA9OrrWqUuYmYeMTglhcsQ3kXYVrP/qQlKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2yJpMFrefF0pEMwI1N+WstmtzYgmQFE/WQKVmuvNAdvjvn/tnk9Lq2IwnhHb20OW
-         y0vl2h4tC6Tq65oxk6qw60xekEmA4/wNQH7GkjqtKM2YQp2mH+rMKyRKQ/MVfXUbxg
-         KFHn+J/Fcg8RxLeOEUt2DwGNq34rsUrIjR9oQDZ4=
+        b=P/Og5IPiCKHg0ZC+v01in+tNTBtwj3lpSn5u3pGiyRNRV2Tj8EA8Qy4XgnNm4YFG+
+         vlB6a4y0yMUR/+Mk8xjo0Gdgd3faQayToW04rEjwVtP6Y468nvZjPR/N6b9Ui79AS4
+         OXpArD7DndqHstb9JBjM+rAI7tjQIHuiPX+vsEas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shreyas Deodhar <sdeodhar@marvell.com>,
+        patches@lists.linux.dev, Arun Easi <aeasi@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.1 846/885] scsi: qla2xxx: Check if port is online before sending ELS
-Date:   Tue,  7 Mar 2023 18:03:00 +0100
-Message-Id: <20230307170038.574019016@linuxfoundation.org>
+Subject: [PATCH 6.1 847/885] scsi: qla2xxx: Fix DMA-API call trace on NVMe LS requests
+Date:   Tue,  7 Mar 2023 18:03:01 +0100
+Message-Id: <20230307170038.619122444@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -55,63 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyas Deodhar <sdeodhar@marvell.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 0c227dc22ca18856055983f27594feb2e0149965 upstream.
+commit c75e6aef5039830cce5d4cf764dd204522f89e6b upstream.
 
-CT Ping and ELS cmds fail for NVMe targets.  Check if port is online before
-sending ELS instead of sending login.
+The following message and call trace was seen with debug kernels:
 
+DMA-API: qla2xxx 0000:41:00.0: device driver failed to check map
+error [device address=0x00000002a3ff38d8] [size=1024 bytes] [mapped as
+single]
+WARNING: CPU: 0 PID: 2930 at kernel/dma/debug.c:1017
+	 check_unmap+0xf42/0x1990
+
+Call Trace:
+	debug_dma_unmap_page+0xc9/0x100
+	qla_nvme_ls_unmap+0x141/0x210 [qla2xxx]
+
+Remove DMA mapping from the driver altogether, as it is already done by FC
+layer. This prevents the warning.
+
+Fixes: c85ab7d9e27a ("scsi: qla2xxx: Fix missed DMA unmap for NVMe ls requests")
 Cc: stable@vger.kernel.org
-Signed-off-by: Shreyas Deodhar <sdeodhar@marvell.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_nvme.c |   19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -278,8 +278,8 @@ qla2x00_process_els(struct bsg_job *bsg_
- 	const char *type;
- 	int req_sg_cnt, rsp_sg_cnt;
- 	int rval =  (DID_ERROR << 16);
--	uint16_t nextlid = 0;
- 	uint32_t els_cmd = 0;
-+	int qla_port_allocated = 0;
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -170,18 +170,6 @@ out:
+ 	qla2xxx_rel_qpair_sp(sp->qpair, sp);
+ }
  
- 	if (bsg_request->msgcode == FC_BSG_RPT_ELS) {
- 		rport = fc_bsg_to_rport(bsg_job);
-@@ -329,9 +329,9 @@ qla2x00_process_els(struct bsg_job *bsg_
- 		/* make sure the rport is logged in,
- 		 * if not perform fabric login
- 		 */
--		if (qla2x00_fabric_login(vha, fcport, &nextlid)) {
-+		if (atomic_read(&fcport->state) != FCS_ONLINE) {
- 			ql_dbg(ql_dbg_user, vha, 0x7003,
--			    "Failed to login port %06X for ELS passthru.\n",
-+			    "Port %06X is not online for ELS passthru.\n",
- 			    fcport->d_id.b24);
- 			rval = -EIO;
- 			goto done;
-@@ -348,6 +348,7 @@ qla2x00_process_els(struct bsg_job *bsg_
- 			goto done;
- 		}
+-static void qla_nvme_ls_unmap(struct srb *sp, struct nvmefc_ls_req *fd)
+-{
+-	if (sp->flags & SRB_DMA_VALID) {
+-		struct srb_iocb *nvme = &sp->u.iocb_cmd;
+-		struct qla_hw_data *ha = sp->fcport->vha->hw;
+-
+-		dma_unmap_single(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
+-				 fd->rqstlen, DMA_TO_DEVICE);
+-		sp->flags &= ~SRB_DMA_VALID;
+-	}
+-}
+-
+ static void qla_nvme_release_ls_cmd_kref(struct kref *kref)
+ {
+ 	struct srb *sp = container_of(kref, struct srb, cmd_kref);
+@@ -199,7 +187,6 @@ static void qla_nvme_release_ls_cmd_kref
  
-+		qla_port_allocated = 1;
- 		/* Initialize all required  fields of fcport */
- 		fcport->vha = vha;
- 		fcport->d_id.b.al_pa =
-@@ -432,7 +433,7 @@ done_unmap_sg:
- 	goto done_free_fcport;
+ 	fd = priv->fd;
  
- done_free_fcport:
--	if (bsg_request->msgcode != FC_BSG_RPT_ELS)
-+	if (qla_port_allocated)
- 		qla2x00_free_fcport(fcport);
- done:
- 	return rval;
+-	qla_nvme_ls_unmap(sp, fd);
+ 	fd->done(fd, priv->comp_status);
+ out:
+ 	qla2x00_rel_sp(sp);
+@@ -365,13 +352,10 @@ static int qla_nvme_ls_req(struct nvme_f
+ 	nvme->u.nvme.rsp_len = fd->rsplen;
+ 	nvme->u.nvme.rsp_dma = fd->rspdma;
+ 	nvme->u.nvme.timeout_sec = fd->timeout;
+-	nvme->u.nvme.cmd_dma = dma_map_single(&ha->pdev->dev, fd->rqstaddr,
+-	    fd->rqstlen, DMA_TO_DEVICE);
++	nvme->u.nvme.cmd_dma = fd->rqstdma;
+ 	dma_sync_single_for_device(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
+ 	    fd->rqstlen, DMA_TO_DEVICE);
+ 
+-	sp->flags |= SRB_DMA_VALID;
+-
+ 	rval = qla2x00_start_sp(sp);
+ 	if (rval != QLA_SUCCESS) {
+ 		ql_log(ql_log_warn, vha, 0x700e,
+@@ -379,7 +363,6 @@ static int qla_nvme_ls_req(struct nvme_f
+ 		wake_up(&sp->nvme_ls_waitq);
+ 		sp->priv = NULL;
+ 		priv->sp = NULL;
+-		qla_nvme_ls_unmap(sp, fd);
+ 		qla2x00_rel_sp(sp);
+ 		return rval;
+ 	}
 
 
