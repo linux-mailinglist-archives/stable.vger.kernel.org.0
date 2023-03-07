@@ -2,164 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C043B6AE005
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 14:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E20566AE013
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 14:13:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbjCGNHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 08:07:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40394 "EHLO
+        id S230385AbjCGNNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 08:13:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230435AbjCGNHV (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 7 Mar 2023 08:07:21 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE7807B4AB
-        for <Stable@vger.kernel.org>; Tue,  7 Mar 2023 05:05:53 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id q31-20020a17090a17a200b0023750b69614so11779100pja.5
-        for <Stable@vger.kernel.org>; Tue, 07 Mar 2023 05:05:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1678194352;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=t+FdsTGZzqFZqYBTn3Ql+ChMDk8iUlybGRvDY8ZJ9VU=;
-        b=RBo4mnr9UV/76xDxoNtIFvN1XW6fFx1PY1NBiBdZog7bPokCU7XM5kQUk6LQDiqV8U
-         YrWsVdVwtGNZwuuLoYW6ov2pXHIYRzRFDStHthlQfInnIps8GwfB74TucjDdimqbaXWW
-         jICL4WCdizqK/+1J5HKRHPrCGRMxzoIkWYkkUUTQ+oxVF0Ur3093L3wwZ0Q722cllW1B
-         u0rzZ07flKCpWM59XBHvlep+JW4VRVWPp2BtO6W1ZUbEFwqU/rzxSNhpfst5RKm62J/6
-         funSPnYuZXt/hBhouBzzFqflnpGbyAr/NuB79F3VqIawrzBMUqgALdIigjDFBKSL+HRe
-         1SAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678194352;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=t+FdsTGZzqFZqYBTn3Ql+ChMDk8iUlybGRvDY8ZJ9VU=;
-        b=qVZG+28C9wADvtlOBVwPrFt0lktQbEduWLtwthAjOJyNIjTkDWSPysIYjs95FlndIo
-         lCX2xdKWZdOQ4yQdT8GPNU8qAQ91IBAnqCjaohr5Qx8TmNkOMNgqWFxvZWeBs04EqENh
-         xN0yLwAs4Zf1UGjjQfj7VdEaZ7CFwKwlv5T4kis2P497crmQh/HLoi+HW3TexiodfIqm
-         DxeGinMpDBngUzSaY+2zgwfaIB3vnphQ3eD1k3kwhHEv1QSnL/Ljtn3Nvla8lAsC78Vr
-         EGuT2DsGCmAFOBnwihd2D4qmp3kxv5yl/A85YnD5Ufv1orRvqqsKUTWiPgYDNZP84KB0
-         aQcQ==
-X-Gm-Message-State: AO0yUKX0+07N4owCytypfrQYBPYnWJSaucudEeguBRaGNGu87LuQpcuS
-        XPBjHFnJB8BJpE3S2EF6Puu5Ug==
-X-Google-Smtp-Source: AK7set9tOFhM95hUX3pEY5rK2bAommdGqvpRofEUa/4iWeTx414xIKOjt0Uc2cc+J9isMI7He9+sOg==
-X-Received: by 2002:a17:902:d2c9:b0:19a:c4a0:5b1b with SMTP id n9-20020a170902d2c900b0019ac4a05b1bmr19927045plc.1.1678194351908;
-        Tue, 07 Mar 2023 05:05:51 -0800 (PST)
-Received: from [10.200.8.102] ([139.177.225.254])
-        by smtp.gmail.com with ESMTPSA id s7-20020a170902988700b00198fb25d09bsm8322729plp.237.2023.03.07.05.05.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Mar 2023 05:05:51 -0800 (PST)
-Message-ID: <cec2dec7-818a-b32c-3ad4-8b23fc1351f3@bytedance.com>
-Date:   Tue, 7 Mar 2023 21:05:46 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [PATCH 1/2] maple_tree: Fix mas_skip_node() end slot detection
-To:     "Liam R. Howlett" <Liam.Howlett@oracle.com>
-Cc:     Stable@vger.kernel.org, maple-tree@lists.infradead.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Snild Dolkow <snild@sony.com>
-References: <20230303021540.1056603-1-Liam.Howlett@oracle.com>
-From:   Peng Zhang <zhangpeng.00@bytedance.com>
-In-Reply-To: <20230303021540.1056603-1-Liam.Howlett@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229938AbjCGNMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 08:12:52 -0500
+Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [20.232.28.96])
+        by lindbergh.monkeyblade.net (Postfix) with SMTP id 8E6F532507;
+        Tue,  7 Mar 2023 05:11:33 -0800 (PST)
+Received: from localhost.localdomain (unknown [122.235.142.236])
+        by mail-app2 (Coremail) with SMTP id by_KCgCXnSGrNgdkbPtpCw--.43366S4;
+        Tue, 07 Mar 2023 21:05:47 +0800 (CST)
+From:   Lin Ma <linma@zju.edu.cn>
+To:     jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, richardcochran@gmail.com,
+        ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+        john.fastabend@gmail.com
+Cc:     intel-wired-lan@lists.osuosl.org, pmenzel@molgen.mpg.de,
+        regressions@lists.linux.dev, vinschen@redhat.com,
+        Lin Ma <linma@zju.edu.cn>, stable@vger.kernel.org
+Subject: [PATCH] igb: revert rtnl_lock() that causes deadlock
+Date:   Tue,  7 Mar 2023 21:05:47 +0800
+Message-Id: <20230307130547.31446-1-linma@zju.edu.cn>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <301b585a.80249.186bbe6cc50.Coremail.linma@zju.edu.cn>
+References: <301b585a.80249.186bbe6cc50.Coremail.linma@zju.edu.cn>
+X-CM-TRANSID: by_KCgCXnSGrNgdkbPtpCw--.43366S4
+X-Coremail-Antispam: 1UD129KBjvJXoWxWw4xZw4kXw1DCw15Cr4fuFg_yoW5ZFy3pF
+        13G3yxCF1kWr4jgayxZw18A34xXayjy34fWrn7uw4fuFs8CryDtry8CFWj93y5CrWxGF9F
+        qF1kZa1UJF1UJa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUvC14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+        1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
+        JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
+        CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
+        2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
+        W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
+        Y2ka0xkIwI1lc2xSY4AK67AK6ry8MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r
+        1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CE
+        b7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0x
+        vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAI
+        cVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2Kf
+        nxnUUI43ZEXa7VUjySoJUUUUU==
+X-CM-SenderInfo: qtrwiiyqvtljo62m3hxhgxhubq/
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Liam,
-> mas_skip_node() is used to move the maple state to the node with a
-> higher limit.  It does this by walking up the tree and increasing the
-> slot count.  Since slot count may not be able to be increased, it may
-> need to walk up multiple times to find room to walk right to a higher
-> limit node.  The limit of slots that was being used was the node limit
-> and not the last location of data in the node.  This would cause the
-> maple state to be shifted outside actual data and enter an error state,
-> thus returning -EBUSY.
-> 
-> The result of the incorrect error state means that mas_awalk() would
-> return an error instead of finding the allocation space.
-> 
-> The fix is to use mas_data_end() in mas_skip_node() to detect the nodes
-> data end point and continue walking the tree up until it is safe to move
-> to a node with a higher limit.
-> 
-> mas_skip_node() may also be passed a maple state in an error state from
-> mas_anode_descend() when no allocations are available.  Return on such
-> an error state immediately.
-> 
-> Reported-by: Snild Dolkow <snild@sony.com>
-> Link: https://lore.kernel.org/linux-mm/cb8dc31a-fef2-1d09-f133-e9f7b9f9e77a@sony.com/
-> Cc: <Stable@vger.kernel.org>
-> Fixes: 54a611b60590 ("Maple Tree: add new data structure")
-> Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Reviewed-by: Peng Zhang <zhangpeng.00@bytedance.com>
-> ---
->   lib/maple_tree.c | 25 ++++++++++---------------
->   1 file changed, 10 insertions(+), 15 deletions(-)
-> 
-> diff --git a/lib/maple_tree.c b/lib/maple_tree.c
-> index 2be86368237d..2efe854946d6 100644
-> --- a/lib/maple_tree.c
-> +++ b/lib/maple_tree.c
-> @@ -5188,34 +5188,29 @@ static inline bool mas_rewind_node(struct ma_state *mas)
->    */
->   static inline bool mas_skip_node(struct ma_state *mas)
->   {
-> -	unsigned char slot, slot_count;
->   	unsigned long *pivots;
->   	enum maple_type mt;
->   
-> -	mt = mte_node_type(mas->node);
-> -	slot_count = mt_slots[mt] - 1;
-> +	if (mas_is_err(mas))
-> +		return false;
-> +
->   	do {
->   		if (mte_is_root(mas->node)) {
-> -			slot = mas->offset;
-> -			if (slot > slot_count) {
-> +			if (mas->offset >= mas_data_end(mas)) {
->   				mas_set_err(mas, -EBUSY);
->   				return false;
->   			}
->   		} else {
->   			mas_ascend(mas);
-> -			slot = mas->offset;
-> -			mt = mte_node_type(mas->node);
-> -			slot_count = mt_slots[mt] - 1;
->   		}
-> -	} while (slot > slot_count);
-> +	} while (mas->offset >= mas_data_end(mas));
->   
-> -	mas->offset = ++slot;
-> +	mt = mte_node_type(mas->node);
->   	pivots = ma_pivots(mas_mn(mas), mt);
-> -	if (slot > 0)
-> -		mas->min = pivots[slot - 1] + 1;
-> -
-> -	if (slot <= slot_count)
-> -		mas->max = pivots[slot];
-> +	mas->min = pivots[mas->offset] + 1;
-> +	mas->offset++;
-> +	if (mas->offset < mt_slots[mt])
-> +		mas->max = pivots[mas->offset];
-There is a bug here, the assignment of mas->min and mas->max is wrong.
-The assignment will make them represent the range of a child node, but 
-it should represent the range of the current node. After mas_ascend() 
-returns, mas-min and mas->max already represent the range of the current 
-node, so we should delete these assignments of mas->min and mas->max.
->   
->   	return true;
->   }
+The commit 6faee3d4ee8b ("igb: Add lock to avoid data race") adds
+rtnl_lock to eliminate a false data race shown below
 
-Sincerely yours,
-Peng.
+ (FREE from device detaching)      |   (USE from netdev core)
+igb_remove                         |  igb_ndo_get_vf_config
+ igb_disable_sriov                 |  vf >= adapter->vfs_allocated_count?
+  kfree(adapter->vf_data)          |
+  adapter->vfs_allocated_count = 0 |
+                                   |    memcpy(... adapter->vf_data[vf]
+
+The above race will never happen and the extra rtnl_lock causes deadlock
+below
+
+[  141.420169]  <TASK>
+[  141.420672]  __schedule+0x2dd/0x840
+[  141.421427]  schedule+0x50/0xc0
+[  141.422041]  schedule_preempt_disabled+0x11/0x20
+[  141.422678]  __mutex_lock.isra.13+0x431/0x6b0
+[  141.423324]  unregister_netdev+0xe/0x20
+[  141.423578]  igbvf_remove+0x45/0xe0 [igbvf]
+[  141.423791]  pci_device_remove+0x36/0xb0
+[  141.423990]  device_release_driver_internal+0xc1/0x160
+[  141.424270]  pci_stop_bus_device+0x6d/0x90
+[  141.424507]  pci_stop_and_remove_bus_device+0xe/0x20
+[  141.424789]  pci_iov_remove_virtfn+0xba/0x120
+[  141.425452]  sriov_disable+0x2f/0xf0
+[  141.425679]  igb_disable_sriov+0x4e/0x100 [igb]
+[  141.426353]  igb_remove+0xa0/0x130 [igb]
+[  141.426599]  pci_device_remove+0x36/0xb0
+[  141.426796]  device_release_driver_internal+0xc1/0x160
+[  141.427060]  driver_detach+0x44/0x90
+[  141.427253]  bus_remove_driver+0x55/0xe0
+[  141.427477]  pci_unregister_driver+0x2a/0xa0
+[  141.428296]  __x64_sys_delete_module+0x141/0x2b0
+[  141.429126]  ? mntput_no_expire+0x4a/0x240
+[  141.429363]  ? syscall_trace_enter.isra.19+0x126/0x1a0
+[  141.429653]  do_syscall_64+0x5b/0x80
+[  141.429847]  ? exit_to_user_mode_prepare+0x14d/0x1c0
+[  141.430109]  ? syscall_exit_to_user_mode+0x12/0x30
+[  141.430849]  ? do_syscall_64+0x67/0x80
+[  141.431083]  ? syscall_exit_to_user_mode_prepare+0x183/0x1b0
+[  141.431770]  ? syscall_exit_to_user_mode+0x12/0x30
+[  141.432482]  ? do_syscall_64+0x67/0x80
+[  141.432714]  ? exc_page_fault+0x64/0x140
+[  141.432911]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+
+Since the igb_disable_sriov() will call pci_disable_sriov() before
+releasing any resources, the netdev core will synchronize the cleanup to
+avoid any races. This patch removes the useless rtnl_(un)lock to guarantee
+correctness.
+
+CC: stable@vger.kernel.org
+Fixes: 6faee3d4ee8b ("igb: Add lock to avoid data race")
+Reported-by: Corinna <vinschen@redhat.com>
+Link: https://lore.kernel.org/regressions/3ef31c0b-ce40-20d0-7740-5dc0cca278ca@molgen.mpg.de/
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+---
+ drivers/net/ethernet/intel/igb/igb_main.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 03bc1e8af575..5532361b0e94 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -3863,9 +3863,7 @@ static void igb_remove(struct pci_dev *pdev)
+ 	igb_release_hw_control(adapter);
+ 
+ #ifdef CONFIG_PCI_IOV
+-	rtnl_lock();
+ 	igb_disable_sriov(pdev);
+-	rtnl_unlock();
+ #endif
+ 
+ 	unregister_netdev(netdev);
+-- 
+2.34.1
+
