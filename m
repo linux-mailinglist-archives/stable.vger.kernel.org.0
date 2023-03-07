@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E606AEED9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC6CB6AEA80
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232569AbjCGSRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:17:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
+        id S231561AbjCGRe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:34:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231774AbjCGSRB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D8EABADB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:11:46 -0800 (PST)
+        with ESMTP id S231733AbjCGReN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA2A9B9AC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:29:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70559B819C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5A86C4339C;
-        Tue,  7 Mar 2023 18:11:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE380614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:29:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2759C433A1;
+        Tue,  7 Mar 2023 17:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212702;
-        bh=jDUBds/hVNSD6VJmJm1WR9oK9h9S+kyz2l/Dt+rfwvA=;
+        s=korg; t=1678210192;
+        bh=Uqe88ZOiTAMwGWY9SJd3pNnDcjxhEl+vnrYP76spxsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XT6apIxSd6h0a/nM5xDWIy9mIUUm76pGzZzGNRJjkfLumTrFqu+8K8Rcpea0FkUSY
-         xrk2lDwIVSGpKRHMhlijodokxHokDWqrw7LqoJnnhMIDgXiL7hYlG65b2BzLhXVD2T
-         zyVQUbTjcf5RgjKulGRATYVrLFIdmTO+N8yAULEk=
+        b=xRfFkLvUpMKTC9Dx7zJyGqzJRetauYoa0Ao0CWFitKKAvRjr64c0qdMgWZwaYz0dR
+         u+WcHgHvnHu0Bl6Jcw1P2mk43IQl7K7bnNw6Xz8htdxKIcfQza4Hv65+onDzjP+H/P
+         l9zcS/YZCIix9XWJWfr7EDnLZ+RvPnph8xnflEE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Melissa Wen <mwen@igalia.com>,
-        Melissa Wen <melissa.srw@gmail.com>,
+        patches@lists.linux.dev,
+        William Zhang <william.zhang@broadcom.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 269/885] drm/vkms: Fix memory leak in vkms_init()
-Date:   Tue,  7 Mar 2023 17:53:23 +0100
-Message-Id: <20230307170013.694766110@linuxfoundation.org>
+Subject: [PATCH 6.2 0432/1001] spi: bcm63xx-hsspi: Fix multi-bit mode setting
+Date:   Tue,  7 Mar 2023 17:53:24 +0100
+Message-Id: <20230307170040.115008992@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,73 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: William Zhang <william.zhang@broadcom.com>
 
-[ Upstream commit 0d0b368b9d104b437e1f4850ae94bdb9a3601e89 ]
+[ Upstream commit 811ff802aaf878ebbbaeac0307a0164fa21e7d40 ]
 
-A memory leak was reported after the vkms module install failed.
+Currently the driver always sets the controller to dual data bit mode
+for both tx and rx data in the profile mode control register even for
+single data bit transfer. Luckily the opcode is set correctly according
+to SPI transfer data bit width so it does not actually cause issues.
 
-unreferenced object 0xffff88810bc28520 (size 16):
-  comm "modprobe", pid 9662, jiffies 4298009455 (age 42.590s)
-  hex dump (first 16 bytes):
-    01 01 00 64 81 88 ff ff 00 00 dc 0a 81 88 ff ff  ...d............
-  backtrace:
-    [<00000000e7561ff8>] kmalloc_trace+0x27/0x60
-    [<000000000b1954a0>] 0xffffffffc45200a9
-    [<00000000abbf1da0>] do_one_initcall+0xd0/0x4f0
-    [<000000001505ee87>] do_init_module+0x1a4/0x680
-    [<00000000958079ad>] load_module+0x6249/0x7110
-    [<00000000117e4696>] __do_sys_finit_module+0x140/0x200
-    [<00000000f74b12d2>] do_syscall_64+0x35/0x80
-    [<000000008fc6fcde>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+This change fixes the problem by setting tx and rx data bit mode field
+correctly according to the actual SPI transfer tx and rx data bit width.
 
-The reason is that the vkms_init() returns without checking the return
-value of vkms_create(), and if the vkms_create() failed, the config
-allocated at the beginning of vkms_init() is leaked.
-
- vkms_init()
-   config = kmalloc(...) # config allocated
-   ...
-   return vkms_create() # vkms_create failed and config is leaked
-
-Fix this problem by checking return value of vkms_create() and free the
-config if error happened.
-
-Fixes: 2df7af93fdad ("drm/vkms: Add vkms_config type")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221101065156.41584-2-yuancan@huawei.com
+Fixes: 142168eba9dc ("spi: bcm63xx-hsspi: add bcm63xx HSSPI driver")
+Signed-off-by: William Zhang <william.zhang@broadcom.com>
+Link: https://lore.kernel.org/r/20230209200246.141520-11-william.zhang@broadcom.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vkms/vkms_drv.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/spi/spi-bcm63xx-hsspi.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/vkms/vkms_drv.c b/drivers/gpu/drm/vkms/vkms_drv.c
-index 0ffe5f0e33f75..dfe983eaa07ff 100644
---- a/drivers/gpu/drm/vkms/vkms_drv.c
-+++ b/drivers/gpu/drm/vkms/vkms_drv.c
-@@ -218,6 +218,7 @@ static int vkms_create(struct vkms_config *config)
+diff --git a/drivers/spi/spi-bcm63xx-hsspi.c b/drivers/spi/spi-bcm63xx-hsspi.c
+index a74345ed0e2ff..9ec33745c1472 100644
+--- a/drivers/spi/spi-bcm63xx-hsspi.c
++++ b/drivers/spi/spi-bcm63xx-hsspi.c
+@@ -163,6 +163,7 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
+ 	int step_size = HSSPI_BUFFER_LEN;
+ 	const u8 *tx = t->tx_buf;
+ 	u8 *rx = t->rx_buf;
++	u32 val = 0;
  
- static int __init vkms_init(void)
- {
-+	int ret;
- 	struct vkms_config *config;
+ 	bcm63xx_hsspi_set_clk(bs, spi, t->speed_hz);
+ 	bcm63xx_hsspi_set_cs(bs, spi->chip_select, true);
+@@ -178,11 +179,16 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
+ 		step_size -= HSSPI_OPCODE_LEN;
  
- 	config = kmalloc(sizeof(*config), GFP_KERNEL);
-@@ -230,7 +231,11 @@ static int __init vkms_init(void)
- 	config->writeback = enable_writeback;
- 	config->overlay = enable_overlay;
+ 	if ((opcode == HSSPI_OP_READ && t->rx_nbits == SPI_NBITS_DUAL) ||
+-	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL))
++	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL)) {
+ 		opcode |= HSSPI_OP_MULTIBIT;
  
--	return vkms_create(config);
-+	ret = vkms_create(config);
-+	if (ret)
-+		kfree(config);
+-	__raw_writel(1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT |
+-		     1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT | 0xff,
++		if (t->rx_nbits == SPI_NBITS_DUAL)
++			val |= 1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT;
++		if (t->tx_nbits == SPI_NBITS_DUAL)
++			val |= 1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT;
++	}
 +
-+	return ret;
- }
++	__raw_writel(val | 0xff,
+ 		     bs->regs + HSSPI_PROFILE_MODE_CTRL_REG(chip_select));
  
- static void vkms_destroy(struct vkms_config *config)
+ 	while (pending > 0) {
 -- 
 2.39.2
 
