@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 705876AEEE4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D92366AEA3C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232593AbjCGSRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:17:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39298 "EHLO
+        id S231696AbjCGRcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:32:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232587AbjCGSR0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A3EA2ED5E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:12:22 -0800 (PST)
+        with ESMTP id S231336AbjCGRbt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD8694A68
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B495E61531
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B933CC433EF;
-        Tue,  7 Mar 2023 18:11:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A4DAB819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45758C433EF;
+        Tue,  7 Mar 2023 17:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212720;
-        bh=rbQ6vpOhvTPsAt8lbF7V2zDygmx7PHZS+lronjtf0kI=;
+        s=korg; t=1678210019;
+        bh=jE/JI9lgxjdBkgNm44QfHwcZb023OZpMbdroPUhorKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2miY6t5D85jotR+ZIFx3HFOgu++EImYAFMiqUgZ3y3kC16hvFMAwGQ9cAiN3gGl3S
-         PKb0yZsMdVaqEOslEAMiezqPJwWYpX23dYS1K1tb7Y6K0nMzynVd8/n5GXToOxuDlq
-         1E0UCBn/bRYFUIkciG1AQLhcIz4Q77cOX40TEvS0=
+        b=bLNfFQAUnVhz9mesrHPu23eBHxZ1Fqu2J+o798mQT10TDHYzXLEg83kIbokTiCnwV
+         VZdHQ8uQmBIh9elJ+4rPDDeys9MIiozUYppchA1IQuPgsXrTyPZMKataSs4kqeap8e
+         DzLfqpOnMlmT2ExkcQxraEKecsnhgDuo4qN0yvgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hou Tao <houtao1@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 245/885] bpf: Zeroing allocated object from slab in bpf memory allocator
+Subject: [PATCH 6.2 0407/1001] ASoC: mchp-spdifrx: fix controls that works with completion mechanism
 Date:   Tue,  7 Mar 2023 17:52:59 +0100
-Message-Id: <20230307170012.649823970@linuxfoundation.org>
+Message-Id: <20230307170038.985198086@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,110 +55,280 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 997849c4b969034e225153f41026657def66d286 ]
+[ Upstream commit d3681df44e856aab523a6eb7ba15b5e41efcbb1c ]
 
-Currently the freed element in bpf memory allocator may be immediately
-reused, for htab map the reuse will reinitialize special fields in map
-value (e.g., bpf_spin_lock), but lookup procedure may still access
-these special fields, and it may lead to hard-lockup as shown below:
+Channel status get and channel subcode get controls relies on data
+returned by controls when certain IRQs are raised. To achieve that
+completions are used b/w controls and interrupt service routine. The
+concurrent accesses to these controls are protected by
+struct snd_card::controls_rwsem.
 
- NMI backtrace for cpu 16
- CPU: 16 PID: 2574 Comm: htab.bin Tainted: G             L     6.1.0+ #1
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
- RIP: 0010:queued_spin_lock_slowpath+0x283/0x2c0
- ......
- Call Trace:
-  <TASK>
-  copy_map_value_locked+0xb7/0x170
-  bpf_map_copy_value+0x113/0x3c0
-  __sys_bpf+0x1c67/0x2780
-  __x64_sys_bpf+0x1c/0x20
-  do_syscall_64+0x30/0x60
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
- ......
-  </TASK>
+Issues identified:
+- reinit_completion() may be called while waiting for completion
+  which should be avoided
+- in case of multiple threads waiting, the complete() call in interrupt
+  will signal only one waiting thread per interrupt which may lead to
+  timeout for the others
+- in case of channel status get as the CSC interrupt is not refcounted
+  ISR may disable interrupt for threads that were just enabled it.
 
-For htab map, just like the preallocated case, these is no need to
-initialize these special fields in map value again once these fields
-have been initialized. For preallocated htab map, these fields are
-initialized through __GFP_ZERO in bpf_map_area_alloc(), so do the
-similar thing for non-preallocated htab in bpf memory allocator. And
-there is no need to use __GFP_ZERO for per-cpu bpf memory allocator,
-because __alloc_percpu_gfp() does it implicitly.
+To solve these the access to controls were protected by a mutex. Along
+with this there is no need for spinlock to protect the software cache
+reads/updates b/w controls and ISR as the update is happening only when
+requested from control, and only one reader can reach the control.
 
-Fixes: 0fd7c5d43339 ("bpf: Optimize call_rcu in non-preallocated hash map.")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Link: https://lore.kernel.org/r/20230215082132.3856544-2-houtao@huaweicloud.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230130120647.638049-4-claudiu.beznea@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bpf.h   | 7 +++++++
- kernel/bpf/hashtab.c  | 4 ++--
- kernel/bpf/memalloc.c | 2 +-
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ sound/soc/atmel/mchp-spdifrx.c | 143 ++++++++++++++++++---------------
+ 1 file changed, 77 insertions(+), 66 deletions(-)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index c1bd1bd105067..942f9ac9fa7b6 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -266,6 +266,13 @@ static inline bool map_value_has_kptrs(const struct bpf_map *map)
- 	return !IS_ERR_OR_NULL(map->kptr_off_tab);
+diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
+index 7f359371b31bf..31ffaaf46dec0 100644
+--- a/sound/soc/atmel/mchp-spdifrx.c
++++ b/sound/soc/atmel/mchp-spdifrx.c
+@@ -217,7 +217,6 @@ struct mchp_spdifrx_ch_stat {
+ struct mchp_spdifrx_user_data {
+ 	unsigned char data[SPDIFRX_UD_BITS / 8];
+ 	struct completion done;
+-	spinlock_t lock;	/* protect access to user data */
+ };
+ 
+ struct mchp_spdifrx_mixer_control {
+@@ -231,8 +230,6 @@ struct mchp_spdifrx_mixer_control {
+ struct mchp_spdifrx_dev {
+ 	struct snd_dmaengine_dai_dma_data	capture;
+ 	struct mchp_spdifrx_mixer_control	control;
+-	spinlock_t				blockend_lock;	/* protect access to blockend_refcount */
+-	int					blockend_refcount;
+ 	struct mutex				mlock;
+ 	struct device				*dev;
+ 	struct regmap				*regmap;
+@@ -277,37 +274,11 @@ static void mchp_spdifrx_channel_user_data_read(struct mchp_spdifrx_dev *dev,
+ 	}
  }
  
-+/* 'dst' must be a temporary buffer and should not point to memory that is being
-+ * used in parallel by a bpf program or bpf syscall, otherwise the access from
-+ * the bpf program or bpf syscall may be corrupted by the reinitialization,
-+ * leading to weird problems. Even 'dst' is newly-allocated from bpf memory
-+ * allocator, it is still possible for 'dst' to be used in parallel by a bpf
-+ * program or bpf syscall.
-+ */
- static inline void check_and_init_map_value(struct bpf_map *map, void *dst)
+-/* called from non-atomic context only */
+-static void mchp_spdifrx_isr_blockend_en(struct mchp_spdifrx_dev *dev)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&dev->blockend_lock, flags);
+-	dev->blockend_refcount++;
+-	/* don't enable BLOCKEND interrupt if it's already enabled */
+-	if (dev->blockend_refcount == 1)
+-		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_BLOCKEND);
+-	spin_unlock_irqrestore(&dev->blockend_lock, flags);
+-}
+-
+-/* called from atomic/non-atomic context */
+-static void mchp_spdifrx_isr_blockend_dis(struct mchp_spdifrx_dev *dev)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&dev->blockend_lock, flags);
+-	dev->blockend_refcount--;
+-	/* don't enable BLOCKEND interrupt if it's already enabled */
+-	if (dev->blockend_refcount == 0)
+-		regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_BLOCKEND);
+-	spin_unlock_irqrestore(&dev->blockend_lock, flags);
+-}
+-
+ static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
  {
- 	if (unlikely(map_value_has_spin_lock(map)))
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index c4811984fafa4..4a3d0a7447026 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -1010,8 +1010,6 @@ static struct htab_elem *alloc_htab_elem(struct bpf_htab *htab, void *key,
- 			l_new = ERR_PTR(-ENOMEM);
- 			goto dec_count;
+ 	struct mchp_spdifrx_dev *dev = dev_id;
+ 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
+-	u32 sr, imr, pending, idr = 0;
++	u32 sr, imr, pending;
+ 	irqreturn_t ret = IRQ_NONE;
+ 	int ch;
+ 
+@@ -322,13 +293,10 @@ static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
+ 
+ 	if (pending & SPDIFRX_IR_BLOCKEND) {
+ 		for (ch = 0; ch < SPDIFRX_CHANNELS; ch++) {
+-			spin_lock(&ctrl->user_data[ch].lock);
+ 			mchp_spdifrx_channel_user_data_read(dev, ch);
+-			spin_unlock(&ctrl->user_data[ch].lock);
+-
+ 			complete(&ctrl->user_data[ch].done);
  		}
--		check_and_init_map_value(&htab->map,
--					 l_new->key + round_up(key_size, 8));
+-		mchp_spdifrx_isr_blockend_dis(dev);
++		regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_BLOCKEND);
+ 		ret = IRQ_HANDLED;
  	}
  
- 	memcpy(l_new->key, key, key_size);
-@@ -1603,6 +1601,7 @@ static int __htab_map_lookup_and_delete_elem(struct bpf_map *map, void *key,
- 			else
- 				copy_map_value(map, value, l->key +
- 					       roundup_key_size);
-+			/* Zeroing special fields in the temp buffer */
- 			check_and_init_map_value(map, value);
+@@ -336,7 +304,7 @@ static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
+ 		if (pending & SPDIFRX_IR_CSC(ch)) {
+ 			mchp_spdifrx_channel_status_read(dev, ch);
+ 			complete(&ctrl->ch_stat[ch].done);
+-			idr |= SPDIFRX_IR_CSC(ch);
++			regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_CSC(ch));
+ 			ret = IRQ_HANDLED;
  		}
- 
-@@ -1803,6 +1802,7 @@ __htab_map_lookup_and_delete_batch(struct bpf_map *map,
- 						      true);
- 			else
- 				copy_map_value(map, dst_val, value);
-+			/* Zeroing special fields in the temp buffer */
- 			check_and_init_map_value(map, dst_val);
- 		}
- 		if (do_delete) {
-diff --git a/kernel/bpf/memalloc.c b/kernel/bpf/memalloc.c
-index 6187c28d266f0..ace303a220ae8 100644
---- a/kernel/bpf/memalloc.c
-+++ b/kernel/bpf/memalloc.c
-@@ -143,7 +143,7 @@ static void *__alloc(struct bpf_mem_cache *c, int node)
- 		return obj;
+ 	}
+@@ -346,8 +314,6 @@ static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
+ 		ret = IRQ_HANDLED;
  	}
  
--	return kmalloc_node(c->unit_size, flags, node);
-+	return kmalloc_node(c->unit_size, flags | __GFP_ZERO, node);
+-	regmap_write(dev->regmap, SPDIFRX_IDR, idr);
+-
+ 	return ret;
  }
  
- static struct mem_cgroup *get_memcg(const struct bpf_mem_cache *c)
+@@ -517,23 +483,51 @@ static int mchp_spdifrx_cs_get(struct mchp_spdifrx_dev *dev,
+ {
+ 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
+ 	struct mchp_spdifrx_ch_stat *ch_stat = &ctrl->ch_stat[channel];
+-	int ret;
++	int ret = 0;
++
++	mutex_lock(&dev->mlock);
+ 
+-	regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_CSC(channel));
+-	/* check for new data available */
+-	ret = wait_for_completion_interruptible_timeout(&ch_stat->done,
+-							msecs_to_jiffies(100));
+-	/* IP might not be started or valid stream might not be present */
+-	if (ret <= 0) {
+-		dev_dbg(dev->dev, "channel status for channel %d timeout\n",
+-			channel);
+-		return ret ? : -ETIMEDOUT;
++	/*
++	 * We may reach this point with both clocks enabled but the receiver
++	 * still disabled. To void waiting for completion and return with
++	 * timeout check the dev->trigger_enabled.
++	 *
++	 * To retrieve data:
++	 * - if the receiver is enabled CSC IRQ will update the data in software
++	 *   caches (ch_stat->data)
++	 * - otherwise we just update it here the software caches with latest
++	 *   available information and return it; in this case we don't need
++	 *   spin locking as the IRQ is disabled and will not be raised from
++	 *   anywhere else.
++	 */
++
++	if (dev->trigger_enabled) {
++		reinit_completion(&ch_stat->done);
++		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_CSC(channel));
++		/* Check for new data available */
++		ret = wait_for_completion_interruptible_timeout(&ch_stat->done,
++								msecs_to_jiffies(100));
++		/* Valid stream might not be present */
++		if (ret <= 0) {
++			dev_dbg(dev->dev, "channel status for channel %d timeout\n",
++				channel);
++			regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_CSC(channel));
++			ret = ret ? : -ETIMEDOUT;
++			goto unlock;
++		} else {
++			ret = 0;
++		}
++	} else {
++		/* Update software cache with latest channel status. */
++		mchp_spdifrx_channel_status_read(dev, channel);
+ 	}
+ 
+ 	memcpy(uvalue->value.iec958.status, ch_stat->data,
+ 	       sizeof(ch_stat->data));
+ 
+-	return 0;
++unlock:
++	mutex_unlock(&dev->mlock);
++	return ret;
+ }
+ 
+ static int mchp_spdifrx_cs1_get(struct snd_kcontrol *kcontrol,
+@@ -567,29 +561,49 @@ static int mchp_spdifrx_subcode_ch_get(struct mchp_spdifrx_dev *dev,
+ 				       int channel,
+ 				       struct snd_ctl_elem_value *uvalue)
+ {
+-	unsigned long flags;
+ 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
+ 	struct mchp_spdifrx_user_data *user_data = &ctrl->user_data[channel];
+-	int ret;
++	int ret = 0;
++
++	mutex_lock(&dev->mlock);
++
++	/*
++	 * We may reach this point with both clocks enabled but the receiver
++	 * still disabled. To void waiting for completion to just timeout we
++	 * check here the dev->trigger_enabled flag.
++	 *
++	 * To retrieve data:
++	 * - if the receiver is enabled we need to wait for blockend IRQ to read
++	 *   data to and update it for us in software caches
++	 * - otherwise reading the SPDIFRX_CHUD() registers is enough.
++	 */
+ 
+-	reinit_completion(&user_data->done);
+-	mchp_spdifrx_isr_blockend_en(dev);
+-	ret = wait_for_completion_interruptible_timeout(&user_data->done,
+-							msecs_to_jiffies(100));
+-	/* IP might not be started or valid stream might not be present */
+-	if (ret <= 0) {
+-		dev_dbg(dev->dev, "user data for channel %d timeout\n",
+-			channel);
+-		mchp_spdifrx_isr_blockend_dis(dev);
+-		return ret ? : -ETIMEDOUT;
++	if (dev->trigger_enabled) {
++		reinit_completion(&user_data->done);
++		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_BLOCKEND);
++		ret = wait_for_completion_interruptible_timeout(&user_data->done,
++								msecs_to_jiffies(100));
++		/* Valid stream might not be present. */
++		if (ret <= 0) {
++			dev_dbg(dev->dev, "user data for channel %d timeout\n",
++				channel);
++			regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_BLOCKEND);
++			ret = ret ? : -ETIMEDOUT;
++			goto unlock;
++		} else {
++			ret = 0;
++		}
++	} else {
++		/* Update software cache with last available data. */
++		mchp_spdifrx_channel_user_data_read(dev, channel);
+ 	}
+ 
+-	spin_lock_irqsave(&user_data->lock, flags);
+ 	memcpy(uvalue->value.iec958.subcode, user_data->data,
+ 	       sizeof(user_data->data));
+-	spin_unlock_irqrestore(&user_data->lock, flags);
+ 
+-	return 0;
++unlock:
++	mutex_unlock(&dev->mlock);
++	return ret;
+ }
+ 
+ static int mchp_spdifrx_subcode_ch1_get(struct snd_kcontrol *kcontrol,
+@@ -890,11 +904,9 @@ static int mchp_spdifrx_dai_probe(struct snd_soc_dai *dai)
+ 		     SPDIFRX_MR_AUTORST_NOACTION |
+ 		     SPDIFRX_MR_PACK_DISABLED);
+ 
+-	dev->blockend_refcount = 0;
+ 	for (ch = 0; ch < SPDIFRX_CHANNELS; ch++) {
+ 		init_completion(&ctrl->ch_stat[ch].done);
+ 		init_completion(&ctrl->user_data[ch].done);
+-		spin_lock_init(&ctrl->user_data[ch].lock);
+ 	}
+ 
+ 	/* Add controls */
+@@ -1005,7 +1017,6 @@ static int mchp_spdifrx_probe(struct platform_device *pdev)
+ 	 */
+ 	clk_set_min_rate(dev->gclk, 48000 * SPDIFRX_GCLK_RATIO_MIN + 1);
+ 
+-	spin_lock_init(&dev->blockend_lock);
+ 	mutex_init(&dev->mlock);
+ 
+ 	dev->dev = &pdev->dev;
 -- 
 2.39.2
 
