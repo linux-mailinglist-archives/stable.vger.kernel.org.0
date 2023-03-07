@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFDE76AF49A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32F606AF49B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230118AbjCGTRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:17:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43726 "EHLO
+        id S233899AbjCGTRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:17:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229708AbjCGTRT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:19 -0500
+        with ESMTP id S233755AbjCGTRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27D9BAD16
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F70C4892
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 679F161535
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CAE5C433D2;
-        Tue,  7 Mar 2023 19:01:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EF2A61522
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A7AC433D2;
+        Tue,  7 Mar 2023 19:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215673;
-        bh=eQb6M0Hlc4SIfS8Yncu5bRBCUs75bP3dS9q6Iv7Wwz0=;
+        s=korg; t=1678215676;
+        bh=/nxl+UIFDtE1M3DW0A89Majj37fe32u4g7WZrZCSaD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPhhxT28G2ncsUi11/LF1aojPaKTX7Q9TXlXZWNxLLSbLd7NmfB6VqeKvkmViDdKt
-         9bjqDpVH+pe6N76alaSY5qlTpwMp6w+dZj02GxaG2wv++24UotwdkZoOFiwo26Z1Ud
-         apw/HGf4ZjT1ppyhIlnzRWjXB8SyOlfhN0Iz1mtM=
+        b=Ne8wlT65Fyd0HuHitE3romD5/oahFRU+ucXNF2qApE8/UAI49bFTz57HVhUESMPF7
+         fkG0dHdtnnl0FvgkTDZeXjhyq827mcHaOWpXpDwq374+pGWGbO7g1aPizXHemRWj9h
+         f7HbbHSPbtafpTDle1vYbCronnxL9ml2Juavb1+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Lu Baolu <baolu.lu@linux.intel.com>,
         Kevin Tian <kevin.tian@intel.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 338/567] iommu/vt-d: Remove duplicate identity domain flag
-Date:   Tue,  7 Mar 2023 18:01:14 +0100
-Message-Id: <20230307165920.520443531@linuxfoundation.org>
+Subject: [PATCH 5.15 339/567] iommu/vt-d: Check FL and SL capability sanity in scalable mode
+Date:   Tue,  7 Mar 2023 18:01:15 +0100
+Message-Id: <20230307165920.567029545@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -56,87 +56,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit b34380a6d767c54480a937951e6189a7f9699443 ]
+[ Upstream commit 7afd7f6aa21a2929aff3a059b741933ee1819c6b ]
 
-The iommu_domain data structure already has the "type" field to keep the
-type of a domain. It's unnecessary to have the DOMAIN_FLAG_STATIC_IDENTITY
-flag in the vt-d implementation. This cleans it up with no functionality
-change.
+An iommu domain could be allocated and mapped before it's attached to any
+device. This requires that in scalable mode, when the domain is allocated,
+the format (FL or SL) of the page table must be determined. In order to
+achieve this, the platform should support consistent SL or FL capabilities
+on all IOMMU's. This adds a check for this and aborts IOMMU probing if it
+doesn't meet this requirement.
 
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
 Reviewed-by: Kevin Tian <kevin.tian@intel.com>
 Link: https://lore.kernel.org/r/20210926114535.923263-1-baolu.lu@linux.intel.com
-Link: https://lore.kernel.org/r/20211014053839.727419-4-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20211014053839.727419-5-baolu.lu@linux.intel.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Stable-dep-of: 257ec2907419 ("iommu/vt-d: Allow to use flush-queue when first level is default")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 9 ++++-----
- include/linux/intel-iommu.h | 3 ---
- 2 files changed, 4 insertions(+), 8 deletions(-)
+ drivers/iommu/intel/cap_audit.c | 13 +++++++++++++
+ drivers/iommu/intel/cap_audit.h |  1 +
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 5a4163f71a933..6be0fb10cb8a9 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -514,7 +514,7 @@ static inline void free_devinfo_mem(void *vaddr)
+diff --git a/drivers/iommu/intel/cap_audit.c b/drivers/iommu/intel/cap_audit.c
+index b12e421a2f1ab..b39d223926a49 100644
+--- a/drivers/iommu/intel/cap_audit.c
++++ b/drivers/iommu/intel/cap_audit.c
+@@ -163,6 +163,14 @@ static int cap_audit_static(struct intel_iommu *iommu, enum cap_audit_type type)
+ 			check_irq_capabilities(iommu, i);
+ 	}
  
- static inline int domain_type_is_si(struct dmar_domain *domain)
++	/*
++	 * If the system is sane to support scalable mode, either SL or FL
++	 * should be sane.
++	 */
++	if (intel_cap_smts_sanity() &&
++	    !intel_cap_flts_sanity() && !intel_cap_slts_sanity())
++		return -EOPNOTSUPP;
++
+ out:
+ 	rcu_read_unlock();
+ 	return 0;
+@@ -203,3 +211,8 @@ bool intel_cap_flts_sanity(void)
  {
--	return domain->flags & DOMAIN_FLAG_STATIC_IDENTITY;
-+	return domain->domain.type == IOMMU_DOMAIN_IDENTITY;
+ 	return ecap_flts(intel_iommu_ecap_sanity);
  }
++
++bool intel_cap_slts_sanity(void)
++{
++	return ecap_slts(intel_iommu_ecap_sanity);
++}
+diff --git a/drivers/iommu/intel/cap_audit.h b/drivers/iommu/intel/cap_audit.h
+index 74cfccae0e817..d07b75938961f 100644
+--- a/drivers/iommu/intel/cap_audit.h
++++ b/drivers/iommu/intel/cap_audit.h
+@@ -111,6 +111,7 @@ bool intel_cap_smts_sanity(void);
+ bool intel_cap_pasid_sanity(void);
+ bool intel_cap_nest_sanity(void);
+ bool intel_cap_flts_sanity(void);
++bool intel_cap_slts_sanity(void);
  
- static inline bool domain_use_first_level(struct dmar_domain *domain)
-@@ -1922,7 +1922,7 @@ static bool first_level_by_default(void)
- 	return scalable_mode_support() && intel_cap_flts_sanity();
- }
- 
--static struct dmar_domain *alloc_domain(int flags)
-+static struct dmar_domain *alloc_domain(unsigned int type)
+ static inline bool scalable_mode_support(void)
  {
- 	struct dmar_domain *domain;
- 
-@@ -1932,7 +1932,6 @@ static struct dmar_domain *alloc_domain(int flags)
- 
- 	memset(domain, 0, sizeof(*domain));
- 	domain->nid = NUMA_NO_NODE;
--	domain->flags = flags;
- 	if (first_level_by_default())
- 		domain->flags |= DOMAIN_FLAG_USE_FIRST_LEVEL;
- 	domain->has_iotlb_device = false;
-@@ -2753,7 +2752,7 @@ static int __init si_domain_init(int hw)
- 	struct device *dev;
- 	int i, nid, ret;
- 
--	si_domain = alloc_domain(DOMAIN_FLAG_STATIC_IDENTITY);
-+	si_domain = alloc_domain(IOMMU_DOMAIN_IDENTITY);
- 	if (!si_domain)
- 		return -EFAULT;
- 
-@@ -4555,7 +4554,7 @@ static struct iommu_domain *intel_iommu_domain_alloc(unsigned type)
- 	case IOMMU_DOMAIN_DMA:
- 	case IOMMU_DOMAIN_DMA_FQ:
- 	case IOMMU_DOMAIN_UNMANAGED:
--		dmar_domain = alloc_domain(0);
-+		dmar_domain = alloc_domain(type);
- 		if (!dmar_domain) {
- 			pr_err("Can't allocate dmar_domain\n");
- 			return NULL;
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index 81da7107e3bd0..0cf00786a164f 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -515,9 +515,6 @@ struct context_entry {
- 	u64 hi;
- };
- 
--/* si_domain contains mulitple devices */
--#define DOMAIN_FLAG_STATIC_IDENTITY		BIT(0)
--
- /*
-  * When VT-d works in the scalable mode, it allows DMA translation to
-  * happen through either first level or second level page table. This
 -- 
 2.39.2
 
