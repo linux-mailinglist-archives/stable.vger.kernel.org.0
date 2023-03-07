@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 480836AF143
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:41:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6706AEC87
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:56:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233117AbjCGSl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:41:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53538 "EHLO
+        id S229772AbjCGR4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:56:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230091AbjCGSle (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D27596625
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:13 -0800 (PST)
+        with ESMTP id S229844AbjCGRzp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:55:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF73A95E28
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:50:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C40406154A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:32:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D404EC433D2;
-        Tue,  7 Mar 2023 18:32:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84D63B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:50:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D30C4339E;
+        Tue,  7 Mar 2023 17:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213930;
-        bh=YTUJLvMddYqETv4VWZZPM9evhw7Q3EgGxqYOUlciBl0=;
+        s=korg; t=1678211427;
+        bh=5PY/Pxx78wE4EwQtttQF8UnMsI02CIxsIwSq8m23V6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vAmLGzJJxQyAAX8LwmrbPf9Y3jgWLetZncpsYdr+ryBRckKtPTQ26KEblplP49FoD
-         wHf9SThKMet1lWuoYR3aKsNIodmW6fOK9ZBoEeAySVWZE/gr4MEGygnyJ8yE/aSPpL
-         0lXq7e64zr+MPxpc4dc0xDKGQ34ejvFvHll92wpo=
+        b=V4hjbMJjEKSrL1UpDUk7wa/wgZLQKzOKJGOOEOUc8F62B6xF+kAri0UvGxVpKgVMy
+         j9L/ATJQrGRvUydT56XLGfqXXKA9brUNmoF/ZW2EwfqHhTb6ZSBFKgRBSkYVCj2Eo1
+         CaJFO8eFx9MqcFvXLBb1O2+RH3GjzSEK7lrXY6jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 664/885] io_uring: fix fget leak when fs dont support nowait buffered read
-Date:   Tue,  7 Mar 2023 17:59:58 +0100
-Message-Id: <20230307170031.018747379@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.2 0827/1001] KVM: x86: Dont inhibit APICv/AVIC if xAPIC ID mismatch is due to 32-bit ID
+Date:   Tue,  7 Mar 2023 17:59:59 +0100
+Message-Id: <20230307170057.652868823@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,64 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 54aa7f2330b82884f4a1afce0220add6e8312f8b upstream.
+commit f651a008954803d7bb2d85b7042d0fd46133d782 upstream.
 
-Heming reported a BUG when using io_uring doing link-cp on ocfs2. [1]
+Truncate the vcpu_id, a.k.a. x2APIC ID, to an 8-bit value when comparing
+it against the xAPIC ID to avoid false positives (sort of) on systems
+with >255 CPUs, i.e. with IDs that don't fit into a u8.  The intent of
+APIC_ID_MODIFIED is to inhibit APICv/AVIC when the xAPIC is changed from
+it's original value,
 
-Do the following steps can reproduce this BUG:
-mount -t ocfs2 /dev/vdc /mnt/ocfs2
-cp testfile /mnt/ocfs2/
-./link-cp /mnt/ocfs2/testfile /mnt/ocfs2/testfile.1
-umount /mnt/ocfs2
+The mismatch isn't technically a false positive, as architecturally the
+xAPIC IDs do end up being aliased in this scenario, and neither APICv
+nor AVIC correctly handles IPI virtualization when there is aliasing.
+However, KVM already deliberately does not honor the aliasing behavior
+that results when an x2APIC ID gets truncated to an xAPIC ID.  I.e. the
+resulting APICv/AVIC behavior is aligned with KVM's existing behavior
+when KVM's x2APIC hotplug hack is effectively enabled.
 
-Then umount will fail, and it outputs:
-umount: /mnt/ocfs2: target is busy.
+If/when KVM provides a way to disable the hotplug hack, APICv/AVIC can
+piggyback whatever logic disables the optimized APIC map (which is what
+provides the hotplug hack), i.e. so that KVM's optimized map and APIC
+virtualization yield the same behavior.
 
-While tracing umount, it blames mnt_get_count() not return as expected.
-Do a deep investigation for fget()/fput() on related code flow, I've
-finally found that fget() leaks since ocfs2 doesn't support nowait
-buffered read.
+For now, fix the immediate problem of APIC virtualization being disabled
+for large VMs, which is a much more pressing issue than ensuring KVM
+honors architectural behavior for APIC ID aliasing.
 
-io_issue_sqe
-|-io_assign_file  // do fget() first
-  |-io_read
-  |-io_iter_do_read
-    |-ocfs2_file_read_iter  // return -EOPNOTSUPP
-  |-kiocb_done
-    |-io_rw_done
-      |-__io_complete_rw_common  // set REQ_F_REISSUE
-    |-io_resubmit_prep
-      |-io_req_prep_async  // override req->file, leak happens
-
-This was introduced by commit a196c78b5443 in v5.18. Fix it by don't
-re-assign req->file if it has already been assigned.
-
-[1] https://lore.kernel.org/ocfs2-devel/ab580a75-91c8-d68a-3455-40361be1bfa8@linux.alibaba.com/T/#t
-
-Fixes: a196c78b5443 ("io_uring: assign non-fixed early for async work")
-Cc: <stable@vger.kernel.org>
-Reported-by: Heming Zhao <heming.zhao@suse.com>
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230228045459.13524-1-joseph.qi@linux.alibaba.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 3743c2f02517 ("KVM: x86: inhibit APICv/AVIC on changes to APIC ID or APIC base")
+Reported-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20230106011306.85230-7-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/lapic.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -1597,7 +1597,7 @@ int io_req_prep_async(struct io_kiocb *r
- 	const struct io_op_def *def = &io_op_defs[req->opcode];
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2078,7 +2078,12 @@ static void kvm_lapic_xapic_id_updated(s
+ 	if (KVM_BUG_ON(apic_x2apic_mode(apic), kvm))
+ 		return;
  
- 	/* assign early for deferred execution for non-fixed file */
--	if (def->needs_file && !(req->flags & REQ_F_FIXED_FILE))
-+	if (def->needs_file && !(req->flags & REQ_F_FIXED_FILE) && !req->file)
- 		req->file = io_file_get_normal(req, req->cqe.fd);
- 	if (!def->prep_async)
- 		return 0;
+-	if (kvm_xapic_id(apic) == apic->vcpu->vcpu_id)
++	/*
++	 * Deliberately truncate the vCPU ID when detecting a modified APIC ID
++	 * to avoid false positives if the vCPU ID, i.e. x2APIC ID, is a 32-bit
++	 * value.
++	 */
++	if (kvm_xapic_id(apic) == (u8)apic->vcpu->vcpu_id)
+ 		return;
+ 
+ 	kvm_set_apicv_inhibit(apic->vcpu->kvm, APICV_INHIBIT_REASON_APIC_ID_MODIFIED);
 
 
