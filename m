@@ -2,167 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AABE6ADEDB
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 13:37:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C043B6AE005
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 14:07:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbjCGMhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 07:37:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58348 "EHLO
+        id S230413AbjCGNHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 08:07:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230042AbjCGMhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 07:37:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E20CA279B8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 04:37:05 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EA3B6131B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 12:37:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA7EC433EF;
-        Tue,  7 Mar 2023 12:37:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678192624;
-        bh=Eo0V5xGR8BmGIRof72xFJxOYoLz3HL3KzwHeYZL1gjk=;
-        h=Subject:To:Cc:From:Date:From;
-        b=akBp8mvDclr2DohAHJXIBEQsQE3jpo277L6RJZ1EoItd3of0Cowcv+L7ThYT4pZ+0
-         WpNvzwgimwIFCykoqcacGUjds2I9KUkIuz2ghH94zTKgC00lKRywJ1N3Hx1BZQ+ehD
-         XD9S13JiYuNOHVjCtbZfvs5K434713ho8MigIEsE=
-Subject: FAILED: patch "[PATCH] thermal: intel: powerclamp: Fix cur_state for multi package" failed to apply to 4.19-stable tree
-To:     srinivas.pandruvada@linux.intel.com, rafael.j.wysocki@intel.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 13:37:01 +0100
-Message-ID: <16781926219650@kroah.com>
+        with ESMTP id S230435AbjCGNHV (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 7 Mar 2023 08:07:21 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE7807B4AB
+        for <Stable@vger.kernel.org>; Tue,  7 Mar 2023 05:05:53 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id q31-20020a17090a17a200b0023750b69614so11779100pja.5
+        for <Stable@vger.kernel.org>; Tue, 07 Mar 2023 05:05:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1678194352;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=t+FdsTGZzqFZqYBTn3Ql+ChMDk8iUlybGRvDY8ZJ9VU=;
+        b=RBo4mnr9UV/76xDxoNtIFvN1XW6fFx1PY1NBiBdZog7bPokCU7XM5kQUk6LQDiqV8U
+         YrWsVdVwtGNZwuuLoYW6ov2pXHIYRzRFDStHthlQfInnIps8GwfB74TucjDdimqbaXWW
+         jICL4WCdizqK/+1J5HKRHPrCGRMxzoIkWYkkUUTQ+oxVF0Ur3093L3wwZ0Q722cllW1B
+         u0rzZ07flKCpWM59XBHvlep+JW4VRVWPp2BtO6W1ZUbEFwqU/rzxSNhpfst5RKm62J/6
+         funSPnYuZXt/hBhouBzzFqflnpGbyAr/NuB79F3VqIawrzBMUqgALdIigjDFBKSL+HRe
+         1SAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678194352;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=t+FdsTGZzqFZqYBTn3Ql+ChMDk8iUlybGRvDY8ZJ9VU=;
+        b=qVZG+28C9wADvtlOBVwPrFt0lktQbEduWLtwthAjOJyNIjTkDWSPysIYjs95FlndIo
+         lCX2xdKWZdOQ4yQdT8GPNU8qAQ91IBAnqCjaohr5Qx8TmNkOMNgqWFxvZWeBs04EqENh
+         xN0yLwAs4Zf1UGjjQfj7VdEaZ7CFwKwlv5T4kis2P497crmQh/HLoi+HW3TexiodfIqm
+         DxeGinMpDBngUzSaY+2zgwfaIB3vnphQ3eD1k3kwhHEv1QSnL/Ljtn3Nvla8lAsC78Vr
+         EGuT2DsGCmAFOBnwihd2D4qmp3kxv5yl/A85YnD5Ufv1orRvqqsKUTWiPgYDNZP84KB0
+         aQcQ==
+X-Gm-Message-State: AO0yUKX0+07N4owCytypfrQYBPYnWJSaucudEeguBRaGNGu87LuQpcuS
+        XPBjHFnJB8BJpE3S2EF6Puu5Ug==
+X-Google-Smtp-Source: AK7set9tOFhM95hUX3pEY5rK2bAommdGqvpRofEUa/4iWeTx414xIKOjt0Uc2cc+J9isMI7He9+sOg==
+X-Received: by 2002:a17:902:d2c9:b0:19a:c4a0:5b1b with SMTP id n9-20020a170902d2c900b0019ac4a05b1bmr19927045plc.1.1678194351908;
+        Tue, 07 Mar 2023 05:05:51 -0800 (PST)
+Received: from [10.200.8.102] ([139.177.225.254])
+        by smtp.gmail.com with ESMTPSA id s7-20020a170902988700b00198fb25d09bsm8322729plp.237.2023.03.07.05.05.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Mar 2023 05:05:51 -0800 (PST)
+Message-ID: <cec2dec7-818a-b32c-3ad4-8b23fc1351f3@bytedance.com>
+Date:   Tue, 7 Mar 2023 21:05:46 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Subject: Re: [PATCH 1/2] maple_tree: Fix mas_skip_node() end slot detection
+To:     "Liam R. Howlett" <Liam.Howlett@oracle.com>
+Cc:     Stable@vger.kernel.org, maple-tree@lists.infradead.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Snild Dolkow <snild@sony.com>
+References: <20230303021540.1056603-1-Liam.Howlett@oracle.com>
+From:   Peng Zhang <zhangpeng.00@bytedance.com>
+In-Reply-To: <20230303021540.1056603-1-Liam.Howlett@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi, Liam,
+> mas_skip_node() is used to move the maple state to the node with a
+> higher limit.  It does this by walking up the tree and increasing the
+> slot count.  Since slot count may not be able to be increased, it may
+> need to walk up multiple times to find room to walk right to a higher
+> limit node.  The limit of slots that was being used was the node limit
+> and not the last location of data in the node.  This would cause the
+> maple state to be shifted outside actual data and enter an error state,
+> thus returning -EBUSY.
+> 
+> The result of the incorrect error state means that mas_awalk() would
+> return an error instead of finding the allocation space.
+> 
+> The fix is to use mas_data_end() in mas_skip_node() to detect the nodes
+> data end point and continue walking the tree up until it is safe to move
+> to a node with a higher limit.
+> 
+> mas_skip_node() may also be passed a maple state in an error state from
+> mas_anode_descend() when no allocations are available.  Return on such
+> an error state immediately.
+> 
+> Reported-by: Snild Dolkow <snild@sony.com>
+> Link: https://lore.kernel.org/linux-mm/cb8dc31a-fef2-1d09-f133-e9f7b9f9e77a@sony.com/
+> Cc: <Stable@vger.kernel.org>
+> Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+> Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reviewed-by: Peng Zhang <zhangpeng.00@bytedance.com>
+> ---
+>   lib/maple_tree.c | 25 ++++++++++---------------
+>   1 file changed, 10 insertions(+), 15 deletions(-)
+> 
+> diff --git a/lib/maple_tree.c b/lib/maple_tree.c
+> index 2be86368237d..2efe854946d6 100644
+> --- a/lib/maple_tree.c
+> +++ b/lib/maple_tree.c
+> @@ -5188,34 +5188,29 @@ static inline bool mas_rewind_node(struct ma_state *mas)
+>    */
+>   static inline bool mas_skip_node(struct ma_state *mas)
+>   {
+> -	unsigned char slot, slot_count;
+>   	unsigned long *pivots;
+>   	enum maple_type mt;
+>   
+> -	mt = mte_node_type(mas->node);
+> -	slot_count = mt_slots[mt] - 1;
+> +	if (mas_is_err(mas))
+> +		return false;
+> +
+>   	do {
+>   		if (mte_is_root(mas->node)) {
+> -			slot = mas->offset;
+> -			if (slot > slot_count) {
+> +			if (mas->offset >= mas_data_end(mas)) {
+>   				mas_set_err(mas, -EBUSY);
+>   				return false;
+>   			}
+>   		} else {
+>   			mas_ascend(mas);
+> -			slot = mas->offset;
+> -			mt = mte_node_type(mas->node);
+> -			slot_count = mt_slots[mt] - 1;
+>   		}
+> -	} while (slot > slot_count);
+> +	} while (mas->offset >= mas_data_end(mas));
+>   
+> -	mas->offset = ++slot;
+> +	mt = mte_node_type(mas->node);
+>   	pivots = ma_pivots(mas_mn(mas), mt);
+> -	if (slot > 0)
+> -		mas->min = pivots[slot - 1] + 1;
+> -
+> -	if (slot <= slot_count)
+> -		mas->max = pivots[slot];
+> +	mas->min = pivots[mas->offset] + 1;
+> +	mas->offset++;
+> +	if (mas->offset < mt_slots[mt])
+> +		mas->max = pivots[mas->offset];
+There is a bug here, the assignment of mas->min and mas->max is wrong.
+The assignment will make them represent the range of a child node, but 
+it should represent the range of the current node. After mas_ascend() 
+returns, mas-min and mas->max already represent the range of the current 
+node, so we should delete these assignments of mas->min and mas->max.
+>   
+>   	return true;
+>   }
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
-git checkout FETCH_HEAD
-git cherry-pick -x 8e47363588377e1bdb65e2b020b409cfb44dd260
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781926219650@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
-
-Possible dependencies:
-
-8e4736358837 ("thermal: intel: powerclamp: Fix cur_state for multi package system")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 8e47363588377e1bdb65e2b020b409cfb44dd260 Mon Sep 17 00:00:00 2001
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Date: Wed, 1 Feb 2023 12:39:41 -0800
-Subject: [PATCH] thermal: intel: powerclamp: Fix cur_state for multi package
- system
-
-The powerclamp cooling device cur_state shows actual idle observed by
-package C-state idle counters. But the implementation is not sufficient
-for multi package or multi die system. The cur_state value is incorrect.
-On these systems, these counters must be read from each package/die and
-somehow aggregate them. But there is no good method for aggregation.
-
-It was not a problem when explicit CPU model addition was required to
-enable intel powerclamp. In this way certain CPU models could have
-been avoided. But with the removal of CPU model check with the
-availability of Package C-state counters, the driver is loaded on most
-of the recent systems.
-
-For multi package/die systems, just show the actual target idle state,
-the system is trying to achieve. In powerclamp this is the user set
-state minus one.
-
-Also there is no use of starting a worker thread for polling package
-C-state counters and applying any compensation for multiple package
-or multiple die systems.
-
-Fixes: b721ca0d1927 ("thermal/powerclamp: remove cpu whitelist")
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-diff --git a/drivers/thermal/intel/intel_powerclamp.c b/drivers/thermal/intel/intel_powerclamp.c
-index b80e25ec1261..2f4cbfdf26a0 100644
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -57,6 +57,7 @@
- 
- static unsigned int target_mwait;
- static struct dentry *debug_dir;
-+static bool poll_pkg_cstate_enable;
- 
- /* user selected target */
- static unsigned int set_target_ratio;
-@@ -261,6 +262,9 @@ static unsigned int get_compensation(int ratio)
- {
- 	unsigned int comp = 0;
- 
-+	if (!poll_pkg_cstate_enable)
-+		return 0;
-+
- 	/* we only use compensation if all adjacent ones are good */
- 	if (ratio == 1 &&
- 		cal_data[ratio].confidence >= CONFIDENCE_OK &&
-@@ -519,7 +523,8 @@ static int start_power_clamp(void)
- 	control_cpu = cpumask_first(cpu_online_mask);
- 
- 	clamping = true;
--	schedule_delayed_work(&poll_pkg_cstate_work, 0);
-+	if (poll_pkg_cstate_enable)
-+		schedule_delayed_work(&poll_pkg_cstate_work, 0);
- 
- 	/* start one kthread worker per online cpu */
- 	for_each_online_cpu(cpu) {
-@@ -585,11 +590,15 @@ static int powerclamp_get_max_state(struct thermal_cooling_device *cdev,
- static int powerclamp_get_cur_state(struct thermal_cooling_device *cdev,
- 				 unsigned long *state)
- {
--	if (true == clamping)
--		*state = pkg_cstate_ratio_cur;
--	else
-+	if (clamping) {
-+		if (poll_pkg_cstate_enable)
-+			*state = pkg_cstate_ratio_cur;
-+		else
-+			*state = set_target_ratio;
-+	} else {
- 		/* to save power, do not poll idle ratio while not clamping */
- 		*state = -1; /* indicates invalid state */
-+	}
- 
- 	return 0;
- }
-@@ -712,6 +721,9 @@ static int __init powerclamp_init(void)
- 		goto exit_unregister;
- 	}
- 
-+	if (topology_max_packages() == 1 && topology_max_die_per_package() == 1)
-+		poll_pkg_cstate_enable = true;
-+
- 	cooling_dev = thermal_cooling_device_register("intel_powerclamp", NULL,
- 						&powerclamp_cooling_ops);
- 	if (IS_ERR(cooling_dev)) {
-
+Sincerely yours,
+Peng.
