@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6286AEE6D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE2796AE9DA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232326AbjCGSLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47986 "EHLO
+        id S231535AbjCGR2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:28:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232398AbjCGSLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE60FACBA8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:37 -0800 (PST)
+        with ESMTP id S231538AbjCGR16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70B938EB2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 34547CE1C7B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDE1C433EF;
-        Tue,  7 Mar 2023 18:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCD77611A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3691C433D2;
+        Tue,  7 Mar 2023 17:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212394;
-        bh=sUZm+FyBMYJ6zyPvw9griu/YdHdoy8TRddoR0u202i4=;
+        s=korg; t=1678209790;
+        bh=iTaY3OGiLdQn1K5HESp2a+68ugNSO6iNybwKsp4vK2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4tFQhZPL/L00uV21ElQoCXjSzLqv65u8jLesvVq5gA5/leU+oxjjTSpNxhYJw3g9
-         axJdgkkSUR1MfFH+HOEE8gYxSE4rECljrbSlhEwG+J0I3fAMcKp8/f8wMhR8WPIgZI
-         v16Tjd0/jTTJzMgdMtHQwgCqMgKMfB/gpxkmLB2E=
+        b=1LbXsw+dH/33ZfH81qotddmn43CTHJAIcs7clOyRaywu5pqf4PxnBu90pQCBhvog2
+         FVHvjtzbCr+LlpOIAFKDvVh9/xz0ASn920KljPVnJSsZwSnOPvia3aHLXPnGf3QIaN
+         tx/gtQ6qXcuajSIAmsSthd9n4LbDUOpV+8Ks/rnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Melissa Wen <mwen@igalia.com>,
+        Melissa Wen <melissa.srw@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 170/885] wifi: ath9k: Fix potential stack-out-of-bounds write in ath9k_wmi_rsp_callback()
-Date:   Tue,  7 Mar 2023 17:51:44 +0100
-Message-Id: <20230307170009.334817741@linuxfoundation.org>
+Subject: [PATCH 6.2 0333/1001] drm/vkms: Fix memory leak in vkms_init()
+Date:   Tue,  7 Mar 2023 17:51:45 +0100
+Message-Id: <20230307170035.943630654@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,56 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 8a2f35b9830692f7a616f2f627f943bc748af13a ]
+[ Upstream commit 0d0b368b9d104b437e1f4850ae94bdb9a3601e89 ]
 
-Fix a stack-out-of-bounds write that occurs in a WMI response callback
-function that is called after a timeout occurs in ath9k_wmi_cmd().
-The callback writes to wmi->cmd_rsp_buf, a stack-allocated buffer that
-could no longer be valid when a timeout occurs. Set wmi->last_seq_id to
-0 when a timeout occurred.
+A memory leak was reported after the vkms module install failed.
 
-Found by a modified version of syzkaller.
+unreferenced object 0xffff88810bc28520 (size 16):
+  comm "modprobe", pid 9662, jiffies 4298009455 (age 42.590s)
+  hex dump (first 16 bytes):
+    01 01 00 64 81 88 ff ff 00 00 dc 0a 81 88 ff ff  ...d............
+  backtrace:
+    [<00000000e7561ff8>] kmalloc_trace+0x27/0x60
+    [<000000000b1954a0>] 0xffffffffc45200a9
+    [<00000000abbf1da0>] do_one_initcall+0xd0/0x4f0
+    [<000000001505ee87>] do_init_module+0x1a4/0x680
+    [<00000000958079ad>] load_module+0x6249/0x7110
+    [<00000000117e4696>] __do_sys_finit_module+0x140/0x200
+    [<00000000f74b12d2>] do_syscall_64+0x35/0x80
+    [<000000008fc6fcde>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-BUG: KASAN: stack-out-of-bounds in ath9k_wmi_ctrl_rx
-Write of size 4
-Call Trace:
- memcpy
- ath9k_wmi_ctrl_rx
- ath9k_htc_rx_msg
- ath9k_hif_usb_reg_in_cb
- __usb_hcd_giveback_urb
- usb_hcd_giveback_urb
- dummy_timer
- call_timer_fn
- run_timer_softirq
- __do_softirq
- irq_exit_rcu
- sysvec_apic_timer_interrupt
+The reason is that the vkms_init() returns without checking the return
+value of vkms_create(), and if the vkms_create() failed, the config
+allocated at the beginning of vkms_init() is leaked.
 
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230104124130.10996-1-linuxlovemin@yonsei.ac.kr
+ vkms_init()
+   config = kmalloc(...) # config allocated
+   ...
+   return vkms_create() # vkms_create failed and config is leaked
+
+Fix this problem by checking return value of vkms_create() and free the
+config if error happened.
+
+Fixes: 2df7af93fdad ("drm/vkms: Add vkms_config type")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Melissa Wen <mwen@igalia.com>
+Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221101065156.41584-2-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/vkms/vkms_drv.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
-index f315c54bd3ac0..19345b8f7bfd5 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.c
-+++ b/drivers/net/wireless/ath/ath9k/wmi.c
-@@ -341,6 +341,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
- 	if (!time_left) {
- 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
- 			wmi_cmd_to_name(cmd_id));
-+		wmi->last_seq_id = 0;
- 		mutex_unlock(&wmi->op_mutex);
- 		return -ETIMEDOUT;
- 	}
+diff --git a/drivers/gpu/drm/vkms/vkms_drv.c b/drivers/gpu/drm/vkms/vkms_drv.c
+index 293dbca50c316..8a74f37d59123 100644
+--- a/drivers/gpu/drm/vkms/vkms_drv.c
++++ b/drivers/gpu/drm/vkms/vkms_drv.c
+@@ -218,6 +218,7 @@ static int vkms_create(struct vkms_config *config)
+ 
+ static int __init vkms_init(void)
+ {
++	int ret;
+ 	struct vkms_config *config;
+ 
+ 	config = kmalloc(sizeof(*config), GFP_KERNEL);
+@@ -230,7 +231,11 @@ static int __init vkms_init(void)
+ 	config->writeback = enable_writeback;
+ 	config->overlay = enable_overlay;
+ 
+-	return vkms_create(config);
++	ret = vkms_create(config);
++	if (ret)
++		kfree(config);
++
++	return ret;
+ }
+ 
+ static void vkms_destroy(struct vkms_config *config)
 -- 
 2.39.2
 
