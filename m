@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 271856AF362
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:04:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8A9C6AF364
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233642AbjCGTEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:04:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51668 "EHLO
+        id S233522AbjCGTEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:04:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233498AbjCGTEE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:04:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3979476BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:49:51 -0800 (PST)
+        with ESMTP id S233634AbjCGTEF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:04:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A5BFF35
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:49:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E92E8B8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:49:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 548F3C433AC;
-        Tue,  7 Mar 2023 18:49:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56A8461526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:49:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D353C4339C;
+        Tue,  7 Mar 2023 18:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214965;
-        bh=UhjXiqHYf3s33ULRKFA3w1ziziMmutAfX2v3Zg62rqQ=;
+        s=korg; t=1678214968;
+        bh=F9M0gLX4GZu/ma638TAueHQhfctg4zX+ac5sJwXmwp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0UHaMzRscG2IaCiKQdHfQF6jtkVxxaITKlD9+AFfLCPQXqJWPLYfVtZwnmmjbHEw
-         q2osjPxCHCbBz58Ex8dpv4nwBPg/LrG91gAX2wBiAm22h3t5j0VAJ9DYp22WCKzKPV
-         WsBkkail1TV/bSJjE2iRsrFhtBcp0qPGoh8tCvm4=
+        b=yRhkrOaQYKTWU9NlpcwYqsS98Y/NWRXukOfZfweCeLe/d6ALrBh94BdNd6HQZOp7R
+         hSrDZrHOvkayCVWAzblr8njytRRlmBOizwFdbLSVJ8e/Z+l+b/Yclidl5NSi6aaI3F
+         uLW9UfRiFqjPNyopN+hlxi8x6LBnWqoLYNTHt1+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Shivani Baranwal <quic_shivbara@quicinc.com>,
-        Veerendranath Jakkam <quic_vjakkam@quicinc.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 107/567] wifi: cfg80211: Fix extended KCK key length check in nl80211_set_rekey_data()
-Date:   Tue,  7 Mar 2023 17:57:23 +0100
-Message-Id: <20230307165910.530390956@linuxfoundation.org>
+Subject: [PATCH 5.15 108/567] ACPI: battery: Fix missing NUL-termination with large strings
+Date:   Tue,  7 Mar 2023 17:57:24 +0100
+Message-Id: <20230307165910.578097836@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -56,39 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shivani Baranwal <quic_shivbara@quicinc.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit df4969ca135b9b3b2c38c07514aaa775112ac835 ]
+[ Upstream commit f2ac14b5f197e4a2dec51e5ceaa56682ff1592bc ]
 
-The extended KCK key length check wrongly using the KEK key attribute
-for validation. Due to this GTK rekey offload is failing when the KCK
-key length is 24 bytes even though the driver advertising
-WIPHY_FLAG_SUPPORTS_EXT_KEK_KCK flag. Use correct attribute to fix the
-same.
+When encountering a string bigger than the destination buffer (32 bytes),
+the string is not properly NUL-terminated, causing buffer overreads later.
 
-Fixes: 093a48d2aa4b ("cfg80211: support bigger kek/kck key length")
-Signed-off-by: Shivani Baranwal <quic_shivbara@quicinc.com>
-Signed-off-by: Veerendranath Jakkam <quic_vjakkam@quicinc.com>
-Link: https://lore.kernel.org/r/20221206143715.1802987-2-quic_vjakkam@quicinc.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This for example happens on the Inspiron 3505, where the battery
+model name is larger than 32 bytes, which leads to sysfs showing
+the model name together with the serial number string (which is
+NUL-terminated and thus prevents worse).
+
+Fix this by using strscpy() which ensures that the result is
+always NUL-terminated.
+
+Fixes: 106449e870b3 ("ACPI: Battery: Allow extract string from integer")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 2 +-
+ drivers/acpi/battery.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index bb46a6a346146..1b91a9c208969 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -12922,7 +12922,7 @@ static int nl80211_set_rekey_data(struct sk_buff *skb, struct genl_info *info)
- 		return -ERANGE;
- 	if (nla_len(tb[NL80211_REKEY_DATA_KCK]) != NL80211_KCK_LEN &&
- 	    !(rdev->wiphy.flags & WIPHY_FLAG_SUPPORTS_EXT_KEK_KCK &&
--	      nla_len(tb[NL80211_REKEY_DATA_KEK]) == NL80211_KCK_EXT_LEN))
-+	      nla_len(tb[NL80211_REKEY_DATA_KCK]) == NL80211_KCK_EXT_LEN))
- 		return -ERANGE;
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index 56db7b4da5140..c7569151fd02a 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -449,7 +449,7 @@ static int extract_package(struct acpi_battery *battery,
  
- 	rekey_data.kek = nla_data(tb[NL80211_REKEY_DATA_KEK]);
+ 			if (element->type == ACPI_TYPE_STRING ||
+ 			    element->type == ACPI_TYPE_BUFFER)
+-				strncpy(ptr, element->string.pointer, 32);
++				strscpy(ptr, element->string.pointer, 32);
+ 			else if (element->type == ACPI_TYPE_INTEGER) {
+ 				strncpy(ptr, (u8 *)&element->integer.value,
+ 					sizeof(u64));
 -- 
 2.39.2
 
