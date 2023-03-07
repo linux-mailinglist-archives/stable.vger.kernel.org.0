@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD1876AEB50
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87DC66AF325
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:01:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232075AbjCGRnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:43:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52652 "EHLO
+        id S233569AbjCGTBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:01:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbjCGRms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:42:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F5196611
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:38:46 -0800 (PST)
+        with ESMTP id S233497AbjCGTAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:00:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBB6FC4899
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:47:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A77AC6150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EEF3C433D2;
-        Tue,  7 Mar 2023 17:37:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 28AA0CE1C8B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D148EC433EF;
+        Tue,  7 Mar 2023 18:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210675;
-        bh=KBKTTgWb2gIQF4IpsFznkQcFSE5VP0k2T3HNg3GJhDE=;
+        s=korg; t=1678214821;
+        bh=pnwr+5QkLJuEZdjhFK8OxgVxQsRPv5iJzk7gIcqY8k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6Z1OlZqeim600DdiYZUy10CoMfdtwL1nMwz5104QU6mWhsp/mAJzTNZixgleN7N5
-         /+MJPqNQ3KcivOmxyaHOzpFcN6yjEObPXNi0TpsyPxkCqH05WNQJX0GMh134XBOk0t
-         YGgAPL5VVyuoVyHczk2CiWffstYGZ2gg11vuHBik=
+        b=r7UaQQ6T5ga4OuBQWHF5iErNzV5sAHDZzfI7i1QxWIhh6fY3RuPB3J/1Gv6LOSw5s
+         5LPd+dXLZUqNT81xdl4VCjTIjyQTTFbkljqolIY66lRDOibdvHXLTjGiJ9HMgoer6R
+         B4Q9DBtGmV0prTLEA667p/l965JBB/fgE2+ot4bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Lew <quic_clew@quicinc.com>,
-        Bjorn Andersson <quic_bjorande@quicinc.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0617/1001] rpmsg: glink: Release driver_override
+Subject: [PATCH 5.15 053/567] arm64: dts: mediatek: mt7622: Add missing pwm-cells to pwm node
 Date:   Tue,  7 Mar 2023 17:56:29 +0100
-Message-Id: <20230307170048.319276270@linuxfoundation.org>
+Message-Id: <20230307165908.204242298@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <quic_bjorande@quicinc.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit fb80ef67e8ff6a00d3faad4cb348dafdb8eccfd8 ]
+[ Upstream commit 22925af785fa3470efdf566339616d801119d348 ]
 
-Upon termination of the rpmsg_device, driver_override needs to be freed
-to avoid leaking the potentially assigned string.
+Specify #pwm-cells on pwm@11006000 to make it actually usable.
 
-Fixes: 42cd402b8fd4 ("rpmsg: Fix kfree() of static memory on setting driver_override")
-Fixes: 39e47767ec9b ("rpmsg: Add driver_override device attribute for rpmsg_device")
-Reviewed-by: Chris Lew <quic_clew@quicinc.com>
-Signed-off-by: Bjorn Andersson <quic_bjorande@quicinc.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230109223931.1706429-1-quic_bjorande@quicinc.com
+Fixes: ae457b7679c4 ("arm64: dts: mt7622: add SoC and peripheral related device nodes")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221128112028.58021-2-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/qcom_glink_native.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/mediatek/mt7622.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
-index bb917746ad4bb..35df1b0a515bf 100644
---- a/drivers/rpmsg/qcom_glink_native.c
-+++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -1447,6 +1447,7 @@ static void qcom_glink_rpdev_release(struct device *dev)
- {
- 	struct rpmsg_device *rpdev = to_rpmsg_device(dev);
- 
-+	kfree(rpdev->driver_override);
- 	kfree(rpdev);
- }
- 
-@@ -1690,6 +1691,7 @@ static void qcom_glink_device_release(struct device *dev)
- 
- 	/* Release qcom_glink_alloc_channel() reference */
- 	kref_put(&channel->refcount, qcom_glink_channel_release);
-+	kfree(rpdev->driver_override);
- 	kfree(rpdev);
- }
- 
+diff --git a/arch/arm64/boot/dts/mediatek/mt7622.dtsi b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+index 890a942ec6082..a4c48b2abd209 100644
+--- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+@@ -428,6 +428,7 @@ uart3: serial@11005000 {
+ 	pwm: pwm@11006000 {
+ 		compatible = "mediatek,mt7622-pwm";
+ 		reg = <0 0x11006000 0 0x1000>;
++		#pwm-cells = <2>;
+ 		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_LOW>;
+ 		clocks = <&topckgen CLK_TOP_PWM_SEL>,
+ 			 <&pericfg CLK_PERI_PWM_PD>,
 -- 
 2.39.2
 
