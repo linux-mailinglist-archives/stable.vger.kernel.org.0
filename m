@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 929846AE847
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42A6B6AE815
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230521AbjCGROq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:14:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59360 "EHLO
+        id S230446AbjCGRM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:12:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231134AbjCGRO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:14:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46E88DCE1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:09:13 -0800 (PST)
+        with ESMTP id S229653AbjCGRMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:12:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BFC097FE9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:07:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CF1AB8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:09:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4C2CC433D2;
-        Tue,  7 Mar 2023 17:09:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A9DC61505
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:07:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47BD0C4339B;
+        Tue,  7 Mar 2023 17:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678208951;
-        bh=ce5JmmYaCoMghz6MBMrjjAiI1Yrg6eqnGO7c5KDynWc=;
+        s=korg; t=1678208851;
+        bh=Snd4oiNJAIPT019vHThaEjKB/8+Ek27YTQ8lij6InvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0EIC6WMTrKH3LhBm6U/n26ww6B4xtGP7JGhu0cb/b6FkVVXmNjGmUnuofHgZS/2GR
-         HRZaBlzugndVBPL3PIelrVofo8w9gGA5sgwL5BZ/YlPXVPQBP0TR+xEIh2ICZvgEsJ
-         Ow9NbvtnJPW1HvjUhpw1vgfC3SUVObwsRSn4tLN4=
+        b=n0JcTwR30kPz0ZHyWcovyb+PY8/96HegJ049zW3bmsJn3iFFFfUG+IGGpmEiiA0aq
+         0VzJ6ufA+qY1t8qaPAJYcYQC1irFaJmn6Nwg/saZQeMi0pWvuJq5ik/JpYB8eekqI5
+         mmIpMr4iTsYW3sKk7pysfrqUPuFAt/kpvs6gIS5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Marijn Suijten <marijn.suijten@somainline.org>,
+        Martin Botka <martin.botka@somainline.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0022/1001] arm64: dts: qcom: sm6350-lena: Flatten gpio-keys pinctrl state
-Date:   Tue,  7 Mar 2023 17:46:34 +0100
-Message-Id: <20230307170023.122952101@linuxfoundation.org>
+Subject: [PATCH 6.2 0023/1001] arm64: dts: qcom: sm6125: Reorder HSUSB PHY clocks to match bindings
+Date:   Tue,  7 Mar 2023 17:46:35 +0100
+Message-Id: <20230307170023.171474741@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -58,65 +59,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit a40f5ae1ea64ab9e981faf47c31817dc4d7923e4 ]
+[ Upstream commit 8416262b0ea46d84767141b074748f4d4f37736a ]
 
-Pinctrl states typically collate multiple related pins.  In the case of
-gpio-keys there's no hardware-defined relation at all except all pins
-representing a key; and especially on Sony's lena board there's only one
-pin regardless. Flatten it similar to other boards [1].
+Reorder the clocks and corresponding names to match the QUSB2 phy
+schema, fixing the following CHECK_DTBS errors:
 
-As a drive-by fix, clean up the label string.
+    arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dtb: phy@1613000: clock-names:0: 'cfg_ahb' was expected
+            From schema: /newdata/aosp-r/kernel/mainline/kernel/Documentation/devicetree/bindings/phy/qcom,qusb2-phy.yaml
+    arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dtb: phy@1613000: clock-names:1: 'ref' was expected
+            From schema: /newdata/aosp-r/kernel/mainline/kernel/Documentation/devicetree/bindings/phy/qcom,qusb2-phy.yaml
 
-[1]: https://lore.kernel.org/linux-arm-msm/11174eb6-0a9d-7df1-6f06-da4010f76453@linaro.org/
-
-Fixes: 2b8bbe985659 ("arm64: dts: qcom: sm6350-lena: Include pm6350 and configure buttons")
+Fixes: cff4bbaf2a2d ("arm64: dts: qcom: Add support for SM6125")
 Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: Martin Botka <martin.botka@somainline.org>
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221222215906.324092-1-marijn.suijten@somainline.org
+Link: https://lore.kernel.org/r/20221216213343.1140143-1-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../qcom/sm6350-sony-xperia-lena-pdx213.dts    | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/qcom/sm6125.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6350-sony-xperia-lena-pdx213.dts b/arch/arm64/boot/dts/qcom/sm6350-sony-xperia-lena-pdx213.dts
-index 94f77d376662e..4916d0db5b47f 100644
---- a/arch/arm64/boot/dts/qcom/sm6350-sony-xperia-lena-pdx213.dts
-+++ b/arch/arm64/boot/dts/qcom/sm6350-sony-xperia-lena-pdx213.dts
-@@ -35,10 +35,10 @@ framebuffer: framebuffer@a0000000 {
- 	gpio-keys {
- 		compatible = "gpio-keys";
- 		pinctrl-names = "default";
--		pinctrl-0 = <&gpio_keys_state>;
-+		pinctrl-0 = <&vol_down_n>;
+diff --git a/arch/arm64/boot/dts/qcom/sm6125.dtsi b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+index 7e25a4f85594f..bf9e8d45ee44f 100644
+--- a/arch/arm64/boot/dts/qcom/sm6125.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+@@ -442,9 +442,9 @@ hsusb_phy1: phy@1613000 {
+ 			reg = <0x01613000 0x180>;
+ 			#phy-cells = <0>;
  
- 		key-volume-down {
--			label = "volume_down";
-+			label = "Volume Down";
- 			linux,code = <KEY_VOLUMEDOWN>;
- 			gpios = <&pm6350_gpios 2 GPIO_ACTIVE_LOW>;
- 		};
-@@ -305,14 +305,12 @@ touchscreen@48 {
- };
+-			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>,
+-				 <&gcc GCC_AHB2PHY_USB_CLK>;
+-			clock-names = "ref", "cfg_ahb";
++			clocks = <&gcc GCC_AHB2PHY_USB_CLK>,
++				 <&rpmcc RPM_SMD_XO_CLK_SRC>;
++			clock-names = "cfg_ahb", "ref";
  
- &pm6350_gpios {
--	gpio_keys_state: gpio-keys-state {
--		key-volume-down-pins {
--			pins = "gpio2";
--			function = PMIC_GPIO_FUNC_NORMAL;
--			power-source = <0>;
--			bias-disable;
--			input-enable;
--		};
-+	vol_down_n: vol-down-n-state {
-+		pins = "gpio2";
-+		function = PMIC_GPIO_FUNC_NORMAL;
-+		power-source = <0>;
-+		bias-disable;
-+		input-enable;
- 	};
- };
- 
+ 			resets = <&gcc GCC_QUSB2PHY_PRIM_BCR>;
+ 			status = "disabled";
 -- 
 2.39.2
 
