@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 133476AF046
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5836F6AF308
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:59:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232741AbjCGS3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:29:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56376 "EHLO
+        id S233510AbjCGS7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:59:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233062AbjCGS3T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76B7A3B75
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:22:24 -0800 (PST)
+        with ESMTP id S233560AbjCGS61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:58:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C74AE115
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5786461530
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:22:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CEF3C433EF;
-        Tue,  7 Mar 2023 18:22:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B85D1B819CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE84FC433EF;
+        Tue,  7 Mar 2023 18:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213343;
-        bh=hSHw0+w3LFQi4ksALU05R/0a2ukRR5E/U/EYVxDLyQs=;
+        s=korg; t=1678214745;
+        bh=PKHxsyUf3Ta0SBx/iqiBFsEy+z8atpjOVWwWgRI2OFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XGFhFrWmQRrnm3vvHe/m08K9H/03kNoyl+bSkiljl9oeagzF3CRqhKBATIILYFTLv
-         pUUf2jkL5SkH7DDSNfuRTxP1qyjJtArmeA5hGzLb1eFbKsbG/3q799yhL5YtU9l9ET
-         0EGGQLv6M/uEx/DR2J38usGWntkU5EMXZVIHNLYc=
+        b=TZak8O75TvLWB7+qVNz9MXRhpSyopjhVaOHO25LjS/AVWGIr76oTvlgYvjTSMbNla
+         n4tVLM757DO5Fu87RtJFqAuR/gax5wMmaukm8/EF+Ab0w7D3ZW/JyNrGsPh7KNeoI5
+         +JLqUC4Wlwb857/+eJkjUVovvELHqQvPTpPnO2WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
+        patches@lists.linux.dev,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 437/885] firmware: stratix10-svc: fix error handle while alloc/add device failed
-Date:   Tue,  7 Mar 2023 17:56:11 +0100
-Message-Id: <20230307170021.399763625@linuxfoundation.org>
+Subject: [PATCH 5.15 036/567] arm64: dts: amlogic: meson-axg: fix SCPI clock dvfs node name
+Date:   Tue,  7 Mar 2023 17:56:12 +0100
+Message-Id: <20230307165907.476260930@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Neil Armstrong <neil.armstrong@linaro.org>
 
-[ Upstream commit d66a4c20ae55ac88136b4a3befd944c093ffa677 ]
+[ Upstream commit 5b7069d72f03c92a0ab919725017394ebce03a81 ]
 
-If add device "stratix10-rsu" failed in stratix10_svc_drv_probe(),
-the 'svc_fifo' and 'genpool' need be freed in the error path.
+Fixes:
+scpi: clocks: 'clock-controller' does not match any of the regexes: '^clocks-[0-9a-f]+$', 'pinctrl-[0-9]+'
 
-If allocate or add device "intel-fcs" failed in stratix10_svc_drv_probe(),
-the device "stratix10-rsu" need be unregistered in the error path.
-
-Fixes: e6281c26674e ("firmware: stratix10-svc: Add support for FCS")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20221129163602.462369-2-dinguyen@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-2-44351528957e@linaro.org
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/stratix10-svc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index 1a5640b3ab422..bde1f543f5298 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -1202,19 +1202,20 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 	ret = platform_device_add(svc->stratix10_svc_rsu);
- 	if (ret) {
- 		platform_device_put(svc->stratix10_svc_rsu);
--		return ret;
-+		goto err_free_kfifo;
- 	}
+diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+index e2ab338adb3c1..03e2c5d0bb9c1 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+@@ -152,7 +152,7 @@ scpi {
+ 		scpi_clocks: clocks {
+ 			compatible = "arm,scpi-clocks";
  
- 	svc->intel_svc_fcs = platform_device_alloc(INTEL_FCS, 1);
- 	if (!svc->intel_svc_fcs) {
- 		dev_err(dev, "failed to allocate %s device\n", INTEL_FCS);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_unregister_dev;
- 	}
- 
- 	ret = platform_device_add(svc->intel_svc_fcs);
- 	if (ret) {
- 		platform_device_put(svc->intel_svc_fcs);
--		return ret;
-+		goto err_unregister_dev;
- 	}
- 
- 	dev_set_drvdata(dev, svc);
-@@ -1223,6 +1224,8 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+err_unregister_dev:
-+	platform_device_unregister(svc->stratix10_svc_rsu);
- err_free_kfifo:
- 	kfifo_free(&controller->svc_fifo);
- err_destroy_pool:
+-			scpi_dvfs: clock-controller {
++			scpi_dvfs: clocks-0 {
+ 				compatible = "arm,scpi-dvfs-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <0>;
 -- 
 2.39.2
 
