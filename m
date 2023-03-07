@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE876AF0AE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6640E6AEB86
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:45:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbjCGSd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:33:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
+        id S232055AbjCGRpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:45:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231479AbjCGSdh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:33:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7288B5A93
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:25:47 -0800 (PST)
+        with ESMTP id S232231AbjCGRo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAC449748A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:40:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E30B61531
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E473C433D2;
-        Tue,  7 Mar 2023 18:25:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1777EB819B4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:40:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64B5DC4339B;
+        Tue,  7 Mar 2023 17:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213542;
-        bh=DZS9Xw/Ci6jObGSKyCb4y1ddRABFw96DVtdUmxcAVT0=;
+        s=korg; t=1678210843;
+        bh=FUlKwYzrzpmxiNwhjU1h/T8mJLUdhXyQaLnj9Mu4V20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VxVzhYUF+2dFgKtvhqVZ3j6ysfbUROusoybCE29XAZaW7pQ3T8laBdmR3SpKdWhQO
-         4epC3SSWpklNBXb7/IoSptCLejbPNjx7VuGqZ5w6fZJLT5T0RzBhkXyC2M8FD2To+e
-         xaVSdakR/j8zRiErT+lxGDkIxz1cD8+9V0gWF2Q0=
+        b=z2VMf0Hk1JNozSoSEgTXsmrbJ0tfzQBuabuhYxbBDd0Cxx14asp3dCKdl8p4VNPgZ
+         MOXm4zahdROHzRP4ncwfar/xtcuJDmZOdpuyxX8WqAJLvyKaimWIdZUNJTNN19q50p
+         Zez3sN3YG1Yac55+9AoDSJWYN1N1HINf3datEZgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Jan Harkes <jaharkes@cs.cmu.edu>,
+        coda@cs.cmu.edu, codalist@coda.cs.cmu.edu,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 510/885] media: platform: mtk-mdp3: Fix return value check in mdp_probe()
+Subject: [PATCH 6.2 0672/1001] coda: Avoid partial allocation of sig_inputArgs
 Date:   Tue,  7 Mar 2023 17:57:24 +0100
-Message-Id: <20230307170024.631997488@linuxfoundation.org>
+Message-Id: <20230307170050.771201304@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiheng Lin <linqiheng@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 1963689bed4d500236938d90c91cdd5e63c1eb28 ]
+[ Upstream commit 48df133578c70185a95a49390d42df1996ddba2a ]
 
-In case of error, the function mtk_mutex_get()
-returns ERR_PTR() and never returns NULL. The NULL test in the
-return value check should be replaced with IS_ERR().
-And also fix the err_free_mutex case.
+GCC does not like having a partially allocated object, since it cannot
+reason about it for bounds checking when it is passed to other code.
+Instead, fully allocate sig_inputArgs. (Alternatively, sig_inputArgs
+should be defined as a struct coda_in_hdr, if it is actually not using
+any other part of the union.) Seen under GCC 13:
 
-Fixes: 61890ccaefaf ("media: platform: mtk-mdp3: add MediaTek MDP3 driver")
-Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+../fs/coda/upcall.c: In function 'coda_upcall':
+../fs/coda/upcall.c:801:22: warning: array subscript 'union inputArgs[0]' is partly outside array bounds of 'unsigned char[20]' [-Warray-bounds=]
+  801 |         sig_inputArgs->ih.opcode = CODA_SIGNAL;
+      |                      ^~
+
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: coda@cs.cmu.edu
+Cc: codalist@coda.cs.cmu.edu
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20230127223921.never.882-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/coda/upcall.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c b/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c
-index 2d1f6ae9f0802..97edcd9d1c817 100644
---- a/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c
-+++ b/drivers/media/platform/mediatek/mdp3/mtk-mdp3-core.c
-@@ -207,8 +207,8 @@ static int mdp_probe(struct platform_device *pdev)
- 	}
- 	for (i = 0; i < MDP_PIPE_MAX; i++) {
- 		mdp->mdp_mutex[i] = mtk_mutex_get(&mm_pdev->dev);
--		if (!mdp->mdp_mutex[i]) {
--			ret = -ENODEV;
-+		if (IS_ERR(mdp->mdp_mutex[i])) {
-+			ret = PTR_ERR(mdp->mdp_mutex[i]);
- 			goto err_free_mutex;
- 		}
- 	}
-@@ -289,7 +289,8 @@ static int mdp_probe(struct platform_device *pdev)
- 	mdp_comp_destroy(mdp);
- err_free_mutex:
- 	for (i = 0; i < MDP_PIPE_MAX; i++)
--		mtk_mutex_put(mdp->mdp_mutex[i]);
-+		if (!IS_ERR_OR_NULL(mdp->mdp_mutex[i]))
-+			mtk_mutex_put(mdp->mdp_mutex[i]);
- err_destroy_device:
- 	kfree(mdp);
- err_return:
+diff --git a/fs/coda/upcall.c b/fs/coda/upcall.c
+index 59f6cfd06f96a..cd6a3721f6f69 100644
+--- a/fs/coda/upcall.c
++++ b/fs/coda/upcall.c
+@@ -791,7 +791,7 @@ static int coda_upcall(struct venus_comm *vcp,
+ 	sig_req = kmalloc(sizeof(struct upc_req), GFP_KERNEL);
+ 	if (!sig_req) goto exit;
+ 
+-	sig_inputArgs = kvzalloc(sizeof(struct coda_in_hdr), GFP_KERNEL);
++	sig_inputArgs = kvzalloc(sizeof(*sig_inputArgs), GFP_KERNEL);
+ 	if (!sig_inputArgs) {
+ 		kfree(sig_req);
+ 		goto exit;
 -- 
 2.39.2
 
