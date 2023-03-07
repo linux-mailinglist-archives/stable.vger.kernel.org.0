@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D00C06AEE3F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E2F6AEE41
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232420AbjCGSKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46848 "EHLO
+        id S232057AbjCGSKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:10:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232442AbjCGSKS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD04CA42CB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:04:55 -0800 (PST)
+        with ESMTP id S230007AbjCGSKU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 630CFC666
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 414ED61520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:04:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 236AEC433A0;
-        Tue,  7 Mar 2023 18:04:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BE94B819BC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A357C433D2;
+        Tue,  7 Mar 2023 18:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212294;
-        bh=Yh3YOoIk/i1ir3llnCsDc7kUCVZGRLH/MGwJG31ZoLg=;
+        s=korg; t=1678212300;
+        bh=3DwLHOYp38wdLyy+Ft282z31473iRxPK0HdVsTsI04U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYjr0wr1q1oUCu7CmSNG5luDcAMyGhEnAz6vx8lhjJgOjoJ71HKLwpWz2xhEHetV0
-         +W96k2B30sZ85IrgPyXykCiZap9+2CUrZGSTVc8v6oKNf9QoeDvasJ+iLNBi9VnKZr
-         Qz0WEmcqQAzq38Q47NxeJ4v8vAxi83fn+Cj74NoU=
+        b=H+EpMxRYwIpop+1Jyxec645RLudcjIrPsm+4hy8wvL5F6LSpc1LriQFmICNSPAhIF
+         vmIYqDBjPbbtSRXtuOaZVmD5TaWdowwHQ9ze1cdscyF3T7JTFOHXscmutVkKFazpVP
+         7DebBTo+o260AAVoTuT3G02G3KguzQCcI7ExAeL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Daniel T. Lee" <danieltimlee@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 139/885] libbpf: Fix invalid return address register in s390
-Date:   Tue,  7 Mar 2023 17:51:13 +0100
-Message-Id: <20230307170007.900492112@linuxfoundation.org>
+Subject: [PATCH 6.1 140/885] crypto: x86/ghash - fix unaligned access in ghash_setkey()
+Date:   Tue,  7 Mar 2023 17:51:14 +0100
+Message-Id: <20230307170007.937934874@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,40 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel T. Lee <danieltimlee@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 7244eb669397f309c3d014264823cdc9cb3f8e6b ]
+[ Upstream commit 116db2704c193fff6d73ea6c2219625f0c9bdfc8 ]
 
-There is currently an invalid register mapping in the s390 return
-address register. As the manual[1] states, the return address can be
-found at r14. In bpf_tracing.h, the s390 registers were named
-gprs(general purpose registers). This commit fixes the problem by
-correcting the mistyped mapping.
+The key can be unaligned, so use the unaligned memory access helpers.
 
-[1]: https://uclibc.org/docs/psABI-s390x.pdf#page=14
-
-Fixes: 3cc31d794097 ("libbpf: Normalize PT_REGS_xxx() macro definitions")
-Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20221224071527.2292-7-danieltimlee@gmail.com
+Fixes: 8ceee72808d1 ("crypto: ghash-clmulni-intel - use C implementation for setkey()")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf_tracing.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/crypto/ghash-clmulni-intel_glue.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/lib/bpf/bpf_tracing.h b/tools/lib/bpf/bpf_tracing.h
-index 2972dc25ff722..9c1b1689068d1 100644
---- a/tools/lib/bpf/bpf_tracing.h
-+++ b/tools/lib/bpf/bpf_tracing.h
-@@ -137,7 +137,7 @@ struct pt_regs___s390 {
- #define __PT_PARM3_REG gprs[4]
- #define __PT_PARM4_REG gprs[5]
- #define __PT_PARM5_REG gprs[6]
--#define __PT_RET_REG grps[14]
-+#define __PT_RET_REG gprs[14]
- #define __PT_FP_REG gprs[11]	/* Works only with CONFIG_FRAME_POINTER */
- #define __PT_RC_REG gprs[2]
- #define __PT_SP_REG gprs[15]
+diff --git a/arch/x86/crypto/ghash-clmulni-intel_glue.c b/arch/x86/crypto/ghash-clmulni-intel_glue.c
+index 1f1a95f3dd0ca..c0ab0ff4af655 100644
+--- a/arch/x86/crypto/ghash-clmulni-intel_glue.c
++++ b/arch/x86/crypto/ghash-clmulni-intel_glue.c
+@@ -19,6 +19,7 @@
+ #include <crypto/internal/simd.h>
+ #include <asm/cpu_device_id.h>
+ #include <asm/simd.h>
++#include <asm/unaligned.h>
+ 
+ #define GHASH_BLOCK_SIZE	16
+ #define GHASH_DIGEST_SIZE	16
+@@ -54,15 +55,14 @@ static int ghash_setkey(struct crypto_shash *tfm,
+ 			const u8 *key, unsigned int keylen)
+ {
+ 	struct ghash_ctx *ctx = crypto_shash_ctx(tfm);
+-	be128 *x = (be128 *)key;
+ 	u64 a, b;
+ 
+ 	if (keylen != GHASH_BLOCK_SIZE)
+ 		return -EINVAL;
+ 
+ 	/* perform multiplication by 'x' in GF(2^128) */
+-	a = be64_to_cpu(x->a);
+-	b = be64_to_cpu(x->b);
++	a = get_unaligned_be64(key);
++	b = get_unaligned_be64(key + 8);
+ 
+ 	ctx->shash.a = (b << 1) | (a >> 63);
+ 	ctx->shash.b = (a << 1) | (b >> 63);
 -- 
 2.39.2
 
