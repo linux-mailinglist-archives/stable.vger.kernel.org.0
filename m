@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D90486AEC40
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F1FD6AEC41
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231379AbjCGRxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46158 "EHLO
+        id S232181AbjCGRxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbjCGRxO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5016792F15
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:43 -0800 (PST)
+        with ESMTP id S232291AbjCGRxR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF134BE88
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DED22614D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB06C433D2;
-        Tue,  7 Mar 2023 17:47:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A18D9B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D95C433D2;
+        Tue,  7 Mar 2023 17:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211262;
-        bh=o+8HpgzRt40wvwO1QhffbavbPAs0sIn4YvcNOOJ9DuU=;
+        s=korg; t=1678211265;
+        bh=cg2VCJwPMxOmyOUeU6hKGROdwX1cla5R959KbgbZWX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Co8EKSmxpTWldgr0btpDz6D/hDK/ilhdSU6PvZVP9D3CxPQE2iq1j7WZvVhb4F8vS
-         VPao8mGD3Sz0lV4qdoWfp3tmaoKX+i6teO+dQgAMqA5zOwP2lJ1m3L5/vscTGcJ85r
-         p9LKrO6/iPxx4OOsy2L8NLN6HLKmAeGnJpP4aiBY=
+        b=ogeOWFUn5vdZETJnj26LSSCbl08seuZQji/LDxwRH6/gexNUER0GTgTroobqrXBOW
+         QGA7qXcSHMZzjlCBhLmoOp3BMqiUubgo7wDQdRPbw6M6vEmPpUKRRMhyu+gqj79mWk
+         Rhc5p7ArQpKUFFmt16yWsxaVo4WXiH9oF7bC8drA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Eric Biggers <ebiggers@google.com>, Tejun Heo <tj@kernel.org>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 6.2 0806/1001] f2fs: fix cgroup writeback accounting with fs-layer encryption
-Date:   Tue,  7 Mar 2023 17:59:38 +0100
-Message-Id: <20230307170056.703097214@linuxfoundation.org>
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.2 0807/1001] f2fs: fix kernel crash due to null io->bio
+Date:   Tue,  7 Mar 2023 17:59:39 +0100
+Message-Id: <20230307170056.750466790@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -45,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,63 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
+commit 267c159f9c7bcb7009dae16889b880c5ed8759a8 upstream.
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), f2fs encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+We should return when io->bio is null before doing anything. Otherwise, panic.
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
+BUG: kernel NULL pointer dereference, address: 0000000000000010
+RIP: 0010:__submit_merged_write_cond+0x164/0x240 [f2fs]
+Call Trace:
+ <TASK>
+ f2fs_submit_merged_write+0x1d/0x30 [f2fs]
+ commit_checkpoint+0x110/0x1e0 [f2fs]
+ f2fs_write_checkpoint+0x9f7/0xf00 [f2fs]
+ ? __pfx_issue_checkpoint_thread+0x10/0x10 [f2fs]
+ __checkpoint_and_complete_reqs+0x84/0x190 [f2fs]
+ ? preempt_count_add+0x82/0xc0
+ ? __pfx_issue_checkpoint_thread+0x10/0x10 [f2fs]
+ issue_checkpoint_thread+0x4c/0xf0 [f2fs]
+ ? __pfx_autoremove_wake_function+0x10/0x10
+ kthread+0xff/0x130
+ ? __pfx_kthread+0x10/0x10
+ ret_from_fork+0x2c/0x50
+ </TASK>
 
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
-
-Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
+Cc: stable@vger.kernel.org # v5.18+
+Fixes: 64bf0eef0171 ("f2fs: pass the bio operation to bio_alloc_bioset")
 Reviewed-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/data.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/f2fs/data.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/fs/f2fs/data.c
 +++ b/fs/f2fs/data.c
-@@ -741,7 +741,7 @@ int f2fs_submit_page_bio(struct f2fs_io_
+@@ -655,6 +655,9 @@ static void __f2fs_submit_merged_write(s
+ 
+ 	f2fs_down_write(&io->io_rwsem);
+ 
++	if (!io->bio)
++		goto unlock_out;
++
+ 	/* change META to META_FLUSH in the checkpoint procedure */
+ 	if (type >= META_FLUSH) {
+ 		io->fio.type = META_FLUSH;
+@@ -663,6 +666,7 @@ static void __f2fs_submit_merged_write(s
+ 			io->bio->bi_opf |= REQ_PREFLUSH | REQ_FUA;
  	}
- 
- 	if (fio->io_wbc && !is_read_io(fio->op))
--		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	inc_page_count(fio->sbi, is_read_io(fio->op) ?
- 			__read_io_type(page) : WB_DATA_TYPE(fio->page));
-@@ -948,7 +948,7 @@ alloc_new:
- 	}
- 
- 	if (fio->io_wbc)
--		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	inc_page_count(fio->sbi, WB_DATA_TYPE(page));
- 
-@@ -1022,7 +1022,7 @@ alloc_new:
- 	}
- 
- 	if (fio->io_wbc)
--		wbc_account_cgroup_owner(fio->io_wbc, bio_page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	io->last_block_in_bio = fio->new_blkaddr;
+ 	__submit_merged_bio(io);
++unlock_out:
+ 	f2fs_up_write(&io->io_rwsem);
+ }
  
 
 
