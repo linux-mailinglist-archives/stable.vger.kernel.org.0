@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A42BF6AF420
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B786AF421
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233811AbjCGTNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:13:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
+        id S233828AbjCGTNy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:13:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233810AbjCGTN3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22389B56E3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:10 -0800 (PST)
+        with ESMTP id S230162AbjCGTNc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5FEB1EC2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFA2F61520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD872C4339B;
-        Tue,  7 Mar 2023 18:57:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88833B819CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE8DEC433D2;
+        Tue,  7 Mar 2023 18:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215429;
-        bh=OsTvTladaaV6kytI5+x/CU4Kp+1XIzI4wSRH++SDxak=;
+        s=korg; t=1678215432;
+        bh=8siIEt0VorqHEtQymNRZqf7kJIrMUoQVe7sWxH4dNwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXb/docX+s6yu8GfpKZoQSMyTigHg9c8kJEo3XiZVJPvZG6yBvRHs6sYaPajPRUYU
-         7J4UxTRoJTZ7/GLgUtwsxKvMVesiCt13gqkBC+ahMQHk9eDrLS3TXKCAG8kyK1ADLA
-         CzlMg5zH7E+it3LVs542yPP8dYtUaSZp8bi6vj/s=
+        b=bOnKkJDildd5Kb9rWYvd1WQ++RcZU3dDBIib24Jz90kWqLRKM++J7CBGPaaHhYRmV
+         Vl3pYJkrxoWYmmw4yzzlNAA2IPzPrdBpWwGy8+6+IY12LJ7zHWbcWDbG9TtkG36pCO
+         BEE79C+unoeUbshivTQe5/60YQYtT0bjaWbyoJVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        patches@lists.linux.dev, Jerome Brunet <jbrunet@baylibre.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 226/567] ASoC: mchp-spdifrx: Fix uninitialized use of mr in mchp_spdifrx_hw_params()
-Date:   Tue,  7 Mar 2023 17:59:22 +0100
-Message-Id: <20230307165915.716761342@linuxfoundation.org>
+Subject: [PATCH 5.15 227/567] ASoC: dt-bindings: meson: fix gx-card codec node regex
+Date:   Tue,  7 Mar 2023 17:59:23 +0100
+Message-Id: <20230307165915.754756296@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,48 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 218674a45930c700486d27b765bf2f1b43f8cbf7 ]
+[ Upstream commit 480b26226873c88e482575ceb0d0a38d76e1be57 ]
 
-Clang warns:
+'codec' is a valid node name when there is a single codec
+in the link. Fix the node regular expression to apply this.
 
-  ../sound/soc/atmel/mchp-spdifrx.c:455:3: error: variable 'mr' is uninitialized when used here [-Werror,-Wuninitialized]
-                  mr |= SPDIFRX_MR_ENDIAN_BIG;
-                  ^~
-  ../sound/soc/atmel/mchp-spdifrx.c:432:8: note: initialize the variable 'mr' to silence this warning
-          u32 mr;
-                ^
-                 = 0
-  1 error generated.
-
-Zero initialize mr so that these bitwise OR and assignment operation
-works unconditionally.
-
-Fixes: fa09fa60385a ("ASoC: mchp-spdifrx: fix controls which rely on rsr register")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1797
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230202-mchp-spdifrx-fix-uninit-mr-v1-1-629a045d7a2f@kernel.org
+Fixes: fd00366b8e41 ("ASoC: meson: gx: add sound card dt-binding documentation")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230202183653.486216-3-jbrunet@baylibre.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-spdifrx.c | 2 +-
+ .../devicetree/bindings/sound/amlogic,gx-sound-card.yaml        | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
-index 03b7037239b85..39a3c2a33bdbb 100644
---- a/sound/soc/atmel/mchp-spdifrx.c
-+++ b/sound/soc/atmel/mchp-spdifrx.c
-@@ -362,7 +362,7 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
- 				  struct snd_soc_dai *dai)
- {
- 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
--	u32 mr;
-+	u32 mr = 0;
- 	int ret;
+diff --git a/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml b/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml
+index 2e35aeaa8781d..89e3819c6127a 100644
+--- a/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml
++++ b/Documentation/devicetree/bindings/sound/amlogic,gx-sound-card.yaml
+@@ -61,7 +61,7 @@ patternProperties:
+         description: phandle of the CPU DAI
  
- 	dev_dbg(dev->dev, "%s() rate=%u format=%#x width=%u channels=%u\n",
+     patternProperties:
+-      "^codec-[0-9]+$":
++      "^codec(-[0-9]+)?$":
+         type: object
+         description: |-
+           Codecs:
 -- 
 2.39.2
 
