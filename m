@@ -2,50 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9766AF13B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:41:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3DD96AEC46
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233121AbjCGSlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:41:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51296 "EHLO
+        id S231958AbjCGRxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232778AbjCGSlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9CE9C220A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:31:50 -0800 (PST)
+        with ESMTP id S229762AbjCGRx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15CEE061
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2ED09B819CC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A0F8C4339B;
-        Tue,  7 Mar 2023 18:31:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9566B818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED1E5C433D2;
+        Tue,  7 Mar 2023 17:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213872;
-        bh=dYJ1Ol95wUByrAbOYVsU0F1ticWjpW/MXIZEybVnzTs=;
+        s=korg; t=1678211277;
+        bh=LzxOs5VMddDWhrTpVYqWpNappj6ZqW23t5B16fBvJY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ysYBz2PsXbeKVGDiLfXIMsuWwhtol8rZFDSZuXn61A+14e6yK6YXXgFDnjzA8Bf++
-         Ubmk2LQ19yTrAsga2WTXfd1R8V/ZuF6CnRpNUq41KDpqwPlzB4PBXhKXItONHAkKA9
-         ewS3b8n/NsUU9AI1QscOdUjCC4djVwDxcU/VxRa8=
+        b=OzLl0oDVbBSUBp9Xwu1jCDFUMrq57K6KtNUCrHkp1SUeEwhjHNAKS4hu1Bwy2Qewl
+         4iPFNPakIQwukQOc2Be+7O/+W33/bSVE4aB7UOZkr6B8UeAPLz1TRn5JhfiVjzRf53
+         UFOCa7Tq8yk1pr9MC6SB7KPtU6Yrh7FkZrf6XDjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun ASAKA <JunASAKA@zzy040330.moe>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 6.1 647/885] wifi: rtl8xxxu: fixing transmisison failure for rtl8192eu
-Date:   Tue,  7 Mar 2023 17:59:41 +0100
-Message-Id: <20230307170030.258511136@linuxfoundation.org>
+        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 0810/1001] ocfs2: fix non-auto defrag path not working issue
+Date:   Tue,  7 Mar 2023 17:59:42 +0100
+Message-Id: <20230307170056.887692875@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,36 +59,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun ASAKA <JunASAKA@zzy040330.moe>
+From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
 
-commit c6015bf3ff1ffb3caa27eb913797438a0fc634a0 upstream.
+commit 236b9254f8d1edc273ad88b420aa85fbd84f492d upstream.
 
-Fixing transmission failure which results in
-"authentication with ... timed out". This can be
-fixed by disable the REG_TXPAUSE.
+This fixes three issues on move extents ioctl without auto defrag:
 
-Signed-off-by: Jun ASAKA <JunASAKA@zzy040330.moe>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221217030659.12577-1-JunASAKA@zzy040330.moe
+a) In ocfs2_find_victim_alloc_group(), we have to convert bits to block
+   first in case of global bitmap.
+
+b) In ocfs2_probe_alloc_group(), when finding enough bits in block
+   group bitmap, we have to back off move_len to start pos as well,
+   otherwise it may corrupt filesystem.
+
+c) In ocfs2_ioctl_move_extents(), set me_threshold both for non-auto
+   and auto defrag paths.  Otherwise it will set move_max_hop to 0 and
+   finally cause unexpectedly ENOSPC error.
+
+Currently there are no tools triggering the above issues since
+defragfs.ocfs2 enables auto defrag by default.  Tested with manually
+changing defragfs.ocfs2 to run non auto defrag path.
+
+Link: https://lkml.kernel.org/r/20230220050526.22020-1-heming.zhao@suse.com
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/ocfs2/move_extents.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-@@ -1669,6 +1669,11 @@ static void rtl8192e_enable_rf(struct rt
- 	val8 = rtl8xxxu_read8(priv, REG_PAD_CTRL1);
- 	val8 &= ~BIT(0);
- 	rtl8xxxu_write8(priv, REG_PAD_CTRL1, val8);
-+
-+	/*
-+	 * Fix transmission failure of rtl8192e.
-+	 */
-+	rtl8xxxu_write8(priv, REG_TXPAUSE, 0x00);
- }
+--- a/fs/ocfs2/move_extents.c
++++ b/fs/ocfs2/move_extents.c
+@@ -434,7 +434,7 @@ static int ocfs2_find_victim_alloc_group
+ 			bg = (struct ocfs2_group_desc *)gd_bh->b_data;
  
- struct rtl8xxxu_fileops rtl8192eu_fops = {
+ 			if (vict_blkno < (le64_to_cpu(bg->bg_blkno) +
+-						le16_to_cpu(bg->bg_bits))) {
++						(le16_to_cpu(bg->bg_bits) << bits_per_unit))) {
+ 
+ 				*ret_bh = gd_bh;
+ 				*vict_bit = (vict_blkno - blkno) >>
+@@ -549,6 +549,7 @@ static void ocfs2_probe_alloc_group(stru
+ 			last_free_bits++;
+ 
+ 		if (last_free_bits == move_len) {
++			i -= move_len;
+ 			*goal_bit = i;
+ 			*phys_cpos = base_cpos + i;
+ 			break;
+@@ -1020,18 +1021,19 @@ int ocfs2_ioctl_move_extents(struct file
+ 
+ 	context->range = &range;
+ 
++	/*
++	 * ok, the default theshold for the defragmentation
++	 * is 1M, since our maximum clustersize was 1M also.
++	 * any thought?
++	 */
++	if (!range.me_threshold)
++		range.me_threshold = 1024 * 1024;
++
++	if (range.me_threshold > i_size_read(inode))
++		range.me_threshold = i_size_read(inode);
++
+ 	if (range.me_flags & OCFS2_MOVE_EXT_FL_AUTO_DEFRAG) {
+ 		context->auto_defrag = 1;
+-		/*
+-		 * ok, the default theshold for the defragmentation
+-		 * is 1M, since our maximum clustersize was 1M also.
+-		 * any thought?
+-		 */
+-		if (!range.me_threshold)
+-			range.me_threshold = 1024 * 1024;
+-
+-		if (range.me_threshold > i_size_read(inode))
+-			range.me_threshold = i_size_read(inode);
+ 
+ 		if (range.me_flags & OCFS2_MOVE_EXT_FL_PART_DEFRAG)
+ 			context->partial = 1;
 
 
