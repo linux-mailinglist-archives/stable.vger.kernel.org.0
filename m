@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B206AEE00
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E4E26AE9A9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232353AbjCGSJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:09:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51022 "EHLO
+        id S230332AbjCGR0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:26:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231167AbjCGSIr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E670A18B5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:49 -0800 (PST)
+        with ESMTP id S231453AbjCGR0Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A2026CD2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D385B8184E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6766BC433A0;
-        Tue,  7 Mar 2023 18:02:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C684614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 526D0C433D2;
+        Tue,  7 Mar 2023 17:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212166;
-        bh=T2dWdKsmhepJqZkxnM7zgUU0ETz4tZnan51isedxU3s=;
+        s=korg; t=1678209664;
+        bh=JK+yND/OhzW78yd2PRvX1T4mP0GhccggqgYqc6wfeb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ac7z2Vz+n6e8/+qAa9vDErt+tjptmu+np+QqHGbfivnjDnYYYeTj1k6Sq17ahMIxo
-         flogd5hV+h9c0bxBiZhZAjh15i6KMZkppJ8cD1sAlfB2kipRZSWUV63Brq3wA4Pdq2
-         +mxaYJcXmmS7NW0eTZTigmmF+V0YP2NitHy5V/tc=
+        b=ltEcjgLxi+O8g9B8cZwPPNYYKcqKwSC3FBnGpGI2gvTMLVDQa6DBt3cXoaOrRcXf1
+         3DWDpssvTiB0iE7rdZ0vSdy4UKewbQ3JWJPRDku6gLgCSKwSYR7M3WqAuqwI4VMQ1J
+         MhqNbTuXcAJShEaYQ3OV9o7MsuwfBMaSNQ8D+Oww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 098/885] s390/dasd: Fix potential memleak in dasd_eckd_init()
+        patches@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0260/1001] s390/vmem: fix empty page tables cleanup under KASAN
 Date:   Tue,  7 Mar 2023 17:50:32 +0100
-Message-Id: <20230307170006.098547704@linuxfoundation.org>
+Message-Id: <20230307170033.022069929@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,41 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiheng Lin <linqiheng@huawei.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 460e9bed82e49db1b823dcb4e421783854d86c40 ]
+[ Upstream commit 108303b0a2d27cb14eed565e33e64ad9eefe5d7e ]
 
-`dasd_reserve_req` is allocated before `dasd_vol_info_req`, and it
-also needs to be freed before the error returns, just like the other
-cases in this function.
+Commit b9ff81003cf1 ("s390/vmem: cleanup empty page tables") introduced
+empty page tables cleanup in vmem code, but when the kernel is built
+with KASAN enabled the code has no effect due to wrong KASAN shadow
+memory intersection condition, which effectively ignores any memory
+range below KASAN shadow. Fix intersection condition to make code
+work as anticipated.
 
-Fixes: 9e12e54c7a8f ("s390/dasd: Handle out-of-space constraint")
-Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
-Link: https://lore.kernel.org/r/20221208133809.16796-1-linqiheng@huawei.com
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230210000253.1644903-3-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b9ff81003cf1 ("s390/vmem: cleanup empty page tables")
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/mm/vmem.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 5d0b9991e91a4..b20ce86b97b29 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -6956,8 +6956,10 @@ dasd_eckd_init(void)
- 		return -ENOMEM;
- 	dasd_vol_info_req = kmalloc(sizeof(*dasd_vol_info_req),
- 				    GFP_KERNEL | GFP_DMA);
--	if (!dasd_vol_info_req)
-+	if (!dasd_vol_info_req) {
-+		kfree(dasd_reserve_req);
- 		return -ENOMEM;
-+	}
- 	pe_handler_worker = kmalloc(sizeof(*pe_handler_worker),
- 				    GFP_KERNEL | GFP_DMA);
- 	if (!pe_handler_worker) {
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index ee1a97078527b..9a0ce5315f36d 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -297,7 +297,7 @@ static void try_free_pmd_table(pud_t *pud, unsigned long start)
+ 	if (end > VMALLOC_START)
+ 		return;
+ #ifdef CONFIG_KASAN
+-	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++	if (start < KASAN_SHADOW_END && end > KASAN_SHADOW_START)
+ 		return;
+ #endif
+ 	pmd = pmd_offset(pud, start);
+@@ -372,7 +372,7 @@ static void try_free_pud_table(p4d_t *p4d, unsigned long start)
+ 	if (end > VMALLOC_START)
+ 		return;
+ #ifdef CONFIG_KASAN
+-	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++	if (start < KASAN_SHADOW_END && end > KASAN_SHADOW_START)
+ 		return;
+ #endif
+ 
+@@ -426,7 +426,7 @@ static void try_free_p4d_table(pgd_t *pgd, unsigned long start)
+ 	if (end > VMALLOC_START)
+ 		return;
+ #ifdef CONFIG_KASAN
+-	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++	if (start < KASAN_SHADOW_END && end > KASAN_SHADOW_START)
+ 		return;
+ #endif
+ 
 -- 
 2.39.2
 
