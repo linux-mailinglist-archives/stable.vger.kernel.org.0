@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3FB6AF060
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A7D6AEB7B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230132AbjCGSaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:30:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
+        id S231962AbjCGRph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:45:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233133AbjCGS3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392162A16A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:09 -0800 (PST)
+        with ESMTP id S231919AbjCGRoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9644A9DE1D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:40:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C32AD61537
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D706CC433D2;
-        Tue,  7 Mar 2023 18:23:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B976D61524
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1652C433EF;
+        Tue,  7 Mar 2023 17:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213388;
-        bh=SqsO+dNSrha6bEz5DkV35TiHBZEQJowDcfNfTh1nQbU=;
+        s=korg; t=1678210793;
+        bh=RRyWeRcSvyajfQek4ugubDz6iuJkdc8lc1mIuiuEr+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/UiuBdB+GWGuwJeQiQUhi5LdE8PKuNZvWrD7z2sYdOYfm0Mep4hiPVRopv5Bwpd+
-         +NCZcM9QcwbY/CRn1JFKIZD/CMi2vzZXLJXLHVum87+Y8GPhKaEPHW3UyNPg9P4i1t
-         PMRFQ6G3gkTpgq9Tdu1xdTd3cA/7t+CTnSum6M18=
+        b=eprmy/s5AiivhxdU4YhcOzLPDCB3ynQNtLwsiyN+oeDlLRIikU1NSQXlZm1yoYq2g
+         skM2ifq7Fx/tfiqq5bak5liEUWMUws9xrWMHJMd64UoRMpv6sCNd4cp18uaW6/a8zH
+         0EcUm6R2f5YEKpGwWRN39LMYREWLe2wQEo1XIUNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Brendan Cunningham <bcunningham@cornelisnetworks.com>,
-        Patrick Kelsey <pat.kelsey@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 491/885] IB/hfi1: Fix math bugs in hfi1_can_pin_pages()
-Date:   Tue,  7 Mar 2023 17:57:05 +0100
-Message-Id: <20230307170023.798360103@linuxfoundation.org>
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 6.2 0654/1001] ice: add missing checks for PF vsi type
+Date:   Tue,  7 Mar 2023 17:57:06 +0100
+Message-Id: <20230307170049.976128226@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,103 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit a0d198f79a8d033bd46605b779859193649f1f99 ]
+[ Upstream commit 6a8d013e904ad9a66706fcc926ec9993bed7d190 ]
 
-Fix arithmetic and logic errors in hfi1_can_pin_pages() that  would allow
-hfi1 to attempt pinning pages in cases where it should not because of
-resource limits or lack of required capability.
+There were a few places we had missed checking the VSI type to make sure
+it was definitely a PF VSI, before calling setup functions intended only
+for the PF VSI.
 
-Fixes: 2c97ce4f3c29 ("IB/hfi1: Add pin query function")
-Link: https://lore.kernel.org/r/167656658362.2223096.10954762619837718026.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Brendan Cunningham <bcunningham@cornelisnetworks.com>
-Signed-off-by: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This doesn't fix any explicit bugs but cleans up the code in a few
+places and removes one explicit != vsi->type check that can be
+superseded by this code (it's a super set)
+
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/user_pages.c | 61 ++++++++++++++++---------
- 1 file changed, 40 insertions(+), 21 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/user_pages.c b/drivers/infiniband/hw/hfi1/user_pages.c
-index 7bce963e2ae69..36aaedc651456 100644
---- a/drivers/infiniband/hw/hfi1/user_pages.c
-+++ b/drivers/infiniband/hw/hfi1/user_pages.c
-@@ -29,33 +29,52 @@ MODULE_PARM_DESC(cache_size, "Send and receive side cache size limit (in MB)");
- bool hfi1_can_pin_pages(struct hfi1_devdata *dd, struct mm_struct *mm,
- 			u32 nlocked, u32 npages)
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 8ec24f6cf6beb..3811462824390 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -6182,15 +6182,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
  {
--	unsigned long ulimit = rlimit(RLIMIT_MEMLOCK), pinned, cache_limit,
--		size = (cache_size * (1UL << 20)); /* convert to bytes */
--	unsigned int usr_ctxts =
--			dd->num_rcv_contexts - dd->first_dyn_alloc_ctxt;
--	bool can_lock = capable(CAP_IPC_LOCK);
-+	unsigned long ulimit_pages;
-+	unsigned long cache_limit_pages;
-+	unsigned int usr_ctxts;
+ 	int err;
  
- 	/*
--	 * Calculate per-cache size. The calculation below uses only a quarter
--	 * of the available per-context limit. This leaves space for other
--	 * pinning. Should we worry about shared ctxts?
-+	 * Perform RLIMIT_MEMLOCK based checks unless CAP_IPC_LOCK is present.
+-	if (vsi->netdev) {
++	if (vsi->netdev && vsi->type == ICE_VSI_PF) {
+ 		ice_set_rx_mode(vsi->netdev);
+ 
+-		if (vsi->type != ICE_VSI_LB) {
+-			err = ice_vsi_vlan_setup(vsi);
+-
+-			if (err)
+-				return err;
+-		}
++		err = ice_vsi_vlan_setup(vsi);
++		if (err)
++			return err;
+ 	}
+ 	ice_vsi_cfg_dcb_rings(vsi);
+ 
+@@ -6371,7 +6368,7 @@ static int ice_up_complete(struct ice_vsi *vsi)
+ 
+ 	if (vsi->port_info &&
+ 	    (vsi->port_info->phy.link_info.link_info & ICE_AQ_LINK_UP) &&
+-	    vsi->netdev) {
++	    vsi->netdev && vsi->type == ICE_VSI_PF) {
+ 		ice_print_link_msg(vsi, true);
+ 		netif_tx_start_all_queues(vsi->netdev);
+ 		netif_carrier_on(vsi->netdev);
+@@ -6382,7 +6379,9 @@ static int ice_up_complete(struct ice_vsi *vsi)
+ 	 * set the baseline so counters are ready when interface is up
  	 */
--	cache_limit = (ulimit / usr_ctxts) / 4;
--
--	/* If ulimit isn't set to "unlimited" and is smaller than cache_size. */
--	if (ulimit != (-1UL) && size > cache_limit)
--		size = cache_limit;
--
--	/* Convert to number of pages */
--	size = DIV_ROUND_UP(size, PAGE_SIZE);
--
--	pinned = atomic64_read(&mm->pinned_vm);
-+	if (!capable(CAP_IPC_LOCK)) {
-+		ulimit_pages =
-+			DIV_ROUND_DOWN_ULL(rlimit(RLIMIT_MEMLOCK), PAGE_SIZE);
+ 	ice_update_eth_stats(vsi);
+-	ice_service_task_schedule(pf);
 +
-+		/*
-+		 * Pinning these pages would exceed this process's locked memory
-+		 * limit.
-+		 */
-+		if (atomic64_read(&mm->pinned_vm) + npages > ulimit_pages)
-+			return false;
-+
-+		/*
-+		 * Only allow 1/4 of the user's RLIMIT_MEMLOCK to be used for HFI
-+		 * caches.  This fraction is then equally distributed among all
-+		 * existing user contexts.  Note that if RLIMIT_MEMLOCK is
-+		 * 'unlimited' (-1), the value of this limit will be > 2^42 pages
-+		 * (2^64 / 2^12 / 2^8 / 2^2).
-+		 *
-+		 * The effectiveness of this check may be reduced if I/O occurs on
-+		 * some user contexts before all user contexts are created.  This
-+		 * check assumes that this process is the only one using this
-+		 * context (e.g., the corresponding fd was not passed to another
-+		 * process for concurrent access) as there is no per-context,
-+		 * per-process tracking of pinned pages.  It also assumes that each
-+		 * user context has only one cache to limit.
-+		 */
-+		usr_ctxts = dd->num_rcv_contexts - dd->first_dyn_alloc_ctxt;
-+		if (nlocked + npages > (ulimit_pages / usr_ctxts / 4))
-+			return false;
-+	}
++	if (vsi->type == ICE_VSI_PF)
++		ice_service_task_schedule(pf);
  
--	/* First, check the absolute limit against all pinned pages. */
--	if (pinned + npages >= ulimit && !can_lock)
-+	/*
-+	 * Pinning these pages would exceed the size limit for this cache.
-+	 */
-+	cache_limit_pages = cache_size * (1024 * 1024) / PAGE_SIZE;
-+	if (nlocked + npages > cache_limit_pages)
- 		return false;
- 
--	return ((nlocked + npages) <= size) || can_lock;
-+	return true;
+ 	return 0;
  }
- 
- int hfi1_acquire_user_pages(struct mm_struct *mm, unsigned long vaddr, size_t npages,
 -- 
 2.39.2
 
