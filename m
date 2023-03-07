@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B4F6AF2BF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B57E6AF2D3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbjCGS4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:56:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
+        id S233365AbjCGS4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:56:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233398AbjCGSzr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:55:47 -0500
+        with ESMTP id S233363AbjCGS4X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6F57E79D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA179EF48
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E0E8B819C8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA861C433EF;
-        Tue,  7 Mar 2023 18:43:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B829BB819D5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A0AC433D2;
+        Tue,  7 Mar 2023 18:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214595;
-        bh=vHE2bWvGnXR5d5w+EZAaBgl5f1CJ6ycpE3qHyG5z4j4=;
+        s=korg; t=1678214598;
+        bh=W0U/9N7AGQ/StO2o579pnSPjwA4q4Lnam3hLBoGvzHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WaouNhGEAuauh2MIH1RBC5uV9yjXj+c/gvSSNOg2Yv4u5OG177HWXa7M6Dc4r/QlB
-         v0mLMiJJr8fTKJjp9gQDAJ8NTDVn5FpzHk7DhIM+HavBICnsgY5ZV19TC70qBoCvxR
-         JargxZtmzIE8MzOG6mPGzuvM1PlBtaMuNDmw9okg=
+        b=1CcKlQB69V9HU5t5c/KJU+5MvN5g5McYrklfYu0TEbt5ptUVkl4WopxytqopRjvDR
+         pQFLpYBvSQ6mLX6FAEJay4phEuZsMRIT6U7PO5CIvEboG2PBQzr7SYmZ6Y2QKNF6/p
+         qlaGIGndrGCX/qYGHVv21VdA4A7qE6NaJ555K85w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
-        Sukumar Ghorai <sukumar.ghorai@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 6.1 873/885] iommu/vt-d: Fix PASID directory pointer coherency
-Date:   Tue,  7 Mar 2023 18:03:27 +0100
-Message-Id: <20230307170039.710668816@linuxfoundation.org>
+        patches@lists.linux.dev, Steve Sistare <steven.sistare@oracle.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 6.1 874/885] vfio/type1: exclude mdevs from VFIO_UPDATE_VADDR
+Date:   Tue,  7 Mar 2023 18:03:28 +0100
+Message-Id: <20230307170039.758720978@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -57,77 +55,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+From: Steve Sistare <steven.sistare@oracle.com>
 
-commit 194b3348bdbb7db65375c72f3f774aee4cc6614e upstream.
+commit ef3a3f6a294ba65fd906a291553935881796f8a5 upstream.
 
-On platforms that do not support IOMMU Extended capability bit 0
-Page-walk Coherency, CPU caches are not snooped when IOMMU is accessing
-any translation structures. IOMMU access goes only directly to
-memory. Intel IOMMU code was missing a flush for the PASID table
-directory that resulted in the unrecoverable fault as shown below.
+Disable the VFIO_UPDATE_VADDR capability if mediated devices are present.
+Their kernel threads could be blocked indefinitely by a misbehaving
+userland while trying to pin/unpin pages while vaddrs are being updated.
 
-This patch adds clflush calls whenever allocating and updating
-a PASID table directory to ensure cache coherency.
+Do not allow groups to be added to the container while vaddr's are invalid,
+so we never need to block user threads from pinning, and can delete the
+vaddr-waiting code in a subsequent patch.
 
-On the reverse direction, there's no need to clflush the PASID directory
-pointer when we deactivate a context entry in that IOMMU hardware will
-not see the old PASID directory pointer after we clear the context entry.
-PASID directory entries are also never freed once allocated.
-
- DMAR: DRHD: handling fault status reg 3
- DMAR: [DMA Read NO_PASID] Request device [00:0d.2] fault addr 0x1026a4000
-       [fault reason 0x51] SM: Present bit in Directory Entry is clear
- DMAR: Dump dmar1 table entries for IOVA 0x1026a4000
- DMAR: scalable mode root entry: hi 0x0000000102448001, low 0x0000000101b3e001
- DMAR: context entry: hi 0x0000000000000000, low 0x0000000101b4d401
- DMAR: pasid dir entry: 0x0000000101b4e001
- DMAR: pasid table entry[0]: 0x0000000000000109
- DMAR: pasid table entry[1]: 0x0000000000000001
- DMAR: pasid table entry[2]: 0x0000000000000000
- DMAR: pasid table entry[3]: 0x0000000000000000
- DMAR: pasid table entry[4]: 0x0000000000000000
- DMAR: pasid table entry[5]: 0x0000000000000000
- DMAR: pasid table entry[6]: 0x0000000000000000
- DMAR: pasid table entry[7]: 0x0000000000000000
- DMAR: PTE not present at level 4
-
-Cc: <stable@vger.kernel.org>
-Fixes: 0bbeb01a4faf ("iommu/vt-d: Manage scalalble mode PASID tables")
+Fixes: c3cbab24db38 ("vfio/type1: implement interfaces to update vaddr")
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
 Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reported-by: Sukumar Ghorai <sukumar.ghorai@intel.com>
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Link: https://lore.kernel.org/r/20230209212843.1788125-1-jacob.jun.pan@linux.intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/1675184289-267876-2-git-send-email-steven.sistare@oracle.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/pasid.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/vfio/vfio_iommu_type1.c |   44 ++++++++++++++++++++++++++++++++++++++--
+ include/uapi/linux/vfio.h       |   15 ++++++++-----
+ 2 files changed, 51 insertions(+), 8 deletions(-)
 
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -126,6 +126,9 @@ int intel_pasid_alloc_table(struct devic
- 	pasid_table->max_pasid = 1 << (order + PAGE_SHIFT + 3);
- 	info->pasid_table = pasid_table;
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -861,6 +861,12 @@ static int vfio_iommu_type1_pin_pages(vo
  
-+	if (!ecap_coherent(info->iommu->ecap))
-+		clflush_cache_range(pasid_table->table, size);
+ 	mutex_lock(&iommu->lock);
+ 
++	if (WARN_ONCE(iommu->vaddr_invalid_count,
++		      "vfio_pin_pages not allowed with VFIO_UPDATE_VADDR\n")) {
++		ret = -EBUSY;
++		goto pin_done;
++	}
 +
- 	return 0;
+ 	/*
+ 	 * Wait for all necessary vaddr's to be valid so they can be used in
+ 	 * the main loop without dropping the lock, to avoid racing vs unmap.
+@@ -1343,6 +1349,12 @@ static int vfio_dma_do_unmap(struct vfio
+ 
+ 	mutex_lock(&iommu->lock);
+ 
++	/* Cannot update vaddr if mdev is present. */
++	if (invalidate_vaddr && !list_empty(&iommu->emulated_iommu_groups)) {
++		ret = -EBUSY;
++		goto unlock;
++	}
++
+ 	pgshift = __ffs(iommu->pgsize_bitmap);
+ 	pgsize = (size_t)1 << pgshift;
+ 
+@@ -2194,11 +2206,16 @@ static int vfio_iommu_type1_attach_group
+ 	struct iommu_domain_geometry *geo;
+ 	LIST_HEAD(iova_copy);
+ 	LIST_HEAD(group_resv_regions);
+-	int ret = -EINVAL;
++	int ret = -EBUSY;
+ 
+ 	mutex_lock(&iommu->lock);
+ 
++	/* Attach could require pinning, so disallow while vaddr is invalid. */
++	if (iommu->vaddr_invalid_count)
++		goto out_unlock;
++
+ 	/* Check for duplicates */
++	ret = -EINVAL;
+ 	if (vfio_iommu_find_iommu_group(iommu, iommu_group))
+ 		goto out_unlock;
+ 
+@@ -2669,6 +2686,16 @@ static int vfio_domains_have_enforce_cac
+ 	return ret;
  }
  
-@@ -213,6 +216,10 @@ retry:
- 			free_pgtable_page(entries);
- 			goto retry;
- 		}
-+		if (!ecap_coherent(info->iommu->ecap)) {
-+			clflush_cache_range(entries, VTD_PAGE_SIZE);
-+			clflush_cache_range(&dir[dir_index].val, sizeof(*dir));
-+		}
++static bool vfio_iommu_has_emulated(struct vfio_iommu *iommu)
++{
++	bool ret;
++
++	mutex_lock(&iommu->lock);
++	ret = !list_empty(&iommu->emulated_iommu_groups);
++	mutex_unlock(&iommu->lock);
++	return ret;
++}
++
+ static int vfio_iommu_type1_check_extension(struct vfio_iommu *iommu,
+ 					    unsigned long arg)
+ {
+@@ -2677,8 +2704,13 @@ static int vfio_iommu_type1_check_extens
+ 	case VFIO_TYPE1v2_IOMMU:
+ 	case VFIO_TYPE1_NESTING_IOMMU:
+ 	case VFIO_UNMAP_ALL:
+-	case VFIO_UPDATE_VADDR:
+ 		return 1;
++	case VFIO_UPDATE_VADDR:
++		/*
++		 * Disable this feature if mdevs are present.  They cannot
++		 * safely pin/unpin/rw while vaddrs are being updated.
++		 */
++		return iommu && !vfio_iommu_has_emulated(iommu);
+ 	case VFIO_DMA_CC_IOMMU:
+ 		if (!iommu)
+ 			return 0;
+@@ -3147,6 +3179,13 @@ static int vfio_iommu_type1_dma_rw(void
+ 	size_t done;
+ 
+ 	mutex_lock(&iommu->lock);
++
++	if (WARN_ONCE(iommu->vaddr_invalid_count,
++		      "vfio_dma_rw not allowed with VFIO_UPDATE_VADDR\n")) {
++		ret = -EBUSY;
++		goto out;
++	}
++
+ 	while (count > 0) {
+ 		ret = vfio_iommu_type1_dma_rw_chunk(iommu, user_iova, data,
+ 						    count, write, &done);
+@@ -3158,6 +3197,7 @@ static int vfio_iommu_type1_dma_rw(void
+ 		user_iova += done;
  	}
  
- 	return &entries[index];
++out:
+ 	mutex_unlock(&iommu->lock);
+ 	return ret;
+ }
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -49,7 +49,11 @@
+ /* Supports VFIO_DMA_UNMAP_FLAG_ALL */
+ #define VFIO_UNMAP_ALL			9
+ 
+-/* Supports the vaddr flag for DMA map and unmap */
++/*
++ * Supports the vaddr flag for DMA map and unmap.  Not supported for mediated
++ * devices, so this capability is subject to change as groups are added or
++ * removed.
++ */
+ #define VFIO_UPDATE_VADDR		10
+ 
+ /*
+@@ -1215,8 +1219,7 @@ struct vfio_iommu_type1_info_dma_avail {
+  * Map process virtual addresses to IO virtual addresses using the
+  * provided struct vfio_dma_map. Caller sets argsz. READ &/ WRITE required.
+  *
+- * If flags & VFIO_DMA_MAP_FLAG_VADDR, update the base vaddr for iova, and
+- * unblock translation of host virtual addresses in the iova range.  The vaddr
++ * If flags & VFIO_DMA_MAP_FLAG_VADDR, update the base vaddr for iova. The vaddr
+  * must have previously been invalidated with VFIO_DMA_UNMAP_FLAG_VADDR.  To
+  * maintain memory consistency within the user application, the updated vaddr
+  * must address the same memory object as originally mapped.  Failure to do so
+@@ -1267,9 +1270,9 @@ struct vfio_bitmap {
+  * must be 0.  This cannot be combined with the get-dirty-bitmap flag.
+  *
+  * If flags & VFIO_DMA_UNMAP_FLAG_VADDR, do not unmap, but invalidate host
+- * virtual addresses in the iova range.  Tasks that attempt to translate an
+- * iova's vaddr will block.  DMA to already-mapped pages continues.  This
+- * cannot be combined with the get-dirty-bitmap flag.
++ * virtual addresses in the iova range.  DMA to already-mapped pages continues.
++ * Groups may not be added to the container while any addresses are invalid.
++ * This cannot be combined with the get-dirty-bitmap flag.
+  */
+ struct vfio_iommu_type1_dma_unmap {
+ 	__u32	argsz;
 
 
