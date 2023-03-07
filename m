@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F95A6AE8AF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:18:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9403A6AE8C6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:18:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbjCGRSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:18:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38156 "EHLO
+        id S230180AbjCGRSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:18:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230173AbjCGRSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:18:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 567EC943AD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:13:50 -0800 (PST)
+        with ESMTP id S230420AbjCGRSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:18:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5DF95478
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:13:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEB33614E7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:13:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFDEBC433EF;
-        Tue,  7 Mar 2023 17:13:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F858B819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BCAC433EF;
+        Tue,  7 Mar 2023 17:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209229;
-        bh=nfiPZBITQwwzYfDU1ad7LkVzxZhDOaYxUcVtx77DVUU=;
+        s=korg; t=1678209232;
+        bh=l+pZYCnZX3JjNuMl9ujG10CQsi1nfviQEFIFZEY9p8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tBlQKX9ZvFcpaGF+i6hMkXOfhT5zjGIEZZA1k+1JsWar+1xqVo7SdUs3BtUYRZrhf
-         SP3JnaMem/S0OYjK1NLS6HqkFmaOycn/sbtohdiyZAXqdnwiZR8ZQRiZsEWfwQwtHY
-         l7TI7aMKJVokclb8MIcc2JNlCsr1UEDMLEZOXktw=
+        b=smEQKIPG3dRQQIZDvGDMU5EL7c1wo3Lu/PqJfzy0O7o3Txw8bmSj+ES7MHiAW7g65
+         vZ+Sgrr0FuodIoPNQGQ3ZlVaZkxX3//hp9Jqa1EN+oBGMWVvCXWABb1J2tReWYpLNu
+         JInIbrlgqeFwIvgtvVSOaNdLRBFy3l+Nh4LYQQQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Ping-Ke Shih <pkshih@realtek.com>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0150/1001] wifi: rtlwifi: rtl8188ee: dont call kfree_skb() under spin_lock_irqsave()
-Date:   Tue,  7 Mar 2023 17:48:42 +0100
-Message-Id: <20230307170028.558392193@linuxfoundation.org>
+Subject: [PATCH 6.2 0151/1001] wifi: rtlwifi: rtl8723be: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Tue,  7 Mar 2023 17:48:43 +0100
+Message-Id: <20230307170028.606865650@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -56,7 +56,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 2611687fa7ffc84190f92292de0b80468de17220 ]
+[ Upstream commit 313950c2114e7051c4e3020fd82495fa1fb526a8 ]
 
 It is not allowed to call kfree_skb() from hardware interrupt
 context or with interrupts being disabled. All the SKBs have
@@ -64,21 +64,21 @@ been dequeued from the old queue, so it's safe to enqueue these
 SKBs to a free queue, then free them after spin_unlock_irqrestore()
 at once. Compile tested only.
 
-Fixes: 7fe3b3abb5da ("rtlwifi: rtl8188ee: rtl8821ae: Fix a queue locking problem")
+Fixes: 5c99f04fec93 ("rtlwifi: rtl8723be: Update driver to match Realtek release of 06/28/14")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Acked-by: Ping-Ke Shih <pkshih@realtek.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207141411.46098-3-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221207141411.46098-4-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c | 6 +++++-
+ drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c
-index 58c2ab3d44bef..de61c9c0ddec4 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c
-@@ -68,8 +68,10 @@ static void _rtl88ee_return_beacon_queue_skb(struct ieee80211_hw *hw)
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
+index 189cc6437600f..0ba3bbed6ed36 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
+@@ -30,8 +30,10 @@ static void _rtl8723be_return_beacon_queue_skb(struct ieee80211_hw *hw)
  	struct rtl_priv *rtlpriv = rtl_priv(hw);
  	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
  	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[BEACON_QUEUE];
@@ -89,7 +89,7 @@ index 58c2ab3d44bef..de61c9c0ddec4 100644
  	spin_lock_irqsave(&rtlpriv->locks.irq_th_lock, flags);
  	while (skb_queue_len(&ring->queue)) {
  		struct rtl_tx_desc *entry = &ring->desc[ring->idx];
-@@ -79,10 +81,12 @@ static void _rtl88ee_return_beacon_queue_skb(struct ieee80211_hw *hw)
+@@ -41,10 +43,12 @@ static void _rtl8723be_return_beacon_queue_skb(struct ieee80211_hw *hw)
  				 rtlpriv->cfg->ops->get_desc(hw, (u8 *)entry,
  						true, HW_DESC_TXBUFF_ADDR),
  				 skb->len, DMA_TO_DEVICE);
@@ -102,7 +102,7 @@ index 58c2ab3d44bef..de61c9c0ddec4 100644
 +	__skb_queue_purge(&free_list);
  }
  
- static void _rtl88ee_disable_bcn_sub_func(struct ieee80211_hw *hw)
+ static void _rtl8723be_set_bcn_ctrl_reg(struct ieee80211_hw *hw,
 -- 
 2.39.2
 
