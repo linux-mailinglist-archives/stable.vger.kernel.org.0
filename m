@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B20E6AED7C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:04:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4940E6AF27C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:53:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229886AbjCGSEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:04:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43128 "EHLO
+        id S233410AbjCGSxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:53:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231713AbjCGSEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:04:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA05B1EDB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:57:10 -0800 (PST)
+        with ESMTP id S233413AbjCGSxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD47E9BE1C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0150EB81851
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC84C433EF;
-        Tue,  7 Mar 2023 17:57:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C51AB819CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D49C433D2;
+        Tue,  7 Mar 2023 18:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211825;
-        bh=NHhv3g9+OSvN9hM9xG0k4ueiKgiEq4qG/nSu1rEjSLw=;
+        s=korg; t=1678214452;
+        bh=7N2pMwa4SDfRJ7shCeCE8DlvnepL3d6wkMGP3F6k94k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDVjJp+UaxmhHt3cQyQLY1zZdwuCQhyzs/snQU0Y/ez90rPTY6Ri3WIO+ki8FJD/r
-         g0xZgt7apRWWPubK3Rez78Et6zOCwikTjwpJ4qyzYEhmurnbSJqF0rxtQZ0x/HUcUs
-         c4x1LL7TqWjSY5tNMZ6h76U//cWVAuH/R5PRP5pc=
+        b=e3QpD5v5WCv8syGb4+I9J5qQ0IIFYC6i7rDTeSdzDta1CsJIARuGJGwrgG1Vs+jU8
+         fSlc25X7vCS6GKTqGmROIlMgpBOb33BdMUDHv8I0EbtbXq23jlhX2GLyc2b1E15Rn6
+         nectSSB5RiLLUp0EU0nxGCN183gVh7C+jerb+iOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.2 0962/1001] scsi: qla2xxx: Fix erroneous link down
+        patches@lists.linux.dev, Yohan Prodhomme <kernel@zoddo.fr>,
+        Marc Bornand <dev.mbornand@systemb.ch>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 6.1 800/885] wifi: cfg80211: Set SSID if it is not already set
 Date:   Tue,  7 Mar 2023 18:02:14 +0100
-Message-Id: <20230307170103.947444130@linuxfoundation.org>
+Message-Id: <20230307170036.656887462@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,50 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Marc Bornand <dev.mbornand@systemb.ch>
 
-commit 3fbc74feb642deb688cc97f76d40b7287ddd4cb1 upstream.
+commit c38c701851011c94ce3be1ccb3593678d2933fd8 upstream.
 
-If after an adapter reset the appearance of link is not recovered, the
-devices are not rediscovered.  This is result of a race condition between
-adapter reset (abort_isp) and the topology scan.  During adapter reset, the
-ABORT_ISP_ACTIVE flag is set.  Topology scan usually occurred after adapter
-reset.  In this case, the topology scan came earlier than usual where it
-ran into problem due to ABORT_ISP_ACTIVE flag was still set.
+When a connection was established without going through
+NL80211_CMD_CONNECT, the ssid was never set in the wireless_dev struct.
+Now we set it in __cfg80211_connect_result() when it is not already set.
 
-kernel: qla2xxx [0000:13:00.0]-1005:1: Cmd 0x6a aborted with timeout since ISP Abort is pending
-kernel: qla2xxx [0000:13:00.0]-28a0:1: MBX_GET_PORT_NAME failed, No FL Port.
-kernel: qla2xxx [0000:13:00.0]-286b:1: qla2x00_configure_loop: exiting normally. local port wwpn 51402ec0123d9a80 id 012300)
-kernel: qla2xxx [0000:13:00.0]-8017:1: ADAPTER RESET SUCCEEDED nexus=1:0:15.
-
-Allow adapter reset to complete before any scan can start.
+When using a userspace configuration that does not call
+cfg80211_connect() (can be checked with breakpoints in the kernel),
+this patch should allow `networkctl status device_name` to output the
+SSID instead of null.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Yohan Prod'homme <kernel@zoddo.fr>
+Fixes: 7b0a0e3c3a88 (wifi: cfg80211: do some rework towards MLO link APIs)
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216711
+Signed-off-by: Marc Bornand <dev.mbornand@systemb.ch>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/wireless/sme.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -7094,9 +7094,12 @@ qla2x00_do_dpc(void *data)
- 			}
- 		}
- loop_resync_check:
--		if (test_and_clear_bit(LOOP_RESYNC_NEEDED,
-+		if (!qla2x00_reset_active(base_vha) &&
-+		    test_and_clear_bit(LOOP_RESYNC_NEEDED,
- 		    &base_vha->dpc_flags)) {
--
-+			/*
-+			 * Allow abort_isp to complete before moving on to scanning.
-+			 */
- 			ql_dbg(ql_dbg_dpc, base_vha, 0x400f,
- 			    "Loop resync scheduled.\n");
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -736,6 +736,7 @@ void __cfg80211_connect_result(struct ne
+ {
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+ 	const struct element *country_elem = NULL;
++	const struct element *ssid;
+ 	const u8 *country_data;
+ 	u8 country_datalen;
+ #ifdef CONFIG_CFG80211_WEXT
+@@ -881,6 +882,22 @@ void __cfg80211_connect_result(struct ne
+ 				   country_data, country_datalen);
+ 	kfree(country_data);
  
++	if (!wdev->u.client.ssid_len) {
++		rcu_read_lock();
++		for_each_valid_link(cr, link) {
++			ssid = ieee80211_bss_get_elem(cr->links[link].bss,
++						      WLAN_EID_SSID);
++
++			if (!ssid || !ssid->datalen)
++				continue;
++
++			memcpy(wdev->u.client.ssid, ssid->data, ssid->datalen);
++			wdev->u.client.ssid_len = ssid->datalen;
++			break;
++		}
++		rcu_read_unlock();
++	}
++
+ 	return;
+ out:
+ 	for_each_valid_link(cr, link)
 
 
