@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D15A26AF180
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:45:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64EB36AEC7D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230165AbjCGSpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:45:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35850 "EHLO
+        id S231255AbjCGRzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:55:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233162AbjCGSod (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:44:33 -0500
+        with ESMTP id S232405AbjCGRzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:55:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E176A9DF5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B07DA2189
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:50:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AB55B819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B30C433EF;
-        Tue,  7 Mar 2023 18:33:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC032B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 335BAC433EF;
+        Tue,  7 Mar 2023 17:49:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213998;
-        bh=EqPvwCpfLxqn8WfVFVduOkeI7AUGN58iR0FX4sEGzJw=;
+        s=korg; t=1678211398;
+        bh=YLdiUgVhBv3bV48AniyjMASGnPGb+33LGqHi0IVj/YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jbY7ctZdjiDODlqQ/m3NXF6oIOlhlN01kLGljI00ZNjaAhbAFKKiP6xgPFCUH5cRQ
-         Cd2gPHjclH3O89ET0Njzli33rjRrpn/TFVIqQECCvKwYn9nmhzBJ5ae9ltnNF07tCa
-         kPLZTQAky8c0rbqmaygLHE+whgtZfEB/hHDNvgng=
+        b=QILiEiUR7vpR1ZLiazsw3ZZOcUYduUViVMQXnuNmhDPD7XtJsPPivWbDe9U3b/kdQ
+         bm9GA+L3hbHE5uKdsk4t4acrJjb76hjTKsa1qVw264gq35sQEBmHKMegy/aU6azbfa
+         xplfCUHSljM93SB5dq5DXnG+TEEZf5VxleYCbbEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 6.1 687/885] ARM: dts: exynos: correct HDMI phy compatible in Exynos4
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.2 0849/1001] brd: return 0/-error from brd_insert_page()
 Date:   Tue,  7 Mar 2023 18:00:21 +0100
-Message-Id: <20230307170031.968738803@linuxfoundation.org>
+Message-Id: <20230307170058.661944327@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit af1c89ddb74f170eccd5a57001d7317560b638ea upstream.
+commit db0ccc44a20b4bb3039c0f6885a1f9c3323c7673 upstream.
 
-The HDMI phy compatible was missing vendor prefix.
+It currently returns a page, but callers just check for NULL/page to
+gauge success. Clean this up and return the appropriate error directly
+instead.
 
-Fixes: ed80d4cab772 ("ARM: dts: add hdmi related nodes for exynos4 SoCs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230125094513.155063-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: stable@vger.kernel.org # 5.10+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/exynos4.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/brd.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/arch/arm/boot/dts/exynos4.dtsi
-+++ b/arch/arm/boot/dts/exynos4.dtsi
-@@ -605,7 +605,7 @@
- 			status = "disabled";
+--- a/drivers/block/brd.c
++++ b/drivers/block/brd.c
+@@ -78,11 +78,9 @@ static struct page *brd_lookup_page(stru
+ }
  
- 			hdmi_i2c_phy: hdmiphy@38 {
--				compatible = "exynos4210-hdmiphy";
-+				compatible = "samsung,exynos4210-hdmiphy";
- 				reg = <0x38>;
- 			};
- 		};
+ /*
+- * Look up and return a brd's page for a given sector.
+- * If one does not exist, allocate an empty page, and insert that. Then
+- * return it.
++ * Insert a new page for a given sector, if one does not already exist.
+  */
+-static struct page *brd_insert_page(struct brd_device *brd, sector_t sector)
++static int brd_insert_page(struct brd_device *brd, sector_t sector)
+ {
+ 	pgoff_t idx;
+ 	struct page *page;
+@@ -90,7 +88,7 @@ static struct page *brd_insert_page(stru
+ 
+ 	page = brd_lookup_page(brd, sector);
+ 	if (page)
+-		return page;
++		return 0;
+ 
+ 	/*
+ 	 * Must use NOIO because we don't want to recurse back into the
+@@ -99,11 +97,11 @@ static struct page *brd_insert_page(stru
+ 	gfp_flags = GFP_NOIO | __GFP_ZERO | __GFP_HIGHMEM;
+ 	page = alloc_page(gfp_flags);
+ 	if (!page)
+-		return NULL;
++		return -ENOMEM;
+ 
+ 	if (radix_tree_preload(GFP_NOIO)) {
+ 		__free_page(page);
+-		return NULL;
++		return -ENOMEM;
+ 	}
+ 
+ 	spin_lock(&brd->brd_lock);
+@@ -120,8 +118,7 @@ static struct page *brd_insert_page(stru
+ 	spin_unlock(&brd->brd_lock);
+ 
+ 	radix_tree_preload_end();
+-
+-	return page;
++	return 0;
+ }
+ 
+ /*
+@@ -174,16 +171,17 @@ static int copy_to_brd_setup(struct brd_
+ {
+ 	unsigned int offset = (sector & (PAGE_SECTORS-1)) << SECTOR_SHIFT;
+ 	size_t copy;
++	int ret;
+ 
+ 	copy = min_t(size_t, n, PAGE_SIZE - offset);
+-	if (!brd_insert_page(brd, sector))
+-		return -ENOSPC;
++	ret = brd_insert_page(brd, sector);
++	if (ret)
++		return ret;
+ 	if (copy < n) {
+ 		sector += copy >> SECTOR_SHIFT;
+-		if (!brd_insert_page(brd, sector))
+-			return -ENOSPC;
++		ret = brd_insert_page(brd, sector);
+ 	}
+-	return 0;
++	return ret;
+ }
+ 
+ /*
 
 
