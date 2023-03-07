@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD0AC6AEBBC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DFB6AF0D7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232215AbjCGRsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
+        id S231281AbjCGSgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:36:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232214AbjCGRsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:03 -0500
+        with ESMTP id S232969AbjCGSfC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6801BDD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30DDDB95CE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E86F9B819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3BFC433EF;
-        Tue,  7 Mar 2023 17:42:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A28E8B818EB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03F2AC43442;
+        Tue,  7 Mar 2023 18:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210971;
-        bh=QLWxoO7q5r3HBT3pTtvAUaBO28iq3jSg7o+cbFPi5j0=;
+        s=korg; t=1678213578;
+        bh=dcmBVMngay0jJ+rAuG/Jy2vfU/px5cJhOSljfmNvBPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n7K8o3pbpxd7t4VQCTq8+JM9llv1+geljsMizms3LW+ppcBvl9b1vskg30UBXvo2t
-         JKtma0yKg1hceRYXL/Zu5h7foLr/P930ACTyMGbdkzGz9ul3lZ4kreH/BbrBqi3ZkO
-         oambArcaN1ta8461ndR7Tr2b4QQysmG/B//XjAi4=
+        b=zSJmN1CIiS60OXxC+CPa4X75Vj8YjMvYxIHWLgxyBu3YkwkC/c1o1QWP9GfTuW+8c
+         X99H1di8qc1ijOYjJDLyQv0ZhcFDvAb2rjHcT84Ns8lAcZ5DhFxcYk/og7s4vmrB18
+         JNbx9K3lyShc6Bs/gqLQ10kfuGE1FnowQGuUC6o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Moti Haimovski <mhaimovski@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
+        patches@lists.linux.dev, Zqiang <qiang1.zhang@intel.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0713/1001] habanalabs: extend fatal messages to contain PCI info
-Date:   Tue,  7 Mar 2023 17:58:05 +0100
-Message-Id: <20230307170052.581668641@linuxfoundation.org>
+Subject: [PATCH 6.1 552/885] rcu-tasks: Handle queue-shrink/callback-enqueue race condition
+Date:   Tue,  7 Mar 2023 17:58:06 +0100
+Message-Id: <20230307170026.469893266@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,126 +54,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moti Haimovski <mhaimovski@habana.ai>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit 2a0a839b6a28f7c4c528bb75b740c7f38ef79a37 ]
+[ Upstream commit a4fcfbee8f6274f9b3f9a71dd5b03e6772ce33f3 ]
 
-This commit attaches the PCI device address to driver fatal messages
-in order to ease debugging in multi-device setups.
+The rcu_tasks_need_gpcb() determines whether or not: (1) There are
+callbacks needing another grace period, (2) There are callbacks ready
+to be invoked, and (3) It would be a good time to shrink back down to a
+single-CPU callback list.  This third case is interesting because some
+other CPU might be adding new callbacks, which might suddenly make this
+a very bad time to be shrinking.
 
-Signed-off-by: Moti Haimovski <mhaimovski@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+This is currently handled by requiring call_rcu_tasks_generic() to
+enqueue callbacks under the protection of rcu_read_lock() and requiring
+rcu_tasks_need_gpcb() to wait for an RCU grace period to elapse before
+finalizing the transition.  This works well in practice.
+
+Unfortunately, the current code assumes that a grace period whose end is
+detected by the poll_state_synchronize_rcu() in the second "if" condition
+actually ended before the earlier code counted the callbacks queued on
+CPUs other than CPU 0 (local variable "ncbsnz").  Given the current code,
+it is possible that a long-delayed call_rcu_tasks_generic() invocation
+will queue a callback on a non-zero CPU after these CPUs have had their
+callbacks counted and zero has been stored to ncbsnz.  Such a callback
+would trigger the WARN_ON_ONCE() in the second "if" statement.
+
+To see this, consider the following sequence of events:
+
+o	CPU 0 invokes rcu_tasks_one_gp(), and counts fewer than
+	rcu_task_collapse_lim callbacks.  It sees at least one
+	callback queued on some other CPU, thus setting ncbsnz
+	to a non-zero value.
+
+o	CPU 1 invokes call_rcu_tasks_generic() and loads 42 from
+	->percpu_enqueue_lim.  It therefore decides to enqueue its
+	callback onto CPU 1's callback list, but is delayed.
+
+o	CPU 0 sees the rcu_task_cb_adjust is non-zero and that the number
+	of callbacks does not exceed rcu_task_collapse_lim.  It therefore
+	checks percpu_enqueue_lim, and sees that its value is greater
+	than the value one.  CPU 0 therefore  starts the shift back
+	to a single callback list.  It sets ->percpu_enqueue_lim to 1,
+	but CPU 1 has already read the old value of 42.  It also gets
+	a grace-period state value from get_state_synchronize_rcu().
+
+o	CPU 0 sees that ncbsnz is non-zero in its second "if" statement,
+	so it declines to finalize the shrink operation.
+
+o	CPU 0 again invokes rcu_tasks_one_gp(), and counts fewer than
+	rcu_task_collapse_lim callbacks.  It also sees that there are
+	no callback queued on any other CPU, and thus sets ncbsnz to zero.
+
+o	CPU 1 resumes execution and enqueues its callback onto its own
+	list.  This invalidates the value of ncbsnz.
+
+o	CPU 0 sees the rcu_task_cb_adjust is non-zero and that the number
+	of callbacks does not exceed rcu_task_collapse_lim.  It therefore
+	checks percpu_enqueue_lim, but sees that its value is already
+	unity.	It therefore does not get a new grace-period state value.
+
+o	CPU 0 sees that rcu_task_cb_adjust is non-zero, ncbsnz is zero,
+	and that poll_state_synchronize_rcu() says that the grace period
+	has completed.  it therefore finalizes the shrink operation,
+	setting ->percpu_dequeue_lim to the value one.
+
+o	CPU 0 does a debug check, scanning the other CPUs' callback lists.
+	It sees that CPU 1's list has a callback, so it (rightly)
+	triggers the WARN_ON_ONCE().  After all, the new value of
+	->percpu_dequeue_lim says to not bother looking at CPU 1's
+	callback list, which means that this callback will never be
+	invoked.  This can result in hangs and maybe even OOMs.
+
+Based on long experience with rcutorture, this is an extremely
+low-probability race condition, but it really can happen, especially in
+preemptible kernels or within guest OSes.
+
+This commit therefore checks for completion of the grace period
+before counting callbacks.  With this change, in the above failure
+scenario CPU 0 would know not to prematurely end the shrink operation
+because the grace period would not have completed before the count
+operation started.
+
+[ paulmck: Adjust grace-period end rather than adding RCU reader. ]
+[ paulmck: Avoid spurious WARN_ON_ONCE() with ->percpu_dequeue_lim check. ]
+
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/device.c | 38 ++++++++++++++++---------
- 1 file changed, 25 insertions(+), 13 deletions(-)
+ kernel/rcu/tasks.h | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
-index 87ab329e65d49..f7b9c3871518b 100644
---- a/drivers/misc/habanalabs/common/device.c
-+++ b/drivers/misc/habanalabs/common/device.c
-@@ -1566,7 +1566,8 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
- 		if (rc == -EBUSY) {
- 			if (hdev->device_fini_pending) {
- 				dev_crit(hdev->dev,
--					"Failed to kill all open processes, stopping hard reset\n");
-+					"%s Failed to kill all open processes, stopping hard reset\n",
-+					dev_name(&(hdev)->pdev->dev));
- 				goto out_err;
- 			}
- 
-@@ -1576,7 +1577,8 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
- 
- 		if (rc) {
- 			dev_crit(hdev->dev,
--				"Failed to kill all open processes, stopping hard reset\n");
-+				"%s Failed to kill all open processes, stopping hard reset\n",
-+				dev_name(&(hdev)->pdev->dev));
- 			goto out_err;
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index 0a8824bbfa372..c8409601fec38 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -384,6 +384,7 @@ static int rcu_tasks_need_gpcb(struct rcu_tasks *rtp)
+ {
+ 	int cpu;
+ 	unsigned long flags;
++	bool gpdone = poll_state_synchronize_rcu(rtp->percpu_dequeue_gpseq);
+ 	long n;
+ 	long ncbs = 0;
+ 	long ncbsnz = 0;
+@@ -425,21 +426,23 @@ static int rcu_tasks_need_gpcb(struct rcu_tasks *rtp)
+ 			WRITE_ONCE(rtp->percpu_enqueue_shift, order_base_2(nr_cpu_ids));
+ 			smp_store_release(&rtp->percpu_enqueue_lim, 1);
+ 			rtp->percpu_dequeue_gpseq = get_state_synchronize_rcu();
++			gpdone = false;
+ 			pr_info("Starting switch %s to CPU-0 callback queuing.\n", rtp->name);
  		}
- 
-@@ -1627,14 +1629,16 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
- 			 * ensure driver puts the driver in a unusable state
- 			 */
- 			dev_crit(hdev->dev,
--				"Consecutive FW fatal errors received, stopping hard reset\n");
-+				"%s Consecutive FW fatal errors received, stopping hard reset\n",
-+				dev_name(&(hdev)->pdev->dev));
- 			rc = -EIO;
- 			goto out_err;
- 		}
- 
- 		if (hdev->kernel_ctx) {
- 			dev_crit(hdev->dev,
--				"kernel ctx was alive during hard reset, something is terribly wrong\n");
-+				"%s kernel ctx was alive during hard reset, something is terribly wrong\n",
-+				dev_name(&(hdev)->pdev->dev));
- 			rc = -EBUSY;
- 			goto out_err;
- 		}
-@@ -1752,9 +1756,13 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
- 	hdev->reset_info.needs_reset = false;
- 
- 	if (hard_reset)
--		dev_info(hdev->dev, "Successfully finished resetting the device\n");
-+		dev_info(hdev->dev,
-+			 "Successfully finished resetting the %s device\n",
-+			 dev_name(&(hdev)->pdev->dev));
- 	else
--		dev_dbg(hdev->dev, "Successfully finished resetting the device\n");
-+		dev_dbg(hdev->dev,
-+			"Successfully finished resetting the %s device\n",
-+			dev_name(&(hdev)->pdev->dev));
- 
- 	if (hard_reset) {
- 		hdev->reset_info.hard_reset_cnt++;
-@@ -1789,7 +1797,9 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
- 	hdev->reset_info.in_compute_reset = 0;
- 
- 	if (hard_reset) {
--		dev_err(hdev->dev, "Failed to reset! Device is NOT usable\n");
-+		dev_err(hdev->dev,
-+			"%s Failed to reset! Device is NOT usable\n",
-+			dev_name(&(hdev)->pdev->dev));
- 		hdev->reset_info.hard_reset_cnt++;
- 	} else if (reset_upon_device_release) {
- 		spin_unlock(&hdev->reset_info.lock);
-@@ -2186,7 +2196,8 @@ int hl_device_init(struct hl_device *hdev, struct class *hclass)
+ 		raw_spin_unlock_irqrestore(&rtp->cbs_gbl_lock, flags);
  	}
- 
- 	dev_notice(hdev->dev,
--		"Successfully added device to habanalabs driver\n");
-+		"Successfully added device %s to habanalabs driver\n",
-+		dev_name(&(hdev)->pdev->dev));
- 
- 	hdev->init_done = true;
- 
-@@ -2235,11 +2246,11 @@ int hl_device_init(struct hl_device *hdev, struct class *hclass)
- 		device_cdev_sysfs_add(hdev);
- 	if (hdev->pdev)
- 		dev_err(&hdev->pdev->dev,
--			"Failed to initialize hl%d. Device is NOT usable !\n",
--			hdev->cdev_idx);
-+			"Failed to initialize hl%d. Device %s is NOT usable !\n",
-+			hdev->cdev_idx, dev_name(&(hdev)->pdev->dev));
- 	else
--		pr_err("Failed to initialize hl%d. Device is NOT usable !\n",
--			hdev->cdev_idx);
-+		pr_err("Failed to initialize hl%d. Device %s is NOT usable !\n",
-+			hdev->cdev_idx, dev_name(&(hdev)->pdev->dev));
- 
- 	return rc;
- }
-@@ -2295,7 +2306,8 @@ void hl_device_fini(struct hl_device *hdev)
- 
- 		if (ktime_compare(ktime_get(), timeout) > 0) {
- 			dev_crit(hdev->dev,
--				"Failed to remove device because reset function did not finish\n");
-+				"%s Failed to remove device because reset function did not finish\n",
-+				dev_name(&(hdev)->pdev->dev));
- 			return;
+-	if (rcu_task_cb_adjust && !ncbsnz &&
+-	    poll_state_synchronize_rcu(rtp->percpu_dequeue_gpseq)) {
++	if (rcu_task_cb_adjust && !ncbsnz && gpdone) {
+ 		raw_spin_lock_irqsave(&rtp->cbs_gbl_lock, flags);
+ 		if (rtp->percpu_enqueue_lim < rtp->percpu_dequeue_lim) {
+ 			WRITE_ONCE(rtp->percpu_dequeue_lim, 1);
+ 			pr_info("Completing switch %s to CPU-0 callback queuing.\n", rtp->name);
  		}
+-		for (cpu = rtp->percpu_dequeue_lim; cpu < nr_cpu_ids; cpu++) {
+-			struct rcu_tasks_percpu *rtpcp = per_cpu_ptr(rtp->rtpcpu, cpu);
++		if (rtp->percpu_dequeue_lim == 1) {
++			for (cpu = rtp->percpu_dequeue_lim; cpu < nr_cpu_ids; cpu++) {
++				struct rcu_tasks_percpu *rtpcp = per_cpu_ptr(rtp->rtpcpu, cpu);
+ 
+-			WARN_ON_ONCE(rcu_segcblist_n_cbs(&rtpcp->cblist));
++				WARN_ON_ONCE(rcu_segcblist_n_cbs(&rtpcp->cblist));
++			}
+ 		}
+ 		raw_spin_unlock_irqrestore(&rtp->cbs_gbl_lock, flags);
  	}
 -- 
 2.39.2
