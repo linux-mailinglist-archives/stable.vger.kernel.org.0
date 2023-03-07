@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F53D6AEAB8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D764A6AEF60
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231831AbjCGRgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:36:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42462 "EHLO
+        id S232523AbjCGSXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231791AbjCGRga (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4011A54C1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:19 -0800 (PST)
+        with ESMTP id S232499AbjCGSXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD6CAB8BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49F5B61517
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5219CC433D2;
-        Tue,  7 Mar 2023 17:32:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E698B8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB868C433D2;
+        Tue,  7 Mar 2023 18:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210338;
-        bh=+4qa1cRGyKcj6Rvb0jubXyaq45q0+Q7ELXHfVA1gV4w=;
+        s=korg; t=1678213037;
+        bh=0TFvKDh/z/L3r5jPYIYlJrigoOErlR9z55wvhV3BUxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CS3KgtbFV4re0gHazuNAS/ULrLVQf8dm0a348br3MGKfHhYeCe1+FBkhEAqQuPcfn
-         JJlQGDYGEOqfBgKiyhq1TW3+bbVZa3hUxYgZ0t4rLnTIN3E5HgfQr3hAZm4o8rIahI
-         WyhewwbFgqZsr1BPDNFK4MPqOl/4dKxYnB7rlhYQ=
+        b=LUHTb6yMXSfV8ZUdSaJRkM5gNzOfpZZic555nTGPYcl8r2/y30c3R/sTEWuXhZI1v
+         ATkdgt32xmf3cLHzFk+ks2/PgSv33DXsp5qRzVjxlY48kInxNqQfd/Ya/i7ZQAwU38
+         sl9u1G2MAyDkOcO5zVYGdcUXWmy+4G3i66Fan0s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jason Yan <yanaijie@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0509/1001] hwtracing: hisi_ptt: Only add the supported devices to the filters list
-Date:   Tue,  7 Mar 2023 17:54:41 +0100
-Message-Id: <20230307170043.511827320@linuxfoundation.org>
+Subject: [PATCH 6.1 348/885] scsi: aic94xx: Add missing check for dma_map_single()
+Date:   Tue,  7 Mar 2023 17:54:42 +0100
+Message-Id: <20230307170017.363314306@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit b8d976c7d41a28c0fccf22c7113be9a29dc07e5c ]
+[ Upstream commit 32fe45274edb5926abc0fac7263d9f889d02d9cf ]
 
-The PTT device can only support the devices on the same PCIe core,
-within BDF range [lower_bdf, upper_bdf]. It's not correct to assume
-the devices on the root bus are from the same PCIe core, there are
-cases that root ports from different PCIe core are sharing the same
-bus. So check when initializing the filters list.
+Add check for dma_map_single() and return error if it fails in order to
+avoid invalid DMA address.
 
-Fixes: ff0de066b463 ("hwtracing: hisi_ptt: Add trace function support for HiSilicon PCIe Tune and Trace device")
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20230112112201.16283-1-yangyicong@huawei.com
+Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
+Link: https://lore.kernel.org/r/20230128110832.6792-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/ptt/hisi_ptt.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/aic94xx/aic94xx_task.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hwtracing/ptt/hisi_ptt.c b/drivers/hwtracing/ptt/hisi_ptt.c
-index 5d5526aa60c40..30f1525639b57 100644
---- a/drivers/hwtracing/ptt/hisi_ptt.c
-+++ b/drivers/hwtracing/ptt/hisi_ptt.c
-@@ -356,8 +356,18 @@ static int hisi_ptt_register_irq(struct hisi_ptt *hisi_ptt)
- 
- static int hisi_ptt_init_filters(struct pci_dev *pdev, void *data)
- {
-+	struct pci_dev *root_port = pcie_find_root_port(pdev);
- 	struct hisi_ptt_filter_desc *filter;
- 	struct hisi_ptt *hisi_ptt = data;
-+	u32 port_devid;
+diff --git a/drivers/scsi/aic94xx/aic94xx_task.c b/drivers/scsi/aic94xx/aic94xx_task.c
+index ed119a3f6f2ed..7f02083001100 100644
+--- a/drivers/scsi/aic94xx/aic94xx_task.c
++++ b/drivers/scsi/aic94xx/aic94xx_task.c
+@@ -50,6 +50,9 @@ static int asd_map_scatterlist(struct sas_task *task,
+ 		dma_addr_t dma = dma_map_single(&asd_ha->pcidev->dev, p,
+ 						task->total_xfer_len,
+ 						task->data_dir);
++		if (dma_mapping_error(&asd_ha->pcidev->dev, dma))
++			return -ENOMEM;
 +
-+	if (!root_port)
-+		return 0;
-+
-+	port_devid = PCI_DEVID(root_port->bus->number, root_port->devfn);
-+	if (port_devid < hisi_ptt->lower_bdf ||
-+	    port_devid > hisi_ptt->upper_bdf)
-+		return 0;
- 
- 	/*
- 	 * We won't fail the probe if filter allocation failed here. The filters
+ 		sg_arr[0].bus_addr = cpu_to_le64((u64)dma);
+ 		sg_arr[0].size = cpu_to_le32(task->total_xfer_len);
+ 		sg_arr[0].flags |= ASD_SG_EL_LIST_EOL;
 -- 
 2.39.2
 
