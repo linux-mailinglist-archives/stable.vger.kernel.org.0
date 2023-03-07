@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C39DC6AF2B6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56A9D6AED0B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233499AbjCGSzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:55:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
+        id S230366AbjCGSAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:00:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233591AbjCGSzD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:55:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F8F227BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:44 -0800 (PST)
+        with ESMTP id S232344AbjCGSAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6905615B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAF7EB819D2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C38AC433D2;
-        Tue,  7 Mar 2023 18:37:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 095D661469
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10BACC433EF;
+        Tue,  7 Mar 2023 17:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214260;
-        bh=8iqDb8A50Fit+bU6TpV6GHH/ef8lYltVMLVwrAyQhpY=;
+        s=korg; t=1678211662;
+        bh=grH1rfzk8g0jf2veuTXxDUMi5VAYKpNfinzHX7O3uoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FunJblDmiRMNeZEHGedHC27NktA7gJ77QClZsN5uOBJw97XaKKvOSbq3s9yYNFH2i
-         isMbA6cyMKFXzyhT1pi7jEb6WDkNxG9YyFrotwEPvsl2363z4dBgVHYJLLEYRryZx4
-         ZfNVe/6D7AC7Mn2PaVySqLhXZAy4/Zg0c17eou5E=
+        b=ANhWB0r/8ASBzQDK0swzXnLujuJahXpiCeWAqo/geUexX/xpWY5oTbmW8apwKWOrd
+         9yfdoU1A5seF5dU6BlqkL0Bu+MhmuMI7Nyh5Urp4xVbDijCQoRk75c06K9t0EL9yCB
+         tsPyTPcNHEBXio145bn223YubGP2ws51W5bS1tCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 6.1 774/885] irqdomain: Fix association race
+        patches@lists.linux.dev,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 6.2 0936/1001] genirq/msi: Take the per-device MSI lock before validating the control structure
 Date:   Tue,  7 Mar 2023 18:01:48 +0100
-Message-Id: <20230307170035.581890033@linuxfoundation.org>
+Message-Id: <20230307170102.723833693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit b06730a571a9ff1ba5bd6b20bf9e50e5a12f1ec6 upstream.
+commit 0af2795f936f1ea1f9f1497447145dfcc7ed2823 upstream.
 
-The sanity check for an already mapped virq is done outside of the
-irq_domain_mutex-protected section which means that an (unlikely) racing
-association may not be detected.
+Calling msi_ctrl_valid() ultimately results in calling
+msi_get_device_domain(), which requires holding the device MSI lock.
 
-Fix this by factoring out the association implementation, which will
-also be used in a follow-on change to fix a shared-interrupt mapping
-race.
+However, in msi_domain_populate_irqs() the lock is taken right after having
+called msi_ctrl_valid(), which is just a tad too late.
 
-Fixes: ddaf144c61da ("irqdomain: Refactor irq_domain_associate_many()")
-Cc: stable@vger.kernel.org      # 3.11
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Take the lock before invoking msi_ctrl_valid().
+
+Fixes: 40742716f294 ("genirq/msi: Make msi_add_simple_msi_descs() device domain aware")
+Reported-by: "Russell King (Oracle)" <linux@armlinux.org.uk>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-2-johan+linaro@kernel.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/Y/Opu6ETe3ZzZ/8E@shell.armlinux.org.uk
+Link: https://lore.kernel.org/r/20230220190101.314446-1-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ kernel/irq/msi.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -559,8 +559,8 @@ static void irq_domain_disassociate(stru
- 	irq_domain_clear_mapping(domain, hwirq);
- }
+diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
+index 783a3e6a0b10..13d96495e6d0 100644
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -1084,10 +1084,13 @@ int msi_domain_populate_irqs(struct irq_domain *domain, struct device *dev,
+ 	struct xarray *xa;
+ 	int ret, virq;
  
--int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
--			 irq_hw_number_t hwirq)
-+static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
-+				       irq_hw_number_t hwirq)
- {
- 	struct irq_data *irq_data = irq_get_irq_data(virq);
- 	int ret;
-@@ -573,7 +573,6 @@ int irq_domain_associate(struct irq_doma
- 	if (WARN(irq_data->domain, "error: virq%i is already associated", virq))
- 		return -EINVAL;
- 
--	mutex_lock(&irq_domain_mutex);
- 	irq_data->hwirq = hwirq;
- 	irq_data->domain = domain;
- 	if (domain->ops->map) {
-@@ -590,7 +589,6 @@ int irq_domain_associate(struct irq_doma
- 			}
- 			irq_data->domain = NULL;
- 			irq_data->hwirq = 0;
--			mutex_unlock(&irq_domain_mutex);
- 			return ret;
- 		}
- 
-@@ -601,12 +599,23 @@ int irq_domain_associate(struct irq_doma
- 
- 	domain->mapcount++;
- 	irq_domain_set_mapping(domain, hwirq, irq_data);
--	mutex_unlock(&irq_domain_mutex);
- 
- 	irq_clear_status_flags(virq, IRQ_NOREQUEST);
- 
- 	return 0;
- }
+-	if (!msi_ctrl_valid(dev, &ctrl))
+-		return -EINVAL;
+-
+ 	msi_lock_descs(dev);
 +
-+int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
-+			 irq_hw_number_t hwirq)
-+{
-+	int ret;
++	if (!msi_ctrl_valid(dev, &ctrl)) {
++		ret = -EINVAL;
++		goto unlock;
++	}
 +
-+	mutex_lock(&irq_domain_mutex);
-+	ret = irq_domain_associate_locked(domain, virq, hwirq);
-+	mutex_unlock(&irq_domain_mutex);
-+
-+	return ret;
-+}
- EXPORT_SYMBOL_GPL(irq_domain_associate);
- 
- void irq_domain_associate_many(struct irq_domain *domain, unsigned int irq_base,
+ 	ret = msi_domain_add_simple_msi_descs(dev, &ctrl);
+ 	if (ret)
+ 		goto unlock;
+-- 
+2.39.2
+
 
 
