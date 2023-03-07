@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4416AEDA6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CA46AE8EA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229972AbjCGSGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:06:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
+        id S231313AbjCGRT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:19:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230039AbjCGSF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:58 -0500
+        with ESMTP id S231281AbjCGRS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:18:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FFD28B07F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:59:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842C638B7F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09F0861507
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D739C433D2;
-        Tue,  7 Mar 2023 17:58:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2163C614E1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2671FC433D2;
+        Tue,  7 Mar 2023 17:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211899;
-        bh=/oqOi06+9R0m0sOyym3nL8rA/F+pfMizr+RHSktR8Qc=;
+        s=korg; t=1678209269;
+        bh=bESz5YXKTObq0V7ITK9xXLVOrD03FJnvaNMiMWEXcb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+I9W42ycpYwKZYrL03Mj0NdPKAhi+8BkPHrxTJXcuALFMp3lHgc+XEqHuQKiEh2B
-         pFfxuIzrU1ofjywiJRCip5vDS8wSZ7di0PaFPj4eBzgd5SGZ7ULrDXXkDDkL3EXfdS
-         nlbxNBbLG77RD/0PMxZIUA67w8EVlgZqxflm4eS4=
+        b=OtnSCmSFHweTVnuQ94wj4qPOfHYWdsOtdR/0Kdx5R6UiwLg6VUglyIbEnLxrs1W4n
+         T4FjO1Ti74ZQHOqjJbRBeIY53AfD56THDs1z3G4bkFDXUBJGwDQZZWCdQBAgH/hXp6
+         BV7cPbREZzMmc53LZtU7WVEO6DB/YU+ir4j7rmBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>
-Subject: [PATCH 6.1 003/885] powerpc/mm: Rearrange if-else block to avoid clang warning
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0165/1001] wifi: wilc1000: add missing unregister_netdev() in wilc_netdev_ifc_init()
 Date:   Tue,  7 Mar 2023 17:48:57 +0100
-Message-Id: <20230307170001.772904194@linuxfoundation.org>
+Message-Id: <20230307170029.178326511@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Wang Yufen <wangyufen@huawei.com>
 
-commit d78c8e32890ef7eca79ffd67c96022c7f9d8cce4 upstream.
+[ Upstream commit 2b88974ecb358990e1c33fabcd0b9e142bab7f21 ]
 
-Clang warns:
+Fault injection test reports this issue:
 
-  arch/powerpc/mm/book3s64/radix_tlb.c:1191:23: error: variable 'hstart' is uninitialized when used here
-    __tlbiel_va_range(hstart, hend, pid,
-                      ^~~~~~
-  arch/powerpc/mm/book3s64/radix_tlb.c:1191:31: error: variable 'hend' is uninitialized when used here
-    __tlbiel_va_range(hstart, hend, pid,
-                              ^~~~
+kernel BUG at net/core/dev.c:10731!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+Call Trace:
+  <TASK>
+  wilc_netdev_ifc_init+0x19f/0x220 [wilc1000 884bf126e9e98af6a708f266a8dffd53f99e4bf5]
+  wilc_cfg80211_init+0x30c/0x380 [wilc1000 884bf126e9e98af6a708f266a8dffd53f99e4bf5]
+  wilc_bus_probe+0xad/0x2b0 [wilc1000_spi 1520a7539b6589cc6cde2ae826a523a33f8bacff]
+  spi_probe+0xe4/0x140
+  really_probe+0x17e/0x3f0
+  __driver_probe_device+0xe3/0x170
+  driver_probe_device+0x49/0x120
 
-Rework the 'if (IS_ENABLE(CONFIG_TRANSPARENT_HUGEPAGE))' so hstart/hend
-is always initialized to silence the warnings. That will also simplify
-the 'else' path. Clang is getting confused with these warnings, but the
-warnings is a false-positive.
+The root case here is alloc_ordered_workqueue() fails, but
+cfg80211_unregister_netdevice() or unregister_netdev() not be called in
+error handling path. To fix add unregister_netdev goto lable to add the
+unregister operation in error handling path.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220810114318.3220630-1-anders.roxell@linaro.org
-Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 09ed8bfc5215 ("wilc1000: Rename workqueue from "WILC_wq" to "NETDEV-wq"")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1669289902-23639-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/radix_tlb.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/net/wireless/microchip/wilc1000/netdev.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/book3s64/radix_tlb.c
-+++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-@@ -1179,15 +1179,12 @@ static inline void __radix__flush_tlb_ra
- 			}
- 		}
- 	} else {
--		bool hflush = false;
-+		bool hflush;
- 		unsigned long hstart, hend;
+diff --git a/drivers/net/wireless/microchip/wilc1000/netdev.c b/drivers/net/wireless/microchip/wilc1000/netdev.c
+index 6f3ae0dff77ce..e9f59de31b0b9 100644
+--- a/drivers/net/wireless/microchip/wilc1000/netdev.c
++++ b/drivers/net/wireless/microchip/wilc1000/netdev.c
+@@ -981,7 +981,7 @@ struct wilc_vif *wilc_netdev_ifc_init(struct wilc *wl, const char *name,
+ 						    ndev->name);
+ 	if (!wl->hif_workqueue) {
+ 		ret = -ENOMEM;
+-		goto error;
++		goto unregister_netdev;
+ 	}
  
--		if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
--			hstart = (start + PMD_SIZE - 1) & PMD_MASK;
--			hend = end & PMD_MASK;
--			if (hstart < hend)
--				hflush = true;
--		}
-+		hstart = (start + PMD_SIZE - 1) & PMD_MASK;
-+		hend = end & PMD_MASK;
-+		hflush = IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && hstart < hend;
+ 	ndev->needs_free_netdev = true;
+@@ -996,6 +996,11 @@ struct wilc_vif *wilc_netdev_ifc_init(struct wilc *wl, const char *name,
  
- 		if (type == FLUSH_TYPE_LOCAL) {
- 			asm volatile("ptesync": : :"memory");
+ 	return vif;
+ 
++unregister_netdev:
++	if (rtnl_locked)
++		cfg80211_unregister_netdevice(ndev);
++	else
++		unregister_netdev(ndev);
+   error:
+ 	free_netdev(ndev);
+ 	return ERR_PTR(ret);
+-- 
+2.39.2
+
 
 
