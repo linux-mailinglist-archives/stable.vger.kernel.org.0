@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCACB6AED3F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DA826AED42
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230463AbjCGSC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:02:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35848 "EHLO
+        id S231348AbjCGSDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:03:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231348AbjCGSC1 (ORCPT
+        with ESMTP id S231351AbjCGSC1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F3BDA1FE4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:37 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E846EA1FF0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6AE4DB819C1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C972DC433EF;
-        Tue,  7 Mar 2023 17:55:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F332B819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA964C433D2;
+        Tue,  7 Mar 2023 17:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211734;
-        bh=5yor1Maca0M3D9PlV2OKvTT10RlgUPW9wJN8/wPzutg=;
+        s=korg; t=1678211737;
+        bh=mSwV6LzMA1FTYb8HUwxm0ldZz+8VIjqY2x15dBdpZ4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1QZ/joYhS34lHeeEmxqtW0t3kQnc11c88/GwHYqAtrbtl0aQnLDEFxRMOjIGQenHF
-         vxe9HDohj73MDDxeQ9mkQnNC1E51jd6VdPeSptcXFyCYUckhPPk/5cwW9ZDGxmobQN
-         /2E6chTYTdYJkFdAMUsrxrqMOEraRrQoDs4M5l1I=
+        b=jWcCy8vHCH87krjDwiEIJJ7DxY9geLi2CKk6RTmxEVtU8rBC+QF1qtLd4HvGrL0T/
+         xa+89i1M84abvLSGoRBwgHmfGuz4Y61T6JWlc6s3X/J796DfFhaiTVcYUp15SkArXv
+         lrYaGUm/5QcdttZO1bqd2JRFuDAhGK6TgZC5Mxn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
-        Yi Zhang <yi.zhang@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
+        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.2 0957/1001] scsi: core: Remove the /proc/scsi/${proc_name} directory earlier
-Date:   Tue,  7 Mar 2023 18:02:09 +0100
-Message-Id: <20230307170103.699105440@linuxfoundation.org>
+Subject: [PATCH 6.2 0958/1001] scsi: qla2xxx: Fix link failure in NPIV environment
+Date:   Tue,  7 Mar 2023 18:02:10 +0100
+Message-Id: <20230307170103.750068005@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,74 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Quinn Tran <qutran@marvell.com>
 
-commit fc663711b94468f4e1427ebe289c9f05669699c9 upstream.
+commit b1ae65c082f74536ec292b15766f2846f0238373 upstream.
 
-Remove the /proc/scsi/${proc_name} directory earlier to fix a race
-condition between unloading and reloading kernel modules. This fixes a bug
-introduced in 2009 by commit 77c019768f06 ("[SCSI] fix /proc memory leak in
-the SCSI core").
+User experienced symptoms of adapter failure in NPIV environment. NPIV
+hosts were allowed to trigger chip reset back to back due to NPIV link
+state being slow to come online.
 
-Fix the following kernel warning:
+Fix link failure in NPIV environment by removing NPIV host from directly
+being able to perform chip reset.
 
-proc_dir_entry 'scsi/scsi_debug' already registered
-WARNING: CPU: 19 PID: 27986 at fs/proc/generic.c:376 proc_register+0x27d/0x2e0
-Call Trace:
- proc_mkdir+0xb5/0xe0
- scsi_proc_hostdir_add+0xb5/0x170
- scsi_host_alloc+0x683/0x6c0
- sdebug_driver_probe+0x6b/0x2d0 [scsi_debug]
- really_probe+0x159/0x540
- __driver_probe_device+0xdc/0x230
- driver_probe_device+0x4f/0x120
- __device_attach_driver+0xef/0x180
- bus_for_each_drv+0xe5/0x130
- __device_attach+0x127/0x290
- device_initial_probe+0x17/0x20
- bus_probe_device+0x110/0x130
- device_add+0x673/0xc80
- device_register+0x1e/0x30
- sdebug_add_host_helper+0x1a7/0x3b0 [scsi_debug]
- scsi_debug_init+0x64f/0x1000 [scsi_debug]
- do_one_initcall+0xd7/0x470
- do_init_module+0xe7/0x330
- load_module+0x122a/0x12c0
- __do_sys_finit_module+0x124/0x1a0
- __x64_sys_finit_module+0x46/0x50
- do_syscall_64+0x38/0x80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ kernel: qla2xxx [0000:04:00.1]-6009:261: Loop down - aborting ISP.
+ kernel: qla2xxx [0000:04:00.1]-6009:262: Loop down - aborting ISP.
+ kernel: qla2xxx [0000:04:00.1]-6009:281: Loop down - aborting ISP.
+ kernel: qla2xxx [0000:04:00.1]-6009:285: Loop down - aborting ISP
 
-Link: https://lore.kernel.org/r/20230210205200.36973-3-bvanassche@acm.org
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Yi Zhang <yi.zhang@redhat.com>
+Fixes: 0d6e61bc6a4f ("[SCSI] qla2xxx: Correct various NPIV issues.")
 Cc: stable@vger.kernel.org
-Fixes: 77c019768f06 ("[SCSI] fix /proc memory leak in the SCSI core")
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/qla2xxx/qla_os.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -181,6 +181,7 @@ void scsi_remove_host(struct Scsi_Host *
- 	scsi_forget_host(shost);
- 	mutex_unlock(&shost->scan_mutex);
- 	scsi_proc_host_rm(shost);
-+	scsi_proc_hostdir_rm(shost->hostt);
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -7447,7 +7447,7 @@ qla2x00_timer(struct timer_list *t)
  
- 	/*
- 	 * New SCSI devices cannot be attached anymore because of the SCSI host
-@@ -340,6 +341,7 @@ static void scsi_host_dev_release(struct
- 	struct Scsi_Host *shost = dev_to_shost(dev);
- 	struct device *parent = dev->parent;
+ 		/* if the loop has been down for 4 minutes, reinit adapter */
+ 		if (atomic_dec_and_test(&vha->loop_down_timer) != 0) {
+-			if (!(vha->device_flags & DFLG_NO_CABLE)) {
++			if (!(vha->device_flags & DFLG_NO_CABLE) && !vha->vp_idx) {
+ 				ql_log(ql_log_warn, vha, 0x6009,
+ 				    "Loop down - aborting ISP.\n");
  
-+	/* In case scsi_remove_host() has not been called. */
- 	scsi_proc_hostdir_rm(shost->hostt);
- 
- 	/* Wait for functions invoked through call_rcu(&scmd->rcu, ...) */
 
 
