@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C42316AE9DD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C13806AEE72
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230248AbjCGR2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:28:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
+        id S232381AbjCGSMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:12:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231453AbjCGR2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 170757BA1B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:18 -0800 (PST)
+        with ESMTP id S232385AbjCGSLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A0E592F06
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABF8EB819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E757FC4339B;
-        Tue,  7 Mar 2023 17:23:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0558861520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEF00C4339B;
+        Tue,  7 Mar 2023 18:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209796;
-        bh=ZT3QbQgbpXkXnak01gpPhoP+vcBfgriVrJHuHi4dsKQ=;
+        s=korg; t=1678212412;
+        bh=GmB9KFYceQ46sbtpBtqOU8knNaz81MKg4wNl6eq06vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mbLEtS2yCjDkubwA6SMFFwJtB9ru9cr6fLBFAxt5Tr8dgowAjCrwVjE2aJmQ+eCco
-         YIdYkuJaZ30NuHQS/WBG5O4jxSTkjAMOkZB7V/Vat/iePAz+X/RglQC2WmA78abevH
-         X2B8J865GxHZUqP16S+FdUiX6ed4qE4DBvocweaw=
+        b=FPkNi5DMC1g9kWRDBXCoKwQncjHwz3+qLFywZSHQKCmhocYL0DmrygHneZN7RDzIP
+         MRJJKJSCzIV+TjfV693Kk+ScUxh4OQqdn+6wSEEXlykoust/NvLucbUpzRc+LMcB8M
+         frHI3KrZydihcBSwI8vI2rZiDkzdAGD1SABeeyQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        coverity-bot <keescook+coverity-bot@chromium.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        patches@lists.linux.dev, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Jiri Olsa <jolsa@kernel.org>, Yonghong Song <yhs@fb.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0335/1001] drm/modes: Use strscpy() to copy command-line mode name
-Date:   Tue,  7 Mar 2023 17:51:47 +0100
-Message-Id: <20230307170036.022001470@linuxfoundation.org>
+Subject: [PATCH 6.1 174/885] selftests/bpf: Fix build errors if CONFIG_NF_CONNTRACK=m
+Date:   Tue,  7 Mar 2023 17:51:48 +0100
+Message-Id: <20230307170009.522209927@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,38 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 0f9aa074c92dd9274b811c1c3fa93736814a4b0d ]
+[ Upstream commit 92afc5329a5b23d876b215b783d200352d5aaea6 ]
 
-The mode name in struct drm_cmdline_mode can hold 32 characters at most,
-which can easily get overrun. Switch to strscpy() to prevent such a
-thing.
+If CONFIG_NF_CONNTRACK=m, there are no definitions of NF_NAT_MANIP_SRC
+and NF_NAT_MANIP_DST in vmlinux.h, build test_bpf_nf.c failed.
 
-Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-Addresses-Coverity-ID: 1527354 ("Security best practices violations")
-Fixes: a7ab155397dd ("drm/modes: Switch to named mode descriptors")
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://lore.kernel.org/r/20221128081938.742410-2-maxime@cerno.tech
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+$ make -C tools/testing/selftests/bpf/
+
+  CLNG-BPF [test_maps] test_bpf_nf.bpf.o
+progs/test_bpf_nf.c:160:42: error: use of undeclared identifier 'NF_NAT_MANIP_SRC'
+                bpf_ct_set_nat_info(ct, &saddr, sport, NF_NAT_MANIP_SRC);
+                                                       ^
+progs/test_bpf_nf.c:163:42: error: use of undeclared identifier 'NF_NAT_MANIP_DST'
+                bpf_ct_set_nat_info(ct, &daddr, dport, NF_NAT_MANIP_DST);
+                                                       ^
+2 errors generated.
+
+Copy the definitions in include/net/netfilter/nf_nat.h to test_bpf_nf.c,
+in order to avoid redefinitions if CONFIG_NF_CONNTRACK=y, rename them with
+___local suffix. This is similar with commit 1058b6a78db2 ("selftests/bpf:
+Do not fail build if CONFIG_NF_CONNTRACK=m/n").
+
+Fixes: b06b45e82b59 ("selftests/bpf: add tests for bpf_ct_set_nat_info kfunc")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/r/1674028604-7113-1-git-send-email-yangtiezhu@loongson.cn
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_modes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/progs/test_bpf_nf.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
-index 3c8034a8c27bd..951afe8279da8 100644
---- a/drivers/gpu/drm/drm_modes.c
-+++ b/drivers/gpu/drm/drm_modes.c
-@@ -1809,7 +1809,7 @@ static int drm_mode_parse_cmdline_named_mode(const char *name,
- 		if (ret != name_end)
- 			continue;
+diff --git a/tools/testing/selftests/bpf/progs/test_bpf_nf.c b/tools/testing/selftests/bpf/progs/test_bpf_nf.c
+index 227e85e85ddaf..9fc603c9d673e 100644
+--- a/tools/testing/selftests/bpf/progs/test_bpf_nf.c
++++ b/tools/testing/selftests/bpf/progs/test_bpf_nf.c
+@@ -34,6 +34,11 @@ __be16 dport = 0;
+ int test_exist_lookup = -ENOENT;
+ u32 test_exist_lookup_mark = 0;
  
--		strcpy(cmdline_mode->name, mode->name);
-+		strscpy(cmdline_mode->name, mode->name, sizeof(cmdline_mode->name));
- 		cmdline_mode->pixel_clock = mode->pixel_clock_khz;
- 		cmdline_mode->xres = mode->xres;
- 		cmdline_mode->yres = mode->yres;
++enum nf_nat_manip_type___local {
++	NF_NAT_MANIP_SRC___local,
++	NF_NAT_MANIP_DST___local
++};
++
+ struct nf_conn;
+ 
+ struct bpf_ct_opts___local {
+@@ -58,7 +63,7 @@ int bpf_ct_change_timeout(struct nf_conn *, u32) __ksym;
+ int bpf_ct_set_status(struct nf_conn *, u32) __ksym;
+ int bpf_ct_change_status(struct nf_conn *, u32) __ksym;
+ int bpf_ct_set_nat_info(struct nf_conn *, union nf_inet_addr *,
+-			int port, enum nf_nat_manip_type) __ksym;
++			int port, enum nf_nat_manip_type___local) __ksym;
+ 
+ static __always_inline void
+ nf_ct_test(struct nf_conn *(*lookup_fn)(void *, struct bpf_sock_tuple *, u32,
+@@ -157,10 +162,10 @@ nf_ct_test(struct nf_conn *(*lookup_fn)(void *, struct bpf_sock_tuple *, u32,
+ 
+ 		/* snat */
+ 		saddr.ip = bpf_get_prandom_u32();
+-		bpf_ct_set_nat_info(ct, &saddr, sport, NF_NAT_MANIP_SRC);
++		bpf_ct_set_nat_info(ct, &saddr, sport, NF_NAT_MANIP_SRC___local);
+ 		/* dnat */
+ 		daddr.ip = bpf_get_prandom_u32();
+-		bpf_ct_set_nat_info(ct, &daddr, dport, NF_NAT_MANIP_DST);
++		bpf_ct_set_nat_info(ct, &daddr, dport, NF_NAT_MANIP_DST___local);
+ 
+ 		ct_ins = bpf_ct_insert_entry(ct);
+ 		if (ct_ins) {
 -- 
 2.39.2
 
