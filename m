@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34AE56AEBD1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B176AF0E6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232149AbjCGRtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:49:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36536 "EHLO
+        id S231491AbjCGSg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:36:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232178AbjCGRsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:46 -0500
+        with ESMTP id S233175AbjCGSfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E74796F27
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D67B5B42
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DB6961501
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 725D3C433EF;
-        Tue,  7 Mar 2023 17:43:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FBCB61530
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270B1C43327;
+        Tue,  7 Mar 2023 18:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211013;
-        bh=8MdZYRTAeXAAInhvc+0S+4dqDnR4N96Gz+eomeDyBg0=;
+        s=korg; t=1678213648;
+        bh=QrPeNJPNS/LxCffWxwTuhtwIxYegd5NHm1HTDYpBc/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QR9hBjc2UkGMEoULOFAl/ma1HPrMQJVMfDqw4kLAaTKXYwBqXjWzcvdQxhCvYoTww
-         G0TH+19Z7sn+G7YwxSU7HFb9dDaBEz+SBjicjnFgLP2D1QY5ELKll3TnP7XZQ54UoC
-         G1C91ZhpmN7q90gn7DNj77RppkHTwD1Nfr5mZ27Y=
+        b=b98oB+bRma0VS7d4FmBJQceF++yX+TQh8rpsh+z+QUu0xhVe7G7cVfUU0QC9gh0nF
+         /HFYnZlAFxCEyYatQVFdvZ8jqjuy1890EI2OGs4D3x8fQF5kkkJA6EL3rE2GJdLMZt
+         e5ndBsFijZSPL/Ps+iFKA1eRDiGXs4ik2vajPMAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liwei Song <liwei.song@windriver.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0695/1001] drm/radeon: free iio for atombios when driver shutdown
-Date:   Tue,  7 Mar 2023 17:57:47 +0100
-Message-Id: <20230307170051.785023018@linuxfoundation.org>
+        patches@lists.linux.dev, Li Nan <linan122@huawei.com>,
+        Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 534/885] blk-iocost: fix divide by 0 error in calc_lcoefs()
+Date:   Tue,  7 Mar 2023 17:57:48 +0100
+Message-Id: <20230307170025.683422097@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liwei Song <liwei.song@windriver.com>
+From: Li Nan <linan122@huawei.com>
 
-[ Upstream commit 4773fadedca918faec443daaca5e4ea1c0ced144 ]
+[ Upstream commit 984af1e66b4126cf145153661cc24c213e2ec231 ]
 
-Fix below kmemleak when unload radeon driver:
+echo max of u64 to cost.model can cause divide by 0 error.
 
-unreferenced object 0xffff9f8608ede200 (size 512):
-  comm "systemd-udevd", pid 326, jiffies 4294682822 (age 716.338s)
-  hex dump (first 32 bytes):
-    00 00 00 00 c4 aa ec aa 14 ab 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000062fadebe>] kmem_cache_alloc_trace+0x2f1/0x500
-    [<00000000b6883cea>] atom_parse+0x117/0x230 [radeon]
-    [<00000000158c23fd>] radeon_atombios_init+0xab/0x170 [radeon]
-    [<00000000683f672e>] si_init+0x57/0x750 [radeon]
-    [<00000000566cc31f>] radeon_device_init+0x559/0x9c0 [radeon]
-    [<0000000046efabb3>] radeon_driver_load_kms+0xc1/0x1a0 [radeon]
-    [<00000000b5155064>] drm_dev_register+0xdd/0x1d0
-    [<0000000045fec835>] radeon_pci_probe+0xbd/0x100 [radeon]
-    [<00000000e69ecca3>] pci_device_probe+0xe1/0x160
-    [<0000000019484b76>] really_probe.part.0+0xc1/0x2c0
-    [<000000003f2649da>] __driver_probe_device+0x96/0x130
-    [<00000000231c5bb1>] driver_probe_device+0x24/0xf0
-    [<0000000000a42377>] __driver_attach+0x77/0x190
-    [<00000000d7574da6>] bus_for_each_dev+0x7f/0xd0
-    [<00000000633166d2>] driver_attach+0x1e/0x30
-    [<00000000313b05b8>] bus_add_driver+0x12c/0x1e0
+  # echo 8:0 rbps=18446744073709551615 > /sys/fs/cgroup/io.cost.model
 
-iio was allocated in atom_index_iio() called by atom_parse(),
-but it doesn't got released when the dirver is shutdown.
-Fix this kmemleak by free it in radeon_atombios_fini().
+  divide error: 0000 [#1] PREEMPT SMP
+  RIP: 0010:calc_lcoefs+0x4c/0xc0
+  Call Trace:
+   <TASK>
+   ioc_refresh_params+0x2b3/0x4f0
+   ioc_cost_model_write+0x3cb/0x4c0
+   ? _copy_from_iter+0x6d/0x6c0
+   ? kernfs_fop_write_iter+0xfc/0x270
+   cgroup_file_write+0xa0/0x200
+   kernfs_fop_write_iter+0x17d/0x270
+   vfs_write+0x414/0x620
+   ksys_write+0x73/0x160
+   __x64_sys_write+0x1e/0x30
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Signed-off-by: Liwei Song <liwei.song@windriver.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+calc_lcoefs() uses the input value of cost.model in DIV_ROUND_UP_ULL,
+overflow would happen if bps plus IOC_PAGE_SIZE is greater than
+ULLONG_MAX, it can cause divide by 0 error.
+
+Fix the problem by setting basecost
+
+Signed-off-by: Li Nan <linan122@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230117070806.3857142-5-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/blk-iocost.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 6344454a77217..4f9729b4a8119 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1023,6 +1023,7 @@ void radeon_atombios_fini(struct radeon_device *rdev)
- {
- 	if (rdev->mode_info.atom_context) {
- 		kfree(rdev->mode_info.atom_context->scratch);
-+		kfree(rdev->mode_info.atom_context->iio);
- 	}
- 	kfree(rdev->mode_info.atom_context);
- 	rdev->mode_info.atom_context = NULL;
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index 495396425bade..bfc33fa9a063c 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -865,9 +865,14 @@ static void calc_lcoefs(u64 bps, u64 seqiops, u64 randiops,
+ 
+ 	*page = *seqio = *randio = 0;
+ 
+-	if (bps)
+-		*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC,
+-					   DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE));
++	if (bps) {
++		u64 bps_pages = DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE);
++
++		if (bps_pages)
++			*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC, bps_pages);
++		else
++			*page = 1;
++	}
+ 
+ 	if (seqiops) {
+ 		v = DIV64_U64_ROUND_UP(VTIME_PER_SEC, seqiops);
 -- 
 2.39.2
 
