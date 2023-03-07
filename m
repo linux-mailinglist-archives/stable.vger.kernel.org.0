@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2EF6AEAEA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 508EC6AEF80
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231793AbjCGRig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:38:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42930 "EHLO
+        id S232453AbjCGSX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231794AbjCGRiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DC296081
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:04 -0800 (PST)
+        with ESMTP id S232738AbjCGSXk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5AF798861
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:18:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 973EE61519
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 968C9C433D2;
-        Tue,  7 Mar 2023 17:34:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EB58B8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD1C7C433D2;
+        Tue,  7 Mar 2023 18:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210443;
-        bh=6wMqLdSOYR3sPFJG6DLiR5hsLBzTh5UrPZMaujcHyS4=;
+        s=korg; t=1678213134;
+        bh=o9GCGmwgky6r46sSOipycLCBaLT4QRcMERkXOGxX7KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHr2f2msx5/ZVfbqPapEp5Er4tQWJ7P1VJ2zrsRFyzZSKrY3jSRoN6yW12CTyo8OD
-         XoHQyoebYTjaApIdvxZXUkYcKg2qDeABy0n57mUAZ8HFrRlfJWAveaEzHW+AARJsiL
-         DtEYwecA8ED7bO2rO0wyR/WJfFTB0BndoKC+GvP8=
+        b=iXCfLSQO6hFxVRcZrr9U+GWjV98JaKaT4tM655WtVBCUi18qQ0Ltud0pLPPJeFVUE
+         5q+DpmeNtCgGGd7LOWyyHbV2xSrcBYWjxqonP9YaI1/tC9S/MbkhVcdaAePW0GKNFY
+         4s81bhjn7XIBQLnKuQ3qBcB7j7kJTKdAFQif9ghE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ashok Raj <ashok.raj@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0542/1001] iommu/vt-d: Set No Execute Enable bit in PASID table entry
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 380/885] NFSD: copy the whole verifier in nfsd_copy_write_verifier
 Date:   Tue,  7 Mar 2023 17:55:14 +0100
-Message-Id: <20230307170044.975759598@linuxfoundation.org>
+Message-Id: <20230307170018.842024129@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit e06d24435596c8afcaa81c0c498f5b0ec4ee2b7c ]
+[ Upstream commit 90d2175572470ba7f55da8447c72ddd4942923c4 ]
 
-Setup No Execute Enable bit (Bit 133) of a scalable mode PASID entry.
-This is to allow the use of XD bit of the first level page table.
+Currently, we're only memcpy'ing the first __be32. Ensure we copy into
+both words.
 
-Fixes: ddf09b6d43ec ("iommu/vt-d: Setup pasid entries for iova over first level")
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/20230126095438.354205-1-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 91d2e9b56cf5 ("NFSD: Clean up the nfsd_net::nfssvc_boot field")
+Reported-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/pasid.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/nfsd/nfssvc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index fb3c7020028d0..ec964ac7d7972 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -364,6 +364,16 @@ static inline void pasid_set_page_snoop(struct pasid_entry *pe, bool value)
- 	pasid_set_bits(&pe->val[1], 1 << 23, value << 23);
+diff --git a/fs/nfsd/nfssvc.c b/fs/nfsd/nfssvc.c
+index 8b1afde192118..6b20f285f3ca6 100644
+--- a/fs/nfsd/nfssvc.c
++++ b/fs/nfsd/nfssvc.c
+@@ -357,7 +357,7 @@ void nfsd_copy_write_verifier(__be32 verf[2], struct nfsd_net *nn)
+ 
+ 	do {
+ 		read_seqbegin_or_lock(&nn->writeverf_lock, &seq);
+-		memcpy(verf, nn->writeverf, sizeof(*verf));
++		memcpy(verf, nn->writeverf, sizeof(nn->writeverf));
+ 	} while (need_seqretry(&nn->writeverf_lock, seq));
+ 	done_seqretry(&nn->writeverf_lock, seq);
  }
- 
-+/*
-+ * Setup No Execute Enable bit (Bit 133) of a scalable mode PASID
-+ * entry. It is required when XD bit of the first level page table
-+ * entry is about to be set.
-+ */
-+static inline void pasid_set_nxe(struct pasid_entry *pe)
-+{
-+	pasid_set_bits(&pe->val[2], 1 << 5, 1 << 5);
-+}
-+
- /*
-  * Setup the Page Snoop (PGSNP) field (Bit 88) of a scalable mode
-  * PASID entry.
-@@ -557,6 +567,7 @@ int intel_pasid_setup_first_level(struct intel_iommu *iommu,
- 	pasid_set_domain_id(pte, did);
- 	pasid_set_address_width(pte, iommu->agaw);
- 	pasid_set_page_snoop(pte, !!ecap_smpwc(iommu->ecap));
-+	pasid_set_nxe(pte);
- 
- 	/* Setup Present and PASID Granular Transfer Type: */
- 	pasid_set_translation_type(pte, PASID_ENTRY_PGTT_FL_ONLY);
 -- 
 2.39.2
 
