@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66AB96AED3B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:02:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13DFF6AED43
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231495AbjCGSCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:02:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33778 "EHLO
+        id S231351AbjCGSDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:03:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbjCGSCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:19 -0500
+        with ESMTP id S230351AbjCGSC2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C8799CBF1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4317495E12
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D171B81851
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7053BC4339B;
-        Tue,  7 Mar 2023 17:55:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9823B819C5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F21C433D2;
+        Tue,  7 Mar 2023 17:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211724;
-        bh=j0/cv6nKgTp1KMVIZwNUsb66pe3S/tolhd4QZOhQX2Q=;
+        s=korg; t=1678211739;
+        bh=0VEvw8YGLPU3czJW+o90Dw9ceDo8GXqgNmImZkTvuCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ey9llpkxq8yMieHUP5lSt5DxQHot28on7m4RKGCh2mtApKfjABONsaZqKB8jrs71Q
-         kNd1KdeyXxX9Yli6BKqtzQHRDFaEsoi/s1SGX+jBEKophbtsUWGdo0ar5ypGuKwB/O
-         LpQgx5r5iqeqzrtQyxsguHtofEviSZDtEb+ALdrg=
+        b=uzqeFvPNS3RKfxfV1wp6RWlRlfchC14GX1BjuGtAYkjJcORPUP3LWxddXR86dKv5g
+         ydhp2Ua41nzpOjsMQJ3hZT76G18ACRPOH4DaE6xTqpZQk9U9lsH8sSGzC241nCteUu
+         Ow5LdjkwCFohx52XxIqyZI2tQkgDhciJlYZFrXjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Collingbourne <pcc@google.com>,
-        =?UTF-8?q?Kuan-Ying=20Lee=20 ?= <Kuan-Ying.Lee@mediatek.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 6.2 0928/1001] arm64: Reset KASAN tag in copy_highpage with HW tags only
-Date:   Tue,  7 Mar 2023 18:01:40 +0100
-Message-Id: <20230307170102.372731770@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 6.2 0929/1001] fuse: add inode/permission checks to fileattr_get/fileattr_set
+Date:   Tue,  7 Mar 2023 18:01:41 +0100
+Message-Id: <20230307170102.412711097@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -55,51 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
 
-commit e74a68468062d7ebd8ce17069e12ccc64cc6a58c upstream.
+commit 1cc4606d19e3710bfab3f6704b87ff9580493c69 upstream.
 
-During page migration, the copy_highpage function is used to copy the
-page data to the target page. If the source page is a userspace page
-with MTE tags, the KASAN tag of the target page must have the match-all
-tag in order to avoid tag check faults during subsequent accesses to the
-page by the kernel. However, the target page may have been allocated in
-a number of ways, some of which will use the KASAN allocator and will
-therefore end up setting the KASAN tag to a non-match-all tag. Therefore,
-update the target page's KASAN tag to match the source page.
+It looks like these checks were accidentally lost during the conversion to
+fileattr API.
 
-We ended up unintentionally fixing this issue as a result of a bad
-merge conflict resolution between commit e059853d14ca ("arm64: mte:
-Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm64:
-kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
-preserved a tag reset for PG_mte_tagged pages which was considered to be
-unnecessary at the time. Because SW tags KASAN uses separate tag storage,
-update the code to only reset the tags when HW tags KASAN is enabled.
-
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Link: https://linux-review.googlesource.com/id/If303d8a709438d3ff5af5fd85706505830f52e0c
-Reported-by: "Kuan-Ying Lee (李冠穎)" <Kuan-Ying.Lee@mediatek.com>
-Cc: <stable@vger.kernel.org> # 6.1
-Fixes: 20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags"")
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Link: https://lore.kernel.org/r/20230215050911.1433132-1-pcc@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 72227eac177d ("fuse: convert to fileattr")
+Cc: <stable@vger.kernel.org> # v5.13
+Signed-off-by: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/mm/copypage.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/fuse/ioctl.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -22,7 +22,8 @@ void copy_highpage(struct page *to, stru
- 	copy_page(kto, kfrom);
+--- a/fs/fuse/ioctl.c
++++ b/fs/fuse/ioctl.c
+@@ -419,6 +419,12 @@ static struct fuse_file *fuse_priv_ioctl
+ 	struct fuse_mount *fm = get_fuse_mount(inode);
+ 	bool isdir = S_ISDIR(inode->i_mode);
  
- 	if (system_supports_mte() && page_mte_tagged(from)) {
--		page_kasan_tag_reset(to);
-+		if (kasan_hw_tags_enabled())
-+			page_kasan_tag_reset(to);
- 		/* It's a new page, shouldn't have been tagged yet */
- 		WARN_ON_ONCE(!try_page_mte_tagging(to));
- 		mte_copy_page_tags(kto, kfrom);
++	if (!fuse_allow_current_process(fm->fc))
++		return ERR_PTR(-EACCES);
++
++	if (fuse_is_bad(inode))
++		return ERR_PTR(-EIO);
++
+ 	if (!S_ISREG(inode->i_mode) && !isdir)
+ 		return ERR_PTR(-ENOTTY);
+ 
 
 
