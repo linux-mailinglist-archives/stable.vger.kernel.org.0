@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF96D6AEEDE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 094A26AEA41
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232558AbjCGSRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:17:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38918 "EHLO
+        id S231565AbjCGRcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:32:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232620AbjCGSRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37464B06DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:12:11 -0800 (PST)
+        with ESMTP id S231699AbjCGRb5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C17BC9F04D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D03FE61534
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6447C433EF;
-        Tue,  7 Mar 2023 18:12:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78A6BB8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC76C4339B;
+        Tue,  7 Mar 2023 17:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212729;
-        bh=r9bSOHdz2R6gaN2oBXmC8gpiJCZyz0yodePAWg2McYE=;
+        s=korg; t=1678210032;
+        bh=4KpTKEQvGN4yWCx/ioA8RHnGCppIkadcCRhXayjBaYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j45rCZsKs6GlGuy2EjO1nxmphlfGbA/tVkJxFfC7W79OEybbAzDKVMmOCh/Umpo9a
-         Hl465hs0N1TBOtZuCzDh417HuqT7NiEgDciOBLFGIz3O8YqD2N7s+V6FGfm+X4+LWu
-         bGldLlUhXHOEYuZ8nZG8e15HghyeobUHm1LZOX+U=
+        b=kkpsrZCT/dsxTeG+8zbye5VbxwDskIkpAMGUfmEdQApi+WJI5YA/157vzBQg+H+Ol
+         pU4h7zn6mbktfE7qzBhKTqqUqizS4q4xHVNZ9ZxEF6yXeSQ88xNxQOTZY+ORvQz9rs
+         kAHMsXmzbCA29LDAzAEQn5NhNUE9nDiGOR6zsdT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Daniel Golle <daniel@makrotopia.org>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 248/885] can: esd_usb: Make use of can_change_state() and relocate checking skb for NULL
+Subject: [PATCH 6.2 0410/1001] regmap: apply reg_base and reg_downshift for single register ops
 Date:   Tue,  7 Mar 2023 17:53:02 +0100
-Message-Id: <20230307170012.783178362@linuxfoundation.org>
+Message-Id: <20230307170039.123885333@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,128 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Jungclaus <frank.jungclaus@esd.eu>
+From: Daniel Golle <daniel@makrotopia.org>
 
-[ Upstream commit 9684b000a86299b5968fef8ffbf1484def37452a ]
+[ Upstream commit 697c3892d825fb78f42ec8e53bed065dd728db3e ]
 
-Start a rework initiated by Vincents remarks "You should not report
-the greatest of txerr and rxerr but the one which actually increased."
-[1] and "As far as I understand, those flags should be set only when
-the threshold is reached" [2] .
+reg_base and reg_downshift currently don't have any effect if used with
+a regmap_bus or regmap_config which only offers single register
+operations (ie. reg_read, reg_write and optionally reg_update_bits).
 
-Therefore make use of can_change_state() to (among others) set the
-flags CAN_ERR_CRTL_[RT]X_WARNING and CAN_ERR_CRTL_[RT]X_PASSIVE,
-maintain CAN statistic counters for error_warning, error_passive and
-bus_off.
+Fix that and take them into account also for regmap_bus with only
+reg_read and read_write operations by applying reg_base and
+reg_downshift in _regmap_bus_reg_write, _regmap_bus_reg_read.
 
-Relocate testing alloc_can_err_skb() for NULL to the end of
-esd_usb_rx_event(), to have things like can_bus_off(),
-can_change_state() working even in out of memory conditions.
+Also apply reg_base and reg_downshift in _regmap_update_bits, but only
+in case the operation is carried out with a reg_update_bits call
+defined in either regmap_bus or regmap_config.
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
-Link: [1] https://lore.kernel.org/all/CAMZ6RqKGBWe15aMkf8-QLf-cOQg99GQBebSm+1wEzTqHgvmNuw@mail.gmail.com/
-Link: [2] https://lore.kernel.org/all/CAMZ6Rq+QBO1yTX_o6GV0yhdBj-RzZSRGWDZBS0fs7zbSTy4hmA@mail.gmail.com/
-Link: https://lore.kernel.org/all/20230216190450.3901254-3-frank.jungclaus@esd.eu
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 0074f3f2b1e43d ("regmap: allow a defined reg_base to be added to every address")
+Fixes: 86fc59ef818beb ("regmap: add configurable downshift for addresses")
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Link: https://lore.kernel.org/r/Y9clyVS3tQEHlUhA@makrotopia.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/esd_usb.c | 50 +++++++++++++++++------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ drivers/base/regmap/regmap.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/can/usb/esd_usb.c b/drivers/net/can/usb/esd_usb.c
-index 5e182fadd875e..578b25f873e58 100644
---- a/drivers/net/can/usb/esd_usb.c
-+++ b/drivers/net/can/usb/esd_usb.c
-@@ -239,41 +239,42 @@ static void esd_usb_rx_event(struct esd_usb_net_priv *priv,
- 			   msg->msg.rx.dlc, state, ecc, rxerr, txerr);
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index d12d669157f24..d2a54eb0efd9b 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1942,6 +1942,8 @@ static int _regmap_bus_reg_write(void *context, unsigned int reg,
+ {
+ 	struct regmap *map = context;
  
- 		skb = alloc_can_err_skb(priv->netdev, &cf);
--		if (skb == NULL) {
--			stats->rx_dropped++;
--			return;
--		}
- 
- 		if (state != priv->old_state) {
-+			enum can_state tx_state, rx_state;
-+			enum can_state new_state = CAN_STATE_ERROR_ACTIVE;
-+
- 			priv->old_state = state;
- 
- 			switch (state & ESD_BUSSTATE_MASK) {
- 			case ESD_BUSSTATE_BUSOFF:
--				priv->can.state = CAN_STATE_BUS_OFF;
--				cf->can_id |= CAN_ERR_BUSOFF;
--				priv->can.can_stats.bus_off++;
-+				new_state = CAN_STATE_BUS_OFF;
- 				can_bus_off(priv->netdev);
- 				break;
- 			case ESD_BUSSTATE_WARN:
--				priv->can.state = CAN_STATE_ERROR_WARNING;
--				priv->can.can_stats.error_warning++;
-+				new_state = CAN_STATE_ERROR_WARNING;
- 				break;
- 			case ESD_BUSSTATE_ERRPASSIVE:
--				priv->can.state = CAN_STATE_ERROR_PASSIVE;
--				priv->can.can_stats.error_passive++;
-+				new_state = CAN_STATE_ERROR_PASSIVE;
- 				break;
- 			default:
--				priv->can.state = CAN_STATE_ERROR_ACTIVE;
-+				new_state = CAN_STATE_ERROR_ACTIVE;
- 				txerr = 0;
- 				rxerr = 0;
- 				break;
- 			}
--		} else {
-+
-+			if (new_state != priv->can.state) {
-+				tx_state = (txerr >= rxerr) ? new_state : 0;
-+				rx_state = (txerr <= rxerr) ? new_state : 0;
-+				can_change_state(priv->netdev, cf,
-+						 tx_state, rx_state);
-+			}
-+		} else if (skb) {
- 			priv->can.can_stats.bus_error++;
- 			stats->rx_errors++;
- 
--			cf->can_id |= CAN_ERR_PROT | CAN_ERR_BUSERROR |
--				      CAN_ERR_CNT;
-+			cf->can_id |= CAN_ERR_PROT | CAN_ERR_BUSERROR;
- 
- 			switch (ecc & SJA1000_ECC_MASK) {
- 			case SJA1000_ECC_BIT:
-@@ -295,21 +296,20 @@ static void esd_usb_rx_event(struct esd_usb_net_priv *priv,
- 
- 			/* Bit stream position in CAN frame as the error was detected */
- 			cf->data[3] = ecc & SJA1000_ECC_SEG;
--
--			if (priv->can.state == CAN_STATE_ERROR_WARNING ||
--			    priv->can.state == CAN_STATE_ERROR_PASSIVE) {
--				cf->data[1] = (txerr > rxerr) ?
--					CAN_ERR_CRTL_TX_PASSIVE :
--					CAN_ERR_CRTL_RX_PASSIVE;
--			}
--			cf->data[6] = txerr;
--			cf->data[7] = rxerr;
- 		}
- 
- 		priv->bec.txerr = txerr;
- 		priv->bec.rxerr = rxerr;
- 
--		netif_rx(skb);
-+		if (skb) {
-+			cf->can_id |= CAN_ERR_CNT;
-+			cf->data[6] = txerr;
-+			cf->data[7] = rxerr;
-+
-+			netif_rx(skb);
-+		} else {
-+			stats->rx_dropped++;
-+		}
- 	}
++	reg += map->reg_base;
++	reg >>= map->format.reg_downshift;
+ 	return map->bus->reg_write(map->bus_context, reg, val);
  }
  
+@@ -2840,6 +2842,8 @@ static int _regmap_bus_reg_read(void *context, unsigned int reg,
+ {
+ 	struct regmap *map = context;
+ 
++	reg += map->reg_base;
++	reg >>= map->format.reg_downshift;
+ 	return map->bus->reg_read(map->bus_context, reg, val);
+ }
+ 
+@@ -3231,6 +3235,8 @@ static int _regmap_update_bits(struct regmap *map, unsigned int reg,
+ 		*change = false;
+ 
+ 	if (regmap_volatile(map, reg) && map->reg_update_bits) {
++		reg += map->reg_base;
++		reg >>= map->format.reg_downshift;
+ 		ret = map->reg_update_bits(map->bus_context, reg, mask, val);
+ 		if (ret == 0 && change)
+ 			*change = true;
 -- 
 2.39.2
 
