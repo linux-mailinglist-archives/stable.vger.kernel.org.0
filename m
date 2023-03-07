@@ -2,51 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D28F26AEA84
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8956AEF00
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229994AbjCGRee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:34:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33052 "EHLO
+        id S232602AbjCGSTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:19:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231687AbjCGReS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A2E9B99D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:30:03 -0800 (PST)
+        with ESMTP id S232525AbjCGSTQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:19:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA9D98EB7;
+        Tue,  7 Mar 2023 10:13:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91DFD614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:30:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5495FC433EF;
-        Tue,  7 Mar 2023 17:30:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56C4DB819BF;
+        Tue,  7 Mar 2023 18:13:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA12CC433D2;
+        Tue,  7 Mar 2023 18:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210202;
-        bh=iwG3ytSkjrz3tbNSkwVXtayFD/crCkt5s0zdSOXZ75U=;
+        s=korg; t=1678212814;
+        bh=n+sYdglaMEvderyK4mj/+bor45xNcgO8npFFKiV++ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghpPO+YH1UljMlEZd2OB/2bW/mTOESlngqheqIQa6IeH/HdsD0TZ7CQzwXDvFo0Fb
-         XNSxLnqnZXLKhfqLb5FDS2kqbWjTLVTvEHzYMKILcFutNf4a4nkBEjTBPouijxZ7f3
-         lR7faHlVn06oAItTRa8v99S6r2ACQNESC1bm9dvo=
+        b=o92XsrYbWGp2rYglpfqoOPmwa9OagKCbrWRhQ/e3GBP+Os2MGqG83k9e8yoj32dfu
+         DYdCfGtvvkHiK9rN22X7V4W1JJV62w5KivVeROf+zd63nN3nxMwCVKB0HzYfAJiJbv
+         YHtmbZ8KnENKcuvRt/dD5Ovz4O9z3mQNoKbTh+g8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        James Clark <james.clark@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Jerome Neanne <jneanne@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0466/1001] perf inject: Use perf_data__read() for auxtrace
+Subject: [PATCH 6.1 304/885] regulator: tps65219: use IS_ERR() to detect an error pointer
 Date:   Tue,  7 Mar 2023 17:53:58 +0100
-Message-Id: <20230307170041.621939769@linuxfoundation.org>
+Message-Id: <20230307170015.308350237@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,71 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 1746212daeba95e9ae1639227dc0c3591d41deeb ]
+[ Upstream commit 2bbba115c3c9a647bcb3201b014fcc3728fe75c8 ]
 
-In copy_bytes(), it reads the data from the (input) fd and writes it to
-the output file.  But it does with the read(2) unconditionally which
-caused a problem of mixing buffered vs unbuffered I/O together.
+Fix pointer comparison to integer warning from gcc & sparse:
 
-You can see the problem when using pipes.
+GCC:
+../drivers/regulator/tps65219-regulator.c:370:26: warning: ordered comparison of pointer with integer zero [-Wextra]
+  370 |                 if (rdev < 0) {
+      |                          ^
 
-  $ perf record -e intel_pt// -o- true | perf inject -b > /dev/null
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.000 MB - ]
-  0x45c0 [0x30]: failed to process type: 71
+sparse warning:
+drivers/regulator/tps65219-regulator.c:370:26: sparse: error: incompatible types for operation (<):
+drivers/regulator/tps65219-regulator.c:370:26: sparse:    struct regulator_dev *[assigned] rdev
+drivers/regulator/tps65219-regulator.c:370:26: sparse:    int
 
-It should use perf_data__read() to honor the 'use_stdio' setting.
-
-Fixes: 601366678c93618f ("perf data: Allow to use stdio functions for pipe mode")
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: https://lore.kernel.org/r/20230131023350.1903992-2-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: c12ac5fc3e0a ("regulator: drivers: Add TI TPS65219 PMIC regulators support")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jerome Neanne <jneanne@baylibre.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: linux-omap@vger.kernel.org
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20230114185736.2076-1-rdunlap@infradead.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-inject.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/tps65219-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-inject.c b/tools/perf/builtin-inject.c
-index 3f4e4dd5abf31..f8182417b7341 100644
---- a/tools/perf/builtin-inject.c
-+++ b/tools/perf/builtin-inject.c
-@@ -215,14 +215,14 @@ static int perf_event__repipe_event_update(struct perf_tool *tool,
+diff --git a/drivers/regulator/tps65219-regulator.c b/drivers/regulator/tps65219-regulator.c
+index c484c943e4675..070159cb5f094 100644
+--- a/drivers/regulator/tps65219-regulator.c
++++ b/drivers/regulator/tps65219-regulator.c
+@@ -367,7 +367,7 @@ static int tps65219_regulator_probe(struct platform_device *pdev)
+ 		irq_data[i].type = irq_type;
  
- #ifdef HAVE_AUXTRACE_SUPPORT
- 
--static int copy_bytes(struct perf_inject *inject, int fd, off_t size)
-+static int copy_bytes(struct perf_inject *inject, struct perf_data *data, off_t size)
- {
- 	char buf[4096];
- 	ssize_t ssz;
- 	int ret;
- 
- 	while (size > 0) {
--		ssz = read(fd, buf, min(size, (off_t)sizeof(buf)));
-+		ssz = perf_data__read(data, buf, min(size, (off_t)sizeof(buf)));
- 		if (ssz < 0)
- 			return -errno;
- 		ret = output_bytes(inject, buf, ssz);
-@@ -260,7 +260,7 @@ static s64 perf_event__repipe_auxtrace(struct perf_session *session,
- 		ret = output_bytes(inject, event, event->header.size);
- 		if (ret < 0)
- 			return ret;
--		ret = copy_bytes(inject, perf_data__fd(session->data),
-+		ret = copy_bytes(inject, session->data,
- 				 event->auxtrace.size);
- 	} else {
- 		ret = output_bytes(inject, event,
+ 		tps65219_get_rdev_by_name(irq_type->regulator_name, rdevtbl, rdev);
+-		if (rdev < 0) {
++		if (IS_ERR(rdev)) {
+ 			dev_err(tps->dev, "Failed to get rdev for %s\n",
+ 				irq_type->regulator_name);
+ 			return -EINVAL;
 -- 
 2.39.2
 
