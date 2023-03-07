@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D946AF41D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2539F6AF41E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbjCGTNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:13:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60498 "EHLO
+        id S233711AbjCGTNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:13:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233775AbjCGTNV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:21 -0500
+        with ESMTP id S233783AbjCGTNY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05429E050
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4CF0A90B5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4542161535
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E185C433EF;
-        Tue,  7 Mar 2023 18:56:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8114A61553
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71B66C433D2;
+        Tue,  7 Mar 2023 18:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215419;
-        bh=swp73buNF4bcESxc5yLMy3EHNGRa6xJNXcABsi5SLWw=;
+        s=korg; t=1678215422;
+        bh=akyYRHokZSNmQWCan4zCkNJahBuuH1/vcHo5kRvikYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpAlyBzb0XurIp+WY25EJPXDAH2wWQTY1Ui5ZZlqVYgNKzcBPiFnuZjFGOOYJTGM9
-         umJM1w3kyBQIy0YJquC0uGu+2e1S26/rk6XOlvX/w1Jo5Q1ArwOqjDuZtz1ZIpSVXM
-         wpbjiDdXmTob4XaGgD8gTBwA21nElRgkCGuhwIc4=
+        b=tp0PgMFN24epsbTXvXC2j5hItFXiWLT0OaovCODDLAC3F5Z0+A8Yo5kaCn3aSsgoF
+         xD7E/7bUNOv5ZNHHNrqEd7uMlKq2cnK7sqv6rUm4YDjGuwK8OjXx/IrJnctAdJPR+I
+         iatHtWfw8ziumsatyzdeR19aaNRuv5Ne4D8xGF+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Asahi Lina <lina@asahilina.net>,
-        Javier Martinez Canillas <javierm@redhat.com>,
+        patches@lists.linux.dev, Benjamin Coddington <bcodding@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 254/567] drm/shmem-helper: Fix locking for drm_gem_shmem_get_pages_sgt()
-Date:   Tue,  7 Mar 2023 17:59:50 +0100
-Message-Id: <20230307165916.968124293@linuxfoundation.org>
+Subject: [PATCH 5.15 255/567] nfsd: fix race to check ls_layouts
+Date:   Tue,  7 Mar 2023 17:59:51 +0100
+Message-Id: <20230307165917.001671219@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,110 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asahi Lina <lina@asahilina.net>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-[ Upstream commit ddddedaa0db99481c5e5abe628ad54f65e8765bc ]
+[ Upstream commit fb610c4dbc996415d57d7090957ecddd4fd64fb6 ]
 
-Other functions touching shmem->sgt take the pages lock, so do that here
-too. drm_gem_shmem_get_pages() & co take the same lock, so move to the
-_locked() variants to avoid recursive locking.
+Its possible for __break_lease to find the layout's lease before we've
+added the layout to the owner's ls_layouts list.  In that case, setting
+ls_recalled = true without actually recalling the layout will cause the
+server to never send a recall callback.
 
-Discovered while auditing locking to write the Rust abstractions.
+Move the check for ls_layouts before setting ls_recalled.
 
-Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
-Fixes: 4fa3d66f132b ("drm/shmem: Do dma_unmap_sg before purging pages")
-Signed-off-by: Asahi Lina <lina@asahilina.net>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230205125124.2260-1-lina@asahilina.net
-(cherry picked from commit aa8c85affe3facd3842c8912186623415931cc72)
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Fixes: c5c707f96fc9 ("nfsd: implement pNFS layout recalls")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 54 ++++++++++++++++----------
- 1 file changed, 34 insertions(+), 20 deletions(-)
+ fs/nfsd/nfs4layouts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 15c3849e995bd..1af541c12a45f 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -651,23 +651,7 @@ struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem)
- }
- EXPORT_SYMBOL_GPL(drm_gem_shmem_get_sg_table);
+diff --git a/fs/nfsd/nfs4layouts.c b/fs/nfsd/nfs4layouts.c
+index a97873f2d22b0..2673019d30ecd 100644
+--- a/fs/nfsd/nfs4layouts.c
++++ b/fs/nfsd/nfs4layouts.c
+@@ -322,11 +322,11 @@ nfsd4_recall_file_layout(struct nfs4_layout_stateid *ls)
+ 	if (ls->ls_recalled)
+ 		goto out_unlock;
  
--/**
-- * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
-- *				 scatter/gather table for a shmem GEM object.
-- * @shmem: shmem GEM object
-- *
-- * This function returns a scatter/gather table suitable for driver usage. If
-- * the sg table doesn't exist, the pages are pinned, dma-mapped, and a sg
-- * table created.
-- *
-- * This is the main function for drivers to get at backing storage, and it hides
-- * and difference between dma-buf imported and natively allocated objects.
-- * drm_gem_shmem_get_sg_table() should not be directly called by drivers.
-- *
-- * Returns:
-- * A pointer to the scatter/gather table of pinned pages or errno on failure.
-- */
--struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
-+static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_object *shmem)
- {
- 	struct drm_gem_object *obj = &shmem->base;
- 	int ret;
-@@ -678,7 +662,7 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
+-	ls->ls_recalled = true;
+-	atomic_inc(&ls->ls_stid.sc_file->fi_lo_recalls);
+ 	if (list_empty(&ls->ls_layouts))
+ 		goto out_unlock;
  
- 	WARN_ON(obj->import_attach);
++	ls->ls_recalled = true;
++	atomic_inc(&ls->ls_stid.sc_file->fi_lo_recalls);
+ 	trace_nfsd_layout_recall(&ls->ls_stid.sc_stateid);
  
--	ret = drm_gem_shmem_get_pages(shmem);
-+	ret = drm_gem_shmem_get_pages_locked(shmem);
- 	if (ret)
- 		return ERR_PTR(ret);
- 
-@@ -700,10 +684,40 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
- 	sg_free_table(sgt);
- 	kfree(sgt);
- err_put_pages:
--	drm_gem_shmem_put_pages(shmem);
-+	drm_gem_shmem_put_pages_locked(shmem);
- 	return ERR_PTR(ret);
- }
--EXPORT_SYMBOL_GPL(drm_gem_shmem_get_pages_sgt);
-+
-+/**
-+ * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
-+ *				 scatter/gather table for a shmem GEM object.
-+ * @shmem: shmem GEM object
-+ *
-+ * This function returns a scatter/gather table suitable for driver usage. If
-+ * the sg table doesn't exist, the pages are pinned, dma-mapped, and a sg
-+ * table created.
-+ *
-+ * This is the main function for drivers to get at backing storage, and it hides
-+ * and difference between dma-buf imported and natively allocated objects.
-+ * drm_gem_shmem_get_sg_table() should not be directly called by drivers.
-+ *
-+ * Returns:
-+ * A pointer to the scatter/gather table of pinned pages or errno on failure.
-+ */
-+struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
-+{
-+	int ret;
-+	struct sg_table *sgt;
-+
-+	ret = mutex_lock_interruptible(&shmem->pages_lock);
-+	if (ret)
-+		return ERR_PTR(ret);
-+	sgt = drm_gem_shmem_get_pages_sgt_locked(shmem);
-+	mutex_unlock(&shmem->pages_lock);
-+
-+	return sgt;
-+}
-+EXPORT_SYMBOL(drm_gem_shmem_get_pages_sgt);
- 
- /**
-  * drm_gem_shmem_prime_import_sg_table - Produce a shmem GEM object from
+ 	refcount_inc(&ls->ls_stid.sc_count);
 -- 
 2.39.2
 
