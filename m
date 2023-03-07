@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1186AF1F6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:49:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3239F6AED06
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231520AbjCGStX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:49:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38966 "EHLO
+        id S229983AbjCGSAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:00:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233264AbjCGSsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:48:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 550FCBD4FD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:37:34 -0800 (PST)
+        with ESMTP id S231638AbjCGR76 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:59:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B60EB99C25
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDBCC61514
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5D6AC433D2;
-        Tue,  7 Mar 2023 18:37:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E1086150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 029A8C433D2;
+        Tue,  7 Mar 2023 17:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214236;
-        bh=eBfQoSCwSyQNT7icfwzTPAH/CTa1hnwm7S8znkjZEjc=;
+        s=korg; t=1678211650;
+        bh=BLrmSGmNFOA85oSVF5EnwnpeunuhM32kWsK+GjqsyTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7L/QL14LTOHviIqql0MGRv7W8SK9lEED4HyQzea1gmxbt7RTLhlSKkdshHEaYxII
-         nL0mIgyYen9QhB1eFHv9LWMcFkuq2TAixcrA2pqNjKgeX6lhZ3NE0TcGqp1Uf/kn5K
-         qj0zwzliXWF2XhlFqUGXqFYCHXB1D34uIjO5kmfM=
+        b=AhYbWJtbVZnWlh/Qw8A6k8ZxWi+2utJGoUb4zwFR8vhDdTmducj92NC1ZnXeLjzXJ
+         Lq9X4xq7FZiPcqqXLPJccnb0/akWQQSMKr82bq9+y9t3qALW4soj8xIanYBxglapQt
+         4eCvpvQ3rk2jZ/dyLezq9o32cxb3cS1no3Fpj7nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 6.1 736/885] x86/microcode/amd: Remove load_microcode_amd()s bsp parameter
-Date:   Tue,  7 Mar 2023 18:01:10 +0100
-Message-Id: <20230307170033.946279885@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Stein <Alexander.Stein@tq-group.com>,
+        Louis Rannou <lrannou@baylibre.com>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH 6.2 0899/1001] mtd: spi-nor: Fix shift-out-of-bounds in spi_nor_set_erase_type
+Date:   Tue,  7 Mar 2023 18:01:11 +0100
+Message-Id: <20230307170101.008011975@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,85 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Louis Rannou <lrannou@baylibre.com>
 
-commit 2355370cd941cbb20882cc3f34460f9f2b8f9a18 upstream.
+commit f0f0cfdc3a024e21161714f2e05f0df3b84d42ad upstream.
 
-It is always the BSP.
+spi_nor_set_erase_type() was used either to set or to mask out an erase
+type. When we used it to mask out an erase type a shift-out-of-bounds
+was hit:
+UBSAN: shift-out-of-bounds in drivers/mtd/spi-nor/core.c:2237:24
+shift exponent 4294967295 is too large for 32-bit type 'int'
 
-No functional changes.
+The setting of the size_{shift, mask} and of the opcode are unnecessary
+when the erase size is zero, as throughout the code just the erase size
+is considered to determine whether an erase type is supported or not.
+Setting the opcode to 0xFF was wrong too as nobody guarantees that 0xFF
+is an unused opcode. Thus when masking out an erase type, just set the
+erase size to zero. This will fix the shift-out-of-bounds.
 
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-2-bp@alien8.de
+Fixes: 5390a8df769e ("mtd: spi-nor: add support to non-uniform SFDP SPI NOR flash memories")
+Cc: stable@vger.kernel.org
+Reported-by: Alexander Stein <Alexander.Stein@tq-group.com>
+Signed-off-by: Louis Rannou <lrannou@baylibre.com>
+Tested-by: Alexander Stein <Alexander.Stein@tq-group.com>
+Link: https://lore.kernel.org/r/20230203070754.50677-1-tudor.ambarus@linaro.org
+[ta: refine changes, new commit message, fix compilation error]
+Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/microcode/amd.c |   17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ drivers/mtd/spi-nor/core.c |    9 +++++++++
+ drivers/mtd/spi-nor/core.h |    1 +
+ drivers/mtd/spi-nor/sfdp.c |    4 ++--
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -553,8 +553,7 @@ void load_ucode_amd_ap(unsigned int cpui
- 	apply_microcode_early_amd(cpuid_1_eax, cp.data, cp.size, false);
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -2027,6 +2027,15 @@ void spi_nor_set_erase_type(struct spi_n
  }
  
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size);
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size);
+ /**
++ * spi_nor_mask_erase_type() - mask out a SPI NOR erase type
++ * @erase:	pointer to a structure that describes a SPI NOR erase type
++ */
++void spi_nor_mask_erase_type(struct spi_nor_erase_type *erase)
++{
++	erase->size = 0;
++}
++
++/**
+  * spi_nor_init_uniform_erase_map() - Initialize uniform erase map
+  * @map:		the erase map of the SPI NOR
+  * @erase_mask:		bitmask encoding erase types that can erase the entire
+--- a/drivers/mtd/spi-nor/core.h
++++ b/drivers/mtd/spi-nor/core.h
+@@ -684,6 +684,7 @@ void spi_nor_set_pp_settings(struct spi_
  
- int __init save_microcode_in_initrd_amd(unsigned int cpuid_1_eax)
- {
-@@ -572,7 +571,7 @@ int __init save_microcode_in_initrd_amd(
- 	if (!desc.mc)
- 		return -EINVAL;
+ void spi_nor_set_erase_type(struct spi_nor_erase_type *erase, u32 size,
+ 			    u8 opcode);
++void spi_nor_mask_erase_type(struct spi_nor_erase_type *erase);
+ struct spi_nor_erase_region *
+ spi_nor_region_next(struct spi_nor_erase_region *region);
+ void spi_nor_init_uniform_erase_map(struct spi_nor_erase_map *map,
+--- a/drivers/mtd/spi-nor/sfdp.c
++++ b/drivers/mtd/spi-nor/sfdp.c
+@@ -875,7 +875,7 @@ static int spi_nor_init_non_uniform_eras
+ 	 */
+ 	for (i = 0; i < SNOR_ERASE_TYPE_MAX; i++)
+ 		if (!(regions_erase_type & BIT(erase[i].idx)))
+-			spi_nor_set_erase_type(&erase[i], 0, 0xFF);
++			spi_nor_mask_erase_type(&erase[i]);
  
--	ret = load_microcode_amd(true, x86_family(cpuid_1_eax), desc.data, desc.size);
-+	ret = load_microcode_amd(x86_family(cpuid_1_eax), desc.data, desc.size);
- 	if (ret > UCODE_UPDATED)
- 		return -EINVAL;
- 
-@@ -850,8 +849,7 @@ static enum ucode_state __load_microcode
- 	return UCODE_OK;
+ 	return 0;
  }
- 
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
- {
- 	struct ucode_patch *p;
- 	enum ucode_state ret;
-@@ -875,10 +873,6 @@ load_microcode_amd(bool save, u8 family,
- 		ret = UCODE_NEW;
+@@ -1089,7 +1089,7 @@ static int spi_nor_parse_4bait(struct sp
+ 			erase_type[i].opcode = (dwords[1] >>
+ 						erase_type[i].idx * 8) & 0xFF;
+ 		else
+-			spi_nor_set_erase_type(&erase_type[i], 0u, 0xFF);
++			spi_nor_mask_erase_type(&erase_type[i]);
  	}
  
--	/* save BSP's matching patch for early load */
--	if (!save)
--		return ret;
--
- 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
- 	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
- 
-@@ -906,12 +900,11 @@ static enum ucode_state request_microcod
- {
- 	char fw_name[36] = "amd-ucode/microcode_amd.bin";
- 	struct cpuinfo_x86 *c = &cpu_data(cpu);
--	bool bsp = c->cpu_index == boot_cpu_data.cpu_index;
- 	enum ucode_state ret = UCODE_NFOUND;
- 	const struct firmware *fw;
- 
- 	/* reload ucode container only on the boot cpu */
--	if (!refresh_fw || !bsp)
-+	if (!refresh_fw)
- 		return UCODE_OK;
- 
- 	if (c->x86 >= 0x15)
-@@ -926,7 +919,7 @@ static enum ucode_state request_microcod
- 	if (!verify_container(fw->data, fw->size, false))
- 		goto fw_release;
- 
--	ret = load_microcode_amd(bsp, c->x86, fw->data, fw->size);
-+	ret = load_microcode_amd(c->x86, fw->data, fw->size);
- 
-  fw_release:
- 	release_firmware(fw);
+ 	/*
 
 
