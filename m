@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D866AE937
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3896AEDEC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231285AbjCGRWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:22:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36918 "EHLO
+        id S232089AbjCGSIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231299AbjCGRVo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:21:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB4F95BF7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:16:54 -0800 (PST)
+        with ESMTP id S232326AbjCGSIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69423A8E8D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3122B819AD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:16:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E251C433EF;
-        Tue,  7 Mar 2023 17:16:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 428DC6150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD3CC433D2;
+        Tue,  7 Mar 2023 18:01:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209411;
-        bh=O+yygR2JX2Xz6oXdCSgYNx81NXO5p7ba0VVcb20jmtA=;
+        s=korg; t=1678212107;
+        bh=2kG26NafuKtgjutR27bE/ZpyKsxhcTAPfbvyZv3FybE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GEO3Kx4tTVcTAabcQJJHAIltOS+kpco0D330y9arngMXfLqvFFtQuL0+LIztku0R
-         Pta9aPC80CuoX6mu7MnjSnXvA00V7iB410HyEv7nuHOz0RiVvH5OTFFwlxNcdV1NpZ
-         ikTbQyHT6VZ3n0N/eH9BES51R5dqmxG5k7/YNXxc=
+        b=c1VtMuGEuZH5qopIRcwVnVIu+LvxLTBnScgaQs+c18oYXGr3YnN771/o3Dk36JUKK
+         /7a7pOV+WxToJfq+KPqqJN9EtEDymvoBLd83z8B4/PWEj73U2dxZmp0Ug/YwSWvWHA
+         lwiN3rrgWwwX2Nzg9M8Hfi5Pwp7odG83UEyX386M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Vaishnav Achath <vaishnav.a@ti.com>,
+        Jayesh Choudhary <j-choudhary@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0210/1001] wifi: ath11k: Fix memory leak in ath11k_peer_rx_frag_setup
-Date:   Tue,  7 Mar 2023 17:49:42 +0100
-Message-Id: <20230307170031.009281083@linuxfoundation.org>
+Subject: [PATCH 6.1 049/885] arm64: dts: ti: k3-j7200: Fix wakeup pinmux range
+Date:   Tue,  7 Mar 2023 17:49:43 +0100
+Message-Id: <20230307170003.851439494@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,36 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Vaishnav Achath <vaishnav.a@ti.com>
 
-[ Upstream commit ed3f83b3459a67a3ab9d806490ac304b567b1c2d ]
+[ Upstream commit 9ae21ac445e911e3541985c20052fc05d60f6879 ]
 
-crypto_alloc_shash() allocates resources, which should be released by
-crypto_free_shash(). When ath11k_peer_find() fails, there has memory
-leak. Add missing crypto_free_shash() to fix this.
+The WKUP_PADCONFIG register region in J7200 has multiple non-addressable
+regions, split the existing wkup_pmx region as follows to avoid the
+non-addressable regions and include all valid WKUP_PADCONFIG registers.
+Also update references to old nodes with new ones.
 
-Fixes: 243874c64c81 ("ath11k: handle RX fragments")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230102081142.3937570-1-linmq006@gmail.com
+wkup_pmx0 -> 13 pins (WKUP_PADCONFIG 0 - 12)
+wkup_pmx1 -> 2 pins (WKUP_PADCONFIG 14 - 15)
+wkup_pmx2 -> 59 pins (WKUP_PADCONFIG 26 - 84)
+wkup_pmx3 -> 8 pins (WKUP_PADCONFIG 93 - 100)
+
+J7200 Datasheet (Table 6-106, Section 6.4 Pin Multiplexing) :
+	https://www.ti.com/lit/ds/symlink/dra821u.pdf
+
+Fixes: d361ed88455f ("arm64: dts: ti: Add support for J7200 SoC")
+
+Signed-off-by: Vaishnav Achath <vaishnav.a@ti.com>
+Reviewed-by: Jayesh Choudhary <j-choudhary@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20230119042622.22310-1-vaishnav.a@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../dts/ti/k3-j7200-common-proc-board.dts     |  2 +-
+ .../boot/dts/ti/k3-j7200-mcu-wakeup.dtsi      | 29 ++++++++++++++++++-
+ 2 files changed, 29 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index c5a4c34d77499..0c53d88293eb7 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -3126,6 +3126,7 @@ int ath11k_peer_rx_frag_setup(struct ath11k *ar, const u8 *peer_mac, int vdev_id
- 	if (!peer) {
- 		ath11k_warn(ab, "failed to find the peer to set up fragment info\n");
- 		spin_unlock_bh(&ab->base_lock);
-+		crypto_free_shash(tfm);
- 		return -ENOENT;
- 	}
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
+index 7e8552fd2b6ae..50009f963a324 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
++++ b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
+@@ -80,7 +80,7 @@ vdd_sd_dv: gpio-regulator-TLV71033 {
+ 	};
+ };
  
+-&wkup_pmx0 {
++&wkup_pmx2 {
+ 	mcu_cpsw_pins_default: mcu-cpsw-pins-default {
+ 		pinctrl-single,pins = <
+ 			J721E_WKUP_IOPAD(0x0068, PIN_OUTPUT, 0) /* MCU_RGMII1_TX_CTL */
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
+index d3fb86b2ea939..f04c6c890c33d 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
+@@ -56,7 +56,34 @@ chipid@43000014 {
+ 	wkup_pmx0: pinctrl@4301c000 {
+ 		compatible = "pinctrl-single";
+ 		/* Proxy 0 addressing */
+-		reg = <0x00 0x4301c000 0x00 0x178>;
++		reg = <0x00 0x4301c000 0x00 0x34>;
++		#pinctrl-cells = <1>;
++		pinctrl-single,register-width = <32>;
++		pinctrl-single,function-mask = <0xffffffff>;
++	};
++
++	wkup_pmx1: pinctrl@0x4301c038 {
++		compatible = "pinctrl-single";
++		/* Proxy 0 addressing */
++		reg = <0x00 0x4301c038 0x00 0x8>;
++		#pinctrl-cells = <1>;
++		pinctrl-single,register-width = <32>;
++		pinctrl-single,function-mask = <0xffffffff>;
++	};
++
++	wkup_pmx2: pinctrl@0x4301c068 {
++		compatible = "pinctrl-single";
++		/* Proxy 0 addressing */
++		reg = <0x00 0x4301c068 0x00 0xec>;
++		#pinctrl-cells = <1>;
++		pinctrl-single,register-width = <32>;
++		pinctrl-single,function-mask = <0xffffffff>;
++	};
++
++	wkup_pmx3: pinctrl@0x4301c174 {
++		compatible = "pinctrl-single";
++		/* Proxy 0 addressing */
++		reg = <0x00 0x4301c174 0x00 0x20>;
+ 		#pinctrl-cells = <1>;
+ 		pinctrl-single,register-width = <32>;
+ 		pinctrl-single,function-mask = <0xffffffff>;
 -- 
 2.39.2
 
