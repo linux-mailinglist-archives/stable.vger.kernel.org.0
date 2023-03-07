@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D89796AF166
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D2A66AEBFC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbjCGSnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:43:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51948 "EHLO
+        id S232201AbjCGRus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:50:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231489AbjCGSmm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D213873888
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:33:11 -0800 (PST)
+        with ESMTP id S232018AbjCGRuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 387709F215
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20E33B819F4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BA59C433EF;
-        Tue,  7 Mar 2023 18:27:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5E4D61501
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D159EC433D2;
+        Tue,  7 Mar 2023 17:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213623;
-        bh=mECLp6YKjUb0Ux5Kq0yda8oo73Up9Ucp5zvw/guYebs=;
+        s=korg; t=1678211119;
+        bh=sJvCh+AsSp31KYARAwHVYrreEBNlOnoTyZ8HpQTu6q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AygngQ4Rrf4XJHD+/kwspvln3+tCg4wdFrTEER6fr3B/5bXc8Hsyjnid3/HR10uF1
-         ohtUMrs+jjCbRJ12+8YzjAbZhAFPFzJ+pSMglV5H163sMPJxFnLzk7L2m2FB1kY7lF
-         mYB2aXp0R9Qr7p+xk+Z2L2hpYW7Qn/sDielH27R8=
+        b=ipux+bTLncYGGAzJA57TtbbjIoZgnHbnfco4K2GHKw4H4TBVUiJ2jx4H7m5HifIVb
+         bTUq/PZzzzzetPjxzyEb0rOb50Ttj+YaBb8uo/wo6zft+E0NTugnDMlYHFq+yzMjMd
+         1Oyn2D+5gqPoHjLAYLgVthR+/lEv47Tp1T2T6Y54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tim Zimmermann <tim@linux4.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Jun Lei <Jun.Lei@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Wesley Chalmers <Wesley.Chalmers@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 565/885] thermal: intel: intel_pch: Add support for Wellsburg PCH
-Date:   Tue,  7 Mar 2023 17:58:19 +0100
-Message-Id: <20230307170026.991083174@linuxfoundation.org>
+Subject: [PATCH 6.2 0728/1001] drm/amd/display: Do not commit pipe when updating DRR
+Date:   Tue,  7 Mar 2023 17:58:20 +0100
+Message-Id: <20230307170053.301788711@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +56,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Zimmermann <tim@linux4.de>
+From: Wesley Chalmers <Wesley.Chalmers@amd.com>
 
-[ Upstream commit 40dc1929089fc844ea06d9f8bdb6211ed4517c2e ]
+[ Upstream commit 8f0d304d21b351d65e8c434c5399a40231876ba1 ]
 
-Add the PCI ID for the Wellsburg C610 series chipset PCH.
+[WHY]
+DRR and Pipe cannot be updated on
+the same frame, or else underflow will
+occur.
 
-The driver can read the temperature from the Wellsburg PCH with only
-the PCI ID added and no other modifications.
-
-Signed-off-by: Tim Zimmermann <tim@linux4.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_pch_thermal.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc.c          | 15 +++++++++++++++
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.h |  3 ++-
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.c |  9 +++++++++
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.h |  2 ++
+ .../drm/amd/display/dc/inc/hw/timing_generator.h  |  1 +
+ 5 files changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/intel/intel_pch_thermal.c b/drivers/thermal/intel/intel_pch_thermal.c
-index dabf11a687a15..9e27f430e0345 100644
---- a/drivers/thermal/intel/intel_pch_thermal.c
-+++ b/drivers/thermal/intel/intel_pch_thermal.c
-@@ -29,6 +29,7 @@
- #define PCH_THERMAL_DID_CNL_LP	0x02F9 /* CNL-LP PCH */
- #define PCH_THERMAL_DID_CML_H	0X06F9 /* CML-H PCH */
- #define PCH_THERMAL_DID_LWB	0xA1B1 /* Lewisburg PCH */
-+#define PCH_THERMAL_DID_WBG	0x8D24 /* Wellsburg PCH */
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index c03e86e49fea3..698ef50e83f3f 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -3335,6 +3335,21 @@ static void commit_planes_for_stream(struct dc *dc,
  
- /* Wildcat Point-LP  PCH Thermal registers */
- #define WPT_TEMP	0x0000	/* Temperature */
-@@ -350,6 +351,7 @@ enum board_ids {
- 	board_cnl,
- 	board_cml,
- 	board_lwb,
-+	board_wbg,
+ 	dc_z10_restore(dc);
+ 
++	if (update_type == UPDATE_TYPE_FULL) {
++		/* wait for all double-buffer activity to clear on all pipes */
++		int pipe_idx;
++
++		for (pipe_idx = 0; pipe_idx < dc->res_pool->pipe_count; pipe_idx++) {
++			struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[pipe_idx];
++
++			if (!pipe_ctx->stream)
++				continue;
++
++			if (pipe_ctx->stream_res.tg->funcs->wait_drr_doublebuffer_pending_clear)
++				pipe_ctx->stream_res.tg->funcs->wait_drr_doublebuffer_pending_clear(pipe_ctx->stream_res.tg);
++		}
++	}
++
+ 	if (get_seamless_boot_stream_count(context) > 0 && surface_count > 0) {
+ 		/* Optimize seamless boot flag keeps clocks and watermarks high until
+ 		 * first flip. After first flip, optimization is required to lower
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.h b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.h
+index 88ac5f6f4c96c..0b37bb0e184b2 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.h
+@@ -519,7 +519,8 @@ struct dcn_optc_registers {
+ 	type OTG_CRC_DATA_STREAM_COMBINE_MODE;\
+ 	type OTG_CRC_DATA_STREAM_SPLIT_MODE;\
+ 	type OTG_CRC_DATA_FORMAT;\
+-	type OTG_V_TOTAL_LAST_USED_BY_DRR;
++	type OTG_V_TOTAL_LAST_USED_BY_DRR;\
++	type OTG_DRR_TIMING_DBUF_UPDATE_PENDING;
+ 
+ #define TG_REG_FIELD_LIST_DCN3_2(type) \
+ 	type OTG_H_TIMING_DIV_MODE_MANUAL;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.c
+index 867d60151aebb..08b92715e2e64 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.c
+@@ -291,6 +291,14 @@ static void optc3_set_timing_double_buffer(struct timing_generator *optc, bool e
+ 		   OTG_DRR_TIMING_DBUF_UPDATE_MODE, mode);
+ }
+ 
++void optc3_wait_drr_doublebuffer_pending_clear(struct timing_generator *optc)
++{
++	struct optc *optc1 = DCN10TG_FROM_TG(optc);
++
++	REG_WAIT(OTG_DOUBLE_BUFFER_CONTROL, OTG_DRR_TIMING_DBUF_UPDATE_PENDING, 0, 2, 100000); /* 1 vupdate at 5hz */
++
++}
++
+ void optc3_set_vtotal_min_max(struct timing_generator *optc, int vtotal_min, int vtotal_max)
+ {
+ 	optc1_set_vtotal_min_max(optc, vtotal_min, vtotal_max);
+@@ -360,6 +368,7 @@ static struct timing_generator_funcs dcn30_tg_funcs = {
+ 		.program_manual_trigger = optc2_program_manual_trigger,
+ 		.setup_manual_trigger = optc2_setup_manual_trigger,
+ 		.get_hw_timing = optc1_get_hw_timing,
++		.wait_drr_doublebuffer_pending_clear = optc3_wait_drr_doublebuffer_pending_clear,
  };
  
- static const struct board_info {
-@@ -380,6 +382,10 @@ static const struct board_info {
- 		.name = "pch_lewisburg",
- 		.ops = &pch_dev_ops_wpt,
- 	},
-+	[board_wbg] = {
-+		.name = "pch_wellsburg",
-+		.ops = &pch_dev_ops_wpt,
-+	},
+ void dcn30_timing_generator_init(struct optc *optc1)
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.h b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.h
+index dd45a5499b078..fb06dc9a48937 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_optc.h
+@@ -279,6 +279,7 @@
+ 	SF(OTG0_OTG_DRR_TRIGGER_WINDOW, OTG_DRR_TRIGGER_WINDOW_END_X, mask_sh),\
+ 	SF(OTG0_OTG_DRR_V_TOTAL_CHANGE, OTG_DRR_V_TOTAL_CHANGE_LIMIT, mask_sh),\
+ 	SF(OTG0_OTG_H_TIMING_CNTL, OTG_H_TIMING_DIV_BY2, mask_sh),\
++	SF(OTG0_OTG_DOUBLE_BUFFER_CONTROL, OTG_DRR_TIMING_DBUF_UPDATE_PENDING, mask_sh),\
+ 	SF(OTG0_OTG_DOUBLE_BUFFER_CONTROL, OTG_DRR_TIMING_DBUF_UPDATE_MODE, mask_sh),\
+ 	SF(OTG0_OTG_DOUBLE_BUFFER_CONTROL, OTG_BLANK_DATA_DOUBLE_BUFFER_EN, mask_sh)
+ 
+@@ -317,6 +318,7 @@
+ 	SF(OTG0_OTG_DRR_TRIGGER_WINDOW, OTG_DRR_TRIGGER_WINDOW_END_X, mask_sh),\
+ 	SF(OTG0_OTG_DRR_V_TOTAL_CHANGE, OTG_DRR_V_TOTAL_CHANGE_LIMIT, mask_sh),\
+ 	SF(OTG0_OTG_H_TIMING_CNTL, OTG_H_TIMING_DIV_MODE, mask_sh),\
++	SF(OTG0_OTG_DOUBLE_BUFFER_CONTROL, OTG_DRR_TIMING_DBUF_UPDATE_PENDING, mask_sh),\
+ 	SF(OTG0_OTG_DOUBLE_BUFFER_CONTROL, OTG_DRR_TIMING_DBUF_UPDATE_MODE, mask_sh)
+ 
+ void dcn30_timing_generator_init(struct optc *optc1);
+diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw/timing_generator.h b/drivers/gpu/drm/amd/display/dc/inc/hw/timing_generator.h
+index 0e42e721dd15a..1d9f9c53d2bd6 100644
+--- a/drivers/gpu/drm/amd/display/dc/inc/hw/timing_generator.h
++++ b/drivers/gpu/drm/amd/display/dc/inc/hw/timing_generator.h
+@@ -331,6 +331,7 @@ struct timing_generator_funcs {
+ 			uint32_t vtotal_change_limit);
+ 
+ 	void (*init_odm)(struct timing_generator *tg);
++	void (*wait_drr_doublebuffer_pending_clear)(struct timing_generator *tg);
  };
  
- static int intel_pch_thermal_probe(struct pci_dev *pdev,
-@@ -495,6 +501,8 @@ static const struct pci_device_id intel_pch_thermal_id[] = {
- 		.driver_data = board_cml, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCH_THERMAL_DID_LWB),
- 		.driver_data = board_lwb, },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCH_THERMAL_DID_WBG),
-+		.driver_data = board_wbg, },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, intel_pch_thermal_id);
+ #endif
 -- 
 2.39.2
 
