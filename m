@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6FE66AF579
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D196AF5A0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234082AbjCGTZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:25:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35084 "EHLO
+        id S234207AbjCGT16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:27:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234089AbjCGTZe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:25:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0482FC85A2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:11:25 -0800 (PST)
+        with ESMTP id S231476AbjCGT1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:27:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 734A79FE40
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:13:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6662D6153C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:11:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79128C433EF;
-        Tue,  7 Mar 2023 19:11:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2F00ECE1C8C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:13:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22589C433D2;
+        Tue,  7 Mar 2023 19:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216284;
-        bh=tq0xN++537YpytXOlsaff1G3Q1pz2bnuBKNcMw/s6DI=;
+        s=korg; t=1678216412;
+        bh=14hISBGJvZF3R4QDjMNXkLUzDv16EKeXHo8tygM2v8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+tyrpcoGm1ECsuP7L0Q20F6OIpphFBArAblPbZ/RHqGRDxmoMp1iwg6K4XbeEkcg
-         2c7PK3eP3NHY9zdKbIMKvScrE/InT5ndebaGcIUmmiLx9EgfiB6RINQzLOoXxatswv
-         PucNotxYC/i6pw+kUGJlE6/7trxZpn7xd/rai19s=
+        b=tnlO8Z5/pkX6iKI4ND2ZEW9sSW+0696yunj9NmGBJEr5cbQAJPGL8BeavMOnB8Nwu
+         4xsxHrdfgOCdnw8KzVjMb5MhKQB1ttgf4FKylO7fBye+epI2g7A/GxGVotLPrWNc0E
+         2i96e0yTgvSgTxxUjNCZd6lp0wNhMqfFeRzWNu/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.15 533/567] ktest.pl: Give back console on Ctrt^C on monitor
-Date:   Tue,  7 Mar 2023 18:04:29 +0100
-Message-Id: <20230307165929.052295506@linuxfoundation.org>
+Subject: [PATCH 5.15 534/567] ktest.pl: Fix missing "end_monitor" when machine check fails
+Date:   Tue,  7 Mar 2023 18:04:30 +0100
+Message-Id: <20230307165929.091086914@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,34 +54,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt <rostedt@goodmis.org>
 
-commit 83d29d439cd3ef23041570d55841f814af2ecac0 upstream.
+commit e8bf9b98d40dbdf4e39362e3b85a70c61da68cb7 upstream.
 
-When monitoring the console output, the stdout is being redirected to do
-so. If Ctrl^C is hit during this mode, the stdout is not back to the
-console, the user does not see anything they type (no echo).
+In the "reboot" command, it does a check of the machine to see if it is
+still alive with a simple "ssh echo" command. If it fails, it will assume
+that a normal "ssh reboot" is not possible and force a power cycle.
 
-Add "end_monitor" to the SIGINT interrupt handler to give back the console
-on Ctrl^C.
+In this case, the "start_monitor" is executed, but the "end_monitor" is
+not, and this causes the screen will not be given back to the console. That
+is, after the test, a "reset" command needs to be performed, as "echo" is
+turned off.
 
 Cc: stable@vger.kernel.org
-Fixes: 9f2cdcbbb90e7 ("ktest: Give console process a dedicated tty")
+Fixes: 6474ace999edd ("ktest.pl: Powercycle the box on reboot if no connection can be made")
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/ktest/ktest.pl |    3 +++
- 1 file changed, 3 insertions(+)
+ tools/testing/ktest/ktest.pl |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/tools/testing/ktest/ktest.pl
 +++ b/tools/testing/ktest/ktest.pl
-@@ -4193,6 +4193,9 @@ sub send_email {
- }
+@@ -1488,7 +1488,8 @@ sub reboot {
  
- sub cancel_test {
-+    if ($monitor_cnt) {
-+	end_monitor;
+ 	# Still need to wait for the reboot to finish
+ 	wait_for_monitor($time, $reboot_success_line);
+-
 +    }
-     if ($email_when_canceled) {
- 	my $name = get_test_name;
- 	send_email("KTEST: Your [$name] test was cancelled",
++    if ($powercycle || $time) {
+ 	end_monitor;
+     }
+ }
 
 
