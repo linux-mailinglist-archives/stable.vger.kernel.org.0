@@ -2,57 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D00706AEF6E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D494E6AEAF9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232752AbjCGSXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:23:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46836 "EHLO
+        id S231338AbjCGRjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:39:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231774AbjCGSXR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC009A24A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:57 -0800 (PST)
+        with ESMTP id S231907AbjCGRim (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161B1898C9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47809614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29F1DC433D2;
-        Tue,  7 Mar 2023 18:17:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E60A61520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72983C433A4;
+        Tue,  7 Mar 2023 17:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213076;
-        bh=Bi6z2cQOZ8D0B90GSycTYUcfNhPB5nNXvN4VcA8DWPg=;
+        s=korg; t=1678210479;
+        bh=vP5xQh6kFrlHr21SGXbaOzuh2hkmJnfheFpnzcDTdcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vZ/yzx5fk6052IPwrL75l/n2lCwPWfVLe4vLjH4ilTwHKAeTgGzebkGvsgU7w/DUb
-         lcMcEusj8nc4e1bRoSFKqSg9mddgVL6/bhI8Y1kDMajfFpTBDJQPTFz2IJp8Zm14pj
-         IZiuyK4riiXJoFcyBt/YQjS+k6JBV0T7Cbk2Tbz8=
+        b=rw0BsyzFNRxG4crBx72SqL3Uo7TSMWzSPOJSXJ/1VKeeLdutsq2+onVB2cZpbj75K
+         ahHdDSjl8mUPh0iHJmRPJ0hHawnE4tG7ESuZORs0Yzv63OIifUj23cb79NIgOqd8xV
+         YtSnFo90gmQtRzU6nQsvo+p5W6/xMY/BjQ04ADjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        James Clark <james.clark@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 391/885] perf intel-pt: Do not try to queue auxtrace data on pipe
+        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        Luca Weiss <luca.weiss@fairphone.com>
+Subject: [PATCH 6.2 0553/1001] driver core: fw_devlink: Consolidate device link flag computation
 Date:   Tue,  7 Mar 2023 17:55:25 +0100
-Message-Id: <20230307170019.360336951@linuxfoundation.org>
+Message-Id: <20230307170045.478367457@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -61,121 +58,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit aeb802f872a7c42e4381f36041e77d1745908255 ]
+[ Upstream commit cd115c0409f283edde94bd5a9a42dc42bee0aba8 ]
 
-When it processes AUXTRACE_INFO, it calls to auxtrace_queue_data() to
-collect AUXTRACE data first.  That won't work with pipe since it needs
-lseek() to read the scattered aux data.
+Consolidate the code that computes the flags to be used when creating a
+device link from a fwnode link.
 
-  $ perf record -o- -e intel_pt// true | perf report -i- --itrace=i100
-  # To display the perf.data header info, please use --header/--header-only options.
-  #
-  0x4118 [0xa0]: failed to process type: 70
-  Error:
-  failed to process sample
-
-For the pipe mode, it can handle the aux data as it gets.  But there's
-no guarantee it can get the aux data in time.  So the following warning
-will be shown at the beginning:
-
-  WARNING: Intel PT with pipe mode is not recommended.
-           The output cannot relied upon.  In particular,
-           time stamps and the order of events may be incorrect.
-
-Fixes: dbd134322e74f19d ("perf intel-pt: Add support for decoding AUX area samples")
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: https://lore.kernel.org/r/20230131023350.1903992-3-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 2de9d8e0d2fe ("driver core: fw_devlink: Improve handling of cyclic dependencies")
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Tested-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
+Link: https://lore.kernel.org/r/20230207014207.1678715-8-saravanak@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Documentation/perf-intel-pt.txt | 30 ++++++++++++++++++++++
- tools/perf/util/auxtrace.c                 |  3 +++
- tools/perf/util/intel-pt.c                 |  6 +++++
- 3 files changed, 39 insertions(+)
+ drivers/base/core.c    | 28 +++++++++++++++-------------
+ include/linux/fwnode.h |  1 -
+ 2 files changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/tools/perf/Documentation/perf-intel-pt.txt b/tools/perf/Documentation/perf-intel-pt.txt
-index 92464a5d7eafd..a764367fcb89b 100644
---- a/tools/perf/Documentation/perf-intel-pt.txt
-+++ b/tools/perf/Documentation/perf-intel-pt.txt
-@@ -1813,6 +1813,36 @@ Can be compiled and traced:
-  $
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index bd8ae74e5cdcb..05c3e9a09b323 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1727,8 +1727,11 @@ static int __init fw_devlink_strict_setup(char *arg)
+ }
+ early_param("fw_devlink.strict", fw_devlink_strict_setup);
  
+-u32 fw_devlink_get_flags(void)
++static inline u32 fw_devlink_get_flags(u8 fwlink_flags)
+ {
++	if (fwlink_flags & FWLINK_FLAG_CYCLE)
++		return FW_DEVLINK_FLAGS_PERMISSIVE | DL_FLAG_CYCLE;
++
+ 	return fw_devlink_flags;
+ }
  
-+Pipe mode
-+---------
-+Pipe mode is a problem for Intel PT and possibly other auxtrace users.
-+It's not recommended to use a pipe as data output with Intel PT because
-+of the following reason.
+@@ -1909,7 +1912,7 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
+  * fw_devlink_create_devlink - Create a device link from a consumer to fwnode
+  * @con: consumer device for the device link
+  * @sup_handle: fwnode handle of supplier
+- * @flags: devlink flags
++ * @link: fwnode link that's being converted to a device link
+  *
+  * This function will try to create a device link between the consumer device
+  * @con and the supplier device represented by @sup_handle.
+@@ -1926,10 +1929,17 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
+  *  possible to do that in the future
+  */
+ static int fw_devlink_create_devlink(struct device *con,
+-				     struct fwnode_handle *sup_handle, u32 flags)
++				     struct fwnode_handle *sup_handle,
++				     struct fwnode_link *link)
+ {
+ 	struct device *sup_dev;
+ 	int ret = 0;
++	u32 flags;
 +
-+Essentially the auxtrace buffers do not behave like the regular perf
-+event buffers.  That is because the head and tail are updated by
-+software, but in the auxtrace case the data is written by hardware.
-+So the head and tail do not get updated as data is written.
-+
-+In the Intel PT case, the head and tail are updated only when the trace
-+is disabled by software, for example:
-+    - full-trace, system wide : when buffer passes watermark
-+    - full-trace, not system-wide : when buffer passes watermark or
-+                                    context switches
-+    - snapshot mode : as above but also when a snapshot is made
-+    - sample mode : as above but also when a sample is made
-+
-+That means finished-round ordering doesn't work.  An auxtrace buffer
-+can turn up that has data that extends back in time, possibly to the
-+very beginning of tracing.
-+
-+For a perf.data file, that problem is solved by going through the trace
-+and queuing up the auxtrace buffers in advance.
-+
-+For pipe mode, the order of events and timestamps can presumably
-+be messed up.
-+
-+
- EXAMPLE
- -------
++	if (con->fwnode == link->consumer)
++		flags = fw_devlink_get_flags(link->flags);
++	else
++		flags = FW_DEVLINK_FLAGS_PERMISSIVE;
  
-diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
-index 47062f459ccd6..6e60b6f06ab05 100644
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -1132,6 +1132,9 @@ int auxtrace_queue_data(struct perf_session *session, bool samples, bool events)
- 	if (auxtrace__dont_decode(session))
- 		return 0;
+ 	/*
+ 	 * In some cases, a device P might also be a supplier to its child node
+@@ -2055,7 +2065,6 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
+ 	struct fwnode_link *link, *tmp;
  
-+	if (perf_data__is_pipe(session->data))
-+		return 0;
-+
- 	if (!session->auxtrace || !session->auxtrace->queue_data)
- 		return -EINVAL;
+ 	list_for_each_entry_safe(link, tmp, &fwnode->consumers, s_hook) {
+-		u32 dl_flags = fw_devlink_get_flags();
+ 		struct device *con_dev;
+ 		bool own_link = true;
+ 		int ret;
+@@ -2085,14 +2094,13 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
+ 				con_dev = NULL;
+ 			} else {
+ 				own_link = false;
+-				dl_flags = FW_DEVLINK_FLAGS_PERMISSIVE;
+ 			}
+ 		}
  
-diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
-index e3548ddef2545..d1338a4071268 100644
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -4374,6 +4374,12 @@ int intel_pt_process_auxtrace_info(union perf_event *event,
+ 		if (!con_dev)
+ 			continue;
  
- 	intel_pt_setup_pebs_events(pt);
+-		ret = fw_devlink_create_devlink(con_dev, fwnode, dl_flags);
++		ret = fw_devlink_create_devlink(con_dev, fwnode, link);
+ 		put_device(con_dev);
+ 		if (!own_link || ret == -EAGAIN)
+ 			continue;
+@@ -2133,19 +2141,13 @@ static void __fw_devlink_link_to_suppliers(struct device *dev,
+ 	bool own_link = (dev->fwnode == fwnode);
+ 	struct fwnode_link *link, *tmp;
+ 	struct fwnode_handle *child = NULL;
+-	u32 dl_flags;
+-
+-	if (own_link)
+-		dl_flags = fw_devlink_get_flags();
+-	else
+-		dl_flags = FW_DEVLINK_FLAGS_PERMISSIVE;
  
-+	if (perf_data__is_pipe(session->data)) {
-+		pr_warning("WARNING: Intel PT with pipe mode is not recommended.\n"
-+			   "         The output cannot relied upon.  In particular,\n"
-+			   "         timestamps and the order of events may be incorrect.\n");
-+	}
-+
- 	if (pt->sampling_mode || list_empty(&session->auxtrace_index))
- 		err = auxtrace_queue_data(session, true, true);
- 	else
+ 	list_for_each_entry_safe(link, tmp, &fwnode->suppliers, c_hook) {
+ 		int ret;
+ 		struct device *sup_dev;
+ 		struct fwnode_handle *sup = link->supplier;
+ 
+-		ret = fw_devlink_create_devlink(dev, sup, dl_flags);
++		ret = fw_devlink_create_devlink(dev, sup, link);
+ 		if (!own_link || ret == -EAGAIN)
+ 			continue;
+ 
+diff --git a/include/linux/fwnode.h b/include/linux/fwnode.h
+index fdf2ee0285b7a..5700451b300fb 100644
+--- a/include/linux/fwnode.h
++++ b/include/linux/fwnode.h
+@@ -207,7 +207,6 @@ static inline void fwnode_dev_initialized(struct fwnode_handle *fwnode,
+ 		fwnode->flags &= ~FWNODE_FLAG_INITIALIZED;
+ }
+ 
+-extern u32 fw_devlink_get_flags(void);
+ extern bool fw_devlink_is_strict(void);
+ int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup);
+ void fwnode_links_purge(struct fwnode_handle *fwnode);
 -- 
 2.39.2
 
