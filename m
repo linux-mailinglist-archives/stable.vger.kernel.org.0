@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CDA6AEAE7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2EF6AEAEA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231765AbjCGRi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:38:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42010 "EHLO
+        id S231793AbjCGRig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:38:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231755AbjCGRiN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:13 -0500
+        with ESMTP id S231794AbjCGRiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E0894F68
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DC296081
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 963B661519
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E40DC433EF;
-        Tue,  7 Mar 2023 17:33:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 973EE61519
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 968C9C433D2;
+        Tue,  7 Mar 2023 17:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210437;
-        bh=AF769B30T8DbAb9bQNz2IbMFDjrXhdFLVYPbCj+khD4=;
+        s=korg; t=1678210443;
+        bh=6wMqLdSOYR3sPFJG6DLiR5hsLBzTh5UrPZMaujcHyS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NxPhPOTtbeTuhT61xNAXVPAIOmBvkSNXhn1My21d80ZBJsoOiVOFlTkO4NrLPkJ4H
-         /is/MjQfS9XS2M+jA70JhvoJy2gzVRMxENspBdXtjPfJhKF4c04uIq7QrGXq7urhYc
-         b8inUFgrBxMA5j3aJFwprN6UHFJ4UjoW4ozQwDQE=
+        b=KHr2f2msx5/ZVfbqPapEp5Er4tQWJ7P1VJ2zrsRFyzZSKrY3jSRoN6yW12CTyo8OD
+         XoHQyoebYTjaApIdvxZXUkYcKg2qDeABy0n57mUAZ8HFrRlfJWAveaEzHW+AARJsiL
+         DtEYwecA8ED7bO2rO0wyR/WJfFTB0BndoKC+GvP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0541/1001] PCI: mt7621: Delay phy ports initialization
-Date:   Tue,  7 Mar 2023 17:55:13 +0100
-Message-Id: <20230307170044.940510257@linuxfoundation.org>
+        patches@lists.linux.dev, Ashok Raj <ashok.raj@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0542/1001] iommu/vt-d: Set No Execute Enable bit in PASID table entry
+Date:   Tue,  7 Mar 2023 17:55:14 +0100
+Message-Id: <20230307170044.975759598@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -55,60 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit 0cb2a8f3456ff1cc51d571e287a48e8fddc98ec2 ]
+[ Upstream commit e06d24435596c8afcaa81c0c498f5b0ec4ee2b7c ]
 
-Some devices like ZBT WE1326 and ZBT WF3526-P and some Netgear models need
-to delay phy port initialization after calling the mt7621_pcie_init_port()
-driver function to get into reliable boots for both warm and hard resets.
+Setup No Execute Enable bit (Bit 133) of a scalable mode PASID entry.
+This is to allow the use of XD bit of the first level page table.
 
-The delay required to detect the ports seems to be in the range [75-100]
-milliseconds.
-
-If the ports are not detected the controller is not functional.
-
-There is no datasheet or something similar to really understand why this
-extra delay is needed only for these devices and it is not for most of
-the boards that are built on mt7621 SoC.
-
-This issue has been reported by openWRT community and the complete
-discussion is in [0]. The 100 milliseconds delay has been tested in all
-devices to validate it.
-
-Add the extra 100 milliseconds delay to fix the issue.
-
-[0]: https://github.com/openwrt/openwrt/pull/11220
-
-Link: https://lore.kernel.org/r/20221231074041.264738-1-sergio.paracuellos@gmail.com
-Fixes: 2bdd5238e756 ("PCI: mt7621: Add MediaTek MT7621 PCIe host controller driver")
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Fixes: ddf09b6d43ec ("iommu/vt-d: Setup pasid entries for iova over first level")
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Link: https://lore.kernel.org/r/20230126095438.354205-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mt7621.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iommu/intel/pasid.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-mt7621.c b/drivers/pci/controller/pcie-mt7621.c
-index ee7aad09d6277..63a5f4463a9f6 100644
---- a/drivers/pci/controller/pcie-mt7621.c
-+++ b/drivers/pci/controller/pcie-mt7621.c
-@@ -60,6 +60,7 @@
- #define PCIE_PORT_LINKUP		BIT(0)
- #define PCIE_PORT_CNT			3
+diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
+index fb3c7020028d0..ec964ac7d7972 100644
+--- a/drivers/iommu/intel/pasid.c
++++ b/drivers/iommu/intel/pasid.c
+@@ -364,6 +364,16 @@ static inline void pasid_set_page_snoop(struct pasid_entry *pe, bool value)
+ 	pasid_set_bits(&pe->val[1], 1 << 23, value << 23);
+ }
  
-+#define INIT_PORTS_DELAY_MS		100
- #define PERST_DELAY_MS			100
++/*
++ * Setup No Execute Enable bit (Bit 133) of a scalable mode PASID
++ * entry. It is required when XD bit of the first level page table
++ * entry is about to be set.
++ */
++static inline void pasid_set_nxe(struct pasid_entry *pe)
++{
++	pasid_set_bits(&pe->val[2], 1 << 5, 1 << 5);
++}
++
+ /*
+  * Setup the Page Snoop (PGSNP) field (Bit 88) of a scalable mode
+  * PASID entry.
+@@ -557,6 +567,7 @@ int intel_pasid_setup_first_level(struct intel_iommu *iommu,
+ 	pasid_set_domain_id(pte, did);
+ 	pasid_set_address_width(pte, iommu->agaw);
+ 	pasid_set_page_snoop(pte, !!ecap_smpwc(iommu->ecap));
++	pasid_set_nxe(pte);
  
- /**
-@@ -369,6 +370,7 @@ static int mt7621_pcie_init_ports(struct mt7621_pcie *pcie)
- 		}
- 	}
- 
-+	msleep(INIT_PORTS_DELAY_MS);
- 	mt7621_pcie_reset_ep_deassert(pcie);
- 
- 	tmp = NULL;
+ 	/* Setup Present and PASID Granular Transfer Type: */
+ 	pasid_set_translation_type(pte, PASID_ENTRY_PGTT_FL_ONLY);
 -- 
 2.39.2
 
