@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 424536AEA74
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6596AEEEF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231213AbjCGReI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:34:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33066 "EHLO
+        id S232638AbjCGSSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:18:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231747AbjCGRdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:33:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F519746D5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:29:19 -0800 (PST)
+        with ESMTP id S232631AbjCGSSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89B3FF03
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A879614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3099BC433EF;
-        Tue,  7 Mar 2023 17:29:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44CA461532
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C510C433EF;
+        Tue,  7 Mar 2023 18:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210158;
-        bh=l7Z9bg4jndwu55P5yd249FYeJsfy6mqswdoxI3LJqDQ=;
+        s=korg; t=1678212760;
+        bh=T4HSnj3hRQvb4TbMAapOvZxjFQ0fvPs5arkL2ZvTA3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6z5928yL55STyWY8R5s2TbTXpjFVNrSo0LuPYNmawqi4KlhqKl04dXWJCfzzS2V5
-         o3yMTwUiJMUlrg2L2d2aaHdHmf2GROhR/eJp/OjnzaoiQc5cMnvYc5085aNj6zwJIC
-         tRF7F1PrnH7VRotleQBdKBQJ+P0++a3qmSllwM8s=
+        b=sMn3Er230uyEJMFgz4NRTWID2wovhYGKZnr5qaxbtW6Xrx5EwX9m4j14wAoALpvr9
+         KiMpSZh1kRQO+JFF3pHfp+VJzEHjDR5ESM7oYq+xXvdWO01RSHZO3uoEqCNpXmxxQF
+         J8bIqq7ZQ8/fcUKR7smYipn/Llm3eHal0VtUFtJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Coddington <bcodding@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0451/1001] nfsd: fix race to check ls_layouts
+Subject: [PATCH 6.1 289/885] scsi: qla2xxx: Fix exchange oversubscription for management commands
 Date:   Tue,  7 Mar 2023 17:53:43 +0100
-Message-Id: <20230307170040.921862442@linuxfoundation.org>
+Message-Id: <20230307170014.609231746@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,44 +55,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit fb610c4dbc996415d57d7090957ecddd4fd64fb6 ]
+[ Upstream commit 5f63a163ed2f12c34dd4ae9b2757962ec7bb86e5 ]
 
-Its possible for __break_lease to find the layout's lease before we've
-added the layout to the owner's ls_layouts list.  In that case, setting
-ls_recalled = true without actually recalling the layout will cause the
-server to never send a recall callback.
+Add resource checking for management (non-I/O) commands.
 
-Move the check for ls_layouts before setting ls_recalled.
-
-Fixes: c5c707f96fc9 ("nfsd: implement pNFS layout recalls")
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 89c72f4245a8 ("scsi: qla2xxx: Add IOCB resource tracking")
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4layouts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_dfs.c    | 10 ++++-
+ drivers/scsi/qla2xxx/qla_inline.h |  5 ++-
+ drivers/scsi/qla2xxx/qla_iocb.c   | 67 +++++++++++++++++++++++++++++++
+ drivers/scsi/qla2xxx/qla_isr.c    |  1 +
+ 4 files changed, 80 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfsd/nfs4layouts.c b/fs/nfsd/nfs4layouts.c
-index 3564d1c6f6104..e8a80052cb1ba 100644
---- a/fs/nfsd/nfs4layouts.c
-+++ b/fs/nfsd/nfs4layouts.c
-@@ -323,11 +323,11 @@ nfsd4_recall_file_layout(struct nfs4_layout_stateid *ls)
- 	if (ls->ls_recalled)
- 		goto out_unlock;
+diff --git a/drivers/scsi/qla2xxx/qla_dfs.c b/drivers/scsi/qla2xxx/qla_dfs.c
+index 777808af56347..1925cc6897b68 100644
+--- a/drivers/scsi/qla2xxx/qla_dfs.c
++++ b/drivers/scsi/qla2xxx/qla_dfs.c
+@@ -235,7 +235,7 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
+ 	uint16_t mb[MAX_IOCB_MB_REG];
+ 	int rc;
+ 	struct qla_hw_data *ha = vha->hw;
+-	u16 iocbs_used, i;
++	u16 iocbs_used, i, exch_used;
  
--	ls->ls_recalled = true;
--	atomic_inc(&ls->ls_stid.sc_file->fi_lo_recalls);
- 	if (list_empty(&ls->ls_layouts))
- 		goto out_unlock;
+ 	rc = qla24xx_res_count_wait(vha, mb, SIZEOF_IOCB_MB_REG);
+ 	if (rc != QLA_SUCCESS) {
+@@ -263,13 +263,19 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
+ 	if (ql2xenforce_iocb_limit) {
+ 		/* lock is not require. It's an estimate. */
+ 		iocbs_used = ha->base_qpair->fwres.iocbs_used;
++		exch_used = ha->base_qpair->fwres.exch_used;
+ 		for (i = 0; i < ha->max_qpairs; i++) {
+-			if (ha->queue_pair_map[i])
++			if (ha->queue_pair_map[i]) {
+ 				iocbs_used += ha->queue_pair_map[i]->fwres.iocbs_used;
++				exch_used += ha->queue_pair_map[i]->fwres.exch_used;
++			}
+ 		}
  
-+	ls->ls_recalled = true;
-+	atomic_inc(&ls->ls_stid.sc_file->fi_lo_recalls);
- 	trace_nfsd_layout_recall(&ls->ls_stid.sc_stateid);
+ 		seq_printf(s, "Driver: estimate iocb used [%d] high water limit [%d]\n",
+ 			   iocbs_used, ha->base_qpair->fwres.iocbs_limit);
++
++		seq_printf(s, "estimate exchange used[%d] high water limit [%d] n",
++			   exch_used, ha->base_qpair->fwres.exch_limit);
+ 	}
  
- 	refcount_inc(&ls->ls_stid.sc_count);
+ 	return 0;
+diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
+index 2d5a275d8b000..b0ee307b5d4b9 100644
+--- a/drivers/scsi/qla2xxx/qla_inline.h
++++ b/drivers/scsi/qla2xxx/qla_inline.h
+@@ -380,7 +380,7 @@ qla2xxx_get_fc4_priority(struct scsi_qla_host *vha)
+ 
+ enum {
+ 	RESOURCE_NONE,
+-	RESOURCE_IOCB  = BIT_0,
++	RESOURCE_IOCB = BIT_0,
+ 	RESOURCE_EXCH = BIT_1,  /* exchange */
+ 	RESOURCE_FORCE = BIT_2,
+ };
+@@ -396,6 +396,8 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
+ 		iores->res_type = RESOURCE_NONE;
+ 		return 0;
+ 	}
++	if (iores->res_type & RESOURCE_FORCE)
++		goto force;
+ 
+ 	if ((iores->iocb_cnt + qp->fwres.iocbs_used) >= qp->fwres.iocbs_qp_limit) {
+ 		/* no need to acquire qpair lock. It's just rough calculation */
+@@ -423,6 +425,7 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
+ 			return -ENOSPC;
+ 		}
+ 	}
++force:
+ 	qp->fwres.iocbs_used += iores->iocb_cnt;
+ 	qp->fwres.exch_used += iores->exch_cnt;
+ 	return 0;
+diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
+index 399ec8da2d73c..4f48f098ea5a6 100644
+--- a/drivers/scsi/qla2xxx/qla_iocb.c
++++ b/drivers/scsi/qla2xxx/qla_iocb.c
+@@ -3817,6 +3817,65 @@ qla24xx_prlo_iocb(srb_t *sp, struct logio_entry_24xx *logio)
+ 	logio->vp_index = sp->fcport->vha->vp_idx;
+ }
+ 
++int qla_get_iocbs_resource(struct srb *sp)
++{
++	bool get_exch;
++	bool push_it_through = false;
++
++	if (!ql2xenforce_iocb_limit) {
++		sp->iores.res_type = RESOURCE_NONE;
++		return 0;
++	}
++	sp->iores.res_type = RESOURCE_NONE;
++
++	switch (sp->type) {
++	case SRB_TM_CMD:
++	case SRB_PRLI_CMD:
++	case SRB_ADISC_CMD:
++		push_it_through = true;
++		fallthrough;
++	case SRB_LOGIN_CMD:
++	case SRB_ELS_CMD_RPT:
++	case SRB_ELS_CMD_HST:
++	case SRB_ELS_CMD_HST_NOLOGIN:
++	case SRB_CT_CMD:
++	case SRB_NVME_LS:
++	case SRB_ELS_DCMD:
++		get_exch = true;
++		break;
++
++	case SRB_FXIOCB_DCMD:
++	case SRB_FXIOCB_BCMD:
++		sp->iores.res_type = RESOURCE_NONE;
++		return 0;
++
++	case SRB_SA_UPDATE:
++	case SRB_SA_REPLACE:
++	case SRB_MB_IOCB:
++	case SRB_ABT_CMD:
++	case SRB_NACK_PLOGI:
++	case SRB_NACK_PRLI:
++	case SRB_NACK_LOGO:
++	case SRB_LOGOUT_CMD:
++	case SRB_CTRL_VP:
++		push_it_through = true;
++		fallthrough;
++	default:
++		get_exch = false;
++	}
++
++	sp->iores.res_type |= RESOURCE_IOCB;
++	sp->iores.iocb_cnt = 1;
++	if (get_exch) {
++		sp->iores.res_type |= RESOURCE_EXCH;
++		sp->iores.exch_cnt = 1;
++	}
++	if (push_it_through)
++		sp->iores.res_type |= RESOURCE_FORCE;
++
++	return qla_get_fw_resources(sp->qpair, &sp->iores);
++}
++
+ int
+ qla2x00_start_sp(srb_t *sp)
+ {
+@@ -3831,6 +3890,12 @@ qla2x00_start_sp(srb_t *sp)
+ 		return -EIO;
+ 
+ 	spin_lock_irqsave(qp->qp_lock_ptr, flags);
++	rval = qla_get_iocbs_resource(sp);
++	if (rval) {
++		spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
++		return -EAGAIN;
++	}
++
+ 	pkt = __qla2x00_alloc_iocbs(sp->qpair, sp);
+ 	if (!pkt) {
+ 		rval = EAGAIN;
+@@ -3931,6 +3996,8 @@ qla2x00_start_sp(srb_t *sp)
+ 	wmb();
+ 	qla2x00_start_iocbs(vha, qp->req);
+ done:
++	if (rval)
++		qla_put_fw_resources(sp->qpair, &sp->iores);
+ 	spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
+ 	return rval;
+ }
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index 42d3d2de3d31f..759bea69de120 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -3112,6 +3112,7 @@ qla25xx_process_bidir_status_iocb(scsi_qla_host_t *vha, void *pkt,
+ 	}
+ 	bsg_reply->reply_payload_rcv_len = 0;
+ 
++	qla_put_fw_resources(sp->qpair, &sp->iores);
+ done:
+ 	/* Return the vendor specific reply to API */
+ 	bsg_reply->reply_data.vendor_reply.vendor_rsp[0] = rval;
 -- 
 2.39.2
 
