@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E713D6AEB4F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 217F16AF2FC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:58:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231904AbjCGRnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:43:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53184 "EHLO
+        id S233545AbjCGS60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:58:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232003AbjCGRmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:42:47 -0500
+        with ESMTP id S233546AbjCGS54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7395615B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:38:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46395B79FD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 949DEB819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20FFC433EF;
-        Tue,  7 Mar 2023 17:38:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4C6AB819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC9CC4339C;
+        Tue,  7 Mar 2023 18:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210681;
-        bh=2cd3LTHah5jdbR0rtPbY0tbZtnUjQXv83YwUDRxZjtI=;
+        s=korg; t=1678214721;
+        bh=XvN+vnBs1AdgJkMmCEvqpw5yTPyAUwzo9AIP6A9gYw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcVYH3bbKNRrrWQINyx3jMum/78R3W2DbDIOhCIIKh5Oo4ri8dSVMvuzN19uuH6zg
-         pAk9fyrIx9AmU1kA2HiaNdd0eR0zrzPBBhwUVsnXtmQvnecVqlNEEhxRM6DHT0o4Hg
-         wYzJabWnmjAWc+As/MhMLkWm95B8MKZS/B9Km56A=
+        b=pKdCFRqx57+Rnwv1zM8n+bvkn8CstLIqg0YDX/sJ6L1HeFZ/Ve3DOZrOzTm5EHtlh
+         bS0gSidNIyKLhLAasJvuV5SUXGGx3DaD58qrTfEYrXN0jplDOaYCZK9PUNGBJbWxDu
+         OPmMfX/9gwHahi52Bh8Uhg3f2ga3l97Udy4EwpFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        coverity-bot <keescook+coverity-bot@chromium.org>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0592/1001] media: i2c: tc358746: fix missing return assignment
+Subject: [PATCH 5.15 028/567] arm64: dts: meson: remove CPU opps below 1GHz for G12A boards
 Date:   Tue,  7 Mar 2023 17:56:04 +0100
-Message-Id: <20230307170047.194446319@linuxfoundation.org>
+Message-Id: <20230307165907.144357595@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 0605081142070a41de8f1deb8fdaeb8677e97741 ]
+[ Upstream commit 3cbd431c2b34d84605d358c8c57654193fd661fb ]
 
-It was intended to return an error if tc358746_update_bits() call fail.
-Fix this by storing the return code.
+Amlogic G12A devices experience CPU stalls and random board wedges when
+the system idles and CPU cores clock down to lower opp points. Recent
+vendor kernels include a change to remove 100-250MHz and other distro
+sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
+are removed or the CPU governor forced to performance stalls are still
+observed, so let's remove them to improve stability and uptime.
 
-Addresses-Coverity-ID: 1527252 ("Control flow issues")
-
-Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-Fixes: 80a21da36051 ("media: tc358746: add Toshiba TC358746 Parallel to CSI-2 bridge driver")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: b190056fa9ee ("arm64: dts: meson-g12a: add cpus OPP table")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Link: https://lore.kernel.org/r/20230119053031.21400-1-christianshewitt@gmail.com
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/tc358746.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-g12a.dtsi | 20 --------------------
+ 1 file changed, 20 deletions(-)
 
-diff --git a/drivers/media/i2c/tc358746.c b/drivers/media/i2c/tc358746.c
-index d1f552bd81d42..e7f27cbb57907 100644
---- a/drivers/media/i2c/tc358746.c
-+++ b/drivers/media/i2c/tc358746.c
-@@ -406,7 +406,7 @@ tc358746_apply_pll_config(struct tc358746 *tc358746)
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
+index fb0ab27d1f642..6eaceb717d617 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
+@@ -57,26 +57,6 @@ cpu_opp_table: opp-table {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
- 	val = PLL_FRS(ilog2(post)) | RESETB | PLL_EN;
- 	mask = PLL_FRS_MASK | RESETB | PLL_EN;
--	tc358746_update_bits(tc358746, PLLCTL1_REG, mask, val);
-+	err = tc358746_update_bits(tc358746, PLLCTL1_REG, mask, val);
- 	if (err)
- 		return err;
- 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <666666666>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
 -- 
 2.39.2
 
