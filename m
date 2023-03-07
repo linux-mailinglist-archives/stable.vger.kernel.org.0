@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D28CB6AEB36
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:41:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 768FB6AF314
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:00:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231976AbjCGRlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:41:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54200 "EHLO
+        id S231622AbjCGTAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:00:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232030AbjCGRk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F62CA54F5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:37:12 -0800 (PST)
+        with ESMTP id S232925AbjCGS7g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:59:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78445B8623
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E99D961514
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06720C433EF;
-        Tue,  7 Mar 2023 17:37:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F3764CE1C6A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:46:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E36BBC433D2;
+        Tue,  7 Mar 2023 18:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210631;
-        bh=EDnOlfdMO9WC1yJ+tYfhzS6owgNkEBOFpkRuKUwlRNs=;
+        s=korg; t=1678214760;
+        bh=YTB2LrvUsAhC339pGmRR9hznggeunOXw8XVe3qIxNVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KcqDxpfNIvWf44SS8qHGBcW3nfpHAvaE7zZppoDkwwbXz4s4xe8K7GYNHndYv9Bks
-         8jue/H8fwBiQNrm5hEBUN6hEv6FjMNxvPHytgp+lsjI4Al86nh3Y7BpyEATPdpZt1K
-         ekNrwfouTyXDSH2zGttffAYYmyMCuC7rnOn8Pk2U=
+        b=w20AjK6PbK9U+gsGSeAFDYIf5QKtuabvnSxjya1N7mIyNVdtxg3eyKGHOQT2Y4LPb
+         QFCdybYyyEhTMUWXOOSmDurF9TJuietDV+SVPII4zByVsLvc2CKc0gZf5dIjVSoqYo
+         z6vJDvaa7SuflqhhLk70vBKyXR4qo2jB+aI1OVKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0604/1001] media: v4l2-jpeg: correct the skip count in jpeg_parse_app14_data
+Subject: [PATCH 5.15 040/567] arm64: dts: amlogic: meson-gxl: add missing unit address to eth-phy-mux node name
 Date:   Tue,  7 Mar 2023 17:56:16 +0100
-Message-Id: <20230307170047.725586759@linuxfoundation.org>
+Message-Id: <20230307165907.669183827@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Neil Armstrong <neil.armstrong@linaro.org>
 
-[ Upstream commit 41959c4f973b837a12061b84d3a436fc64c73a30 ]
+[ Upstream commit d19189f70ba596798ea49166d2d1ef36a8df5289 ]
 
-The curr pointer has advanced 14 bytes in jpeg_parse_app14_data.
-1. jpeg_get_word_be(stream), it goes forward 2 bytes.
-2. jpeg_skip(stream, 11), it goes forward 11 bytes.
-3. jpeg_get_byte(stream), it goes forward 1 bytes.
+Fixes:
+bus@c8834000: eth-phy-mux: {...} should not be valid under {'type': 'object'}
 
-so the remain bytes of this segment should be (lp - 2 - 11 - 1),
-but not (lp - 2 - 11).
-
-if driver skip 1 extra bytes, the following parsing may go wrong.
-
-Fixes: b8035f7988a8 ("media: Add parsing for APP14 data segment in jpeg helpers")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-9-44351528957e@linaro.org
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-jpeg.c | 2 +-
+ arch/arm64/boot/dts/amlogic/meson-gxl.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-jpeg.c b/drivers/media/v4l2-core/v4l2-jpeg.c
-index c2513b775f6a7..75c2af763d55e 100644
---- a/drivers/media/v4l2-core/v4l2-jpeg.c
-+++ b/drivers/media/v4l2-core/v4l2-jpeg.c
-@@ -474,7 +474,7 @@ static int jpeg_parse_app14_data(struct jpeg_stream *stream,
- 	*tf = ret;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
+index c3ac531c4f84a..3500229350522 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
+@@ -759,7 +759,7 @@ mux {
+ 		};
+ 	};
  
- 	/* skip the rest of the segment, this ensures at least it is complete */
--	skip = lp - 2 - 11;
-+	skip = lp - 2 - 11 - 1;
- 	return jpeg_skip(stream, skip);
- }
- 
+-	eth-phy-mux {
++	eth-phy-mux@55c {
+ 		compatible = "mdio-mux-mmioreg", "mdio-mux";
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 -- 
 2.39.2
 
