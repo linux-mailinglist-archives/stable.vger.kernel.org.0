@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC356AE817
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C046AE80F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231204AbjCGRNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:13:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50204 "EHLO
+        id S230458AbjCGRMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:12:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230358AbjCGRMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:12:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C2E97FF3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:07:34 -0800 (PST)
+        with ESMTP id S230464AbjCGRMT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:12:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1764A17CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:07:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CD9861506
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87893C433D2;
-        Tue,  7 Mar 2023 17:07:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16C4CB819A8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:07:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66AFAC433D2;
+        Tue,  7 Mar 2023 17:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678208836;
-        bh=wKzjs4eOGhSnUp9B4YDJPfoktd+NlEuRy1NVY/BLOmE=;
+        s=korg; t=1678208838;
+        bh=/oqOi06+9R0m0sOyym3nL8rA/F+pfMizr+RHSktR8Qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDt/JaSayklKlBcD/Ap0Csu3nXnLN++dgCb/C9C9Eb4SCuZZDHUCWhTamWInoXQsL
-         ubo51vhkgZRrSFFVDRb3OHC7UbOjyrPraO0w1QvDLyUbpqSt5WocihqKDKxdN0ecse
-         3Mptg4a4WFuMo+j6eFzWZsW3UpiaqOqtGU/xkLng=
+        b=WiBR4PSG1v7ec4Rf0sz45xeZRlhmUsnyloJiEUyvJu8R0qqH/GstCVfSYGNTp+B1s
+         zfTrK1I5eSfxVLQqSaJVnl0+8XIQBitu4/XV/uAXktYqHLOZ+/vjYnSJ8ObTbO2lMJ
+         8Mrc/qWJdenLElFL5Ppxgd++6Ye0KiM9/Qf8xjoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lu Baolu <baolu.lu@linux.intel.com>,
-        Matt Fagnani <matt.fagnani@bell.net>,
-        Vasant Hegde <vasant.hegde@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 6.2 0006/1001] iommu: Attach device group to old domain in error path
-Date:   Tue,  7 Mar 2023 17:46:18 +0100
-Message-Id: <20230307170022.404394007@linuxfoundation.org>
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        =?UTF-8?q?Daniel=20D=C3=ADaz?= <daniel.diaz@linaro.org>
+Subject: [PATCH 6.2 0007/1001] powerpc/mm: Rearrange if-else block to avoid clang warning
+Date:   Tue,  7 Mar 2023 17:46:19 +0100
+Message-Id: <20230307170022.450409360@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -46,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,71 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <vasant.hegde@amd.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-commit 2cc73c5712f97de98c38c2fafc1f288354a9f3c3 upstream.
+commit d78c8e32890ef7eca79ffd67c96022c7f9d8cce4 upstream.
 
-iommu_attach_group() attaches all devices in a group to domain and then
-sets group domain (group->domain). Current code (__iommu_attach_group())
-does not handle error path. This creates problem as devices to domain
-attachment is in inconsistent state.
+Clang warns:
 
-Flow:
-  - During boot iommu attach devices to default domain
-  - Later some device driver (like amd/iommu_v2 or vfio) tries to attach
-    device to new domain.
-  - In iommu_attach_group() path we detach device from current domain.
-    Then it tries to attach devices to new domain.
-  - If it fails to attach device to new domain then device to domain link
-    is broken.
-  - iommu_attach_group() returns error.
-  - At this stage iommu_attach_group() caller thinks, attaching device to
-    new domain failed and devices are still attached to old domain.
-  - But in reality device to old domain link is broken. It will result
-    in all sort of failures (like IO page fault) later.
+  arch/powerpc/mm/book3s64/radix_tlb.c:1191:23: error: variable 'hstart' is uninitialized when used here
+    __tlbiel_va_range(hstart, hend, pid,
+                      ^~~~~~
+  arch/powerpc/mm/book3s64/radix_tlb.c:1191:31: error: variable 'hend' is uninitialized when used here
+    __tlbiel_va_range(hstart, hend, pid,
+                              ^~~~
 
-To recover from this situation, we need to attach all devices back to the
-old domain. Also log warning if it fails attach device back to old domain.
+Rework the 'if (IS_ENABLE(CONFIG_TRANSPARENT_HUGEPAGE))' so hstart/hend
+is always initialized to silence the warnings. That will also simplify
+the 'else' path. Clang is getting confused with these warnings, but the
+warnings is a false-positive.
 
-Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reported-by: Matt Fagnani <matt.fagnani@bell.net>
-Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Tested-by: Matt Fagnani <matt.fagnani@bell.net>
-Link: https://lore.kernel.org/r/20230215052642.6016-1-vasant.hegde@amd.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216865
-Link: https://lore.kernel.org/lkml/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220810114318.3220630-1-anders.roxell@linaro.org
+Signed-off-by: Daniel Díaz <daniel.diaz@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/iommu.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ arch/powerpc/mm/book3s64/radix_tlb.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2124,8 +2124,22 @@ static int __iommu_attach_group(struct i
+--- a/arch/powerpc/mm/book3s64/radix_tlb.c
++++ b/arch/powerpc/mm/book3s64/radix_tlb.c
+@@ -1179,15 +1179,12 @@ static inline void __radix__flush_tlb_ra
+ 			}
+ 		}
+ 	} else {
+-		bool hflush = false;
++		bool hflush;
+ 		unsigned long hstart, hend;
  
- 	ret = __iommu_group_for_each_dev(group, domain,
- 					 iommu_group_do_attach_device);
--	if (ret == 0)
-+	if (ret == 0) {
- 		group->domain = domain;
-+	} else {
-+		/*
-+		 * To recover from the case when certain device within the
-+		 * group fails to attach to the new domain, we need force
-+		 * attaching all devices back to the old domain. The old
-+		 * domain is compatible for all devices in the group,
-+		 * hence the iommu driver should always return success.
-+		 */
-+		struct iommu_domain *old_domain = group->domain;
-+
-+		group->domain = NULL;
-+		WARN(__iommu_group_set_domain(group, old_domain),
-+		     "iommu driver failed to attach a compatible domain");
-+	}
+-		if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
+-			hstart = (start + PMD_SIZE - 1) & PMD_MASK;
+-			hend = end & PMD_MASK;
+-			if (hstart < hend)
+-				hflush = true;
+-		}
++		hstart = (start + PMD_SIZE - 1) & PMD_MASK;
++		hend = end & PMD_MASK;
++		hflush = IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && hstart < hend;
  
- 	return ret;
- }
+ 		if (type == FLUSH_TYPE_LOCAL) {
+ 			asm volatile("ptesync": : :"memory");
 
 
