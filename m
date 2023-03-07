@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 758C46AE9C7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAA476AEE51
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231625AbjCGR1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:27:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51520 "EHLO
+        id S232459AbjCGSLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:11:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231435AbjCGR1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2461996605
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:22:27 -0800 (PST)
+        with ESMTP id S232397AbjCGSKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E92594C6E5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1991B818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:22:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0640EC433EF;
-        Tue,  7 Mar 2023 17:22:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 852B661520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5B4C433EF;
+        Tue,  7 Mar 2023 18:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209744;
-        bh=qhn9Mz5Xf0sM/28BzNMo9OYqjwBhnKFBO9plANfz3mY=;
+        s=korg; t=1678212341;
+        bh=29HGd5KTll93Lf8nwVm2rZKkYRRQ+4eN2imPDMKg5kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AG8k5niuaAVQhNUXXvmcpD94UeC+D40NMK8iK1tAy+EHOmMODs/jfzATrAW1tjGF6
-         l9Cuw7NPB4BgpZiTOB3XHavizAc0oS/QsbZD6usIxYbSdtc/P2cCuT9psAssUSBgd6
-         l7ACDPLitjip79BFINfdV+RA8564mZuJC3+iM8bs=
+        b=drCLELX0YKTV06tBafqwHj+jPDlWTY1YosgDB6R+wBpF5CwW2+gU9sl1MAbUTTOG/
+         HsSRlOzGuAzkd6HHA78MzjIE8MwK1fMEm+9MqIqF9arWRWFTiYiGHfgBYFCmHuuFgW
+         WH8gc5xcIgIGGpxUHl5CgsFBySWduk3RKp5rx2As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Larysa Zaremba <larysa.zaremba@intel.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0317/1001] net/smc: fix potential panic dues to unprotected smc_llc_srv_add_link()
+Subject: [PATCH 6.1 155/885] s390/early: fix sclp_early_sccb variable lifetime
 Date:   Tue,  7 Mar 2023 17:51:29 +0100
-Message-Id: <20230307170035.308375114@linuxfoundation.org>
+Message-Id: <20230307170008.650944535@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit e40b801b3603a8f90b46acbacdea3505c27f01c0 ]
+[ Upstream commit 639886b71ddef085a0e7bb1f225b8ae3eda5c06f ]
 
-There is a certain chance to trigger the following panic:
+Commit ada1da31ce34 ("s390/sclp: sort out physical vs
+virtual pointers usage") fixed the notion of virtual
+address for sclp_early_sccb pointer. However, it did
+not take into account that kasan_early_init() can also
+output messages and sclp_early_sccb should be adjusted
+by the time kasan_early_init() is called.
 
-PID: 5900   TASK: ffff88c1c8af4100  CPU: 1   COMMAND: "kworker/1:48"
- #0 [ffff9456c1cc79a0] machine_kexec at ffffffff870665b7
- #1 [ffff9456c1cc79f0] __crash_kexec at ffffffff871b4c7a
- #2 [ffff9456c1cc7ab0] crash_kexec at ffffffff871b5b60
- #3 [ffff9456c1cc7ac0] oops_end at ffffffff87026ce7
- #4 [ffff9456c1cc7ae0] page_fault_oops at ffffffff87075715
- #5 [ffff9456c1cc7b58] exc_page_fault at ffffffff87ad0654
- #6 [ffff9456c1cc7b80] asm_exc_page_fault at ffffffff87c00b62
-    [exception RIP: ib_alloc_mr+19]
-    RIP: ffffffffc0c9cce3  RSP: ffff9456c1cc7c38  RFLAGS: 00010202
-    RAX: 0000000000000000  RBX: 0000000000000002  RCX: 0000000000000004
-    RDX: 0000000000000010  RSI: 0000000000000000  RDI: 0000000000000000
-    RBP: ffff88c1ea281d00   R8: 000000020a34ffff   R9: ffff88c1350bbb20
-    R10: 0000000000000000  R11: 0000000000000001  R12: 0000000000000000
-    R13: 0000000000000010  R14: ffff88c1ab040a50  R15: ffff88c1ea281d00
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffff9456c1cc7c60] smc_ib_get_memory_region at ffffffffc0aff6df [smc]
- #8 [ffff9456c1cc7c88] smcr_buf_map_link at ffffffffc0b0278c [smc]
- #9 [ffff9456c1cc7ce0] __smc_buf_create at ffffffffc0b03586 [smc]
+Currently it is not a problem, since virtual and physical
+addresses on s390 are the same. Nevertheless, should they
+ever differ, this would cause an invalid pointer access.
 
-The reason here is that when the server tries to create a second link,
-smc_llc_srv_add_link() has no protection and may add a new link to
-link group. This breaks the security environment protected by
-llc_conf_mutex.
-
-Fixes: 2d2209f20189 ("net/smc: first part of add link processing as SMC server")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ada1da31ce34 ("s390/sclp: sort out physical vs virtual pointers usage")
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kernel/early.c       | 1 -
+ arch/s390/kernel/head64.S      | 1 +
+ drivers/s390/char/sclp_early.c | 2 +-
+ 3 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e12d4fa5aece6..d9413d43b1045 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1826,8 +1826,10 @@ static int smcr_serv_conf_first_link(struct smc_sock *smc)
- 	smc_llc_link_active(link);
- 	smcr_lgr_set_type(link->lgr, SMC_LGR_SINGLE);
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 6030fdd6997bc..9693c8630e73f 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -288,7 +288,6 @@ static void __init sort_amode31_extable(void)
  
-+	mutex_lock(&link->lgr->llc_conf_mutex);
- 	/* initial contact - try to establish second link */
- 	smc_llc_srv_add_link(link, NULL);
-+	mutex_unlock(&link->lgr->llc_conf_mutex);
- 	return 0;
+ void __init startup_init(void)
+ {
+-	sclp_early_adjust_va();
+ 	reset_tod_clock();
+ 	check_image_bootable();
+ 	time_early_init();
+diff --git a/arch/s390/kernel/head64.S b/arch/s390/kernel/head64.S
+index d7b8b6ad574dc..3b3bf8329e6c1 100644
+--- a/arch/s390/kernel/head64.S
++++ b/arch/s390/kernel/head64.S
+@@ -25,6 +25,7 @@ ENTRY(startup_continue)
+ 	larl	%r14,init_task
+ 	stg	%r14,__LC_CURRENT
+ 	larl	%r15,init_thread_union+THREAD_SIZE-STACK_FRAME_OVERHEAD-__PT_SIZE
++	brasl	%r14,sclp_early_adjust_va	# allow sclp_early_printk
+ #ifdef CONFIG_KASAN
+ 	brasl	%r14,kasan_early_init
+ #endif
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index d15b0d541de36..140d4ee29105c 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -161,7 +161,7 @@ static void __init sclp_early_console_detect(struct init_sccb *sccb)
+ 		sclp.has_linemode = 1;
  }
  
+-void __init sclp_early_adjust_va(void)
++void __init __no_sanitize_address sclp_early_adjust_va(void)
+ {
+ 	sclp_early_sccb = __va((unsigned long)sclp_early_sccb);
+ }
 -- 
 2.39.2
 
