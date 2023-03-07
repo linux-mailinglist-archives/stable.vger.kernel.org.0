@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B417F6AF531
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 966CF6AF532
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233936AbjCGTXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:23:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52600 "EHLO
+        id S233926AbjCGTXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:23:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233926AbjCGTWm (ORCPT
+        with ESMTP id S233932AbjCGTWm (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85F9E2278B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:59 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086002FCC4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B837B8117B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36924C4339B;
-        Tue,  7 Mar 2023 19:07:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B1276150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E2BC433D2;
+        Tue,  7 Mar 2023 19:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216076;
-        bh=1WZewCDScqIxP1GIMZH/iMbYF09Iq2avXfhwWMTfc+k=;
+        s=korg; t=1678216079;
+        bh=ryweG5EJHilOgZ4tR0uRsQvvgOKnud3VXYxJFgC9aiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VN4DbOTPdrOhPdu/Md5HyTkVAFpb313ZeVzopiCcNGNSMSnZp3bWvikG1+bwDwyOb
-         MfdvQDFuuiicOdAC0XrlYFmaCbGJy5jOX0gWQzLR+Bx9vu5MV8np1u3R3YFlZq47jJ
-         qufcLUt1EyezWKdP8IQTrSYXIwIYvpWPOuroWOkE=
+        b=sJUECVHxXwTCqTWTv+qjKr0seBwrnFm+fvHvCwZ3yujRfwcKrZSPiqZxpSwTACZtI
+         vJFqqXZ96tPYz05Ld+4hdmd/960PwLLaQA3a5ozTzVNkGiKsWoOlqVKqonGd5hH34D
+         ADUHDtHfa10AQ+zjQjWwkpnzvH14GgZWFNa135TE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.15 436/567] s390/kprobes: fix irq mask clobbering on kprobe reenter from post_handler
-Date:   Tue,  7 Mar 2023 18:02:52 +0100
-Message-Id: <20230307165924.813223625@linuxfoundation.org>
+Subject: [PATCH 5.15 437/567] s390/kprobes: fix current_kprobe never cleared after kprobes reenter
+Date:   Tue,  7 Mar 2023 18:02:53 +0100
+Message-Id: <20230307165924.846811468@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -43,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,78 +55,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 42e19e6f04984088b6f9f0507c4c89a8152d9730 upstream.
+commit cd57953936f2213dfaccce10d20f396956222c7d upstream.
 
-Recent test_kprobe_missed kprobes kunit test uncovers the following error
-(reported when CONFIG_DEBUG_ATOMIC_SLEEP is enabled):
+Recent test_kprobe_missed kprobes kunit test uncovers the following
+problem. Once kprobe is triggered from another kprobe (kprobe reenter),
+all future kprobes on this cpu are considered as kprobe reenter, thus
+pre_handler and post_handler are not being called and kprobes are counted
+as "missed".
 
-BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
-in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 662, name: kunit_try_catch
-preempt_count: 0, expected: 0
-RCU nest depth: 0, expected: 0
-no locks held by kunit_try_catch/662.
-irq event stamp: 280
-hardirqs last  enabled at (279): [<00000003e60a3d42>] __do_pgm_check+0x17a/0x1c0
-hardirqs last disabled at (280): [<00000003e3bd774a>] kprobe_exceptions_notify+0x27a/0x318
-softirqs last  enabled at (0): [<00000003e3c5c890>] copy_process+0x14a8/0x4c80
-softirqs last disabled at (0): [<0000000000000000>] 0x0
-CPU: 46 PID: 662 Comm: kunit_try_catch Tainted: G                 N 6.2.0-173644-g44c18d77f0c0 #2
-Hardware name: IBM 3931 A01 704 (LPAR)
-Call Trace:
- [<00000003e60a3a00>] dump_stack_lvl+0x120/0x198
- [<00000003e3d02e82>] __might_resched+0x60a/0x668
- [<00000003e60b9908>] __mutex_lock+0xc0/0x14e0
- [<00000003e60bad5a>] mutex_lock_nested+0x32/0x40
- [<00000003e3f7b460>] unregister_kprobe+0x30/0xd8
- [<00000003e51b2602>] test_kprobe_missed+0xf2/0x268
- [<00000003e51b5406>] kunit_try_run_case+0x10e/0x290
- [<00000003e51b7dfa>] kunit_generic_run_threadfn_adapter+0x62/0xb8
- [<00000003e3ce30f8>] kthread+0x2d0/0x398
- [<00000003e3b96afa>] __ret_from_fork+0x8a/0xe8
- [<00000003e60ccada>] ret_from_fork+0xa/0x40
-
-The reason for this error report is that kprobes handling code failed
-to restore irqs.
-
-The problem is that when kprobe is triggered from another kprobe
-post_handler current sequence of enable_singlestep / disable_singlestep
-is the following:
-enable_singlestep  <- original kprobe (saves kprobe_saved_imask)
-enable_singlestep  <- kprobe triggered from post_handler (clobbers kprobe_saved_imask)
-disable_singlestep <- kprobe triggered from post_handler (restores kprobe_saved_imask)
-disable_singlestep <- original kprobe (restores wrong clobbered kprobe_saved_imask)
-
-There is just one kprobe_ctlblk per cpu and both calls saves and
-loads irq mask to kprobe_saved_imask. To fix the problem simply move
-resume_execution (which calls disable_singlestep) before calling
-post_handler. This also fixes the problem that post_handler is called
-with pt_regs which were not yet adjusted after single-stepping.
+Commit b9599798f953 ("[S390] kprobes: activation and deactivation")
+introduced a simpler scheme for kprobes (de)activation and status
+tracking by using push_kprobe/pop_kprobe, which supposed to work for
+both initial kprobe entry as well as kprobe reentry and helps to avoid
+handling those two cases differently. The problem is that a sequence of
+calls in case of kprobes reenter:
+push_kprobe() <- NULL (current_kprobe)
+push_kprobe() <- kprobe1 (current_kprobe)
+pop_kprobe() -> kprobe1 (current_kprobe)
+pop_kprobe() -> kprobe1 (current_kprobe)
+leaves "kprobe1" as "current_kprobe" on this cpu, instead of setting it
+to NULL. In fact push_kprobe/pop_kprobe can only store a single state
+(there is just one prev_kprobe in kprobe_ctlblk). Which is a hack but
+sufficient, there is no need to have another prev_kprobe just to store
+NULL. To make a simple and backportable fix simply reset "prev_kprobe"
+when kprobe is poped from this "stack". No need to worry about
+"kprobe_status" in this case, because its value is only checked when
+current_kprobe != NULL.
 
 Cc: stable@vger.kernel.org
-Fixes: 4ba069b802c2 ("[S390] add kprobes support.")
+Fixes: b9599798f953 ("[S390] kprobes: activation and deactivation")
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/kprobes.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/s390/kernel/kprobes.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/arch/s390/kernel/kprobes.c
 +++ b/arch/s390/kernel/kprobes.c
-@@ -394,12 +394,11 @@ static int post_kprobe_handler(struct pt
- 	if (!p)
- 		return 0;
- 
-+	resume_execution(p, regs);
- 	if (kcb->kprobe_status != KPROBE_REENTER && p->post_handler) {
- 		kcb->kprobe_status = KPROBE_HIT_SSDONE;
- 		p->post_handler(p, regs, 0);
- 	}
--
--	resume_execution(p, regs);
- 	pop_kprobe(kcb);
- 	preempt_enable_no_resched();
+@@ -233,6 +233,7 @@ static void pop_kprobe(struct kprobe_ctl
+ {
+ 	__this_cpu_write(current_kprobe, kcb->prev_kprobe.kp);
+ 	kcb->kprobe_status = kcb->prev_kprobe.status;
++	kcb->prev_kprobe.kp = NULL;
+ }
+ NOKPROBE_SYMBOL(pop_kprobe);
  
 
 
