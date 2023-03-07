@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F066AF290
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D896AF29B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbjCGSyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:54:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52448 "EHLO
+        id S233442AbjCGSyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:54:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233317AbjCGSxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7E63C2215
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:37 -0800 (PST)
+        with ESMTP id S233444AbjCGSyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97373C223A;
+        Tue,  7 Mar 2023 10:41:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 105F36150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:41:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28BA5C433D2;
-        Tue,  7 Mar 2023 18:41:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E728661522;
+        Tue,  7 Mar 2023 18:41:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D588CC433EF;
+        Tue,  7 Mar 2023 18:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214495;
-        bh=x08unpFatYDWZt7imy+kG51V/+gZD9eU+7ea8yK8q8c=;
+        s=korg; t=1678214498;
+        bh=SSTfoSVqUu/8IxWgP9kZoKE212j3zuX6BvOE1s6sczc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fazuHqgxpcruhJowrZlIh2yPVL/OU/qvd/+E6fqr/1Oc3gT+3IP91k3enqKuwWzG4
-         /r8Oq/yU4wDUuny4zYzIr+R8nB57Owm7fnBRpBVJTRHlpkNW07xiYjB56srbscYt98
-         k/njDz6vu67K6EbK1PUUwa6zM80sWJOtjqewt818=
+        b=MzwtyBxGPgNr/gJ25y0rNzY/XpBESBjACk3nFx4j8wswW9rVnFvEGeIyC8/wXW1PE
+         N+nCiuAo/BQxZ6PKNN6cY2BP57BFve7nQEq4LdaYGVApQi5biisVpt/NeXxXPwXdp5
+         C4H3lj6GjcIf1ex+mzwIUf8qc4kViVAfB10hg5KU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matt Fagnani <matt.fagnani@bell.net>,
-        Joerg Roedel <joro@8bytes.org>,
-        Vasant Hegde <vasant.hegde@amd.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 6.1 842/885] iommu/amd: Improve page fault error reporting
-Date:   Tue,  7 Mar 2023 18:02:56 +0100
-Message-Id: <20230307170038.408082592@linuxfoundation.org>
+        patches@lists.linux.dev, Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Adaptec OEM Raid Solutions <aacraid@microsemi.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>
+Subject: [PATCH 6.1 843/885] scsi: aacraid: Allocate cmd_priv with scsicmd
+Date:   Tue,  7 Mar 2023 18:02:57 +0100
+Message-Id: <20230307170038.454065418@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -45,8 +49,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,73 +59,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <vasant.hegde@amd.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 996d120b4de2b0d6b592bd9fbbe6e244b81ab3cc upstream.
+commit 7ab734fc759828707dae22fe48b1eb4dcf70beea upstream.
 
-If IOMMU domain for device group is not setup properly then we may hit
-IOMMU page fault. Current page fault handler assumes that domain is
-always setup and it will hit NULL pointer derefence (see below sample log).
+The aac_priv() helper assumes that the private cmd area immediately follows
+struct scsi_cmnd. Allocate this space as part of scsicmd, else there is a
+risk of heap overflow. Seen with GCC 13:
 
-Lets check whether domain is setup or not and log appropriate message.
+../drivers/scsi/aacraid/aachba.c: In function 'aac_probe_container':
+../drivers/scsi/aacraid/aachba.c:841:26: warning: array subscript 16 is outside array bounds of 'void[392]' [-Warray-bounds=]
+  841 |         status = cmd_priv->status;
+      |                          ^~
+In file included from ../include/linux/resource_ext.h:11,
+                 from ../include/linux/pci.h:40,
+                 from ../drivers/scsi/aacraid/aachba.c:22:
+In function 'kmalloc',
+    inlined from 'kzalloc' at ../include/linux/slab.h:720:9,
+    inlined from 'aac_probe_container' at ../drivers/scsi/aacraid/aachba.c:821:30:
+../include/linux/slab.h:580:24: note: at offset 392 into object of size 392 allocated by 'kmalloc_trace'
+  580 |                 return kmalloc_trace(
+      |                        ^~~~~~~~~~~~~~
+  581 |                                 kmalloc_caches[kmalloc_type(flags)][index],
+      |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  582 |                                 flags, size);
+      |                                 ~~~~~~~~~~~~
 
-Sample log:
-----------
- amdgpu 0000:00:01.0: amdgpu: SE 1, SH per SE 1, CU per SH 8, active_cu_number 6
- BUG: kernel NULL pointer dereference, address: 0000000000000058
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 2 PID: 56 Comm: irq/24-AMD-Vi Not tainted 6.2.0-rc2+ #89
- Hardware name: xxx
- RIP: 0010:report_iommu_fault+0x11/0x90
- [...]
- Call Trace:
-  <TASK>
-  amd_iommu_int_thread+0x60c/0x760
-  ? __pfx_irq_thread_fn+0x10/0x10
-  irq_thread_fn+0x1f/0x60
-  irq_thread+0xea/0x1a0
-  ? preempt_count_add+0x6a/0xa0
-  ? __pfx_irq_thread_dtor+0x10/0x10
-  ? __pfx_irq_thread+0x10/0x10
-  kthread+0xe9/0x110
-  ? __pfx_kthread+0x10/0x10
-  ret_from_fork+0x2c/0x50
-  </TASK>
-
-Reported-by: Matt Fagnani <matt.fagnani@bell.net>
-Suggested-by: Joerg Roedel <joro@8bytes.org>
-Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216865
-Link: https://lore.kernel.org/lkml/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
-Link: https://lore.kernel.org/r/20230215052642.6016-3-vasant.hegde@amd.com
+Fixes: 76a3451b64c6 ("scsi: aacraid: Move the SCSI pointer to private command data")
+Link: https://lore.kernel.org/r/20230128000409.never.976-kees@kernel.org
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+Cc: Adaptec OEM Raid Solutions <aacraid@microsemi.com>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org
 Cc: stable@vger.kernel.org
-[joro: Edit commit message]
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Vegard Nossum <vegard.nossum@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd/iommu.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/scsi/aacraid/aachba.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -558,6 +558,15 @@ static void amd_iommu_report_page_fault(
- 		 * prevent logging it.
- 		 */
- 		if (IS_IOMMU_MEM_TRANSACTION(flags)) {
-+			/* Device not attached to domain properly */
-+			if (dev_data->domain == NULL) {
-+				pr_err_ratelimited("Event logged [Device not attached to domain properly]\n");
-+				pr_err_ratelimited("  device=%04x:%02x:%02x.%x domain=0x%04x\n",
-+						   iommu->pci_seg->id, PCI_BUS_NUM(devid), PCI_SLOT(devid),
-+						   PCI_FUNC(devid), domain_id);
-+				goto out;
-+			}
-+
- 			if (!report_iommu_fault(&dev_data->domain->domain,
- 						&pdev->dev, address,
- 						IS_WRITE_REQUEST(flags) ?
+diff --git a/drivers/scsi/aacraid/aachba.c b/drivers/scsi/aacraid/aachba.c
+index 4d4cb47b3846..24c049eff157 100644
+--- a/drivers/scsi/aacraid/aachba.c
++++ b/drivers/scsi/aacraid/aachba.c
+@@ -818,8 +818,8 @@ static void aac_probe_container_scsi_done(struct scsi_cmnd *scsi_cmnd)
+ 
+ int aac_probe_container(struct aac_dev *dev, int cid)
+ {
+-	struct scsi_cmnd *scsicmd = kzalloc(sizeof(*scsicmd), GFP_KERNEL);
+-	struct aac_cmd_priv *cmd_priv = aac_priv(scsicmd);
++	struct aac_cmd_priv *cmd_priv;
++	struct scsi_cmnd *scsicmd = kzalloc(sizeof(*scsicmd) + sizeof(*cmd_priv), GFP_KERNEL);
+ 	struct scsi_device *scsidev = kzalloc(sizeof(*scsidev), GFP_KERNEL);
+ 	int status;
+ 
+@@ -838,6 +838,7 @@ int aac_probe_container(struct aac_dev *dev, int cid)
+ 		while (scsicmd->device == scsidev)
+ 			schedule();
+ 	kfree(scsidev);
++	cmd_priv = aac_priv(scsicmd);
+ 	status = cmd_priv->status;
+ 	kfree(scsicmd);
+ 	return status;
+-- 
+2.39.2
+
 
 
