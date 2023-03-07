@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 217F16AF2FC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:58:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F266AF30C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233545AbjCGS60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:58:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59554 "EHLO
+        id S230032AbjCGS7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:59:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233546AbjCGS54 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46395B79FD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:24 -0800 (PST)
+        with ESMTP id S233485AbjCGS67 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:58:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A06DA92C4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4C6AB819C2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC9CC4339C;
-        Tue,  7 Mar 2023 18:45:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAB82B819DB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1586FC433EF;
+        Tue,  7 Mar 2023 18:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214721;
-        bh=XvN+vnBs1AdgJkMmCEvqpw5yTPyAUwzo9AIP6A9gYw4=;
+        s=korg; t=1678214724;
+        bh=ZhmuM+tYlcBMNTlEU5kEyXztLi9XntWUsjgA9xywWO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKdCFRqx57+Rnwv1zM8n+bvkn8CstLIqg0YDX/sJ6L1HeFZ/Ve3DOZrOzTm5EHtlh
-         bS0gSidNIyKLhLAasJvuV5SUXGGx3DaD58qrTfEYrXN0jplDOaYCZK9PUNGBJbWxDu
-         OPmMfX/9gwHahi52Bh8Uhg3f2ga3l97Udy4EwpFI=
+        b=SlwjVen1c0+STXT8dIxhVkmdexOgA1Jrcjn3fns9W+TlVf6QHxgTtbgS7rYvDS1oU
+         /il2OXArbsmjglB1wf3n9wA6XHCivqFf3qCcbRYn2QBIG/xF5xoATb/n4wrqjGBDjg
+         Fy1wdKsMVOngoejMBdNmRf9yw8hWruu/+JQoSI/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 028/567] arm64: dts: meson: remove CPU opps below 1GHz for G12A boards
-Date:   Tue,  7 Mar 2023 17:56:04 +0100
-Message-Id: <20230307165907.144357595@linuxfoundation.org>
+Subject: [PATCH 5.15 029/567] ARM: OMAP1: call platform_device_put() in error case in omap1_dm_timer_init()
+Date:   Tue,  7 Mar 2023 17:56:05 +0100
+Message-Id: <20230307165907.183054272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,57 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3cbd431c2b34d84605d358c8c57654193fd661fb ]
+[ Upstream commit 0414a100d6ab32721efa70ab55524540fdfe0ede ]
 
-Amlogic G12A devices experience CPU stalls and random board wedges when
-the system idles and CPU cores clock down to lower opp points. Recent
-vendor kernels include a change to remove 100-250MHz and other distro
-sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
-are removed or the CPU governor forced to performance stalls are still
-observed, so let's remove them to improve stability and uptime.
+If platform_device_add() is not called or failed, it should call
+platform_device_put() in error case.
 
-Fixes: b190056fa9ee ("arm64: dts: meson-g12a: add cpus OPP table")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Link: https://lore.kernel.org/r/20230119053031.21400-1-christianshewitt@gmail.com
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Fixes: 97933d6ced60 ("ARM: OMAP1: dmtimer: conversion to platform devices")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Message-Id: <20220701094602.2365099-1-yangyingliang@huawei.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12a.dtsi | 20 --------------------
- 1 file changed, 20 deletions(-)
+ arch/arm/mach-omap1/timer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
-index fb0ab27d1f642..6eaceb717d617 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
-@@ -57,26 +57,6 @@ cpu_opp_table: opp-table {
- 		compatible = "operating-points-v2";
- 		opp-shared;
+diff --git a/arch/arm/mach-omap1/timer.c b/arch/arm/mach-omap1/timer.c
+index 0411d5508d637..7046d7fa7a0aa 100644
+--- a/arch/arm/mach-omap1/timer.c
++++ b/arch/arm/mach-omap1/timer.c
+@@ -165,7 +165,7 @@ static int __init omap1_dm_timer_init(void)
+ 	kfree(pdata);
  
--		opp-100000000 {
--			opp-hz = /bits/ 64 <100000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-250000000 {
--			opp-hz = /bits/ 64 <250000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-500000000 {
--			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-667000000 {
--			opp-hz = /bits/ 64 <666666666>;
--			opp-microvolt = <731000>;
--		};
--
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
- 			opp-microvolt = <731000>;
+ err_free_pdev:
+-	platform_device_unregister(pdev);
++	platform_device_put(pdev);
+ 
+ 	return ret;
+ }
 -- 
 2.39.2
 
