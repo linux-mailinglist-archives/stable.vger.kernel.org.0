@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BD76AED15
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:01:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F036AF219
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:50:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230147AbjCGSBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:01:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56322 "EHLO
+        id S231537AbjCGSuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:50:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbjCGSAi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:38 -0500
+        with ESMTP id S232489AbjCGSt5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BAD494F65
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B89A0B09
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:38:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD8526150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4857C433D2;
-        Tue,  7 Mar 2023 17:54:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 652D761526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:38:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AB7DC433EF;
+        Tue,  7 Mar 2023 18:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211681;
-        bh=/VOYS5xwVDhIWJkey/rUzl/YEKnYN6PZoTXll3g8k0M=;
+        s=korg; t=1678214305;
+        bh=X/CIFZYkuHnBJPTugB2XmSb3qLkHNEpW2+l8VV1/jnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXuF/ThGiP1RUC/WQJMbhji6v8AiRQQvgbO2OytMhmBB8/isWorNtKnMMt6bYcUYq
-         bF3AVoNNGdjHpD2RLNb64MbtgkteMxEkIrby1Xd/h8m3zbAauX0bqa4oKwtv2Cy2TY
-         dleuSoTtVYIeOgVUZlDWfmTAc1QlHyAjyvg4Klc8=
+        b=bkekahURpUEqXfbtYAtHwQDHTAIPTAb1BrAhWT0Bk5azj+0FvwP5rGIQ9KtZGC2R1
+         CFGg9F4ITD2B6SYhjpsk+dn5Nk2tgm+ZjHpSItrxTUiuOKAx7kC//4Ex7jhjZmMtPT
+         rgCeH8gH33Xsj0ra86QlWXcjFz7sYKvEyBWk4yH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 6.2 0942/1001] remoteproc/mtk_scp: Move clk ops outside send_lock
+        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+        Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 6.1 780/885] irqdomain: Fix domain registration race
 Date:   Tue,  7 Mar 2023 18:01:54 +0100
-Message-Id: <20230307170103.013605100@linuxfoundation.org>
+Message-Id: <20230307170035.821418796@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +53,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit e46ceea3148163166ef9b7bcac578e72dd30c064 upstream.
+commit 8932c32c3053accd50702b36e944ac2016cd103c upstream.
 
-Clocks are properly reference counted and do not need to be inside the
-lock range.
+Hierarchical domains created using irq_domain_create_hierarchy() are
+currently added to the domain list before having been fully initialised.
 
-Right now this triggers a false-positive lockdep warning on MT8192 based
-Chromebooks, through a combination of mtk-scp that has a cros-ec-rpmsg
-sub-device, the (actual) cros-ec I2C adapter registration, I2C client
-(not on cros-ec) probe doing i2c transfers and enabling clocks.
+This specifically means that a racing allocation request might fail to
+allocate irq data for the inner domains of a hierarchy in case the
+parent domain pointer has not yet been set up.
 
-This is a false positive because the cros-ec-rpmsg under mtk-scp does
-not have an I2C adapter, and also each I2C adapter and cros-ec instance
-have their own mutex.
+Note that this is not really any issue for irqchip drivers that are
+registered early (e.g. via IRQCHIP_DECLARE() or IRQCHIP_ACPI_DECLARE())
+but could potentially cause trouble with drivers that are registered
+later (e.g. modular drivers using IRQCHIP_PLATFORM_DRIVER_BEGIN(),
+gpiochip drivers, etc.).
 
-Move the clk operations outside of the send_lock range.
-
-Fixes: 63c13d61eafe ("remoteproc/mediatek: add SCP support for mt8183")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230104083110.736377-1-wenst@chromium.org
-[Fixed "Fixes:" tag line]
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: afb7da83b9f4 ("irqdomain: Introduce helper function irq_domain_add_hierarchy()")
+Cc: stable@vger.kernel.org      # 3.19
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+[ johan: add commit message ]
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-8-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/remoteproc/mtk_scp_ipi.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ kernel/irq/irqdomain.c |   62 +++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 43 insertions(+), 19 deletions(-)
 
---- a/drivers/remoteproc/mtk_scp_ipi.c
-+++ b/drivers/remoteproc/mtk_scp_ipi.c
-@@ -164,21 +164,21 @@ int scp_ipi_send(struct mtk_scp *scp, u3
- 	    WARN_ON(len > sizeof(send_obj->share_buf)) || WARN_ON(!buf))
- 		return -EINVAL;
- 
--	mutex_lock(&scp->send_lock);
--
- 	ret = clk_prepare_enable(scp->clk);
- 	if (ret) {
- 		dev_err(scp->dev, "failed to enable clock\n");
--		goto unlock_mutex;
-+		return ret;
- 	}
- 
-+	mutex_lock(&scp->send_lock);
-+
- 	 /* Wait until SCP receives the last command */
- 	timeout = jiffies + msecs_to_jiffies(2000);
- 	do {
- 		if (time_after(jiffies, timeout)) {
- 			dev_err(scp->dev, "%s: IPI timeout!\n", __func__);
- 			ret = -ETIMEDOUT;
--			goto clock_disable;
-+			goto unlock_mutex;
- 		}
- 	} while (readl(scp->reg_base + scp->data->host_to_scp_reg));
- 
-@@ -205,10 +205,9 @@ int scp_ipi_send(struct mtk_scp *scp, u3
- 			ret = 0;
- 	}
- 
--clock_disable:
--	clk_disable_unprepare(scp->clk);
- unlock_mutex:
- 	mutex_unlock(&scp->send_lock);
-+	clk_disable_unprepare(scp->clk);
- 
- 	return ret;
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -126,23 +126,12 @@ void irq_domain_free_fwnode(struct fwnod
  }
+ EXPORT_SYMBOL_GPL(irq_domain_free_fwnode);
+ 
+-/**
+- * __irq_domain_add() - Allocate a new irq_domain data structure
+- * @fwnode: firmware node for the interrupt controller
+- * @size: Size of linear map; 0 for radix mapping only
+- * @hwirq_max: Maximum number of interrupts supported by controller
+- * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
+- *              direct mapping
+- * @ops: domain callbacks
+- * @host_data: Controller private data pointer
+- *
+- * Allocates and initializes an irq_domain structure.
+- * Returns pointer to IRQ domain, or NULL on failure.
+- */
+-struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+-				    irq_hw_number_t hwirq_max, int direct_max,
+-				    const struct irq_domain_ops *ops,
+-				    void *host_data)
++static struct irq_domain *__irq_domain_create(struct fwnode_handle *fwnode,
++					      unsigned int size,
++					      irq_hw_number_t hwirq_max,
++					      int direct_max,
++					      const struct irq_domain_ops *ops,
++					      void *host_data)
+ {
+ 	struct irqchip_fwid *fwid;
+ 	struct irq_domain *domain;
+@@ -230,12 +219,44 @@ struct irq_domain *__irq_domain_add(stru
+ 
+ 	irq_domain_check_hierarchy(domain);
+ 
++	return domain;
++}
++
++static void __irq_domain_publish(struct irq_domain *domain)
++{
+ 	mutex_lock(&irq_domain_mutex);
+ 	debugfs_add_domain_dir(domain);
+ 	list_add(&domain->link, &irq_domain_list);
+ 	mutex_unlock(&irq_domain_mutex);
+ 
+ 	pr_debug("Added domain %s\n", domain->name);
++}
++
++/**
++ * __irq_domain_add() - Allocate a new irq_domain data structure
++ * @fwnode: firmware node for the interrupt controller
++ * @size: Size of linear map; 0 for radix mapping only
++ * @hwirq_max: Maximum number of interrupts supported by controller
++ * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
++ *              direct mapping
++ * @ops: domain callbacks
++ * @host_data: Controller private data pointer
++ *
++ * Allocates and initializes an irq_domain structure.
++ * Returns pointer to IRQ domain, or NULL on failure.
++ */
++struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
++				    irq_hw_number_t hwirq_max, int direct_max,
++				    const struct irq_domain_ops *ops,
++				    void *host_data)
++{
++	struct irq_domain *domain;
++
++	domain = __irq_domain_create(fwnode, size, hwirq_max, direct_max,
++				     ops, host_data);
++	if (domain)
++		__irq_domain_publish(domain);
++
+ 	return domain;
+ }
+ EXPORT_SYMBOL_GPL(__irq_domain_add);
+@@ -1138,12 +1159,15 @@ struct irq_domain *irq_domain_create_hie
+ 	struct irq_domain *domain;
+ 
+ 	if (size)
+-		domain = irq_domain_create_linear(fwnode, size, ops, host_data);
++		domain = __irq_domain_create(fwnode, size, size, 0, ops, host_data);
+ 	else
+-		domain = irq_domain_create_tree(fwnode, ops, host_data);
++		domain = __irq_domain_create(fwnode, 0, ~0, 0, ops, host_data);
++
+ 	if (domain) {
+ 		domain->parent = parent;
+ 		domain->flags |= flags;
++
++		__irq_domain_publish(domain);
+ 	}
+ 
+ 	return domain;
 
 
