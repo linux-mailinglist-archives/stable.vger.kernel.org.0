@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84E4B6AF030
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FA56AEB6A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:44:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233101AbjCGS3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:29:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57112 "EHLO
+        id S232080AbjCGRoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:44:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbjCGS2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:28:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A857ADC34
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:40 -0800 (PST)
+        with ESMTP id S232082AbjCGRnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:43:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E20A0F27
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03954B819D3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A288C433EF;
-        Tue,  7 Mar 2023 18:21:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99CD7614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F04C433D2;
+        Tue,  7 Mar 2023 17:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213297;
-        bh=NuieW/v4bv9NRwaR+QVw32Gntlai0UJKZaL/Upa7UU0=;
+        s=korg; t=1678210785;
+        bh=mYIdq+whuxiVkhdEJdGVKAT53v4l6PlAxzEhjEs4U7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmcWbphirC5jsGdCV6zhsImiiY4bs1Ai9tr6UI8yra7mHyIvalsGyGEEMCYTbQ+F2
-         eRNAMO1YACrYn66l2U55Hr+4kQ+YsFcycclL96kgXuGLGGPZVcQeznpV5lQcdGOPyl
-         Qr8wcsZ0jHqnehd5bpnsS09TXVHu+gxf1/v5tR1g=
+        b=F8DlLx6KYFw5FecLJkd+lOK3pdCEoNIvfY8rmSxjZxFpZ7ZPpArWa1y7n/pq0ZSXL
+         VQmS/W3QLH6IO/xlVvuVz42pp6xvSAj2rE0g5vr5MYCYSPkdqXqlkBqDu6eN/uaPgO
+         XNKRirr/eHyizgq0Yme+pfjnxfMqxMYWjPAiP5Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Kemnade <andreas@kemnade.info>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 462/885] power: supply: remove faulty cooling logic
-Date:   Tue,  7 Mar 2023 17:56:36 +0100
-Message-Id: <20230307170022.579701593@linuxfoundation.org>
+        patches@lists.linux.dev, Li Nan <linan122@huawei.com>,
+        Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0625/1001] blk-iocost: fix divide by 0 error in calc_lcoefs()
+Date:   Tue,  7 Mar 2023 17:56:37 +0100
+Message-Id: <20230307170048.686263944@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,177 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Li Nan <linan122@huawei.com>
 
-[ Upstream commit c85c191694cb1cf290b11059b3d2de8a2732ffd0 ]
+[ Upstream commit 984af1e66b4126cf145153661cc24c213e2ec231 ]
 
-The rn5t618 power driver fails to register
-a cooling device because POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT_MAX
-is missing but availability is not checked before registering
-cooling device. After improved error checking in the thermal
-code, the registration of the power supply fails entirely.
+echo max of u64 to cost.model can cause divide by 0 error.
 
-Checking for availability of _MAX before registering cooling device
-fixes the rn5t618 problem. But the whole logic feels questionable.
+  # echo 8:0 rbps=18446744073709551615 > /sys/fs/cgroup/io.cost.model
 
-First, the logic is inverted here:
-the code tells: max_current = max_cooling but
-0 = max_cooling, so there needs to be some inversion
-in the code which cannot be found. Comparing with other
-cooling devices, it can be found that value for fan speed is not
-inverted, value for cpufreq cooling is inverted (similar situation
-as here lowest frequency = max cooling)
+  divide error: 0000 [#1] PREEMPT SMP
+  RIP: 0010:calc_lcoefs+0x4c/0xc0
+  Call Trace:
+   <TASK>
+   ioc_refresh_params+0x2b3/0x4f0
+   ioc_cost_model_write+0x3cb/0x4c0
+   ? _copy_from_iter+0x6d/0x6c0
+   ? kernfs_fop_write_iter+0xfc/0x270
+   cgroup_file_write+0xa0/0x200
+   kernfs_fop_write_iter+0x17d/0x270
+   vfs_write+0x414/0x620
+   ksys_write+0x73/0x160
+   __x64_sys_write+0x1e/0x30
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Second, analyzing usage of _MAX: it is seems that maximum capabilities
-of charging controller are specified and not of the battery. Probably
-there is not too much mismatch in the drivers actually implementing
-that. So nothing has exploded yet.  So there is no easy and safe way
-to specifify a max cooling value now.
+calc_lcoefs() uses the input value of cost.model in DIV_ROUND_UP_ULL,
+overflow would happen if bps plus IOC_PAGE_SIZE is greater than
+ULLONG_MAX, it can cause divide by 0 error.
 
-Conclusion for now (as a regression fix) just remove the cooling device
-registration and do it properly later on.
+Fix the problem by setting basecost
 
-Fixes: e49a1e1ee078 ("thermal/core: fix error code in __thermal_cooling_device_register()")
-Fixes: 952aeeb3ee28 ("power_supply: Register power supply for thermal cooling device")
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Li Nan <linan122@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230117070806.3857142-5-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/power_supply_core.c | 93 ------------------------
- 1 file changed, 93 deletions(-)
+ block/blk-iocost.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
-index 01d1ac79d982e..8382be867d274 100644
---- a/drivers/power/supply/power_supply_core.c
-+++ b/drivers/power/supply/power_supply_core.c
-@@ -1187,83 +1187,6 @@ static void psy_unregister_thermal(struct power_supply *psy)
- 	thermal_zone_device_unregister(psy->tzd);
- }
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index 6955605629e4f..ec7219caea165 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -866,9 +866,14 @@ static void calc_lcoefs(u64 bps, u64 seqiops, u64 randiops,
  
--/* thermal cooling device callbacks */
--static int ps_get_max_charge_cntl_limit(struct thermal_cooling_device *tcd,
--					unsigned long *state)
--{
--	struct power_supply *psy;
--	union power_supply_propval val;
--	int ret;
--
--	psy = tcd->devdata;
--	ret = power_supply_get_property(psy,
--			POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT_MAX, &val);
--	if (ret)
--		return ret;
--
--	*state = val.intval;
--
--	return ret;
--}
--
--static int ps_get_cur_charge_cntl_limit(struct thermal_cooling_device *tcd,
--					unsigned long *state)
--{
--	struct power_supply *psy;
--	union power_supply_propval val;
--	int ret;
--
--	psy = tcd->devdata;
--	ret = power_supply_get_property(psy,
--			POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT, &val);
--	if (ret)
--		return ret;
--
--	*state = val.intval;
--
--	return ret;
--}
--
--static int ps_set_cur_charge_cntl_limit(struct thermal_cooling_device *tcd,
--					unsigned long state)
--{
--	struct power_supply *psy;
--	union power_supply_propval val;
--	int ret;
--
--	psy = tcd->devdata;
--	val.intval = state;
--	ret = psy->desc->set_property(psy,
--		POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT, &val);
--
--	return ret;
--}
--
--static const struct thermal_cooling_device_ops psy_tcd_ops = {
--	.get_max_state = ps_get_max_charge_cntl_limit,
--	.get_cur_state = ps_get_cur_charge_cntl_limit,
--	.set_cur_state = ps_set_cur_charge_cntl_limit,
--};
--
--static int psy_register_cooler(struct power_supply *psy)
--{
--	/* Register for cooling device if psy can control charging */
--	if (psy_has_property(psy->desc, POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT)) {
--		psy->tcd = thermal_cooling_device_register(
--			(char *)psy->desc->name,
--			psy, &psy_tcd_ops);
--		return PTR_ERR_OR_ZERO(psy->tcd);
--	}
--
--	return 0;
--}
--
--static void psy_unregister_cooler(struct power_supply *psy)
--{
--	if (IS_ERR_OR_NULL(psy->tcd))
--		return;
--	thermal_cooling_device_unregister(psy->tcd);
--}
- #else
- static int psy_register_thermal(struct power_supply *psy)
- {
-@@ -1273,15 +1196,6 @@ static int psy_register_thermal(struct power_supply *psy)
- static void psy_unregister_thermal(struct power_supply *psy)
- {
- }
--
--static int psy_register_cooler(struct power_supply *psy)
--{
--	return 0;
--}
--
--static void psy_unregister_cooler(struct power_supply *psy)
--{
--}
- #endif
+ 	*page = *seqio = *randio = 0;
  
- static struct power_supply *__must_check
-@@ -1355,10 +1269,6 @@ __power_supply_register(struct device *parent,
- 	if (rc)
- 		goto register_thermal_failed;
+-	if (bps)
+-		*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC,
+-					   DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE));
++	if (bps) {
++		u64 bps_pages = DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE);
++
++		if (bps_pages)
++			*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC, bps_pages);
++		else
++			*page = 1;
++	}
  
--	rc = psy_register_cooler(psy);
--	if (rc)
--		goto register_cooler_failed;
--
- 	rc = power_supply_create_triggers(psy);
- 	if (rc)
- 		goto create_triggers_failed;
-@@ -1388,8 +1298,6 @@ __power_supply_register(struct device *parent,
- add_hwmon_sysfs_failed:
- 	power_supply_remove_triggers(psy);
- create_triggers_failed:
--	psy_unregister_cooler(psy);
--register_cooler_failed:
- 	psy_unregister_thermal(psy);
- register_thermal_failed:
- wakeup_init_failed:
-@@ -1541,7 +1449,6 @@ void power_supply_unregister(struct power_supply *psy)
- 	sysfs_remove_link(&psy->dev.kobj, "powers");
- 	power_supply_remove_hwmon_sysfs(psy);
- 	power_supply_remove_triggers(psy);
--	psy_unregister_cooler(psy);
- 	psy_unregister_thermal(psy);
- 	device_init_wakeup(&psy->dev, false);
- 	device_unregister(&psy->dev);
+ 	if (seqiops) {
+ 		v = DIV64_U64_ROUND_UP(VTIME_PER_SEC, seqiops);
 -- 
 2.39.2
 
