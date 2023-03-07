@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 055526AE964
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 729E36AEE25
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231229AbjCGRXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:23:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47522 "EHLO
+        id S232377AbjCGSJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:09:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231426AbjCGRXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:23:16 -0500
+        with ESMTP id S232398AbjCGSJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3F694F63
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:18:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FCBA1FE7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB7E66150C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:18:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C98C4339C;
-        Tue,  7 Mar 2023 17:18:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C4FD61526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 407D4C433A4;
+        Tue,  7 Mar 2023 18:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209527;
-        bh=ggjhY2VIrOaEhJBvVa2lDTDQMlqG/BGOo4AsLywwTsU=;
+        s=korg; t=1678212219;
+        bh=qfQzasC7tV0UDnucfs9yhq8RQikG8/ZeUB5ear6QkLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICYkD0qhanLEOQM3XJ+4InSu5VcOBvZeCgdeZBioXG8oWexmaaXoB+ZbY1ZbzNztQ
-         gO36JJhqKvp4o0QddNIZywt9EiljStuK8op16qwaHQzVdOffH+08QuwVrUgK5bbArJ
-         gZDOPyVZmRMAM8gLEwa3oEtshWCnoONNHxaDwFqg=
+        b=XJJdOXv/nybW7EK6V6wlkfXwTS42AgSKkTUuYo7iG7evSuNjtsKk3uGXbHANfXpJ6
+         e7Ttz0XVURUG4i9i0n90zwIPOPuVqxr4fQc41k4GBX34xZTzUaxRx23hryz0g7RvLB
+         5gQXSzQKRoD0gxO+260iQxnAT2wCE8i/qokF9ZxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0247/1001] wifi: mt76: mt7996: fix memory leak in mt7996_mcu_exit
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Kemeng Shi <shikemeng@huaweicloud.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 085/885] blk-mq: avoid sleep in blk_mq_alloc_request_hctx
 Date:   Tue,  7 Mar 2023 17:50:19 +0100
-Message-Id: <20230307170032.516984969@linuxfoundation.org>
+Message-Id: <20230307170005.503019603@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Kemeng Shi <shikemeng@huaweicloud.com>
 
-[ Upstream commit da5b4d93e141b52c5a71d0c41a042d1bcaf70d2e ]
+[ Upstream commit 6ee858a3d3270a68902d66bb47c151a83622535c ]
 
-Always purge mcu skb queues in mt7996_mcu_exit routine even if
-mt7996_firmware_state fails.
+Commit 1f5bd336b9150 ("blk-mq: add blk_mq_alloc_request_hctx") add
+blk_mq_alloc_request_hctx to send commands to a specific queue. If
+BLK_MQ_REQ_NOWAIT is not set in tag allocation, we may change to different
+hctx after sleep and get tag from unexpected hctx. So BLK_MQ_REQ_NOWAIT
+must be set in flags for blk_mq_alloc_request_hctx.
+After commit 600c3b0cea784 ("blk-mq: open code __blk_mq_alloc_request in
+blk_mq_alloc_request_hctx"), blk_mq_alloc_request_hctx return -EINVAL
+if both BLK_MQ_REQ_NOWAIT and BLK_MQ_REQ_RESERVED are not set instead of
+if BLK_MQ_REQ_NOWAIT is not set. So if BLK_MQ_REQ_NOWAIT is not set and
+BLK_MQ_REQ_RESERVED is set, blk_mq_alloc_request_hctx could alloc tag
+from unexpected hctx. I guess what we need here is that return -EINVAL
+if either BLK_MQ_REQ_NOWAIT or BLK_MQ_REQ_RESERVED is not set.
 
-Fixes: 98686cd21624 ("wifi: mt76: mt7996: add driver for MediaTek Wi-Fi 7 (802.11be) devices")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Currently both BLK_MQ_REQ_NOWAIT and BLK_MQ_REQ_RESERVED will be set if
+specific hctx is needed in nvme_auth_submit, nvmf_connect_io_queue
+and nvmf_connect_admin_queue. Fix the potential BLK_MQ_REQ_NOWAIT missed
+case in future.
+
+Fixes: 600c3b0cea78 ("blk-mq: open code __blk_mq_alloc_request in blk_mq_alloc_request_hctx")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7996/mcu.c | 3 ++-
+ block/blk-mq.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
-index d781c6e0f33ac..d593ed9e3f73c 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
-@@ -2460,13 +2460,14 @@ void mt7996_mcu_exit(struct mt7996_dev *dev)
- 	__mt76_mcu_restart(&dev->mt76);
- 	if (mt7996_firmware_state(dev, false)) {
- 		dev_err(dev->mt76.dev, "Failed to exit mcu\n");
--		return;
-+		goto out;
- 	}
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 83fbc7c546172..2983ace812667 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -626,7 +626,8 @@ struct request *blk_mq_alloc_request_hctx(struct request_queue *q,
+ 	 * allocator for this for the rare use case of a command tied to
+ 	 * a specific queue.
+ 	 */
+-	if (WARN_ON_ONCE(!(flags & (BLK_MQ_REQ_NOWAIT | BLK_MQ_REQ_RESERVED))))
++	if (WARN_ON_ONCE(!(flags & BLK_MQ_REQ_NOWAIT)) ||
++	    WARN_ON_ONCE(!(flags & BLK_MQ_REQ_RESERVED)))
+ 		return ERR_PTR(-EINVAL);
  
- 	mt76_wr(dev, MT_TOP_LPCR_HOST_BAND(0), MT_TOP_LPCR_HOST_FW_OWN);
- 	if (dev->hif2)
- 		mt76_wr(dev, MT_TOP_LPCR_HOST_BAND(1),
- 			MT_TOP_LPCR_HOST_FW_OWN);
-+out:
- 	skb_queue_purge(&dev->mt76.mcu.res_q);
- }
- 
+ 	if (hctx_idx >= q->nr_hw_queues)
 -- 
 2.39.2
 
