@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DA496AF163
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:43:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EECAE6AEC77
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbjCGSnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:43:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58108 "EHLO
+        id S230232AbjCGRza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:55:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232879AbjCGSm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:28 -0500
+        with ESMTP id S232326AbjCGRyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2F323645
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A8359CBE4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8085B6154C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:32:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7554AC4339C;
-        Tue,  7 Mar 2023 18:32:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1817614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C96B1C433EF;
+        Tue,  7 Mar 2023 17:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213977;
-        bh=T64YGB/WbSmo844IPhN5Qg5+GnKYfnMKflw+A6LaWMs=;
+        s=korg; t=1678211386;
+        bh=q1gw+2yAbb/FwwN9EEEJWlrw8wb7LbQjVIVPSGV7sb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0z6cae5Yq6Rt1CqY+5ph5kQm1X9cXuJ/d4NS1ICauSA1RfufCn9GLX2f0knAWeqQ8
-         1kHdeZhgIK/0I5kvyCtXoU75ov6OE21U70z0YWhS92U+8hc6M4CQo0csMtntKS+4gD
-         G4vFBEPuq3a3saz+884/Og18Vc6FZJ0JYsniZvaM=
+        b=ZYJZBZ5iLgrQLq1waTNa42BkOzIKGGJEzCA0T/2sg3v/S7axpPWJOAT+akeyxqz2z
+         o6ckREY/aKFB/dx1DOwOdsvzYatqzELXG34UFeKXQuyBZgOOHHadjPSDZ3TNP2oaks
+         kF3VBIP9ZYK+kvb+xsZEmc9PwN+4rTBhAjaR48LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Mukesh Ojha <quic_mojha@quicinc.com>
-Subject: [PATCH 6.1 682/885] locking/rwsem: Prevent non-first waiter from spinning in down_write() slowpath
-Date:   Tue,  7 Mar 2023 18:00:16 +0100
-Message-Id: <20230307170031.751518586@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Jos=C3=A9=20Oliveira?= <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>
+Subject: [PATCH 6.2 0845/1001] x86/speculation: Allow enabling STIBP with legacy IBRS
+Date:   Tue,  7 Mar 2023 18:00:17 +0100
+Message-Id: <20230307170058.469920143@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +56,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: KP Singh <kpsingh@kernel.org>
 
-commit b613c7f31476c44316bfac1af7cac714b7d6bef9 upstream.
+commit 6921ed9049bc7457f66c1596c5b78aec0dae4a9d upstream.
 
-A non-first waiter can potentially spin in the for loop of
-rwsem_down_write_slowpath() without sleeping but fail to acquire the
-lock even if the rwsem is free if the following sequence happens:
+When plain IBRS is enabled (not enhanced IBRS), the logic in
+spectre_v2_user_select_mitigation() determines that STIBP is not needed.
 
-  Non-first RT waiter    First waiter      Lock holder
-  -------------------    ------------      -----------
-  Acquire wait_lock
-  rwsem_try_write_lock():
-    Set handoff bit if RT or
-      wait too long
-    Set waiter->handoff_set
-  Release wait_lock
-                         Acquire wait_lock
-                         Inherit waiter->handoff_set
-                         Release wait_lock
-					   Clear owner
-                                           Release lock
-  if (waiter.handoff_set) {
-    rwsem_spin_on_owner(();
-    if (OWNER_NULL)
-      goto trylock_again;
-  }
-  trylock_again:
-  Acquire wait_lock
-  rwsem_try_write_lock():
-     if (first->handoff_set && (waiter != first))
-	return false;
-  Release wait_lock
+The IBRS bit implicitly protects against cross-thread branch target
+injection. However, with legacy IBRS, the IBRS bit is cleared on
+returning to userspace for performance reasons which leaves userspace
+threads vulnerable to cross-thread branch target injection against which
+STIBP protects.
 
-A non-first waiter cannot really acquire the rwsem even if it mistakenly
-believes that it can spin on OWNER_NULL value. If that waiter happens
-to be an RT task running on the same CPU as the first waiter, it can
-block the first waiter from acquiring the rwsem leading to live lock.
-Fix this problem by making sure that a non-first waiter cannot spin in
-the slowpath loop without sleeping.
+Exclude IBRS from the spectre_v2_in_ibrs_mode() check to allow for
+enabling STIBP (through seccomp/prctl() by default or always-on, if
+selected by spectre_v2_user kernel cmdline parameter).
 
-Fixes: d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+  [ bp: Massage. ]
+
+Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
+Reported-by: José Oliveira <joseloliveira11@gmail.com>
+Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+Signed-off-by: KP Singh <kpsingh@kernel.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230126003628.365092-2-longman@redhat.com
+Link: https://lore.kernel.org/r/20230220120127.1975241-1-kpsingh@kernel.org
+Link: https://lore.kernel.org/r/20230221184908.2349578-1-kpsingh@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/locking/rwsem.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -624,18 +624,16 @@ static inline bool rwsem_try_write_lock(
- 			 */
- 			if (first->handoff_set && (waiter != first))
- 				return false;
--
--			/*
--			 * First waiter can inherit a previously set handoff
--			 * bit and spin on rwsem if lock acquisition fails.
--			 */
--			if (waiter == first)
--				waiter->handoff_set = true;
- 		}
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1132,14 +1132,18 @@ spectre_v2_parse_user_cmdline(void)
+ 	return SPECTRE_V2_USER_CMD_AUTO;
+ }
  
- 		new = count;
+-static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
++static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
+ {
+-	return mode == SPECTRE_V2_IBRS ||
+-	       mode == SPECTRE_V2_EIBRS ||
++	return mode == SPECTRE_V2_EIBRS ||
+ 	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
+ 	       mode == SPECTRE_V2_EIBRS_LFENCE;
+ }
  
- 		if (count & RWSEM_LOCK_MASK) {
-+			/*
-+			 * A waiter (first or not) can set the handoff bit
-+			 * if it is an RT task or wait in the wait queue
-+			 * for too long.
-+			 */
- 			if (has_handoff || (!rt_task(waiter->task) &&
- 					    !time_after(jiffies, waiter->timeout)))
- 				return false;
-@@ -651,11 +649,12 @@ static inline bool rwsem_try_write_lock(
- 	} while (!atomic_long_try_cmpxchg_acquire(&sem->count, &count, new));
++static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
++{
++	return spectre_v2_in_eibrs_mode(mode) || mode == SPECTRE_V2_IBRS;
++}
++
+ static void __init
+ spectre_v2_user_select_mitigation(void)
+ {
+@@ -1202,12 +1206,19 @@ spectre_v2_user_select_mitigation(void)
+ 	}
  
  	/*
--	 * We have either acquired the lock with handoff bit cleared or
--	 * set the handoff bit.
-+	 * We have either acquired the lock with handoff bit cleared or set
-+	 * the handoff bit. Only the first waiter can have its handoff_set
-+	 * set here to enable optimistic spinning in slowpath loop.
+-	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
+-	 * STIBP is not required.
++	 * If no STIBP, enhanced IBRS is enabled, or SMT impossible, STIBP
++	 * is not required.
++	 *
++	 * Enhanced IBRS also protects against cross-thread branch target
++	 * injection in user-mode as the IBRS bit remains always set which
++	 * implicitly enables cross-thread protections.  However, in legacy IBRS
++	 * mode, the IBRS bit is set only on kernel entry and cleared on return
++	 * to userspace. This disables the implicit cross-thread protection,
++	 * so allow for STIBP to be selected in that case.
  	 */
- 	if (new & RWSEM_FLAG_HANDOFF) {
--		waiter->handoff_set = true;
-+		first->handoff_set = true;
- 		lockevent_inc(rwsem_wlock_handoff);
- 		return false;
- 	}
+ 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+ 	    !smt_possible ||
+-	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+ 		return;
+ 
+ 	/*
+@@ -2335,7 +2346,7 @@ static ssize_t mmio_stale_data_show_stat
+ 
+ static char *stibp_state(void)
+ {
+-	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+ 		return "";
+ 
+ 	switch (spectre_v2_user_stibp) {
 
 
