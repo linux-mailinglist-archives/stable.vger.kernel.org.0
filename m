@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEC286AEF87
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66BC76AF2F0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232684AbjCGSYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:24:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46040 "EHLO
+        id S233477AbjCGS5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:57:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232759AbjCGSXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA0199650
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:04 -0800 (PST)
+        with ESMTP id S231514AbjCGS50 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81DBBA9DEB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A1326150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510D8C433EF;
-        Tue,  7 Mar 2023 18:19:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DDEDB817AE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 527EAC433D2;
+        Tue,  7 Mar 2023 18:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213143;
-        bh=uxHyPQ84Cc9KG+RiY8sKm4hYv1FDwi4PYhcSRY7yHv8=;
+        s=korg; t=1678214696;
+        bh=37AzPDB6qsEfN8uuFhA/55KyMtG4UOzpPHgcE+i4lvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sc+neFppjafX3d1YXR25zItYKynJnk4bbLVVI7H0wk6K63/MCMk2uPikJ8VijNNAg
-         nC7WrrPezLl8AHs1qmnOk8Cu/iOm3tm5QrOoY/LpUDcvpFMFsjtIZfi1vKlOfq7Fxp
-         XwXpVG5YlrxgsEWMXyQwwJsM2zKJVsICL19Jz/v8=
+        b=Ttap0Ax5eKwA0srxuYZc9Eix+CMairX9LO+SaP7aeXvpJWvBfzOUJtQxLrRJGMjDT
+         wxb0NAXPmTE0leTEn8DEs5rzvgwBgoAbf61xaBV05lyrh8nYkaXzfGaFea7BFZs4rL
+         61jXoGkSROhPAtOdqX+/CHz5pwn0IEkKqeb6tQ+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Cheng Xu <chengyou@linux.alibaba.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Chen Hui <judy.chenhui@huawei.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 405/885] RDMA/erdma: Fix refcount leak in erdma_mmap
-Date:   Tue,  7 Mar 2023 17:55:39 +0100
-Message-Id: <20230307170019.995340708@linuxfoundation.org>
+Subject: [PATCH 5.15 004/567] ARM: OMAP2+: Fix memory leak in realtime_counter_init()
+Date:   Tue,  7 Mar 2023 17:55:40 +0100
+Message-Id: <20230307165906.017908106@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Chen Hui <judy.chenhui@huawei.com>
 
-[ Upstream commit ee84146c05ad2316b9a7222d0ec4413e0bf30eeb ]
+[ Upstream commit ed8167cbf65c2b6ff6faeb0f96ded4d6d581e1ac ]
 
-rdma_user_mmap_entry_get() take reference, we should release it when not
-need anymore, add the missing rdma_user_mmap_entry_put() in the error
-path to fix it.
+The "sys_clk" resource is malloced by clk_get(),
+it is not released when the function return.
 
-Fixes: 155055771704 ("RDMA/erdma: Add verbs implementation")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20221220121139.1540564-1-linmq006@gmail.com
-Acked-by: Cheng Xu <chengyou@linux.alibaba.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: fa6d79d27614 ("ARM: OMAP: Add initialisation for the real-time counter.")
+Signed-off-by: Chen Hui <judy.chenhui@huawei.com>
+Message-Id: <20221108141917.46796-1-judy.chenhui@huawei.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/erdma/erdma_verbs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap2/timer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/erdma/erdma_verbs.c b/drivers/infiniband/hw/erdma/erdma_verbs.c
-index 62be98e2b9414..19c69ea1b0c0f 100644
---- a/drivers/infiniband/hw/erdma/erdma_verbs.c
-+++ b/drivers/infiniband/hw/erdma/erdma_verbs.c
-@@ -1089,12 +1089,14 @@ int erdma_mmap(struct ib_ucontext *ctx, struct vm_area_struct *vma)
- 		prot = pgprot_device(vma->vm_page_prot);
- 		break;
- 	default:
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto put_entry;
+diff --git a/arch/arm/mach-omap2/timer.c b/arch/arm/mach-omap2/timer.c
+index 620ba69c8f114..5677c4a08f376 100644
+--- a/arch/arm/mach-omap2/timer.c
++++ b/arch/arm/mach-omap2/timer.c
+@@ -76,6 +76,7 @@ static void __init realtime_counter_init(void)
  	}
  
- 	err = rdma_user_mmap_io(ctx, vma, PFN_DOWN(entry->address), PAGE_SIZE,
- 				prot, rdma_entry);
+ 	rate = clk_get_rate(sys_clk);
++	clk_put(sys_clk);
  
-+put_entry:
- 	rdma_user_mmap_entry_put(rdma_entry);
- 	return err;
- }
+ 	if (soc_is_dra7xx()) {
+ 		/*
 -- 
 2.39.2
 
