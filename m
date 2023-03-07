@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E536AF396
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FB16AF39A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbjCGTGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:06:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52252 "EHLO
+        id S233693AbjCGTG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:06:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232925AbjCGTGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:06:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE215C6E6D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:51:43 -0800 (PST)
+        with ESMTP id S233452AbjCGTG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:06:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DC3A7ABF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:51:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAB9961535
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:51:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0871C433D2;
-        Tue,  7 Mar 2023 18:51:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CD27B819CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C286CC4339B;
+        Tue,  7 Mar 2023 18:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215097;
-        bh=55/Yf58UEJWDSFb/0U6fV8hj7XVEB6mxgYcUaTK40TM=;
+        s=korg; t=1678215100;
+        bh=lYCCogPbvIuvGsLg2huMj7QYAifkjeLPuHnasAdHcSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDPY2ZEVr4qls2ahB9sZuLIqoYSZ4g4h3m34GNOnKFeCm1nzJK+r6hCX6rRp19L7T
-         r6fs/Cudos8F6wZlPiRhGg7luWYXlb9DAr9qt1qWVPLRuytNCdPnuARNylUt02sR2b
-         8VKSRuSgk39pL5Acm25vTQ0gsYY8sR5+WvSFKipQ=
+        b=xs2PgSVBo/iG6kVvpkfwn6+6uMbS5AbqgWOGgt71X/cAIz1wINuoPFvjBodnaT7KB
+         uAF+Tyd7W5DTUqVhx19Xo4/+k1YaX0IsWLFK8ODSpTNd4cH9AFIGcooIEJiQNT5P8i
+         uPckDYHl2p0pdg0FTFryjFKt6d0b0M8bP4dk2RBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev, Adam Niederer <adam.niederer@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 149/567] selftests/bpf: Fix out-of-srctree build
-Date:   Tue,  7 Mar 2023 17:58:05 +0100
-Message-Id: <20230307165912.397022918@linuxfoundation.org>
+Subject: [PATCH 5.15 150/567] ACPI: resource: Add IRQ overrides for MAINGEAR Vector Pro 2 models
+Date:   Tue,  7 Mar 2023 17:58:06 +0100
+Message-Id: <20230307165912.445336867@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,47 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Adam Niederer <adam.niederer@gmail.com>
 
-[ Upstream commit 0b0757244754ea1d0721195c824770f5576e119e ]
+[ Upstream commit cb18703c179713056bd7e3bdfc2260ab4e8658f0 ]
 
-Building BPF selftests out of srctree fails with:
+Fix a regression introduced by commit 9946e39fe8d0 ("ACPI: resource: skip
+IRQ override on AMD Zen platforms") on MAINGEAR Vector Pro 2 systems, which
+causes the built-in keyboard to not work. This restores the functionality
+by adding an IRQ override.
 
-  make: *** No rule to make target '/linux-build//ima_setup.sh', needed by 'ima_setup.sh'.  Stop.
+No other IRQs were being overridden before, so this should be all that is
+needed for these systems. I have personally tested this on the 15" model
+(MG-VCP2-15A3070T), and I have confirmation that the issue is present on
+the 17" model (MG-VCP2-17A3070T).
 
-The culprit is the rule that defines convenient shorthands like
-"make test_progs", which builds $(OUTPUT)/test_progs. These shorthands
-make sense only for binaries that are built though; scripts that live
-in the source tree do not end up in $(OUTPUT).
-
-Therefore drop $(TEST_PROGS) and $(TEST_PROGS_EXTENDED) from the rule.
-
-The issue exists for a while, but it became a problem only after commit
-d68ae4982cb7 ("selftests/bpf: Install all required files to run selftests"),
-which added dependencies on these scripts.
-
-Fixes: 03dcb78460c2 ("selftests/bpf: Add simple per-test targets to Makefile")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20230208231211.283606-1-iii@linux.ibm.com
+Fixes: 9946e39fe8d0 ("ACPI: resource: skip IRQ override on AMD Zen platforms")
+Signed-off-by: Adam Niederer <adam.niederer@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/acpi/resource.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 638966ae8ad97..0d845a0c8599a 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -144,8 +144,6 @@ endif
- # NOTE: Semicolon at the end is critical to override lib.mk's default static
- # rule for binaries.
- $(notdir $(TEST_GEN_PROGS)						\
--	 $(TEST_PROGS)							\
--	 $(TEST_PROGS_EXTENDED)						\
- 	 $(TEST_GEN_PROGS_EXTENDED)					\
- 	 $(TEST_CUSTOM_PROGS)): %: $(OUTPUT)/% ;
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index 33921949bd8fd..b153e434a796d 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -446,6 +446,24 @@ static const struct dmi_system_id schenker_gm_rg[] = {
+ 	{ }
+ };
  
++static const struct dmi_system_id maingear_laptop[] = {
++	{
++		.ident = "MAINGEAR Vector Pro 2 15",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Micro Electronics Inc"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MG-VCP2-15A3070T"),
++		}
++	},
++	{
++		.ident = "MAINGEAR Vector Pro 2 17",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Micro Electronics Inc"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MG-VCP2-17A3070T"),
++		},
++	},
++	{ }
++};
++
+ struct irq_override_cmp {
+ 	const struct dmi_system_id *system;
+ 	unsigned char irq;
+@@ -461,6 +479,7 @@ static const struct irq_override_cmp override_table[] = {
+ 	{ lenovo_laptop, 6, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
+ 	{ lenovo_laptop, 10, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
+ 	{ schenker_gm_rg, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
++	{ maingear_laptop, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
+ };
+ 
+ static bool acpi_dev_irq_override(u32 gsi, u8 triggering, u8 polarity,
 -- 
 2.39.2
 
