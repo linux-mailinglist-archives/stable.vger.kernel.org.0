@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 368EA6AECD4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 859016AF1D6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:47:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230172AbjCGR6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:58:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56918 "EHLO
+        id S233235AbjCGSru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:47:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229886AbjCGR5z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:57:55 -0500
+        with ESMTP id S233237AbjCGSrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:47:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE79FA17CA;
-        Tue,  7 Mar 2023 09:52:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088CE39CE6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:36:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A160614B2;
-        Tue,  7 Mar 2023 17:52:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78EF7C433EF;
-        Tue,  7 Mar 2023 17:52:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB20061531
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1AE2C433EF;
+        Tue,  7 Mar 2023 18:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211542;
-        bh=HXq/6ZjXuusXiycdbXpA5n7j8u0nZx0cU+AyOrSbcWs=;
+        s=korg; t=1678214137;
+        bh=v4/56PbzylKFEkrArD5WawtBayv9ONQxiHboO3O6/No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9U/qEKVdfsf6JHS6+68ydwCErN6mTZLyy6k1K5SXUs5NknHxbYZ4D1g0OQdWulO2
-         4WqxcL5NARQrJCJB5DsZJMOjx0w1KJzieNnp7Js0nBZfZFz2ZTBpG58hli8/oWpSuz
-         ei3Nj8hlSE+X2YkB0E0eqgG+8PEaqYeh+YKWRR9g=
+        b=WZCVz+wRotdyZ+oCSCV0g1P1fM/MaseG+f1TRjqkEgSjzjFan+5rIIxmH8kJ+N5+N
+         3J075wKhmF/qkzfT2Ewt1CMGgPgZCuUdJwR21VHmB0jIfBcGSxADK0K9OBP1BNIsVE
+         5z9Eannw0b64x1K9o7IsTKQIKTGkQoZ39e8pNplI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 6.2 0866/1001] selftests: filesystems: Fix incorrect kernel headers search path
+        syzbot <syzbot+8ce7f8308d91e6b8bbe2@syzkaller.appspotmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 704/885] fs/cramfs/inode.c: initialize file_ra_state
 Date:   Tue,  7 Mar 2023 18:00:38 +0100
-Message-Id: <20230307170059.451584358@linuxfoundation.org>
+Message-Id: <20230307170032.669089084@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Andrew Morton <akpm@linux-foundation.org>
 
-commit c2d3cf3653a8ff6e4b402d55e7f84790ac08a8ad upstream.
+commit 3e35102666f873a135d31a726ac1ec8af4905206 upstream.
 
-Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
-building against kernel headers from the build environment in scenarios
-where kernel headers are installed into a specific output directory
-(O=...).
+file_ra_state_init() assumes that the file_ra_state has been zeroed out.
+Fixes a KMSAN used-unintialized issue (at least).
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: <stable@vger.kernel.org> # 5.18+
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: cf948cbc35e80 ("cramfs: read_mapping_page() is synchronous")
+Reported-by: syzbot <syzbot+8ce7f8308d91e6b8bbe2@syzkaller.appspotmail.com>
+  Link: https://lkml.kernel.org/r/0000000000008f74e905f56df987@google.com
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Nicolas Pitre <nico@fluxnic.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/filesystems/Makefile          |    2 +-
- tools/testing/selftests/filesystems/binderfs/Makefile |    2 +-
- tools/testing/selftests/filesystems/epoll/Makefile    |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ fs/cramfs/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/filesystems/Makefile
-+++ b/tools/testing/selftests/filesystems/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- 
--CFLAGS += -I../../../../usr/include/
-+CFLAGS += $(KHDR_INCLUDES)
- TEST_GEN_PROGS := devpts_pts
- TEST_GEN_PROGS_EXTENDED := dnotify_test
- 
---- a/tools/testing/selftests/filesystems/binderfs/Makefile
-+++ b/tools/testing/selftests/filesystems/binderfs/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- 
--CFLAGS += -I../../../../../usr/include/ -pthread
-+CFLAGS += $(KHDR_INCLUDES) -pthread
- TEST_GEN_PROGS := binderfs_test
- 
- binderfs_test: binderfs_test.c ../../kselftest.h ../../kselftest_harness.h
---- a/tools/testing/selftests/filesystems/epoll/Makefile
-+++ b/tools/testing/selftests/filesystems/epoll/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- 
--CFLAGS += -I../../../../../usr/include/
-+CFLAGS += $(KHDR_INCLUDES)
- LDLIBS += -lpthread
- TEST_GEN_PROGS := epoll_wakeup_test
- 
+diff --git a/fs/cramfs/inode.c b/fs/cramfs/inode.c
+index e3d168911dbe..006ef68d7ff6 100644
+--- a/fs/cramfs/inode.c
++++ b/fs/cramfs/inode.c
+@@ -183,7 +183,7 @@ static void *cramfs_blkdev_read(struct super_block *sb, unsigned int offset,
+ 				unsigned int len)
+ {
+ 	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
+-	struct file_ra_state ra;
++	struct file_ra_state ra = {};
+ 	struct page *pages[BLKS_PER_BUF];
+ 	unsigned i, blocknr, buffer;
+ 	unsigned long devsize;
+-- 
+2.39.2
+
 
 
