@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5BE6AEA4A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFBAF6AEECA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231549AbjCGRcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:32:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33226 "EHLO
+        id S232606AbjCGSQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:16:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231512AbjCGRcK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:10 -0500
+        with ESMTP id S232609AbjCGSQB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:16:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CFA09F04E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B06FA8EBD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:11:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CBC2611A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 238E3C433D2;
-        Tue,  7 Mar 2023 17:27:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AFE661522
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23EFDC433EF;
+        Tue,  7 Mar 2023 18:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210056;
-        bh=1ViQlgcnqMe7SDS++QHrHuJrWSPYVN50JHVH5DKI7Po=;
+        s=korg; t=1678212659;
+        bh=s45eB0R8juTjlWTD+m+madG1BptmyRT70x9JDqDwhck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvP6wG1xwajSWEZsjPMBG1+F8pgr1ppSGZAwfDwAiCKzbuCFqTSjbxhQvygEtc/0+
-         lbK/HZaKWofOf+8q007qLN09iCpKg9NQknnLAeDR7GrtpMa/d5px2LmG+4pXaLCyo5
-         4z5iJMgXTe7F9OQcDsjBf1hyb+buD2GE6EqU9Sw8=
+        b=gpJdn9jibVfnaet1BRgK2LjwgflXC1xWNi/1SN9SyFP2rytNNFCt+5oywc/dsH+76
+         nzpXIdpOUiYMmRMvTHypqf9o5VpsXNJfJ1hzjnuEj6/0qtQavcSFKMHvJ4MtS0Iz0M
+         weXAvqZgCYd4wys3cDoRzexavgCcPSuhAH4n8fgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0418/1001] ALSA: hda: Fix the control element identification for multiple codecs
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 256/885] selftests/net: Interpret UDP_GRO cmsg data as an int value
 Date:   Tue,  7 Mar 2023 17:53:10 +0100
-Message-Id: <20230307170039.481926215@linuxfoundation.org>
+Message-Id: <20230307170013.111781903@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,167 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit d045bceff5a904bd79d71dede9f927c00ce4906f ]
+[ Upstream commit 436864095a95fcc611c20c44a111985fa9848730 ]
 
-Some motherboards have multiple HDA codecs connected to the serial bus.
-The current code may create multiple mixer controls with the almost
-identical identification.
+Data passed to user-space with a (SOL_UDP, UDP_GRO) cmsg carries an
+int (see udp_cmsg_recv), not a u16 value, as strace confirms:
 
-The current code use id.device field from the control element structure
-to store the codec address to avoid such clashes for multiple codecs.
-Unfortunately, the user space do not handle this correctly. For mixer
-controls, only name and index are used for the identifiers.
+  recvmsg(8, {msg_name=...,
+              msg_iov=[{iov_base="\0\0..."..., iov_len=96000}],
+              msg_iovlen=1,
+              msg_control=[{cmsg_len=20,         <-- sizeof(cmsghdr) + 4
+                            cmsg_level=SOL_UDP,
+                            cmsg_type=0x68}],    <-- UDP_GRO
+                            msg_controllen=24,
+                            msg_flags=0}, 0) = 11200
 
-This patch fixes this problem to compose the index using the codec
-address as an offset in case, when the control already exists. It is
-really unlikely that one codec will create 10 similar controls.
+Interpreting the data as an u16 value won't work on big-endian platforms.
+Since it is too late to back out of this API decision [1], fix the test.
 
-This patch adds new kernel module parameter 'ctl_dev_id' to allow
-select the old behaviour, too. The CONFIG_SND_HDA_CTL_DEV_ID Kconfig
-option sets the default value.
+[1]: https://lore.kernel.org/netdev/20230131174601.203127-1-jakub@cloudflare.com/
 
-BugLink: https://github.com/alsa-project/alsa-lib/issues/294
-BugLink: https://github.com/alsa-project/alsa-lib/issues/205
-Fixes: 54d174031576 ("[ALSA] hda-codec - Fix connection list parsing")
-Fixes: 1afe206ab699 ("ALSA: hda - Try to find an empty control index when it's occupied")
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20230202092013.4066998-1-perex@perex.cz
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hda_codec.h      |  1 +
- sound/pci/hda/Kconfig          | 14 ++++++++++++++
- sound/pci/hda/hda_codec.c      | 13 ++++++++++---
- sound/pci/hda/hda_controller.c |  1 +
- sound/pci/hda/hda_controller.h |  1 +
- sound/pci/hda/hda_intel.c      |  5 +++++
- 6 files changed, 32 insertions(+), 3 deletions(-)
+ tools/testing/selftests/net/udpgso_bench_rx.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
-index eba23daf2c290..bbb7805e85d8e 100644
---- a/include/sound/hda_codec.h
-+++ b/include/sound/hda_codec.h
-@@ -259,6 +259,7 @@ struct hda_codec {
- 	unsigned int relaxed_resume:1;	/* don't resume forcibly for jack */
- 	unsigned int forced_resume:1; /* forced resume for jack */
- 	unsigned int no_stream_clean_at_suspend:1; /* do not clean streams at suspend */
-+	unsigned int ctl_dev_id:1; /* old control element id build behaviour */
+diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
+index 4058c7451e70d..f35a924d4a303 100644
+--- a/tools/testing/selftests/net/udpgso_bench_rx.c
++++ b/tools/testing/selftests/net/udpgso_bench_rx.c
+@@ -214,11 +214,10 @@ static void do_verify_udp(const char *data, int len)
  
- #ifdef CONFIG_PM
- 	unsigned long power_on_acct;
-diff --git a/sound/pci/hda/Kconfig b/sound/pci/hda/Kconfig
-index 06d304db4183c..886255a03e8b4 100644
---- a/sound/pci/hda/Kconfig
-+++ b/sound/pci/hda/Kconfig
-@@ -302,6 +302,20 @@ config SND_HDA_INTEL_HDMI_SILENT_STREAM
- 	  This feature can impact power consumption as resources
- 	  are kept reserved both at transmitter and receiver.
+ static int recv_msg(int fd, char *buf, int len, int *gso_size)
+ {
+-	char control[CMSG_SPACE(sizeof(uint16_t))] = {0};
++	char control[CMSG_SPACE(sizeof(int))] = {0};
+ 	struct msghdr msg = {0};
+ 	struct iovec iov = {0};
+ 	struct cmsghdr *cmsg;
+-	uint16_t *gsosizeptr;
+ 	int ret;
  
-+config SND_HDA_CTL_DEV_ID
-+	bool "Use the device identifier field for controls"
-+	depends on SND_HDA_INTEL
-+	help
-+	  Say Y to use the device identifier field for (mixer)
-+	  controls (old behaviour until this option is available).
-+
-+	  When enabled, the multiple HDA codecs may set the device
-+	  field in control (mixer) element identifiers. The use
-+	  of this field is not recommended and defined for mixer controls.
-+
-+	  The old behaviour (Y) is obsolete and will be removed. Consider
-+	  to not enable this option.
-+
- endif
- 
- endmenu
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 2e728aad67713..9f79c0ac2bda7 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -3389,7 +3389,12 @@ int snd_hda_add_new_ctls(struct hda_codec *codec,
- 			kctl = snd_ctl_new1(knew, codec);
- 			if (!kctl)
- 				return -ENOMEM;
--			if (addr > 0)
-+			/* Do not use the id.device field for MIXER elements.
-+			 * This field is for real device numbers (like PCM) but codecs
-+			 * are hidden components from the user space view (unrelated
-+			 * to the mixer element identification).
-+			 */
-+			if (addr > 0 && codec->ctl_dev_id)
- 				kctl->id.device = addr;
- 			if (idx > 0)
- 				kctl->id.index = idx;
-@@ -3400,9 +3405,11 @@ int snd_hda_add_new_ctls(struct hda_codec *codec,
- 			 * the codec addr; if it still fails (or it's the
- 			 * primary codec), then try another control index
- 			 */
--			if (!addr && codec->core.addr)
-+			if (!addr && codec->core.addr) {
- 				addr = codec->core.addr;
--			else if (!idx && !knew->index) {
-+				if (!codec->ctl_dev_id)
-+					idx += 10 * addr;
-+			} else if (!idx && !knew->index) {
- 				idx = find_empty_mixer_ctl_idx(codec,
- 							       knew->name, 0);
- 				if (idx <= 0)
-diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
-index 0ff286b7b66be..083df287c1a48 100644
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -1231,6 +1231,7 @@ int azx_probe_codecs(struct azx *chip, unsigned int max_slots)
- 				continue;
- 			codec->jackpoll_interval = chip->jackpoll_interval;
- 			codec->beep_mode = chip->beep_mode;
-+			codec->ctl_dev_id = chip->ctl_dev_id;
- 			codecs++;
+ 	iov.iov_base = buf;
+@@ -237,8 +236,7 @@ static int recv_msg(int fd, char *buf, int len, int *gso_size)
+ 		     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+ 			if (cmsg->cmsg_level == SOL_UDP
+ 			    && cmsg->cmsg_type == UDP_GRO) {
+-				gsosizeptr = (uint16_t *) CMSG_DATA(cmsg);
+-				*gso_size = *gsosizeptr;
++				*gso_size = *(int *)CMSG_DATA(cmsg);
+ 				break;
+ 			}
  		}
- 	}
-diff --git a/sound/pci/hda/hda_controller.h b/sound/pci/hda/hda_controller.h
-index f5bf295eb8307..8556031bcd68e 100644
---- a/sound/pci/hda/hda_controller.h
-+++ b/sound/pci/hda/hda_controller.h
-@@ -124,6 +124,7 @@ struct azx {
- 	/* HD codec */
- 	int  codec_probe_mask; /* copied from probe_mask option */
- 	unsigned int beep_mode;
-+	bool ctl_dev_id;
- 
- #ifdef CONFIG_SND_HDA_PATCH_LOADER
- 	const struct firmware *fw;
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 87002670c0c92..2dbc082076f69 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -119,6 +119,7 @@ static bool beep_mode[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS-1)] =
- 					CONFIG_SND_HDA_INPUT_BEEP_MODE};
- #endif
- static bool dmic_detect = 1;
-+static bool ctl_dev_id = IS_ENABLED(CONFIG_SND_HDA_CTL_DEV_ID) ? 1 : 0;
- 
- module_param_array(index, int, NULL, 0444);
- MODULE_PARM_DESC(index, "Index value for Intel HD audio interface.");
-@@ -157,6 +158,8 @@ module_param(dmic_detect, bool, 0444);
- MODULE_PARM_DESC(dmic_detect, "Allow DSP driver selection (bypass this driver) "
- 			     "(0=off, 1=on) (default=1); "
- 		 "deprecated, use snd-intel-dspcfg.dsp_driver option instead");
-+module_param(ctl_dev_id, bool, 0444);
-+MODULE_PARM_DESC(ctl_dev_id, "Use control device identifier (based on codec address).");
- 
- #ifdef CONFIG_PM
- static int param_set_xint(const char *val, const struct kernel_param *kp);
-@@ -2278,6 +2281,8 @@ static int azx_probe_continue(struct azx *chip)
- 	chip->beep_mode = beep_mode[dev];
- #endif
- 
-+	chip->ctl_dev_id = ctl_dev_id;
-+
- 	/* create codec instances */
- 	if (bus->codec_mask) {
- 		err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
 -- 
 2.39.2
 
