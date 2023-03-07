@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 159A46AF542
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0877C6AF54D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:24:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234008AbjCGTXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:23:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
+        id S234015AbjCGTYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:24:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234099AbjCGTXW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:23:22 -0500
+        with ESMTP id S234110AbjCGTXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:23:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C3A9545D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A227ACE2B;
+        Tue,  7 Mar 2023 11:09:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90660B817C2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C54A4C433EF;
-        Tue,  7 Mar 2023 19:08:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3741B817C2;
+        Tue,  7 Mar 2023 19:09:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 347C4C433D2;
+        Tue,  7 Mar 2023 19:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216128;
-        bh=A4Kh/7tR0RgONg0Vpt9u7urjVgyYEX6ZUOZWZCtrc5M=;
+        s=korg; t=1678216162;
+        bh=kv61pPeZdtdgwx4Z+2SU5Ux9voCWAYw/Wef2lFVUXR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2G86/zjzWCsjuJmlgyo0HwFMZmGM4QKryLcdoWVIxct0ZwahwNOehqyzFHNbrrHC
-         MrkgDzzh80l2F4NBJfxu/cvhfxMn/tmD2t4CUhJ7l+5iU9/5IwAf9a/xfZHeqpfsLO
-         AQYpx8SsHgssH03XVLGcGwwVNCrEJ0W+uzwvBlhQ=
+        b=EwHS15YgmZfC7nWEekBy0VWecv4ceSu2Ii+YrBjksnSmkqlZTxIbjFmHlqXAL6VSj
+         niwYQeuQ9wk9cFjthClMYiqoJlN3ItsZZhYBwzfsR54bcJY/qIFrhF7KM2D5sXDPyk
+         VFPK7qAVGsDMXsjPQCcbKS65dp/gXshuxE1gPkyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Orr <marcorr@google.com>,
-        Ben Gardon <bgardon@google.com>,
-        Venkatesh Srinivas <venkateshs@chromium.org>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.15 467/567] KVM: x86: Inject #GP if WRMSR sets reserved bits in APIC Self-IPI
-Date:   Tue,  7 Mar 2023 18:03:23 +0100
-Message-Id: <20230307165926.118175386@linuxfoundation.org>
+        patches@lists.linux.dev, Andy Nguyen <theflow@google.com>,
+        Thomas Lendacky <thomas.lendacky@amd.com>,
+        Peter Gonda <pgonda@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 5.15 468/567] KVM: SVM: Fix potential overflow in SEVs send|receive_update_data()
+Date:   Tue,  7 Mar 2023 18:03:24 +0100
+Message-Id: <20230307165926.158959863@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -56,44 +58,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Peter Gonda <pgonda@google.com>
 
-commit ba5838abb05334e4abfdff1490585c7f365e0424 upstream.
+commit f94f053aa3a5d6ff17951870483d9eb9e13de2e2 upstream.
 
-Inject a #GP if the guest attempts to set reserved bits in the x2APIC-only
-Self-IPI register.  Bits 7:0 hold the vector, all other bits are reserved.
+KVM_SEV_SEND_UPDATE_DATA and KVM_SEV_RECEIVE_UPDATE_DATA have an integer
+overflow issue. Params.guest_len and offset are both 32 bits wide, with a
+large params.guest_len the check to confirm a page boundary is not
+crossed can falsely pass:
 
-Reported-by: Marc Orr <marcorr@google.com>
-Cc: Ben Gardon <bgardon@google.com>
-Cc: Venkatesh Srinivas <venkateshs@chromium.org>
+    /* Check if we are crossing the page boundary *
+    offset = params.guest_uaddr & (PAGE_SIZE - 1);
+    if ((params.guest_len + offset > PAGE_SIZE))
+
+Add an additional check to confirm that params.guest_len itself is not
+greater than PAGE_SIZE.
+
+Note, this isn't a security concern as overflow can happen if and only if
+params.guest_len is greater than 0xfffff000, and the FW spec says these
+commands fail with lengths greater than 16KB, i.e. the PSP will detect
+KVM's goof.
+
+Fixes: 15fb7de1a7f5 ("KVM: SVM: Add KVM_SEV_RECEIVE_UPDATE_DATA command")
+Fixes: d3d1af85e2c7 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
+Reported-by: Andy Nguyen <theflow@google.com>
+Suggested-by: Thomas Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Peter Gonda <pgonda@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: kvm@vger.kernel.org
 Cc: stable@vger.kernel.org
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Link: https://lore.kernel.org/r/20230107011025.565472-2-seanjc@google.com
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lore.kernel.org/r/20230207171354.4012821-1-pgonda@google.com
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/kvm/svm/sev.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2127,10 +2127,14 @@ int kvm_lapic_reg_write(struct kvm_lapic
- 		break;
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -1277,7 +1277,7 @@ static int sev_send_update_data(struct k
  
- 	case APIC_SELF_IPI:
--		if (apic_x2apic_mode(apic))
--			kvm_apic_send_ipi(apic, APIC_DEST_SELF | (val & APIC_VECTOR_MASK), 0);
--		else
-+		/*
-+		 * Self-IPI exists only when x2APIC is enabled.  Bits 7:0 hold
-+		 * the vector, everything else is reserved.
-+		 */
-+		if (!apic_x2apic_mode(apic) || (val & ~APIC_VECTOR_MASK))
- 			ret = 1;
-+		else
-+			kvm_apic_send_ipi(apic, APIC_DEST_SELF | val, 0);
- 		break;
- 	default:
- 		ret = 1;
+ 	/* Check if we are crossing the page boundary */
+ 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
+-	if ((params.guest_len + offset > PAGE_SIZE))
++	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
+ 		return -EINVAL;
+ 
+ 	/* Pin guest memory */
+@@ -1457,7 +1457,7 @@ static int sev_receive_update_data(struc
+ 
+ 	/* Check if we are crossing the page boundary */
+ 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
+-	if ((params.guest_len + offset > PAGE_SIZE))
++	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
+ 		return -EINVAL;
+ 
+ 	hdr = psp_copy_user_blob(params.hdr_uaddr, params.hdr_len);
 
 
