@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97CBF6AEBFF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040926AF10B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232043AbjCGRuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:50:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36484 "EHLO
+        id S232924AbjCGSil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:38:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232095AbjCGRua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9E497482
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:31 -0800 (PST)
+        with ESMTP id S231387AbjCGSiV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D4B8EC5B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:29:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F8C7B819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E74C433EF;
-        Tue,  7 Mar 2023 17:45:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F8416152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 255FFC433D2;
+        Tue,  7 Mar 2023 18:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211129;
-        bh=9OWi7NA5eMncjP13xlNe+5vhe34NkMWh01NIgNVOiOg=;
+        s=korg; t=1678213720;
+        bh=LU+1oG37GVp9ieO4whK8pU3+qJA8YQyavvKZccwQgxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LuKN5n5y0/N9l3QIihe5rvuIpld8xvPLGQzx0HmTSS3BgWSB+RBNDypYfH0owccTk
-         fjtSpkjpGHrvEE2/GDVuNnajIUgU2zdLeKNgK0n6cz9BTeU2WhNGiUtIVGHcIhc/Po
-         pALvEWhwo6LBjNfrmWqUNhZTHAoZ8Tc/yvHIGK14=
+        b=cPD+YR6ZC3b9hDIl5QDPaGfSAPXyYDumfICXFYtyVtK2nv5fUBC1Pc72+p5N3dWnJ
+         ik7IqTMoWRhXtws0CnN7t7MRVeS3tjWeBUTN86Zl29TwXfSD1JY6vd4sEBKVPml6yd
+         /nB5YVu8B46xzRZwSU3aQoKHR0+ClNM8Ro0C8xU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bastien Nocera <hadess@hadess.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        patches@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0731/1001] HID: logitech-hidpp: Dont restart communication if not necessary
-Date:   Tue,  7 Mar 2023 17:58:23 +0100
-Message-Id: <20230307170053.416260141@linuxfoundation.org>
+Subject: [PATCH 6.1 570/885] s390/mm,ptdump: avoid Kasan vs Memcpy Real markers swapping
+Date:   Tue,  7 Mar 2023 17:58:24 +0100
+Message-Id: <20230307170027.193267873@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,94 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bastien Nocera <hadess@hadess.net>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 498ba20690357691103de0f766960355247c78be ]
+[ Upstream commit 05178996e1a77e2a4664536e6d101a086a905034 ]
 
-Don't stop and restart communication with the device unless we need to
-modify the connect flags used because of a device quirk.
+---[ Real Memory Copy Area Start ]---
+0x001bfffffffff000-0x001c000000000000         4K PTE I
+---[ Kasan Shadow Start ]---
+---[ Real Memory Copy Area End ]---
+0x001c000000000000-0x001c000200000000         8G PMD RW NX
+...
+---[ Kasan Shadow End ]---
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Link: https://lore.kernel.org/r/20230125121723.3122-1-hadess@hadess.net
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+ptdump does a stable sort of markers. Move kasan markers after
+memcpy real to avoid swapping.
+
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ arch/s390/mm/dump_pagetables.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 0c024ec1452cd..5efc591a02a03 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4102,6 +4102,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	bool connected;
- 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
- 	struct hidpp_ff_private_data data;
-+	bool will_restart = false;
+diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
+index 9953819d79596..ba5f802688781 100644
+--- a/arch/s390/mm/dump_pagetables.c
++++ b/arch/s390/mm/dump_pagetables.c
+@@ -33,10 +33,6 @@ enum address_markers_idx {
+ #endif
+ 	IDENTITY_AFTER_NR,
+ 	IDENTITY_AFTER_END_NR,
+-#ifdef CONFIG_KASAN
+-	KASAN_SHADOW_START_NR,
+-	KASAN_SHADOW_END_NR,
+-#endif
+ 	VMEMMAP_NR,
+ 	VMEMMAP_END_NR,
+ 	VMALLOC_NR,
+@@ -47,6 +43,10 @@ enum address_markers_idx {
+ 	ABS_LOWCORE_END_NR,
+ 	MEMCPY_REAL_NR,
+ 	MEMCPY_REAL_END_NR,
++#ifdef CONFIG_KASAN
++	KASAN_SHADOW_START_NR,
++	KASAN_SHADOW_END_NR,
++#endif
+ };
  
- 	/* report_fixup needs drvdata to be set before we call hid_parse */
- 	hidpp = devm_kzalloc(&hdev->dev, sizeof(*hidpp), GFP_KERNEL);
-@@ -4157,6 +4158,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			return ret;
- 	}
+ static struct addr_marker address_markers[] = {
+@@ -62,10 +62,6 @@ static struct addr_marker address_markers[] = {
+ #endif
+ 	[IDENTITY_AFTER_NR]	= {(unsigned long)_end, "Identity Mapping Start"},
+ 	[IDENTITY_AFTER_END_NR]	= {0, "Identity Mapping End"},
+-#ifdef CONFIG_KASAN
+-	[KASAN_SHADOW_START_NR]	= {KASAN_SHADOW_START, "Kasan Shadow Start"},
+-	[KASAN_SHADOW_END_NR]	= {KASAN_SHADOW_END, "Kasan Shadow End"},
+-#endif
+ 	[VMEMMAP_NR]		= {0, "vmemmap Area Start"},
+ 	[VMEMMAP_END_NR]	= {0, "vmemmap Area End"},
+ 	[VMALLOC_NR]		= {0, "vmalloc Area Start"},
+@@ -76,6 +72,10 @@ static struct addr_marker address_markers[] = {
+ 	[ABS_LOWCORE_END_NR]	= {0, "Lowcore Area End"},
+ 	[MEMCPY_REAL_NR]	= {0, "Real Memory Copy Area Start"},
+ 	[MEMCPY_REAL_END_NR]	= {0, "Real Memory Copy Area End"},
++#ifdef CONFIG_KASAN
++	[KASAN_SHADOW_START_NR]	= {KASAN_SHADOW_START, "Kasan Shadow Start"},
++	[KASAN_SHADOW_END_NR]	= {KASAN_SHADOW_END, "Kasan Shadow End"},
++#endif
+ 	{ -1, NULL }
+ };
  
-+	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT ||
-+	    hidpp->quirks & HIDPP_QUIRK_UNIFYING)
-+		will_restart = true;
-+
- 	INIT_WORK(&hidpp->work, delayed_work_cb);
- 	mutex_init(&hidpp->send_mutex);
- 	init_waitqueue_head(&hidpp->wait);
-@@ -4171,7 +4176,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	 * Plain USB connections need to actually call start and open
- 	 * on the transport driver to allow incoming data.
- 	 */
--	ret = hid_hw_start(hdev, 0);
-+	ret = hid_hw_start(hdev, will_restart ? 0 : connect_mask);
- 	if (ret) {
- 		hid_err(hdev, "hw start failed\n");
- 		goto hid_hw_start_fail;
-@@ -4208,6 +4213,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			hidpp->wireless_feature_index = 0;
- 		else if (ret)
- 			goto hid_hw_init_fail;
-+		ret = 0;
- 	}
- 
- 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
-@@ -4222,19 +4228,21 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	hidpp_connect_event(hidpp);
- 
--	/* Reset the HID node state */
--	hid_device_io_stop(hdev);
--	hid_hw_close(hdev);
--	hid_hw_stop(hdev);
-+	if (will_restart) {
-+		/* Reset the HID node state */
-+		hid_device_io_stop(hdev);
-+		hid_hw_close(hdev);
-+		hid_hw_stop(hdev);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
--		connect_mask &= ~HID_CONNECT_HIDINPUT;
-+		if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
-+			connect_mask &= ~HID_CONNECT_HIDINPUT;
- 
--	/* Now export the actual inputs and hidraw nodes to the world */
--	ret = hid_hw_start(hdev, connect_mask);
--	if (ret) {
--		hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
--		goto hid_hw_start_fail;
-+		/* Now export the actual inputs and hidraw nodes to the world */
-+		ret = hid_hw_start(hdev, connect_mask);
-+		if (ret) {
-+			hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
-+			goto hid_hw_start_fail;
-+		}
- 	}
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
 -- 
 2.39.2
 
