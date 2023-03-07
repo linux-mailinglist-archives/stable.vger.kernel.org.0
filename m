@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F466AEB3A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9502D6AF045
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbjCGRll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:41:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54234 "EHLO
+        id S230013AbjCGS3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:29:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231904AbjCGRlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:41:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AE0A6BCC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:37:24 -0800 (PST)
+        with ESMTP id S232932AbjCGS3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A188B1A5F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:22:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5DAF614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBE68C433EF;
-        Tue,  7 Mar 2023 17:37:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB966B818EB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:22:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C49EC433EF;
+        Tue,  7 Mar 2023 18:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210643;
-        bh=dUpq22EcPIUXhWVJWeCv7GvmWOePXscZy5LHRVYAUE0=;
+        s=korg; t=1678213340;
+        bh=ioQ4OXnLMYg0Q6kyleOzRK0onhEe8RavH2BtK4xtyOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2q/AKNYmUASn2zqitQMLf1AeMYepZ9EofxIR9L+jAcJYt45eeC+Vml7pzvKqCPmNk
-         tcDrH/5gg/iKpdLrgtwID4n/xDRHQjwNFYK4O0S7ONZgdn3yp9xDqTbNwPODD+Zqdp
-         mf2wmtMEO12BaLF5bwvVUSXSObKLu/BrjvHDISfE=
+        b=HGk/OY6mOhMo1frKY750y1lmXCQQahOxoPVh0h05tojQ7qLN33BZqgudsZc2K1bbf
+         Ewzqyw9GchdHz2WsEHTVCJOVSoRYRhNBfoQrTsLukxddgA6Gq0Ko9wLXRaEwgG8YEa
+         J886rEVyaPc8uogpFMq6VStKwzs5+zuMI8tgQsJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0608/1001] media: amphion: correct the unspecified color space
+Subject: [PATCH 6.1 446/885] firmware: dmi-sysfs: Fix null-ptr-deref in dmi_sysfs_register_handle
 Date:   Tue,  7 Mar 2023 17:56:20 +0100
-Message-Id: <20230307170047.890239189@linuxfoundation.org>
+Message-Id: <20230307170021.838646888@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,57 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 809060c8a357e020010dd8f797a5efd3c5432b13 ]
+[ Upstream commit 18e126e97c961f7a93823795c879d7c085fe5098 ]
 
-in the E.2.1 of Rec. ITU-T H.264 (06/2019),
-0 of colour primaries is reserved, and 2 is unspecified.
-driver can map V4L2_COLORSPACE_LAST to 0,
-and map V4L2_COLORSPACE_DEFAULT to 2.
+KASAN reported a null-ptr-deref error:
 
-v4l2_xfer_func and v4l2_ycbcr_encoding are similar case.
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 1373 Comm: modprobe
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+RIP: 0010:dmi_sysfs_entry_release
+...
+Call Trace:
+ <TASK>
+ kobject_put
+ dmi_sysfs_register_handle (drivers/firmware/dmi-sysfs.c:540) dmi_sysfs
+ dmi_decode_table (drivers/firmware/dmi_scan.c:133)
+ dmi_walk (drivers/firmware/dmi_scan.c:1115)
+ dmi_sysfs_init (drivers/firmware/dmi-sysfs.c:149) dmi_sysfs
+ do_one_initcall (init/main.c:1296)
+ ...
+Kernel panic - not syncing: Fatal exception
+Kernel Offset: 0x4000000 from 0xffffffff81000000
+---[ end Kernel panic - not syncing: Fatal exception ]---
 
-Fixes: 3cd084519c6f ("media: amphion: add vpu v4l2 m2m support")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+It is because previous patch added kobject_put() to release the memory
+which will call  dmi_sysfs_entry_release() and list_del().
+
+However, list_add_tail(entry->list) is called after the error block,
+so the list_head is uninitialized and cannot be deleted.
+
+Move error handling to after list_add_tail to fix this.
+
+Fixes: 660ba678f999 ("firmware: dmi-sysfs: Fix memory leak in dmi_sysfs_register_handle")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221111015326.251650-2-chenzhongjin@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/amphion/vpu_color.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/firmware/dmi-sysfs.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/amphion/vpu_color.c b/drivers/media/platform/amphion/vpu_color.c
-index 80b9a53fd1c14..4ae435cbc5cda 100644
---- a/drivers/media/platform/amphion/vpu_color.c
-+++ b/drivers/media/platform/amphion/vpu_color.c
-@@ -17,7 +17,7 @@
- #include "vpu_helpers.h"
+diff --git a/drivers/firmware/dmi-sysfs.c b/drivers/firmware/dmi-sysfs.c
+index 66727ad3361b9..402217c570333 100644
+--- a/drivers/firmware/dmi-sysfs.c
++++ b/drivers/firmware/dmi-sysfs.c
+@@ -603,16 +603,16 @@ static void __init dmi_sysfs_register_handle(const struct dmi_header *dh,
+ 	*ret = kobject_init_and_add(&entry->kobj, &dmi_sysfs_entry_ktype, NULL,
+ 				    "%d-%d", dh->type, entry->instance);
  
- static const u8 colorprimaries[] = {
--	0,
-+	V4L2_COLORSPACE_LAST,
- 	V4L2_COLORSPACE_REC709,         /*Rec. ITU-R BT.709-6*/
- 	0,
- 	0,
-@@ -31,7 +31,7 @@ static const u8 colorprimaries[] = {
- };
+-	if (*ret) {
+-		kobject_put(&entry->kobj);
+-		return;
+-	}
+-
+ 	/* Thread on the global list for cleanup */
+ 	spin_lock(&entry_list_lock);
+ 	list_add_tail(&entry->list, &entry_list);
+ 	spin_unlock(&entry_list_lock);
  
- static const u8 colortransfers[] = {
--	0,
-+	V4L2_XFER_FUNC_LAST,
- 	V4L2_XFER_FUNC_709,             /*Rec. ITU-R BT.709-6*/
- 	0,
- 	0,
-@@ -53,7 +53,7 @@ static const u8 colortransfers[] = {
- };
- 
- static const u8 colormatrixcoefs[] = {
--	0,
-+	V4L2_YCBCR_ENC_LAST,
- 	V4L2_YCBCR_ENC_709,              /*Rec. ITU-R BT.709-6*/
- 	0,
- 	0,
++	if (*ret) {
++		kobject_put(&entry->kobj);
++		return;
++	}
++
+ 	/* Handle specializations by type */
+ 	switch (dh->type) {
+ 	case DMI_ENTRY_SYSTEM_EVENT_LOG:
 -- 
 2.39.2
 
