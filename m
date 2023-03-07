@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3276C6AEBEF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9C26AF106
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:38:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbjCGRuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:50:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36628 "EHLO
+        id S232971AbjCGSi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:38:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232183AbjCGRuL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E0BC95442
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:56 -0800 (PST)
+        with ESMTP id S233001AbjCGSiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:03 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D25B04A2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:29:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF055614B5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:44:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E82A0C433EF;
-        Tue,  7 Mar 2023 17:44:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 28345CE1C90
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2812DC433EF;
+        Tue,  7 Mar 2023 18:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211095;
-        bh=pk1fJ71Ws6Sna2RKK2QmJ6j3WF2xsqDP4/Xz52YcsH4=;
+        s=korg; t=1678213695;
+        bh=Lm82ebFm2qYNzcZJIZnTcs+9rXjIc8uyrsa6jIsuAdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0SuHCQcQ8urOEAy8e5lg7ksoEhE/X0TmloBG9Syw+hoZQ1N7IMCgKsVQlxA19Zqa5
-         nEKdcfXMdJmvbwpGs1uHyc0s/Gn24yHAMDo+TaYpDmr74lKihM1vKL/7TtTPYbyMWc
-         eXiEksIzAL4xG1Kg0nGAHhti328yElO4Ff+RAflA=
+        b=V/hHx3IoxSQZgRUcFnld0DTKQtVxCRUA4o+nLIWlpojXlkxJB214hRjxFX6Tng6bj
+         63t6FsPfklt/A+nqYKtRSfm6/+9HnVr5MsMB69ad8HLv5L7CUZby8j/O/VUTJSK1pf
+         D6h1MfCvFufhkP7SMQnvdChQbz6PqjiPPD1N8Jo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 6.2 0751/1001] ipmi:ssif: resend_msg() cannot fail
+        patches@lists.linux.dev, Baoquan He <bhe@redhat.com>,
+        Alexander Potapenko <glider@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 589/885] s390/kfence: fix page fault reporting
 Date:   Tue,  7 Mar 2023 17:58:43 +0100
-Message-Id: <20230307170054.304684749@linuxfoundation.org>
+Message-Id: <20230307170027.971674223@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,93 +55,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 95767ed78a181d5404202627499f9cde56053b96 upstream.
+[ Upstream commit d9c2cf67b9cfd643ba85d51bc865a89a92e4f979 ]
 
-The resend_msg() function cannot fail, but there was error handling
-around using it.  Rework the handling of the error, and fix the out of
-retries debug reporting that was wrong around this, too.
+Baoquan He reported lots of KFENCE reports when /proc/kcore is read,
+e.g. with crash or even simpler with dd:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ BUG: KFENCE: invalid read in copy_from_kernel_nofault+0x5e/0x120
+ Invalid read at 0x00000000f4f5149f:
+  copy_from_kernel_nofault+0x5e/0x120
+  read_kcore+0x6b2/0x870
+  proc_reg_read+0x9a/0xf0
+  vfs_read+0x94/0x270
+  ksys_read+0x70/0x100
+  __do_syscall+0x1d0/0x200
+  system_call+0x82/0xb0
+
+The reason for this is that read_kcore() simply reads memory that might
+have been unmapped by KFENCE with copy_from_kernel_nofault(). Any fault due
+to pages being unmapped by KFENCE would be handled gracefully by the fault
+handler (exception table fixup).
+
+However the s390 fault handler first reports the fault, and only afterwards
+would perform the exception table fixup. Most architectures have this in
+reversed order, which also avoids the false positive KFENCE reports when an
+unmapped page is accessed.
+
+Therefore change the s390 fault handler so it handles exception table
+fixups before KFENCE page faults are reported.
+
+Reported-by: Baoquan He <bhe@redhat.com>
+Tested-by: Baoquan He <bhe@redhat.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Link: https://lore.kernel.org/r/20230213183858.1473681-1-hca@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c |   28 +++++++---------------------
- 1 file changed, 7 insertions(+), 21 deletions(-)
+ arch/s390/mm/fault.c | 49 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 35 insertions(+), 14 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -602,7 +602,7 @@ static void ssif_alert(struct i2c_client
- 		start_get(ssif_info);
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 9649d9382e0ae..8e84ed2bb944e 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -96,6 +96,20 @@ static enum fault_type get_fault_type(struct pt_regs *regs)
+ 	return KERNEL_FAULT;
  }
  
--static int start_resend(struct ssif_info *ssif_info);
-+static void start_resend(struct ssif_info *ssif_info);
- 
- static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 			     unsigned char *data, unsigned int len)
-@@ -909,31 +909,17 @@ static void msg_written_handler(struct s
- 	if (result < 0) {
- 		ssif_info->retries_left--;
- 		if (ssif_info->retries_left > 0) {
--			if (!start_resend(ssif_info)) {
--				ssif_inc_stat(ssif_info, send_retries);
--				return;
--			}
--			/* request failed, just return the error. */
--			ssif_inc_stat(ssif_info, send_errors);
--
--			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
--				dev_dbg(&ssif_info->client->dev,
--					"%s: Out of retries\n", __func__);
--			msg_done_handler(ssif_info, -EIO, NULL, 0);
-+			start_resend(ssif_info);
- 			return;
- 		}
- 
- 		ssif_inc_stat(ssif_info, send_errors);
- 
--		/*
--		 * Got an error on transmit, let the done routine
--		 * handle it.
--		 */
- 		if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
- 			dev_dbg(&ssif_info->client->dev,
--				"%s: Error  %d\n", __func__, result);
-+				"%s: Out of retries\n", __func__);
- 
--		msg_done_handler(ssif_info, result, NULL, 0);
-+		msg_done_handler(ssif_info, -EIO, NULL, 0);
- 		return;
- 	}
- 
-@@ -996,7 +982,7 @@ static void msg_written_handler(struct s
- 	}
- }
- 
--static int start_resend(struct ssif_info *ssif_info)
-+static void start_resend(struct ssif_info *ssif_info)
++static unsigned long get_fault_address(struct pt_regs *regs)
++{
++	unsigned long trans_exc_code = regs->int_parm_long;
++
++	return trans_exc_code & __FAIL_ADDR_MASK;
++}
++
++static bool fault_is_write(struct pt_regs *regs)
++{
++	unsigned long trans_exc_code = regs->int_parm_long;
++
++	return (trans_exc_code & store_indication) == 0x400;
++}
++
+ static int bad_address(void *p)
  {
- 	int command;
- 
-@@ -1021,7 +1007,6 @@ static int start_resend(struct ssif_info
- 
- 	ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
- 		   command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
--	return 0;
+ 	unsigned long dummy;
+@@ -228,15 +242,26 @@ static noinline void do_sigsegv(struct pt_regs *regs, int si_code)
+ 			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK));
  }
  
- static int start_send(struct ssif_info *ssif_info,
-@@ -1036,7 +1021,8 @@ static int start_send(struct ssif_info *
- 	ssif_info->retries_left = SSIF_SEND_RETRIES;
- 	memcpy(ssif_info->data + 1, data, len);
- 	ssif_info->data_len = len;
--	return start_resend(ssif_info);
-+	start_resend(ssif_info);
-+	return 0;
+-static noinline void do_no_context(struct pt_regs *regs)
++static noinline void do_no_context(struct pt_regs *regs, vm_fault_t fault)
+ {
++	enum fault_type fault_type;
++	unsigned long address;
++	bool is_write;
++
+ 	if (fixup_exception(regs))
+ 		return;
++	fault_type = get_fault_type(regs);
++	if ((fault_type == KERNEL_FAULT) && (fault == VM_FAULT_BADCONTEXT)) {
++		address = get_fault_address(regs);
++		is_write = fault_is_write(regs);
++		if (kfence_handle_page_fault(address, is_write, regs))
++			return;
++	}
+ 	/*
+ 	 * Oops. The kernel tried to access some bad page. We'll have to
+ 	 * terminate things with extreme prejudice.
+ 	 */
+-	if (get_fault_type(regs) == KERNEL_FAULT)
++	if (fault_type == KERNEL_FAULT)
+ 		printk(KERN_ALERT "Unable to handle kernel pointer dereference"
+ 		       " in virtual kernel address space\n");
+ 	else
+@@ -255,7 +280,7 @@ static noinline void do_low_address(struct pt_regs *regs)
+ 		die (regs, "Low-address protection");
+ 	}
+ 
+-	do_no_context(regs);
++	do_no_context(regs, VM_FAULT_BADACCESS);
  }
  
- /* Must be called with the message lock held. */
+ static noinline void do_sigbus(struct pt_regs *regs)
+@@ -286,28 +311,28 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
+ 		fallthrough;
+ 	case VM_FAULT_BADCONTEXT:
+ 	case VM_FAULT_PFAULT:
+-		do_no_context(regs);
++		do_no_context(regs, fault);
+ 		break;
+ 	case VM_FAULT_SIGNAL:
+ 		if (!user_mode(regs))
+-			do_no_context(regs);
++			do_no_context(regs, fault);
+ 		break;
+ 	default: /* fault & VM_FAULT_ERROR */
+ 		if (fault & VM_FAULT_OOM) {
+ 			if (!user_mode(regs))
+-				do_no_context(regs);
++				do_no_context(regs, fault);
+ 			else
+ 				pagefault_out_of_memory();
+ 		} else if (fault & VM_FAULT_SIGSEGV) {
+ 			/* Kernel mode? Handle exceptions or die */
+ 			if (!user_mode(regs))
+-				do_no_context(regs);
++				do_no_context(regs, fault);
+ 			else
+ 				do_sigsegv(regs, SEGV_MAPERR);
+ 		} else if (fault & VM_FAULT_SIGBUS) {
+ 			/* Kernel mode? Handle exceptions or die */
+ 			if (!user_mode(regs))
+-				do_no_context(regs);
++				do_no_context(regs, fault);
+ 			else
+ 				do_sigbus(regs);
+ 		} else
+@@ -334,7 +359,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 	struct mm_struct *mm;
+ 	struct vm_area_struct *vma;
+ 	enum fault_type type;
+-	unsigned long trans_exc_code;
+ 	unsigned long address;
+ 	unsigned int flags;
+ 	vm_fault_t fault;
+@@ -351,9 +375,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 		return 0;
+ 
+ 	mm = tsk->mm;
+-	trans_exc_code = regs->int_parm_long;
+-	address = trans_exc_code & __FAIL_ADDR_MASK;
+-	is_write = (trans_exc_code & store_indication) == 0x400;
++	address = get_fault_address(regs);
++	is_write = fault_is_write(regs);
+ 
+ 	/*
+ 	 * Verify that the fault happened in user space, that
+@@ -364,8 +387,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 	type = get_fault_type(regs);
+ 	switch (type) {
+ 	case KERNEL_FAULT:
+-		if (kfence_handle_page_fault(address, is_write, regs))
+-			return 0;
+ 		goto out;
+ 	case USER_FAULT:
+ 	case GMAP_FAULT:
+-- 
+2.39.2
+
 
 
