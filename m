@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70DE56AE96A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8895E6AEDF3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231387AbjCGRXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:23:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41684 "EHLO
+        id S231292AbjCGSId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230268AbjCGRXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:23:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445CC99D57
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:02 -0800 (PST)
+        with ESMTP id S230520AbjCGSIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D09AFB88
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01EFDB819A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DFEC433EF;
-        Tue,  7 Mar 2023 17:18:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2286B6150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D407C433EF;
+        Tue,  7 Mar 2023 18:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209539;
-        bh=6rfxfOttElUOCbqxFL7QbGUudtFYCLMDu0nNTdz6wbo=;
+        s=korg; t=1678212132;
+        bh=xgtWi96OauJmz4ApKH2SacDz/uEdnespMY6QEWNjH+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0e1W+jkhoJuNsCQzG6wK3BJ9/mOlB/FER40CsAxWtWZWnQsCWM1cSc3qYqwJNkhDB
-         XcGAzp7AJO/P5DNKzmpBmAD41F95kbDy/yUv4lVM/hi9GFaYqVwDEv7dRR1Cup795V
-         0ogWh+p1RLYmxUsU4e7HRTwPDhnxSerWIDNMDhdc=
+        b=szk3lX0AwPCtFBqGsHv+zln1MYKv9wV+Z5Hi862X6OmXX4QTeomNGWAP/pJHLbqdM
+         q9pN7n2h88WV1tdM5H9XuRVeLVfIIYXgKGqd8h7QoDkXQLitQ1xRLiArqjAHVqOLOP
+         fE5k2PW0kKITFv8G9WcM/i97Chr61WqO6VCMlw1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sujuan Chen <sujuan.chen@mediatek.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0250/1001] wifi: mt76: mt7915: fix WED TxS reporting
+        patches@lists.linux.dev, Kemeng Shi <shikemeng@huaweicloud.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 088/885] blk-mq: Fix potential io hung for shared sbitmap per tagset
 Date:   Tue,  7 Mar 2023 17:50:22 +0100
-Message-Id: <20230307170032.642929584@linuxfoundation.org>
+Message-Id: <20230307170005.639584382@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Kemeng Shi <shikemeng@huaweicloud.com>
 
-[ Upstream commit 0d7084e209a9e2c924cb0d6e7f1f978db2a54127 ]
+[ Upstream commit 47df9ce95cd568d3f84218c4f65e9fbd4dfeda55 ]
 
-The previous commit forgot to remove a leftover check.
+Commit f906a6a0f4268 ("blk-mq: improve tag waiting setup for non-shared
+tags") mark restart for unshared tags for improvement. At that time,
+tags is only shared betweens queues and we can check if tags is shared
+by test BLK_MQ_F_TAG_SHARED.
+Afterwards, commit 32bc15afed04b ("blk-mq: Facilitate a shared sbitmap per
+tagset") enabled tags share betweens hctxs inside a queue. We only
+mark restart for shared hctxs inside a queue and may cause io hung if
+there is no tag currently allocated by hctxs going to be marked restart.
+Wait on sbitmap_queue instead of mark restart for shared hctxs case to
+fix this.
 
-Fixes: 43eaa3689507 ("wifi: mt76: add PPDU based TxS support for WED device")
-Reported-By: Sujuan Chen <sujuan.chen@mediatek.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 32bc15afed04 ("blk-mq: Facilitate a shared sbitmap per tagset")
+Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 3 ---
- 1 file changed, 3 deletions(-)
+ block/blk-mq.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index f0d5a3603902a..1a6def77db571 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1061,9 +1061,6 @@ static void mt7915_mac_add_txs(struct mt7915_dev *dev, void *data)
- 	u16 wcidx;
- 	u8 pid;
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index faffc64fe4ce8..fe0a3a882f465 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1799,7 +1799,8 @@ static bool blk_mq_mark_tag_wait(struct blk_mq_hw_ctx *hctx,
+ 	wait_queue_entry_t *wait;
+ 	bool ret;
  
--	if (le32_get_bits(txs_data[0], MT_TXS0_TXS_FORMAT) > 1)
--		return;
--
- 	wcidx = le32_get_bits(txs_data[2], MT_TXS2_WCID);
- 	pid = le32_get_bits(txs_data[3], MT_TXS3_PID);
+-	if (!(hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED)) {
++	if (!(hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED) &&
++	    !(blk_mq_is_shared_tags(hctx->flags))) {
+ 		blk_mq_sched_mark_restart_hctx(hctx);
  
+ 		/*
+@@ -2069,7 +2070,8 @@ bool blk_mq_dispatch_rq_list(struct blk_mq_hw_ctx *hctx, struct list_head *list,
+ 		bool needs_restart;
+ 		/* For non-shared tags, the RESTART check will suffice */
+ 		bool no_tag = prep == PREP_DISPATCH_NO_TAG &&
+-			(hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED);
++			((hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED) ||
++			blk_mq_is_shared_tags(hctx->flags));
+ 
+ 		if (nr_budgets)
+ 			blk_mq_release_budgets(q, list);
 -- 
 2.39.2
 
