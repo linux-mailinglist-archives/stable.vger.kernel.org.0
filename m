@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EC46AEFA0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 965436AEB3C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231916AbjCGSY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:24:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49158 "EHLO
+        id S232012AbjCGRln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:41:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232788AbjCGSYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:24:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD39499C28
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:53 -0800 (PST)
+        with ESMTP id S229905AbjCGRl2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:41:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BF72A6BEE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:37:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B97861501
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4246BC433EF;
-        Tue,  7 Mar 2023 18:19:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0785A61514
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED2CBC4339B;
+        Tue,  7 Mar 2023 17:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213192;
-        bh=+4qa1cRGyKcj6Rvb0jubXyaq45q0+Q7ELXHfVA1gV4w=;
+        s=korg; t=1678210646;
+        bh=0GUxIMEfCtrgcszgBH/+gZUKC19P5KS4ZyYFpSHHT+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCPOLA8LyA1z7OQHndgPisZyaKnd7OuEgvmNKtfHaLNABsYsNXoEkW25Yx/D/K3sl
-         VvSghKNkcfe4cJmRHYkN6xtcblhmqPTVov55DlwmoFbcM4gtwD++5z6DABVaXKKw3c
-         NvmZDQLXklRKOjzS0q/zC4DGlqtTdKfWTxRwsW1c=
+        b=eaU7L7qIQYGX+DFx3w/JqWjCncZwlij/eP9rId+FJ/uMGMOVqXC1Xtl++c+ENywi/
+         q4aCdIE4JOquOMiD7lpnAWuom8jKqryIbKwEF1b8gn0fndPONXURdLtXn+Sa65SBfL
+         uHTJ/osU9tXD+r1BatQG27iPSiA0gjVaQMAbPN0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 428/885] hwtracing: hisi_ptt: Only add the supported devices to the filters list
-Date:   Tue,  7 Mar 2023 17:56:02 +0100
-Message-Id: <20230307170021.008473012@linuxfoundation.org>
+Subject: [PATCH 6.2 0591/1001] media: ov5675: Fix memleak in ov5675_init_controls()
+Date:   Tue,  7 Mar 2023 17:56:03 +0100
+Message-Id: <20230307170047.153666628@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,49 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit b8d976c7d41a28c0fccf22c7113be9a29dc07e5c ]
+[ Upstream commit dd74ed6c213003533e3abf4c204374ef01d86978 ]
 
-The PTT device can only support the devices on the same PCIe core,
-within BDF range [lower_bdf, upper_bdf]. It's not correct to assume
-the devices on the root bus are from the same PCIe core, there are
-cases that root ports from different PCIe core are sharing the same
-bus. So check when initializing the filters list.
+There is a kmemleak when testing the media/i2c/ov5675.c with bpf mock
+device:
 
-Fixes: ff0de066b463 ("hwtracing: hisi_ptt: Add trace function support for HiSilicon PCIe Tune and Trace device")
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20230112112201.16283-1-yangyicong@huawei.com
+AssertionError: unreferenced object 0xffff888107362160 (size 16):
+  comm "python3", pid 277, jiffies 4294832798 (age 20.722s)
+  hex dump (first 16 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000abe7d67c>] __kmalloc_node+0x44/0x1b0
+    [<000000008a725aac>] kvmalloc_node+0x34/0x180
+    [<000000009a53cd11>] v4l2_ctrl_handler_init_class+0x11d/0x180
+[videodev]
+    [<0000000055b46db0>] ov5675_probe+0x38b/0x897 [ov5675]
+    [<00000000153d886c>] i2c_device_probe+0x28d/0x680
+    [<000000004afb7e8f>] really_probe+0x17c/0x3f0
+    [<00000000ff2f18e4>] __driver_probe_device+0xe3/0x170
+    [<000000000a001029>] driver_probe_device+0x49/0x120
+    [<00000000e39743c7>] __device_attach_driver+0xf7/0x150
+    [<00000000d32fd070>] bus_for_each_drv+0x114/0x180
+    [<000000009083ac41>] __device_attach+0x1e5/0x2d0
+    [<0000000015b4a830>] bus_probe_device+0x126/0x140
+    [<000000007813deaf>] device_add+0x810/0x1130
+    [<000000007becb867>] i2c_new_client_device+0x386/0x540
+    [<000000007f9cf4b4>] of_i2c_register_device+0xf1/0x110
+    [<00000000ebfdd032>] of_i2c_notify+0xfc/0x1f0
+
+ov5675_init_controls() won't clean all the allocated resources in fail
+path, which may causes the memleaks. Add v4l2_ctrl_handler_free() to
+prevent memleak.
+
+Fixes: bf27502b1f3b ("media: ov5675: Add support for OV5675 sensor")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/ptt/hisi_ptt.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/media/i2c/ov5675.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/ptt/hisi_ptt.c b/drivers/hwtracing/ptt/hisi_ptt.c
-index 5d5526aa60c40..30f1525639b57 100644
---- a/drivers/hwtracing/ptt/hisi_ptt.c
-+++ b/drivers/hwtracing/ptt/hisi_ptt.c
-@@ -356,8 +356,18 @@ static int hisi_ptt_register_irq(struct hisi_ptt *hisi_ptt)
+diff --git a/drivers/media/i2c/ov5675.c b/drivers/media/i2c/ov5675.c
+index 94dc8cb7a7c00..a6e6b367d1283 100644
+--- a/drivers/media/i2c/ov5675.c
++++ b/drivers/media/i2c/ov5675.c
+@@ -820,8 +820,10 @@ static int ov5675_init_controls(struct ov5675 *ov5675)
+ 	v4l2_ctrl_new_std(ctrl_hdlr, &ov5675_ctrl_ops,
+ 			  V4L2_CID_VFLIP, 0, 1, 1, 0);
  
- static int hisi_ptt_init_filters(struct pci_dev *pdev, void *data)
- {
-+	struct pci_dev *root_port = pcie_find_root_port(pdev);
- 	struct hisi_ptt_filter_desc *filter;
- 	struct hisi_ptt *hisi_ptt = data;
-+	u32 port_devid;
-+
-+	if (!root_port)
-+		return 0;
-+
-+	port_devid = PCI_DEVID(root_port->bus->number, root_port->devfn);
-+	if (port_devid < hisi_ptt->lower_bdf ||
-+	    port_devid > hisi_ptt->upper_bdf)
-+		return 0;
+-	if (ctrl_hdlr->error)
++	if (ctrl_hdlr->error) {
++		v4l2_ctrl_handler_free(ctrl_hdlr);
+ 		return ctrl_hdlr->error;
++	}
  
- 	/*
- 	 * We won't fail the probe if filter allocation failed here. The filters
+ 	ov5675->sd.ctrl_handler = ctrl_hdlr;
+ 
 -- 
 2.39.2
 
