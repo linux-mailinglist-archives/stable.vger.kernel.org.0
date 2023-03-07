@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A646D6AF494
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E5836AF455
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233919AbjCGTRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:17:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45510 "EHLO
+        id S233877AbjCGTQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:16:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229786AbjCGTRL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 916263B0F8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:00:59 -0800 (PST)
+        with ESMTP id S233876AbjCGTPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:15:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADEEFAE135
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:59:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE4D61522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15C60C433EF;
-        Tue,  7 Mar 2023 19:00:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43A45B819D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:59:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F3AC433EF;
+        Tue,  7 Mar 2023 18:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215658;
-        bh=onVm3xFumLM2yGt4WSQ4p84IkZi2wcbDHfrOK3XGPCQ=;
+        s=korg; t=1678215558;
+        bh=UMOAW293zM5zYEl8faAnAyE6L+oeEJakETPMs5n6aZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zsEWcVPQQYgah3v2G6Xb0AtGRX9JAxa1qoRDD14NHVKRRBQcBuAGkmQiTjGwXfMa+
-         dsNPvRyF3oL4t3Lt8TebOJfnE9P7AmGUdSfX9SGezFnQJMxCOJWUjU4HVsSS0ybtKZ
-         6tjYmEFH0IvjHsY1oThpt7NcMkmBO7mZY5uTl/gM=
+        b=ur9oN3TVAHx8vdSn5yOepAkpuYGf28Ni123jZ9Sv0oX1birz5/TW/2FRhgccBriJD
+         gbJqeHHI3s1TfdAtEVKbnWV1I1KwpND+7i1zR7JIA2K6DF5iaPoBmBC/nlltPUHxrn
+         Vgwlt0cjogyecgsFPCT158MQFwgAhAKNhpf+8mlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        patches@lists.linux.dev, Yi Yang <yiyang13@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 300/567] tty: serial: qcom-geni-serial: stop operations in progress at shutdown
-Date:   Tue,  7 Mar 2023 18:00:36 +0100
-Message-Id: <20230307165918.863769089@linuxfoundation.org>
+Subject: [PATCH 5.15 301/567] serial: tegra: Add missing clk_disable_unprepare() in tegra_uart_hw_init()
+Date:   Tue,  7 Mar 2023 18:00:37 +0100
+Message-Id: <20230307165918.895423566@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,37 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+From: Yi Yang <yiyang13@huawei.com>
 
-[ Upstream commit d8aca2f96813d51df574a811eda9a2cbed00f261 ]
+[ Upstream commit 38f28cfe9d08e3a47ef008798b275fef8118fc20 ]
 
-We don't stop transmissions in progress at shutdown. This is fine with
-FIFO SE mode but with DMA (support for which we'll introduce later) it
-causes trouble so fix it now.
+Add the missing clk_disable_unprepare() before return from
+tegra_uart_hw_init() in the error handling path.
+When request_irq() fails in tegra_uart_startup(), 'tup->uart_clk'
+has been enabled, fix it by adding clk_disable_unprepare().
 
-Fixes: e83766334f96 ("tty: serial: qcom_geni_serial: No need to stop tx/rx on UART shutdown")
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Link: https://lore.kernel.org/r/20221229155030.418800-2-brgl@bgdev.pl
+Fixes: cc9ca4d95846 ("serial: tegra: Only print FIFO error message when an error occurs")
+Fixes: d781ec21bae6 ("serial: tegra: report clk rate errors")
+Signed-off-by: Yi Yang <yiyang13@huawei.com>
+Link: https://lore.kernel.org/r/20221126020852.113378-1-yiyang13@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/qcom_geni_serial.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/serial-tegra.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
-index ce1c81731a2a8..e5ca3c3c27d21 100644
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -893,6 +893,8 @@ static int setup_fifos(struct qcom_geni_serial_port *port)
- static void qcom_geni_serial_shutdown(struct uart_port *uport)
- {
- 	disable_irq(uport->irq);
-+	qcom_geni_serial_stop_tx(uport);
-+	qcom_geni_serial_stop_rx(uport);
- }
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index 79187ff9ac131..25f34f86a0852 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -1047,6 +1047,7 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
+ 	if (tup->cdata->fifo_mode_enable_status) {
+ 		ret = tegra_uart_wait_fifo_mode_enabled(tup);
+ 		if (ret < 0) {
++			clk_disable_unprepare(tup->uart_clk);
+ 			dev_err(tup->uport.dev,
+ 				"Failed to enable FIFO mode: %d\n", ret);
+ 			return ret;
+@@ -1068,6 +1069,7 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
+ 	 */
+ 	ret = tegra_set_baudrate(tup, TEGRA_UART_DEFAULT_BAUD);
+ 	if (ret < 0) {
++		clk_disable_unprepare(tup->uart_clk);
+ 		dev_err(tup->uport.dev, "Failed to set baud rate\n");
+ 		return ret;
+ 	}
+@@ -1227,10 +1229,13 @@ static int tegra_uart_startup(struct uart_port *u)
+ 				dev_name(u->dev), tup);
+ 	if (ret < 0) {
+ 		dev_err(u->dev, "Failed to register ISR for IRQ %d\n", u->irq);
+-		goto fail_hw_init;
++		goto fail_request_irq;
+ 	}
+ 	return 0;
  
- static int qcom_geni_serial_port_setup(struct uart_port *uport)
++fail_request_irq:
++	/* tup->uart_clk is already enabled in tegra_uart_hw_init */
++	clk_disable_unprepare(tup->uart_clk);
+ fail_hw_init:
+ 	if (!tup->use_rx_pio)
+ 		tegra_uart_dma_channel_free(tup, true);
 -- 
 2.39.2
 
