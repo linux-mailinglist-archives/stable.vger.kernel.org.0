@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC66F6AF02A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCE6D6AEB47
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:42:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232927AbjCGS3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:29:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56734 "EHLO
+        id S232058AbjCGRm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:42:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231942AbjCGS2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:28:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D19E9EF6A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:23 -0800 (PST)
+        with ESMTP id S232057AbjCGRmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:42:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAAF830289
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:38:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CB69614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D82C433EF;
-        Tue,  7 Mar 2023 18:21:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EBDBB8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2EDFC4339B;
+        Tue,  7 Mar 2023 17:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213282;
-        bh=AF769B30T8DbAb9bQNz2IbMFDjrXhdFLVYPbCj+khD4=;
+        s=korg; t=1678210684;
+        bh=B9Y+pr7JOs2q2E8RQzL5+z2cgosqPBIcm4O5yVk62d8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTKRBqxIu87STyf6JZNhZZ4VC5q7fmDTYoyg3yXCAs4MuymoyIlZjwriHxygZ5CUR
-         +JWcqNoJRolfx19KyaRnUV43X+6cYnpVYKFDtsOmsa46RaN7FerMje50ij3IVBtsHi
-         Muxi/EfrxSHpDmRcVLqaLKKir3IaES1CzbH7nHfM=
+        b=fQn7e7HSsro7uEY2wJTFbWLe51lGDqUkbCrpOifNjrLAV4REa03548Lvjl05SaekC
+         K2+FLr8W1oIAH/UmIvq7PG9dbZ+dls+2j8e4LWzNWV0a95wmCE2Ft+W8z0E24uJl43
+         eMDVj/5mJbDGkOfo8Csi7mM2qYQy41WhVP7EOQJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 457/885] PCI: mt7621: Delay phy ports initialization
+Subject: [PATCH 6.2 0619/1001] arm64: dts: qcom: msm8996: Add additional A2NoC clocks
 Date:   Tue,  7 Mar 2023 17:56:31 +0100
-Message-Id: <20230307170022.360211959@linuxfoundation.org>
+Message-Id: <20230307170048.415973385@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 0cb2a8f3456ff1cc51d571e287a48e8fddc98ec2 ]
+[ Upstream commit 67fb53745e0b38275fa0b422b6a3c6c1c028c9a2 ]
 
-Some devices like ZBT WE1326 and ZBT WF3526-P and some Netgear models need
-to delay phy port initialization after calling the mt7621_pcie_init_port()
-driver function to get into reliable boots for both warm and hard resets.
+On eMMC devices, the UFS clocks aren't started in the bootloader (or well,
+at least it should not be, as that would just leak power..), which results
+in platform reboots when trying to access the unclocked UFS hardware,
+which unfortunately happens on each and every boot, as interconnect calls
+sync_state and goes over each and every path.
 
-The delay required to detect the ports seems to be in the range [75-100]
-milliseconds.
-
-If the ports are not detected the controller is not functional.
-
-There is no datasheet or something similar to really understand why this
-extra delay is needed only for these devices and it is not for most of
-the boards that are built on mt7621 SoC.
-
-This issue has been reported by openWRT community and the complete
-discussion is in [0]. The 100 milliseconds delay has been tested in all
-devices to validate it.
-
-Add the extra 100 milliseconds delay to fix the issue.
-
-[0]: https://github.com/openwrt/openwrt/pull/11220
-
-Link: https://lore.kernel.org/r/20221231074041.264738-1-sergio.paracuellos@gmail.com
-Fixes: 2bdd5238e756 ("PCI: mt7621: Add MediaTek MT7621 PCIe host controller driver")
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> #db820c
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221210200353.418391-6-konrad.dybcio@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mt7621.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-mt7621.c b/drivers/pci/controller/pcie-mt7621.c
-index ee7aad09d6277..63a5f4463a9f6 100644
---- a/drivers/pci/controller/pcie-mt7621.c
-+++ b/drivers/pci/controller/pcie-mt7621.c
-@@ -60,6 +60,7 @@
- #define PCIE_PORT_LINKUP		BIT(0)
- #define PCIE_PORT_CNT			3
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index a444d9b531228..71678749d66f6 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -830,9 +830,11 @@ a2noc: interconnect@583000 {
+ 			compatible = "qcom,msm8996-a2noc";
+ 			reg = <0x00583000 0x7000>;
+ 			#interconnect-cells = <1>;
+-			clock-names = "bus", "bus_a";
++			clock-names = "bus", "bus_a", "aggre2_ufs_axi", "ufs_axi";
+ 			clocks = <&rpmcc RPM_SMD_AGGR2_NOC_CLK>,
+-				 <&rpmcc RPM_SMD_AGGR2_NOC_A_CLK>;
++				 <&rpmcc RPM_SMD_AGGR2_NOC_A_CLK>,
++				 <&gcc GCC_AGGRE2_UFS_AXI_CLK>,
++				 <&gcc GCC_UFS_AXI_CLK>;
+ 		};
  
-+#define INIT_PORTS_DELAY_MS		100
- #define PERST_DELAY_MS			100
- 
- /**
-@@ -369,6 +370,7 @@ static int mt7621_pcie_init_ports(struct mt7621_pcie *pcie)
- 		}
- 	}
- 
-+	msleep(INIT_PORTS_DELAY_MS);
- 	mt7621_pcie_reset_ep_deassert(pcie);
- 
- 	tmp = NULL;
+ 		mnoc: interconnect@5a4000 {
 -- 
 2.39.2
 
