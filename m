@@ -2,49 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 243016AE034
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 14:19:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2646AE10A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 14:47:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229960AbjCGNTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 08:19:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
+        id S230262AbjCGNrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 08:47:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230465AbjCGNTO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 08:19:14 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 186635FC2;
-        Tue,  7 Mar 2023 05:18:41 -0800 (PST)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pZXCX-0004FP-AK; Tue, 07 Mar 2023 14:17:57 +0100
-Message-ID: <f3531259-626c-3182-3dba-7118d0c1445c@leemhuis.info>
-Date:   Tue, 7 Mar 2023 14:17:56 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
+        with ESMTP id S230272AbjCGNqh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 08:46:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8091D7BA1E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 05:45:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678196709;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:in-reply-to:in-reply-to:  references:references;
+        bh=CjSk2U3oMAFmhtNturhD3NcmwhqwU56rdcLTkQIFSg8=;
+        b=MFrsJMT/90oNGAw8PKaaSl22u94CA08FtIpc3zp8//UbZqoi6ZGLw5NEE7hBCerOTm4hhM
+        lb5icVTWehoGnJi+ggvgHWTH7kRoJQ24xmf2oCb8rNI41Psb7Ghte4V28Xr7d2LHbAdiNc
+        iSfBN+3ZcXc4XImLO4mpGoW4vGTPc6E=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-407-h5hR5eD8O2uvXWN4CpUT_A-1; Tue, 07 Mar 2023 08:45:06 -0500
+X-MC-Unique: h5hR5eD8O2uvXWN4CpUT_A-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3EA28803520;
+        Tue,  7 Mar 2023 13:45:05 +0000 (UTC)
+Received: from calimero.vinschen.de (unknown [10.39.192.200])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 61ADCC15BAD;
+        Tue,  7 Mar 2023 13:45:04 +0000 (UTC)
+Received: by calimero.vinschen.de (Postfix, from userid 500)
+        id F0CD1A80B97; Tue,  7 Mar 2023 14:45:02 +0100 (CET)
+Date:   Tue, 7 Mar 2023 14:45:02 +0100
+From:   Corinna Vinschen <vinschen@redhat.com>
+To:     Lin Ma <linma@zju.edu.cn>
+Cc:     jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, richardcochran@gmail.com,
+        ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
+        john.fastabend@gmail.com, intel-wired-lan@lists.osuosl.org,
+        pmenzel@molgen.mpg.de, regressions@lists.linux.dev,
+        stable@vger.kernel.org
 Subject: Re: [PATCH] igb: revert rtnl_lock() that causes deadlock
-Content-Language: en-US, de-DE
-To:     Lin Ma <linma@zju.edu.cn>, jesse.brandeburg@intel.com,
+Message-ID: <ZAc/3oVos9DBx3iR@calimero.vinschen.de>
+Reply-To: intel-wired-lan@lists.osuosl.org
+Mail-Followup-To: Lin Ma <linma@zju.edu.cn>, jesse.brandeburg@intel.com,
         anthony.l.nguyen@intel.com, davem@davemloft.net,
         edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         richardcochran@gmail.com, ast@kernel.org, daniel@iogearbox.net,
-        hawk@kernel.org, john.fastabend@gmail.com
-Cc:     intel-wired-lan@lists.osuosl.org, pmenzel@molgen.mpg.de,
-        regressions@lists.linux.dev, vinschen@redhat.com,
-        stable@vger.kernel.org
+        hawk@kernel.org, john.fastabend@gmail.com,
+        intel-wired-lan@lists.osuosl.org, pmenzel@molgen.mpg.de,
+        regressions@lists.linux.dev, stable@vger.kernel.org
 References: <301b585a.80249.186bbe6cc50.Coremail.linma@zju.edu.cn>
  <20230307130547.31446-1-linma@zju.edu.cn>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 In-Reply-To: <20230307130547.31446-1-linma@zju.edu.cn>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1678195121;4a384586;
-X-HE-SMSGID: 1pZXCX-0004FP-AK
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,7 +77,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07.03.23 14:05, Lin Ma wrote:
+On Mar  7 21:05, Lin Ma wrote:
 > The commit 6faee3d4ee8b ("igb: Add lock to avoid data race") adds
 > rtnl_lock to eliminate a false data race shown below
 > 
@@ -63,19 +88,16 @@ On 07.03.23 14:05, Lin Ma wrote:
 >   adapter->vfs_allocated_count = 0 |
 >                                    |    memcpy(... adapter->vf_data[vf]
 > 
+> The above race will never happen and the extra rtnl_lock causes deadlock
+> below
 > [...]
 > CC: stable@vger.kernel.org
 > Fixes: 6faee3d4ee8b ("igb: Add lock to avoid data race")
 > Reported-by: Corinna <vinschen@redhat.com>
-> Link: https://lore.kernel.org/regressions/3ef31c0b-ce40-20d0-7740-5dc0cca278ca@molgen.mpg.de/
 
-FWIW, that afaics should be:
+Thank you, but "Corinna Vinschen", please.
 
-Link:
-https://lore.kernel.org/intel-wired-lan/ZAcJvkEPqWeJHO2r@calimero.vinschen.de/
 
-(that's the parent of the mail above)
+Thanks,
+Corinna
 
-> Signed-off-by: Lin Ma <linma@zju.edu.cn>
-
-Ciao, Thorsten
