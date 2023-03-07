@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A146AEA0A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B74C86AEEC7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231542AbjCGRaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51008 "EHLO
+        id S232460AbjCGSQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:16:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231672AbjCGR3x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B05867DA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:05 -0800 (PST)
+        with ESMTP id S232560AbjCGSPr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:15:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F015A6BF7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 802C9614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78938C433D2;
-        Tue,  7 Mar 2023 17:25:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8791B819C1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD01BC4339B;
+        Tue,  7 Mar 2023 18:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209904;
-        bh=XLzNsua3hjyE/PKcyajqCqiz3RsP5bTYDcbK0mHfkMc=;
+        s=korg; t=1678212638;
+        bh=74p5CosyWb5Wxz0lA/P5URPZ1cKl0QrpLYp1x+w71TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QI6sCaTyymweimRw3Y+OaqC5K1I+Nn8KO6VP1o0CMtQsVPHyZ56i15vOkejYvSGVc
-         4XKtzLVVaWtcqAhb58JKIJ2qptFn7NKCyclobR/rFmhqi5X9LzmiwSE9kvvxRFWpoQ
-         1wbQX0GdG0gRSuAwfZ/JkdzMDcGb+2t6zp1fjpnA=
+        b=PF3+ktgsGxpociDYrXgRX2sF2tS4VjgPc+YEuvyMIo71mZhavfnD3pJheuN/Slmyg
+         bUc0+WlNADW3MCDAN+8QGGtNNW700LFS+iQ/WL1ltE/KYbKqdlR0ikKvSFElzlN6fA
+         ZV7rmKR84f3vuKg+vh+7VqAlfswUYzHHuGirY/4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0370/1001] drm/bridge: lt9611: fix clock calculation
+Subject: [PATCH 6.1 208/885] net: add sock_init_data_uid()
 Date:   Tue,  7 Mar 2023 17:52:22 +0100
-Message-Id: <20230307170037.433202089@linuxfoundation.org>
+Message-Id: <20230307170011.094411091@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,104 +56,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 2576eb26494eb0509dd9ceb0cd27771a7a5e3674 ]
+[ Upstream commit 584f3742890e966d2f0a1f3c418c9ead70b2d99e ]
 
-Instead of having several fixed values for the pcr register, calculate
-it before programming. This allows the bridge to support most of the
-display modes.
+Add sock_init_data_uid() to explicitly initialize the socket uid.
+To initialise the socket uid, sock_init_data() assumes a the struct
+socket* sock is always embedded in a struct socket_alloc, used to
+access the corresponding inode uid. This may not be true.
+Examples are sockets created in tun_chr_open() and tap_open().
 
-Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-6-dmitry.baryshkov@linaro.org
+Fixes: 86741ec25462 ("net: core: Add a UID field to struct sock.")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 32 +++++++++++--------------
- 1 file changed, 14 insertions(+), 18 deletions(-)
+ include/net/sock.h |  7 ++++++-
+ net/core/sock.c    | 15 ++++++++++++---
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index f377052a45a44..e2799a0df8f8b 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -192,8 +192,9 @@ static void lt9611_mipi_video_setup(struct lt9611 *lt9611,
- 	regmap_write(lt9611->regmap, 0x831b, (u8)(hsync_porch % 256));
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 1f868764575c3..832a4a51de4d9 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1952,7 +1952,12 @@ void sk_common_release(struct sock *sk);
+  *	Default socket callbacks and setup code
+  */
+ 
+-/* Initialise core socket variables */
++/* Initialise core socket variables using an explicit uid. */
++void sock_init_data_uid(struct socket *sock, struct sock *sk, kuid_t uid);
++
++/* Initialise core socket variables.
++ * Assumes struct socket *sock is embedded in a struct socket_alloc.
++ */
+ void sock_init_data(struct socket *sock, struct sock *sk);
+ 
+ /*
+diff --git a/net/core/sock.c b/net/core/sock.c
+index ba6ea61b3458b..4dfdcdfd00114 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -3359,7 +3359,7 @@ void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer)
  }
+ EXPORT_SYMBOL(sk_stop_timer_sync);
  
--static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode)
-+static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode, unsigned int postdiv)
+-void sock_init_data(struct socket *sock, struct sock *sk)
++void sock_init_data_uid(struct socket *sock, struct sock *sk, kuid_t uid)
  {
-+	unsigned int pcr_m = mode->clock * 5 * postdiv / 27000;
- 	const struct reg_sequence reg_cfg[] = {
- 		{ 0x830b, 0x01 },
- 		{ 0x830c, 0x10 },
-@@ -236,24 +237,14 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
- 	else
- 		regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+ 	sk_init_common(sk);
+ 	sk->sk_send_head	=	NULL;
+@@ -3378,11 +3378,10 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 		sk->sk_type	=	sock->type;
+ 		RCU_INIT_POINTER(sk->sk_wq, &sock->wq);
+ 		sock->sk	=	sk;
+-		sk->sk_uid	=	SOCK_INODE(sock)->i_uid;
+ 	} else {
+ 		RCU_INIT_POINTER(sk->sk_wq, NULL);
+-		sk->sk_uid	=	make_kuid(sock_net(sk)->user_ns, 0);
+ 	}
++	sk->sk_uid	=	uid;
  
--	switch (mode->hdisplay) {
--	case 640:
--		regmap_write(lt9611->regmap, 0x8326, 0x14);
--		break;
--	case 1920:
--		regmap_write(lt9611->regmap, 0x8326, 0x37);
--		break;
--	case 3840:
--		regmap_write(lt9611->regmap, 0x8326, 0x37);
--		break;
--	}
-+	regmap_write(lt9611->regmap, 0x8326, pcr_m);
- 
- 	/* pcr rst */
- 	regmap_write(lt9611->regmap, 0x8011, 0x5a);
- 	regmap_write(lt9611->regmap, 0x8011, 0xfa);
+ 	rwlock_init(&sk->sk_callback_lock);
+ 	if (sk->sk_kern_sock)
+@@ -3440,6 +3439,16 @@ void sock_init_data(struct socket *sock, struct sock *sk)
+ 	refcount_set(&sk->sk_refcnt, 1);
+ 	atomic_set(&sk->sk_drops, 0);
  }
++EXPORT_SYMBOL(sock_init_data_uid);
++
++void sock_init_data(struct socket *sock, struct sock *sk)
++{
++	kuid_t uid = sock ?
++		SOCK_INODE(sock)->i_uid :
++		make_kuid(sock_net(sk)->user_ns, 0);
++
++	sock_init_data_uid(sock, sk, uid);
++}
+ EXPORT_SYMBOL(sock_init_data);
  
--static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode)
-+static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode, unsigned int *postdiv)
- {
- 	unsigned int pclk = mode->clock;
- 	const struct reg_sequence reg_cfg[] = {
-@@ -271,12 +262,16 @@ static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode
- 
- 	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
- 
--	if (pclk > 150000)
-+	if (pclk > 150000) {
- 		regmap_write(lt9611->regmap, 0x812d, 0x88);
--	else if (pclk > 70000)
-+		*postdiv = 1;
-+	} else if (pclk > 70000) {
- 		regmap_write(lt9611->regmap, 0x812d, 0x99);
--	else
-+		*postdiv = 2;
-+	} else {
- 		regmap_write(lt9611->regmap, 0x812d, 0xaa);
-+		*postdiv = 4;
-+	}
- 
- 	/*
- 	 * first divide pclk by 2 first
-@@ -895,14 +890,15 @@ static void lt9611_bridge_mode_set(struct drm_bridge *bridge,
- {
- 	struct lt9611 *lt9611 = bridge_to_lt9611(bridge);
- 	struct hdmi_avi_infoframe avi_frame;
-+	unsigned int postdiv;
- 	int ret;
- 
- 	lt9611_bridge_pre_enable(bridge);
- 
- 	lt9611_mipi_input_digital(lt9611, mode);
--	lt9611_pll_setup(lt9611, mode);
-+	lt9611_pll_setup(lt9611, mode, &postdiv);
- 	lt9611_mipi_video_setup(lt9611, mode);
--	lt9611_pcr_setup(lt9611, mode);
-+	lt9611_pcr_setup(lt9611, mode, postdiv);
- 
- 	ret = drm_hdmi_avi_infoframe_from_display_mode(&avi_frame,
- 						       &lt9611->connector,
+ void lock_sock_nested(struct sock *sk, int subclass)
 -- 
 2.39.2
 
