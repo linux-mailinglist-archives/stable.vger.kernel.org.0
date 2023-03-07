@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81BEB6AF039
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B736AEB77
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233028AbjCGS3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:29:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57358 "EHLO
+        id S232376AbjCGRpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:45:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232907AbjCGS3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:08 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE219B049D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:22:05 -0800 (PST)
+        with ESMTP id S232112AbjCGRo0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9095797B7D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:40:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0778ACE1C81
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7A26C433EF;
-        Tue,  7 Mar 2023 18:22:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72540614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F0BC433EF;
+        Tue,  7 Mar 2023 17:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213322;
-        bh=04vQtvOQKewmrLiNfEkk3xEmc8kEXhQqKiy+lgmYg1Q=;
+        s=korg; t=1678210811;
+        bh=iOmt3RrNlbIEjx/KReScnh9+gup0ENoJQXZIu7UBVKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FuXdoH6keI9hOa18Fxz5A7Pix9xSG7mesxyVoYtJqoau+/4b2sNmRrnfOGmTTOFCa
-         AVqNSWP+/i38qFTFQc8RK931D6iHMbKhteDKvracSMtmFjwkXHT6wLz6QHsAMgiSZ0
-         3Z5s2fKvt83IthOFiACkpvyno+CT2T6HZaxw2rO0=
+        b=gbgdVg8jWjh3Fh3Vgn7miS+bWRika9Hn0Nq38SS4I+xW+Pe5FzL5CyAqJDhpp2Ps+
+         iL5LEPEkxJ/01oeeDyjTBWNduNo1xWcvkS79CQgAc3SPKhTRBup2ScEl9mHejGPl1M
+         wHSySxzTUcu+P486GCrjeJRXE0mAXlJ2q2RMnD20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        Luca Weiss <luca.weiss@fairphone.com>
-Subject: [PATCH 6.1 469/885] driver core: fw_devlink: Add DL_FLAG_CYCLE support to device links
+        patches@lists.linux.dev,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0631/1001] cpuidle, intel_idle: Fix CPUIDLE_FLAG_INIT_XSTATE
 Date:   Tue,  7 Mar 2023 17:56:43 +0100
-Message-Id: <20230307170022.873322541@linuxfoundation.org>
+Message-Id: <20230307170048.952561140@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,160 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 67cad5c67019c38126b749621665b6723d3ae7e6 ]
+[ Upstream commit 821ad23d0eaff73ef599ece39ecc77482df20a8c ]
 
-fw_devlink uses DL_FLAG_SYNC_STATE_ONLY device link flag for two
-purposes:
+Fix instrumentation bugs objtool found:
 
-1. To allow a parent device to proxy its child device's dependency on a
-   supplier so that the supplier doesn't get its sync_state() callback
-   before the child device/consumer can be added and probed. In this
-   usage scenario, we need to ignore cycles for ensure correctness of
-   sync_state() callbacks.
+  vmlinux.o: warning: objtool: intel_idle_s2idle+0xd5: call to fpu_idle_fpregs() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: intel_idle_xstate+0x11: call to fpu_idle_fpregs() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: fpu_idle_fpregs+0x9: call to xfeatures_in_use() leaves .noinstr.text section
 
-2. When there are dependency cycles in firmware, we don't know which of
-   those dependencies are valid. So, we have to ignore them all wrt
-   probe ordering while still making sure the sync_state() callbacks
-   come correctly.
-
-However, when detecting dependency cycles, there can be multiple
-dependency cycles between two devices that we need to detect. For
-example:
-
-A -> B -> A and A -> C -> B -> A.
-
-To detect multiple cycles correct, we need to be able to differentiate
-DL_FLAG_SYNC_STATE_ONLY device links used for (1) vs (2) above.
-
-To allow this differentiation, add a DL_FLAG_CYCLE that can be use to
-mark use case (2). We can then use the DL_FLAG_CYCLE to decide which
-DL_FLAG_SYNC_STATE_ONLY device links to follow when looking for
-dependency cycles.
-
-Fixes: 2de9d8e0d2fe ("driver core: fw_devlink: Improve handling of cyclic dependencies")
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Tested-by: Colin Foster <colin.foster@in-advantage.com>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
-Link: https://lore.kernel.org/r/20230207014207.1678715-6-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Link: https://lore.kernel.org/r/20230112195540.494977795@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c    | 28 ++++++++++++++++++----------
- include/linux/device.h |  1 +
- 2 files changed, 19 insertions(+), 10 deletions(-)
+ arch/x86/include/asm/fpu/xcr.h       | 4 ++--
+ arch/x86/include/asm/special_insns.h | 2 +-
+ arch/x86/kernel/fpu/core.c           | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 9019b81405bf2..816b0288579fd 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -271,6 +271,12 @@ static bool device_is_ancestor(struct device *dev, struct device *target)
- 	return false;
+diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
+index 9656a5bc6feae..9a710c0604457 100644
+--- a/arch/x86/include/asm/fpu/xcr.h
++++ b/arch/x86/include/asm/fpu/xcr.h
+@@ -5,7 +5,7 @@
+ #define XCR_XFEATURE_ENABLED_MASK	0x00000000
+ #define XCR_XFEATURE_IN_USE_MASK	0x00000001
+ 
+-static inline u64 xgetbv(u32 index)
++static __always_inline u64 xgetbv(u32 index)
+ {
+ 	u32 eax, edx;
+ 
+@@ -27,7 +27,7 @@ static inline void xsetbv(u32 index, u64 value)
+  *
+  * Callers should check X86_FEATURE_XGETBV1.
+  */
+-static inline u64 xfeatures_in_use(void)
++static __always_inline u64 xfeatures_in_use(void)
+ {
+ 	return xgetbv(XCR_XFEATURE_IN_USE_MASK);
+ }
+diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+index 35f709f619fb4..c2e322189f853 100644
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -295,7 +295,7 @@ static inline int enqcmds(void __iomem *dst, const void *src)
+ 	return 0;
  }
  
-+static inline bool device_link_flag_is_sync_state_only(u32 flags)
-+{
-+	return (flags & ~(DL_FLAG_INFERRED | DL_FLAG_CYCLE)) ==
-+		(DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED);
-+}
-+
- /**
-  * device_is_dependent - Check if one device depends on another one
-  * @dev: Device to check dependencies for.
-@@ -297,8 +303,7 @@ int device_is_dependent(struct device *dev, void *target)
- 		return ret;
- 
- 	list_for_each_entry(link, &dev->links.consumers, s_node) {
--		if ((link->flags & ~DL_FLAG_INFERRED) ==
--		    (DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED))
-+		if (device_link_flag_is_sync_state_only(link->flags))
- 			continue;
- 
- 		if (link->consumer == target)
-@@ -371,8 +376,7 @@ static int device_reorder_to_tail(struct device *dev, void *not_used)
- 
- 	device_for_each_child(dev, NULL, device_reorder_to_tail);
- 	list_for_each_entry(link, &dev->links.consumers, s_node) {
--		if ((link->flags & ~DL_FLAG_INFERRED) ==
--		    (DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED))
-+		if (device_link_flag_is_sync_state_only(link->flags))
- 			continue;
- 		device_reorder_to_tail(link->consumer, NULL);
+-static inline void tile_release(void)
++static __always_inline void tile_release(void)
+ {
+ 	/*
+ 	 * Instruction opcode for TILERELEASE; supported in binutils
+diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+index 9baa89a8877d0..dccce58201b7c 100644
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -853,12 +853,12 @@ int fpu__exception_code(struct fpu *fpu, int trap_nr)
+  * Initialize register state that may prevent from entering low-power idle.
+  * This function will be invoked from the cpuidle driver only when needed.
+  */
+-void fpu_idle_fpregs(void)
++noinstr void fpu_idle_fpregs(void)
+ {
+ 	/* Note: AMX_TILE being enabled implies XGETBV1 support */
+ 	if (cpu_feature_enabled(X86_FEATURE_AMX_TILE) &&
+ 	    (xfeatures_in_use() & XFEATURE_MASK_XTILE)) {
+ 		tile_release();
+-		fpregs_deactivate(&current->thread.fpu);
++		__this_cpu_write(fpu_fpregs_owner_ctx, NULL);
  	}
-@@ -633,7 +637,8 @@ postcore_initcall(devlink_class_init);
- 			       DL_FLAG_AUTOREMOVE_SUPPLIER | \
- 			       DL_FLAG_AUTOPROBE_CONSUMER  | \
- 			       DL_FLAG_SYNC_STATE_ONLY | \
--			       DL_FLAG_INFERRED)
-+			       DL_FLAG_INFERRED | \
-+			       DL_FLAG_CYCLE)
- 
- #define DL_ADD_VALID_FLAGS (DL_MANAGED_LINK_FLAGS | DL_FLAG_STATELESS | \
- 			    DL_FLAG_PM_RUNTIME | DL_FLAG_RPM_ACTIVE)
-@@ -702,8 +707,6 @@ struct device_link *device_link_add(struct device *consumer,
- 	if (!consumer || !supplier || consumer == supplier ||
- 	    flags & ~DL_ADD_VALID_FLAGS ||
- 	    (flags & DL_FLAG_STATELESS && flags & DL_MANAGED_LINK_FLAGS) ||
--	    (flags & DL_FLAG_SYNC_STATE_ONLY &&
--	     (flags & ~DL_FLAG_INFERRED) != DL_FLAG_SYNC_STATE_ONLY) ||
- 	    (flags & DL_FLAG_AUTOPROBE_CONSUMER &&
- 	     flags & (DL_FLAG_AUTOREMOVE_CONSUMER |
- 		      DL_FLAG_AUTOREMOVE_SUPPLIER)))
-@@ -719,6 +722,10 @@ struct device_link *device_link_add(struct device *consumer,
- 	if (!(flags & DL_FLAG_STATELESS))
- 		flags |= DL_FLAG_MANAGED;
- 
-+	if (flags & DL_FLAG_SYNC_STATE_ONLY &&
-+	    !device_link_flag_is_sync_state_only(flags))
-+		return NULL;
-+
- 	device_links_write_lock();
- 	device_pm_lock();
- 
-@@ -1671,7 +1678,7 @@ static void fw_devlink_relax_link(struct device_link *link)
- 	if (!(link->flags & DL_FLAG_INFERRED))
- 		return;
- 
--	if (link->flags == (DL_FLAG_MANAGED | FW_DEVLINK_FLAGS_PERMISSIVE))
-+	if (device_link_flag_is_sync_state_only(link->flags))
- 		return;
- 
- 	pm_runtime_drop_link(link);
-@@ -1795,8 +1802,8 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
- 		return ret;
- 
- 	list_for_each_entry(link, &con->links.consumers, s_node) {
--		if ((link->flags & ~DL_FLAG_INFERRED) ==
--		    (DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED))
-+		if (!(link->flags & DL_FLAG_CYCLE) &&
-+		    device_link_flag_is_sync_state_only(link->flags))
- 			continue;
- 
- 		if (!fw_devlink_relax_cycle(link->consumer, sup))
-@@ -1805,6 +1812,7 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
- 		ret = 1;
- 
- 		fw_devlink_relax_link(link);
-+		link->flags |= DL_FLAG_CYCLE;
- 	}
- 	return ret;
  }
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 424b55df02727..7cf24330d6814 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -327,6 +327,7 @@ enum device_link_state {
- #define DL_FLAG_MANAGED			BIT(6)
- #define DL_FLAG_SYNC_STATE_ONLY		BIT(7)
- #define DL_FLAG_INFERRED		BIT(8)
-+#define DL_FLAG_CYCLE			BIT(9)
- 
- /**
-  * enum dl_dev_state - Device driver presence tracking information.
 -- 
 2.39.2
 
