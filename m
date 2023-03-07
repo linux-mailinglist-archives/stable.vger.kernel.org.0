@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E47E16AF330
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:01:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE9C6AF059
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233425AbjCGTBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:01:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39244 "EHLO
+        id S231473AbjCGSaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233454AbjCGTBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:01:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154F01ADE0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:47:59 -0800 (PST)
+        with ESMTP id S229871AbjCGS3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 230C22CFCF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A57E061531
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B75FC433D2;
-        Tue,  7 Mar 2023 18:47:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D569B818EB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C718BC433EF;
+        Tue,  7 Mar 2023 18:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214846;
-        bh=AHm20nTNBjo1d6IVm2OJ0g44xG919XOaTguNIUCZYac=;
+        s=korg; t=1678213381;
+        bh=cGk+zTdHgqk+6y/xroC7BPL2QM2Y92Xstss8k2IjGNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vm/teQ68Mu7uucClHhF6Q7To+IqxzzejR0cniw7TqJsx8mctiBpXbfA1ZlFh8eAd6
-         vKOlp5+XyZr8Lxth6jPrr8EPsKVIGkbKRW8z8Efk96nWLfmvlQoXgiFGiv534f9the
-         1YI4k9HfwToBHRx8GA5RRU3WpRgE9NNOi73dg8Lk=
+        b=m8hyY1pTVBjFYKmirv+F/dCEV46TdjsRfOvvb8UdBwanRdy8i2gqcYBY16O++p39d
+         H9gBeK+KY4w8g3b1Ngtd3LMVPtb0gtPUS8BUosKLaSLLTN5jIJHn+eKTnY95IdcwpB
+         vWKtcfRhc34Gd7M1CSvzbieZgh4hqJ6WPkOC4Ud4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 069/567] wifi: rtlwifi: rtl8723be: dont call kfree_skb() under spin_lock_irqsave()
-Date:   Tue,  7 Mar 2023 17:56:45 +0100
-Message-Id: <20230307165908.868496309@linuxfoundation.org>
+        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        Luca Weiss <luca.weiss@fairphone.com>
+Subject: [PATCH 6.1 472/885] driver core: fw_devlink: Consolidate device link flag computation
+Date:   Tue,  7 Mar 2023 17:56:46 +0100
+Message-Id: <20230307170023.014965938@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +58,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit 313950c2114e7051c4e3020fd82495fa1fb526a8 ]
+[ Upstream commit cd115c0409f283edde94bd5a9a42dc42bee0aba8 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. All the SKBs have
-been dequeued from the old queue, so it's safe to enqueue these
-SKBs to a free queue, then free them after spin_unlock_irqrestore()
-at once. Compile tested only.
+Consolidate the code that computes the flags to be used when creating a
+device link from a fwnode link.
 
-Fixes: 5c99f04fec93 ("rtlwifi: rtl8723be: Update driver to match Realtek release of 06/28/14")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207141411.46098-4-yangyingliang@huawei.com
+Fixes: 2de9d8e0d2fe ("driver core: fw_devlink: Improve handling of cyclic dependencies")
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Tested-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
+Link: https://lore.kernel.org/r/20230207014207.1678715-8-saravanak@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/base/core.c    | 28 +++++++++++++++-------------
+ include/linux/fwnode.h |  1 -
+ 2 files changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
-index 0748aedce2adb..ccbb082d5e928 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
-@@ -30,8 +30,10 @@ static void _rtl8723be_return_beacon_queue_skb(struct ieee80211_hw *hw)
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
- 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
- 	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[BEACON_QUEUE];
-+	struct sk_buff_head free_list;
- 	unsigned long flags;
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 24c48fe3a0252..f623ebc131f8d 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1726,8 +1726,11 @@ static int __init fw_devlink_strict_setup(char *arg)
+ }
+ early_param("fw_devlink.strict", fw_devlink_strict_setup);
  
-+	skb_queue_head_init(&free_list);
- 	spin_lock_irqsave(&rtlpriv->locks.irq_th_lock, flags);
- 	while (skb_queue_len(&ring->queue)) {
- 		struct rtl_tx_desc *entry = &ring->desc[ring->idx];
-@@ -41,10 +43,12 @@ static void _rtl8723be_return_beacon_queue_skb(struct ieee80211_hw *hw)
- 				 rtlpriv->cfg->ops->get_desc(hw, (u8 *)entry,
- 						true, HW_DESC_TXBUFF_ADDR),
- 				 skb->len, DMA_TO_DEVICE);
--		kfree_skb(skb);
-+		__skb_queue_tail(&free_list, skb);
- 		ring->idx = (ring->idx + 1) % ring->entries;
- 	}
- 	spin_unlock_irqrestore(&rtlpriv->locks.irq_th_lock, flags);
+-u32 fw_devlink_get_flags(void)
++static inline u32 fw_devlink_get_flags(u8 fwlink_flags)
+ {
++	if (fwlink_flags & FWLINK_FLAG_CYCLE)
++		return FW_DEVLINK_FLAGS_PERMISSIVE | DL_FLAG_CYCLE;
 +
-+	__skb_queue_purge(&free_list);
+ 	return fw_devlink_flags;
  }
  
- static void _rtl8723be_set_bcn_ctrl_reg(struct ieee80211_hw *hw,
+@@ -1908,7 +1911,7 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
+  * fw_devlink_create_devlink - Create a device link from a consumer to fwnode
+  * @con: consumer device for the device link
+  * @sup_handle: fwnode handle of supplier
+- * @flags: devlink flags
++ * @link: fwnode link that's being converted to a device link
+  *
+  * This function will try to create a device link between the consumer device
+  * @con and the supplier device represented by @sup_handle.
+@@ -1925,10 +1928,17 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
+  *  possible to do that in the future
+  */
+ static int fw_devlink_create_devlink(struct device *con,
+-				     struct fwnode_handle *sup_handle, u32 flags)
++				     struct fwnode_handle *sup_handle,
++				     struct fwnode_link *link)
+ {
+ 	struct device *sup_dev;
+ 	int ret = 0;
++	u32 flags;
++
++	if (con->fwnode == link->consumer)
++		flags = fw_devlink_get_flags(link->flags);
++	else
++		flags = FW_DEVLINK_FLAGS_PERMISSIVE;
+ 
+ 	/*
+ 	 * In some cases, a device P might also be a supplier to its child node
+@@ -2054,7 +2064,6 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
+ 	struct fwnode_link *link, *tmp;
+ 
+ 	list_for_each_entry_safe(link, tmp, &fwnode->consumers, s_hook) {
+-		u32 dl_flags = fw_devlink_get_flags();
+ 		struct device *con_dev;
+ 		bool own_link = true;
+ 		int ret;
+@@ -2084,14 +2093,13 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
+ 				con_dev = NULL;
+ 			} else {
+ 				own_link = false;
+-				dl_flags = FW_DEVLINK_FLAGS_PERMISSIVE;
+ 			}
+ 		}
+ 
+ 		if (!con_dev)
+ 			continue;
+ 
+-		ret = fw_devlink_create_devlink(con_dev, fwnode, dl_flags);
++		ret = fw_devlink_create_devlink(con_dev, fwnode, link);
+ 		put_device(con_dev);
+ 		if (!own_link || ret == -EAGAIN)
+ 			continue;
+@@ -2132,19 +2140,13 @@ static void __fw_devlink_link_to_suppliers(struct device *dev,
+ 	bool own_link = (dev->fwnode == fwnode);
+ 	struct fwnode_link *link, *tmp;
+ 	struct fwnode_handle *child = NULL;
+-	u32 dl_flags;
+-
+-	if (own_link)
+-		dl_flags = fw_devlink_get_flags();
+-	else
+-		dl_flags = FW_DEVLINK_FLAGS_PERMISSIVE;
+ 
+ 	list_for_each_entry_safe(link, tmp, &fwnode->suppliers, c_hook) {
+ 		int ret;
+ 		struct device *sup_dev;
+ 		struct fwnode_handle *sup = link->supplier;
+ 
+-		ret = fw_devlink_create_devlink(dev, sup, dl_flags);
++		ret = fw_devlink_create_devlink(dev, sup, link);
+ 		if (!own_link || ret == -EAGAIN)
+ 			continue;
+ 
+diff --git a/include/linux/fwnode.h b/include/linux/fwnode.h
+index fdf2ee0285b7a..5700451b300fb 100644
+--- a/include/linux/fwnode.h
++++ b/include/linux/fwnode.h
+@@ -207,7 +207,6 @@ static inline void fwnode_dev_initialized(struct fwnode_handle *fwnode,
+ 		fwnode->flags &= ~FWNODE_FLAG_INITIALIZED;
+ }
+ 
+-extern u32 fw_devlink_get_flags(void);
+ extern bool fw_devlink_is_strict(void);
+ int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup);
+ void fwnode_links_purge(struct fwnode_handle *fwnode);
 -- 
 2.39.2
 
