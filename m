@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E94E6AF4A1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:18:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF6A6AF4A3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:18:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbjCGTSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:18:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
+        id S230154AbjCGTSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:18:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233947AbjCGTRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:42 -0500
+        with ESMTP id S233637AbjCGTRq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C25125BBF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300D8BC783
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC2F6B8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8905C433EF;
-        Tue,  7 Mar 2023 19:01:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6DB1B819D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FDC3C433EF;
+        Tue,  7 Mar 2023 19:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215695;
-        bh=03QxgCjdWNvAkANaSf5rugo9SKbqD3kvNRmGFeemRQA=;
+        s=korg; t=1678215701;
+        bh=oDehS2ecHu9DUkquoaVe3JvE8OVuR+7t1Z0/smEHBfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUoGy2H6UnOzVWjl7Fw1TawJytX+IJ0ZfOZ3wy4KSk/Iddzq4adzblaoS/zIduGld
-         XY7HvsAp605I/EpcKEhkITGxBF6MWZ/uaVg+4mk2Et4GPgg/4q7tdy+qx3UviD3Wwd
-         Mquro0/QnStWgrcMKeuO3ySD6CRpa+kD6SipU9Fo=
+        b=E4bqeilUEf8hSZYDoyxBYIWHqxP90AHuIpYAzZozBcfdRn3TcRZtBz9tv4xdoCRCe
+         EZ8tjDo0JHzsTFLqKaUjUo4xFh8WBcgWAO8wag5zFIYzmhzxy6gm9WSQ6425Oy1fXF
+         SqG33iHXjjeRze7nzpllRLQ6/gCSqAiOa1Agx85A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 345/567] media: ti: cal: fix possible memory leak in cal_ctx_create()
-Date:   Tue,  7 Mar 2023 18:01:21 +0100
-Message-Id: <20230307165920.813586312@linuxfoundation.org>
+Subject: [PATCH 5.15 346/567] media: platform: ti: Add missing check for devm_regulator_get
+Date:   Tue,  7 Mar 2023 18:01:22 +0100
+Message-Id: <20230307165920.863646305@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,39 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 7acd650a0484d92985a0d6d867d980c6dd019885 ]
+[ Upstream commit da8e05f84a11c3cc3b0ba0a3c62d20e358002d99 ]
 
-The memory of ctx is allocated in cal_ctx_create(), but it will
-not be freed when cal_ctx_v4l2_init() fails, so add kfree() when
-cal_ctx_v4l2_init() fails to fix it.
+Add check for the return value of devm_regulator_get since it may return
+error pointer.
 
-Fixes: d68a94e98a89 ("media: ti-vpe: cal: Split video device initialization and registration")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Fixes: 448de7e7850b ("[media] omap3isp: OMAP3 ISP core")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/omap3isp/isp.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-index 8e469d518a742..35d62eb1321fb 100644
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -940,8 +940,10 @@ static struct cal_ctx *cal_ctx_create(struct cal_dev *cal, int inst)
- 	ctx->datatype = CAL_CSI2_CTX_DT_ANY;
+diff --git a/drivers/media/platform/omap3isp/isp.c b/drivers/media/platform/omap3isp/isp.c
+index 20f59c59ff8a2..3222c98b83630 100644
+--- a/drivers/media/platform/omap3isp/isp.c
++++ b/drivers/media/platform/omap3isp/isp.c
+@@ -2306,7 +2306,16 @@ static int isp_probe(struct platform_device *pdev)
  
- 	ret = cal_ctx_v4l2_init(ctx);
--	if (ret)
-+	if (ret) {
-+		kfree(ctx);
- 		return NULL;
+ 	/* Regulators */
+ 	isp->isp_csiphy1.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy1");
++	if (IS_ERR(isp->isp_csiphy1.vdd)) {
++		ret = PTR_ERR(isp->isp_csiphy1.vdd);
++		goto error;
++	}
++
+ 	isp->isp_csiphy2.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy2");
++	if (IS_ERR(isp->isp_csiphy2.vdd)) {
++		ret = PTR_ERR(isp->isp_csiphy2.vdd);
++		goto error;
 +	}
  
- 	return ctx;
- }
+ 	/* Clocks
+ 	 *
 -- 
 2.39.2
 
