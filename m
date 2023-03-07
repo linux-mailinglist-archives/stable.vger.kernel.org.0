@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE0A16AF49C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 751706AF49D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233684AbjCGTRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:17:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42270 "EHLO
+        id S233914AbjCGTRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:17:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233862AbjCGTR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 072315504A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:21 -0800 (PST)
+        with ESMTP id S233912AbjCGTRa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B00C48A4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ACA361531
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77136C433D2;
-        Tue,  7 Mar 2023 19:01:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76106B8199A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACB5AC433D2;
+        Tue,  7 Mar 2023 19:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215680;
-        bh=32oDUR/jzR9JiQWMc2QpmgTamnVWSOTMXys8t7u8Jgw=;
+        s=korg; t=1678215683;
+        bh=zbMHqvl/9n4WQZLnBxjYh1NN6YJ8/uNsgcogAJc2izw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5SWvgsz6vzgaGsj8vnMEYUSf9g+fFiHknAD4deS5u/HQfRhX9acBdFC6mWVW6/Df
-         h1/ZgW6jJxJKqjnOBstWur0x0QhiBZRQDBQzAvQzBaZtFAZ9dqWR/suSBLQbiWsvqc
-         orCfqwgtlrhpiqTRNHO9X5800z3JyI9K4mdMZiL8=
+        b=Ix2EUzRMZz92UQN45Md/3Eg1uSUpdk+dipcr6MjsSvwjuHrnUknPuvwp5ODUh8oGg
+         yT+AKFdl4ZHdgrP8upephoOx9KOnkPpMAPmldoA0nBbK7zG5Qk6Q1QBX5pGghOc7lA
+         +8D18il1hP7pub1689LoUQnKJZJGx0OwFkdfNsPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lu Baolu <baolu.lu@linux.intel.com>,
+        patches@lists.linux.dev, Sanjay Kumar <sanjay.k.kumar@intel.com>,
+        Tina Zhang <tina.zhang@intel.com>,
         Kevin Tian <kevin.tian@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 340/567] iommu/vt-d: Use second level for GPA->HPA translation
-Date:   Tue,  7 Mar 2023 18:01:16 +0100
-Message-Id: <20230307165920.613550582@linuxfoundation.org>
+Subject: [PATCH 5.15 341/567] iommu/vt-d: Allow to use flush-queue when first level is default
+Date:   Tue,  7 Mar 2023 18:01:17 +0100
+Message-Id: <20230307165920.651303473@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,67 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Tina Zhang <tina.zhang@intel.com>
 
-[ Upstream commit 032c5ee40e9fc68ed650a3f86f23259376ec93fc ]
+[ Upstream commit 257ec290741924f8df678927d0dfecb1deebb9c5 ]
 
-The IOMMU VT-d implementation uses the first level for GPA->HPA translation
-by default. Although both the first level and the second level could handle
-the DMA translation, they're different in some way. For example, the second
-level translation has separate controls for the Access/Dirty page tracking.
-With the first level translation, there's no such control. On the other
-hand, the second level translation has the page-level control for forcing
-snoop, but the first level only has global control with pasid granularity.
+Commit 29b32839725f ("iommu/vt-d: Do not use flush-queue when caching-mode
+is on") forced default domains to be strict mode as long as IOMMU
+caching-mode is flagged. The reason for doing this is that when vIOMMU
+uses VT-d caching mode to synchronize shadowing page tables, the strict
+mode shows better performance.
 
-This uses the second level for GPA->HPA translation so that we can provide
-a consistent hardware interface for use cases like dirty page tracking for
-live migration.
+However, this optimization is orthogonal to the first-level page table
+because the Intel VT-d architecture does not define the caching mode of
+the first-level page table. Refer to VT-d spec, section 6.1, "When the
+CM field is reported as Set, any software updates to remapping
+structures other than first-stage mapping (including updates to not-
+present entries or present entries whose programming resulted in
+translation faults) requires explicit invalidation of the caches."
+Exclude the first-level page table from this optimization.
 
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Generally using first-stage translation in vIOMMU implies nested
+translation enabled in the physical IOMMU. In this case the first-stage
+page table is wholly captured by the guest. The vIOMMU only needs to
+transfer the cache invalidations on vIOMMU to the physical IOMMU.
+Forcing the default domain to strict mode will cause more frequent
+cache invalidations, resulting in performance degradation. In a real
+performance benchmark test measured by iperf receive, the performance
+result on Sapphire Rapids 100Gb NIC shows:
+w/ this fix ~51 Gbits/s, w/o this fix ~39.3 Gbits/s.
+
+Theoretically a first-stage IOMMU page table can still be shadowed
+in absence of the caching mode, e.g. with host write-protecting guest
+IOMMU page table to synchronize changed PTEs with the physical
+IOMMU page table. In this case the shadowing overhead is decoupled
+from emulating IOTLB invalidation then the overhead of the latter part
+is solely decided by the frequency of IOTLB invalidations. Hence
+allowing guest default dma domain to be lazy can also benefit the
+overall performance by reducing the total VM-exit numbers.
+
+Fixes: 29b32839725f ("iommu/vt-d: Do not use flush-queue when caching-mode is on")
+Reported-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Suggested-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Signed-off-by: Tina Zhang <tina.zhang@intel.com>
 Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/20210926114535.923263-1-baolu.lu@linux.intel.com
-Link: https://lore.kernel.org/r/20211014053839.727419-6-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20230214025618.2292889-1-tina.zhang@intel.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Stable-dep-of: 257ec2907419 ("iommu/vt-d: Allow to use flush-queue when first level is default")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/iommu/intel/iommu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 6be0fb10cb8a9..850b0590c24a5 100644
+index 850b0590c24a5..9666391240928 100644
 --- a/drivers/iommu/intel/iommu.c
 +++ b/drivers/iommu/intel/iommu.c
-@@ -1917,9 +1917,18 @@ static void free_dmar_iommu(struct intel_iommu *iommu)
-  * Check and return whether first level is used by default for
-  * DMA translation.
-  */
--static bool first_level_by_default(void)
-+static bool first_level_by_default(unsigned int type)
- {
--	return scalable_mode_support() && intel_cap_flts_sanity();
-+	/* Only SL is available in legacy mode */
-+	if (!scalable_mode_support())
-+		return false;
-+
-+	/* Only level (either FL or SL) is available, just use it */
-+	if (intel_cap_flts_sanity() ^ intel_cap_slts_sanity())
-+		return intel_cap_flts_sanity();
-+
-+	/* Both levels are available, decide it based on domain type */
-+	return type != IOMMU_DOMAIN_UNMANAGED;
- }
- 
- static struct dmar_domain *alloc_domain(unsigned int type)
-@@ -1932,7 +1941,7 @@ static struct dmar_domain *alloc_domain(unsigned int type)
- 
- 	memset(domain, 0, sizeof(*domain));
- 	domain->nid = NUMA_NO_NODE;
--	if (first_level_by_default())
-+	if (first_level_by_default(type))
- 		domain->flags |= DOMAIN_FLAG_USE_FIRST_LEVEL;
- 	domain->has_iotlb_device = false;
- 	INIT_LIST_HEAD(&domain->devices);
+@@ -4423,7 +4423,8 @@ int __init intel_iommu_init(void)
+ 		 * is likely to be much lower than the overhead of synchronizing
+ 		 * the virtual and physical IOMMU page-tables.
+ 		 */
+-		if (cap_caching_mode(iommu->cap)) {
++		if (cap_caching_mode(iommu->cap) &&
++		    !first_level_by_default(IOMMU_DOMAIN_DMA)) {
+ 			pr_info_once("IOMMU batching disallowed due to virtualization\n");
+ 			iommu_set_dma_strict();
+ 		}
 -- 
 2.39.2
 
