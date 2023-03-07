@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 167B56ADAAE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:43:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 183326ADAAF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229803AbjCGJnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:43:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36740 "EHLO
+        id S230444AbjCGJnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:43:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbjCGJn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:43:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79FF33CE1A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:43:25 -0800 (PST)
+        with ESMTP id S230181AbjCGJni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:43:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879A34D635
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:43:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 143C26126D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1F0C4339B;
-        Tue,  7 Mar 2023 09:43:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09471612A8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B2DC4339C;
+        Tue,  7 Mar 2023 09:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182204;
-        bh=XiPB9tA12RkjF1NQtgntS2ex6gRHQpjxjXH79W7Zsi4=;
+        s=korg; t=1678182207;
+        bh=5Vaj+BggT6qasH76t8Qgml7IJyE36nI61REMtl0rn40=;
         h=Subject:To:Cc:From:Date:From;
-        b=fkI+EsXeSGnnDyDmbn5+hiVS4dY1AA5zFx5r9IVBJAgPp9eb/5G349roI2aYWjmlZ
-         jh6IRyqNqp7Aksigc9IlABOKxkyhGZljjHWyUgZjJlNk5ZTItUnO4HBRGy4fY++yEY
-         wClYrn/QG9DT0WvsKO3kX4pvMpSX8zl6+Yl6E77c=
-Subject: FAILED: patch "[PATCH] ARM: dts: exynos: correct TMU phandle in Exynos5250" failed to apply to 4.19-stable tree
+        b=qiPtCWmDopQBg05jBPBrXgStmLGytrBYYG34ieL+HxRBK3DkyYXhr9vdIN1Un42Cj
+         j9J0nMMSdBui2bqcXe17tjXT2mmhLuHbd+1wMMN9eKSraCFS3lmwTCOIErzu8qVSB+
+         8riDr9iuaoSDaHN+XO5MvSuH8BNF43eYAtKoJ/UA=
+Subject: FAILED: patch "[PATCH] ARM: dts: exynos: correct TMU phandle in Exynos5250" failed to apply to 4.14-stable tree
 To:     krzysztof.kozlowski@linaro.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:43:13 +0100
-Message-ID: <1678182193224134@kroah.com>
+Date:   Tue, 07 Mar 2023 10:43:14 +0100
+Message-ID: <16781821949666@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x 33e2c595e2e4016991ead44933a29d1ef93d5f26
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182193224134@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781821949666@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
@@ -69,6 +69,21 @@ Possible dependencies:
 be00300147ae ("ARM: dts: exynos: Move pmu and timer nodes out of soc")
 670734f55810 ("ARM: dts: exynos: Add all CPUs in cooling maps")
 eb9e16d8573e ("ARM: dts: exynos: Convert exynos5250.dtsi to opp-v2 bindings")
+672f33198bee ("arm: dts: exynos: Add missing cooling device properties for CPUs")
+c769eaf7a85d ("ARM: dts: exynos: Split Trats2 DTS in preparation for Midas boards")
+cd6f55457eb4 ("ARM: dts: exynos: Remove "cooling-{min|max}-level" for CPU nodes")
+73a901d09a21 ("ARM: dts: exynos: Add soc node to exynos4")
+9097b4bd9fce ("ARM: dts: exynos: Use pmu label in exynos4412")
+8ce5c46d0230 ("ARM: dts: exynos: Use labels instead of full paths in exynos4412-trats2")
+e030be47ac48 ("ARM: dts: exynos: Use labels instead of full paths in exynos4210")
+e58864515240 ("ARM: dts: exynos: Use pinctrl labels in exynos4412-pinctrl")
+88c166cec136 ("ARM: dts: exynos: Use pinctrl labels in exynos4210-pinctrl")
+3be1ecf291df ("ARM: dts: exynos: Use lower case hex addresses in node unit addresses")
+6351fe9375f4 ("ARM: dts: exynos: Add G3D power domain to Exynos5250")
+c0d40bb3ac71 ("ARM: dts: exynos: Add audio power domain to Exynos5250")
+9fbb4c096323 ("ARM: dts: exynos: Fix power domain node names for Exynos5250")
+528832d4c01a ("ARM: dts: exynos: Add audio power domain support to Exynos542x SoCs")
+cdd745c8c76b ("ARM: dts: exynos: Remove duplicate definitions of SSS nodes for Exynos5")
 
 thanks,
 
