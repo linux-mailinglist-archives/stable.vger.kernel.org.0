@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6A26AEF73
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D05A16AEB11
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232560AbjCGSXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:23:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47474 "EHLO
+        id S231794AbjCGRjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:39:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232657AbjCGSX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56EE074A58
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:18:12 -0800 (PST)
+        with ESMTP id S231922AbjCGRj3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:39:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7C89CFEF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D8646150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64890C433D2;
-        Tue,  7 Mar 2023 18:18:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 973B7B8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6513C433EF;
+        Tue,  7 Mar 2023 17:35:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213091;
-        bh=/eSdV527uzDlVoBtpHdMhKa1UywdHbq16i9sks9Fz8Y=;
+        s=korg; t=1678210542;
+        bh=WmeQqNMIn0d+Al//BZrKLExRSzZUo3r6VfBDLM4B2QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cBNZf/IJMXMfoK4n3DpxHSSD4hk8GjgpXRWj+QXUMDlfnQuZQtc7qwVS3+5ydEKA5
-         SQ9uU8gCVtzdq51phgBA2LH0zIw3iP1/oM3kbxqmznyvGSF0IRJ8QSAfIumO2ggI5p
-         PXnVzIesQlG/cz2Vn063UrL0La7QlhX/Dj97p6js=
+        b=t0yue2UwERky4Ysd93wIQoIKt9rj9oONCBP9sah+MkT87E25s3ewKvICP1/wZYgLu
+         V7otbk2VyCdKe06GiagP0xm+GCzLwSKQYvnI8tC4yT+X4vtGmpIulBzfswufkXUmrp
+         ITt5f3D1YuXYcxBSSWuzmIc0xNCX5SZMTOHXznvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "kernelci.org bot" <bot@kernelci.org>,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 395/885] selftests: find echo binary to use -ne options
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0557/1001] usb: host: fsl-mph-dr-of: reuse device_set_of_node_from_dev
 Date:   Tue,  7 Mar 2023 17:55:29 +0100
-Message-Id: <20230307170019.553978260@linuxfoundation.org>
+Message-Id: <20230307170045.658284105@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Tucker <guillaume.tucker@collabora.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 4ebe33398c40c1118b4d8546978036c0e0032d1b ]
+[ Upstream commit e2ffae3ed92a9f768902c1cf82642c3a09cd0345 ]
 
-Find the actual echo binary using $(which echo) and use it for
-formatted output with -ne.  On some systems, the default echo command
-doesn't handle the -e option and the output looks like this (arm64
-build):
+This sets both of_node fields and takes a of_node reference as well.
 
--ne Emit Tests for alsa
-
--ne Emit Tests for amd-pstate
-
--ne Emit Tests for arm64
-
-This is for example the case with the KernelCI Docker images
-e.g. kernelci/gcc-10:x86-kselftest-kernelci.  With the actual echo
-binary (e.g. in /bin/echo), the output is formatted as expected (x86
-build this time):
-
-Emit Tests for alsa
-Emit Tests for amd-pstate
-Skipping non-existent dir: arm64
-
-Only the install target is using "echo -ne" so keep the $ECHO variable
-local to it.
-
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Fixes: 3297a4df805d ("kselftests: Enable the echo command to print newlines in Makefile")
-Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: bb160ee61c04 ("drivers/usb/host/ehci-fsl: Fix interrupt setup in host mode.")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20230207110531.1060252-4-alexander.stein@ew.tq-group.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/Makefile | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/host/fsl-mph-dr-of.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
-index f07aef7c592c2..253596a1cb69c 100644
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -231,10 +231,11 @@ ifdef INSTALL_PATH
- 	@# While building kselftest-list.text skip also non-existent TARGET dirs:
- 	@# they could be the result of a build failure and should NOT be
- 	@# included in the generated runlist.
-+	ECHO=`which echo`; \
- 	for TARGET in $(TARGETS); do \
- 		BUILD_TARGET=$$BUILD/$$TARGET;	\
--		[ ! -d $(INSTALL_PATH)/$$TARGET ] && echo "Skipping non-existent dir: $$TARGET" && continue; \
--		echo -ne "Emit Tests for $$TARGET\n"; \
-+		[ ! -d $(INSTALL_PATH)/$$TARGET ] && $$ECHO "Skipping non-existent dir: $$TARGET" && continue; \
-+		$$ECHO -ne "Emit Tests for $$TARGET\n"; \
- 		$(MAKE) -s --no-print-directory OUTPUT=$$BUILD_TARGET COLLECTION=$$TARGET \
- 			-C $$TARGET emit_tests >> $(TEST_LIST); \
- 	done;
+diff --git a/drivers/usb/host/fsl-mph-dr-of.c b/drivers/usb/host/fsl-mph-dr-of.c
+index e5df175228928..46c6a152b8655 100644
+--- a/drivers/usb/host/fsl-mph-dr-of.c
++++ b/drivers/usb/host/fsl-mph-dr-of.c
+@@ -112,8 +112,7 @@ static struct platform_device *fsl_usb2_device_register(
+ 			goto error;
+ 	}
+ 
+-	pdev->dev.of_node = ofdev->dev.of_node;
+-	pdev->dev.of_node_reused = true;
++	device_set_of_node_from_dev(&pdev->dev, &ofdev->dev);
+ 
+ 	retval = platform_device_add(pdev);
+ 	if (retval)
 -- 
 2.39.2
 
