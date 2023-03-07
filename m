@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 280CB6AECED
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3A96AF293
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229977AbjCGR7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:59:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52874 "EHLO
+        id S233264AbjCGSyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:54:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230178AbjCGR7O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:59:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D50FA54FA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:53:28 -0800 (PST)
+        with ESMTP id S232925AbjCGSxs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0652FB3286;
+        Tue,  7 Mar 2023 10:41:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B57F96150B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:53:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABF1AC4339B;
-        Tue,  7 Mar 2023 17:53:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F85EB819D0;
+        Tue,  7 Mar 2023 18:36:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7730C4339B;
+        Tue,  7 Mar 2023 18:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211607;
-        bh=hPewh0/nGVNuEzvBReTd2k8UkTZtWu+4RhUM1c16L3E=;
+        s=korg; t=1678214201;
+        bh=0/FxfKa+D6jU4s2roRUp6voKNROUjD0Ib4RCyc9aZm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j72p/PCDHV38yNqL+m47xkZFGxfl5/q4OVZca8pMcWI/+0Yj8Fi4moGK7Q6Pt+/ac
-         SQi9Ke0fo+G+n6+A8QS67803CnePkEdq+SqWgyZvmbHM0T9TZlh6m3IDdsUm/HVT1O
-         E8X30bjxr6NJZ0jMtJ8JOHYDEABiF6CHvXf0K4Vc=
+        b=BhAd7SUpilOeoJN7nNLdgiHfzkVg2iZQKK2mJGa0EovSQ8hR6n0amIWpJ40j3ylWV
+         FF0pCnnsu81YSoZ7g58drxD3Kg2A45mt3Sls4mAJ2F6Llo38x3MVRPc1cElSmtn0Ye
+         0rLlcv91Sy+CWCnSoAJJSdyR7ZoH6g+R6YSmgE84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Marcin Witkowski <marcin.witkowski@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.2 0917/1001] spi: intel: Check number of chip selects after reading the descriptor
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 6.1 755/885] selftests: pidfd: Fix incorrect kernel headers search path
 Date:   Tue,  7 Mar 2023 18:01:29 +0100
-Message-Id: <20230307170101.863281058@linuxfoundation.org>
+Message-Id: <20230307170034.736789030@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 574fbb95cd9d88bdc9c9c4c64223a38a61d7de9a upstream.
+commit 3f7d71768795c386019f2295c1986d00035c9f0f upstream.
 
-The flash decriptor contains the number of flash components that we use
-to figure out how many flash chips there are connected. Therefore we
-need to read it first before deciding how many chip selects the
-controller has.
+Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
+building against kernel headers from the build environment in scenarios
+where kernel headers are installed into a specific output directory
+(O=...).
 
-Reported-by: Marcin Witkowski <marcin.witkowski@intel.com>
-Fixes: 3f03c618bebb ("spi: intel: Add support for second flash chip")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20230215110040.42186-1-mika.westerberg@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: linux-kselftest@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: <stable@vger.kernel.org> # 5.18+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-intel.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/testing/selftests/pidfd/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-intel.c b/drivers/spi/spi-intel.c
-index f619212b0d5c..627287925fed 100644
---- a/drivers/spi/spi-intel.c
-+++ b/drivers/spi/spi-intel.c
-@@ -1368,14 +1368,14 @@ static int intel_spi_populate_chip(struct intel_spi *ispi)
- 	if (!spi_new_device(ispi->master, &chip))
- 		return -ENODEV;
+--- a/tools/testing/selftests/pidfd/Makefile
++++ b/tools/testing/selftests/pidfd/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-CFLAGS += -g -I../../../../usr/include/ -pthread -Wall
++CFLAGS += -g $(KHDR_INCLUDES) -pthread -Wall
  
--	/* Add the second chip if present */
--	if (ispi->master->num_chipselect < 2)
--		return 0;
--
- 	ret = intel_spi_read_desc(ispi);
- 	if (ret)
- 		return ret;
- 
-+	/* Add the second chip if present */
-+	if (ispi->master->num_chipselect < 2)
-+		return 0;
-+
- 	chip.platform_data = NULL;
- 	chip.chip_select = 1;
- 
--- 
-2.39.2
-
+ TEST_GEN_PROGS := pidfd_test pidfd_fdinfo_test pidfd_open_test \
+ 	pidfd_poll_test pidfd_wait pidfd_getfd_test pidfd_setns_test
 
 
