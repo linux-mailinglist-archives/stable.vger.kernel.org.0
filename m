@@ -2,54 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D494E6AEAF9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 283F46AEF71
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231338AbjCGRjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:39:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43226 "EHLO
+        id S232739AbjCGSXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbjCGRim (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161B1898C9
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:41 -0800 (PST)
+        with ESMTP id S232702AbjCGSXW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFA439CC1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:18:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E60A61520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72983C433A4;
-        Tue,  7 Mar 2023 17:34:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07589B819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:18:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E2EC433EF;
+        Tue,  7 Mar 2023 18:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210479;
-        bh=vP5xQh6kFrlHr21SGXbaOzuh2hkmJnfheFpnzcDTdcE=;
+        s=korg; t=1678213082;
+        bh=dxFSj10K1gAdGhzhQE+cReJR7o4SDTExojXack2sgcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rw0BsyzFNRxG4crBx72SqL3Uo7TSMWzSPOJSXJ/1VKeeLdutsq2+onVB2cZpbj75K
-         ahHdDSjl8mUPh0iHJmRPJ0hHawnE4tG7ESuZORs0Yzv63OIifUj23cb79NIgOqd8xV
-         YtSnFo90gmQtRzU6nQsvo+p5W6/xMY/BjQ04ADjE=
+        b=Wk3R3wijWJ0QgjOtcQM1k3qMjrGUFazDtRYDOsK+QC2A9U8j20r6N3VZFfZ5/m2bz
+         /5hxSZWM0yv3e0HvUasLI7dOAWKi3iF9N6Z7hCxmIR7cejX8V5LVjNNb0D230oK95T
+         sdW6nhB7SNEPNCxwTOAeIk3ynsHkptTYEFVNjD+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        Luca Weiss <luca.weiss@fairphone.com>
-Subject: [PATCH 6.2 0553/1001] driver core: fw_devlink: Consolidate device link flag computation
-Date:   Tue,  7 Mar 2023 17:55:25 +0100
-Message-Id: <20230307170045.478367457@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Disha Goel <disgoel@linux.ibm.com>,
+        Ian Rogers <irogers@google.com>,
+        James Clark <james.clark@arm.com>,
+        Jiri Olsa <jolsa@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang Nan <wangnan0@huawei.com>, linuxppc-dev@lists.ozlabs.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 392/885] perf test bpf: Skip test if kernel-debuginfo is not present
+Date:   Tue,  7 Mar 2023 17:55:26 +0100
+Message-Id: <20230307170019.411130641@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,130 +65,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit cd115c0409f283edde94bd5a9a42dc42bee0aba8 ]
+[ Upstream commit 34266f904abd45731bdade2e92d0536c092ee9bc ]
 
-Consolidate the code that computes the flags to be used when creating a
-device link from a fwnode link.
+Perf BPF filter test fails in environment where "kernel-debuginfo"
+is not installed.
 
-Fixes: 2de9d8e0d2fe ("driver core: fw_devlink: Improve handling of cyclic dependencies")
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Tested-by: Colin Foster <colin.foster@in-advantage.com>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
-Link: https://lore.kernel.org/r/20230207014207.1678715-8-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Test failure logs:
+
+  <<>>
+  42: BPF filter                            :
+  42.1: Basic BPF filtering                 : Ok
+  42.2: BPF pinning                         : Ok
+  42.3: BPF prologue generation             : FAILED!
+  <<>>
+
+Enabling verbose option provided debug logs, which says debuginfo
+needs to be installed. Snippet of verbose logs:
+
+  <<>>
+  42.3: BPF prologue generation                                       :
+  --- start ---
+  test child forked, pid 28218
+  <<>>
+  Rebuild with CONFIG_DEBUG_INFO=y, or install an appropriate debuginfo
+  package.
+  bpf_probe: failed to convert perf probe events
+  Failed to add events selected by BPF
+  test child finished with -1
+  ---- end ----
+  BPF filter subtest 3: FAILED!
+  <<>>
+
+Here the subtest "BPF prologue generation" failed and logs shows
+debuginfo is needed. After installing kernel-debuginfo package, testcase
+passes.
+
+The "BPF prologue generation" subtest failed because, the do_test()
+returns TEST_FAIL without checking the error type returned by
+parse_events_load_bpf_obj().
+
+parse_events_load_bpf_obj() can also return error of type -ENODATA
+incase kernel-debuginfo package is not installed. Fix this by adding
+check for -ENODATA error.
+
+Test result after the patch changes:
+
+Test failure logs:
+
+  <<>>
+  42: BPF filter                 :
+  42.1: Basic BPF filtering      : Ok
+  42.2: BPF pinning              : Ok
+  42.3: BPF prologue generation  : Skip (clang/debuginfo isn't installed or environment missing BPF support)
+  <<>>
+
+Fixes: ba1fae431e74bb42 ("perf test: Add 'perf test BPF'")
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Disha Goel <disgoel@linux.ibm.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Link: http://lore.kernel.org/linux-perf-users/Y7bIk77mdE4j8Jyi@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c    | 28 +++++++++++++++-------------
- include/linux/fwnode.h |  1 -
- 2 files changed, 15 insertions(+), 14 deletions(-)
+ tools/perf/tests/bpf.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index bd8ae74e5cdcb..05c3e9a09b323 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1727,8 +1727,11 @@ static int __init fw_devlink_strict_setup(char *arg)
- }
- early_param("fw_devlink.strict", fw_devlink_strict_setup);
+diff --git a/tools/perf/tests/bpf.c b/tools/perf/tests/bpf.c
+index 17c023823713d..6a4235a9cf57e 100644
+--- a/tools/perf/tests/bpf.c
++++ b/tools/perf/tests/bpf.c
+@@ -126,6 +126,10 @@ static int do_test(struct bpf_object *obj, int (*func)(void),
  
--u32 fw_devlink_get_flags(void)
-+static inline u32 fw_devlink_get_flags(u8 fwlink_flags)
- {
-+	if (fwlink_flags & FWLINK_FLAG_CYCLE)
-+		return FW_DEVLINK_FLAGS_PERMISSIVE | DL_FLAG_CYCLE;
-+
- 	return fw_devlink_flags;
- }
- 
-@@ -1909,7 +1912,7 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
-  * fw_devlink_create_devlink - Create a device link from a consumer to fwnode
-  * @con: consumer device for the device link
-  * @sup_handle: fwnode handle of supplier
-- * @flags: devlink flags
-+ * @link: fwnode link that's being converted to a device link
-  *
-  * This function will try to create a device link between the consumer device
-  * @con and the supplier device represented by @sup_handle.
-@@ -1926,10 +1929,17 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
-  *  possible to do that in the future
-  */
- static int fw_devlink_create_devlink(struct device *con,
--				     struct fwnode_handle *sup_handle, u32 flags)
-+				     struct fwnode_handle *sup_handle,
-+				     struct fwnode_link *link)
- {
- 	struct device *sup_dev;
- 	int ret = 0;
-+	u32 flags;
-+
-+	if (con->fwnode == link->consumer)
-+		flags = fw_devlink_get_flags(link->flags);
-+	else
-+		flags = FW_DEVLINK_FLAGS_PERMISSIVE;
- 
- 	/*
- 	 * In some cases, a device P might also be a supplier to its child node
-@@ -2055,7 +2065,6 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
- 	struct fwnode_link *link, *tmp;
- 
- 	list_for_each_entry_safe(link, tmp, &fwnode->consumers, s_hook) {
--		u32 dl_flags = fw_devlink_get_flags();
- 		struct device *con_dev;
- 		bool own_link = true;
- 		int ret;
-@@ -2085,14 +2094,13 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
- 				con_dev = NULL;
- 			} else {
- 				own_link = false;
--				dl_flags = FW_DEVLINK_FLAGS_PERMISSIVE;
- 			}
- 		}
- 
- 		if (!con_dev)
- 			continue;
- 
--		ret = fw_devlink_create_devlink(con_dev, fwnode, dl_flags);
-+		ret = fw_devlink_create_devlink(con_dev, fwnode, link);
- 		put_device(con_dev);
- 		if (!own_link || ret == -EAGAIN)
- 			continue;
-@@ -2133,19 +2141,13 @@ static void __fw_devlink_link_to_suppliers(struct device *dev,
- 	bool own_link = (dev->fwnode == fwnode);
- 	struct fwnode_link *link, *tmp;
- 	struct fwnode_handle *child = NULL;
--	u32 dl_flags;
--
--	if (own_link)
--		dl_flags = fw_devlink_get_flags();
--	else
--		dl_flags = FW_DEVLINK_FLAGS_PERMISSIVE;
- 
- 	list_for_each_entry_safe(link, tmp, &fwnode->suppliers, c_hook) {
- 		int ret;
- 		struct device *sup_dev;
- 		struct fwnode_handle *sup = link->supplier;
- 
--		ret = fw_devlink_create_devlink(dev, sup, dl_flags);
-+		ret = fw_devlink_create_devlink(dev, sup, link);
- 		if (!own_link || ret == -EAGAIN)
- 			continue;
- 
-diff --git a/include/linux/fwnode.h b/include/linux/fwnode.h
-index fdf2ee0285b7a..5700451b300fb 100644
---- a/include/linux/fwnode.h
-+++ b/include/linux/fwnode.h
-@@ -207,7 +207,6 @@ static inline void fwnode_dev_initialized(struct fwnode_handle *fwnode,
- 		fwnode->flags &= ~FWNODE_FLAG_INITIALIZED;
- }
- 
--extern u32 fw_devlink_get_flags(void);
- extern bool fw_devlink_is_strict(void);
- int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup);
- void fwnode_links_purge(struct fwnode_handle *fwnode);
+ 	err = parse_events_load_bpf_obj(&parse_state, &parse_state.list, obj, NULL);
+ 	parse_events_error__exit(&parse_error);
++	if (err == -ENODATA) {
++		pr_debug("Failed to add events selected by BPF, debuginfo package not installed\n");
++		return TEST_SKIP;
++	}
+ 	if (err || list_empty(&parse_state.list)) {
+ 		pr_debug("Failed to add events selected by BPF\n");
+ 		return TEST_FAIL;
+@@ -368,7 +372,7 @@ static struct test_case bpf_tests[] = {
+ 			"clang isn't installed or environment missing BPF support"),
+ #ifdef HAVE_BPF_PROLOGUE
+ 	TEST_CASE_REASON("BPF prologue generation", bpf_prologue_test,
+-			"clang isn't installed or environment missing BPF support"),
++			"clang/debuginfo isn't installed or environment missing BPF support"),
+ #else
+ 	TEST_CASE_REASON("BPF prologue generation", bpf_prologue_test, "not compiled in"),
+ #endif
 -- 
 2.39.2
 
