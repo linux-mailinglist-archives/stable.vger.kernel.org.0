@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1AA56AE903
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:20:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2E56AEDC8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230198AbjCGRUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:20:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40676 "EHLO
+        id S231224AbjCGSH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:07:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231349AbjCGRTw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:19:52 -0500
+        with ESMTP id S232005AbjCGSHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E66D8EA31
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:15:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D921F99C14
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:00:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 775B7B81929
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:15:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20BCC433D2;
-        Tue,  7 Mar 2023 17:15:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89828B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:00:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD00FC433EF;
+        Tue,  7 Mar 2023 18:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209316;
-        bh=06aAdmUsOD91mW3GI3vxntpTk6RpxZOxbnjk85Zb+3Q=;
+        s=korg; t=1678212009;
+        bh=yhoD0hcAEueAYHZg8WavMG3NNMxDtL11rfS33aaTbgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J88l/37++jmrLrgn4cDCUhTm8wZBVjArktQxrSpMOtLA55atGKoRHtgn5d/6ZYIWy
-         3YN2nSK9tgn+1bf+vq9iP8giM6mi2OAtp5wGfl3NE7CvAIKa97EahUxMiCg99Lq1zG
-         tFXk6OOaLi7HkLb/tSQ2u06ejx1P7AMzAR5O0cJ8=
+        b=DgkZGJdIgi1u2XLftKR/IqEGXhHt1gkCw7GVsAKF0654vzFMeyWkVLWBYPunvDUJs
+         TqKX8j8pQrRvh3Xg9hIkRp4Ipck5yGaNcAmNFGFAZAn27TFv0qjZhSVjHTUsv5LSmT
+         12yb+u2Q6U4PP52EYARAcBFqQkW2TQlDgva3rhfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Boqun Feng <boqun.feng@gmail.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0179/1001] rcu-tasks: Remove preemption disablement around srcu_read_[un]lock() calls
+Subject: [PATCH 6.1 017/885] arm64: dts: mediatek: mt8195: Fix systimer 13 MHz clock description
 Date:   Tue,  7 Mar 2023 17:49:11 +0100
-Message-Id: <20230307170029.685993494@linuxfoundation.org>
+Message-Id: <20230307170002.395599684@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 44757092958bdd749775022f915b7ac974384c2a ]
+[ Upstream commit 0f1c806b65d136a5fe0b88adad5ff1cb451fc401 ]
 
-Ever since the following commit:
+The systimer block derives its 13 MHz clock by dividing the main 26 MHz
+oscillator clock by 2 internally, not through the TOPCKGEN clock
+controller.
 
-	5a41344a3d83 ("srcu: Simplify __srcu_read_unlock() via this_cpu_dec()")
+On the MT8195 this divider is set either by power-on-reset or by the
+bootloader. The bootloader may then make the divider unconfigurable to,
+but can be read out by, the operating system.
 
-SRCU doesn't rely anymore on preemption to be disabled in order to
-modify the per-CPU counter. And even then it used to be done from the API
-itself.
+Making the systimer block take the 26 MHz clock directly requires
+changing the implementations. As an ABI compatible fix, change the
+input clock of the systimer block a fixed factor divide-by-2 clock
+that takes the 26 MHz oscillator as its input.
 
-Therefore and after checking further, it appears to be safe to remove
-the preemption disablement around __srcu_read_[un]lock() in
-exit_tasks_rcu_start() and exit_tasks_rcu_finish()
-
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Suggested-by: Paul E. McKenney <paulmck@kernel.org>
-Suggested-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Stable-dep-of: 28319d6dc5e2 ("rcu-tasks: Fix synchronize_rcu_tasks() VS zap_pid_ns_processes()")
+Fixes: 37f2582883be ("arm64: dts: Add mediatek SoC mt8195 and evaluation board")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221201084229.3464449-4-wenst@chromium.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8195.dtsi | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 488ba8adf132c..20617a2d04ed9 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -1008,9 +1008,7 @@ EXPORT_SYMBOL_GPL(show_rcu_tasks_classic_gp_kthread);
-  */
- void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
- {
--	preempt_disable();
- 	current->rcu_tasks_idx = __srcu_read_lock(&tasks_rcu_exit_srcu);
--	preempt_enable();
- }
+diff --git a/arch/arm64/boot/dts/mediatek/mt8195.dtsi b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
+index 350d6c2ea622a..6dad8aaee436c 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8195.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
+@@ -244,6 +244,15 @@ sound: mt8195-sound {
+ 		status = "disabled";
+ 	};
  
- /*
-@@ -1022,9 +1020,7 @@ void exit_tasks_rcu_finish(void) __releases(&tasks_rcu_exit_srcu)
- {
- 	struct task_struct *t = current;
++	clk13m: fixed-factor-clock-13m {
++		compatible = "fixed-factor-clock";
++		#clock-cells = <0>;
++		clocks = <&clk26m>;
++		clock-div = <2>;
++		clock-mult = <1>;
++		clock-output-names = "clk13m";
++	};
++
+ 	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+@@ -701,7 +710,7 @@ systimer: timer@10017000 {
+ 				     "mediatek,mt6765-timer";
+ 			reg = <0 0x10017000 0 0x1000>;
+ 			interrupts = <GIC_SPI 265 IRQ_TYPE_LEVEL_HIGH 0>;
+-			clocks = <&topckgen CLK_TOP_CLK26M_D2>;
++			clocks = <&clk13m>;
+ 		};
  
--	preempt_disable();
- 	__srcu_read_unlock(&tasks_rcu_exit_srcu, t->rcu_tasks_idx);
--	preempt_enable();
- 	exit_tasks_rcu_finish_trace(t);
- }
- 
+ 		pwrap: pwrap@10024000 {
 -- 
 2.39.2
 
