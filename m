@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 637F16AF2F4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 297AE6AEFDB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:27:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbjCGS54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:57:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
+        id S232835AbjCGS1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:27:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbjCGS5i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098D6B863F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:09 -0800 (PST)
+        with ESMTP id S232744AbjCGS0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:26:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70794ACE38
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10D5EB818EB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E82FC433D2;
-        Tue,  7 Mar 2023 18:45:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5F976154A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E71DCC4339B;
+        Tue,  7 Mar 2023 18:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214705;
-        bh=mkvU2wlEMwNJJYoh/3n1OiSpTRZ1WNPSUojezGiE2sc=;
+        s=korg; t=1678213229;
+        bh=/55D4IlGGGL6+GREfVl+Vyvoo7MmRdzj7+9QD8ANrLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqtKCszRqXv/vPabEGm3FvhDmQ50AZqcHfOiKts4IXm7zSUm2lEtkEpEp/3fSPRdZ
-         MOB6Z9GK3FR965g68kIShAw3QHNFKGtgmu3DzJi+WPAkffTKbqgoGewgO8Mvtfxtu8
-         M830aeZ5tDZszFtKE3Hl9BF0HGVU+zLasRNU8Zy4=
+        b=t6WGJpW8RZlmUbXUWWBtqLd2FHK+iSP9E/i24J+yfffVAihq7miqnCww95jXaFJ2p
+         22DDxtEuHQ8SLzGdmn3leKhVtHpJ5VEKT4nlJE4YCHL6zKMIB0Gm/kuRhAa6N/U3XH
+         IfGsGGAH1fVMYpdnEAnC1LiZIIbQJfqutqcCrRfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 007/567] arm64: dts: qcom: sm8150-kumano: Panel framebuffer is 2.5k instead of 4k
-Date:   Tue,  7 Mar 2023 17:55:43 +0100
-Message-Id: <20230307165906.135577289@linuxfoundation.org>
+        patches@lists.linux.dev, Hanna Hawa <hhhawa@amazon.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 410/885] i2c: designware: fix i2c_dw_clk_rate() return size to be u32
+Date:   Tue,  7 Mar 2023 17:55:44 +0100
+Message-Id: <20230307170020.237475505@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Hanna Hawa <hhhawa@amazon.com>
 
-[ Upstream commit be8de06dc397c45cb0f3fe04084089c3f06c419f ]
+[ Upstream commit f2e1fa99550dd7a882229e2c2cd9ecab4ce773d0 ]
 
-The framebuffer configuration for kumano griffin, written in kumano dtsi
-(which is overwritten in bahamut dts for its smaller panel) has to use a
-1096x2560 configuration as this is what the panel (and framebuffer area)
-has been initialized to.  Downstream userspace also has access to (and
-uses) this 2.5k mode by default, and only switches the panel to 4k when
-requested.
+Make i2c_dw_clk_rate() to return u32 instead of unsigned long, as the
+function return the value of get_clk_rate_khz() which returns u32.
 
-Fixes: d0a6ce59ea4e ("arm64: dts: qcom: sm8150: Add support for SONY Xperia 1 / 5 (Kumano platform)")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221209191733.1458031-1-marijn.suijten@somainline.org
+Fixes: b33af11de236 ("i2c: designware: Do not require clock when SSCN and FFCN are provided")
+Signed-off-by: Hanna Hawa <hhhawa@amazon.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-designware-common.c | 2 +-
+ drivers/i2c/busses/i2c-designware-core.h   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi b/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi
-index fb6e5a140c9f6..04c71f74ab72d 100644
---- a/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8150-sony-xperia-kumano.dtsi
-@@ -33,9 +33,10 @@ chosen {
- 		framebuffer: framebuffer@9c000000 {
- 			compatible = "simple-framebuffer";
- 			reg = <0 0x9c000000 0 0x2300000>;
--			width = <1644>;
--			height = <3840>;
--			stride = <(1644 * 4)>;
-+			/* Griffin BL initializes in 2.5k mode, not 4k */
-+			width = <1096>;
-+			height = <2560>;
-+			stride = <(1096 * 4)>;
- 			format = "a8r8g8b8";
- 			/*
- 			 * That's (going to be) a lot of clocks, but it's necessary due
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index bceaf70f4e237..6fdb25a5f8016 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -465,7 +465,7 @@ void __i2c_dw_disable(struct dw_i2c_dev *dev)
+ 	dev_warn(dev->dev, "timeout in disabling adapter\n");
+ }
+ 
+-unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
++u32 i2c_dw_clk_rate(struct dw_i2c_dev *dev)
+ {
+ 	/*
+ 	 * Clock is not necessary if we got LCNT/HCNT values directly from
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 4d3a3b464ecd8..56a029da448a7 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -322,7 +322,7 @@ int i2c_dw_init_regmap(struct dw_i2c_dev *dev);
+ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset);
+ u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset);
+ int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev);
+-unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev);
++u32 i2c_dw_clk_rate(struct dw_i2c_dev *dev);
+ int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare);
+ int i2c_dw_acquire_lock(struct dw_i2c_dev *dev);
+ void i2c_dw_release_lock(struct dw_i2c_dev *dev);
 -- 
 2.39.2
 
