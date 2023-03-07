@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6290F6AF0E0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFC906AF08B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:31:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231451AbjCGSgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:36:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42446 "EHLO
+        id S231317AbjCGSbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:31:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233128AbjCGSfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB107B1B37
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:18 -0800 (PST)
+        with ESMTP id S231240AbjCGSbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:31:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6BF3AB0AE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:24:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E241BB819EF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5743DC433EF;
-        Tue,  7 Mar 2023 18:25:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B3886154A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61729C433EF;
+        Tue,  7 Mar 2023 18:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213545;
-        bh=JrVWWq4sJZRZXrAVy48HDbLoRW87VOhunRrH9CHQNvc=;
+        s=korg; t=1678213453;
+        bh=LshO+HO0q+wl6AI7aR1FOixDz6EAcGqKOhfdtHq9Gm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFi7kyUsw6PKoPZvR2oOW3ZmAM09IZ4c4WiJy+SaxzA0I0lEhmwzSB7z6TVwJaIPK
-         LDMjCyvtFF8NnZa+0zACJi5dg/5nvExKqjXtoj++hvzHh74lSgpjSo6Waa9lEdk9qG
-         6wRcMV0g4dLwDz852diPoKU3MRWSI1M8BTQmoV/U=
+        b=BbypiWIcEIx4ab0yYW/xCaB1fOd85+kud22+99wb08Cvxudh2yDOiWRCSaG8ruQnE
+         KqcoDP0coqbJ+/rF7CZZQpCtl1m+muxDoFfZcEYufDJxaj5UAZ0oLN/b+Jfrll8kOZ
+         aKfvczPqHf+WLSTjbmN66inz4mmeoUAHnd65qz8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev, Moudy Ho <moudy.ho@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 511/885] media: camss: csiphy-3ph: avoid undefined behavior
-Date:   Tue,  7 Mar 2023 17:57:25 +0100
-Message-Id: <20230307170024.680143579@linuxfoundation.org>
+Subject: [PATCH 6.1 512/885] media: platform: mtk-mdp3: remove unused VIDEO_MEDIATEK_VPU config
+Date:   Tue,  7 Mar 2023 17:57:26 +0100
+Message-Id: <20230307170024.728407149@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -46,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,45 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Moudy Ho <moudy.ho@mediatek.com>
 
-[ Upstream commit 05fb9ace34b8645cb76f7e3a21b5c7b754329cae ]
+[ Upstream commit 9195a860ef0a384d2ca2065cc61a0cc80d620de5 ]
 
-Marking a case of the switch statement as unreachable means the
-compiler treats it as undefined behavior, which is then caught by
-an objtool warning:
+Since REMOTEPROC completely replaces the VIDEO_MEDIATEK_VPU in MDP3,
+unused config should be removed to avoid compilation warnings
+reported on i386 or x86_64.
 
-drivers/media/platform/qcom/camss/camss-csiphy-3ph-1-0.o: warning: objtool: csiphy_lanes_enable() falls through to next function csiphy_lanes_disable()
+Warning messages:
+    WARNING: unmet direct dependencies detected for VIDEO_MEDIATEK_VPU
+          Depends on [n]: MEDIA_SUPPORT [=y] && MEDIA_PLATFORM_SUPPORT [=y]
+        && MEDIA_PLATFORM_DRIVERS [=y] && V4L_MEM2MEM_DRIVERS [=n] &&
+        VIDEO_DEV [=y] && (ARCH_MEDIATEK || COMPILE_TEST [=y])
+          Selected by [y]:
+          - VIDEO_MEDIATEK_MDP3 [=y] && MEDIA_SUPPORT [=y] &&
+        MEDIA_PLATFORM_SUPPORT [=y] && MEDIA_PLATFORM_DRIVERS [=y] &&
+        (MTK_IOMMU [=n] || COMPILE_TEST [=y]) && VIDEO_DEV [=y] &&
+        (ARCH_MEDIATEK || COMPILE_TEST [=y]) && HAS_DMA [=y] && REMOTEPROC
+        [=y]
 
-Instead of simply continuing execution at a random place of the
-driver, print a warning and return from to the caller, which
-makes it possible to understand what happens and avoids the
-warning.
-
-Fixes: 53655d2a0ff2 ("media: camss: csiphy-3ph: add support for SM8250 CSI DPHY")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Fixes: 61890ccaefaf ("media: platform: mtk-mdp3: add MediaTek MDP3 driver")
+Signed-off-by: Moudy Ho <moudy.ho@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Stable-dep-of: e3f7feb6d893 ("media: platform: mtk-mdp3: fix Kconfig dependencies")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/camss/camss-csiphy-3ph-1-0.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/platform/mediatek/mdp3/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/media/platform/qcom/camss/camss-csiphy-3ph-1-0.c b/drivers/media/platform/qcom/camss/camss-csiphy-3ph-1-0.c
-index 451a4c9b3d30d..04baa80494c66 100644
---- a/drivers/media/platform/qcom/camss/camss-csiphy-3ph-1-0.c
-+++ b/drivers/media/platform/qcom/camss/camss-csiphy-3ph-1-0.c
-@@ -429,7 +429,8 @@ static void csiphy_gen2_config_lanes(struct csiphy_device *csiphy,
- 		array_size = ARRAY_SIZE(lane_regs_sm8250[0]);
- 		break;
- 	default:
--		unreachable();
-+		WARN(1, "unknown cspi version\n");
-+		return;
- 	}
- 
- 	for (l = 0; l < 5; l++) {
+diff --git a/drivers/media/platform/mediatek/mdp3/Kconfig b/drivers/media/platform/mediatek/mdp3/Kconfig
+index 50ae07b75b5f2..846e759a8f6a9 100644
+--- a/drivers/media/platform/mediatek/mdp3/Kconfig
++++ b/drivers/media/platform/mediatek/mdp3/Kconfig
+@@ -9,7 +9,6 @@ config VIDEO_MEDIATEK_MDP3
+ 	select VIDEOBUF2_DMA_CONTIG
+ 	select V4L2_MEM2MEM_DEV
+ 	select MTK_MMSYS
+-	select VIDEO_MEDIATEK_VPU
+ 	select MTK_CMDQ
+ 	select MTK_SCP
+ 	default n
 -- 
 2.39.2
 
