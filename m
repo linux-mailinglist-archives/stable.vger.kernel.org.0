@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3845F6AEF81
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CDA6AEAE7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232704AbjCGSYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:24:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45194 "EHLO
+        id S231765AbjCGRi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:38:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232702AbjCGSXl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A9998860
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:18:53 -0800 (PST)
+        with ESMTP id S231755AbjCGRiN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E0894F68
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DAAAB8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB949C4339E;
-        Tue,  7 Mar 2023 18:18:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 963B661519
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E40DC433EF;
+        Tue,  7 Mar 2023 17:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213131;
-        bh=fLYx1e9I4Z8g8mJLVnYBvw++WVF/SxPrjHf6qKjxRpE=;
+        s=korg; t=1678210437;
+        bh=AF769B30T8DbAb9bQNz2IbMFDjrXhdFLVYPbCj+khD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLQItnctkmme5f7XGQmPxMUlwiL/op2+1Zz7brsL49robTlnabcE1QppBGTrNDHij
-         pjYRnmQUNQ+aiZp6CAIPIsKb7jTqZhYQaDybrF7b2V8lkIBvfnvaRYd0BQ96UaTjlG
-         sNlX5SLKdKKHkTwInnaD12rfBp9YkuWF+ktwt8jU=
+        b=NxPhPOTtbeTuhT61xNAXVPAIOmBvkSNXhn1My21d80ZBJsoOiVOFlTkO4NrLPkJ4H
+         /is/MjQfS9XS2M+jA70JhvoJy2gzVRMxENspBdXtjPfJhKF4c04uIq7QrGXq7urhYc
+         b8inUFgrBxMA5j3aJFwprN6UHFJ4UjoW4ozQwDQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Pierguido Lambri <plambri@redhat.com>
-Subject: [PATCH 6.1 379/885] nfsd: dont fsync nfsd_files on last close
+        patches@lists.linux.dev,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0541/1001] PCI: mt7621: Delay phy ports initialization
 Date:   Tue,  7 Mar 2023 17:55:13 +0100
-Message-Id: <20230307170018.800270287@linuxfoundation.org>
+Message-Id: <20230307170044.940510257@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,174 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit 4c475eee02375ade6e864f1db16976ba0d96a0a2 ]
+[ Upstream commit 0cb2a8f3456ff1cc51d571e287a48e8fddc98ec2 ]
 
-Most of the time, NFSv4 clients issue a COMMIT before the final CLOSE of
-an open stateid, so with NFSv4, the fsync in the nfsd_file_free path is
-usually a no-op and doesn't block.
+Some devices like ZBT WE1326 and ZBT WF3526-P and some Netgear models need
+to delay phy port initialization after calling the mt7621_pcie_init_port()
+driver function to get into reliable boots for both warm and hard resets.
 
-We have a customer running knfsd over very slow storage (XFS over Ceph
-RBD). They were using the "async" export option because performance was
-more important than data integrity for this application. That export
-option turns NFSv4 COMMIT calls into no-ops. Due to the fsync in this
-codepath however, their final CLOSE calls would still stall (since a
-CLOSE effectively became a COMMIT).
+The delay required to detect the ports seems to be in the range [75-100]
+milliseconds.
 
-I think this fsync is not strictly necessary. We only use that result to
-reset the write verifier. Instead of fsync'ing all of the data when we
-free an nfsd_file, we can just check for writeback errors when one is
-acquired and when it is freed.
+If the ports are not detected the controller is not functional.
 
-If the client never comes back, then it'll never see the error anyway
-and there is no point in resetting it. If an error occurs after the
-nfsd_file is removed from the cache but before the inode is evicted,
-then it will reset the write verifier on the next nfsd_file_acquire,
-(since there will be an unseen error).
+There is no datasheet or something similar to really understand why this
+extra delay is needed only for these devices and it is not for most of
+the boards that are built on mt7621 SoC.
 
-The only exception here is if something else opens and fsyncs the file
-during that window. Given that local applications work with this
-limitation today, I don't see that as an issue.
+This issue has been reported by openWRT community and the complete
+discussion is in [0]. The 100 milliseconds delay has been tested in all
+devices to validate it.
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2166658
-Fixes: ac3a2585f018 ("nfsd: rework refcounting in filecache")
-Reported-and-tested-by: Pierguido Lambri <plambri@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Add the extra 100 milliseconds delay to fix the issue.
+
+[0]: https://github.com/openwrt/openwrt/pull/11220
+
+Link: https://lore.kernel.org/r/20221231074041.264738-1-sergio.paracuellos@gmail.com
+Fixes: 2bdd5238e756 ("PCI: mt7621: Add MediaTek MT7621 PCIe host controller driver")
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/filecache.c | 44 ++++++++++++--------------------------------
- fs/nfsd/trace.h     | 31 -------------------------------
- 2 files changed, 12 insertions(+), 63 deletions(-)
+ drivers/pci/controller/pcie-mt7621.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfsd/filecache.c b/fs/nfsd/filecache.c
-index 142b3c928f76e..5cb8cce153a57 100644
---- a/fs/nfsd/filecache.c
-+++ b/fs/nfsd/filecache.c
-@@ -309,37 +309,27 @@ nfsd_file_alloc(struct nfsd_file_lookup_key *key, unsigned int may)
- 	return nf;
- }
+diff --git a/drivers/pci/controller/pcie-mt7621.c b/drivers/pci/controller/pcie-mt7621.c
+index ee7aad09d6277..63a5f4463a9f6 100644
+--- a/drivers/pci/controller/pcie-mt7621.c
++++ b/drivers/pci/controller/pcie-mt7621.c
+@@ -60,6 +60,7 @@
+ #define PCIE_PORT_LINKUP		BIT(0)
+ #define PCIE_PORT_CNT			3
  
-+/**
-+ * nfsd_file_check_write_error - check for writeback errors on a file
-+ * @nf: nfsd_file to check for writeback errors
-+ *
-+ * Check whether a nfsd_file has an unseen error. Reset the write
-+ * verifier if so.
-+ */
- static void
--nfsd_file_fsync(struct nfsd_file *nf)
--{
--	struct file *file = nf->nf_file;
--	int ret;
--
--	if (!file || !(file->f_mode & FMODE_WRITE))
--		return;
--	ret = vfs_fsync(file, 1);
--	trace_nfsd_file_fsync(nf, ret);
--	if (ret)
--		nfsd_reset_write_verifier(net_generic(nf->nf_net, nfsd_net_id));
--}
--
--static int
- nfsd_file_check_write_error(struct nfsd_file *nf)
- {
- 	struct file *file = nf->nf_file;
++#define INIT_PORTS_DELAY_MS		100
+ #define PERST_DELAY_MS			100
  
--	if (!file || !(file->f_mode & FMODE_WRITE))
--		return 0;
--	return filemap_check_wb_err(file->f_mapping, READ_ONCE(file->f_wb_err));
-+	if ((file->f_mode & FMODE_WRITE) &&
-+	    filemap_check_wb_err(file->f_mapping, READ_ONCE(file->f_wb_err)))
-+		nfsd_reset_write_verifier(net_generic(nf->nf_net, nfsd_net_id));
- }
- 
- static void
- nfsd_file_hash_remove(struct nfsd_file *nf)
- {
- 	trace_nfsd_file_unhash(nf);
--
--	if (nfsd_file_check_write_error(nf))
--		nfsd_reset_write_verifier(net_generic(nf->nf_net, nfsd_net_id));
- 	rhashtable_remove_fast(&nfsd_file_rhash_tbl, &nf->nf_rhash,
- 			       nfsd_file_rhash_params);
- }
-@@ -365,23 +355,12 @@ nfsd_file_free(struct nfsd_file *nf)
- 	this_cpu_add(nfsd_file_total_age, age);
- 
- 	nfsd_file_unhash(nf);
--
--	/*
--	 * We call fsync here in order to catch writeback errors. It's not
--	 * strictly required by the protocol, but an nfsd_file could get
--	 * evicted from the cache before a COMMIT comes in. If another
--	 * task were to open that file in the interim and scrape the error,
--	 * then the client may never see it. By calling fsync here, we ensure
--	 * that writeback happens before the entry is freed, and that any
--	 * errors reported result in the write verifier changing.
--	 */
--	nfsd_file_fsync(nf);
--
- 	if (nf->nf_mark)
- 		nfsd_file_mark_put(nf->nf_mark);
- 	if (nf->nf_file) {
- 		get_file(nf->nf_file);
- 		filp_close(nf->nf_file, NULL);
-+		nfsd_file_check_write_error(nf);
- 		fput(nf->nf_file);
+ /**
+@@ -369,6 +370,7 @@ static int mt7621_pcie_init_ports(struct mt7621_pcie *pcie)
+ 		}
  	}
  
-@@ -1136,6 +1115,7 @@ nfsd_file_do_acquire(struct svc_rqst *rqstp, struct svc_fh *fhp,
- out:
- 	if (status == nfs_ok) {
- 		this_cpu_inc(nfsd_file_acquisitions);
-+		nfsd_file_check_write_error(nf);
- 		*pnf = nf;
- 	} else {
- 		if (refcount_dec_and_test(&nf->nf_ref))
-diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
-index 4eb4e1039c7f4..132335011ccae 100644
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -1143,37 +1143,6 @@ TRACE_EVENT(nfsd_file_close,
- 	)
- );
++	msleep(INIT_PORTS_DELAY_MS);
+ 	mt7621_pcie_reset_ep_deassert(pcie);
  
--TRACE_EVENT(nfsd_file_fsync,
--	TP_PROTO(
--		const struct nfsd_file *nf,
--		int ret
--	),
--	TP_ARGS(nf, ret),
--	TP_STRUCT__entry(
--		__field(void *, nf_inode)
--		__field(int, nf_ref)
--		__field(int, ret)
--		__field(unsigned long, nf_flags)
--		__field(unsigned char, nf_may)
--		__field(struct file *, nf_file)
--	),
--	TP_fast_assign(
--		__entry->nf_inode = nf->nf_inode;
--		__entry->nf_ref = refcount_read(&nf->nf_ref);
--		__entry->ret = ret;
--		__entry->nf_flags = nf->nf_flags;
--		__entry->nf_may = nf->nf_may;
--		__entry->nf_file = nf->nf_file;
--	),
--	TP_printk("inode=%p ref=%d flags=%s may=%s nf_file=%p ret=%d",
--		__entry->nf_inode,
--		__entry->nf_ref,
--		show_nf_flags(__entry->nf_flags),
--		show_nfsd_may_flags(__entry->nf_may),
--		__entry->nf_file, __entry->ret
--	)
--);
--
- #include "cache.h"
- 
- TRACE_DEFINE_ENUM(RC_DROPIT);
+ 	tmp = NULL;
 -- 
 2.39.2
 
