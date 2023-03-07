@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 602156AF3AD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB7B6AF3AA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233521AbjCGTHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:07:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53822 "EHLO
+        id S233679AbjCGTHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:07:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233692AbjCGTHU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B98C2C709E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:36 -0800 (PST)
+        with ESMTP id S233686AbjCGTHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:16 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8174BDD3F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F36C961518
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA9E4C433D2;
-        Tue,  7 Mar 2023 18:47:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id ED19ECE1C84
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78DDC433EF;
+        Tue,  7 Mar 2023 18:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214855;
-        bh=U/8ae5hoKDIFCQhPdpeD7R5w2mssVhn6ZzxySlFKA50=;
+        s=korg; t=1678214849;
+        bh=gNFHLPt3YlBO/yTdxBKPAR7aPjA6Emg0U4/4DtmXibo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BiW27w2MdrGrnsWOJ1hCpKNYWxMfKmmnW9tWtqnMfODQaz9HlHi2bzQvUkhy7AMOe
-         kBwV7rk0bxpPZYohME8z5/OFDvZCKyxWPm5fH+ZmfqTngYR8B2l1Fc3MESc+mwTXP0
-         fNX0GOt9qp6LZGvWgd446w/cowQ8XrxiB/fWN064=
+        b=1MXA+ARDPrXhBiceshVCMAODj7Nxt+7mWzEHH3Pv5/tNbFvDs6cyVx2j/fSTnq1qI
+         rkhRaqy2WWwQJcn32GaL0j/7pEURDxWSsiLWXEgB1U3VtZnKJb9DuzGBwoJ/3XRyT3
+         ZYeUNNBTMkykquJBPpUNMi2u68Qog1ZaTpRVTsTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Kemeng Shi <shikemeng@huaweicloud.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 054/567] blk-mq: avoid sleep in blk_mq_alloc_request_hctx
-Date:   Tue,  7 Mar 2023 17:56:30 +0100
-Message-Id: <20230307165908.254495328@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 070/567] wifi: iwlegacy: common: dont call dev_kfree_skb() under spin_lock_irqsave()
+Date:   Tue,  7 Mar 2023 17:56:46 +0100
+Message-Id: <20230307165908.910280394@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,51 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kemeng Shi <shikemeng@huaweicloud.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 6ee858a3d3270a68902d66bb47c151a83622535c ]
+[ Upstream commit 0c1528675d7a9787cb516b64d8f6c0f6f8efcb48 ]
 
-Commit 1f5bd336b9150 ("blk-mq: add blk_mq_alloc_request_hctx") add
-blk_mq_alloc_request_hctx to send commands to a specific queue. If
-BLK_MQ_REQ_NOWAIT is not set in tag allocation, we may change to different
-hctx after sleep and get tag from unexpected hctx. So BLK_MQ_REQ_NOWAIT
-must be set in flags for blk_mq_alloc_request_hctx.
-After commit 600c3b0cea784 ("blk-mq: open code __blk_mq_alloc_request in
-blk_mq_alloc_request_hctx"), blk_mq_alloc_request_hctx return -EINVAL
-if both BLK_MQ_REQ_NOWAIT and BLK_MQ_REQ_RESERVED are not set instead of
-if BLK_MQ_REQ_NOWAIT is not set. So if BLK_MQ_REQ_NOWAIT is not set and
-BLK_MQ_REQ_RESERVED is set, blk_mq_alloc_request_hctx could alloc tag
-from unexpected hctx. I guess what we need here is that return -EINVAL
-if either BLK_MQ_REQ_NOWAIT or BLK_MQ_REQ_RESERVED is not set.
+It is not allowed to call consume_skb() from hardware interrupt context
+or with interrupts being disabled. So replace dev_kfree_skb() with
+dev_consume_skb_irq() under spin_lock_irqsave(). Compile tested only.
 
-Currently both BLK_MQ_REQ_NOWAIT and BLK_MQ_REQ_RESERVED will be set if
-specific hctx is needed in nvme_auth_submit, nvmf_connect_io_queue
-and nvmf_connect_admin_queue. Fix the potential BLK_MQ_REQ_NOWAIT missed
-case in future.
-
-Fixes: 600c3b0cea78 ("blk-mq: open code __blk_mq_alloc_request in blk_mq_alloc_request_hctx")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 4bc85c1324aa ("Revert "iwlwifi: split the drivers for agn and legacy devices 3945/4965"")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207144013.70210-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlegacy/common.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 9f53b4caf9772..01e281801453d 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -457,7 +457,8 @@ struct request *blk_mq_alloc_request_hctx(struct request_queue *q,
- 	 * allocator for this for the rare use case of a command tied to
- 	 * a specific queue.
- 	 */
--	if (WARN_ON_ONCE(!(flags & (BLK_MQ_REQ_NOWAIT | BLK_MQ_REQ_RESERVED))))
-+	if (WARN_ON_ONCE(!(flags & BLK_MQ_REQ_NOWAIT)) ||
-+	    WARN_ON_ONCE(!(flags & BLK_MQ_REQ_RESERVED)))
- 		return ERR_PTR(-EINVAL);
+diff --git a/drivers/net/wireless/intel/iwlegacy/common.c b/drivers/net/wireless/intel/iwlegacy/common.c
+index 683b632981ed3..83c1ff0d660f7 100644
+--- a/drivers/net/wireless/intel/iwlegacy/common.c
++++ b/drivers/net/wireless/intel/iwlegacy/common.c
+@@ -5173,7 +5173,7 @@ il_mac_reset_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ 	memset(&il->current_ht_config, 0, sizeof(struct il_ht_config));
  
- 	if (hctx_idx >= q->nr_hw_queues)
+ 	/* new association get rid of ibss beacon skb */
+-	dev_kfree_skb(il->beacon_skb);
++	dev_consume_skb_irq(il->beacon_skb);
+ 	il->beacon_skb = NULL;
+ 	il->timestamp = 0;
+ 
+@@ -5292,7 +5292,7 @@ il_beacon_update(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ 	}
+ 
+ 	spin_lock_irqsave(&il->lock, flags);
+-	dev_kfree_skb(il->beacon_skb);
++	dev_consume_skb_irq(il->beacon_skb);
+ 	il->beacon_skb = skb;
+ 
+ 	timestamp = ((struct ieee80211_mgmt *)skb->data)->u.beacon.timestamp;
 -- 
 2.39.2
 
