@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE516AEA62
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D4746AEEED
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:18:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231584AbjCGRdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:33:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60888 "EHLO
+        id S232562AbjCGSSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:18:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231578AbjCGRcx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FBAA28235
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:36 -0800 (PST)
+        with ESMTP id S232630AbjCGSSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CB676B2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFBE0614D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7B8FC433D2;
-        Tue,  7 Mar 2023 17:28:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55FF0B819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80641C433D2;
+        Tue,  7 Mar 2023 18:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210115;
-        bh=MfUxuhAKXY+ENTkDF0Qsyqs6F6Tniek0qUM65TSR9ZA=;
+        s=korg; t=1678212777;
+        bh=Ieevzb72Tp4clAm6jd3V2JofjiB9KvCO+j6nF8eOlM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWtXP3DSmBRqgouVH/st1XE4izTlPzhfbS02A64RQmAQTmXgQC105kY1tZt9T83VR
-         FZTPgXKOIHSZYJnJPRPXSRzDrD3yTeGl3yOBzqGSctbYiwDp9VbitLmgDM0dqP6XQS
-         az1z9ZJHrWocGTbV6TK0llcVgoXkBKSZpRFmbWOA=
+        b=Khb5PzeNXs4pb0Jup8QnexvXTFJIC9qu/gOe1Ycjgd7N3/ys7Ubrf3fKG+fjgZ9hH
+         Tu85InPJtpgLH5uFsm4oL/YW9jS9W9A3WfI3YcjfUrpQlR8ZXhkbL+cC+hq5Jc3itR
+         y1zbP2sE0Ev5jX/krhuqqzN2ei67OrwO2H448y2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wayne Boyer <wayne.boyer@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
+        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0438/1001] drm/i915/pvc: Implement recommended caching policy
+Subject: [PATCH 6.1 276/885] drm/msm/dpu: check for null return of devm_kzalloc() in dpu_writeback_init()
 Date:   Tue,  7 Mar 2023 17:53:30 +0100
-Message-Id: <20230307170040.366549124@linuxfoundation.org>
+Message-Id: <20230307170013.999183932@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,48 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Boyer <wayne.boyer@intel.com>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit e3995e08a39a41691742b380023a0d480247afb0 ]
+[ Upstream commit 21e9a838f505178e109ccb3bf19d7808eb0326f4 ]
 
-As per the performance tuning guide, set the HOSTCACHEEN bit to
-implement the recommended caching policy on PVC.
+Because of the possilble failure of devm_kzalloc(), dpu_wb_conn might
+be NULL and will cause null pointer dereference later.
 
-Signed-off-by: Wayne Boyer <wayne.boyer@intel.com>
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221130170723.2460014-1-wayne.boyer@intel.com
-Stable-dep-of: effc0905d741 ("drm/i915/pvc: Annotate two more workaround/tuning registers as MCR")
+Therefore, it might be better to check it and directly return -ENOMEM.
+
+Fixes: 77b001acdcfe ("drm/msm/dpu: add the writeback connector layer")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/512277/
+Link: https://lore.kernel.org/r/20221119055518.179937-1-tanghui20@huawei.com
+[DB: fixed typo in commit message]
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt_regs.h     | 1 +
- drivers/gpu/drm/i915/gt/intel_workarounds.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt_regs.h b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-index 0c7e7972cc1c4..838f73165ebbc 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-@@ -970,6 +970,7 @@
- #define   GEN7_L3AGDIS				(1 << 19)
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c
+index 088ec990a2f26..2a5a68366582b 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c
+@@ -70,6 +70,8 @@ int dpu_writeback_init(struct drm_device *dev, struct drm_encoder *enc,
+ 	int rc = 0;
  
- #define XEHPC_LNCFMISCCFGREG0			_MMIO(0xb01c)
-+#define   XEHPC_HOSTCACHEEN			REG_BIT(1)
- #define   XEHPC_OVRLSCCC			REG_BIT(0)
+ 	dpu_wb_conn = devm_kzalloc(dev->dev, sizeof(*dpu_wb_conn), GFP_KERNEL);
++	if (!dpu_wb_conn)
++		return -ENOMEM;
  
- #define GEN7_L3CNTLREG2				_MMIO(0xb020)
-diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-index dcc694b8bc8c7..c2d9d07af7ee9 100644
---- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -2973,6 +2973,7 @@ add_render_compute_tuning_settings(struct drm_i915_private *i915,
- 	if (IS_PONTEVECCHIO(i915)) {
- 		wa_write(wal, XEHPC_L3SCRUB,
- 			 SCRUB_CL_DWNGRADE_SHARED | SCRUB_RATE_4B_PER_CLK);
-+		wa_masked_en(wal, XEHPC_LNCFMISCCFGREG0, XEHPC_HOSTCACHEEN);
- 	}
+ 	drm_connector_helper_add(&dpu_wb_conn->base.base, &dpu_wb_conn_helper_funcs);
  
- 	if (IS_DG2(i915)) {
 -- 
 2.39.2
 
