@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BECFD6AEF02
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D2C06AEA85
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232643AbjCGSTk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:19:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39744 "EHLO
+        id S231624AbjCGRef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:34:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232598AbjCGSTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:19:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE3599673
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:39 -0800 (PST)
+        with ESMTP id S231699AbjCGReT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D07E659E79
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:30:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE4E6B8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF7BAC433D2;
-        Tue,  7 Mar 2023 18:13:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A337B6150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:30:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE6AC433EF;
+        Tue,  7 Mar 2023 17:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212817;
-        bh=oTUcPUfaPXthVaLlSuoY+hOfBm7fjUtcsGcV1Wg6dhY=;
+        s=korg; t=1678210205;
+        bh=zaWjMsi5uzuAx0ISdRQ1V4Jreir8Pb2KUfD1F6bE/AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6TqG4DHgYKszue3qmILao1XkCVnOkZBzVhjPD8umOlw+nXJLGij/DbW29Qg+Azjc
-         8ju2FjHAZ6ciXc3KRyXRHR2e0EVKWlwyZ8J5kLx2rog0VBOF4bmo30i5G4tqR1NvYZ
-         tjqrZnCbwpFpUQuDzNIjX+4zIqJt7CwueqAZgH0A=
+        b=pMkTu+FpD0eMOk1ONYq++k7WtyYEPoNOkto44Sgf3JTAwOiVjLW6C7uPj7nAY0PV4
+         8zT5Iq0NSu7+lI2tYWduc6dPG5oNSqZMxZHSxGncFtHtRD2h8k5PM2zHGFmB6yCvrI
+         aCA9quCXJVhpEgeLnCAAofbUP/C1F1ZI0lDWAh3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Mentz <danielmentz@google.com>,
-        Richard Acayan <mailingradian@gmail.com>,
-        Caleb Connolly <caleb@connolly.tech>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
+        James Clark <james.clark@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 305/885] drm/mipi-dsi: Fix byte order of 16-bit DCS set/get brightness
+Subject: [PATCH 6.2 0467/1001] perf intel-pt: Do not try to queue auxtrace data on pipe
 Date:   Tue,  7 Mar 2023 17:53:59 +0100
-Message-Id: <20230307170015.352990966@linuxfoundation.org>
+Message-Id: <20230307170041.656893861@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,115 +61,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Mentz <danielmentz@google.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit c9d27c6be518b4ef2966d9564654ef99292ea1b3 ]
+[ Upstream commit aeb802f872a7c42e4381f36041e77d1745908255 ]
 
-The MIPI DCS specification demands that brightness values are sent in
-big endian byte order. It also states that one parameter (i.e. one byte)
-shall be sent/received for 8 bit wide values, and two parameters shall
-be used for values that are between 9 and 16 bits wide.
+When it processes AUXTRACE_INFO, it calls to auxtrace_queue_data() to
+collect AUXTRACE data first.  That won't work with pipe since it needs
+lseek() to read the scattered aux data.
 
-Add new functions to properly handle 16-bit brightness in big endian,
-since the two 8- and 16-bit cases are distinct from each other.
+  $ perf record -o- -e intel_pt// true | perf report -i- --itrace=i100
+  # To display the perf.data header info, please use --header/--header-only options.
+  #
+  0x4118 [0xa0]: failed to process type: 70
+  Error:
+  failed to process sample
 
-[richard: use separate functions instead of switch/case]
-[richard: split into 16-bit component]
+For the pipe mode, it can handle the aux data as it gets.  But there's
+no guarantee it can get the aux data in time.  So the following warning
+will be shown at the beginning:
 
-Fixes: 1a9d759331b8 ("drm/dsi: Implement DCS set/get display brightness")
-Signed-off-by: Daniel Mentz <danielmentz@google.com>
-Link: https://android.googlesource.com/kernel/msm/+/754affd62d0ee268c686c53169b1dbb7deac8550
-[richard: fix 16-bit brightness_get]
-Signed-off-by: Richard Acayan <mailingradian@gmail.com>
-Tested-by: Caleb Connolly <caleb@connolly.tech>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230116224909.23884-2-mailingradian@gmail.com
+  WARNING: Intel PT with pipe mode is not recommended.
+           The output cannot relied upon.  In particular,
+           time stamps and the order of events may be incorrect.
+
+Fixes: dbd134322e74f19d ("perf intel-pt: Add support for decoding AUX area samples")
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lore.kernel.org/r/20230131023350.1903992-3-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mipi_dsi.c | 52 ++++++++++++++++++++++++++++++++++
- include/drm/drm_mipi_dsi.h     |  4 +++
- 2 files changed, 56 insertions(+)
+ tools/perf/Documentation/perf-intel-pt.txt | 30 ++++++++++++++++++++++
+ tools/perf/util/auxtrace.c                 |  3 +++
+ tools/perf/util/intel-pt.c                 |  6 +++++
+ 3 files changed, 39 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
-index 3ec02748d56fe..f25ddfe37498f 100644
---- a/drivers/gpu/drm/drm_mipi_dsi.c
-+++ b/drivers/gpu/drm/drm_mipi_dsi.c
-@@ -1224,6 +1224,58 @@ int mipi_dsi_dcs_get_display_brightness(struct mipi_dsi_device *dsi,
- }
- EXPORT_SYMBOL(mipi_dsi_dcs_get_display_brightness);
+diff --git a/tools/perf/Documentation/perf-intel-pt.txt b/tools/perf/Documentation/perf-intel-pt.txt
+index 7b6ccd2fa3bf1..9d485a9cdb198 100644
+--- a/tools/perf/Documentation/perf-intel-pt.txt
++++ b/tools/perf/Documentation/perf-intel-pt.txt
+@@ -1821,6 +1821,36 @@ Can be compiled and traced:
+  $
  
-+/**
-+ * mipi_dsi_dcs_set_display_brightness_large() - sets the 16-bit brightness value
-+ *    of the display
-+ * @dsi: DSI peripheral device
-+ * @brightness: brightness value
-+ *
-+ * Return: 0 on success or a negative error code on failure.
-+ */
-+int mipi_dsi_dcs_set_display_brightness_large(struct mipi_dsi_device *dsi,
-+					     u16 brightness)
-+{
-+	u8 payload[2] = { brightness >> 8, brightness & 0xff };
-+	ssize_t err;
+ 
++Pipe mode
++---------
++Pipe mode is a problem for Intel PT and possibly other auxtrace users.
++It's not recommended to use a pipe as data output with Intel PT because
++of the following reason.
 +
-+	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
-+				 payload, sizeof(payload));
-+	if (err < 0)
-+		return err;
++Essentially the auxtrace buffers do not behave like the regular perf
++event buffers.  That is because the head and tail are updated by
++software, but in the auxtrace case the data is written by hardware.
++So the head and tail do not get updated as data is written.
 +
-+	return 0;
-+}
-+EXPORT_SYMBOL(mipi_dsi_dcs_set_display_brightness_large);
++In the Intel PT case, the head and tail are updated only when the trace
++is disabled by software, for example:
++    - full-trace, system wide : when buffer passes watermark
++    - full-trace, not system-wide : when buffer passes watermark or
++                                    context switches
++    - snapshot mode : as above but also when a snapshot is made
++    - sample mode : as above but also when a sample is made
 +
-+/**
-+ * mipi_dsi_dcs_get_display_brightness_large() - gets the current 16-bit
-+ *    brightness value of the display
-+ * @dsi: DSI peripheral device
-+ * @brightness: brightness value
-+ *
-+ * Return: 0 on success or a negative error code on failure.
-+ */
-+int mipi_dsi_dcs_get_display_brightness_large(struct mipi_dsi_device *dsi,
-+					     u16 *brightness)
-+{
-+	u8 brightness_be[2];
-+	ssize_t err;
++That means finished-round ordering doesn't work.  An auxtrace buffer
++can turn up that has data that extends back in time, possibly to the
++very beginning of tracing.
 +
-+	err = mipi_dsi_dcs_read(dsi, MIPI_DCS_GET_DISPLAY_BRIGHTNESS,
-+				brightness_be, sizeof(brightness_be));
-+	if (err <= 0) {
-+		if (err == 0)
-+			err = -ENODATA;
++For a perf.data file, that problem is solved by going through the trace
++and queuing up the auxtrace buffers in advance.
 +
-+		return err;
++For pipe mode, the order of events and timestamps can presumably
++be messed up.
++
++
+ EXAMPLE
+ -------
+ 
+diff --git a/tools/perf/util/auxtrace.c b/tools/perf/util/auxtrace.c
+index c2e323cd7d496..d4b04fa07a119 100644
+--- a/tools/perf/util/auxtrace.c
++++ b/tools/perf/util/auxtrace.c
+@@ -1133,6 +1133,9 @@ int auxtrace_queue_data(struct perf_session *session, bool samples, bool events)
+ 	if (auxtrace__dont_decode(session))
+ 		return 0;
+ 
++	if (perf_data__is_pipe(session->data))
++		return 0;
++
+ 	if (!session->auxtrace || !session->auxtrace->queue_data)
+ 		return -EINVAL;
+ 
+diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
+index 6d3921627e332..b8b29756fbf13 100644
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -4379,6 +4379,12 @@ int intel_pt_process_auxtrace_info(union perf_event *event,
+ 
+ 	intel_pt_setup_pebs_events(pt);
+ 
++	if (perf_data__is_pipe(session->data)) {
++		pr_warning("WARNING: Intel PT with pipe mode is not recommended.\n"
++			   "         The output cannot relied upon.  In particular,\n"
++			   "         timestamps and the order of events may be incorrect.\n");
 +	}
 +
-+	*brightness = (brightness_be[0] << 8) | brightness_be[1];
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(mipi_dsi_dcs_get_display_brightness_large);
-+
- static int mipi_dsi_drv_probe(struct device *dev)
- {
- 	struct mipi_dsi_driver *drv = to_mipi_dsi_driver(dev->driver);
-diff --git a/include/drm/drm_mipi_dsi.h b/include/drm/drm_mipi_dsi.h
-index 20b21b577deaa..9054a5185e1a9 100644
---- a/include/drm/drm_mipi_dsi.h
-+++ b/include/drm/drm_mipi_dsi.h
-@@ -296,6 +296,10 @@ int mipi_dsi_dcs_set_display_brightness(struct mipi_dsi_device *dsi,
- 					u16 brightness);
- int mipi_dsi_dcs_get_display_brightness(struct mipi_dsi_device *dsi,
- 					u16 *brightness);
-+int mipi_dsi_dcs_set_display_brightness_large(struct mipi_dsi_device *dsi,
-+					     u16 brightness);
-+int mipi_dsi_dcs_get_display_brightness_large(struct mipi_dsi_device *dsi,
-+					     u16 *brightness);
- 
- /**
-  * mipi_dsi_dcs_write_seq - transmit a DCS command with payload
+ 	if (pt->sampling_mode || list_empty(&session->auxtrace_index))
+ 		err = auxtrace_queue_data(session, true, true);
+ 	else
 -- 
 2.39.2
 
