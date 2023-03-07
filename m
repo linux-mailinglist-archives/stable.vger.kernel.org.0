@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 734176AF155
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB676AEC1D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232910AbjCGSm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:42:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55092 "EHLO
+        id S232066AbjCGRwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:52:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231387AbjCGSmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF03A0B0A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:38 -0800 (PST)
+        with ESMTP id S232282AbjCGRwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3209FA590B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:46:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1A7F4CE1C8C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F23FAC433D2;
-        Tue,  7 Mar 2023 18:29:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F4B5B818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:46:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD045C433EF;
+        Tue,  7 Mar 2023 17:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213773;
-        bh=RfJ7zhBNlfLKvAEqmB7zionVyR+2H9D4eBTQ8wY+WUc=;
+        s=korg; t=1678211175;
+        bh=WxYwa2Cc30nYji1sh4OZhymFEFDeZ8K9EQ836M/pyes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLRc+0uqrlQ9hTctdf2ciFSRuYbD/gS0KPbAoVCkvnD083ssZZXqdjR9plgGkz79i
-         wyNjLwC0SkOd+ZZwIHIwOm48upCkuGwCI0bRFeQbYnPDNeYSMwahW90VjdI3VFROdV
-         75yvO9hjfSsd1ayjSkDitXisW9GOiq932MbqTLhg=
+        b=tt6OjYZ770zeI5iGBNoj2H6JwhTCGxUnPb8TsSmqaMU3KyrAPMU0OgN0U1BwcnhhM
+         v1LxUIvAKjMSb+qdBwaNF3n/3a90+NTN/KQGAU5OfrmVTU7GFujyK+OxNa74druUyl
+         Yf2nIT/eVumqwKDMf9EjdYG53dTIHdC2JA10RLcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 615/885] drm: rcar-du: Fix setting a reserved bit in DPLLCR
+        patches@lists.linux.dev, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Bharath SM <bharathsm@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 0777/1001] cifs: Check the lease context if we actually got a lease
 Date:   Tue,  7 Mar 2023 17:59:09 +0100
-Message-Id: <20230307170029.026352051@linuxfoundation.org>
+Message-Id: <20230307170055.472481554@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,136 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 5fbc2f3b91d27e12b614947048764099570cbb55 ]
+commit 66d45ca1350a3bb8d5f4db8879ccad3ed492337a upstream.
 
-On H3 ES1.x two bits in DPLLCR are used to select the DU input dot clock
-source. These are bits 20 and 21 for DU2, and bits 22 and 23 for DU1. On
-non-ES1.x, only the higher bits are used (bits 21 and 23), and the lower
-bits are reserved and should be set to 0.
+Some servers may return that we got a lease in rsp->OplockLevel
+but then in the lease context contradict this and say we got no lease
+at all.  Thus we need to check the context if we have a lease.
+Additionally, If we do not get a lease we need to make sure we close
+the handle before we return an error to the caller.
 
-The current code always sets the lower bits, even on non-ES1.x.
-
-For both DU1 and DU2, on all SoC versions, when writing zeroes to those
-bits the input clock is DCLKIN, and thus there's no difference between
-ES1.x and non-ES1.x.
-
-For DU1, writing 0b10 to the bits (or only writing the higher bit)
-results in using PLL0 as the input clock, so in this case there's also
-no difference between ES1.x and non-ES1.x.
-
-However, for DU2, writing 0b10 to the bits results in using PLL0 as the
-input clock on ES1.x, whereas on non-ES1.x it results in using PLL1. On
-ES1.x you need to write 0b11 to select PLL1.
-
-The current code always writes 0b11 to PLCS0 field to select PLL1 on all
-SoC versions, which works but causes an illegal (in the sense of not
-allowed by the documentation) write to a reserved bit field.
-
-To remove the illegal bit write on PLSC0 we need to handle the input dot
-clock selection differently for ES1.x and non-ES1.x.
-
-Add a new quirk, RCAR_DU_QUIRK_H3_ES1_PLL, for this. This way we can
-always set the bit 21 on PLSC0 when choosing the PLL as the source
-clock, and additionally set the bit 20 when on ES1.x.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Bharath SM <bharathsm@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 23 ++++++++++++++++++++---
- drivers/gpu/drm/rcar-du/rcar_du_drv.c  |  3 ++-
- drivers/gpu/drm/rcar-du/rcar_du_drv.h  |  1 +
- drivers/gpu/drm/rcar-du/rcar_du_regs.h |  8 ++------
- 4 files changed, 25 insertions(+), 10 deletions(-)
+ fs/cifs/cached_dir.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-index f2d3266509cc1..b7dd59fe119e6 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-@@ -245,13 +245,30 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- 		       | DPLLCR_N(dpll.n) | DPLLCR_M(dpll.m)
- 		       | DPLLCR_STBY;
+--- a/fs/cifs/cached_dir.c
++++ b/fs/cifs/cached_dir.c
+@@ -221,8 +221,7 @@ int open_cached_dir(unsigned int xid, st
+ 		}
+ 		goto oshr_free;
+ 	}
+-
+-	atomic_inc(&tcon->num_remote_opens);
++	cfid->is_open = true;
  
--		if (rcrtc->index == 1)
-+		if (rcrtc->index == 1) {
- 			dpllcr |= DPLLCR_PLCS1
- 			       |  DPLLCR_INCS_DOTCLKIN1;
--		else
--			dpllcr |= DPLLCR_PLCS0
-+		} else {
-+			dpllcr |= DPLLCR_PLCS0_PLL
- 			       |  DPLLCR_INCS_DOTCLKIN0;
+ 	o_rsp = (struct smb2_create_rsp *)rsp_iov[0].iov_base;
+ 	oparms.fid->persistent_fid = o_rsp->PersistentFileId;
+@@ -239,7 +238,8 @@ int open_cached_dir(unsigned int xid, st
+ 			    &oparms.fid->epoch,
+ 			    oparms.fid->lease_key, &oplock,
+ 			    NULL, NULL);
+-
++	if (!(oplock & SMB2_LEASE_READ_CACHING_HE))
++		goto oshr_free;
+ 	qi_rsp = (struct smb2_query_info_rsp *)rsp_iov[1].iov_base;
+ 	if (le32_to_cpu(qi_rsp->OutputBufferLength) < sizeof(struct smb2_file_all_info))
+ 		goto oshr_free;
+@@ -262,7 +262,6 @@ int open_cached_dir(unsigned int xid, st
+ 	cfid->dentry = dentry;
+ 	cfid->tcon = tcon;
+ 	cfid->time = jiffies;
+-	cfid->is_open = true;
+ 	cfid->has_lease = true;
  
-+			/*
-+			 * On ES2.x we have a single mux controlled via bit 21,
-+			 * which selects between DCLKIN source (bit 21 = 0) and
-+			 * a PLL source (bit 21 = 1), where the PLL is always
-+			 * PLL1.
-+			 *
-+			 * On ES1.x we have an additional mux, controlled
-+			 * via bit 20, for choosing between PLL0 (bit 20 = 0)
-+			 * and PLL1 (bit 20 = 1). We always want to use PLL1,
-+			 * so on ES1.x, in addition to setting bit 21, we need
-+			 * to set the bit 20.
-+			 */
-+
-+			if (rcdu->info->quirks & RCAR_DU_QUIRK_H3_ES1_PLL)
-+				dpllcr |= DPLLCR_PLCS0_H3ES1X_PLL1;
-+		}
-+
- 		rcar_du_group_write(rcrtc->group, DPLLCR, dpllcr);
+ oshr_free:
+@@ -282,12 +281,17 @@ oshr_free:
+ 	}
+ 	spin_unlock(&cfids->cfid_list_lock);
+ 	if (rc) {
++		if (cfid->is_open)
++			SMB2_close(0, cfid->tcon, cfid->fid.persistent_fid,
++				   cfid->fid.volatile_fid);
+ 		free_cached_dir(cfid);
+ 		cfid = NULL;
+ 	}
  
- 		escr = ESCR_DCLKSEL_DCLKIN | div;
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index 0dada0646b2eb..6381578c4db58 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -394,7 +394,8 @@ static const struct rcar_du_device_info rcar_du_r8a7795_es1_info = {
- 		  | RCAR_DU_FEATURE_VSP1_SOURCE
- 		  | RCAR_DU_FEATURE_INTERLACED
- 		  | RCAR_DU_FEATURE_TVM_SYNC,
--	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY,
-+	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY
-+		| RCAR_DU_QUIRK_H3_ES1_PLL,
- 	.channels_mask = BIT(3) | BIT(2) | BIT(1) | BIT(0),
- 	.routes = {
- 		/*
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-index df87ccab146f4..acc3673fefe18 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-@@ -35,6 +35,7 @@ struct rcar_du_device;
+-	if (rc == 0)
++	if (rc == 0) {
+ 		*ret_cfid = cfid;
++		atomic_inc(&tcon->num_remote_opens);
++	}
  
- #define RCAR_DU_QUIRK_ALIGN_128B	BIT(0)	/* Align pitches to 128 bytes */
- #define RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY BIT(1)	/* H3 ES1 has pclk stability issue */
-+#define RCAR_DU_QUIRK_H3_ES1_PLL	BIT(2)	/* H3 ES1 PLL setup differs from non-ES1 */
- 
- enum rcar_du_output {
- 	RCAR_DU_OUTPUT_DPAD0,
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_regs.h b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
-index c1bcb0e8b5b4e..789ae9285108e 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_regs.h
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
-@@ -283,12 +283,8 @@
- #define DPLLCR			0x20044
- #define DPLLCR_CODE		(0x95 << 24)
- #define DPLLCR_PLCS1		(1 << 23)
--/*
-- * PLCS0 is bit 21, but H3 ES1.x requires bit 20 to be set as well. As bit 20
-- * isn't implemented by other SoC in the Gen3 family it can safely be set
-- * unconditionally.
-- */
--#define DPLLCR_PLCS0		(3 << 20)
-+#define DPLLCR_PLCS0_PLL	(1 << 21)
-+#define DPLLCR_PLCS0_H3ES1X_PLL1	(1 << 20)
- #define DPLLCR_CLKE		(1 << 18)
- #define DPLLCR_FDPLL(n)		((n) << 12)
- #define DPLLCR_N(n)		((n) << 5)
--- 
-2.39.2
-
+ 	return rc;
+ }
 
 
