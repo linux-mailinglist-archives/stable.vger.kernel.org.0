@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CBE66AEAEC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05BBB6AEF63
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231924AbjCGRio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:38:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43322 "EHLO
+        id S232743AbjCGSX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231925AbjCGRiW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BA397B4A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:12 -0800 (PST)
+        with ESMTP id S232686AbjCGSXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3459522DD6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EAD71CE1B31
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7E66C4339B;
-        Tue,  7 Mar 2023 17:34:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7567B8199A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36041C433D2;
+        Tue,  7 Mar 2023 18:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210449;
-        bh=vIYI8VyyDWV8ih4I9Go7HDQkMb2ykAD0ZqFS3GbvG3Y=;
+        s=korg; t=1678213048;
+        bh=5d1UJmkzChSsewOMxyTxtJOAHKFTH1VdiwOAAvOpKZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyYbA/bTq3I7bX0dBx+MUeSyMtLVqCI4uJzqgt+mguCOGOSX9dx0QFL3ZC9vCW0SM
-         1PkjE6WXt8dMWDTVg9wmf91CX6NvyTmMrkodeQ3qeag8TcofW3fyG+H+L9JnFn3JZB
-         vvY6iAJIlFuWEiy6lEKjeDcwhB7sGyVeym1HOh1s=
+        b=Z1t1Y216qyjTgKKcFw3x//PY8YYj3ztZs1ScDytebAjzyiQr9HASkdpJdgjIpT8eU
+         HsdzBfWxoMNcQYeCH0kosaosjXuMyWMBhE9cvKsY9JZ/T7fSEzbBowFu0oqKdS9lzP
+         +eMNUrYuX8CHZBaaaVcCIPBR5gMnmwYJyg7C8ELs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Tom Talpey <tom@talpey.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0544/1001] RDMA/siw: Fix user page pinning accounting
+Subject: [PATCH 6.1 382/885] cifs: Fix warning and UAF when destroy the MR list
 Date:   Tue,  7 Mar 2023 17:55:16 +0100
-Message-Id: <20230307170045.056827743@linuxfoundation.org>
+Message-Id: <20230307170018.936848386@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +56,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 65a8fc30fb6722fc25adec6d7dd5b53b0bb85820 ]
+[ Upstream commit 3e161c2791f8e661eed24a2c624087084d910215 ]
 
-To avoid racing with other user memory reservations, immediately
-account full amount of pages to be pinned.
+If the MR allocate failed, the MR recovery work not initialized
+and list not cleared. Then will be warning and UAF when release
+the MR:
 
-Fixes: 2251334dcac9 ("rdma/siw: application buffer management")
-Reported-by: Jason Gunthorpe <jgg@nvidia.com>
-Suggested-by: Alistair Popple <apopple@nvidia.com>
-Reviewed-by: Alistair Popple <apopple@nvidia.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Link: https://lore.kernel.org/r/20230202101000.402990-1-bmt@zurich.ibm.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+  WARNING: CPU: 4 PID: 824 at kernel/workqueue.c:3066 __flush_work.isra.0+0xf7/0x110
+  CPU: 4 PID: 824 Comm: mount.cifs Not tainted 6.1.0-rc5+ #82
+  RIP: 0010:__flush_work.isra.0+0xf7/0x110
+  Call Trace:
+   <TASK>
+   __cancel_work_timer+0x2ba/0x2e0
+   smbd_destroy+0x4e1/0x990
+   _smbd_get_connection+0x1cbd/0x2110
+   smbd_get_connection+0x21/0x40
+   cifs_get_tcp_session+0x8ef/0xda0
+   mount_get_conns+0x60/0x750
+   cifs_mount+0x103/0xd00
+   cifs_smb3_do_mount+0x1dd/0xcb0
+   smb3_get_tree+0x1d5/0x300
+   vfs_get_tree+0x41/0xf0
+   path_mount+0x9b3/0xdd0
+   __x64_sys_mount+0x190/0x1d0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+  BUG: KASAN: use-after-free in smbd_destroy+0x4fc/0x990
+  Read of size 8 at addr ffff88810b156a08 by task mount.cifs/824
+  CPU: 4 PID: 824 Comm: mount.cifs Tainted: G        W          6.1.0-rc5+ #82
+  Call Trace:
+   dump_stack_lvl+0x34/0x44
+   print_report+0x171/0x472
+   kasan_report+0xad/0x130
+   smbd_destroy+0x4fc/0x990
+   _smbd_get_connection+0x1cbd/0x2110
+   smbd_get_connection+0x21/0x40
+   cifs_get_tcp_session+0x8ef/0xda0
+   mount_get_conns+0x60/0x750
+   cifs_mount+0x103/0xd00
+   cifs_smb3_do_mount+0x1dd/0xcb0
+   smb3_get_tree+0x1d5/0x300
+   vfs_get_tree+0x41/0xf0
+   path_mount+0x9b3/0xdd0
+   __x64_sys_mount+0x190/0x1d0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+  Allocated by task 824:
+   kasan_save_stack+0x1e/0x40
+   kasan_set_track+0x21/0x30
+   __kasan_kmalloc+0x7a/0x90
+   _smbd_get_connection+0x1b6f/0x2110
+   smbd_get_connection+0x21/0x40
+   cifs_get_tcp_session+0x8ef/0xda0
+   mount_get_conns+0x60/0x750
+   cifs_mount+0x103/0xd00
+   cifs_smb3_do_mount+0x1dd/0xcb0
+   smb3_get_tree+0x1d5/0x300
+   vfs_get_tree+0x41/0xf0
+   path_mount+0x9b3/0xdd0
+   __x64_sys_mount+0x190/0x1d0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+  Freed by task 824:
+   kasan_save_stack+0x1e/0x40
+   kasan_set_track+0x21/0x30
+   kasan_save_free_info+0x2a/0x40
+   ____kasan_slab_free+0x143/0x1b0
+   __kmem_cache_free+0xc8/0x330
+   _smbd_get_connection+0x1c6a/0x2110
+   smbd_get_connection+0x21/0x40
+   cifs_get_tcp_session+0x8ef/0xda0
+   mount_get_conns+0x60/0x750
+   cifs_mount+0x103/0xd00
+   cifs_smb3_do_mount+0x1dd/0xcb0
+   smb3_get_tree+0x1d5/0x300
+   vfs_get_tree+0x41/0xf0
+   path_mount+0x9b3/0xdd0
+   __x64_sys_mount+0x190/0x1d0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Let's initialize the MR recovery work before MR allocate to prevent
+the warning, remove the MRs from the list to prevent the UAF.
+
+Fixes: c7398583340a ("CIFS: SMBD: Implement RDMA memory registration")
+Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_mem.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ fs/cifs/smbdirect.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_mem.c b/drivers/infiniband/sw/siw/siw_mem.c
-index b2b33dd3b4fa1..f51ab2ccf1511 100644
---- a/drivers/infiniband/sw/siw/siw_mem.c
-+++ b/drivers/infiniband/sw/siw/siw_mem.c
-@@ -398,7 +398,7 @@ struct siw_umem *siw_umem_get(u64 start, u64 len, bool writable)
- 
- 	mlock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
- 
--	if (num_pages + atomic64_read(&mm_s->pinned_vm) > mlock_limit) {
-+	if (atomic64_add_return(num_pages, &mm_s->pinned_vm) > mlock_limit) {
- 		rv = -ENOMEM;
- 		goto out_sem_up;
+diff --git a/fs/cifs/smbdirect.c b/fs/cifs/smbdirect.c
+index 101dab87cad1a..cf923f211c512 100644
+--- a/fs/cifs/smbdirect.c
++++ b/fs/cifs/smbdirect.c
+@@ -2218,6 +2218,7 @@ static int allocate_mr_list(struct smbd_connection *info)
+ 	atomic_set(&info->mr_ready_count, 0);
+ 	atomic_set(&info->mr_used_count, 0);
+ 	init_waitqueue_head(&info->wait_for_mr_cleanup);
++	INIT_WORK(&info->mr_recovery_work, smbd_mr_recovery_work);
+ 	/* Allocate more MRs (2x) than hardware responder_resources */
+ 	for (i = 0; i < info->responder_resources * 2; i++) {
+ 		smbdirect_mr = kzalloc(sizeof(*smbdirect_mr), GFP_KERNEL);
+@@ -2245,13 +2246,13 @@ static int allocate_mr_list(struct smbd_connection *info)
+ 		list_add_tail(&smbdirect_mr->list, &info->mr_list);
+ 		atomic_inc(&info->mr_ready_count);
  	}
-@@ -411,30 +411,27 @@ struct siw_umem *siw_umem_get(u64 start, u64 len, bool writable)
- 		goto out_sem_up;
- 	}
- 	for (i = 0; num_pages; i++) {
--		int got, nents = min_t(int, num_pages, PAGES_PER_CHUNK);
--
--		umem->page_chunk[i].plist =
-+		int nents = min_t(int, num_pages, PAGES_PER_CHUNK);
-+		struct page **plist =
- 			kcalloc(nents, sizeof(struct page *), GFP_KERNEL);
--		if (!umem->page_chunk[i].plist) {
-+
-+		if (!plist) {
- 			rv = -ENOMEM;
- 			goto out_sem_up;
- 		}
--		got = 0;
-+		umem->page_chunk[i].plist = plist;
- 		while (nents) {
--			struct page **plist = &umem->page_chunk[i].plist[got];
--
- 			rv = pin_user_pages(first_page_va, nents, foll_flags,
- 					    plist, NULL);
- 			if (rv < 0)
- 				goto out_sem_up;
+-	INIT_WORK(&info->mr_recovery_work, smbd_mr_recovery_work);
+ 	return 0;
  
- 			umem->num_pages += rv;
--			atomic64_add(rv, &mm_s->pinned_vm);
- 			first_page_va += rv * PAGE_SIZE;
-+			plist += rv;
- 			nents -= rv;
--			got += rv;
-+			num_pages -= rv;
- 		}
--		num_pages -= got;
- 	}
- out_sem_up:
- 	mmap_read_unlock(mm_s);
-@@ -442,6 +439,10 @@ struct siw_umem *siw_umem_get(u64 start, u64 len, bool writable)
- 	if (rv > 0)
- 		return umem;
+ out:
+ 	kfree(smbdirect_mr);
  
-+	/* Adjust accounting for pages not pinned */
-+	if (num_pages)
-+		atomic64_sub(num_pages, &mm_s->pinned_vm);
-+
- 	siw_umem_release(umem, false);
- 
- 	return ERR_PTR(rv);
+ 	list_for_each_entry_safe(smbdirect_mr, tmp, &info->mr_list, list) {
++		list_del(&smbdirect_mr->list);
+ 		ib_dereg_mr(smbdirect_mr->mr);
+ 		kfree(smbdirect_mr->sgl);
+ 		kfree(smbdirect_mr);
 -- 
 2.39.2
 
