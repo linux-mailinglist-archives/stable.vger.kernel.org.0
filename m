@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 591C96AE99D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D01A6AE99C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231521AbjCGR0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:26:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
+        id S231461AbjCGR0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:26:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231557AbjCGRZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:33 -0500
+        with ESMTP id S231556AbjCGRZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:32 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0987C94390
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED499439B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFBEDB819AD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE553C433EF;
-        Tue,  7 Mar 2023 17:20:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC31AB819A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECCADC4339B;
+        Tue,  7 Mar 2023 17:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209632;
-        bh=QWiufvSY18xyAYhN9U/7BhkGAcbUi0Aa4xBhKUhlFrs=;
+        s=korg; t=1678209635;
+        bh=4kZZwJ+ftZ/O9uKO+WRLiH93SOW07IPvo6aFklykatI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwDv0GOJkItx1Bz6lJvNB1vJ4C92usypbbtbKsX3+YhJGY3BB7Pbsx4tmWob8s3K1
-         hpUQLITiDa/bKwWkF7T7NYVfyxOjATu8JOf7KNyt1Ty7s2B0CD254PzOO4abdo+4wq
-         xUndelzSkEVOLq4PwFndTokgQlJuOsHLY3v0ec3g=
+        b=vdBpetEoJHUxkaFHW8qO3yqqvVy0M/57v9zqnB8wdmqit808IU3rd1eCmb1VM9Eqs
+         uchXFIXldm6+7swthPHO6TZSgRKF8bh92oW/3Hg8Jv8BXgkVOv+ogOd8B0jv+x9NoU
+         U7aaDfXiQDOHHNEv8I5Jvv5qVIdlhlfj+cFTqE1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Anup Patel <apatel@ventanamicro.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0281/1001] m68k: /proc/hardware should depend on PROC_FS
-Date:   Tue,  7 Mar 2023 17:50:53 +0100
-Message-Id: <20230307170033.854707667@linuxfoundation.org>
+Subject: [PATCH 6.2 0282/1001] RISC-V: time: initialize hrtimer based broadcast clock event device
+Date:   Tue,  7 Mar 2023 17:50:54 +0100
+Message-Id: <20230307170033.906073337@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -54,40 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 1e5b5df65af99013b4d31607ddb3ca5731dbe44d ]
+[ Upstream commit 8b3b8fbb4896984b5564789a42240e4b3caddb61 ]
 
-When CONFIG_PROC_FS is not set, there is a build error for an unused
-function. Make PROC_HARDWARE depend on PROC_FS to prevent this error.
+Similarly to commit 022eb8ae8b5e ("ARM: 8938/1: kernel: initialize
+broadcast hrtimer based clock event device"), RISC-V needs to initiate
+hrtimer based broadcast clock event device before C3STOP can be used.
+Otherwise, the introduction of C3STOP for the RISC-V arch timer in
+commit 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped
+during CPU suspend") leaves us without any broadcast timer registered.
+This prevents the kernel from entering oneshot mode, which breaks timer
+behaviour, for example clock_nanosleep().
 
-In file included from ../arch/m68k/kernel/setup.c:3:
-../arch/m68k/kernel/setup_mm.c:477:12: error: 'hardware_proc_show' defined but not used [-Werror=unused-function]
-  477 | static int hardware_proc_show(struct seq_file *m, void *v)
-      |            ^~~~~~~~~~~~~~~~~~
+A test app that sleeps each cpu for 6, 5, 4, 3 ms respectively, HZ=250
+& C3STOP enabled, the sleep times are rounded up to the next jiffy:
+== CPU: 1 ==      == CPU: 2 ==      == CPU: 3 ==      == CPU: 4 ==
+Mean: 7.974992    Mean: 7.976534    Mean: 7.962591    Mean: 3.952179
+Std Dev: 0.154374 Std Dev: 0.156082 Std Dev: 0.171018 Std Dev: 0.076193
+Hi: 9.472000      Hi: 10.495000     Hi: 8.864000      Hi: 4.736000
+Lo: 6.087000      Lo: 6.380000      Lo: 4.872000      Lo: 3.403000
+Samples: 521      Samples: 521      Samples: 521      Samples: 521
 
-Fixes: 66d857b08b8c ("m68k: merge m68k and m68knommu arch directories") # v3.0
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230209010825.24136-1-rdunlap@infradead.org
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/linux-riscv/YzYTNQRxLr7Q9JR0@spud/
+Fixes: 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped during CPU suspend")
+Suggested-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20230103141102.772228-2-apatel@ventanamicro.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.devices | 1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/kernel/time.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/m68k/Kconfig.devices b/arch/m68k/Kconfig.devices
-index 6a87b4a5fcac2..e6e3efac18407 100644
---- a/arch/m68k/Kconfig.devices
-+++ b/arch/m68k/Kconfig.devices
-@@ -19,6 +19,7 @@ config HEARTBEAT
- # We have a dedicated heartbeat LED. :-)
- config PROC_HARDWARE
- 	bool "/proc/hardware support"
-+	depends on PROC_FS
- 	help
- 	  Say Y here to support the /proc/hardware file, which gives you
- 	  access to information about the machine you're running on,
+diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+index 8217b0f67c6cb..1cf21db4fcc77 100644
+--- a/arch/riscv/kernel/time.c
++++ b/arch/riscv/kernel/time.c
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/of_clk.h>
++#include <linux/clockchips.h>
+ #include <linux/clocksource.h>
+ #include <linux/delay.h>
+ #include <asm/sbi.h>
+@@ -29,6 +30,8 @@ void __init time_init(void)
+ 
+ 	of_clk_init(NULL);
+ 	timer_probe();
++
++	tick_setup_hrtimer_broadcast();
+ }
+ 
+ void clocksource_arch_init(struct clocksource *cs)
 -- 
 2.39.2
 
