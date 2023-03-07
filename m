@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E956AEA5C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D20B6AEEE2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231429AbjCGRdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:33:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33230 "EHLO
+        id S232634AbjCGSRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:17:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231723AbjCGRcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:47 -0500
+        with ESMTP id S229801AbjCGSR0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4FFB3928B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F1CA80EA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:12:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BD35B819AD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C050C4339B;
-        Tue,  7 Mar 2023 17:28:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7393FB819C8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7B2AC4339B;
+        Tue,  7 Mar 2023 18:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210103;
-        bh=WfQ7r0w/KnryXcWI7dSv+Ty99XRnc49kqWfFyXjDJyg=;
+        s=korg; t=1678212714;
+        bh=PrJ7l4uqpDpyTIdTizrTPd04zpZt4A5oh3F3/YrSjmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhMGjkyWLZRQwcRGQfq0FLj3OJQz/Kpg2Q6L732WcswtJ5Kno/1wrRDhnLrb3WUk1
-         YvNHupU1/RSGO22Bw5j3aUHFobnXFu13XhU2tWsPOdMsL74vOhuQW/SRBN9zbQfhRG
-         xLJS4XUZi8665kr1U74ae2NZvoVony+WuGnOyl04=
+        b=XlGaVEx/gtOGjAYXKsmuOP84sBWLxMAPntHcFV4SesyVaiyzLh5YiVsNhdLAzI5hJ
+         16UVzpnxW0PF1XAmK/5C4XepDzlN6a3/vXbrW0uaPkOuYQ6lhU3RZPZRaDIPvLhmb8
+         Vt3djQIqCr4pygIX4TGLNyxgAE0RzSVGHZm4rZRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Steffen Aschbacher <steffen.aschbacher@stihl.de>,
-        Alexandru Ardelean <alex@shruggie.ro>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Randolph Sapp <rs@ti.com>,
+        Aradhya Bhatia <a-bhatia1@ti.com>, Andrew Davis <afd@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0434/1001] ASoC: tlv320adcx140: fix ti,gpio-config DT property init
+Subject: [PATCH 6.1 272/885] drm: tidss: Fix pixel format definition
 Date:   Tue,  7 Mar 2023 17:53:26 +0100
-Message-Id: <20230307170040.194062504@linuxfoundation.org>
+Message-Id: <20230307170013.838305678@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Aschbacher <steffen.aschbacher@stihl.de>
+From: Randolph Sapp <rs@ti.com>
 
-[ Upstream commit 771725efe5e2e5396dd9d1220437e5f9d6b9ca9d ]
+[ Upstream commit 2df0433b18f2735a49d2c3a968b40fa2881137c0 ]
 
-When the 'ti,gpio-config' property is not defined, the
-device_property_count_u32() will return an error, rather than zero.
+There was a long-standing bug from a typo that created 2 ARGB1555 and
+ABGR1555 pixel format entries. Weston 10 has a sanity check that alerted
+me to this issue.
 
-The current check, only handles a return value of zero, which assumes that
-the property is defined and has nothing defined.
+According to the Supported Pixel Data formats table we have the later
+entries should have been for Alpha-X instead.
 
-This change extends the check to also check for an error case (most likely
-to be hit by the case that the 'ti,gpio-config' is not defined).
-
-In case that the 'ti,gpio-config' and the returned 'gpio_count' is not
-correct, there is a 'if (gpio_count != ADCX140_NUM_GPIO_CFGS)' check, a few
-lines lower that will return -EINVAL.
-This means that someone tried to define 'ti,gpio-config', but with the
-wrong number of GPIOs.
-
-Fixes: d5214321498a ("ASoC: tlv320adcx140: Add support for configuring GPIO pin")
-Signed-off-by: Steffen Aschbacher <steffen.aschbacher@stihl.de>
-Signed-off-by: Alexandru Ardelean <alex@shruggie.ro>
-Link: https://lore.kernel.org/r/20230213073805.14640-1-alex@shruggie.ro
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Randolph Sapp <rs@ti.com>
+Fixes: 32a1795f57eecc ("drm/tidss: New driver for TI Keystone platform Display SubSystem")
+Reviewed-by: Aradhya Bhatia <a-bhatia1@ti.com>
+Acked-by: Andrew Davis <afd@ti.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221202001803.1765805-1-rs@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tlv320adcx140.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/tidss/tidss_dispc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/tlv320adcx140.c b/sound/soc/codecs/tlv320adcx140.c
-index 91a22d9279158..530f321d08e9c 100644
---- a/sound/soc/codecs/tlv320adcx140.c
-+++ b/sound/soc/codecs/tlv320adcx140.c
-@@ -925,7 +925,7 @@ static int adcx140_configure_gpio(struct adcx140_priv *adcx140)
+diff --git a/drivers/gpu/drm/tidss/tidss_dispc.c b/drivers/gpu/drm/tidss/tidss_dispc.c
+index ad93acc9abd2a..16301bdfead12 100644
+--- a/drivers/gpu/drm/tidss/tidss_dispc.c
++++ b/drivers/gpu/drm/tidss/tidss_dispc.c
+@@ -1858,8 +1858,8 @@ static const struct {
+ 	{ DRM_FORMAT_XBGR4444, 0x21, },
+ 	{ DRM_FORMAT_RGBX4444, 0x22, },
  
- 	gpio_count = device_property_count_u32(adcx140->dev,
- 			"ti,gpio-config");
--	if (gpio_count == 0)
-+	if (gpio_count <= 0)
- 		return 0;
+-	{ DRM_FORMAT_ARGB1555, 0x25, },
+-	{ DRM_FORMAT_ABGR1555, 0x26, },
++	{ DRM_FORMAT_XRGB1555, 0x25, },
++	{ DRM_FORMAT_XBGR1555, 0x26, },
  
- 	if (gpio_count != ADCX140_NUM_GPIO_CFGS)
+ 	{ DRM_FORMAT_XRGB8888, 0x27, },
+ 	{ DRM_FORMAT_XBGR8888, 0x28, },
 -- 
 2.39.2
 
