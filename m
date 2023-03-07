@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEF196AF31B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:00:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13AA16AEF9F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231190AbjCGTAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:00:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
+        id S231192AbjCGSY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:24:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230392AbjCGTAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:00:04 -0500
+        with ESMTP id S232674AbjCGSY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:24:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12BE1AA706
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13AC09E048
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D172761526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:46:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8CDBC433D2;
-        Tue,  7 Mar 2023 18:46:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 815556152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A025C433D2;
+        Tue,  7 Mar 2023 18:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214815;
-        bh=ADnIdwdRBrDx7wElCOPENqlIyXPe0Zn+YBQZdYkLneg=;
+        s=korg; t=1678213199;
+        bh=FrKyh+tjljhwezt9WqS6MhAMttatdxu2QHrUIYCY510=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llVrktSzolHgQemAkHAqns85XmjS1sDsJVkdiV3fHtYZB7q7rZgT6PthxhuCcmsd2
-         0pb2KcYwjsco4Pjyij+F/E6sH4HLzjcmmMwteMKDG32dw93hpzlcdiu0xDmSjzqphg
-         rYx3GRNx5CSx6ZTdvnZiZYis7sADBKcZ6T2/p0TY=
+        b=Ss807cCPUvIbjwGOG+s3f6tKoqHKQ3VCeOkBsTdTctpW2j5wjEZEW3qkzSspITMgm
+         ucMGkHg7YnD5Jm4xK90YwqUzbiYZdgOTYxAYkNXoKr3dz/2xkmnlemu1h0ynPhnW+X
+         6D50U5idfNcRuTBYw+R9bddl8fOTm98TZd9QImSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robert Marko <robimarko@gmail.com>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/567] arm64: dts: qcom: ipq8074: correct PCIe QMP PHY output clock names
-Date:   Tue,  7 Mar 2023 17:56:03 +0100
-Message-Id: <20230307165907.103684669@linuxfoundation.org>
+Subject: [PATCH 6.1 430/885] tty: serial: fsl_lpuart: clear LPUART Status Register in lpuart32_shutdown()
+Date:   Tue,  7 Mar 2023 17:56:04 +0100
+Message-Id: <20230307170021.089547777@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robimarko@gmail.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 0e8b90c0256cf9c9589e2cee517dedc987a34355 ]
+[ Upstream commit 4029dfc034febb54f6dd8ea83568accc943bc088 ]
 
-Current PCIe QMP PHY output name were changed in ("arm64: dts: qcom: Fix
-IPQ8074 PCIe PHY nodes") however it did not account for the fact that GCC
-driver is relying on the old names to match them as they are being used as
-the parent for the gcc_pcie0_pipe_clk and gcc_pcie1_pipe_clk.
+The LPUART Status Register needs to be cleared when closing the uart
+port to get a clean environment when reopening the uart.
 
-This broke parenting as GCC could not find the parent clock, so fix it by
-changing to the names that driver is expecting.
-
-Fixes: 942bcd33ed45 ("arm64: dts: qcom: Fix IPQ8074 PCIe PHY nodes")
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230113164449.906002-9-robimarko@gmail.com
+Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20221125101953.18753-4-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-index e1c1f132209d9..a893a221e5633 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -199,7 +199,7 @@ pcie_phy0: phy@84200 {
- 				#clock-cells = <0>;
- 				clocks = <&gcc GCC_PCIE0_PIPE_CLK>;
- 				clock-names = "pipe0";
--				clock-output-names = "pcie_0_pipe_clk";
-+				clock-output-names = "pcie20_phy0_pipe_clk";
- 			};
- 		};
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 262b059e3ee11..110c8720af47a 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1791,6 +1791,10 @@ static void lpuart32_shutdown(struct uart_port *port)
  
-@@ -227,7 +227,7 @@ pcie_phy1: phy@8e200 {
- 				#clock-cells = <0>;
- 				clocks = <&gcc GCC_PCIE1_PIPE_CLK>;
- 				clock-names = "pipe0";
--				clock-output-names = "pcie_1_pipe_clk";
-+				clock-output-names = "pcie20_phy1_pipe_clk";
- 			};
- 		};
+ 	spin_lock_irqsave(&port->lock, flags);
  
++	/* clear status */
++	temp = lpuart32_read(&sport->port, UARTSTAT);
++	lpuart32_write(&sport->port, temp, UARTSTAT);
++
+ 	/* disable Rx/Tx DMA */
+ 	temp = lpuart32_read(port, UARTBAUD);
+ 	temp &= ~(UARTBAUD_TDMAE | UARTBAUD_RDMAE);
 -- 
 2.39.2
 
