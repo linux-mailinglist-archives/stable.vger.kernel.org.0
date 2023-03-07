@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D32C6AF147
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6F36AEC4F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232807AbjCGSl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:41:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53722 "EHLO
+        id S229885AbjCGRxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232981AbjCGSlh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90809966C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:15 -0800 (PST)
+        with ESMTP id S232192AbjCGRxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C3877CAA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3AE8B819D2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:31:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C938C4339B;
-        Tue,  7 Mar 2023 18:31:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9DEF61501
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:48:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F09C4C4339C;
+        Tue,  7 Mar 2023 17:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213899;
-        bh=pk1fJ71Ws6Sna2RKK2QmJ6j3WF2xsqDP4/Xz52YcsH4=;
+        s=korg; t=1678211299;
+        bh=FMTlfqftjRutFASKYkj61b4aGSUC0iNvGkP7nrFV4X8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yI18HVyaaXWuRrhoZ/YdEn77+MbI+KYmQ/+Iq5bNFo0WDsWhDytwumx+ASzdgUGsf
-         S3aMUIJddv555LWziPL7JGaWgETjfa6rU7pJZmBlr+wJ5ZWaYuTRa2Vqb7qZNQxNsh
-         /5NGfruuY0x6nXpUyG3o6XuKIIMd0uig+httu9js=
+        b=dn3fI5/Q8sboFLkAAxVzGn9vGjMNlaxza2nCose8SFEwTYfrGdcNHlFqfEQ3EaxSL
+         sGQ6Q3Zv+Ifr71+SH2OOmF1OBDWc7CQLnbiPyS+K54lbNx/+gOjdXw1Hv9CKAFVeKH
+         kaaf1LwWoNcstoR8a7QK2b0Txrt5+1kooCP+Tqz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 6.1 655/885] ipmi:ssif: resend_msg() cannot fail
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 6.2 0817/1001] udf: Preserve link count of system files
 Date:   Tue,  7 Mar 2023 17:59:49 +0100
-Message-Id: <20230307170030.604679519@linuxfoundation.org>
+Message-Id: <20230307170057.203939608@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,93 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 95767ed78a181d5404202627499f9cde56053b96 upstream.
+commit fc8033a34a3ca7d23353e645e6dde5d364ac5f12 upstream.
 
-The resend_msg() function cannot fail, but there was error handling
-around using it.  Rework the handling of the error, and fix the out of
-retries debug reporting that was wrong around this, too.
+System files in UDF filesystem have link count 0. To not confuse VFS we
+fudge the link count to be 1 when reading such inodes however we forget
+to restore the link count of 0 when writing such inodes. Fix that.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c |   28 +++++++---------------------
- 1 file changed, 7 insertions(+), 21 deletions(-)
+ fs/udf/inode.c |    9 +++++++--
+ fs/udf/super.c |    1 +
+ fs/udf/udf_i.h |    3 ++-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -602,7 +602,7 @@ static void ssif_alert(struct i2c_client
- 		start_get(ssif_info);
- }
- 
--static int start_resend(struct ssif_info *ssif_info);
-+static void start_resend(struct ssif_info *ssif_info);
- 
- static void msg_done_handler(struct ssif_info *ssif_info, int result,
- 			     unsigned char *data, unsigned int len)
-@@ -909,31 +909,17 @@ static void msg_written_handler(struct s
- 	if (result < 0) {
- 		ssif_info->retries_left--;
- 		if (ssif_info->retries_left > 0) {
--			if (!start_resend(ssif_info)) {
--				ssif_inc_stat(ssif_info, send_retries);
--				return;
--			}
--			/* request failed, just return the error. */
--			ssif_inc_stat(ssif_info, send_errors);
--
--			if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
--				dev_dbg(&ssif_info->client->dev,
--					"%s: Out of retries\n", __func__);
--			msg_done_handler(ssif_info, -EIO, NULL, 0);
-+			start_resend(ssif_info);
- 			return;
- 		}
- 
- 		ssif_inc_stat(ssif_info, send_errors);
- 
--		/*
--		 * Got an error on transmit, let the done routine
--		 * handle it.
--		 */
- 		if (ssif_info->ssif_debug & SSIF_DEBUG_MSG)
- 			dev_dbg(&ssif_info->client->dev,
--				"%s: Error  %d\n", __func__, result);
-+				"%s: Out of retries\n", __func__);
- 
--		msg_done_handler(ssif_info, result, NULL, 0);
-+		msg_done_handler(ssif_info, -EIO, NULL, 0);
- 		return;
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -1373,6 +1373,7 @@ reread:
+ 		ret = -EIO;
+ 		goto out;
  	}
++	iinfo->i_hidden = hidden_inode;
+ 	iinfo->i_unique = 0;
+ 	iinfo->i_lenEAttr = 0;
+ 	iinfo->i_lenExtents = 0;
+@@ -1708,8 +1709,12 @@ static int udf_update_inode(struct inode
  
-@@ -996,7 +982,7 @@ static void msg_written_handler(struct s
- 	}
- }
+ 	if (S_ISDIR(inode->i_mode) && inode->i_nlink > 0)
+ 		fe->fileLinkCount = cpu_to_le16(inode->i_nlink - 1);
+-	else
+-		fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	else {
++		if (iinfo->i_hidden)
++			fe->fileLinkCount = cpu_to_le16(0);
++		else
++			fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	}
  
--static int start_resend(struct ssif_info *ssif_info)
-+static void start_resend(struct ssif_info *ssif_info)
- {
- 	int command;
+ 	fe->informationLength = cpu_to_le64(inode->i_size);
  
-@@ -1021,7 +1007,6 @@ static int start_resend(struct ssif_info
- 
- 	ssif_i2c_send(ssif_info, msg_written_handler, I2C_SMBUS_WRITE,
- 		   command, ssif_info->data, I2C_SMBUS_BLOCK_DATA);
--	return 0;
- }
- 
- static int start_send(struct ssif_info *ssif_info,
-@@ -1036,7 +1021,8 @@ static int start_send(struct ssif_info *
- 	ssif_info->retries_left = SSIF_SEND_RETRIES;
- 	memcpy(ssif_info->data + 1, data, len);
- 	ssif_info->data_len = len;
--	return start_resend(ssif_info);
-+	start_resend(ssif_info);
-+	return 0;
- }
- 
- /* Must be called with the message lock held. */
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -147,6 +147,7 @@ static struct inode *udf_alloc_inode(str
+ 	ei->i_next_alloc_goal = 0;
+ 	ei->i_strat4096 = 0;
+ 	ei->i_streamdir = 0;
++	ei->i_hidden = 0;
+ 	init_rwsem(&ei->i_data_sem);
+ 	ei->cached_extent.lstart = -1;
+ 	spin_lock_init(&ei->i_extent_cache_lock);
+--- a/fs/udf/udf_i.h
++++ b/fs/udf/udf_i.h
+@@ -44,7 +44,8 @@ struct udf_inode_info {
+ 	unsigned		i_use : 1;	/* unallocSpaceEntry */
+ 	unsigned		i_strat4096 : 1;
+ 	unsigned		i_streamdir : 1;
+-	unsigned		reserved : 25;
++	unsigned		i_hidden : 1;	/* hidden system inode */
++	unsigned		reserved : 24;
+ 	__u8			*i_data;
+ 	struct kernel_lb_addr	i_locStreamdir;
+ 	__u64			i_lenStreams;
 
 
