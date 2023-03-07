@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B8FB6AEA47
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F366AEEC6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231704AbjCGRc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:32:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33122 "EHLO
+        id S232621AbjCGSQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:16:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231336AbjCGRcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C2399D79
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:28 -0800 (PST)
+        with ESMTP id S232460AbjCGSPr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:15:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C785AAA262
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4BE6614D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB18AC433A7;
-        Tue,  7 Mar 2023 17:27:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8A4661527
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3751C433D2;
+        Tue,  7 Mar 2023 18:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210047;
-        bh=hNvETghRVz4SEq0n1aQcQLBjG7OwrPLlrJwjTSqg3J4=;
+        s=korg; t=1678212650;
+        bh=613B8kDUkCc7hhICIDXxRQLQICvxMvkmU72C1AMTlEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WK2rTzJ+PJW9p6j2SWtoKStJCdSiw4fMNfje8CAy0oUW/6R5v3/L/El4uKYsRQ+qZ
-         gFlpj35BbRzHhBxiaDuXakxesUUHj8Qi/u+NeW5fWB9YFPPlTtxbB1Xz+D2szniqhD
-         aL0jLp/8pVQHkKxv4dQJCM7fPydjd2TsqFATLtmw=
+        b=C7W2gaqAMh9c3p3A44n446MrZLsLy3KDOc1aB2Qr/xZFhb1GC/xRz/oouxljjFdQH
+         BaYXpw/dM3e+HQSswGdXEmSdoU7acmBUiKK0uk4vNGmJwZ5NaBqpkDwSLGR0ZFNQy5
+         /AkpZC0QH5rsOFy/smigIu3TPv4dToosEhoJ5Tz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jerome Neanne <jneanne@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0415/1001] regulator: tps65219: use generic set_bypass()
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 253/885] irqchip/irq-bcm7120-l2: Set IRQ_LEVEL for level triggered interrupts
 Date:   Tue,  7 Mar 2023 17:53:07 +0100
-Message-Id: <20230307170039.340504413@linuxfoundation.org>
+Message-Id: <20230307170012.986576561@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,64 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Neanne <jneanne@baylibre.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 0365df81145a4cfaae5f4da896160de512256e6d ]
+[ Upstream commit 13a157b38ca5b4f9eed81442b8821db293755961 ]
 
-Due to wrong interpretation of the specification,
-custom implementation was used instead of standard regmap helper.
-LINK: https://lore.kernel.org/all/c2014039-f1e8-6976-33d6-52e2dd4e7b66@baylibre.com/
+When support for the interrupt controller was added with a5042de2688d,
+we forgot to update the flags to be set to contain IRQ_LEVEL. While the
+flow handler is correct, the output from /proc/interrupts does not show
+such interrupts as being level triggered when they are, correct that.
 
-Fixes: c12ac5fc3e0a ("regulator: drivers: Add TI TPS65219 PMIC regulators support")
-
-Regulator does NOT require to be off to be switched to bypass mode.
-
-Signed-off-by: Jerome Neanne <jneanne@baylibre.com>
-Link: https://lore.kernel.org/r/20230203140119.13029-1-jneanne@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a5042de2688d ("irqchip: bcm7120-l2: Add Broadcom BCM7120-style Level 2 interrupt controller")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221216230934.2478345-3-f.fainelli@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/tps65219-regulator.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+ drivers/irqchip/irq-bcm7120-l2.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/tps65219-regulator.c b/drivers/regulator/tps65219-regulator.c
-index 070159cb5f094..58f6541b6417b 100644
---- a/drivers/regulator/tps65219-regulator.c
-+++ b/drivers/regulator/tps65219-regulator.c
-@@ -173,24 +173,6 @@ static unsigned int tps65219_get_mode(struct regulator_dev *dev)
- 		return REGULATOR_MODE_NORMAL;
- }
+diff --git a/drivers/irqchip/irq-bcm7120-l2.c b/drivers/irqchip/irq-bcm7120-l2.c
+index bb6609cebdbce..1e9dab6e0d86f 100644
+--- a/drivers/irqchip/irq-bcm7120-l2.c
++++ b/drivers/irqchip/irq-bcm7120-l2.c
+@@ -279,7 +279,8 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
+ 		flags |= IRQ_GC_BE_IO;
  
--/*
-- * generic regulator_set_bypass_regmap does not fully match requirements
-- * TPS65219 Requires explicitly that regulator is disabled before switch
-- */
--static int tps65219_set_bypass(struct regulator_dev *dev, bool enable)
--{
--	struct tps65219 *tps = rdev_get_drvdata(dev);
--	unsigned int rid = rdev_get_id(dev);
--
--	if (dev->desc->ops->is_enabled(dev)) {
--		dev_err(tps->dev,
--			"%s LDO%d enabled, must be shut down to set bypass ",
--			__func__, rid);
--		return -EBUSY;
--	}
--	return regulator_set_bypass_regmap(dev, enable);
--}
--
- /* Operations permitted on BUCK1/2/3 */
- static const struct regulator_ops tps65219_bucks_ops = {
- 	.is_enabled		= regulator_is_enabled_regmap,
-@@ -217,7 +199,7 @@ static const struct regulator_ops tps65219_ldos_1_2_ops = {
- 	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
- 	.list_voltage		= regulator_list_voltage_linear_range,
- 	.map_voltage		= regulator_map_voltage_linear_range,
--	.set_bypass		= tps65219_set_bypass,
-+	.set_bypass		= regulator_set_bypass_regmap,
- 	.get_bypass		= regulator_get_bypass_regmap,
- };
- 
+ 	ret = irq_alloc_domain_generic_chips(data->domain, IRQS_PER_WORD, 1,
+-				dn->full_name, handle_level_irq, clr, 0, flags);
++				dn->full_name, handle_level_irq, clr,
++				IRQ_LEVEL, flags);
+ 	if (ret) {
+ 		pr_err("failed to allocate generic irq chip\n");
+ 		goto out_free_domain;
 -- 
 2.39.2
 
