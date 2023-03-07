@@ -2,53 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E05E16AE982
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B76D6AEE12
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231346AbjCGRZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:25:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41620 "EHLO
+        id S232414AbjCGSJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:09:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231499AbjCGRYj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:24:39 -0500
+        with ESMTP id S232372AbjCGSJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C79BE8B059;
-        Tue,  7 Mar 2023 09:19:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8202195E27
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ACF1B819AC;
-        Tue,  7 Mar 2023 17:19:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56C83C433D2;
-        Tue,  7 Mar 2023 17:19:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA3B3B8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F20C4339B;
+        Tue,  7 Mar 2023 18:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209595;
-        bh=JMLUAfksZAYlWBKrT4AhUj1YntkhyAno433wMClUZe4=;
+        s=korg; t=1678212200;
+        bh=CnQo34brO7Gk1qTweuoQ/wz2ZvMjCScRvsLtOp2fd9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMz7GIWF5MMIgYvrl+4yaTQrEJnBTWSmdFlqwONY2b96BbkSVt3LyJws2pcDljqcs
-         xBg/fQgfdZmcCZjWtwX5aZ8yyzJ5PuBFbN2UTxQKOOy65QEJ+W/uSRrOBalYMTv03W
-         RrACKr6GCw61OEbb/kuqYbtJffHbbd32sfbFJP+Y=
+        b=rMSqS90qgTVKKMb3GpPkqJgEJLqIUxnfQUh4zjp9ZqpkfCQQ35yeDzbh9bjNbg+lo
+         uad+S4VbIRhTP06kKNOLW2cYsTQQbGsNZP+ftzQVb5ZFXnjgHslizGUfxau3X9n5zn
+         svsAQENwCbh1OgijEYccwm1+vkSO5inn+0j1zAHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Simon Horman <simon.horman@corigine.com>,
+        patches@lists.linux.dev, Jinke Han <hanjinke.666@bytedance.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0270/1001] Bluetooth: hci_conn: Refactor hci_bind_bis() since it always succeeds
+Subject: [PATCH 6.1 108/885] block: Fix io statistics for cgroup in throttle path
 Date:   Tue,  7 Mar 2023 17:50:42 +0100
-Message-Id: <20230307170033.423462436@linuxfoundation.org>
+Message-Id: <20230307170006.570679696@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,79 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jinke Han <hanjinke.666@bytedance.com>
 
-[ Upstream commit a00a29b0eeea6caaaf9edc3dd284f81b072ee343 ]
+[ Upstream commit 0f7c8f0f7934c389b0f9fa1f151e753d8de6348f ]
 
-The compiler thinks "conn" might be NULL after a call to hci_bind_bis(),
-which cannot happen. Avoid any confusion by just making it not return a
-value since it cannot fail. Fixes the warnings seen with GCC 13:
+In the current code, io statistics are missing for cgroup when bio
+was throttled by blk-throttle. Fix it by moving the unreaching code
+to submit_bio_noacct_nocheck.
 
-In function 'arch_atomic_dec_and_test',
-    inlined from 'atomic_dec_and_test' at ../include/linux/atomic/atomic-instrumented.h:576:9,
-    inlined from 'hci_conn_drop' at ../include/net/bluetooth/hci_core.h:1391:6,
-    inlined from 'hci_connect_bis' at ../net/bluetooth/hci_conn.c:2124:3:
-../arch/x86/include/asm/rmwcc.h:37:9: warning: array subscript 0 is outside array bounds of 'atomic_t[0]' [-Warray-bounds=]
-   37 |         asm volatile (fullop CC_SET(cc) \
-      |         ^~~
-...
-In function 'hci_connect_bis':
-cc1: note: source object is likely at address zero
-
-Fixes: eca0ae4aea66 ("Bluetooth: Add initial implementation of BIS connections")
-Cc: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Johan Hedberg <johan.hedberg@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-bluetooth@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 3f98c753717c ("block: don't check bio in blk_throtl_dispatch_work_fn")
+Signed-off-by: Jinke Han <hanjinke.666@bytedance.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20230216032250.74230-1-hanjinke.666@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_conn.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ block/blk-core.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index acf563fbdfd95..61a34801e61ea 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1981,16 +1981,14 @@ static void hci_iso_qos_setup(struct hci_dev *hdev, struct hci_conn *conn,
- 		qos->latency = conn->le_conn_latency;
- }
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 5487912befe89..553afcdd638a6 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -672,6 +672,18 @@ static void __submit_bio_noacct_mq(struct bio *bio)
  
--static struct hci_conn *hci_bind_bis(struct hci_conn *conn,
--				     struct bt_iso_qos *qos)
-+static void hci_bind_bis(struct hci_conn *conn,
-+			 struct bt_iso_qos *qos)
+ void submit_bio_noacct_nocheck(struct bio *bio)
  {
- 	/* Update LINK PHYs according to QoS preference */
- 	conn->le_tx_phy = qos->out.phy;
- 	conn->le_tx_phy = qos->out.phy;
- 	conn->iso_qos = *qos;
- 	conn->state = BT_BOUND;
++	blk_cgroup_bio_start(bio);
++	blkcg_bio_issue_init(bio);
++
++	if (!bio_flagged(bio, BIO_TRACE_COMPLETION)) {
++		trace_block_bio_queue(bio);
++		/*
++		 * Now that enqueuing has been traced, we need to trace
++		 * completion as well.
++		 */
++		bio_set_flag(bio, BIO_TRACE_COMPLETION);
++	}
++
+ 	/*
+ 	 * We only want one ->submit_bio to be active at a time, else stack
+ 	 * usage with stacked devices could be a problem.  Use current->bio_list
+@@ -776,17 +788,6 @@ void submit_bio_noacct(struct bio *bio)
+ 
+ 	if (blk_throtl_bio(bio))
+ 		return;
 -
--	return conn;
- }
- 
- static int create_big_sync(struct hci_dev *hdev, void *data)
-@@ -2119,11 +2117,7 @@ struct hci_conn *hci_connect_bis(struct hci_dev *hdev, bdaddr_t *dst,
- 	if (IS_ERR(conn))
- 		return conn;
- 
--	conn = hci_bind_bis(conn, qos);
--	if (!conn) {
--		hci_conn_drop(conn);
--		return ERR_PTR(-ENOMEM);
+-	blk_cgroup_bio_start(bio);
+-	blkcg_bio_issue_init(bio);
+-
+-	if (!bio_flagged(bio, BIO_TRACE_COMPLETION)) {
+-		trace_block_bio_queue(bio);
+-		/* Now that enqueuing has been traced, we need to trace
+-		 * completion as well.
+-		 */
+-		bio_set_flag(bio, BIO_TRACE_COMPLETION);
 -	}
-+	hci_bind_bis(conn, qos);
+ 	submit_bio_noacct_nocheck(bio);
+ 	return;
  
- 	/* Add Basic Announcement into Peridic Adv Data if BASE is set */
- 	if (base_len && base) {
 -- 
 2.39.2
 
