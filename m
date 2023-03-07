@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47B286AEB35
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:41:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E416AF038
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231970AbjCGRlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:41:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54178 "EHLO
+        id S233013AbjCGS3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:29:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232045AbjCGRk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9C79C98B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:37:11 -0800 (PST)
+        with ESMTP id S233086AbjCGS3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B5CB04A7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:22:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0C7BB8199E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E98BCC433EF;
-        Tue,  7 Mar 2023 17:37:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1F6861526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D820EC433D2;
+        Tue,  7 Mar 2023 18:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210628;
-        bh=GsLA4w0BvTbWxC+Ki2Sv7W4m/dgFu9wCanHWZ42ARVM=;
+        s=korg; t=1678213325;
+        bh=kxyWRbwOrMsaR1MkwOzO/TcOcPQYENZ5YzewcG8QVLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iW8iHvjXwQFKrR6/ddsoMXucna+wSxW1qYZ2+kTY1FRYBmMrPZkDECyAHFvZVxdx2
-         DdckNB5Xe8n0cMQYw915QV0V9qQV+rF/EnlFG8e3leE5ZflHko1JCynbSmunFjN9hE
-         Dt9RzpLyLD666BMRX+JF9+holCcpkkq3USnFv370=
+        b=rQIb/S1QO5+BcTdNw4E4VM3qaZIEjvjuWL6ciFdDKtfFHEZTNQHmGDFhUeQSxyxke
+         7suIWB7rtZ15CQyYdOqrxYtxV6w7hvm1m+J5/2gG3EjUGF5P7Ye5foFill+/SwTW8D
+         Qr37uW2kRaNPXbIlGaXHWBBz/YwLSJY9wTcOsEJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0603/1001] media: platform: mtk-mdp3: fix Kconfig dependencies
+Subject: [PATCH 6.1 441/885] misc: fastrpc: Fix an error handling path in fastrpc_rpmsg_probe()
 Date:   Tue,  7 Mar 2023 17:56:15 +0100
-Message-Id: <20230307170047.683258981@linuxfoundation.org>
+Message-Id: <20230307170021.578901099@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,57 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e3f7feb6d89311f369dd4ad903ea62e45328cdbe ]
+[ Upstream commit 11819ed2b70da94acc41fec34178a011c4d3d25d ]
 
-The new mdp3 driver uses 'select' to force-enable a couple of drivers
-it depends on. This is error-prone and likely to cause dependency
-loops as well as warnings like:
+If of_platform_populate() fails, some resources need to be freed as already
+done in the other error handling paths.
 
-WARNING: unmet direct dependencies detected for VIDEO_MEDIATEK_VPU
-  Depends on [n]: MEDIA_SUPPORT [=m] && MEDIA_PLATFORM_SUPPORT [=y] && MEDIA_PLATFORM_DRIVERS [=y] && V4L_MEM2MEM_DRIVERS [=n] && VIDEO_DEV [=m] && (ARCH_MEDIATEK [=y] || COMPILE_TEST [=y])
-  Selected by [m]:
-  - VIDEO_MEDIATEK_MDP3 [=m] && MEDIA_SUPPORT [=m] && MEDIA_PLATFORM_SUPPORT [=y] && MEDIA_PLATFORM_DRIVERS [=y] && (MTK_IOMMU [=m] || COMPILE_TEST [=y]) && VIDEO_DEV [=m] && (ARCH_MEDIATEK [=y] || COMPILE_TEST [=y]) && HAS_DMA [=y] && REMOTEPROC [=y]
-
-This specific warning was already addressed in a previous patch,
-but there are similar unnecessary 'select' statements, so turn those
-into 'depends on'. This also means the dependency on ARCH_MEDIATEK
-is redundant and can be dropped.
-
-Fixes: 61890ccaefaf ("media: platform: mtk-mdp3: add MediaTek MDP3 driver")
-Fixes: 9195a860ef0a ("media: platform: mtk-mdp3: remove unused VIDEO_MEDIATEK_VPU config")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 278d56f970ae ("misc: fastrpc: Reference count channel context")
+Fixes: 3abe3ab3cdab ("misc: fastrpc: add secure domain support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/b909d2f3273b794ea0f1f78d14bc24affb08ea5f.1669398274.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mediatek/mdp3/Kconfig | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/misc/fastrpc.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mediatek/mdp3/Kconfig b/drivers/media/platform/mediatek/mdp3/Kconfig
-index 846e759a8f6a9..602329c447501 100644
---- a/drivers/media/platform/mediatek/mdp3/Kconfig
-+++ b/drivers/media/platform/mediatek/mdp3/Kconfig
-@@ -3,14 +3,13 @@ config VIDEO_MEDIATEK_MDP3
- 	tristate "MediaTek MDP v3 driver"
- 	depends on MTK_IOMMU || COMPILE_TEST
- 	depends on VIDEO_DEV
--	depends on ARCH_MEDIATEK || COMPILE_TEST
- 	depends on HAS_DMA
- 	depends on REMOTEPROC
-+	depends on MTK_MMSYS
-+	depends on MTK_CMDQ
-+	depends on MTK_SCP
- 	select VIDEOBUF2_DMA_CONTIG
- 	select V4L2_MEM2MEM_DEV
--	select MTK_MMSYS
--	select MTK_CMDQ
--	select MTK_SCP
- 	default n
- 	help
- 	    It is a v4l2 driver and present in MediaTek MT8183 SoC.
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index 80811e852d8fd..02d26160c64e6 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -2127,7 +2127,18 @@ static int fastrpc_rpmsg_probe(struct rpmsg_device *rpdev)
+ 	data->domain_id = domain_id;
+ 	data->rpdev = rpdev;
+ 
+-	return of_platform_populate(rdev->of_node, NULL, NULL, rdev);
++	err = of_platform_populate(rdev->of_node, NULL, NULL, rdev);
++	if (err)
++		goto populate_error;
++
++	return 0;
++
++populate_error:
++	if (data->fdevice)
++		misc_deregister(&data->fdevice->miscdev);
++	if (data->secure_fdevice)
++		misc_deregister(&data->secure_fdevice->miscdev);
++
+ fdev_error:
+ 	kfree(data);
+ 	return err;
 -- 
 2.39.2
 
