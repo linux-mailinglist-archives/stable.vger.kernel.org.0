@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E9D6AF095
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:32:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CE56AEB98
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:46:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231249AbjCGScJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:32:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57120 "EHLO
+        id S232100AbjCGRqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:46:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230170AbjCGSbW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:31:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A5229CBD6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:24:30 -0800 (PST)
+        with ESMTP id S232117AbjCGRqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:46:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B080AA4B25
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:41:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2B6B6154A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:24:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D09B7C433D2;
-        Tue,  7 Mar 2023 18:24:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 830E4B818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:41:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA9FEC433D2;
+        Tue,  7 Mar 2023 17:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213469;
-        bh=lftiFON32ns5sG/ore+XaPFuMZmxfIP7c0s+fs7HcHs=;
+        s=korg; t=1678210867;
+        bh=f1JGhh9vCkWmn2d01gBVBmzxxcaX818S9mtde5Pl/hg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Je8rzS3joyds4qLy22U9uKt2fNc1/Pr7mcNzZhOKLDPTxFTxlBP7pb4X3XRNLT+3j
-         OYTXMei8vNJ9L2OwrWRaX/HJ03It2ew1tVFr0yWGRCfZw3/in8WUEe9VWyTnOmF/Rf
-         mw1Sk5K3K2WAZndoC8jc42+2cr6SwKMnwxr5SKAs=
+        b=PWuJekT6j4dTEnV4FTubPe7CE5wiOcXmi7BqVwRB/xg6KlvKZj08grHG+KDpIVdnE
+         VaMk9PWRi5rpSbsqqXzz454xGdHEDvhz73EMXBzu+ZwvxJCB0xWIYE8DFQIGnzpm97
+         wxl9lOV3s1fYy5SfEu9QKGoBSmKFz7irnTJDft2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Sean Wang <sean.wang@mediatek.com>,
+        Anson Tsao <anson.tsao@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 517/885] media: imx-jpeg: Apply clk_bulk api instead of operating specific clk
+Subject: [PATCH 6.2 0679/1001] Bluetooth: btusb: Add new PID/VID 0489:e0f2 for MT7921
 Date:   Tue,  7 Mar 2023 17:57:31 +0100
-Message-Id: <20230307170024.930707593@linuxfoundation.org>
+Message-Id: <20230307170051.068480361@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,104 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 61fe43dc9f454bc3caa99dbdd8f5fa3ba813981a ]
+[ Upstream commit 83458a5f272b303479e7d2f451600817a7350b6b ]
 
-using the api of clk_bulk can simplify the code.
-and the clock of the jpeg codec may be changed,
-the clk_bulk api can be compatible with the future change.
+This bluetooth device is found in a combo WLAN/BT card
+for a MediaTek 7921e.
 
-Fixes: 4c2e5156d9fa ("media: imx-jpeg: Add pm-runtime support for imx-jpeg")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+The device information:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0489 ProdID=e0f2 Rev= 1.00
+S:  Manufacturer=MediaTek Inc.
+S:  Product=Wireless_Device
+S:  SerialNumber=000000000
+C:* #Ifs= 3 Cfg#= 1 Atr=e0 MxPwr=100mA
+A:  FirstIf#= 0 IfCount= 3 Cls=e0(wlcon) Sub=01 Prot=01
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=125us
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+I:  If#= 1 Alt= 6 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  63 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  63 Ivl=1ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
+E:  Ad=8a(I) Atr=03(Int.) MxPS=  64 Ivl=125us
+E:  Ad=0a(O) Atr=03(Int.) MxPS=  64 Ivl=125us
+I:  If#= 2 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
+E:  Ad=8a(I) Atr=03(Int.) MxPS= 512 Ivl=125us
+E:  Ad=0a(O) Atr=03(Int.) MxPS= 512 Ivl=125us
+
+Cc: Sean Wang <sean.wang@mediatek.com>
+Cc: Anson Tsao <anson.tsao@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../media/platform/nxp/imx-jpeg/mxc-jpeg.c    | 35 +++++--------------
- .../media/platform/nxp/imx-jpeg/mxc-jpeg.h    |  4 +--
- 2 files changed, 10 insertions(+), 29 deletions(-)
+ drivers/bluetooth/btusb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-index 32fd04a3d8bb7..81a44702a5413 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.c
-@@ -2202,19 +2202,12 @@ static int mxc_jpeg_probe(struct platform_device *pdev)
- 	jpeg->mode = mode;
- 
- 	/* Get clocks */
--	jpeg->clk_ipg = devm_clk_get(dev, "ipg");
--	if (IS_ERR(jpeg->clk_ipg)) {
--		dev_err(dev, "failed to get clock: ipg\n");
--		ret = PTR_ERR(jpeg->clk_ipg);
--		goto err_clk;
--	}
--
--	jpeg->clk_per = devm_clk_get(dev, "per");
--	if (IS_ERR(jpeg->clk_per)) {
--		dev_err(dev, "failed to get clock: per\n");
--		ret = PTR_ERR(jpeg->clk_per);
-+	ret = devm_clk_bulk_get_all(&pdev->dev, &jpeg->clks);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to get clock\n");
- 		goto err_clk;
- 	}
-+	jpeg->num_clks = ret;
- 
- 	ret = mxc_jpeg_attach_pm_domains(jpeg);
- 	if (ret < 0) {
-@@ -2311,32 +2304,20 @@ static int mxc_jpeg_runtime_resume(struct device *dev)
- 	struct mxc_jpeg_dev *jpeg = dev_get_drvdata(dev);
- 	int ret;
- 
--	ret = clk_prepare_enable(jpeg->clk_ipg);
--	if (ret < 0) {
--		dev_err(dev, "failed to enable clock: ipg\n");
--		goto err_ipg;
--	}
--
--	ret = clk_prepare_enable(jpeg->clk_per);
-+	ret = clk_bulk_prepare_enable(jpeg->num_clks, jpeg->clks);
- 	if (ret < 0) {
--		dev_err(dev, "failed to enable clock: per\n");
--		goto err_per;
-+		dev_err(dev, "failed to enable clock\n");
-+		return ret;
- 	}
- 
- 	return 0;
--
--err_per:
--	clk_disable_unprepare(jpeg->clk_ipg);
--err_ipg:
--	return ret;
- }
- 
- static int mxc_jpeg_runtime_suspend(struct device *dev)
- {
- 	struct mxc_jpeg_dev *jpeg = dev_get_drvdata(dev);
- 
--	clk_disable_unprepare(jpeg->clk_ipg);
--	clk_disable_unprepare(jpeg->clk_per);
-+	clk_bulk_disable_unprepare(jpeg->num_clks, jpeg->clks);
- 
- 	return 0;
- }
-diff --git a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h
-index c508d41a906f4..d742b638ddc93 100644
---- a/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h
-+++ b/drivers/media/platform/nxp/imx-jpeg/mxc-jpeg.h
-@@ -114,8 +114,8 @@ struct mxc_jpeg_dev {
- 	spinlock_t			hw_lock; /* hardware access lock */
- 	unsigned int			mode;
- 	struct mutex			lock; /* v4l2 ioctls serialization */
--	struct clk			*clk_ipg;
--	struct clk			*clk_per;
-+	struct clk_bulk_data		*clks;
-+	int				num_clks;
- 	struct platform_device		*pdev;
- 	struct device			*dev;
- 	void __iomem			*base_reg;
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index afd2f08ffe30f..acfd40f1cc75c 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -567,6 +567,9 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_DEVICE(0x0489, 0xe0e0), .driver_info = BTUSB_MEDIATEK |
+ 						     BTUSB_WIDEBAND_SPEECH |
+ 						     BTUSB_VALID_LE_STATES },
++	{ USB_DEVICE(0x0489, 0xe0f2), .driver_info = BTUSB_MEDIATEK |
++						     BTUSB_WIDEBAND_SPEECH |
++						     BTUSB_VALID_LE_STATES },
+ 	{ USB_DEVICE(0x04ca, 0x3802), .driver_info = BTUSB_MEDIATEK |
+ 						     BTUSB_WIDEBAND_SPEECH |
+ 						     BTUSB_VALID_LE_STATES },
 -- 
 2.39.2
 
