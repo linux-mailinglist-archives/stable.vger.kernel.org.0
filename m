@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E33926AF184
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FC5E6AEC80
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231454AbjCGSpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:45:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
+        id S230163AbjCGR4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:56:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233128AbjCGSos (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:44:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0220AD015
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:38 -0800 (PST)
+        with ESMTP id S230394AbjCGRzh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:55:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C199A21B5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:50:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C3C661531
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60ECFC4339B;
-        Tue,  7 Mar 2023 18:33:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E447B8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:50:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B9FFC433D2;
+        Tue,  7 Mar 2023 17:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214003;
-        bh=DV7mU1pwGhb/ojRJeXbCyHbWuzRtEhdUJc2RbMIhkEQ=;
+        s=korg; t=1678211408;
+        bh=1GYjcgIVWb4/6I09OOCF5uGmpMZZ3PplrhlVZbmGtb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+oTpKoybdSAAVcIS92vW1e4P11/CyspmxJ3Ixc65jEA+RIZWx1m69fhNzyAAbkRh
-         ics2dEfWYZcPy+1jvnre4TN5WLLHQY9ddLPuIXNEa3IB3/nOo9ta2Jef19iTjpgvvS
-         I6frC9IVfqzSXWmqs3DPGX5vgiK2fRdjIHxjyvTk=
+        b=MvuGdrN88KYkxWFB+inngYYjF2QRj8fbaOCThfIqiwxA10BVUxRoFZbiDQSuv1zkn
+         4ozaSya1vcIm2i90nUXBUT02An16q82wvQa78c3rscjWPYbkaMkNB5CNnlT9I+asjL
+         qX8gZ33sGcTznNs4YSG/mC1ZY0zDon/mOyfFK3kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com,
-        Liu Shixin <liushixin2@huawei.com>,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 689/885] hfs: fix missing hfs_bnode_get() in __hfs_bnode_create
-Date:   Tue,  7 Mar 2023 18:00:23 +0100
-Message-Id: <20230307170032.051654006@linuxfoundation.org>
+        patches@lists.linux.dev, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 6.2 0852/1001] ima: Align ima_file_mmap() parameters with mmap_file LSM hook
+Date:   Tue,  7 Mar 2023 18:00:24 +0100
+Message-Id: <20230307170058.789092237@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,98 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit a9dc087fd3c484fd1ed18c5efb290efaaf44ce03 upstream.
+commit 4971c268b85e1c7a734a61622fc0813c86e2362e upstream.
 
-Syzbot found a kernel BUG in hfs_bnode_put():
+Commit 98de59bfe4b2f ("take calculation of final prot in
+security_mmap_file() into a helper") moved the code to update prot, to be
+the actual protections applied to the kernel, to a new helper called
+mmap_prot().
 
- kernel BUG at fs/hfs/bnode.c:466!
- invalid opcode: 0000 [#1] PREEMPT SMP KASAN
- CPU: 0 PID: 3634 Comm: kworker/u4:5 Not tainted 6.1.0-rc7-syzkaller-00190-g97ee9d1c1696 #0
- Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
- Workqueue: writeback wb_workfn (flush-7:0)
- RIP: 0010:hfs_bnode_put+0x46f/0x480 fs/hfs/bnode.c:466
- Code: 8a 80 ff e9 73 fe ff ff 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c a0 fe ff ff 48 89 df e8 db 8a 80 ff e9 93 fe ff ff e8 a1 68 2c ff <0f> 0b e8 9a 68 2c ff 0f 0b 0f 1f 84 00 00 00 00 00 55 41 57 41 56
- RSP: 0018:ffffc90003b4f258 EFLAGS: 00010293
- RAX: ffffffff825e318f RBX: 0000000000000000 RCX: ffff8880739dd7c0
- RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
- RBP: ffffc90003b4f430 R08: ffffffff825e2d9b R09: ffffed10045157d1
- R10: ffffed10045157d1 R11: 1ffff110045157d0 R12: ffff8880228abe80
- R13: ffff88807016c000 R14: dffffc0000000000 R15: ffff8880228abe00
- FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007fa6ebe88718 CR3: 000000001e93d000 CR4: 00000000003506f0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  <TASK>
-  hfs_write_inode+0x1bc/0xb40
-  write_inode fs/fs-writeback.c:1440 [inline]
-  __writeback_single_inode+0x4d6/0x670 fs/fs-writeback.c:1652
-  writeback_sb_inodes+0xb3b/0x18f0 fs/fs-writeback.c:1878
-  __writeback_inodes_wb+0x125/0x420 fs/fs-writeback.c:1949
-  wb_writeback+0x440/0x7b0 fs/fs-writeback.c:2054
-  wb_check_start_all fs/fs-writeback.c:2176 [inline]
-  wb_do_writeback fs/fs-writeback.c:2202 [inline]
-  wb_workfn+0x827/0xef0 fs/fs-writeback.c:2235
-  process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
-  worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
-  kthread+0x266/0x300 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-  </TASK>
+However, while without the helper ima_file_mmap() was getting the updated
+prot, with the helper ima_file_mmap() gets the original prot, which
+contains the protections requested by the application.
 
-The BUG_ON() is triggered at here:
+A possible consequence of this change is that, if an application calls
+mmap() with only PROT_READ, and the kernel applies PROT_EXEC in addition,
+that application would have access to executable memory without having this
+event recorded in the IMA measurement list. This situation would occur for
+example if the application, before mmap(), calls the personality() system
+call with READ_IMPLIES_EXEC as the first argument.
 
-/* Dispose of resources used by a node */
-void hfs_bnode_put(struct hfs_bnode *node)
-{
-	if (node) {
- 		<skipped>
- 		BUG_ON(!atomic_read(&node->refcnt)); <- we have issue here!!!!
- 		<skipped>
- 	}
-}
+Align ima_file_mmap() parameters with those of the mmap_file LSM hook, so
+that IMA can receive both the requested prot and the final prot. Since the
+requested protections are stored in a new variable, and the final
+protections are stored in the existing variable, this effectively restores
+the original behavior of the MMAP_CHECK hook.
 
-By tracing the refcnt, I found the node is created by hfs_bmap_alloc()
-with refcnt 1.  Then the node is used by hfs_btree_write().  There is a
-missing of hfs_bnode_get() after find the node.  The issue happened in
-following path:
-
-<alloc>
- hfs_bmap_alloc
-   hfs_bnode_find
-     __hfs_bnode_create   <- allocate a new node with refcnt 1.
-   hfs_bnode_put          <- decrease the refcnt
-
-<write>
- hfs_btree_write
-   hfs_bnode_find
-     __hfs_bnode_create
-       hfs_bnode_findhash <- find the node without refcnt increased.
-   hfs_bnode_put	  <- trigger the BUG_ON() since refcnt is 0.
-
-Link: https://lkml.kernel.org/r/20221212021627.3766829-1-liushixin2@huawei.com
-Reported-by: syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Cc: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfs/bnode.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/ima.h               |    6 ++++--
+ security/integrity/ima/ima_main.c |    7 +++++--
+ security/security.c               |    7 ++++---
+ 3 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/fs/hfs/bnode.c
-+++ b/fs/hfs/bnode.c
-@@ -274,6 +274,7 @@ static struct hfs_bnode *__hfs_bnode_cre
- 		tree->node_hash[hash] = node;
- 		tree->node_hash_cnt++;
- 	} else {
-+		hfs_bnode_get(node2);
- 		spin_unlock(&tree->hash_lock);
- 		kfree(node);
- 		wait_event(node2->lock_wq, !test_bit(HFS_BNODE_NEW, &node2->flags));
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -21,7 +21,8 @@ extern int ima_file_check(struct file *f
+ extern void ima_post_create_tmpfile(struct user_namespace *mnt_userns,
+ 				    struct inode *inode);
+ extern void ima_file_free(struct file *file);
+-extern int ima_file_mmap(struct file *file, unsigned long prot);
++extern int ima_file_mmap(struct file *file, unsigned long reqprot,
++			 unsigned long prot, unsigned long flags);
+ extern int ima_file_mprotect(struct vm_area_struct *vma, unsigned long prot);
+ extern int ima_load_data(enum kernel_load_data_id id, bool contents);
+ extern int ima_post_load_data(char *buf, loff_t size,
+@@ -76,7 +77,8 @@ static inline void ima_file_free(struct
+ 	return;
+ }
+ 
+-static inline int ima_file_mmap(struct file *file, unsigned long prot)
++static inline int ima_file_mmap(struct file *file, unsigned long reqprot,
++				unsigned long prot, unsigned long flags)
+ {
+ 	return 0;
+ }
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -397,7 +397,9 @@ out:
+ /**
+  * ima_file_mmap - based on policy, collect/store measurement.
+  * @file: pointer to the file to be measured (May be NULL)
+- * @prot: contains the protection that will be applied by the kernel.
++ * @reqprot: protection requested by the application
++ * @prot: protection that will be applied by the kernel
++ * @flags: operational flags
+  *
+  * Measure files being mmapped executable based on the ima_must_measure()
+  * policy decision.
+@@ -405,7 +407,8 @@ out:
+  * On success return 0.  On integrity appraisal error, assuming the file
+  * is in policy and IMA-appraisal is in enforcing mode, return -EACCES.
+  */
+-int ima_file_mmap(struct file *file, unsigned long prot)
++int ima_file_mmap(struct file *file, unsigned long reqprot,
++		  unsigned long prot, unsigned long flags)
+ {
+ 	u32 secid;
+ 
+--- a/security/security.c
++++ b/security/security.c
+@@ -1661,12 +1661,13 @@ static inline unsigned long mmap_prot(st
+ int security_mmap_file(struct file *file, unsigned long prot,
+ 			unsigned long flags)
+ {
++	unsigned long prot_adj = mmap_prot(file, prot);
+ 	int ret;
+-	ret = call_int_hook(mmap_file, 0, file, prot,
+-					mmap_prot(file, prot), flags);
++
++	ret = call_int_hook(mmap_file, 0, file, prot, prot_adj, flags);
+ 	if (ret)
+ 		return ret;
+-	return ima_file_mmap(file, prot);
++	return ima_file_mmap(file, prot, prot_adj, flags);
+ }
+ 
+ int security_mmap_addr(unsigned long addr)
 
 
