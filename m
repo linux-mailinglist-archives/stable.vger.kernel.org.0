@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D89386AF589
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79EF16AF581
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229496AbjCGT0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:26:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36216 "EHLO
+        id S234138AbjCGT0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:26:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234096AbjCGTZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:25:55 -0500
+        with ESMTP id S234135AbjCGT0A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:26:00 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F9D3A83AF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:11:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E507A83B9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:12:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9DB88CE1C5D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:11:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A883C433D2;
-        Tue,  7 Mar 2023 19:11:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B6B69CE1C8B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93BA4C433D2;
+        Tue,  7 Mar 2023 19:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216312;
-        bh=9ns6KDa98YvFpirUE9vMea+DqLZg8SkYY/Unfcm9Ors=;
+        s=korg; t=1678216316;
+        bh=v5ljIiQWZBHCGZvt3PnAC5FrftRBxOoDU6VDJZi+kH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNsOv/XwtRoMYCBm67mmCmUNmdNnjTNTjvHwbUEKFVy/pKgCqq58SHwp38kYQ+9C1
-         I0bKGQFGq/V9zDpOa4j7T/yp2F5CxYSS2sf3NPo/5zClBv9Q4N2VAljiYSHd/D3Qpt
-         E+P2VijBeW9bMc/wuQME0HetPcXvQE3CFfQ2Giqs=
+        b=b2hYuEonjBkucvhe6urCiYOMER6Lo+YZ59o9j+myS0nzWmLFqPVVSFdMcG1OdOQjc
+         YmJ3kLzQoTi58sH5lJixjk4YAyqDRfajlJVTC/Y4VxuBU29VbHdIfkcUJ50j13UWSM
+         PfOwyl6Ews/0fKgVS3hlQQljfVPDlFzBzSq/AgYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        patches@lists.linux.dev, Ding Hui <dinghui@sangfor.com.cn>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 544/567] scsi: qla2xxx: Remove increment of interface err cnt
-Date:   Tue,  7 Mar 2023 18:04:40 +0100
-Message-Id: <20230307165929.529664271@linuxfoundation.org>
+Subject: [PATCH 5.15 545/567] scsi: ses: Dont attach if enclosure has no components
+Date:   Tue,  7 Mar 2023 18:04:41 +0100
+Message-Id: <20230307165929.578555829@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,34 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: James Bottomley <jejb@linux.ibm.com>
 
-commit d676a9e3d9efb7e93df460bcf4c445496c16314f upstream.
+commit 3fe97ff3d94934649abb0652028dd7296170c8d0 upstream.
 
-Residual underrun is not an interface error, hence no need to increment
-that count.
+An enclosure with no components can't usefully be operated by the driver
+(since effectively it has nothing to manage), so report the problem and
+don't attach. Not attaching also fixes an oops which could occur if the
+driver tries to manage a zero component enclosure.
 
-Fixes: dbf1f53cfd23 ("scsi: qla2xxx: Implementation to get and manage host, target stats and initiator port")
+[mkp: Switched to KERN_WARNING since this scenario is common]
+
+Link: https://lore.kernel.org/r/c5deac044ac409e32d9ad9968ce0dcbc996bfc7a.camel@linux.ibm.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reported-by: Ding Hui <dinghui@sangfor.com.cn>
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/ses.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3350,8 +3350,6 @@ qla2x00_status_entry(scsi_qla_host_t *vh
- 				       "Dropped frame(s) detected (0x%x of 0x%x bytes).\n",
- 				       resid, scsi_bufflen(cp));
- 
--				vha->interface_err_cnt++;
--
- 				res = DID_ERROR << 16 | lscsi_status;
- 				goto check_scsi_status;
- 			}
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -704,6 +704,12 @@ static int ses_intf_add(struct device *c
+ 		    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE)
+ 			components += type_ptr[1];
+ 	}
++
++	if (components == 0) {
++		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
++		goto err_free;
++	}
++
+ 	ses_dev->page1 = buf;
+ 	ses_dev->page1_len = len;
+ 	buf = NULL;
 
 
