@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BD36AEC76
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA496AF163
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:43:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230123AbjCGRz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
+        id S232995AbjCGSnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:43:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232315AbjCGRyv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FD42A6BD6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:44 -0800 (PST)
+        with ESMTP id S232879AbjCGSm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2F323645
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C046461523
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F19C433EF;
-        Tue,  7 Mar 2023 17:49:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8085B6154C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7554AC4339C;
+        Tue,  7 Mar 2023 18:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211383;
-        bh=3XKpO9kLlTPLrzTmbwL/cllWT1egoSVMtEkP6P5PFwM=;
+        s=korg; t=1678213977;
+        bh=T64YGB/WbSmo844IPhN5Qg5+GnKYfnMKflw+A6LaWMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TwhOxlJJXp/BZE2GJpZrAgDvBbVFq/5r2Au6hiHct5ZYuL7UvA7ZB6ejveyZrteTZ
-         NNkDeeffObtwuGW1qLzX/sIoH3O2hNncvfNVWAmto/ZVQsnum+Oaz1ZXpfdl2G5YWZ
-         DkLjuWeef6uRMQg98zUQLYT1ei2rpwLOHUhM3E7I=
+        b=0z6cae5Yq6Rt1CqY+5ph5kQm1X9cXuJ/d4NS1ICauSA1RfufCn9GLX2f0knAWeqQ8
+         1kHdeZhgIK/0I5kvyCtXoU75ov6OE21U70z0YWhS92U+8hc6M4CQo0csMtntKS+4gD
+         G4vFBEPuq3a3saz+884/Og18Vc6FZJ0JYsniZvaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
-        stable@kernel.org
-Subject: [PATCH 6.2 0844/1001] x86/microcode/AMD: Fix mixed steppings support
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Mukesh Ojha <quic_mojha@quicinc.com>
+Subject: [PATCH 6.1 682/885] locking/rwsem: Prevent non-first waiter from spinning in down_write() slowpath
 Date:   Tue,  7 Mar 2023 18:00:16 +0100
-Message-Id: <20230307170058.422206529@linuxfoundation.org>
+Message-Id: <20230307170031.751518586@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,106 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Waiman Long <longman@redhat.com>
 
-commit 7ff6edf4fef38ab404ee7861f257e28eaaeed35f upstream.
+commit b613c7f31476c44316bfac1af7cac714b7d6bef9 upstream.
 
-The AMD side of the loader has always claimed to support mixed
-steppings. But somewhere along the way, it broke that by assuming that
-the cached patch blob is a single one instead of it being one per
-*node*.
+A non-first waiter can potentially spin in the for loop of
+rwsem_down_write_slowpath() without sleeping but fail to acquire the
+lock even if the rwsem is free if the following sequence happens:
 
-So turn it into a per-node one so that each node can stash the blob
-relevant for it.
+  Non-first RT waiter    First waiter      Lock holder
+  -------------------    ------------      -----------
+  Acquire wait_lock
+  rwsem_try_write_lock():
+    Set handoff bit if RT or
+      wait too long
+    Set waiter->handoff_set
+  Release wait_lock
+                         Acquire wait_lock
+                         Inherit waiter->handoff_set
+                         Release wait_lock
+					   Clear owner
+                                           Release lock
+  if (waiter.handoff_set) {
+    rwsem_spin_on_owner(();
+    if (OWNER_NULL)
+      goto trylock_again;
+  }
+  trylock_again:
+  Acquire wait_lock
+  rwsem_try_write_lock():
+     if (first->handoff_set && (waiter != first))
+	return false;
+  Release wait_lock
 
-  [ NB: Fixes tag is not really the exactly correct one but it is good
-    enough. ]
+A non-first waiter cannot really acquire the rwsem even if it mistakenly
+believes that it can spin on OWNER_NULL value. If that waiter happens
+to be an RT task running on the same CPU as the first waiter, it can
+block the first waiter from acquiring the rwsem leading to live lock.
+Fix this problem by making sure that a non-first waiter cannot spin in
+the slowpath loop without sleeping.
 
-Fixes: fe055896c040 ("x86/microcode: Merge the early microcode loader")
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Cc: <stable@kernel.org> # 2355370cd941 ("x86/microcode/amd: Remove load_microcode_amd()'s bsp parameter")
-Cc: <stable@kernel.org> # a5ad92134bd1 ("x86/microcode/AMD: Add a @cpu parameter to the reloading functions")
-Link: https://lore.kernel.org/r/20230130161709.11615-4-bp@alien8.de
+Fixes: d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230126003628.365092-2-longman@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/microcode/amd.c |   34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ kernel/locking/rwsem.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -55,7 +55,9 @@ struct cont_desc {
- };
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -624,18 +624,16 @@ static inline bool rwsem_try_write_lock(
+ 			 */
+ 			if (first->handoff_set && (waiter != first))
+ 				return false;
+-
+-			/*
+-			 * First waiter can inherit a previously set handoff
+-			 * bit and spin on rwsem if lock acquisition fails.
+-			 */
+-			if (waiter == first)
+-				waiter->handoff_set = true;
+ 		}
  
- static u32 ucode_new_rev;
--static u8 amd_ucode_patch[PATCH_MAX_SIZE];
-+
-+/* One blob per node. */
-+static u8 amd_ucode_patch[MAX_NUMNODES][PATCH_MAX_SIZE];
+ 		new = count;
  
- /*
-  * Microcode patch container file is prepended to the initrd in cpio
-@@ -428,7 +430,7 @@ apply_microcode_early_amd(u32 cpuid_1_ea
- 	patch	= (u8 (*)[PATCH_MAX_SIZE])__pa_nodebug(&amd_ucode_patch);
- #else
- 	new_rev = &ucode_new_rev;
--	patch	= &amd_ucode_patch;
-+	patch	= &amd_ucode_patch[0];
- #endif
+ 		if (count & RWSEM_LOCK_MASK) {
++			/*
++			 * A waiter (first or not) can set the handoff bit
++			 * if it is an RT task or wait in the wait queue
++			 * for too long.
++			 */
+ 			if (has_handoff || (!rt_task(waiter->task) &&
+ 					    !time_after(jiffies, waiter->timeout)))
+ 				return false;
+@@ -651,11 +649,12 @@ static inline bool rwsem_try_write_lock(
+ 	} while (!atomic_long_try_cmpxchg_acquire(&sem->count, &count, new));
  
- 	desc.cpuid_1_eax = cpuid_1_eax;
-@@ -580,10 +582,10 @@ int __init save_microcode_in_initrd_amd(
- 
- void reload_ucode_amd(unsigned int cpu)
- {
--	struct microcode_amd *mc;
- 	u32 rev, dummy __always_unused;
-+	struct microcode_amd *mc;
- 
--	mc = (struct microcode_amd *)amd_ucode_patch;
-+	mc = (struct microcode_amd *)amd_ucode_patch[cpu_to_node(cpu)];
- 
- 	rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
- 
-@@ -851,6 +853,8 @@ static enum ucode_state __load_microcode
- 
- static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
- {
-+	struct cpuinfo_x86 *c;
-+	unsigned int nid, cpu;
- 	struct ucode_patch *p;
- 	enum ucode_state ret;
- 
-@@ -863,18 +867,22 @@ static enum ucode_state load_microcode_a
- 		return ret;
+ 	/*
+-	 * We have either acquired the lock with handoff bit cleared or
+-	 * set the handoff bit.
++	 * We have either acquired the lock with handoff bit cleared or set
++	 * the handoff bit. Only the first waiter can have its handoff_set
++	 * set here to enable optimistic spinning in slowpath loop.
+ 	 */
+ 	if (new & RWSEM_FLAG_HANDOFF) {
+-		waiter->handoff_set = true;
++		first->handoff_set = true;
+ 		lockevent_inc(rwsem_wlock_handoff);
+ 		return false;
  	}
- 
--	p = find_patch(0);
--	if (!p) {
--		return ret;
--	} else {
--		if (boot_cpu_data.microcode >= p->patch_id)
--			return ret;
-+	for_each_node(nid) {
-+		cpu = cpumask_first(cpumask_of_node(nid));
-+		c = &cpu_data(cpu);
-+
-+		p = find_patch(cpu);
-+		if (!p)
-+			continue;
-+
-+		if (c->microcode >= p->patch_id)
-+			continue;
- 
- 		ret = UCODE_NEW;
--	}
- 
--	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
--	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
-+		memset(&amd_ucode_patch[nid], 0, PATCH_MAX_SIZE);
-+		memcpy(&amd_ucode_patch[nid], p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
-+	}
- 
- 	return ret;
- }
 
 
