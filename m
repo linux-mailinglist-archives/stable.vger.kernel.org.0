@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE166AF1A7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECE5C6AEC9E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:56:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233212AbjCGSqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:46:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35436 "EHLO
+        id S230226AbjCGR4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:56:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232053AbjCGSpo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2009AB8601
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:17 -0800 (PST)
+        with ESMTP id S230270AbjCGR4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:56:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB4DCA3B52;
+        Tue,  7 Mar 2023 09:51:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F2B86150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:34:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E51C433EF;
-        Tue,  7 Mar 2023 18:34:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96D5FB818F6;
+        Tue,  7 Mar 2023 17:51:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F236FC4339B;
+        Tue,  7 Mar 2023 17:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214061;
-        bh=wUejTEtWLIfLcBfObVwX9nGSvJlnoWoQw0P8Qt8u4Gc=;
+        s=korg; t=1678211463;
+        bh=XQH43IEFUEyBpZ12P6dRbqyGDcj7pau0VKkrw5sLbSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJC3E9KYolCpqkPUnHVE4DC4viMQE/H5YUossoujmSLVo3bNQ1FftiUinCEjmd8D3
-         TN64cHbsl3owHWjBmbcPZlgLwoCjwj11u+2TQGTFD0Quq76aft5nDgXleEEQRJF+Zx
-         TtrRCKj5mBcrIbwiZE66vrCgDB111t+uLllEKIDM=
+        b=fO8yC8w6j9jA6VQL8Thqjq636mX1tFP6fbSDpceLzaM6dy4e5fz6BuftKSrpCDjTc
+         fnD1cac0Re1vPYFHDkP0S0xm6LIbxeNz3flDDVcQxWC5Jww87JWqEoYV6wy/7x2eUa
+         1rbQxHyKxwv5Sy8ByCfjzB4kIBbHxLbnL6btkc1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+0937935b993956ba28ab@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 6.1 709/885] udf: Do not update file length for failed writes to inline files
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 6.2 0871/1001] selftests: move_mount_set_group: Fix incorrect kernel headers search path
 Date:   Tue,  7 Mar 2023 18:00:43 +0100
-Message-Id: <20230307170032.850009805@linuxfoundation.org>
+Message-Id: <20230307170059.684212306@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 256fe4162f8b5a1625b8603ca5f7ff79725bfb47 upstream.
+commit 65c68af0131bfef8e395c325735b6c40638cb931 upstream.
 
-When write to inline file fails (or happens only partly), we still
-updated length of inline data as if the whole write succeeded. Fix the
-update of length of inline data to happen only if the write succeeds.
+Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
+building against kernel headers from the build environment in scenarios
+where kernel headers are installed into a specific output directory
+(O=...).
 
-Reported-by: syzbot+0937935b993956ba28ab@syzkaller.appspotmail.com
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: linux-kselftest@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: <stable@vger.kernel.org>  # 5.18+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/file.c |   26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ tools/testing/selftests/move_mount_set_group/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/udf/file.c
-+++ b/fs/udf/file.c
-@@ -149,26 +149,24 @@ static ssize_t udf_file_write_iter(struc
- 		goto out;
+--- a/tools/testing/selftests/move_mount_set_group/Makefile
++++ b/tools/testing/selftests/move_mount_set_group/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for mount selftests.
+-CFLAGS = -g -I../../../../usr/include/ -Wall -O2
++CFLAGS = -g $(KHDR_INCLUDES) -Wall -O2
  
- 	down_write(&iinfo->i_data_sem);
--	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB) {
--		loff_t end = iocb->ki_pos + iov_iter_count(from);
--
--		if (inode->i_sb->s_blocksize <
--				(udf_file_entry_alloc_offset(inode) + end)) {
--			err = udf_expand_file_adinicb(inode);
--			if (err) {
--				inode_unlock(inode);
--				udf_debug("udf_expand_adinicb: err=%d\n", err);
--				return err;
--			}
--		} else {
--			iinfo->i_lenAlloc = max(end, inode->i_size);
--			up_write(&iinfo->i_data_sem);
-+	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB &&
-+	    inode->i_sb->s_blocksize < (udf_file_entry_alloc_offset(inode) +
-+				 iocb->ki_pos + iov_iter_count(from))) {
-+		err = udf_expand_file_adinicb(inode);
-+		if (err) {
-+			inode_unlock(inode);
-+			udf_debug("udf_expand_adinicb: err=%d\n", err);
-+			return err;
- 		}
- 	} else
- 		up_write(&iinfo->i_data_sem);
+ TEST_GEN_FILES += move_mount_set_group_test
  
- 	retval = __generic_file_write_iter(iocb, from);
- out:
-+	down_write(&iinfo->i_data_sem);
-+	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB && retval > 0)
-+		iinfo->i_lenAlloc = inode->i_size;
-+	up_write(&iinfo->i_data_sem);
- 	inode_unlock(inode);
- 
- 	if (retval > 0) {
 
 
