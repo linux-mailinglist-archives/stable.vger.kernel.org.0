@@ -2,131 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E6F6AEA60
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E294A6AEEE3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbjCGRdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:33:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33292 "EHLO
+        id S229801AbjCGSRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:17:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231681AbjCGRcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D139521D3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:31 -0800 (PST)
+        with ESMTP id S232593AbjCGSR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB69BA80FC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:12:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43827B819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C7C9C433EF;
-        Tue,  7 Mar 2023 17:28:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 666506152F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F2EC433D2;
+        Tue,  7 Mar 2023 18:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210109;
-        bh=GENmrr6VWbtc3Ipaf03MzGtRkllUlfzg9cGNKgHTnCc=;
+        s=korg; t=1678212741;
+        bh=UKj/Yz1lvupNizeVrO4etaeCaHmugzEYepmlLeh6XJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zp1189nBmxI1AnxF8BPNngCl9Xcoqw+2VgXmB0t6Oo8UPbZSY0+98gWeezCZEu6jD
-         yXAe0QDDACiuXrFKpS/SbwD8E9aOUx+zyj71NpB6lAIjIVqTJyy3BZ7heuwECZ305c
-         qK+LRaBk8GY5z3O10JAwEO/I1SFkayV7Uxad4h2M=
+        b=PfOMFP4QSLjMH4ZoiJa1TgAztq72rToKvrHSvSaveQY3PN5kGGjGLQoQbameng65s
+         aBSo7lBD6u2yX7kFcFytpWN+SkhLXb/yOHgu8NRAvqOECIPcM6jdcHbdP3mHD0dnIB
+         RDjD5BWsSDjYbA9ncRBDDHNPLDIOJlmS/BMljx54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0436/1001] nfs4trace: fix state manager flag printing
-Date:   Tue,  7 Mar 2023 17:53:28 +0100
-Message-Id: <20230307170040.281088692@linuxfoundation.org>
+Subject: [PATCH 6.1 275/885] hwmon: (ftsteutates) Fix scaling of measurements
+Date:   Tue,  7 Mar 2023 17:53:29 +0100
+Message-Id: <20230307170013.954308141@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit b46d80bd2d6e7e063c625a20de54248afe8d4889 ]
+[ Upstream commit ca8fd8c16a8b77dfcf7f6ce52d2c863220693a78 ]
 
-__print_flags wants a mask, not the enum value.  Add two more flags.
+A user complained that the ftsteutates driver was displaying
+bogus values since its introduction. This happens because the
+sensor measurements need to be scaled in order to produce
+meaningful results:
+- the fan speed needs to be multiplied by 60 since its in RPS
+- the temperature is in degrees celsius and needs an offset of 64
+- the voltage is in 1/256 of 3.3V
 
-Fixes: 511ba52e4c01 ("NFS4: Trace state recovery operation")
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The offical datasheet says the voltage needs to be divided by 256,
+but this is likely an off-by-one-error, since even the BIOS
+devides by 255 (otherwise 3.3V could not be measured).
+
+The voltage channels additionally need a board-specific multiplier,
+however this can be done by the driver since its board-specific.
+
+The reason the missing scaling of measurements is the way Fujitsu
+used this driver when it was still out-of-tree. Back then, all
+scaling was done in userspace by libsensors, even the generic one.
+
+Tested on a Fujitsu DS3401-B1.
+
+Fixes: 08426eda58e0 ("hwmon: Add driver for FTS BMC chip "Teutates"")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Link: https://lore.kernel.org/r/20221224041855.83981-2-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4trace.h | 42 ++++++++++++++++++++++--------------------
- 1 file changed, 22 insertions(+), 20 deletions(-)
+ Documentation/hwmon/ftsteutates.rst |  4 ++++
+ drivers/hwmon/ftsteutates.c         | 19 +++++++++++++------
+ 2 files changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/nfs4trace.h b/fs/nfs/nfs4trace.h
-index 214bc56f92d2b..d27919d7241d3 100644
---- a/fs/nfs/nfs4trace.h
-+++ b/fs/nfs/nfs4trace.h
-@@ -292,32 +292,34 @@ TRACE_DEFINE_ENUM(NFS4CLNT_MOVED);
- TRACE_DEFINE_ENUM(NFS4CLNT_LEASE_MOVED);
- TRACE_DEFINE_ENUM(NFS4CLNT_DELEGATION_EXPIRED);
- TRACE_DEFINE_ENUM(NFS4CLNT_RUN_MANAGER);
-+TRACE_DEFINE_ENUM(NFS4CLNT_MANAGER_AVAILABLE);
- TRACE_DEFINE_ENUM(NFS4CLNT_RECALL_RUNNING);
- TRACE_DEFINE_ENUM(NFS4CLNT_RECALL_ANY_LAYOUT_READ);
- TRACE_DEFINE_ENUM(NFS4CLNT_RECALL_ANY_LAYOUT_RW);
-+TRACE_DEFINE_ENUM(NFS4CLNT_DELEGRETURN_DELAYED);
+diff --git a/Documentation/hwmon/ftsteutates.rst b/Documentation/hwmon/ftsteutates.rst
+index 58a2483d8d0da..198fa8e2819da 100644
+--- a/Documentation/hwmon/ftsteutates.rst
++++ b/Documentation/hwmon/ftsteutates.rst
+@@ -22,6 +22,10 @@ enhancements. It can monitor up to 4 voltages, 16 temperatures and
+ 8 fans. It also contains an integrated watchdog which is currently
+ implemented in this driver.
  
- #define show_nfs4_clp_state(state) \
- 	__print_flags(state, "|", \
--		{ NFS4CLNT_MANAGER_RUNNING,	"MANAGER_RUNNING" }, \
--		{ NFS4CLNT_CHECK_LEASE,		"CHECK_LEASE" }, \
--		{ NFS4CLNT_LEASE_EXPIRED,	"LEASE_EXPIRED" }, \
--		{ NFS4CLNT_RECLAIM_REBOOT,	"RECLAIM_REBOOT" }, \
--		{ NFS4CLNT_RECLAIM_NOGRACE,	"RECLAIM_NOGRACE" }, \
--		{ NFS4CLNT_DELEGRETURN,		"DELEGRETURN" }, \
--		{ NFS4CLNT_SESSION_RESET,	"SESSION_RESET" }, \
--		{ NFS4CLNT_LEASE_CONFIRM,	"LEASE_CONFIRM" }, \
--		{ NFS4CLNT_SERVER_SCOPE_MISMATCH, \
--						"SERVER_SCOPE_MISMATCH" }, \
--		{ NFS4CLNT_PURGE_STATE,		"PURGE_STATE" }, \
--		{ NFS4CLNT_BIND_CONN_TO_SESSION, \
--						"BIND_CONN_TO_SESSION" }, \
--		{ NFS4CLNT_MOVED,		"MOVED" }, \
--		{ NFS4CLNT_LEASE_MOVED,		"LEASE_MOVED" }, \
--		{ NFS4CLNT_DELEGATION_EXPIRED,	"DELEGATION_EXPIRED" }, \
--		{ NFS4CLNT_RUN_MANAGER,		"RUN_MANAGER" }, \
--		{ NFS4CLNT_RECALL_RUNNING,	"RECALL_RUNNING" }, \
--		{ NFS4CLNT_RECALL_ANY_LAYOUT_READ, "RECALL_ANY_LAYOUT_READ" }, \
--		{ NFS4CLNT_RECALL_ANY_LAYOUT_RW, "RECALL_ANY_LAYOUT_RW" })
-+	{ BIT(NFS4CLNT_MANAGER_RUNNING),	"MANAGER_RUNNING" }, \
-+	{ BIT(NFS4CLNT_CHECK_LEASE),		"CHECK_LEASE" }, \
-+	{ BIT(NFS4CLNT_LEASE_EXPIRED),	"LEASE_EXPIRED" }, \
-+	{ BIT(NFS4CLNT_RECLAIM_REBOOT),	"RECLAIM_REBOOT" }, \
-+	{ BIT(NFS4CLNT_RECLAIM_NOGRACE),	"RECLAIM_NOGRACE" }, \
-+	{ BIT(NFS4CLNT_DELEGRETURN),		"DELEGRETURN" }, \
-+	{ BIT(NFS4CLNT_SESSION_RESET),	"SESSION_RESET" }, \
-+	{ BIT(NFS4CLNT_LEASE_CONFIRM),	"LEASE_CONFIRM" }, \
-+	{ BIT(NFS4CLNT_SERVER_SCOPE_MISMATCH),	"SERVER_SCOPE_MISMATCH" }, \
-+	{ BIT(NFS4CLNT_PURGE_STATE),		"PURGE_STATE" }, \
-+	{ BIT(NFS4CLNT_BIND_CONN_TO_SESSION),	"BIND_CONN_TO_SESSION" }, \
-+	{ BIT(NFS4CLNT_MOVED),		"MOVED" }, \
-+	{ BIT(NFS4CLNT_LEASE_MOVED),		"LEASE_MOVED" }, \
-+	{ BIT(NFS4CLNT_DELEGATION_EXPIRED),	"DELEGATION_EXPIRED" }, \
-+	{ BIT(NFS4CLNT_RUN_MANAGER),		"RUN_MANAGER" }, \
-+	{ BIT(NFS4CLNT_MANAGER_AVAILABLE), "MANAGER_AVAILABLE" }, \
-+	{ BIT(NFS4CLNT_RECALL_RUNNING),	"RECALL_RUNNING" }, \
-+	{ BIT(NFS4CLNT_RECALL_ANY_LAYOUT_READ), "RECALL_ANY_LAYOUT_READ" }, \
-+	{ BIT(NFS4CLNT_RECALL_ANY_LAYOUT_RW), "RECALL_ANY_LAYOUT_RW" }, \
-+	{ BIT(NFS4CLNT_DELEGRETURN_DELAYED), "DELERETURN_DELAYED" })
++The 4 voltages require a board-specific multiplier, since the BMC can
++only measure voltages up to 3.3V and thus relies on voltage dividers.
++Consult your motherboard manual for details.
++
+ To clear a temperature or fan alarm, execute the following command with the
+ correct path to the alarm file::
  
- TRACE_EVENT(nfs4_state_mgr,
- 		TP_PROTO(
+diff --git a/drivers/hwmon/ftsteutates.c b/drivers/hwmon/ftsteutates.c
+index f5b8e724a8ca1..ffa0bb3648775 100644
+--- a/drivers/hwmon/ftsteutates.c
++++ b/drivers/hwmon/ftsteutates.c
+@@ -12,6 +12,7 @@
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+ #include <linux/jiffies.h>
++#include <linux/math.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+ #include <linux/slab.h>
+@@ -347,13 +348,15 @@ static ssize_t in_value_show(struct device *dev,
+ {
+ 	struct fts_data *data = dev_get_drvdata(dev);
+ 	int index = to_sensor_dev_attr(devattr)->index;
+-	int err;
++	int value, err;
+ 
+ 	err = fts_update_device(data);
+ 	if (err < 0)
+ 		return err;
+ 
+-	return sprintf(buf, "%u\n", data->volt[index]);
++	value = DIV_ROUND_CLOSEST(data->volt[index] * 3300, 255);
++
++	return sprintf(buf, "%d\n", value);
+ }
+ 
+ static ssize_t temp_value_show(struct device *dev,
+@@ -361,13 +364,15 @@ static ssize_t temp_value_show(struct device *dev,
+ {
+ 	struct fts_data *data = dev_get_drvdata(dev);
+ 	int index = to_sensor_dev_attr(devattr)->index;
+-	int err;
++	int value, err;
+ 
+ 	err = fts_update_device(data);
+ 	if (err < 0)
+ 		return err;
+ 
+-	return sprintf(buf, "%u\n", data->temp_input[index]);
++	value = (data->temp_input[index] - 64) * 1000;
++
++	return sprintf(buf, "%d\n", value);
+ }
+ 
+ static ssize_t temp_fault_show(struct device *dev,
+@@ -436,13 +441,15 @@ static ssize_t fan_value_show(struct device *dev,
+ {
+ 	struct fts_data *data = dev_get_drvdata(dev);
+ 	int index = to_sensor_dev_attr(devattr)->index;
+-	int err;
++	int value, err;
+ 
+ 	err = fts_update_device(data);
+ 	if (err < 0)
+ 		return err;
+ 
+-	return sprintf(buf, "%u\n", data->fan_input[index]);
++	value = data->fan_input[index] * 60;
++
++	return sprintf(buf, "%d\n", value);
+ }
+ 
+ static ssize_t fan_source_show(struct device *dev,
 -- 
 2.39.2
 
