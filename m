@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEA856AF3EF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7736AF426
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:14:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233702AbjCGTLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:11:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33062 "EHLO
+        id S233842AbjCGTOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:14:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233711AbjCGTKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:10:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A39C85AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:55:23 -0800 (PST)
+        with ESMTP id S233839AbjCGTNq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 968B1B4F79
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08457B819F1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:55:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE3AC433EF;
-        Tue,  7 Mar 2023 18:55:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BCD46150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22AD1C4339B;
+        Tue,  7 Mar 2023 18:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215319;
-        bh=LXkMK4jg+lAyq+SIJkct+clL4xhP5xL75R3FOSyvfPM=;
+        s=korg; t=1678215447;
+        bh=kzXc2RUPuJwZ+k+KzwAaWOMMOs1615upUcGsuIMEf6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtyKI0vZH8/KYJOrxEmaRlbKpVOxqhS1TRAHcjReNI682VQebZy6W61jb90VRHvOB
-         oABd32fJNJ3a3K//j8iVwmtFLuPWTD6goAD61KLrgJSvew7YPE77Isge389EYoGf0v
-         JT6C00fiUEZgwmaClanHBrXmCGB431yK/tyO3A68=
+        b=irgbBGkh8mw1uhK8sJJ6Cpvrcgu9osHfu3SzyjDqBPczjno1bwGBeElWchAsu+JYt
+         yKoNiftXCaLKZuktoe3YI8g4rffiWgClm7O+Z445FVEmg7hZschaVJEfeLkdbH3P0+
+         OaKuib88No9z4qwx7PdXc8GJ6sOBYhw1VXupf92Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Claudiu Beznea <claudiu.beznea@microchip.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 221/567] ASoC: mchp-spdifrx: fix controls which rely on rsr register
-Date:   Tue,  7 Mar 2023 17:59:17 +0100
-Message-Id: <20230307165915.477803706@linuxfoundation.org>
+Subject: [PATCH 5.15 222/567] ASoC: mchp-spdifrx: fix return value in case completion times out
+Date:   Tue,  7 Mar 2023 17:59:18 +0100
+Message-Id: <20230307165915.518663367@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,361 +57,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit fa09fa60385abbf99342494b280da8b4aebbc0e9 ]
+[ Upstream commit a4c4161d6eae3ef5f486d1638ef452d9bc1376b0 ]
 
-The SPDIFRX block is clocked by 2 clocks: peripheral and generic clocks.
-Peripheral clock feeds user interface (registers) and generic clock feeds
-the receiver.
-
-To enable the receiver the generic clock needs to be enabled and also the
-ENABLE bit of MCHP_SPDIFRX_MR register need to be set.
-
-The signal control exported by mchp-spdifrx driver reports wrong status
-when the receiver is disabled. This can happen when requesting the signal
-and the capture was not previously started. To solve this the receiver
-needs to be enabled (by enabling generic clock and setting ENABLE bit of
-MR register) before reading the signal status.
-
-As with this fix there are 2 paths now that need to control the generic
-clock and ENABLE bit of SPDIFRX_MR register (one path though controls, one
-path though configuration) a mutex has been introduced. We can't rely on
-subsystem locking as the controls are protected by
-struct snd_card::controls_rwsem semaphore and configuration is protected
-by a different lock (embedded in snd_pcm_stream_lock_irq()).
-
-The introduction of mutex is also extended to other controls which rely on
-SPDIFRX_RSR.ULOCK bit as it has been discovered experimentally that having
-both clocks enabled but not the receiver (through ENABLE bit of SPDIFRX.MR)
-leads to inconsistent values of SPDIFRX_RSR.ULOCK. Thus on some controls we
-rely on software state (dev->trigger_enabled protected by mutex) to
-retrieve proper values.
+wait_for_completion_interruptible_timeout() returns 0 in case of
+timeout. Check this into account when returning from function.
 
 Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230130120647.638049-2-claudiu.beznea@microchip.com
+Link: https://lore.kernel.org/r/20230130120647.638049-3-claudiu.beznea@microchip.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-spdifrx.c | 192 ++++++++++++++++++++++++---------
- 1 file changed, 142 insertions(+), 50 deletions(-)
+ sound/soc/atmel/mchp-spdifrx.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
-index 2a62d9a2fa0d0..3962ce00ad34a 100644
+index 3962ce00ad34a..076a78fd0b125 100644
 --- a/sound/soc/atmel/mchp-spdifrx.c
 +++ b/sound/soc/atmel/mchp-spdifrx.c
-@@ -233,11 +233,13 @@ struct mchp_spdifrx_dev {
- 	struct mchp_spdifrx_mixer_control	control;
- 	spinlock_t				blockend_lock;	/* protect access to blockend_refcount */
- 	int					blockend_refcount;
-+	struct mutex				mlock;
- 	struct device				*dev;
- 	struct regmap				*regmap;
- 	struct clk				*pclk;
- 	struct clk				*gclk;
- 	unsigned int				fmt;
-+	unsigned int				trigger_enabled;
- 	unsigned int				gclk_enabled:1;
- };
- 
-@@ -353,47 +355,40 @@ static int mchp_spdifrx_trigger(struct snd_pcm_substream *substream, int cmd,
- 				struct snd_soc_dai *dai)
- {
- 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
--	u32 mr;
--	int running;
--	int ret;
--
--	regmap_read(dev->regmap, SPDIFRX_MR, &mr);
--	running = !!(mr & SPDIFRX_MR_RXEN_ENABLE);
-+	int ret = 0;
- 
- 	switch (cmd) {
- 	case SNDRV_PCM_TRIGGER_START:
- 	case SNDRV_PCM_TRIGGER_RESUME:
- 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
--		if (!running) {
--			mr &= ~SPDIFRX_MR_RXEN_MASK;
--			mr |= SPDIFRX_MR_RXEN_ENABLE;
--			/* enable overrun interrupts */
--			regmap_write(dev->regmap, SPDIFRX_IER,
--				     SPDIFRX_IR_OVERRUN);
--		}
-+		mutex_lock(&dev->mlock);
-+		/* Enable overrun interrupts */
-+		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_OVERRUN);
-+
-+		/* Enable receiver. */
-+		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
-+				   SPDIFRX_MR_RXEN_ENABLE);
-+		dev->trigger_enabled = true;
-+		mutex_unlock(&dev->mlock);
- 		break;
- 	case SNDRV_PCM_TRIGGER_STOP:
- 	case SNDRV_PCM_TRIGGER_SUSPEND:
- 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
--		if (running) {
--			mr &= ~SPDIFRX_MR_RXEN_MASK;
--			mr |= SPDIFRX_MR_RXEN_DISABLE;
--			/* disable overrun interrupts */
--			regmap_write(dev->regmap, SPDIFRX_IDR,
--				     SPDIFRX_IR_OVERRUN);
--		}
-+		mutex_lock(&dev->mlock);
-+		/* Disable overrun interrupts */
-+		regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_OVERRUN);
-+
-+		/* Disable receiver. */
-+		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
-+				   SPDIFRX_MR_RXEN_DISABLE);
-+		dev->trigger_enabled = false;
-+		mutex_unlock(&dev->mlock);
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
+@@ -524,9 +524,10 @@ static int mchp_spdifrx_cs_get(struct mchp_spdifrx_dev *dev,
+ 	ret = wait_for_completion_interruptible_timeout(&ch_stat->done,
+ 							msecs_to_jiffies(100));
+ 	/* IP might not be started or valid stream might not be present */
+-	if (ret < 0) {
++	if (ret <= 0) {
+ 		dev_dbg(dev->dev, "channel status for channel %d timeout\n",
+ 			channel);
++		return ret ? : -ETIMEDOUT;
  	}
  
--	ret = regmap_write(dev->regmap, SPDIFRX_MR, mr);
--	if (ret) {
--		dev_err(dev->dev, "unable to enable/disable RX: %d\n", ret);
+ 	memcpy(uvalue->value.iec958.status, ch_stat->data,
+@@ -580,7 +581,7 @@ static int mchp_spdifrx_subcode_ch_get(struct mchp_spdifrx_dev *dev,
+ 		dev_dbg(dev->dev, "user data for channel %d timeout\n",
+ 			channel);
+ 		mchp_spdifrx_isr_blockend_dis(dev);
 -		return ret;
--	}
--
--	return 0;
-+	return ret;
- }
- 
- static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
-@@ -413,13 +408,6 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
- 		return -EINVAL;
++		return ret ? : -ETIMEDOUT;
  	}
  
--	regmap_read(dev->regmap, SPDIFRX_MR, &mr);
--
--	if (mr & SPDIFRX_MR_RXEN_ENABLE) {
--		dev_err(dev->dev, "PCM already running\n");
--		return -EBUSY;
--	}
--
- 	if (params_channels(params) != SPDIFRX_CHANNELS) {
- 		dev_err(dev->dev, "unsupported number of channels: %d\n",
- 			params_channels(params));
-@@ -445,6 +433,13 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
- 		return -EINVAL;
- 	}
- 
-+	mutex_lock(&dev->mlock);
-+	if (dev->trigger_enabled) {
-+		dev_err(dev->dev, "PCM already running\n");
-+		ret = -EBUSY;
-+		goto unlock;
-+	}
-+
- 	if (dev->gclk_enabled) {
- 		clk_disable_unprepare(dev->gclk);
- 		dev->gclk_enabled = 0;
-@@ -455,19 +450,24 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
- 		dev_err(dev->dev,
- 			"unable to set gclk min rate: rate %u * ratio %u + 1\n",
- 			params_rate(params), SPDIFRX_GCLK_RATIO_MIN);
--		return ret;
-+		goto unlock;
- 	}
- 	ret = clk_prepare_enable(dev->gclk);
- 	if (ret) {
- 		dev_err(dev->dev, "unable to enable gclk: %d\n", ret);
--		return ret;
-+		goto unlock;
- 	}
- 	dev->gclk_enabled = 1;
- 
- 	dev_dbg(dev->dev, "GCLK range min set to %d\n",
- 		params_rate(params) * SPDIFRX_GCLK_RATIO_MIN + 1);
- 
--	return regmap_write(dev->regmap, SPDIFRX_MR, mr);
-+	ret = regmap_write(dev->regmap, SPDIFRX_MR, mr);
-+
-+unlock:
-+	mutex_unlock(&dev->mlock);
-+
-+	return ret;
- }
- 
- static int mchp_spdifrx_hw_free(struct snd_pcm_substream *substream,
-@@ -475,10 +475,12 @@ static int mchp_spdifrx_hw_free(struct snd_pcm_substream *substream,
- {
- 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
- 
-+	mutex_lock(&dev->mlock);
- 	if (dev->gclk_enabled) {
- 		clk_disable_unprepare(dev->gclk);
- 		dev->gclk_enabled = 0;
- 	}
-+	mutex_unlock(&dev->mlock);
- 	return 0;
- }
- 
-@@ -627,10 +629,24 @@ static int mchp_spdifrx_ulock_get(struct snd_kcontrol *kcontrol,
- 	u32 val;
- 	bool ulock_old = ctrl->ulock;
- 
--	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
--	ctrl->ulock = !(val & SPDIFRX_RSR_ULOCK);
-+	mutex_lock(&dev->mlock);
-+
-+	/*
-+	 * The RSR.ULOCK has wrong value if both pclk and gclk are enabled
-+	 * and the receiver is disabled. Thus we take into account the
-+	 * dev->trigger_enabled here to return a real status.
-+	 */
-+	if (dev->trigger_enabled) {
-+		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
-+		ctrl->ulock = !(val & SPDIFRX_RSR_ULOCK);
-+	} else {
-+		ctrl->ulock = 0;
-+	}
-+
- 	uvalue->value.integer.value[0] = ctrl->ulock;
- 
-+	mutex_unlock(&dev->mlock);
-+
- 	return ulock_old != ctrl->ulock;
- }
- 
-@@ -643,8 +659,22 @@ static int mchp_spdifrx_badf_get(struct snd_kcontrol *kcontrol,
- 	u32 val;
- 	bool badf_old = ctrl->badf;
- 
--	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
--	ctrl->badf = !!(val & SPDIFRX_RSR_BADF);
-+	mutex_lock(&dev->mlock);
-+
-+	/*
-+	 * The RSR.ULOCK has wrong value if both pclk and gclk are enabled
-+	 * and the receiver is disabled. Thus we take into account the
-+	 * dev->trigger_enabled here to return a real status.
-+	 */
-+	if (dev->trigger_enabled) {
-+		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
-+		ctrl->badf = !!(val & SPDIFRX_RSR_BADF);
-+	} else {
-+		ctrl->badf = 0;
-+	}
-+
-+	mutex_unlock(&dev->mlock);
-+
- 	uvalue->value.integer.value[0] = ctrl->badf;
- 
- 	return badf_old != ctrl->badf;
-@@ -656,11 +686,48 @@ static int mchp_spdifrx_signal_get(struct snd_kcontrol *kcontrol,
- 	struct snd_soc_dai *dai = snd_kcontrol_chip(kcontrol);
- 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
- 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
--	u32 val;
-+	u32 val = ~0U, loops = 10;
-+	int ret;
- 	bool signal_old = ctrl->signal;
- 
--	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
--	ctrl->signal = !(val & SPDIFRX_RSR_NOSIGNAL);
-+	mutex_lock(&dev->mlock);
-+
-+	/*
-+	 * To get the signal we need to have receiver enabled. This
-+	 * could be enabled also from trigger() function thus we need to
-+	 * take care of not disabling the receiver when it runs.
-+	 */
-+	if (!dev->trigger_enabled) {
-+		ret = clk_prepare_enable(dev->gclk);
-+		if (ret)
-+			goto unlock;
-+
-+		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
-+				   SPDIFRX_MR_RXEN_ENABLE);
-+
-+		/* Wait for RSR.ULOCK bit. */
-+		while (--loops) {
-+			regmap_read(dev->regmap, SPDIFRX_RSR, &val);
-+			if (!(val & SPDIFRX_RSR_ULOCK))
-+				break;
-+			usleep_range(100, 150);
-+		}
-+
-+		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
-+				   SPDIFRX_MR_RXEN_DISABLE);
-+
-+		clk_disable_unprepare(dev->gclk);
-+	} else {
-+		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
-+	}
-+
-+unlock:
-+	mutex_unlock(&dev->mlock);
-+
-+	if (!(val & SPDIFRX_RSR_ULOCK))
-+		ctrl->signal = !(val & SPDIFRX_RSR_NOSIGNAL);
-+	else
-+		ctrl->signal = 0;
- 	uvalue->value.integer.value[0] = ctrl->signal;
- 
- 	return signal_old != ctrl->signal;
-@@ -685,18 +752,32 @@ static int mchp_spdifrx_rate_get(struct snd_kcontrol *kcontrol,
- 	u32 val;
- 	int rate;
- 
--	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
--
--	/* if the receiver is not locked, ISF data is invalid */
--	if (val & SPDIFRX_RSR_ULOCK || !(val & SPDIFRX_RSR_IFS_MASK)) {
-+	mutex_lock(&dev->mlock);
-+
-+	/*
-+	 * The RSR.ULOCK has wrong value if both pclk and gclk are enabled
-+	 * and the receiver is disabled. Thus we take into account the
-+	 * dev->trigger_enabled here to return a real status.
-+	 */
-+	if (dev->trigger_enabled) {
-+		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
-+		/* If the receiver is not locked, ISF data is invalid. */
-+		if (val & SPDIFRX_RSR_ULOCK || !(val & SPDIFRX_RSR_IFS_MASK)) {
-+			ucontrol->value.integer.value[0] = 0;
-+			goto unlock;
-+		}
-+	} else {
-+		/* Reveicer is not locked, IFS data is invalid. */
- 		ucontrol->value.integer.value[0] = 0;
--		return 0;
-+		goto unlock;
- 	}
- 
- 	rate = clk_get_rate(dev->gclk);
- 
- 	ucontrol->value.integer.value[0] = rate / (32 * SPDIFRX_RSR_IFS(val));
- 
-+unlock:
-+	mutex_unlock(&dev->mlock);
- 	return 0;
- }
- 
-@@ -912,7 +993,18 @@ static int mchp_spdifrx_probe(struct platform_device *pdev)
- 			"failed to get the PMC generated clock: %d\n", err);
- 		return err;
- 	}
-+
-+	/*
-+	 * Signal control need a valid rate on gclk. hw_params() configures
-+	 * it propertly but requesting signal before any hw_params() has been
-+	 * called lead to invalid value returned for signal. Thus, configure
-+	 * gclk at a valid rate, here, in initialization, to simplify the
-+	 * control path.
-+	 */
-+	clk_set_min_rate(dev->gclk, 48000 * SPDIFRX_GCLK_RATIO_MIN + 1);
-+
- 	spin_lock_init(&dev->blockend_lock);
-+	mutex_init(&dev->mlock);
- 
- 	dev->dev = &pdev->dev;
- 	dev->regmap = regmap;
+ 	spin_lock_irqsave(&user_data->lock, flags);
 -- 
 2.39.2
 
