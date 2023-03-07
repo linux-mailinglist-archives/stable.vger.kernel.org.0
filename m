@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 115616AE606
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B6A6AE607
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbjCGQLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:11:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60304 "EHLO
+        id S230258AbjCGQLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:11:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230393AbjCGQKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:10:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6152085B27
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:10:35 -0800 (PST)
+        with ESMTP id S230337AbjCGQLI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:11:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB707BA3E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:10:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E241661489
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A07C433EF;
-        Tue,  7 Mar 2023 16:10:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 47D07CE1C1E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:10:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10FABC433D2;
+        Tue,  7 Mar 2023 16:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678205434;
-        bh=1qMsbpDlThskBGypN/QKjCuPr0fLUGS5FhXxPhZXNjU=;
+        s=korg; t=1678205442;
+        bh=DzJT7gDg1aUNCzcOcmrLucgfk2M//Ya/AeSTPOsLEzI=;
         h=Subject:To:Cc:From:Date:From;
-        b=Oc5n4zGtRR2mAKCnrylqjmsrkXN/jSOBFCPNq5zTpvGqaLmXXo4tN0sziN4So8A5g
-         YgceOC++9oRRmevdBSA0/WwNhfJXvAXqohlRIH0A1ygOG2snaSsaeuUXUJOPDZ9CBT
-         CY0m/UFgi1pGKjco8ruJAG3oga9kTwdhJMhJqfec=
-Subject: FAILED: patch "[PATCH] drm/i915: Don't use BAR mappings for ring buffers with LLC" failed to apply to 5.10-stable tree
+        b=HjF77qLTe26WLmq/XsCvelZx/0OUStHx8hfoqCsTkB1GFbdsuHE1tF19Iw4fDkj2+
+         agsejDuBcLIECgrJu1acOZV+fX9DrbA9qROkqBzirzIFM/ywxtkxVx/E7cXvfFYsRi
+         usMeyyv3zje3QRnBk9mz5OWiKHRaNSwwjaSn1Zsc=
+Subject: FAILED: patch "[PATCH] drm/i915: Don't use BAR mappings for ring buffers with LLC" failed to apply to 5.4-stable tree
 To:     John.C.Harrison@Intel.com, chris@chris-wilson.co.uk,
         daniele.ceraolospurio@intel.com, jani.nikula@intel.com,
         jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
@@ -36,13 +36,13 @@ To:     John.C.Harrison@Intel.com, chris@chris-wilson.co.uk,
         stable@vger.kernel.org, tvrtko.ursulin@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:10:30 +0100
-Message-ID: <16782054308810@kroah.com>
+Date:   Tue, 07 Mar 2023 17:10:39 +0100
+Message-ID: <167820543971229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,19 +52,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
 git cherry-pick -x 85636167e3206c3fbd52254fc432991cc4e90194
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16782054308810@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820543971229@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
@@ -83,6 +83,11 @@ d33fcd798cb7 ("drm/i915/gt: Ignore dt==0 for reporting underflows")
 09212e81e545 ("drm/i915/gt: Flush xcs before tgl breadcrumbs")
 c10f6019d0b2 ("drm/i915/gt: Use the local HWSP offset during submission")
 89db95377be4 ("drm/i915/gt: Confirm the context survives execution")
+052e04f17056 ("drm/i915/selftests: Fix locking inversion in lrc selftest.")
+47b086934f42 ("drm/i915: Make sure execbuffer always passes ww state to i915_vma_pin.")
+3999a7087989 ("drm/i915: Rework intel_context pinning to do everything outside of pin_mutex")
+2bf541ff6d06 ("drm/i915: Pin engine before pinning all objects, v5.")
+b49a7d51c32e ("drm/i915: Nuke arguments to eb_pin_engine")
 
 thanks,
 
