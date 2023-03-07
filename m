@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CE56AEB98
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:46:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 751AC6AF097
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbjCGRqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:46:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35844 "EHLO
+        id S231256AbjCGScP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:32:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232117AbjCGRqA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:46:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B080AA4B25
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:41:16 -0800 (PST)
+        with ESMTP id S231147AbjCGSb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:31:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1414B32B8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:24:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 830E4B818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:41:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA9FEC433D2;
-        Tue,  7 Mar 2023 17:41:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 137CF61501
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:24:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E42D7C433EF;
+        Tue,  7 Mar 2023 18:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210867;
-        bh=f1JGhh9vCkWmn2d01gBVBmzxxcaX818S9mtde5Pl/hg=;
+        s=korg; t=1678213472;
+        bh=dUpq22EcPIUXhWVJWeCv7GvmWOePXscZy5LHRVYAUE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWuJekT6j4dTEnV4FTubPe7CE5wiOcXmi7BqVwRB/xg6KlvKZj08grHG+KDpIVdnE
-         VaMk9PWRi5rpSbsqqXzz454xGdHEDvhz73EMXBzu+ZwvxJCB0xWIYE8DFQIGnzpm97
-         wxl9lOV3s1fYy5SfEu9QKGoBSmKFz7irnTJDft2E=
+        b=jjE7JwZ8WYWW8dwWpDulm4/6V4NL4qUsFym3ZWoJS2kgJEylis/dbfkFlQHQfLhsN
+         7P6V1oYkBVR6B3CM2vrREflpPINyBCQCVjbW9qU8BXG+ygFvRmh57p7ZfGCd+x/sio
+         wFn+DoSkGg6jlLDrdoeExqkO7MdDu/EswZcrlHEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Wang <sean.wang@mediatek.com>,
-        Anson Tsao <anson.tsao@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0679/1001] Bluetooth: btusb: Add new PID/VID 0489:e0f2 for MT7921
-Date:   Tue,  7 Mar 2023 17:57:31 +0100
-Message-Id: <20230307170051.068480361@linuxfoundation.org>
+Subject: [PATCH 6.1 518/885] media: amphion: correct the unspecified color space
+Date:   Tue,  7 Mar 2023 17:57:32 +0100
+Message-Id: <20230307170024.977948954@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,78 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Ming Qian <ming.qian@nxp.com>
 
-[ Upstream commit 83458a5f272b303479e7d2f451600817a7350b6b ]
+[ Upstream commit 809060c8a357e020010dd8f797a5efd3c5432b13 ]
 
-This bluetooth device is found in a combo WLAN/BT card
-for a MediaTek 7921e.
+in the E.2.1 of Rec. ITU-T H.264 (06/2019),
+0 of colour primaries is reserved, and 2 is unspecified.
+driver can map V4L2_COLORSPACE_LAST to 0,
+and map V4L2_COLORSPACE_DEFAULT to 2.
 
-The device information:
+v4l2_xfer_func and v4l2_ycbcr_encoding are similar case.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=0489 ProdID=e0f2 Rev= 1.00
-S:  Manufacturer=MediaTek Inc.
-S:  Product=Wireless_Device
-S:  SerialNumber=000000000
-C:* #Ifs= 3 Cfg#= 1 Atr=e0 MxPwr=100mA
-A:  FirstIf#= 0 IfCount= 3 Cls=e0(wlcon) Sub=01 Prot=01
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=125us
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-I:  If#= 1 Alt= 6 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  63 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  63 Ivl=1ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
-E:  Ad=8a(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-E:  Ad=0a(O) Atr=03(Int.) MxPS=  64 Ivl=125us
-I:  If#= 2 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
-E:  Ad=8a(I) Atr=03(Int.) MxPS= 512 Ivl=125us
-E:  Ad=0a(O) Atr=03(Int.) MxPS= 512 Ivl=125us
-
-Cc: Sean Wang <sean.wang@mediatek.com>
-Cc: Anson Tsao <anson.tsao@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 3cd084519c6f ("media: amphion: add vpu v4l2 m2m support")
+Signed-off-by: Ming Qian <ming.qian@nxp.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/amphion/vpu_color.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index afd2f08ffe30f..acfd40f1cc75c 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -567,6 +567,9 @@ static const struct usb_device_id blacklist_table[] = {
- 	{ USB_DEVICE(0x0489, 0xe0e0), .driver_info = BTUSB_MEDIATEK |
- 						     BTUSB_WIDEBAND_SPEECH |
- 						     BTUSB_VALID_LE_STATES },
-+	{ USB_DEVICE(0x0489, 0xe0f2), .driver_info = BTUSB_MEDIATEK |
-+						     BTUSB_WIDEBAND_SPEECH |
-+						     BTUSB_VALID_LE_STATES },
- 	{ USB_DEVICE(0x04ca, 0x3802), .driver_info = BTUSB_MEDIATEK |
- 						     BTUSB_WIDEBAND_SPEECH |
- 						     BTUSB_VALID_LE_STATES },
+diff --git a/drivers/media/platform/amphion/vpu_color.c b/drivers/media/platform/amphion/vpu_color.c
+index 80b9a53fd1c14..4ae435cbc5cda 100644
+--- a/drivers/media/platform/amphion/vpu_color.c
++++ b/drivers/media/platform/amphion/vpu_color.c
+@@ -17,7 +17,7 @@
+ #include "vpu_helpers.h"
+ 
+ static const u8 colorprimaries[] = {
+-	0,
++	V4L2_COLORSPACE_LAST,
+ 	V4L2_COLORSPACE_REC709,         /*Rec. ITU-R BT.709-6*/
+ 	0,
+ 	0,
+@@ -31,7 +31,7 @@ static const u8 colorprimaries[] = {
+ };
+ 
+ static const u8 colortransfers[] = {
+-	0,
++	V4L2_XFER_FUNC_LAST,
+ 	V4L2_XFER_FUNC_709,             /*Rec. ITU-R BT.709-6*/
+ 	0,
+ 	0,
+@@ -53,7 +53,7 @@ static const u8 colortransfers[] = {
+ };
+ 
+ static const u8 colormatrixcoefs[] = {
+-	0,
++	V4L2_YCBCR_ENC_LAST,
+ 	V4L2_YCBCR_ENC_709,              /*Rec. ITU-R BT.709-6*/
+ 	0,
+ 	0,
 -- 
 2.39.2
 
