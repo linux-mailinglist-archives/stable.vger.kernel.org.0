@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D4C96AEA09
+	by mail.lfdr.de (Postfix) with ESMTP id 74A146AEA0A
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231518AbjCGRaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51778 "EHLO
+        id S231542AbjCGRaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:30:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231673AbjCGR3x (ORCPT
+        with ESMTP id S231672AbjCGR3x (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718988B07E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:04 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B05867DA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CFBDB81995
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 800D8C433D2;
-        Tue,  7 Mar 2023 17:25:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 802C9614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78938C433D2;
+        Tue,  7 Mar 2023 17:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209902;
-        bh=7W5jGb9b5LZt03E4If3VJss6LKD8D6n1PMG0qhaKjPw=;
+        s=korg; t=1678209904;
+        bh=XLzNsua3hjyE/PKcyajqCqiz3RsP5bTYDcbK0mHfkMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLAtWni0dyqE8/KW4tgUjDMYcANMniPdNl3Rf9kOdvW6bbM0xn+AfjwXnF6VNdkiB
-         /OfYsYveJNNIzRvzYBmwAg/9/OatbBiyum/HKToMCebVsXVn3cBJ7Lbw0OAUHhQ7uh
-         CG5EpoN2nBQ7z9Wc8c25lkWTkP3m9B3LNgrdgQZ0=
+        b=QI6sCaTyymweimRw3Y+OaqC5K1I+Nn8KO6VP1o0CMtQsVPHyZ56i15vOkejYvSGVc
+         4XKtzLVVaWtcqAhb58JKIJ2qptFn7NKCyclobR/rFmhqi5X9LzmiwSE9kvvxRFWpoQ
+         1wbQX0GdG0gRSuAwfZ/JkdzMDcGb+2t6zp1fjpnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Neil Armstrong <neil.armstrong@linaro.org>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0369/1001] drm/bridge: lt9611: fix programming of video modes
-Date:   Tue,  7 Mar 2023 17:52:21 +0100
-Message-Id: <20230307170037.385788105@linuxfoundation.org>
+Subject: [PATCH 6.2 0370/1001] drm/bridge: lt9611: fix clock calculation
+Date:   Tue,  7 Mar 2023 17:52:22 +0100
+Message-Id: <20230307170037.433202089@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -57,34 +57,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit ad188aa47edaa033a270e1a3efae43836ff47569 ]
+[ Upstream commit 2576eb26494eb0509dd9ceb0cd27771a7a5e3674 ]
 
-Program the upper part of the hfront_porch into the proper register.
+Instead of having several fixed values for the pcr register, calculate
+it before programming. This allows the bridge to support most of the
+display modes.
 
 Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
 Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-5-dmitry.baryshkov@linaro.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-6-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 32 +++++++++++--------------
+ 1 file changed, 14 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index deb503ca956af..f377052a45a44 100644
+index f377052a45a44..e2799a0df8f8b 100644
 --- a/drivers/gpu/drm/bridge/lontium-lt9611.c
 +++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -187,7 +187,8 @@ static void lt9611_mipi_video_setup(struct lt9611 *lt9611,
- 
- 	regmap_write(lt9611->regmap, 0x8319, (u8)(hfront_porch % 256));
- 
--	regmap_write(lt9611->regmap, 0x831a, (u8)(hsync_porch / 256));
-+	regmap_write(lt9611->regmap, 0x831a, (u8)(hsync_porch / 256) |
-+						((hfront_porch / 256) << 4));
+@@ -192,8 +192,9 @@ static void lt9611_mipi_video_setup(struct lt9611 *lt9611,
  	regmap_write(lt9611->regmap, 0x831b, (u8)(hsync_porch % 256));
  }
  
+-static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode)
++static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode, unsigned int postdiv)
+ {
++	unsigned int pcr_m = mode->clock * 5 * postdiv / 27000;
+ 	const struct reg_sequence reg_cfg[] = {
+ 		{ 0x830b, 0x01 },
+ 		{ 0x830c, 0x10 },
+@@ -236,24 +237,14 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
+ 	else
+ 		regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+ 
+-	switch (mode->hdisplay) {
+-	case 640:
+-		regmap_write(lt9611->regmap, 0x8326, 0x14);
+-		break;
+-	case 1920:
+-		regmap_write(lt9611->regmap, 0x8326, 0x37);
+-		break;
+-	case 3840:
+-		regmap_write(lt9611->regmap, 0x8326, 0x37);
+-		break;
+-	}
++	regmap_write(lt9611->regmap, 0x8326, pcr_m);
+ 
+ 	/* pcr rst */
+ 	regmap_write(lt9611->regmap, 0x8011, 0x5a);
+ 	regmap_write(lt9611->regmap, 0x8011, 0xfa);
+ }
+ 
+-static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode)
++static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode, unsigned int *postdiv)
+ {
+ 	unsigned int pclk = mode->clock;
+ 	const struct reg_sequence reg_cfg[] = {
+@@ -271,12 +262,16 @@ static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode
+ 
+ 	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+ 
+-	if (pclk > 150000)
++	if (pclk > 150000) {
+ 		regmap_write(lt9611->regmap, 0x812d, 0x88);
+-	else if (pclk > 70000)
++		*postdiv = 1;
++	} else if (pclk > 70000) {
+ 		regmap_write(lt9611->regmap, 0x812d, 0x99);
+-	else
++		*postdiv = 2;
++	} else {
+ 		regmap_write(lt9611->regmap, 0x812d, 0xaa);
++		*postdiv = 4;
++	}
+ 
+ 	/*
+ 	 * first divide pclk by 2 first
+@@ -895,14 +890,15 @@ static void lt9611_bridge_mode_set(struct drm_bridge *bridge,
+ {
+ 	struct lt9611 *lt9611 = bridge_to_lt9611(bridge);
+ 	struct hdmi_avi_infoframe avi_frame;
++	unsigned int postdiv;
+ 	int ret;
+ 
+ 	lt9611_bridge_pre_enable(bridge);
+ 
+ 	lt9611_mipi_input_digital(lt9611, mode);
+-	lt9611_pll_setup(lt9611, mode);
++	lt9611_pll_setup(lt9611, mode, &postdiv);
+ 	lt9611_mipi_video_setup(lt9611, mode);
+-	lt9611_pcr_setup(lt9611, mode);
++	lt9611_pcr_setup(lt9611, mode, postdiv);
+ 
+ 	ret = drm_hdmi_avi_infoframe_from_display_mode(&avi_frame,
+ 						       &lt9611->connector,
 -- 
 2.39.2
 
