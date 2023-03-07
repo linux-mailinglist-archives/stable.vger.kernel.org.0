@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4706AF4B1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:18:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B336AF4B6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:19:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233910AbjCGTSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:18:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        id S233905AbjCGTTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:19:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233916AbjCGTSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:18:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53017BCBAC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:13 -0800 (PST)
+        with ESMTP id S233950AbjCGTSs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:18:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412DD93113
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA04B61522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0259C433EF;
-        Tue,  7 Mar 2023 19:02:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE224B819DC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC6B4C433EF;
+        Tue,  7 Mar 2023 19:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215732;
-        bh=ohRyU9pYTPS5Vr8ts9Btmsl58gJpwO230n1hTvkqmmU=;
+        s=korg; t=1678215747;
+        bh=RKKf7jbG8hY5hmfQspejMpFVlWbHUc97icq/dzr9uWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BMbgtU2O+SGh69lOvUUxS6x9v+eMuw5hNAXyLSE4kXx8sZQdgylRN5osE+ivbG/l
-         w5DFxF//jLd7LTRk1c9nNbVLKOxXvyKOrPkDHOd8li/tG9PgANNCLOYm1f9C33sLO7
-         R2cNJelPg615BXByNwkjWyCjsHjUekrdl2yAb/vs=
+        b=JhELlf+evFyS7jUm+MfqeNKL6JkGHJMoSeWgeLc2vXxpdSYYQyECL+YIQI3nRwe5A
+         ERike0nju7S4FrXkgsWj/4kQy5fEuN8uQfwUgb7ICxoNDb0T4gktYdeqFZ+OJAvnU9
+         BxaVC0Z/w/mrnmphnxJ+DQgCKo710DQykskbq1x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Jason Liu <jason.hui.liu@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 329/567] tty: serial: imx: disable Ageing Timer interrupt request irq
-Date:   Tue,  7 Mar 2023 18:01:05 +0100
-Message-Id: <20230307165920.156602572@linuxfoundation.org>
+        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        Luca Weiss <luca.weiss@fairphone.com>
+Subject: [PATCH 5.15 330/567] driver core: fw_devlink: Add DL_FLAG_CYCLE support to device links
+Date:   Tue,  7 Mar 2023 18:01:06 +0100
+Message-Id: <20230307165920.205338995@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -44,8 +48,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,81 +58,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit ef25e16ea9674b713a68c3bda821556ce9901254 ]
+[ Upstream commit 67cad5c67019c38126b749621665b6723d3ae7e6 ]
 
-There maybe pending USR interrupt before requesting irq, however
-uart_add_one_port has not executed, so there will be kernel panic:
-[    0.795668] Unable to handle kernel NULL pointer dereference at virtual addre
-ss 0000000000000080
-[    0.802701] Mem abort info:
-[    0.805367]   ESR = 0x0000000096000004
-[    0.808950]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    0.814033]   SET = 0, FnV = 0
-[    0.816950]   EA = 0, S1PTW = 0
-[    0.819950]   FSC = 0x04: level 0 translation fault
-[    0.824617] Data abort info:
-[    0.827367]   ISV = 0, ISS = 0x00000004
-[    0.831033]   CM = 0, WnR = 0
-[    0.833866] [0000000000000080] user address but active_mm is swapper
-[    0.839951] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-[    0.845953] Modules linked in:
-[    0.848869] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.1.1+g56321e101aca #1
-[    0.855617] Hardware name: Freescale i.MX8MP EVK (DT)
-[    0.860452] pstate: 000000c5 (nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    0.867117] pc : __imx_uart_rxint.constprop.0+0x11c/0x2c0
-[    0.872283] lr : imx_uart_int+0xf8/0x1ec
+fw_devlink uses DL_FLAG_SYNC_STATE_ONLY device link flag for two
+purposes:
 
-The issue only happends in the inmate linux when Jailhouse hypervisor
-enabled. The test procedure is:
-while true; do
-	jailhouse enable imx8mp.cell
-	jailhouse cell linux xxxx
-	sleep 10
-	jailhouse cell destroy 1
-	jailhouse disable
-	sleep 5
-done
+1. To allow a parent device to proxy its child device's dependency on a
+   supplier so that the supplier doesn't get its sync_state() callback
+   before the child device/consumer can be added and probed. In this
+   usage scenario, we need to ignore cycles for ensure correctness of
+   sync_state() callbacks.
 
-And during the upper test, press keys to the 2nd linux console.
-When `jailhouse cell destroy 1`, the 2nd linux has no chance to put
-the uart to a quiese state, so USR1/2 may has pending interrupts. Then
-when `jailhosue cell linux xx` to start 2nd linux again, the issue
-trigger.
+2. When there are dependency cycles in firmware, we don't know which of
+   those dependencies are valid. So, we have to ignore them all wrt
+   probe ordering while still making sure the sync_state() callbacks
+   come correctly.
 
-In order to disable irqs before requesting them, both UCR1 and UCR2 irqs
-should be disabled, so here fix that, disable the Ageing Timer interrupt
-in UCR2 as UCR1 does.
+However, when detecting dependency cycles, there can be multiple
+dependency cycles between two devices that we need to detect. For
+example:
 
-Fixes: 8a61f0c70ae6 ("serial: imx: Disable irqs before requesting them")
-Suggested-by: Sherry Sun <sherry.sun@nxp.com>
-Reviewed-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Acked-by: Jason Liu <jason.hui.liu@nxp.com>
-Link: https://lore.kernel.org/r/20230206013016.29352-1-sherry.sun@nxp.com
+A -> B -> A and A -> C -> B -> A.
+
+To detect multiple cycles correct, we need to be able to differentiate
+DL_FLAG_SYNC_STATE_ONLY device links used for (1) vs (2) above.
+
+To allow this differentiation, add a DL_FLAG_CYCLE that can be use to
+mark use case (2). We can then use the DL_FLAG_CYCLE to decide which
+DL_FLAG_SYNC_STATE_ONLY device links to follow when looking for
+dependency cycles.
+
+Fixes: 2de9d8e0d2fe ("driver core: fw_devlink: Improve handling of cyclic dependencies")
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Tested-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
+Link: https://lore.kernel.org/r/20230207014207.1678715-6-saravanak@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/base/core.c    | 28 ++++++++++++++++++----------
+ include/linux/device.h |  1 +
+ 2 files changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 136da4bebe85a..77a4f4af3b8d5 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -2348,6 +2348,11 @@ static int imx_uart_probe(struct platform_device *pdev)
- 	ucr1 &= ~(UCR1_ADEN | UCR1_TRDYEN | UCR1_IDEN | UCR1_RRDYEN | UCR1_RTSDEN);
- 	imx_uart_writel(sport, ucr1, UCR1);
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index adf003a7e8d6a..178a21e985197 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -269,6 +269,12 @@ static bool device_is_ancestor(struct device *dev, struct device *target)
+ 	return false;
+ }
  
-+	/* Disable Ageing Timer interrupt */
-+	ucr2 = imx_uart_readl(sport, UCR2);
-+	ucr2 &= ~UCR2_ATEN;
-+	imx_uart_writel(sport, ucr2, UCR2);
++static inline bool device_link_flag_is_sync_state_only(u32 flags)
++{
++	return (flags & ~(DL_FLAG_INFERRED | DL_FLAG_CYCLE)) ==
++		(DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED);
++}
 +
- 	/*
- 	 * In case RS485 is enabled without GPIO RTS control, the UART IP
- 	 * is used to control CTS signal. Keep both the UART and Receiver
+ /**
+  * device_is_dependent - Check if one device depends on another one
+  * @dev: Device to check dependencies for.
+@@ -295,8 +301,7 @@ int device_is_dependent(struct device *dev, void *target)
+ 		return ret;
+ 
+ 	list_for_each_entry(link, &dev->links.consumers, s_node) {
+-		if ((link->flags & ~DL_FLAG_INFERRED) ==
+-		    (DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED))
++		if (device_link_flag_is_sync_state_only(link->flags))
+ 			continue;
+ 
+ 		if (link->consumer == target)
+@@ -369,8 +374,7 @@ static int device_reorder_to_tail(struct device *dev, void *not_used)
+ 
+ 	device_for_each_child(dev, NULL, device_reorder_to_tail);
+ 	list_for_each_entry(link, &dev->links.consumers, s_node) {
+-		if ((link->flags & ~DL_FLAG_INFERRED) ==
+-		    (DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED))
++		if (device_link_flag_is_sync_state_only(link->flags))
+ 			continue;
+ 		device_reorder_to_tail(link->consumer, NULL);
+ 	}
+@@ -621,7 +625,8 @@ postcore_initcall(devlink_class_init);
+ 			       DL_FLAG_AUTOREMOVE_SUPPLIER | \
+ 			       DL_FLAG_AUTOPROBE_CONSUMER  | \
+ 			       DL_FLAG_SYNC_STATE_ONLY | \
+-			       DL_FLAG_INFERRED)
++			       DL_FLAG_INFERRED | \
++			       DL_FLAG_CYCLE)
+ 
+ #define DL_ADD_VALID_FLAGS (DL_MANAGED_LINK_FLAGS | DL_FLAG_STATELESS | \
+ 			    DL_FLAG_PM_RUNTIME | DL_FLAG_RPM_ACTIVE)
+@@ -690,8 +695,6 @@ struct device_link *device_link_add(struct device *consumer,
+ 	if (!consumer || !supplier || consumer == supplier ||
+ 	    flags & ~DL_ADD_VALID_FLAGS ||
+ 	    (flags & DL_FLAG_STATELESS && flags & DL_MANAGED_LINK_FLAGS) ||
+-	    (flags & DL_FLAG_SYNC_STATE_ONLY &&
+-	     (flags & ~DL_FLAG_INFERRED) != DL_FLAG_SYNC_STATE_ONLY) ||
+ 	    (flags & DL_FLAG_AUTOPROBE_CONSUMER &&
+ 	     flags & (DL_FLAG_AUTOREMOVE_CONSUMER |
+ 		      DL_FLAG_AUTOREMOVE_SUPPLIER)))
+@@ -707,6 +710,10 @@ struct device_link *device_link_add(struct device *consumer,
+ 	if (!(flags & DL_FLAG_STATELESS))
+ 		flags |= DL_FLAG_MANAGED;
+ 
++	if (flags & DL_FLAG_SYNC_STATE_ONLY &&
++	    !device_link_flag_is_sync_state_only(flags))
++		return NULL;
++
+ 	device_links_write_lock();
+ 	device_pm_lock();
+ 
+@@ -1627,7 +1634,7 @@ static void fw_devlink_relax_link(struct device_link *link)
+ 	if (!(link->flags & DL_FLAG_INFERRED))
+ 		return;
+ 
+-	if (link->flags == (DL_FLAG_MANAGED | FW_DEVLINK_FLAGS_PERMISSIVE))
++	if (device_link_flag_is_sync_state_only(link->flags))
+ 		return;
+ 
+ 	pm_runtime_drop_link(link);
+@@ -1695,8 +1702,8 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
+ 		return ret;
+ 
+ 	list_for_each_entry(link, &con->links.consumers, s_node) {
+-		if ((link->flags & ~DL_FLAG_INFERRED) ==
+-		    (DL_FLAG_SYNC_STATE_ONLY | DL_FLAG_MANAGED))
++		if (!(link->flags & DL_FLAG_CYCLE) &&
++		    device_link_flag_is_sync_state_only(link->flags))
+ 			continue;
+ 
+ 		if (!fw_devlink_relax_cycle(link->consumer, sup))
+@@ -1705,6 +1712,7 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
+ 		ret = 1;
+ 
+ 		fw_devlink_relax_link(link);
++		link->flags |= DL_FLAG_CYCLE;
+ 	}
+ 	return ret;
+ }
+diff --git a/include/linux/device.h b/include/linux/device.h
+index e270cb740b9e7..636ef7caa021d 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -326,6 +326,7 @@ enum device_link_state {
+ #define DL_FLAG_MANAGED			BIT(6)
+ #define DL_FLAG_SYNC_STATE_ONLY		BIT(7)
+ #define DL_FLAG_INFERRED		BIT(8)
++#define DL_FLAG_CYCLE			BIT(9)
+ 
+ /**
+  * enum dl_dev_state - Device driver presence tracking information.
 -- 
 2.39.2
 
