@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F37EA6AEF51
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1F06AEF52
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbjCGSWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:22:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40092 "EHLO
+        id S232727AbjCGSWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:22:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231340AbjCGSW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 708E8AB0A3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:38 -0800 (PST)
+        with ESMTP id S232694AbjCGSWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9F1A56A5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29109B8184E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E25C8C433D2;
-        Tue,  7 Mar 2023 18:16:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22DFAB8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F98C433A4;
+        Tue,  7 Mar 2023 18:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212996;
-        bh=EdOzRtcSoY1Tehpc7bujpp4Ho9/AhaQoy1ltzSBRkVA=;
+        s=korg; t=1678212998;
+        bh=BaSysB2cGpLNgLaNHuUncvKJvtQ459DHO45Z2Y1/SFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzW+u4AzbAQ5mbkk5/wpm6uGtbB4amzv+1S8rsRe71+gcd58B3PGm2UujbWRwQmJw
-         ieKFmKCXj7FYukGB72ZYkT64BJEb3fLemHPTi+rr1OBSXfLbmvgHHXg+oms6Tl1ZMY
-         oiMd96nnA3aD9SI8rwgqRlB3sl3yUI3P1KPY+dM0=
+        b=Dkbsb7tyub7BHW3T0SlOpe6LT9TXhJdKaVwTUnhGQz84BxNpa+zfFmNimyWcSZmMd
+         LbfPRiFaT1xC5KvzKA9DTdqM8M2qipeIOKcCL6sI1a40kdEP7FNLkgeiDGXmtedAGk
+         /pMh2rPZ2naYN8hrQkufeSU/JoAeq7+Sgdm8FnMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olga Kornievskaia <aglo@umich.edu>,
-        NeilBrown <neilb@suse.de>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 364/885] NFS: fix disabling of swap
-Date:   Tue,  7 Mar 2023 17:54:58 +0100
-Message-Id: <20230307170018.105895626@linuxfoundation.org>
+Subject: [PATCH 6.1 365/885] spi: synquacer: Fix timeout handling in synquacer_spi_transfer_one()
+Date:   Tue,  7 Mar 2023 17:54:59 +0100
+Message-Id: <20230307170018.154892728@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -45,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,67 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 5bab56fff53ce161ed859d9559a10361d4f79578 ]
+[ Upstream commit e6a0b671880207566e1ece983bf989dde60bc1d7 ]
 
-When swap is activated to a file on an NFSv4 mount we arrange that the
-state manager thread is always present as starting a new thread requires
-memory allocations that might block waiting for swap.
+wait_for_completion_timeout() never returns a <0 value. It returns either
+on timeout or a positive value (at least 1, or number of jiffies left
+till timeout)
 
-Unfortunately the code for allowing the state manager thread to exit when
-swap is disabled was not tested properly and does not work.
-This can be seen by examining /proc/fs/nfsfs/servers after disabling swap
-and unmounting the filesystem.  The servers file will still list one
-entry.  Also a "ps" listing will show the state manager thread is still
-present.
+So, fix the error handling path and return -ETIMEDOUT should a timeout
+occur.
 
-There are two problems.
- 1/ rpc_clnt_swap_deactivate() doesn't walk up the ->cl_parent list to
-    find the primary client on which the state manager runs.
-
- 2/ The thread is not woken up properly and it immediately goes back to
-    sleep without checking whether it is really needed.  Using
-    nfs4_schedule_state_manager() ensures a proper wake-up.
-
-Reported-by: Olga Kornievskaia <aglo@umich.edu>
-Fixes: 4dc73c679114 ("NFSv4: keep state manager thread active if swap is enabled")
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: b0823ee35cf9 ("spi: Add spi driver for Socionext SynQuacer platform")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: https://lore.kernel.org/r/c2040bf3cfa201fd8890cfab14fa5a701ffeca14.1676466072.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 4 +++-
- net/sunrpc/clnt.c | 2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/spi/spi-synquacer.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index e51044a5f550f..d70da78e698d2 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -10609,7 +10609,9 @@ static void nfs4_disable_swap(struct inode *inode)
- 	/* The state manager thread will now exit once it is
- 	 * woken.
- 	 */
--	wake_up_var(&NFS_SERVER(inode)->nfs_client->cl_state);
-+	struct nfs_client *clp = NFS_SERVER(inode)->nfs_client;
-+
-+	nfs4_schedule_state_manager(clp);
- }
+diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
+index 47cbe73137c23..dc188f9202c97 100644
+--- a/drivers/spi/spi-synquacer.c
++++ b/drivers/spi/spi-synquacer.c
+@@ -472,10 +472,9 @@ static int synquacer_spi_transfer_one(struct spi_master *master,
+ 		read_fifo(sspi);
+ 	}
  
- static const struct inode_operations nfs4_dir_inode_operations = {
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index 0b0b9f1eed469..fd7e1c630493e 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -3350,6 +3350,8 @@ rpc_clnt_swap_deactivate_callback(struct rpc_clnt *clnt,
- void
- rpc_clnt_swap_deactivate(struct rpc_clnt *clnt)
- {
-+	while (clnt != clnt->cl_parent)
-+		clnt = clnt->cl_parent;
- 	if (atomic_dec_if_positive(&clnt->cl_swapper) == 0)
- 		rpc_clnt_iterate_for_each_xprt(clnt,
- 				rpc_clnt_swap_deactivate_callback, NULL);
+-	if (status < 0) {
+-		dev_err(sspi->dev, "failed to transfer. status: 0x%x\n",
+-			status);
+-		return status;
++	if (status == 0) {
++		dev_err(sspi->dev, "failed to transfer. Timeout.\n");
++		return -ETIMEDOUT;
+ 	}
+ 
+ 	return 0;
 -- 
 2.39.2
 
