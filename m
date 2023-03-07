@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2E36AEA27
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0936AEE8A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbjCGRbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:31:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32972 "EHLO
+        id S232399AbjCGSNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:13:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231361AbjCGRau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75CB3A2F0C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:11 -0800 (PST)
+        with ESMTP id S231167AbjCGSMo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B71269A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 110FA614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06FACC433EF;
-        Tue,  7 Mar 2023 17:26:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0D9A6152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D719FC433D2;
+        Tue,  7 Mar 2023 18:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209970;
-        bh=IYrIAxunQeGysVGq/FcYaEvQZuZdhhhu++n7Yfiwjac=;
+        s=korg; t=1678212482;
+        bh=I543dr2jUFW6YibHtJ+Lgsrd2Bzm3TMfk2w4TydB5Tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKNfHgUDcu3268AvOEYnf5ZoJz3UsxPfQuQoHWvriqQEKIogrw9U/lkp9Hg4C7PfJ
-         xdrmdohhTdaxPPn7mD0jScaWaf/ooKPn6Vr2JIx310OuOYpUDXC547MmqAZ49tq/J/
-         mrs1Wz/R7jTZrGrdLdTDHolF1ryNUVIruWhz2D/c=
+        b=Sl1RZ9YYIAUX7e5rzzTR8dIYD18Fr5ritF751Pae1IfaWSXWpMX3urmyE2FyroXml
+         EvujCR2pdDVZkAPnc0HeRQSAbPhI2akJRwBfHyhedXj6wKWA4j2S2wvR5y5EpOS5Qt
+         f8RWnTfC0CVBjmaWlTlkLtAr4Y/LVJnigwmgxKjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Iuliana Prodan <iuliana.prodan@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0359/1001] ASoC: fsl_sai: initialize is_dsp_mode flag
+        patches@lists.linux.dev, Aaron Ma <aaron.ma@canonical.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 197/885] wifi: mt76: mt7921: fix error code of return in mt7921_acpi_read
 Date:   Tue,  7 Mar 2023 17:52:11 +0100
-Message-Id: <20230307170037.009313734@linuxfoundation.org>
+Message-Id: <20230307170010.579701997@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,40 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-[ Upstream commit a23924b7dd7b748fff8e305e1daf590fed2af21b ]
+[ Upstream commit 888d89034f9eaeab9b5b75f13dbe35376c7dd471 ]
 
-Initialize is_dsp_mode flag in the beginning of function
-fsl_sai_set_dai_fmt_tr().
+Kernel NULL pointer dereference when ACPI SAR table isn't implemented well.
+Fix the error code of return to mark the ACPI SAR table as invalid.
 
-When the DAIFMT is DAIFMT_DSP_B the first time, is_dsp_mode is
-true, then the second time DAIFMT is DAIFMT_I2S, is_dsp_mode
-still true, which is a wrong state. So need to initialize
-is_dsp_mode flag every time.
+[    5.077128] mt7921e 0000:06:00.0: sar cnt = 0
+[    5.077381] BUG: kernel NULL pointer dereference, address:
+0000000000000004
+[    5.077630] #PF: supervisor read access in kernel mode
+[    5.077883] #PF: error_code(0x0000) - not-present page
+[    5.078138] PGD 0 P4D 0
+[    5.078398] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[    5.079202] RIP: 0010:mt7921_init_acpi_sar+0x106/0x220
+[mt7921_common]
+...
+[    5.080786] Call Trace:
+[    5.080786]  <TASK>
+[    5.080786]  mt7921_register_device+0x37d/0x490 [mt7921_common]
+[    5.080786]  mt7921_pci_probe.part.0+0x2ee/0x310 [mt7921e]
+[    5.080786]  mt7921_pci_probe+0x52/0x70 [mt7921e]
+[    5.080786]  local_pci_probe+0x47/0x90
+[    5.080786]  pci_call_probe+0x55/0x190
+[    5.080786]  pci_device_probe+0x84/0x120
 
-Fixes: a3f7dcc9cc03 ("ASoC: fsl-sai: Add SND_SOC_DAIFMT_DSP_A/B support.")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Reviewed-by: Iuliana Prodan <iuliana.prodan@nxp.com>
-Link: https://lore.kernel.org/r/1673852874-32200-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f965333e491e ("mt76: mt7921: introduce ACPI SAR support")
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_sai.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
-index 35a52c3a020d1..4967f2daa6d97 100644
---- a/sound/soc/fsl/fsl_sai.c
-+++ b/sound/soc/fsl/fsl_sai.c
-@@ -281,6 +281,7 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
- 		val_cr4 |= FSL_SAI_CR4_MF;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c b/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c
+index 47e034a9b0037..ed9241d4aa641 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/acpi_sar.c
+@@ -33,14 +33,17 @@ mt7921_acpi_read(struct mt7921_dev *dev, u8 *method, u8 **tbl, u32 *len)
+ 	    sar_root->package.elements[0].type != ACPI_TYPE_INTEGER) {
+ 		dev_err(mdev->dev, "sar cnt = %d\n",
+ 			sar_root->package.count);
++		ret = -EINVAL;
+ 		goto free;
+ 	}
  
- 	sai->is_pdm_mode = false;
-+	sai->is_dsp_mode = false;
- 	/* DAI mode */
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
+ 	if (!*tbl) {
+ 		*tbl = devm_kzalloc(mdev->dev, sar_root->package.count,
+ 				    GFP_KERNEL);
+-		if (!*tbl)
++		if (!*tbl) {
++			ret = -ENOMEM;
+ 			goto free;
++		}
+ 	}
+ 	if (len)
+ 		*len = sar_root->package.count;
+@@ -52,9 +55,9 @@ mt7921_acpi_read(struct mt7921_dev *dev, u8 *method, u8 **tbl, u32 *len)
+ 			break;
+ 		*(*tbl + i) = (u8)sar_unit->integer.value;
+ 	}
+-free:
+ 	ret = (i == sar_root->package.count) ? 0 : -EINVAL;
+ 
++free:
+ 	kfree(sar_root);
+ 
+ 	return ret;
 -- 
 2.39.2
 
