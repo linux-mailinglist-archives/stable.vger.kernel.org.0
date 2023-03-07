@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 307846AECEA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:59:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B696C6AF1F9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:49:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229930AbjCGR72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:59:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55168 "EHLO
+        id S233180AbjCGSt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:49:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230263AbjCGR7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:59:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02C3C2A145
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:53:22 -0800 (PST)
+        with ESMTP id S233182AbjCGStH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DEE0A72A9;
+        Tue,  7 Mar 2023 10:37:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9318E6150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8854CC433D2;
-        Tue,  7 Mar 2023 17:53:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A081B819CA;
+        Tue,  7 Mar 2023 18:36:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF5EBC433EF;
+        Tue,  7 Mar 2023 18:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211601;
-        bh=sk93iu3UgsiXLgJobRJEo0Akf3m8wVokf5WZjYAjJMg=;
+        s=korg; t=1678214198;
+        bh=tO4logdoC5Brx41FVyy0YsJFB3DcPXXmPPfZbwtQ/BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZAng8tFjn4q1vm54bsibb3NVWC5umWwvea0whkzphwQXHtz0YUNJpn5wNSW+mCVrb
-         tc6VJZMkB6+A+RCYYtsgiwQxHjsULzecJwXI4Xx2+XpXtFjs8dJHNOXpTZSXSyo9bi
-         07mFaHwFVW9PQZtSkIGVyC2HRPlut1LtacANzPTg=
+        b=18cDrOEodIiOeYyV6FZsVh8PmJQh6DTMfp7ln4pwUBuddJmqntf3aXm0DllpBcpa3
+         mVwaheujmZTlR15LBPavT7eleQmEdEeTtJZWTOxA207nHCoXHjkcpDem7uq06y1NZ1
+         rr5EnTdO9AQpBmqzrKoDmVf1HThHqQY8zjfWo7rE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zev Weiss <zev@bewilderbeest.net>,
-        Iwona Winiarska <iwona.winiarska@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>, stable@kernel.org
-Subject: [PATCH 6.2 0915/1001] hwmon: (peci/cputemp) Fix off-by-one in coretemp_label allocation
-Date:   Tue,  7 Mar 2023 18:01:27 +0100
-Message-Id: <20230307170101.759368179@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Christian Brauner <brauner@kernel.org>
+Subject: [PATCH 6.1 754/885] selftests: clone3: Fix incorrect kernel headers search path
+Date:   Tue,  7 Mar 2023 18:01:28 +0100
+Message-Id: <20230307170034.699400278@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,35 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit f00093608fa790580da309bb9feb5108fbe7c331 upstream.
+commit 612cf4d283414a5ee2733db6608d917deb45fa46 upstream.
 
-The find_last_bit() call produces the index of the highest-numbered
-core in core_mask; because cores are numbered from zero, the number of
-elements we need to allocate is one more than that.
+Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
+building against kernel headers from the build environment in scenarios
+where kernel headers are installed into a specific output directory
+(O=...).
 
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Cc: stable@kernel.org # v5.18
-Fixes: bf3608f338e9 ("hwmon: peci: Add cputemp driver")
-Reviewed-by: Iwona Winiarska <iwona.winiarska@intel.com>
-Link: https://lore.kernel.org/r/20230202021825.21486-1-zev@bewilderbeest.net
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: linux-kselftest@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: <stable@vger.kernel.org>  # 5.18+
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/peci/cputemp.c |    2 +-
+ tools/testing/selftests/clone3/Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwmon/peci/cputemp.c
-+++ b/drivers/hwmon/peci/cputemp.c
-@@ -402,7 +402,7 @@ static int create_temp_label(struct peci
- 	unsigned long core_max = find_last_bit(priv->core_mask, CORE_NUMS_MAX);
- 	int i;
+--- a/tools/testing/selftests/clone3/Makefile
++++ b/tools/testing/selftests/clone3/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+-CFLAGS += -g -std=gnu99 -I../../../../usr/include/
++CFLAGS += -g -std=gnu99 $(KHDR_INCLUDES)
+ LDLIBS += -lcap
  
--	priv->coretemp_label = devm_kzalloc(priv->dev, core_max * sizeof(char *), GFP_KERNEL);
-+	priv->coretemp_label = devm_kzalloc(priv->dev, (core_max + 1) * sizeof(char *), GFP_KERNEL);
- 	if (!priv->coretemp_label)
- 		return -ENOMEM;
- 
+ TEST_GEN_PROGS := clone3 clone3_clear_sighand clone3_set_tid \
 
 
