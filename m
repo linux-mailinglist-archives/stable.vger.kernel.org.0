@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 664686AF42A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6972C6AF42D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:14:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233761AbjCGTOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:14:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39442 "EHLO
+        id S233815AbjCGTO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:14:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233696AbjCGTNw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B659AD01E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:40 -0800 (PST)
+        with ESMTP id S230490AbjCGTNz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70763B5ABA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C66261520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58304C433D2;
-        Tue,  7 Mar 2023 18:57:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C8C6B819D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49695C433D2;
+        Tue,  7 Mar 2023 18:57:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215459;
-        bh=Yti+yycgk9tcP2aUBiteMpTCOeLRMAgDFdiR87L+80U=;
+        s=korg; t=1678215462;
+        bh=8Yyj4be9gHQlt8LRZ9ELuMu7UR9mBrLy6r9E1ZJNluU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GeqENfOXeiQgaQCG5+zcOCwxyeq/+egE8KTsx9wp52SDkte+z3+A/J+YvXqI3JbgP
-         P6RkzAlIYG/k2YkogtZv52kwXGRO6VkXoIczKyTDK9ECAKrt5puO49nGNFvYlhgpjw
-         B5vshAqs/13H+lPzQNCyVA7CCOYT3R9nAOK0YnwI=
+        b=pK+u2hP/kHS+o1N20pev2QWif6X/0wi1guhKbuY5Xlva1iKngqAo/gy3fdng82P4i
+         lrZtm2JAFvAxiGvZDNfO0g5S6sjXm9nUu+tSuyWXBSNy3dpEB7hqayn5E0U+G3fwHP
+         YjH6sm/1Zc1Wj0VU6bkXKWezGDqQhy8jO3pcv5Uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Petr Mladek <pmladek@suse.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 269/567] printf: fix errname.c list
-Date:   Tue,  7 Mar 2023 18:00:05 +0100
-Message-Id: <20230307165917.590045652@linuxfoundation.org>
+Subject: [PATCH 5.15 270/567] objtool: add UACCESS exceptions for __tsan_volatile_read/write
+Date:   Tue,  7 Mar 2023 18:00:06 +0100
+Message-Id: <20230307165917.629642764@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -48,8 +53,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -60,103 +65,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 0c2baf6509af1d11310ae4c1c839481a6e9a4bc4 ]
+[ Upstream commit d5d469247264e56960705dc5ae7e1d014861fe40 ]
 
-On most architectures, gcc -Wextra warns about the list of error
-numbers containing both EDEADLK and EDEADLOCK:
+A lot of the tsan helpers are already excempt from the UACCESS warnings,
+but some more functions were added that need the same thing:
 
-lib/errname.c:15:67: warning: initialized field overwritten [-Woverride-init]
-   15 | #define E(err) [err + BUILD_BUG_ON_ZERO(err <= 0 || err > 300)] = "-" #err
-      |                                                                   ^~~
-lib/errname.c:172:2: note: in expansion of macro 'E'
-  172 |  E(EDEADLK), /* EDEADLOCK */
-      |  ^
+kernel/kcsan/core.o: warning: objtool: __tsan_volatile_read16+0x0: call to __tsan_unaligned_read16() with UACCESS enabled
+kernel/kcsan/core.o: warning: objtool: __tsan_volatile_write16+0x0: call to __tsan_unaligned_write16() with UACCESS enabled
+vmlinux.o: warning: objtool: __tsan_unaligned_volatile_read16+0x4: call to __tsan_unaligned_read16() with UACCESS enabled
+vmlinux.o: warning: objtool: __tsan_unaligned_volatile_write16+0x4: call to __tsan_unaligned_write16() with UACCESS enabled
 
-On parisc, a similar error happens with -ECANCELLED, which is an
-alias for ECANCELED.
+As Marco points out, these functions don't even call each other
+explicitly but instead gcc (but not clang) notices the functions
+being identical and turns one symbol into a direct branch to the
+other.
 
-Make the EDEADLK printing conditional on the number being distinct
-from EDEADLOCK, and remove the -ECANCELLED bit completely as it
-can never be hit.
-
-To ensure these are correct, add static_assert lines that verify
-all the remaining aliases are in fact identical to the canonical
-name.
-
-Fixes: 57f5677e535b ("printf: add support for printing symbolic error names")
-Cc: Petr Mladek <pmladek@suse.com>
-Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Acked-by: Uwe Kleine-König <uwe@kleine-koenig.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/all/20210514213456.745039-1-arnd@kernel.org/
-Link: https://lore.kernel.org/all/20210927123409.1109737-1-arnd@kernel.org/
+Link: https://lkml.kernel.org/r/20230215130058.3836177-4-arnd@kernel.org
+Fixes: 75d75b7a4d54 ("kcsan: Support distinguishing volatile accesses")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20230206194126.380350-1-arnd@kernel.org
+Acked-by: Marco Elver <elver@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Josh Poimboeuf <jpoimboe@kernel.org>
+Cc: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/errname.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ tools/objtool/check.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/lib/errname.c b/lib/errname.c
-index 05cbf731545f0..67739b174a8cc 100644
---- a/lib/errname.c
-+++ b/lib/errname.c
-@@ -21,6 +21,7 @@ static const char *names_0[] = {
- 	E(EADDRNOTAVAIL),
- 	E(EADV),
- 	E(EAFNOSUPPORT),
-+	E(EAGAIN), /* EWOULDBLOCK */
- 	E(EALREADY),
- 	E(EBADE),
- 	E(EBADF),
-@@ -31,15 +32,17 @@ static const char *names_0[] = {
- 	E(EBADSLT),
- 	E(EBFONT),
- 	E(EBUSY),
--#ifdef ECANCELLED
--	E(ECANCELLED),
--#endif
-+	E(ECANCELED), /* ECANCELLED */
- 	E(ECHILD),
- 	E(ECHRNG),
- 	E(ECOMM),
- 	E(ECONNABORTED),
-+	E(ECONNREFUSED), /* EREFUSED */
- 	E(ECONNRESET),
-+	E(EDEADLK), /* EDEADLOCK */
-+#if EDEADLK != EDEADLOCK /* mips, sparc, powerpc */
- 	E(EDEADLOCK),
-+#endif
- 	E(EDESTADDRREQ),
- 	E(EDOM),
- 	E(EDOTDOT),
-@@ -166,14 +169,17 @@ static const char *names_0[] = {
- 	E(EUSERS),
- 	E(EXDEV),
- 	E(EXFULL),
--
--	E(ECANCELED), /* ECANCELLED */
--	E(EAGAIN), /* EWOULDBLOCK */
--	E(ECONNREFUSED), /* EREFUSED */
--	E(EDEADLK), /* EDEADLOCK */
- };
- #undef E
- 
-+#ifdef EREFUSED /* parisc */
-+static_assert(EREFUSED == ECONNREFUSED);
-+#endif
-+#ifdef ECANCELLED /* parisc */
-+static_assert(ECANCELLED == ECANCELED);
-+#endif
-+static_assert(EAGAIN == EWOULDBLOCK); /* everywhere */
-+
- #define E(err) [err - 512 + BUILD_BUG_ON_ZERO(err < 512 || err > 550)] = "-" #err
- static const char *names_512[] = {
- 	E(ERESTARTSYS),
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 3ef767284b3f0..2fc0270e3c1f7 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -908,6 +908,8 @@ static const char *uaccess_safe_builtin[] = {
+ 	"__tsan_atomic64_compare_exchange_val",
+ 	"__tsan_atomic_thread_fence",
+ 	"__tsan_atomic_signal_fence",
++	"__tsan_unaligned_read16",
++	"__tsan_unaligned_write16",
+ 	/* KCOV */
+ 	"write_comp_data",
+ 	"check_kcov_mode",
 -- 
 2.39.2
 
