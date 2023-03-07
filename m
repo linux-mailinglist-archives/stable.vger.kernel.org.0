@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FD76AECB4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BEA26AF1BF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:47:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229486AbjCGR50 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:57:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53172 "EHLO
+        id S233262AbjCGSrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:47:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230343AbjCGR4x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:56:53 -0500
+        with ESMTP id S231440AbjCGSql (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:46:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2565A42F8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:51:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBDC9BAD12
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8626CB819C1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:51:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4268C433EF;
-        Tue,  7 Mar 2023 17:51:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1480AB819D2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:34:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57C94C433D2;
+        Tue,  7 Mar 2023 18:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211493;
-        bh=8iqDb8A50Fit+bU6TpV6GHH/ef8lYltVMLVwrAyQhpY=;
+        s=korg; t=1678214094;
+        bh=IVflbQEsNbmzVde27EniVfya7sEajlwzUV+X3opTw0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ciU8BEFzOVhezTZqpgkoRDGyWQn3dd90AbI5RINMQlI0Z8uQBDRLMBBB/KVprW7A3
-         Dt9F6n0UOuLQPI0sqFVyv98VGR12JbHldRu4VqvggByr7Ix3boLv/onzUSUP0VQUrL
-         xAh8dZHuHbdEdTqnTNO2CFBH/AvMI8VZ36prGido=
+        b=c87EY1ERPeMDx+u9Sy/uh+gRuGN1Op+5JWuAu5VfyhjDnrWp28EBF4UhFwEW090si
+         +mvcLsA3T7TAlcQwnwEc0bIhI20gOg/mDWz30ivH9hcF+AdKY4j3GTDG7i438pP48w
+         Mh8K+dVzAoJ7oec4bltcMG3ShFp+bScxvpL3vAiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 6.2 0880/1001] irqdomain: Fix association race
-Date:   Tue,  7 Mar 2023 18:00:52 +0100
-Message-Id: <20230307170100.103831574@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alejandro Jimenez <alejandro.j.jimenez@oracle.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.1 719/885] KVM: x86: Blindly get current x2APIC reg value on "nodecode write" traps
+Date:   Tue,  7 Mar 2023 18:00:53 +0100
+Message-Id: <20230307170033.241526279@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,83 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit b06730a571a9ff1ba5bd6b20bf9e50e5a12f1ec6 upstream.
+commit 0a19807b464fb10aa79b9dd7f494bc317438fada upstream.
 
-The sanity check for an already mapped virq is done outside of the
-irq_domain_mutex-protected section which means that an (unlikely) racing
-association may not be detected.
+When emulating a x2APIC write in response to an APICv/AVIC trap, get the
+the written value from the vAPIC page without checking that reads are
+allowed for the target register.  AVIC can generate trap-like VM-Exits on
+writes to EOI, and so KVM needs to get the written value from the backing
+page without running afoul of EOI's write-only behavior.
 
-Fix this by factoring out the association implementation, which will
-also be used in a follow-on change to fix a shared-interrupt mapping
-race.
+Alternatively, EOI could be special cased to always write '0', e.g. so
+that the sanity check could be preserved, but x2APIC on AMD is actually
+supposed to disallow non-zero writes (not emulated by KVM), and the
+sanity check was a byproduct of how the KVM code was written, i.e. wasn't
+added to guard against anything in particular.
 
-Fixes: ddaf144c61da ("irqdomain: Refactor irq_domain_associate_many()")
-Cc: stable@vger.kernel.org      # 3.11
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-2-johan+linaro@kernel.org
+Fixes: 70c8327c11c6 ("KVM: x86: Bug the VM if an accelerated x2APIC trap occurs on a "bad" reg")
+Fixes: 1bd9dfec9fd4 ("KVM: x86: Do not block APIC write for non ICR registers")
+Reported-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20230106011306.85230-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ arch/x86/kvm/lapic.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -559,8 +559,8 @@ static void irq_domain_disassociate(stru
- 	irq_domain_clear_mapping(domain, hwirq);
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index 4efdb4a4d72c..5c0f93fc073a 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2284,23 +2284,18 @@ void kvm_apic_write_nodecode(struct kvm_vcpu *vcpu, u32 offset)
+ 	struct kvm_lapic *apic = vcpu->arch.apic;
+ 	u64 val;
+ 
+-	if (apic_x2apic_mode(apic)) {
+-		if (KVM_BUG_ON(kvm_lapic_msr_read(apic, offset, &val), vcpu->kvm))
+-			return;
+-	} else {
+-		val = kvm_lapic_get_reg(apic, offset);
+-	}
+-
+ 	/*
+ 	 * ICR is a single 64-bit register when x2APIC is enabled.  For legacy
+ 	 * xAPIC, ICR writes need to go down the common (slightly slower) path
+ 	 * to get the upper half from ICR2.
+ 	 */
+ 	if (apic_x2apic_mode(apic) && offset == APIC_ICR) {
++		val = kvm_lapic_get_reg64(apic, APIC_ICR);
+ 		kvm_apic_send_ipi(apic, (u32)val, (u32)(val >> 32));
+ 		trace_kvm_apic_write(APIC_ICR, val);
+ 	} else {
+ 		/* TODO: optimize to just emulate side effect w/o one more write */
++		val = kvm_lapic_get_reg(apic, offset);
+ 		kvm_lapic_reg_write(apic, offset, (u32)val);
+ 	}
  }
- 
--int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
--			 irq_hw_number_t hwirq)
-+static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
-+				       irq_hw_number_t hwirq)
- {
- 	struct irq_data *irq_data = irq_get_irq_data(virq);
- 	int ret;
-@@ -573,7 +573,6 @@ int irq_domain_associate(struct irq_doma
- 	if (WARN(irq_data->domain, "error: virq%i is already associated", virq))
- 		return -EINVAL;
- 
--	mutex_lock(&irq_domain_mutex);
- 	irq_data->hwirq = hwirq;
- 	irq_data->domain = domain;
- 	if (domain->ops->map) {
-@@ -590,7 +589,6 @@ int irq_domain_associate(struct irq_doma
- 			}
- 			irq_data->domain = NULL;
- 			irq_data->hwirq = 0;
--			mutex_unlock(&irq_domain_mutex);
- 			return ret;
- 		}
- 
-@@ -601,12 +599,23 @@ int irq_domain_associate(struct irq_doma
- 
- 	domain->mapcount++;
- 	irq_domain_set_mapping(domain, hwirq, irq_data);
--	mutex_unlock(&irq_domain_mutex);
- 
- 	irq_clear_status_flags(virq, IRQ_NOREQUEST);
- 
- 	return 0;
- }
-+
-+int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
-+			 irq_hw_number_t hwirq)
-+{
-+	int ret;
-+
-+	mutex_lock(&irq_domain_mutex);
-+	ret = irq_domain_associate_locked(domain, virq, hwirq);
-+	mutex_unlock(&irq_domain_mutex);
-+
-+	return ret;
-+}
- EXPORT_SYMBOL_GPL(irq_domain_associate);
- 
- void irq_domain_associate_many(struct irq_domain *domain, unsigned int irq_base,
+-- 
+2.39.2
+
 
 
