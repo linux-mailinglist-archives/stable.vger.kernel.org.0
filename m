@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1B06AF414
+	by mail.lfdr.de (Postfix) with ESMTP id 415646AF413
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233677AbjCGTNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:13:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56220 "EHLO
+        id S233781AbjCGTNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:13:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233684AbjCGTMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:12:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A3EB9CBDD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:56:40 -0800 (PST)
+        with ESMTP id S233680AbjCGTMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:12:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F089B53C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:56:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4356B819F0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:56:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D8EC433D2;
-        Tue,  7 Mar 2023 18:56:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49B696150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41303C433EF;
+        Tue,  7 Mar 2023 18:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215398;
-        bh=BaSysB2cGpLNgLaNHuUncvKJvtQ459DHO45Z2Y1/SFs=;
+        s=korg; t=1678215401;
+        bh=ShLdE/4dbnsDhRpnFbbINmptL16Jv6alT+/S+1NKV3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWG3lOlW97mU7jvSAxDiwBuOmfjP3sSc7Bo28Uz70KwtK9Z+u/2G6Ka2rJkKkW7RC
-         wXj9DIrNoYkwNiDV3IhH10Y8rC+qVcMpFPVXtMIWxPztHQMDwsR24MNqcieN3Ipuwy
-         5MOFDolMtgQ7RJ2rUw9GNIO1NgiBiUeTaeVsZv6w=
+        b=rXBswEtXXjjfxcw9qINYNJMhaFVoJ+fVANWAoloMut8SeUYm6fSnZBH8v1orfsa61
+         7kiW1ehLvYxSZ4FzmglhuK7zDhvY69eH8KNsMfDj3u6kMWOuvFDsnRXPjztfkHtLbC
+         fbqSUpYpnpZcZSmY11AvXP3AU0Q2uZpQM6nqbBt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        patches@lists.linux.dev, Lucas Tanure <lucas.tanure@collabora.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 248/567] spi: synquacer: Fix timeout handling in synquacer_spi_transfer_one()
-Date:   Tue,  7 Mar 2023 17:59:44 +0100
-Message-Id: <20230307165916.719273757@linuxfoundation.org>
+Subject: [PATCH 5.15 249/567] ASoC: soc-dapm.h: fixup warning struct snd_pcm_substream not declared
+Date:   Tue,  7 Mar 2023 17:59:45 +0100
+Message-Id: <20230307165916.763930446@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -56,45 +57,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Lucas Tanure <lucas.tanure@collabora.com>
 
-[ Upstream commit e6a0b671880207566e1ece983bf989dde60bc1d7 ]
+[ Upstream commit fdff966bfde7cf0c85562d2bfb1ff1ba83da5f7b ]
 
-wait_for_completion_timeout() never returns a <0 value. It returns either
-on timeout or a positive value (at least 1, or number of jiffies left
-till timeout)
+Add struct snd_pcm_substream forward declaration
 
-So, fix the error handling path and return -ETIMEDOUT should a timeout
-occur.
-
-Fixes: b0823ee35cf9 ("spi: Add spi driver for Socionext SynQuacer platform")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
-Link: https://lore.kernel.org/r/c2040bf3cfa201fd8890cfab14fa5a701ffeca14.1676466072.git.christophe.jaillet@wanadoo.fr
+Fixes: 078a85f2806f ("ASoC: dapm: Only power up active channels from a DAI")
+Signed-off-by: Lucas Tanure <lucas.tanure@collabora.com>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20230215132851.1626881-1-lucas.tanure@collabora.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-synquacer.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ include/sound/soc-dapm.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
-index 47cbe73137c23..dc188f9202c97 100644
---- a/drivers/spi/spi-synquacer.c
-+++ b/drivers/spi/spi-synquacer.c
-@@ -472,10 +472,9 @@ static int synquacer_spi_transfer_one(struct spi_master *master,
- 		read_fifo(sspi);
- 	}
+diff --git a/include/sound/soc-dapm.h b/include/sound/soc-dapm.h
+index c3039e97929a5..32e93d55acf73 100644
+--- a/include/sound/soc-dapm.h
++++ b/include/sound/soc-dapm.h
+@@ -16,6 +16,7 @@
+ #include <sound/asoc.h>
  
--	if (status < 0) {
--		dev_err(sspi->dev, "failed to transfer. status: 0x%x\n",
--			status);
--		return status;
-+	if (status == 0) {
-+		dev_err(sspi->dev, "failed to transfer. Timeout.\n");
-+		return -ETIMEDOUT;
- 	}
+ struct device;
++struct snd_pcm_substream;
+ struct snd_soc_pcm_runtime;
+ struct soc_enum;
  
- 	return 0;
 -- 
 2.39.2
 
