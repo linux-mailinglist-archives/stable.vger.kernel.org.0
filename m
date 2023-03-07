@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8006AEE29
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D162B6AEE2A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232297AbjCGSKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46928 "EHLO
+        id S232405AbjCGSKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:10:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbjCGSJ3 (ORCPT
+        with ESMTP id S232430AbjCGSJ3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDEE59EF4A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091FDA3370
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7788761530
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA08C433A0;
-        Tue,  7 Mar 2023 18:03:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96E2C6150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8164CC433A7;
+        Tue,  7 Mar 2023 18:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212231;
-        bh=l+pZYCnZX3JjNuMl9ujG10CQsi1nfviQEFIFZEY9p8Y=;
+        s=korg; t=1678212235;
+        bh=hi2VpWytuZfHF9xBNOLtFWOO7ClSa6tJaMqoauKp9IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EfWQfIx9yIqAZL7y7NOIbTkuXZMynzPCWLili9wUkKKt1aqyVNN3SY+cBVmmO6RHr
-         IUIWsFnN4OiKLh71o2stsrRVtE4zlahZGiwb4r1iw/LuqMUN13yEJhiGoFzjCLVsVT
-         hAVBbEWBs28JjXSSV6EFWrTw2Wp7OIpjdLlp17mw=
+        b=iRzNkMLdG7haS5MdxDDLKU3fE6dye0u/WbrOFYPCBtsZJ6rpmG6aCsb/ecbqwvJb0
+         iPjHUXJi5h7O1cwWSwsit+JL9J5+gndxgpUH170jJlP5nCHwfTRTck4NgonCVNefzw
+         5/owTsimLnqVRJLnx4ncJALPTPYMPQGYEUpSQZNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 120/885] wifi: rtlwifi: rtl8723be: dont call kfree_skb() under spin_lock_irqsave()
-Date:   Tue,  7 Mar 2023 17:50:54 +0100
-Message-Id: <20230307170007.070847982@linuxfoundation.org>
+Subject: [PATCH 6.1 121/885] wifi: iwlegacy: common: dont call dev_kfree_skb() under spin_lock_irqsave()
+Date:   Tue,  7 Mar 2023 17:50:55 +0100
+Message-Id: <20230307170007.120063768@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -56,53 +56,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 313950c2114e7051c4e3020fd82495fa1fb526a8 ]
+[ Upstream commit 0c1528675d7a9787cb516b64d8f6c0f6f8efcb48 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. All the SKBs have
-been dequeued from the old queue, so it's safe to enqueue these
-SKBs to a free queue, then free them after spin_unlock_irqrestore()
-at once. Compile tested only.
+It is not allowed to call consume_skb() from hardware interrupt context
+or with interrupts being disabled. So replace dev_kfree_skb() with
+dev_consume_skb_irq() under spin_lock_irqsave(). Compile tested only.
 
-Fixes: 5c99f04fec93 ("rtlwifi: rtl8723be: Update driver to match Realtek release of 06/28/14")
+Fixes: 4bc85c1324aa ("Revert "iwlwifi: split the drivers for agn and legacy devices 3945/4965"")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207141411.46098-4-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221207144013.70210-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlegacy/common.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
-index 189cc6437600f..0ba3bbed6ed36 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/hw.c
-@@ -30,8 +30,10 @@ static void _rtl8723be_return_beacon_queue_skb(struct ieee80211_hw *hw)
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
- 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
- 	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[BEACON_QUEUE];
-+	struct sk_buff_head free_list;
- 	unsigned long flags;
+diff --git a/drivers/net/wireless/intel/iwlegacy/common.c b/drivers/net/wireless/intel/iwlegacy/common.c
+index 341c17fe2af4d..96002121bb8b2 100644
+--- a/drivers/net/wireless/intel/iwlegacy/common.c
++++ b/drivers/net/wireless/intel/iwlegacy/common.c
+@@ -5174,7 +5174,7 @@ il_mac_reset_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ 	memset(&il->current_ht_config, 0, sizeof(struct il_ht_config));
  
-+	skb_queue_head_init(&free_list);
- 	spin_lock_irqsave(&rtlpriv->locks.irq_th_lock, flags);
- 	while (skb_queue_len(&ring->queue)) {
- 		struct rtl_tx_desc *entry = &ring->desc[ring->idx];
-@@ -41,10 +43,12 @@ static void _rtl8723be_return_beacon_queue_skb(struct ieee80211_hw *hw)
- 				 rtlpriv->cfg->ops->get_desc(hw, (u8 *)entry,
- 						true, HW_DESC_TXBUFF_ADDR),
- 				 skb->len, DMA_TO_DEVICE);
--		kfree_skb(skb);
-+		__skb_queue_tail(&free_list, skb);
- 		ring->idx = (ring->idx + 1) % ring->entries;
+ 	/* new association get rid of ibss beacon skb */
+-	dev_kfree_skb(il->beacon_skb);
++	dev_consume_skb_irq(il->beacon_skb);
+ 	il->beacon_skb = NULL;
+ 	il->timestamp = 0;
+ 
+@@ -5293,7 +5293,7 @@ il_beacon_update(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
  	}
- 	spin_unlock_irqrestore(&rtlpriv->locks.irq_th_lock, flags);
-+
-+	__skb_queue_purge(&free_list);
- }
  
- static void _rtl8723be_set_bcn_ctrl_reg(struct ieee80211_hw *hw,
+ 	spin_lock_irqsave(&il->lock, flags);
+-	dev_kfree_skb(il->beacon_skb);
++	dev_consume_skb_irq(il->beacon_skb);
+ 	il->beacon_skb = skb;
+ 
+ 	timestamp = ((struct ieee80211_mgmt *)skb->data)->u.beacon.timestamp;
 -- 
 2.39.2
 
