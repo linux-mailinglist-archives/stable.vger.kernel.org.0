@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C99AF6AEEAC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:14:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2F96AEA50
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232287AbjCGSO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:14:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58062 "EHLO
+        id S231718AbjCGRcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:32:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232513AbjCGSOL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:11 -0500
+        with ESMTP id S231213AbjCGRcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E57A80D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:09:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DD71BDC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D75361535
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:09:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30909C4339B;
-        Tue,  7 Mar 2023 18:09:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2123D61510
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161C6C4339C;
+        Tue,  7 Mar 2023 17:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212583;
-        bh=bx9XhhKqyzdiwr9XXPNYrdSdntVa0Em8LmD5fI6h4B8=;
+        s=korg; t=1678210075;
+        bh=c+ndX111tC9lWe3VYu++yDkD69SK+5J+sSOWu1Hnlk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDrsUM5kONr0LdGT14hL8Sxnk81QOUO8JIZvdqnmDfng9yWBCl4bOQ+ACphGmcaS4
-         vshlerYRh+d/xe8kjni0ebI9v81XZtdMfpUxqY1cEmmwVlLDsvMq+NRP0Ui+3cOwtt
-         rnrvtt1U7yhpHV8EYitwZEJvIoA9C7sZw3wCs2ew=
+        b=ftB2YvRA+MwZ5n8ucm5/UGqh/PHwpppoHLHkUjWNro405URlCRTrs4y1n82NnttPX
+         jDCBznamxDpkdRzgWk6lhDyz3vAnNuRHM+7RcA3bE7YOmErEX7e1aIXPt08xizteWg
+         0RdtYPqCGjw6JGg3cUHlUfZr/3cwfcJYwHpoJkPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 230/885] selftests/bpf: Fix out-of-srctree build
-Date:   Tue,  7 Mar 2023 17:52:44 +0100
-Message-Id: <20230307170012.015218264@linuxfoundation.org>
+Subject: [PATCH 6.2 0393/1001] drm/msm/dpu: set pdpu->is_rt_pipe early in dpu_plane_sspp_atomic_update()
+Date:   Tue,  7 Mar 2023 17:52:45 +0100
+Message-Id: <20230307170038.404908977@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0b0757244754ea1d0721195c824770f5576e119e ]
+[ Upstream commit 1d233b1cb149ec78c20fac58331b27bb460f9558 ]
 
-Building BPF selftests out of srctree fails with:
+The function dpu_plane_sspp_atomic_update() updates pdpu->is_rt_pipe
+flag, but after the commit 854f6f1c653b ("drm/msm/dpu: update the qos
+remap only if the client type changes") it sets the flag late, after all
+the qos functions have updated QoS programming. Move the flag update
+back to the place where it happened before the mentioned commit to let
+the pipe be programmed according to its current RT/non-RT state.
 
-  make: *** No rule to make target '/linux-build//ima_setup.sh', needed by 'ima_setup.sh'.  Stop.
-
-The culprit is the rule that defines convenient shorthands like
-"make test_progs", which builds $(OUTPUT)/test_progs. These shorthands
-make sense only for binaries that are built though; scripts that live
-in the source tree do not end up in $(OUTPUT).
-
-Therefore drop $(TEST_PROGS) and $(TEST_PROGS_EXTENDED) from the rule.
-
-The issue exists for a while, but it became a problem only after commit
-d68ae4982cb7 ("selftests/bpf: Install all required files to run selftests"),
-which added dependencies on these scripts.
-
-Fixes: 03dcb78460c2 ("selftests/bpf: Add simple per-test targets to Makefile")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20230208231211.283606-1-iii@linux.ibm.com
+Fixes: 854f6f1c653b ("drm/msm/dpu: update the qos remap only if the client type changes")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/516239/
+Link: https://lore.kernel.org/r/20221229191856.3508092-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 1fda7448f4a2f..687249d99b5f1 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -149,8 +149,6 @@ endif
- # NOTE: Semicolon at the end is critical to override lib.mk's default static
- # rule for binaries.
- $(notdir $(TEST_GEN_PROGS)						\
--	 $(TEST_PROGS)							\
--	 $(TEST_PROGS_EXTENDED)						\
- 	 $(TEST_GEN_PROGS_EXTENDED)					\
- 	 $(TEST_CUSTOM_PROGS)): %: $(OUTPUT)/% ;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+index 86719020afe20..bfd5be89e8b8d 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+@@ -1126,7 +1126,7 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
+ 	struct dpu_plane_state *pstate = to_dpu_plane_state(state);
+ 	struct drm_crtc *crtc = state->crtc;
+ 	struct drm_framebuffer *fb = state->fb;
+-	bool is_rt_pipe, update_qos_remap;
++	bool is_rt_pipe;
+ 	const struct dpu_format *fmt =
+ 		to_dpu_format(msm_framebuffer_format(fb));
+ 	struct dpu_hw_pipe_cfg pipe_cfg;
+@@ -1138,6 +1138,9 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
+ 	pstate->pending = true;
+ 
+ 	is_rt_pipe = (dpu_crtc_get_client_type(crtc) != NRT_CLIENT);
++	pstate->needs_qos_remap |= (is_rt_pipe != pdpu->is_rt_pipe);
++	pdpu->is_rt_pipe = is_rt_pipe;
++
+ 	_dpu_plane_set_qos_ctrl(plane, false, DPU_PLANE_QOS_PANIC_CTRL);
+ 
+ 	DPU_DEBUG_PLANE(pdpu, "FB[%u] " DRM_RECT_FP_FMT "->crtc%u " DRM_RECT_FMT
+@@ -1219,14 +1222,8 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
+ 		_dpu_plane_set_ot_limit(plane, crtc, &pipe_cfg);
+ 	}
+ 
+-	update_qos_remap = (is_rt_pipe != pdpu->is_rt_pipe) ||
+-			pstate->needs_qos_remap;
+-
+-	if (update_qos_remap) {
+-		if (is_rt_pipe != pdpu->is_rt_pipe)
+-			pdpu->is_rt_pipe = is_rt_pipe;
+-		else if (pstate->needs_qos_remap)
+-			pstate->needs_qos_remap = false;
++	if (pstate->needs_qos_remap) {
++		pstate->needs_qos_remap = false;
+ 		_dpu_plane_set_qos_remap(plane);
+ 	}
  
 -- 
 2.39.2
