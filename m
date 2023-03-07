@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 570776AF316
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:00:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D88C6AF021
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233168AbjCGTAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:00:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44424 "EHLO
+        id S233085AbjCGS3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:29:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233558AbjCGS7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:59:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BD7CDA2C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:38 -0800 (PST)
+        with ESMTP id S232989AbjCGS1h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:27:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B59F2A8C58
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9708B819CA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:46:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A94C433EF;
-        Tue,  7 Mar 2023 18:46:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D02961531
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38B07C433EF;
+        Tue,  7 Mar 2023 18:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214787;
-        bh=u5bv5718quh7sauqTA9ZlkhxW/MbwIqa0JxHq8+TATU=;
+        s=korg; t=1678213260;
+        bh=/me9iKM75L4B1Dtkg8HfOMa6QxGRKBHDld9zfDffo7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XShl8ZFLeEfk4ppkgB/gwQgtFSzftoMQc8iaCdIB6oc6W4Mp1OM5yyJm4+X7NCPo2
-         p+EQUMcTn4qaCcymn1AwaZrbeqAF8QSuiEuxZ82ztMKF89XmWmHGHa6v6cCE9slt0L
-         6T/mQOFtAHnfqrC/fN8lffDuxrZeG1i/ca/dg2qo=
+        b=d1tb3tqyP84APhbxvtwpJqaItqNwA2tJpzQo05QNNYWPP6gsGELV0C/SVR8dw2PwP
+         Ge59ndFiU2moTXbC3uCM2IuZnjImXypiGLZMpeTk78ZTBrPf+IgUX/AWcLbuwAVVho
+         S5SBiLaT+EoXB/uGJ3d8OlxLj0HqpaFabWTo45Ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adam Ford <aford173@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/567] arm64: dts: renesas: beacon-renesom: Fix gpio expander reference
-Date:   Tue,  7 Mar 2023 17:56:24 +0100
-Message-Id: <20230307165908.011096584@linuxfoundation.org>
+Subject: [PATCH 6.1 451/885] usb: early: xhci-dbc: Fix a potential out-of-bound memory access
+Date:   Tue,  7 Mar 2023 17:56:25 +0100
+Message-Id: <20230307170022.083999957@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d7f9492dfc03153ac56ab59066a196558748f575 ]
+[ Upstream commit a4a97ab3db5c081eb6e7dba91306adefb461e0bd ]
 
-The board used to originally introduce the Beacon Embedded RZ/G2[M/N/H]
-boards had a GPIO expander with address 20, but this was changed when
-the final board went to production.
+If xdbc_bulk_write() fails, the values in 'buf' can be anything. So the
+string is not guaranteed to be NULL terminated when xdbc_trace() is called.
 
-The production boards changed both the part itself and the address.
-With the incorrect address, the LCD cannot come up.  If the LCD fails,
-the rcar-du driver fails to come up, and that also breaks HDMI.
+Reserve an extra byte, which will be zeroed automatically because 'buf' is
+a static variable, in order to avoid troubles, should it happen.
 
-Pre-release board were not shipped to the general public, so it should
-be safe to push this as a fix.  Anyone with a production board would
-have video fail due to this GPIO expander change.
-
-Fixes: a1d8a344f1ca ("arm64: dts: renesas: Introduce r8a774a1-beacon-rzg2m-kit")
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20230114225647.227972-1-aford173@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: aeb9dd1de98c ("usb/early: Add driver for xhci debug capability")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/d6a7562c5e839a195cee85db6dc81817f9372cb1.1675016180.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dts/renesas/beacon-renesom-baseboard.dtsi | 24 ++++++++-----------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/usb/early/xhci-dbc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-index 48e0c0494f6a0..f1ab4943c295c 100644
---- a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-+++ b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-@@ -432,20 +432,6 @@ wm8962_endpoint: endpoint {
- 		};
- 	};
+diff --git a/drivers/usb/early/xhci-dbc.c b/drivers/usb/early/xhci-dbc.c
+index bfb7e2b852996..7ef0a4b397620 100644
+--- a/drivers/usb/early/xhci-dbc.c
++++ b/drivers/usb/early/xhci-dbc.c
+@@ -874,7 +874,8 @@ static int xdbc_bulk_write(const char *bytes, int size)
  
--	/* 0 - lcd_reset */
--	/* 1 - lcd_pwr */
--	/* 2 - lcd_select */
--	/* 3 - backlight-enable */
--	/* 4 - Touch_shdwn */
--	/* 5 - LCD_H_pol */
--	/* 6 - lcd_V_pol */
--	gpio_exp1: gpio@20 {
--		compatible = "onnn,pca9654";
--		reg = <0x20>;
--		gpio-controller;
--		#gpio-cells = <2>;
--	};
--
- 	touchscreen@26 {
- 		compatible = "ilitek,ili2117";
- 		reg = <0x26>;
-@@ -477,6 +463,16 @@ hd3ss3220_out_ep: endpoint {
- 			};
- 		};
- 	};
-+
-+	gpio_exp1: gpio@70 {
-+		compatible = "nxp,pca9538";
-+		reg = <0x70>;
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+		gpio-line-names = "lcd_reset", "lcd_pwr", "lcd_select",
-+				  "backlight-enable", "Touch_shdwn",
-+				  "LCD_H_pol", "lcd_V_pol";
-+	};
- };
+ static void early_xdbc_write(struct console *con, const char *str, u32 n)
+ {
+-	static char buf[XDBC_MAX_PACKET];
++	/* static variables are zeroed, so buf is always NULL terminated */
++	static char buf[XDBC_MAX_PACKET + 1];
+ 	int chunk, ret;
+ 	int use_cr = 0;
  
- &lvds0 {
 -- 
 2.39.2
 
