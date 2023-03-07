@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6596AEEEF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:18:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 631126AEA75
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbjCGSSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:18:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39880 "EHLO
+        id S231749AbjCGReL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:34:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232631AbjCGSSS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89B3FF03
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:03 -0800 (PST)
+        with ESMTP id S231426AbjCGRdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:33:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC239CFC5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:29:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44CA461532
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C510C433EF;
-        Tue,  7 Mar 2023 18:12:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13BBBB819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BCDFC433EF;
+        Tue,  7 Mar 2023 17:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212760;
-        bh=T4HSnj3hRQvb4TbMAapOvZxjFQ0fvPs5arkL2ZvTA3o=;
+        s=korg; t=1678210161;
+        bh=7gqh2N3Os5LFfKO1I2aB9zj0npN4q/VBQicsSbaUyKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMn3Er230uyEJMFgz4NRTWID2wovhYGKZnr5qaxbtW6Xrx5EwX9m4j14wAoALpvr9
-         KiMpSZh1kRQO+JFF3pHfp+VJzEHjDR5ESM7oYq+xXvdWO01RSHZO3uoEqCNpXmxxQF
-         J8bIqq7ZQ8/fcUKR7smYipn/Llm3eHal0VtUFtJs=
+        b=xgVnCS665/ADXxcZPpjfErIPpu76ctWVidxJUZHycg/Ur6h7v6BCsywm6y3NRZ0iW
+         Dcew4yjL9HZsEryUKWuKsyGVpmn5Zfk4nIxSrWQU77nHHHSSUrUgqPpydUiH2jnDUQ
+         d6GB+OGsnqpQaM6paAdGskSUV/INPymFnR61Sd9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 289/885] scsi: qla2xxx: Fix exchange oversubscription for management commands
-Date:   Tue,  7 Mar 2023 17:53:43 +0100
-Message-Id: <20230307170014.609231746@linuxfoundation.org>
+Subject: [PATCH 6.2 0452/1001] nfsd: clean up potential nfsd_file refcount leaks in COPY codepath
+Date:   Tue,  7 Mar 2023 17:53:44 +0100
+Message-Id: <20230307170040.964428592@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,192 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 5f63a163ed2f12c34dd4ae9b2757962ec7bb86e5 ]
+[ Upstream commit 6ba434cb1a8d403ea9aad1b667c3ea3ad8b3191f ]
 
-Add resource checking for management (non-I/O) commands.
+There are two different flavors of the nfsd4_copy struct. One is
+embedded in the compound and is used directly in synchronous copies. The
+other is dynamically allocated, refcounted and tracked in the client
+struture. For the embedded one, the cleanup just involves releasing any
+nfsd_files held on its behalf. For the async one, the cleanup is a bit
+more involved, and we need to dequeue it from lists, unhash it, etc.
 
-Fixes: 89c72f4245a8 ("scsi: qla2xxx: Add IOCB resource tracking")
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+There is at least one potential refcount leak in this code now. If the
+kthread_create call fails, then both the src and dst nfsd_files in the
+original nfsd4_copy object are leaked.
+
+The cleanup in this codepath is also sort of weird. In the async copy
+case, we'll have up to four nfsd_file references (src and dst for both
+flavors of copy structure). They are both put at the end of
+nfsd4_do_async_copy, even though the ones held on behalf of the embedded
+one outlive that structure.
+
+Change it so that we always clean up the nfsd_file refs held by the
+embedded copy structure before nfsd4_copy returns. Rework
+cleanup_async_copy to handle both inter and intra copies. Eliminate
+nfsd4_cleanup_intra_ssc since it now becomes a no-op.
+
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Stable-dep-of: 81e722978ad2 ("NFSD: fix problems with cleanup on errors in nfsd4_copy")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_dfs.c    | 10 ++++-
- drivers/scsi/qla2xxx/qla_inline.h |  5 ++-
- drivers/scsi/qla2xxx/qla_iocb.c   | 67 +++++++++++++++++++++++++++++++
- drivers/scsi/qla2xxx/qla_isr.c    |  1 +
- 4 files changed, 80 insertions(+), 3 deletions(-)
+ fs/nfsd/nfs4proc.c | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_dfs.c b/drivers/scsi/qla2xxx/qla_dfs.c
-index 777808af56347..1925cc6897b68 100644
---- a/drivers/scsi/qla2xxx/qla_dfs.c
-+++ b/drivers/scsi/qla2xxx/qla_dfs.c
-@@ -235,7 +235,7 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 	uint16_t mb[MAX_IOCB_MB_REG];
- 	int rc;
- 	struct qla_hw_data *ha = vha->hw;
--	u16 iocbs_used, i;
-+	u16 iocbs_used, i, exch_used;
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index e2dde8a1837be..b74cbc9a0e7f3 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1510,7 +1510,6 @@ nfsd4_cleanup_inter_ssc(struct nfsd4_ssc_umount_item *nsui, struct file *filp,
+ 	long timeout = msecs_to_jiffies(nfsd4_ssc_umount_timeout);
  
- 	rc = qla24xx_res_count_wait(vha, mb, SIZEOF_IOCB_MB_REG);
- 	if (rc != QLA_SUCCESS) {
-@@ -263,13 +263,19 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 	if (ql2xenforce_iocb_limit) {
- 		/* lock is not require. It's an estimate. */
- 		iocbs_used = ha->base_qpair->fwres.iocbs_used;
-+		exch_used = ha->base_qpair->fwres.exch_used;
- 		for (i = 0; i < ha->max_qpairs; i++) {
--			if (ha->queue_pair_map[i])
-+			if (ha->queue_pair_map[i]) {
- 				iocbs_used += ha->queue_pair_map[i]->fwres.iocbs_used;
-+				exch_used += ha->queue_pair_map[i]->fwres.exch_used;
-+			}
- 		}
+ 	nfs42_ssc_close(filp);
+-	nfsd_file_put(dst);
+ 	fput(filp);
  
- 		seq_printf(s, "Driver: estimate iocb used [%d] high water limit [%d]\n",
- 			   iocbs_used, ha->base_qpair->fwres.iocbs_limit);
-+
-+		seq_printf(s, "estimate exchange used[%d] high water limit [%d] n",
-+			   exch_used, ha->base_qpair->fwres.exch_limit);
- 	}
- 
- 	return 0;
-diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
-index 2d5a275d8b000..b0ee307b5d4b9 100644
---- a/drivers/scsi/qla2xxx/qla_inline.h
-+++ b/drivers/scsi/qla2xxx/qla_inline.h
-@@ -380,7 +380,7 @@ qla2xxx_get_fc4_priority(struct scsi_qla_host *vha)
- 
- enum {
- 	RESOURCE_NONE,
--	RESOURCE_IOCB  = BIT_0,
-+	RESOURCE_IOCB = BIT_0,
- 	RESOURCE_EXCH = BIT_1,  /* exchange */
- 	RESOURCE_FORCE = BIT_2,
- };
-@@ -396,6 +396,8 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
- 		iores->res_type = RESOURCE_NONE;
- 		return 0;
- 	}
-+	if (iores->res_type & RESOURCE_FORCE)
-+		goto force;
- 
- 	if ((iores->iocb_cnt + qp->fwres.iocbs_used) >= qp->fwres.iocbs_qp_limit) {
- 		/* no need to acquire qpair lock. It's just rough calculation */
-@@ -423,6 +425,7 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
- 			return -ENOSPC;
- 		}
- 	}
-+force:
- 	qp->fwres.iocbs_used += iores->iocb_cnt;
- 	qp->fwres.exch_used += iores->exch_cnt;
- 	return 0;
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index 399ec8da2d73c..4f48f098ea5a6 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -3817,6 +3817,65 @@ qla24xx_prlo_iocb(srb_t *sp, struct logio_entry_24xx *logio)
- 	logio->vp_index = sp->fcport->vha->vp_idx;
+ 	spin_lock(&nn->nfsd_ssc_lock);
+@@ -1560,13 +1559,6 @@ nfsd4_setup_intra_ssc(struct svc_rqst *rqstp,
+ 				 &copy->nf_dst);
  }
  
-+int qla_get_iocbs_resource(struct srb *sp)
+-static void
+-nfsd4_cleanup_intra_ssc(struct nfsd_file *src, struct nfsd_file *dst)
+-{
+-	nfsd_file_put(src);
+-	nfsd_file_put(dst);
+-}
+-
+ static void nfsd4_cb_offload_release(struct nfsd4_callback *cb)
+ {
+ 	struct nfsd4_cb_offload *cbo =
+@@ -1681,12 +1673,18 @@ static void dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
+ 	dst->ss_nsui = src->ss_nsui;
+ }
+ 
++static void release_copy_files(struct nfsd4_copy *copy)
 +{
-+	bool get_exch;
-+	bool push_it_through = false;
-+
-+	if (!ql2xenforce_iocb_limit) {
-+		sp->iores.res_type = RESOURCE_NONE;
-+		return 0;
-+	}
-+	sp->iores.res_type = RESOURCE_NONE;
-+
-+	switch (sp->type) {
-+	case SRB_TM_CMD:
-+	case SRB_PRLI_CMD:
-+	case SRB_ADISC_CMD:
-+		push_it_through = true;
-+		fallthrough;
-+	case SRB_LOGIN_CMD:
-+	case SRB_ELS_CMD_RPT:
-+	case SRB_ELS_CMD_HST:
-+	case SRB_ELS_CMD_HST_NOLOGIN:
-+	case SRB_CT_CMD:
-+	case SRB_NVME_LS:
-+	case SRB_ELS_DCMD:
-+		get_exch = true;
-+		break;
-+
-+	case SRB_FXIOCB_DCMD:
-+	case SRB_FXIOCB_BCMD:
-+		sp->iores.res_type = RESOURCE_NONE;
-+		return 0;
-+
-+	case SRB_SA_UPDATE:
-+	case SRB_SA_REPLACE:
-+	case SRB_MB_IOCB:
-+	case SRB_ABT_CMD:
-+	case SRB_NACK_PLOGI:
-+	case SRB_NACK_PRLI:
-+	case SRB_NACK_LOGO:
-+	case SRB_LOGOUT_CMD:
-+	case SRB_CTRL_VP:
-+		push_it_through = true;
-+		fallthrough;
-+	default:
-+		get_exch = false;
-+	}
-+
-+	sp->iores.res_type |= RESOURCE_IOCB;
-+	sp->iores.iocb_cnt = 1;
-+	if (get_exch) {
-+		sp->iores.res_type |= RESOURCE_EXCH;
-+		sp->iores.exch_cnt = 1;
-+	}
-+	if (push_it_through)
-+		sp->iores.res_type |= RESOURCE_FORCE;
-+
-+	return qla_get_fw_resources(sp->qpair, &sp->iores);
++	if (copy->nf_src)
++		nfsd_file_put(copy->nf_src);
++	if (copy->nf_dst)
++		nfsd_file_put(copy->nf_dst);
 +}
 +
- int
- qla2x00_start_sp(srb_t *sp)
+ static void cleanup_async_copy(struct nfsd4_copy *copy)
  {
-@@ -3831,6 +3890,12 @@ qla2x00_start_sp(srb_t *sp)
- 		return -EIO;
- 
- 	spin_lock_irqsave(qp->qp_lock_ptr, flags);
-+	rval = qla_get_iocbs_resource(sp);
-+	if (rval) {
-+		spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
-+		return -EAGAIN;
-+	}
-+
- 	pkt = __qla2x00_alloc_iocbs(sp->qpair, sp);
- 	if (!pkt) {
- 		rval = EAGAIN;
-@@ -3931,6 +3996,8 @@ qla2x00_start_sp(srb_t *sp)
- 	wmb();
- 	qla2x00_start_iocbs(vha, qp->req);
- done:
-+	if (rval)
-+		qla_put_fw_resources(sp->qpair, &sp->iores);
- 	spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
- 	return rval;
- }
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index 42d3d2de3d31f..759bea69de120 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3112,6 +3112,7 @@ qla25xx_process_bidir_status_iocb(scsi_qla_host_t *vha, void *pkt,
+ 	nfs4_free_copy_state(copy);
+-	nfsd_file_put(copy->nf_dst);
+-	if (!nfsd4_ssc_is_inter(copy))
+-		nfsd_file_put(copy->nf_src);
++	release_copy_files(copy);
+ 	spin_lock(&copy->cp_clp->async_lock);
+ 	list_del(&copy->copies);
+ 	spin_unlock(&copy->cp_clp->async_lock);
+@@ -1746,7 +1744,6 @@ static int nfsd4_do_async_copy(void *data)
+ 	} else {
+ 		nfserr = nfsd4_do_copy(copy, copy->nf_src->nf_file,
+ 				       copy->nf_dst->nf_file, false);
+-		nfsd4_cleanup_intra_ssc(copy->nf_src, copy->nf_dst);
  	}
- 	bsg_reply->reply_payload_rcv_len = 0;
  
-+	qla_put_fw_resources(sp->qpair, &sp->iores);
- done:
- 	/* Return the vendor specific reply to API */
- 	bsg_reply->reply_data.vendor_reply.vendor_rsp[0] = rval;
+ do_callback:
+@@ -1809,9 +1806,9 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	} else {
+ 		status = nfsd4_do_copy(copy, copy->nf_src->nf_file,
+ 				       copy->nf_dst->nf_file, true);
+-		nfsd4_cleanup_intra_ssc(copy->nf_src, copy->nf_dst);
+ 	}
+ out:
++	release_copy_files(copy);
+ 	return status;
+ out_err:
+ 	if (nfsd4_ssc_is_inter(copy)) {
 -- 
 2.39.2
 
