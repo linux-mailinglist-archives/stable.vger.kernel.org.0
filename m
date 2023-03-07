@@ -2,52 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B3566AF25B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0E816AED4A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233326AbjCGSwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:52:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46650 "EHLO
+        id S229572AbjCGSDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:03:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233325AbjCGSwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54163ABB1E;
-        Tue,  7 Mar 2023 10:40:35 -0800 (PST)
+        with ESMTP id S229974AbjCGSCq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C73DAA2184
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7481FB818EB;
-        Tue,  7 Mar 2023 18:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6065C433D2;
-        Tue,  7 Mar 2023 18:39:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5A03B81850
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01D4CC433EF;
+        Tue,  7 Mar 2023 17:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214374;
-        bh=B9SXSPHOZ8dmNNiuXWw1/8WcmeIEgRI7oLH4wukwo9k=;
+        s=korg; t=1678211750;
+        bh=PswiiseGRTu56WIQX20FDgACfRxp6YRvHOPk/80Avh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvFnbB1Tsb2iTD8em+PuvF/uXUI4KqeQTbgdrEpV0bNwSWydxw+XNyAhwKKsxOgKe
-         R1Z8ZlhFcBgbijmXX1AJnC8Ckd5SYULyvKE+ocaiAIlXi+4bkGbdscn7wG61lksSu3
-         tPAPMugPHtqmftzYh6hkQsBYG6JgjecgRfWtTE+Y=
+        b=am6nwK3nf2crdF1120GwLuT88f5rEJXhC/fblmyccx3iweZYv6iV/fPlrNy9clZ+U
+         oMt70q48v7wwGzCLz7h6Su1FvUQUkFyUkRzeLKcCbarVYbp3YC9JEKmLMK2VfalMZo
+         FL4o6yBmdOwiACiaZJJeRn0eTNLOuekk54dnyOD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 6.1 771/885] selftests: dmabuf-heaps: Fix incorrect kernel headers search path
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Feng Tang <feng.tang@intel.com>,
+        HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
+        Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>,
+        Kees Cook <keescook@chromium.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 0933/1001] panic: fix the panic_print NMI backtrace setting
 Date:   Tue,  7 Mar 2023 18:01:45 +0100
-Message-Id: <20230307170035.460890194@linuxfoundation.org>
+Message-Id: <20230307170102.594549952@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,49 +62,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-commit f80f09b59fdd45753dd80ac623981ad00ece4c2d upstream.
+commit b905039e428d639adeebb719b76f98865ea38d4d upstream.
 
-Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
-building against kernel headers from the build environment in scenarios
-where kernel headers are installed into a specific output directory
-(O=...).
+Commit 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in
+panic_print") introduced a setting for the "panic_print" kernel parameter
+to allow users to request a NMI backtrace on panic.  Problem is that the
+panic_print handling happens after the secondary CPUs are already
+disabled, hence this option ended-up being kind of a no-op - kernel skips
+the NMI trace in idling CPUs, which is the case of offline CPUs.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: <stable@vger.kernel.org>  # 5.18+
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fix it by checking the NMI backtrace bit in the panic_print prior to the
+CPU disabling function.
+
+Link: https://lkml.kernel.org/r/20230226160838.414257-1-gpiccoli@igalia.com
+Fixes: 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in panic_print")
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Cc: <stable@vger.kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+Cc: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/dmabuf-heaps/Makefile      |    2 +-
- tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c |    3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ kernel/panic.c |   44 ++++++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 18 deletions(-)
 
---- a/tools/testing/selftests/dmabuf-heaps/Makefile
-+++ b/tools/testing/selftests/dmabuf-heaps/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
--CFLAGS += -static -O3 -Wl,-no-as-needed -Wall
-+CFLAGS += -static -O3 -Wl,-no-as-needed -Wall $(KHDR_INCLUDES)
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -212,9 +212,6 @@ static void panic_print_sys_info(bool co
+ 		return;
+ 	}
  
- TEST_GEN_PROGS = dmabuf-heap
- 
---- a/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
-+++ b/tools/testing/selftests/dmabuf-heaps/dmabuf-heap.c
-@@ -13,10 +13,9 @@
- #include <sys/types.h>
- 
- #include <linux/dma-buf.h>
-+#include <linux/dma-heap.h>
- #include <drm/drm.h>
- 
--#include "../../../../include/uapi/linux/dma-heap.h"
+-	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
+-		trigger_all_cpu_backtrace();
 -
- #define DEVPATH "/dev/dma_heap"
+ 	if (panic_print & PANIC_PRINT_TASK_INFO)
+ 		show_state();
  
- static int check_vgem(int fd)
+@@ -244,6 +241,30 @@ void check_panic_on_warn(const char *ori
+ 		      origin, limit);
+ }
+ 
++/*
++ * Helper that triggers the NMI backtrace (if set in panic_print)
++ * and then performs the secondary CPUs shutdown - we cannot have
++ * the NMI backtrace after the CPUs are off!
++ */
++static void panic_other_cpus_shutdown(bool crash_kexec)
++{
++	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
++		trigger_all_cpu_backtrace();
++
++	/*
++	 * Note that smp_send_stop() is the usual SMP shutdown function,
++	 * which unfortunately may not be hardened to work in a panic
++	 * situation. If we want to do crash dump after notifier calls
++	 * and kmsg_dump, we will need architecture dependent extra
++	 * bits in addition to stopping other CPUs, hence we rely on
++	 * crash_smp_send_stop() for that.
++	 */
++	if (!crash_kexec)
++		smp_send_stop();
++	else
++		crash_smp_send_stop();
++}
++
+ /**
+  *	panic - halt the system
+  *	@fmt: The text string to print
+@@ -334,23 +355,10 @@ void panic(const char *fmt, ...)
+ 	 *
+ 	 * Bypass the panic_cpu check and call __crash_kexec directly.
+ 	 */
+-	if (!_crash_kexec_post_notifiers) {
++	if (!_crash_kexec_post_notifiers)
+ 		__crash_kexec(NULL);
+ 
+-		/*
+-		 * Note smp_send_stop is the usual smp shutdown function, which
+-		 * unfortunately means it may not be hardened to work in a
+-		 * panic situation.
+-		 */
+-		smp_send_stop();
+-	} else {
+-		/*
+-		 * If we want to do crash dump after notifier calls and
+-		 * kmsg_dump, we will need architecture dependent extra
+-		 * works in addition to stopping other CPUs.
+-		 */
+-		crash_smp_send_stop();
+-	}
++	panic_other_cpus_shutdown(_crash_kexec_post_notifiers);
+ 
+ 	/*
+ 	 * Run any panic handlers, including those that might need to
 
 
