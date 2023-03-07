@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 746FF6AEC78
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58D5E6AF164
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbjCGRzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46044 "EHLO
+        id S233120AbjCGSnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:43:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232343AbjCGRyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC2A9CBE7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:51 -0800 (PST)
+        with ESMTP id S233165AbjCGSmc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B944298CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:33:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77AB4B8169C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D99C433D2;
-        Tue,  7 Mar 2023 17:49:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CCD261552
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54B0FC433D2;
+        Tue,  7 Mar 2023 18:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211389;
-        bh=k5HQyqm0VGAfss/paDeflC6MNEUDpsDoCIgnT97MHH0=;
+        s=korg; t=1678213984;
+        bh=swe+fv2gW2cv8UkPMJ5Wy5w9GKEuQATIBNcz8PXmWRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOsb/m+ZSbKEOol9M4CS4RYCtQL6M9rJhdVAh/BZuFPUiEm3QY3foWx+i5q/T70Ih
-         T/WdB0waHzpvFNWLEEoJ/VAi7gWUXTnivxFgNsV5pcL/Ss8SmJofCFWEQYsD5jOU2M
-         ySGi0kZLfC99TuHWkSSrh6ThRZHRe1xfDx0wj7qc=
+        b=aDdiBd6Dl8GNoXLBUce+PWAW5tibPfznaG1q3B46FBDfoNoBuu6xg8xZwER9yjflP
+         6WSUESCkZJIJiboWywSfsZ97GlQS2WX56UeyU/Vt4oc4TNUR8FVXg+3hZF2Qw8Xh5C
+         91IBRwdF7q2536XSDJRUyMDaGtDwq6PngFP6BpKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, KP Singh <kpsingh@kernel.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 6.2 0846/1001] Documentation/hw-vuln: Document the interaction between IBRS and STIBP
+        patches@lists.linux.dev, Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 684/885] ksmbd: do not allow the actual frame length to be smaller than the rfc1002 length
 Date:   Tue,  7 Mar 2023 18:00:18 +0100
-Message-Id: <20230307170058.520339762@linuxfoundation.org>
+Message-Id: <20230307170031.838189634@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,58 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KP Singh <kpsingh@kernel.org>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit e02b50ca442e88122e1302d4dbc1b71a4808c13f upstream.
+commit fb533473d1595fe79ecb528fda1de33552b07178 upstream.
 
-Explain why STIBP is needed with legacy IBRS as currently implemented
-(KERNEL_IBRS) and why STIBP is not needed when enhanced IBRS is enabled.
+ksmbd allowed the actual frame length to be smaller than the rfc1002
+length. If allowed, it is possible to allocates a large amount of memory
+that can be limited by credit management and can eventually cause memory
+exhaustion problem. This patch do not allow it except SMB2 Negotiate
+request which will be validated when message handling proceeds.
+Also, Allow a message that padded to 8byte boundary.
 
-Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
-Signed-off-by: KP Singh <kpsingh@kernel.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230227060541.1939092-2-kpsingh@kernel.org
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Cc: stable@vger.kernel.org
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/spectre.rst |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ fs/ksmbd/smb2misc.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/Documentation/admin-guide/hw-vuln/spectre.rst
-+++ b/Documentation/admin-guide/hw-vuln/spectre.rst
-@@ -479,8 +479,16 @@ Spectre variant 2
-    On Intel Skylake-era systems the mitigation covers most, but not all,
-    cases. See :ref:`[3] <spec_ref3>` for more details.
+--- a/fs/ksmbd/smb2misc.c
++++ b/fs/ksmbd/smb2misc.c
+@@ -408,20 +408,19 @@ int ksmbd_smb2_check_message(struct ksmb
+ 			goto validate_credit;
  
--   On CPUs with hardware mitigation for Spectre variant 2 (e.g. Enhanced
--   IBRS on x86), retpoline is automatically disabled at run time.
-+   On CPUs with hardware mitigation for Spectre variant 2 (e.g. IBRS
-+   or enhanced IBRS on x86), retpoline is automatically disabled at run time.
-+
-+   Systems which support enhanced IBRS (eIBRS) enable IBRS protection once at
-+   boot, by setting the IBRS bit, and they're automatically protected against
-+   Spectre v2 variant attacks, including cross-thread branch target injections
-+   on SMT systems (STIBP). In other words, eIBRS enables STIBP too.
-+
-+   Legacy IBRS systems clear the IBRS bit on exit to userspace and
-+   therefore explicitly enable STIBP for that
+ 		/*
+-		 * windows client also pad up to 8 bytes when compounding.
+-		 * If pad is longer than eight bytes, log the server behavior
+-		 * (once), since may indicate a problem but allow it and
+-		 * continue since the frame is parseable.
++		 * SMB2 NEGOTIATE request will be validated when message
++		 * handling proceeds.
+ 		 */
+-		if (clc_len < len) {
+-			ksmbd_debug(SMB,
+-				    "cli req padded more than expected. Length %d not %d for cmd:%d mid:%llu\n",
+-				    len, clc_len, command,
+-				    le64_to_cpu(hdr->MessageId));
++		if (command == SMB2_NEGOTIATE_HE)
+ 			goto validate_credit;
+-		}
  
-    The retpoline mitigation is turned on by default on vulnerable
-    CPUs. It can be forced on or off by the administrator
-@@ -504,9 +512,12 @@ Spectre variant 2
-    For Spectre variant 2 mitigation, individual user programs
-    can be compiled with return trampolines for indirect branches.
-    This protects them from consuming poisoned entries in the branch
--   target buffer left by malicious software.  Alternatively, the
--   programs can disable their indirect branch speculation via prctl()
--   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
-+   target buffer left by malicious software.
+-		ksmbd_debug(SMB,
++		/*
++		 * Allow a message that padded to 8byte boundary.
++		 */
++		if (clc_len < len && (len - clc_len) < 8)
++			goto validate_credit;
 +
-+   On legacy IBRS systems, at return to userspace, implicit STIBP is disabled
-+   because the kernel clears the IBRS bit. In this case, the userspace programs
-+   can disable indirect branch speculation via prctl() (See
-+   :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
-    On x86, this will turn on STIBP to guard against attacks from the
-    sibling thread when the user program is running, and use IBPB to
-    flush the branch target buffer when switching to/from the program.
++		pr_err_ratelimited(
+ 			    "cli req too short, len %d not %d. cmd:%d mid:%llu\n",
+ 			    len, clc_len, command,
+ 			    le64_to_cpu(hdr->MessageId));
 
 
