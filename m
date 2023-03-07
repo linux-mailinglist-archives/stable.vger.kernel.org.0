@@ -2,45 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F1A6AE5DF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:06:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D4B6AE5E1
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231474AbjCGQGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:06:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52128 "EHLO
+        id S230023AbjCGQGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:06:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231916AbjCGQFX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:05:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC0B8C5B1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:03:41 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9276861460
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:03:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 902F4C433EF;
-        Tue,  7 Mar 2023 16:03:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678205020;
-        bh=Tj+e1JA419Sq5EOCD2LZcfqJgdvdhhtrgwFdFfFz96Y=;
-        h=Subject:To:Cc:From:Date:From;
-        b=fDTg/82/ZUE9qH1uK7GrZnp4jb1hi+ZmpjFkb6stQGikXDFHoqi8hGyQWvYPssOj1
-         WiQKeLtcVlYR1IyVUpa2wGS4BZqXIuR+hnuVbi+LmS3KiuoutA7AOXIwAWIt75KcFi
-         Gs5FI2MS9gDpmyH04F2zyEXyw9Vxl1rqYDb+hfzs=
-Subject: FAILED: patch "[PATCH] bus: mhi: ep: Change state_lock to mutex" failed to apply to 6.1-stable tree
-To:     mani@kernel.org, error27@gmail.com,
-        manivannan.sadhasivam@linaro.org, quic_jhugo@quicinc.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:03:28 +0100
-Message-ID: <167820500829207@kroah.com>
+        with ESMTP id S229932AbjCGQFz (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 7 Mar 2023 11:05:55 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A895E8C975
+        for <Stable@vger.kernel.org>; Tue,  7 Mar 2023 08:03:50 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id u5so14584423plq.7
+        for <Stable@vger.kernel.org>; Tue, 07 Mar 2023 08:03:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1678205030;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=G7hLcya3bsLv//yf0JprtSrDFewhrMQT5YQLYtI/Y+8=;
+        b=HhlJAwr8DqmGWUQSQKG77Mn/Gh6yYYR1j2fGKcMErDoLU/2WO4w78tvQGmo8qzz+Bd
+         z+vLe76wWlESF6KvD5zv8SeC+NAvZI2OhNtVa9jLuWq4nDxOG0mZ08GuWIQ40j0ve47d
+         wCNyjXMH15KF/Lpl90NsfZWOhDLQT55jBjeZV/k5txBnAGDsY8KeEu55sl6W4ZjYnJzp
+         PJilrxuNUwsZ1en+/W/K3Dx1Nuza0C8iW4/1LFjiIRH4BesAKN2JMUmORh0abKLxfa8O
+         9FUU+5gIIQldomfJ4kYWMctWkgmHx1rBLoa3jLT643ykt0S5GIx5oKwqmS3Exzn5j4tf
+         xmag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678205030;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=G7hLcya3bsLv//yf0JprtSrDFewhrMQT5YQLYtI/Y+8=;
+        b=cCkvpKaCCg93s72Y1JCIOTY2g5GCDC92sPH7xFTT/6LRDywqhZwAjn16hHoMXdpMSj
+         P9YSUsAQL9IZbZP7IdZpXxIEKhagi/X+fVBjlyfjgRq/X2zmjaqUMg75I8GyC14NWmPm
+         F/H0TSZnphrkTu8PavhPUslPNu5i90fuIdeS9jlVtiNMKnCzaJr1AYNSoUEYi5MpD9y8
+         a97mkIqihcxIwMsxBw6mGIAxqR83IY7qQ0Wko3XIBgMCQlL5J4pyDpC/kFmCj4hki5jC
+         BfVHCcLfg5wBGPfBW29e1jZoRLh0vt16W5vXrW87NLqi0qI3xzh4KZUM5EtGucLwiVEb
+         mbTw==
+X-Gm-Message-State: AO0yUKWesdvaBr7yn78wiOKqQhCBV5VrSYsj/yCJRzAKPcWue7jxSS0N
+        S8L+XcR9MRgi+ax0RxAVQImgWA==
+X-Google-Smtp-Source: AK7set8Q11G93VM5gWqdl9WiAdklDxZlW9kQBcrDhnVNMiGKZchmSzF3+ndLqHk5ffFXVnShE9uXAA==
+X-Received: by 2002:a05:6a20:8e0a:b0:c7:af88:3c8f with SMTP id y10-20020a056a208e0a00b000c7af883c8fmr19601953pzj.25.1678205030119;
+        Tue, 07 Mar 2023 08:03:50 -0800 (PST)
+Received: from GL4FX4PXWL.bytedance.net ([139.177.225.254])
+        by smtp.gmail.com with ESMTPSA id m3-20020a635803000000b00502fdc69b97sm7900009pgb.67.2023.03.07.08.03.46
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 07 Mar 2023 08:03:49 -0800 (PST)
+From:   Peng Zhang <zhangpeng.00@bytedance.com>
+To:     Liam.Howlett@oracle.com, snild@sony.com
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        maple-tree@lists.infradead.org, Stable@vger.kernel.org,
+        Peng Zhang <zhangpeng.00@bytedance.com>
+Subject: [PATCH] maple_tree: Fix the error of mas->min/max in mas_skip_node()
+Date:   Wed,  8 Mar 2023 00:03:40 +0800
+Message-Id: <20230307160340.57074-1-zhangpeng.00@bytedance.com>
+X-Mailer: git-send-email 2.37.0 (Apple Git-136)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -49,227 +69,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The assignment of mas->min and mas->max is wrong. mas->min and mas->max
+should represent the range of the current node. After mas_ascend()
+returns, mas-min and mas->max already represent the range of the current
+node, so we should delete these assignments of mas->min and mas->max.
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
+---
+ lib/maple_tree.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
-git checkout FETCH_HEAD
-git cherry-pick -x 1ddc7618294084fff8d673217a9479550990ee84
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820500829207@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
-
-Possible dependencies:
-
-1ddc76182940 ("bus: mhi: ep: Change state_lock to mutex")
-47a1dcaea073 ("bus: mhi: ep: Power up/down MHI stack during MHI RESET")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 1ddc7618294084fff8d673217a9479550990ee84 Mon Sep 17 00:00:00 2001
-From: Manivannan Sadhasivam <mani@kernel.org>
-Date: Mon, 23 Jan 2023 12:59:45 +0530
-Subject: [PATCH] bus: mhi: ep: Change state_lock to mutex
-
-state_lock, the spinlock type is meant to protect race against concurrent
-MHI state transitions. In mhi_ep_set_m0_state(), while the state_lock is
-being held, the channels are resumed in mhi_ep_resume_channels() if the
-previous state was M3. This causes sleeping in atomic bug, since
-mhi_ep_resume_channels() use mutex internally.
-
-Since the state_lock is supposed to be held throughout the state change,
-it is not ideal to drop the lock before calling mhi_ep_resume_channels().
-So to fix this issue, let's change the type of state_lock to mutex. This
-would also allow holding the lock throughout all state transitions thereby
-avoiding any potential race.
-
-Cc: <stable@vger.kernel.org> # 5.19
-Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
-Reported-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-
-diff --git a/drivers/bus/mhi/ep/main.c b/drivers/bus/mhi/ep/main.c
-index bcaaba97ef63..528c00b232bf 100644
---- a/drivers/bus/mhi/ep/main.c
-+++ b/drivers/bus/mhi/ep/main.c
-@@ -1001,11 +1001,11 @@ static void mhi_ep_reset_worker(struct work_struct *work)
- 
- 	mhi_ep_power_down(mhi_cntrl);
- 
--	spin_lock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
-+
- 	/* Reset MMIO to signal host that the MHI_RESET is completed in endpoint */
- 	mhi_ep_mmio_reset(mhi_cntrl);
- 	cur_state = mhi_cntrl->mhi_state;
--	spin_unlock_bh(&mhi_cntrl->state_lock);
- 
- 	/*
- 	 * Only proceed further if the reset is due to SYS_ERR. The host will
-@@ -1014,6 +1014,8 @@ static void mhi_ep_reset_worker(struct work_struct *work)
- 	 */
- 	if (cur_state == MHI_STATE_SYS_ERR)
- 		mhi_ep_power_up(mhi_cntrl);
-+
-+	mutex_unlock(&mhi_cntrl->state_lock);
- }
- 
- /*
-@@ -1386,8 +1388,8 @@ int mhi_ep_register_controller(struct mhi_ep_cntrl *mhi_cntrl,
- 
- 	INIT_LIST_HEAD(&mhi_cntrl->st_transition_list);
- 	INIT_LIST_HEAD(&mhi_cntrl->ch_db_list);
--	spin_lock_init(&mhi_cntrl->state_lock);
- 	spin_lock_init(&mhi_cntrl->list_lock);
-+	mutex_init(&mhi_cntrl->state_lock);
- 	mutex_init(&mhi_cntrl->event_lock);
- 
- 	/* Set MHI version and AMSS EE before enumeration */
-diff --git a/drivers/bus/mhi/ep/sm.c b/drivers/bus/mhi/ep/sm.c
-index 3655c19e23c7..fd200b2ac0bb 100644
---- a/drivers/bus/mhi/ep/sm.c
-+++ b/drivers/bus/mhi/ep/sm.c
-@@ -63,24 +63,23 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	int ret;
- 
- 	/* If MHI is in M3, resume suspended channels */
--	spin_lock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
-+
- 	old_state = mhi_cntrl->mhi_state;
- 	if (old_state == MHI_STATE_M3)
- 		mhi_ep_resume_channels(mhi_cntrl);
- 
- 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M0);
--	spin_unlock_bh(&mhi_cntrl->state_lock);
+diff --git a/lib/maple_tree.c b/lib/maple_tree.c
+index f5bee48de569..d4ddf7f8adc7 100644
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -5157,9 +5157,6 @@ static inline bool mas_rewind_node(struct ma_state *mas)
+  */
+ static inline bool mas_skip_node(struct ma_state *mas)
+ {
+-	unsigned long *pivots;
+-	enum maple_type mt;
 -
- 	if (ret) {
- 		mhi_ep_handle_syserr(mhi_cntrl);
--		return ret;
-+		goto err_unlock;
- 	}
+ 	if (mas_is_err(mas))
+ 		return false;
  
- 	/* Signal host that the device moved to M0 */
- 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M0);
- 	if (ret) {
- 		dev_err(dev, "Failed sending M0 state change event\n");
--		return ret;
-+		goto err_unlock;
- 	}
- 
- 	if (old_state == MHI_STATE_READY) {
-@@ -88,11 +87,14 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
- 		ret = mhi_ep_send_ee_event(mhi_cntrl, MHI_EE_AMSS);
- 		if (ret) {
- 			dev_err(dev, "Failed sending AMSS EE event\n");
--			return ret;
-+			goto err_unlock;
+@@ -5173,14 +5170,7 @@ static inline bool mas_skip_node(struct ma_state *mas)
+ 			mas_ascend(mas);
  		}
- 	}
- 
--	return 0;
-+err_unlock:
-+	mutex_unlock(&mhi_cntrl->state_lock);
-+
-+	return ret;
- }
- 
- int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
-@@ -100,13 +102,12 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
- 	int ret;
- 
--	spin_lock_bh(&mhi_cntrl->state_lock);
--	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
--	spin_unlock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
- 
-+	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
- 	if (ret) {
- 		mhi_ep_handle_syserr(mhi_cntrl);
--		return ret;
-+		goto err_unlock;
- 	}
- 
- 	mhi_ep_suspend_channels(mhi_cntrl);
-@@ -115,10 +116,13 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M3);
- 	if (ret) {
- 		dev_err(dev, "Failed sending M3 state change event\n");
--		return ret;
-+		goto err_unlock;
- 	}
- 
--	return 0;
-+err_unlock:
-+	mutex_unlock(&mhi_cntrl->state_lock);
-+
-+	return ret;
- }
- 
- int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
-@@ -127,22 +131,24 @@ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
- 	enum mhi_state mhi_state;
- 	int ret, is_ready;
- 
--	spin_lock_bh(&mhi_cntrl->state_lock);
-+	mutex_lock(&mhi_cntrl->state_lock);
-+
- 	/* Ensure that the MHISTATUS is set to RESET by host */
- 	mhi_state = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_MHISTATE_MASK);
- 	is_ready = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_READY_MASK);
- 
- 	if (mhi_state != MHI_STATE_RESET || is_ready) {
- 		dev_err(dev, "READY state transition failed. MHI host not in RESET state\n");
--		spin_unlock_bh(&mhi_cntrl->state_lock);
--		return -EIO;
-+		ret = -EIO;
-+		goto err_unlock;
- 	}
- 
- 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_READY);
--	spin_unlock_bh(&mhi_cntrl->state_lock);
+ 	} while (mas->offset >= mas_data_end(mas));
 -
- 	if (ret)
- 		mhi_ep_handle_syserr(mhi_cntrl);
- 
-+err_unlock:
-+	mutex_unlock(&mhi_cntrl->state_lock);
-+
- 	return ret;
+-	mt = mte_node_type(mas->node);
+-	pivots = ma_pivots(mas_mn(mas), mt);
+-	mas->min = pivots[mas->offset] + 1;
+ 	mas->offset++;
+-	if (mas->offset < mt_slots[mt])
+-		mas->max = pivots[mas->offset];
+-
+ 	return true;
  }
-diff --git a/include/linux/mhi_ep.h b/include/linux/mhi_ep.h
-index 478aece17046..f198a8ac7ee7 100644
---- a/include/linux/mhi_ep.h
-+++ b/include/linux/mhi_ep.h
-@@ -70,8 +70,8 @@ struct mhi_ep_db_info {
-  * @cmd_ctx_cache_phys: Physical address of the host command context cache
-  * @chdb: Array of channel doorbell interrupt info
-  * @event_lock: Lock for protecting event rings
-- * @list_lock: Lock for protecting state transition and channel doorbell lists
-  * @state_lock: Lock for protecting state transitions
-+ * @list_lock: Lock for protecting state transition and channel doorbell lists
-  * @st_transition_list: List of state transitions
-  * @ch_db_list: List of queued channel doorbells
-  * @wq: Dedicated workqueue for handling rings and state changes
-@@ -117,8 +117,8 @@ struct mhi_ep_cntrl {
  
- 	struct mhi_ep_db_info chdb[4];
- 	struct mutex event_lock;
-+	struct mutex state_lock;
- 	spinlock_t list_lock;
--	spinlock_t state_lock;
- 
- 	struct list_head st_transition_list;
- 	struct list_head ch_db_list;
+-- 
+2.20.1
 
