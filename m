@@ -2,49 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D38776AEB79
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4994C6AEB92
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbjCGRpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:45:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52958 "EHLO
+        id S232154AbjCGRqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:46:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232122AbjCGRod (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798BFAB88A;
-        Tue,  7 Mar 2023 09:40:19 -0800 (PST)
+        with ESMTP id S232342AbjCGRpa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:45:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA851FC2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:41:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59BA16150C;
-        Tue,  7 Mar 2023 17:40:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29C23C433EF;
-        Tue,  7 Mar 2023 17:40:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7456B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDC3BC433D2;
+        Tue,  7 Mar 2023 17:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210818;
-        bh=p8XfusPeeyo+hJS950tKRUjvaqFpiJU+32RxMVQyEyY=;
+        s=korg; t=1678210852;
+        bh=c6CFEAa3lu+8WT8c4VQGkZ0gM5IJh82kODyMmxNZiSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcWwK3iZ9DrRj5QlnkhJWB31wY2PQ04ZwTUmOuiCp8hksYE4d9yN5Xei9Xn2+m4pX
-         gEQf8nEPLeR97yxohgU0zSIQPdgJMNJVQ0LUDpyd4sMJeA4ZvbbCtWlCCvEjEZgy6/
-         w+1LlXx/B0pfaqFKhWRlW1lnXRKQUScF21M5aHiQ=
+        b=jeDdTC5S46q1WeiCD3wNI1aAWjx7lhFVkIht1JgC083MSqmx73Hm8r8zAJvC3xy5l
+         SCXvdP6lgfGpSFAQBnPDbD3ms1Mi1Jnx1OZ2b8KZdEZOOx/h8VGtFeU1i6gbbiM9h8
+         RDHC1rjFWxbRJnailweFTPrkWSMCKFWiWab6Sh80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Florent Revest <revest@chromium.org>,
-        Len Brown <lenb@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Robert Moore <robert.moore@intel.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        patches@lists.linux.dev, Dave Thaler <dthaler@microsoft.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0656/1001] ACPI: Dont build ACPICA with -Os
-Date:   Tue,  7 Mar 2023 17:57:08 +0100
-Message-Id: <20230307170050.075055795@linuxfoundation.org>
+Subject: [PATCH 6.2 0657/1001] bpf, docs: Fix modulo zero, division by zero, overflow, and underflow
+Date:   Tue,  7 Mar 2023 17:57:09 +0100
+Message-Id: <20230307170050.114786406@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -62,109 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Dave Thaler <dthaler@microsoft.com>
 
-[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
+[ Upstream commit 0eb9d19e2201068260e439a5c96dc85f9f3722a2 ]
 
-The ACPICA code has been built with '-Os' since the beginning of git
-history, though there's no explanatory comment as to why.
+Fix modulo zero, division by zero, overflow, and underflow. Also clarify how
+a negative immediate value is used in unsigned division.
 
-This is unfortunate as GCC drops the alignment specificed by
-'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
-
-  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
-
-This prevents CONFIG_FUNCTION_ALIGNMENT and
-CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
-on the ACPICA code. This is doubly unfortunate as in subsequent patches
-arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
-implementation.
-
-Drop the '-Os' flag when building the ACPICA code. With this removed,
-the code builds cleanly and works correctly in testing so far.
-
-I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
-building and booting a kernel using ACPI, and looking for misaligned
-text symbols:
-
-* arm64:
-
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    5009
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    919
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    323
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-* x86_64:
-
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    11537
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    2805
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    1357
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-With the patch applied, the remaining unaligned text labels are a
-combination of static call trampolines and labels in assembly, which can
-be dealt with in subsequent patches.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Florent Revest <revest@chromium.org>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Robert Moore <robert.moore@intel.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-acpi@vger.kernel.org
-Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Dave Thaler <dthaler@microsoft.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20230124001218.827-1-dthaler1968@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/bpf/instruction-set.rst | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
-index 9e0d95d76fff7..30f3fc13c29d1 100644
---- a/drivers/acpi/acpica/Makefile
-+++ b/drivers/acpi/acpica/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for ACPICA Core interpreter
- #
+diff --git a/Documentation/bpf/instruction-set.rst b/Documentation/bpf/instruction-set.rst
+index e672d5ec6cc7b..2d3fe59bd260f 100644
+--- a/Documentation/bpf/instruction-set.rst
++++ b/Documentation/bpf/instruction-set.rst
+@@ -99,19 +99,26 @@ code      value  description
+ BPF_ADD   0x00   dst += src
+ BPF_SUB   0x10   dst -= src
+ BPF_MUL   0x20   dst \*= src
+-BPF_DIV   0x30   dst /= src
++BPF_DIV   0x30   dst = (src != 0) ? (dst / src) : 0
+ BPF_OR    0x40   dst \|= src
+ BPF_AND   0x50   dst &= src
+ BPF_LSH   0x60   dst <<= src
+ BPF_RSH   0x70   dst >>= src
+ BPF_NEG   0x80   dst = ~src
+-BPF_MOD   0x90   dst %= src
++BPF_MOD   0x90   dst = (src != 0) ? (dst % src) : dst
+ BPF_XOR   0xa0   dst ^= src
+ BPF_MOV   0xb0   dst = src
+ BPF_ARSH  0xc0   sign extending shift right
+ BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
+ ========  =====  ==========================================================
  
--ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
-+ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
- ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
++Underflow and overflow are allowed during arithmetic operations, meaning
++the 64-bit or 32-bit value will wrap. If eBPF program execution would
++result in division by zero, the destination register is instead set to zero.
++If execution would result in modulo by zero, for ``BPF_ALU64`` the value of
++the destination register is unchanged whereas for ``BPF_ALU`` the upper
++32 bits of the destination register are zeroed.
++
+ ``BPF_ADD | BPF_X | BPF_ALU`` means::
  
- # use acpi.o to put all files here into acpi.o modparam namespace
+   dst_reg = (u32) dst_reg + (u32) src_reg;
+@@ -128,6 +135,11 @@ BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
+ 
+   dst_reg = dst_reg ^ imm32
+ 
++Also note that the division and modulo operations are unsigned. Thus, for
++``BPF_ALU``, 'imm' is first interpreted as an unsigned 32-bit value, whereas
++for ``BPF_ALU64``, 'imm' is first sign extended to 64 bits and the result
++interpreted as an unsigned 64-bit value. There are no instructions for
++signed division or modulo.
+ 
+ Byte swap instructions
+ ~~~~~~~~~~~~~~~~~~~~~~
 -- 
 2.39.2
 
