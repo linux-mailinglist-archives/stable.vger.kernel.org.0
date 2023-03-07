@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 908C56AE81F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:13:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 037F76AE830
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231216AbjCGRNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:13:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50798 "EHLO
+        id S229794AbjCGRNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:13:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230523AbjCGRMy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:12:54 -0500
+        with ESMTP id S230296AbjCGRMz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:12:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929E9360A5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:07:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A85056A4C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:07:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4D10B819A8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:07:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BF7BC433D2;
-        Tue,  7 Mar 2023 17:07:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA0A2B819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171A4C433EF;
+        Tue,  7 Mar 2023 17:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678208863;
-        bh=Ti9D8/N2bvprk1D2kU2ST7isFhuvl0uOeemMqS7HW0c=;
+        s=korg; t=1678208866;
+        bh=AIhzNW3nDKfJHSCnlnSYGVLLkzH2fJcLGXQS3Mt8SvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gB5l7gprxzAqFUZ1tuAP0NMliGs5t90XR7ZtIJSOUIk0AX5okKUla1D0PpZyKtBrL
-         +W71oCTfih4Y1MgkZQb6WOGhuHJW+47fcnLbeaX7kBonIyc5mtKVQ8MJR5Nxkt0t+A
-         SeLgC3E0OfD4UZPJLwgwdaecWjeph8NODjDAc02o=
+        b=MB9mTDPnEbQ1XWQrPXJodzFAokH2bEZWediwFLUNZSrAFPQI3P6ZfmK5jBwrFwW/z
+         F2ocaLynJVfjdHOvtXvqKlroNVZbsloRg4XbIiOAf4Eg1MnFb53a9RGl78H8dl1x8G
+         RJTRa02iQbX6Moz7NjKKXjEzrI99Zo9ZJe7e7RSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Duran <leo.duran@amd.com>,
-        Kishon Vijay Abraham I <kvijayab@amd.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0035/1001] x86/acpi/boot: Do not register processors that cannot be onlined for x2APIC
-Date:   Tue,  7 Mar 2023 17:46:47 +0100
-Message-Id: <20230307170023.656669998@linuxfoundation.org>
+Subject: [PATCH 6.2 0036/1001] arm64: dts: qcom: sc7180: correct SPMI bus address cells
+Date:   Tue,  7 Mar 2023 17:46:48 +0100
+Message-Id: <20230307170023.695657202@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -57,79 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kvijayab@amd.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit e2869bd7af608c343988429ceb1c2fe99644a01f ]
+[ Upstream commit 1f75745537222172f84783d369bbd1fb2d4b6414 ]
 
-Section 5.2.12.12 Processor Local x2APIC Structure in the ACPI v6.5
-spec mandates that both "enabled" and "online capable" Local APIC Flags
-should be used to determine if the processor is usable or not.
+The SPMI bus uses two address cells and zero size cells (second reg
+entry - SPMI_USID - is not the size):
 
-However, Linux doesn't use the "online capable" flag for x2APIC to
-determine if the processor is usable. As a result, cpu_possible_mask has
-incorrect value and results in more memory getting allocated for per_cpu
-variables than it is going to be used.
+  spmi@c440000: #address-cells:0:0: 2 was expected
 
-Make sure Linux parses both "enabled" and "online capable" flags for
-x2APIC to correctly determine if the processor is usable.
-
-Fixes: aa06e20f1be6 ("x86/ACPI: Don't add CPUs that are not online capable")
-Reported-by: Leo Duran <leo.duran@amd.com>
-Signed-off-by: Kishon Vijay Abraham I <kvijayab@amd.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Zhang Rui <rui.zhang@intel.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/20230105041059.39366-1-kvijayab@amd.com
+Fixes: 0f9dc5f09fbd ("arm64: dts: qcom: sc7180: Add SPMI PMIC arbiter device")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221213101921.47924-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/acpi/boot.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7180.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/acpi/boot.c b/arch/x86/kernel/acpi/boot.c
-index 907cc98b19380..518bda50068cb 100644
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -188,6 +188,17 @@ static int acpi_register_lapic(int id, u32 acpiid, u8 enabled)
- 	return cpu;
- }
- 
-+static bool __init acpi_is_processor_usable(u32 lapic_flags)
-+{
-+	if (lapic_flags & ACPI_MADT_ENABLED)
-+		return true;
-+
-+	if (acpi_support_online_capable && (lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
-+		return true;
-+
-+	return false;
-+}
-+
- static int __init
- acpi_parse_x2apic(union acpi_subtable_headers *header, const unsigned long end)
- {
-@@ -212,6 +223,10 @@ acpi_parse_x2apic(union acpi_subtable_headers *header, const unsigned long end)
- 	if (apic_id == 0xffffffff)
- 		return 0;
- 
-+	/* don't register processors that cannot be onlined */
-+	if (!acpi_is_processor_usable(processor->lapic_flags))
-+		return 0;
-+
- 	/*
- 	 * We need to register disabled CPU as well to permit
- 	 * counting disabled CPUs. This allows us to size
-@@ -250,9 +265,7 @@ acpi_parse_lapic(union acpi_subtable_headers * header, const unsigned long end)
- 		return 0;
- 
- 	/* don't register processors that can not be onlined */
--	if (acpi_support_online_capable &&
--	    !(processor->lapic_flags & ACPI_MADT_ENABLED) &&
--	    !(processor->lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
-+	if (!acpi_is_processor_usable(processor->lapic_flags))
- 		return 0;
- 
- 	/*
+diff --git a/arch/arm64/boot/dts/qcom/sc7180.dtsi b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+index f71cf21a8dd8a..e45726be81c82 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+@@ -3274,8 +3274,8 @@ spmi_bus: spmi@c440000 {
+ 			interrupts-extended = <&pdc 1 IRQ_TYPE_LEVEL_HIGH>;
+ 			qcom,ee = <0>;
+ 			qcom,channel = <0>;
+-			#address-cells = <1>;
+-			#size-cells = <1>;
++			#address-cells = <2>;
++			#size-cells = <0>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <4>;
+ 			cell-index = <0>;
 -- 
 2.39.2
 
