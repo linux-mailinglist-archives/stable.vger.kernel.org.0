@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDFE86AEB09
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A1E6AF2F9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:58:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231907AbjCGRj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:39:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43330 "EHLO
+        id S233492AbjCGS6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:58:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbjCGRjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:39:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F101A02A9
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:26 -0800 (PST)
+        with ESMTP id S231503AbjCGS5s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B581B79CE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A803ECE1B30
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C62F7C4339B;
-        Tue,  7 Mar 2023 17:35:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DB4E61535
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB4CC433EF;
+        Tue,  7 Mar 2023 18:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210523;
-        bh=hp1GDTXDIT4zbBW6oQM2a5OSyzrk3SSlkDqAuSyprSI=;
+        s=korg; t=1678214699;
+        bh=W7DQ7ywxXjTo8xg5MPRFss2juYN+ErzSOtbqya+8bTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzy5bCZnw4YahC6cJpDnFzEZKVZUd7YjOvCzNFPgbYxANKQ7Qu4fZnu5dkzx99h2s
-         JDUZpemlUKSG3pWGbj1qfWID4zqnvxp7vBOEfH19CH8sg3rLM2zmQ5+RclzOJaovAV
-         JHBM5vbD8xEE0cWdYtfzEb63ZQ7E+s4PXatAyRLw=
+        b=fcWF5Z+rLFbs2jg+IwkDO6daXXHfk4MMdKoh/zanWCI0JR6uB6oUi395CZ+/bdAPZ
+         FZcS1ZwTj2slhuQhgs9Q0w6dXFXEKczWu0TgP7PGWpei3BptyxR6G4wYD9+tVTf7ap
+         OWV74WPRX/mrRSiHJUDqiS0HLouRL4go3VnL5TJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sanjay Kumar <sanjay.k.kumar@intel.com>,
-        Tina Zhang <tina.zhang@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0569/1001] iommu/vt-d: Allow to use flush-queue when first level is default
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 005/567] arm64: dts: qcom: qcs404: use symbol names for PCIe resets
 Date:   Tue,  7 Mar 2023 17:55:41 +0100
-Message-Id: <20230307170046.174963858@linuxfoundation.org>
+Message-Id: <20230307165906.066795598@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,71 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tina Zhang <tina.zhang@intel.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 257ec290741924f8df678927d0dfecb1deebb9c5 ]
+[ Upstream commit 41a37d157a613444c97e8f71a5fb2a21116b70d7 ]
 
-Commit 29b32839725f ("iommu/vt-d: Do not use flush-queue when caching-mode
-is on") forced default domains to be strict mode as long as IOMMU
-caching-mode is flagged. The reason for doing this is that when vIOMMU
-uses VT-d caching mode to synchronize shadowing page tables, the strict
-mode shows better performance.
+The commit e5bbbff5b7d7 ("clk: gcc-qcs404: Add PCIe resets") added names
+for PCIe resets, but it did not change the existing qcs404.dtsi to use
+these names. Do it now and use symbol names to make it easier to check
+and modify the dtsi in future.
 
-However, this optimization is orthogonal to the first-level page table
-because the Intel VT-d architecture does not define the caching mode of
-the first-level page table. Refer to VT-d spec, section 6.1, "When the
-CM field is reported as Set, any software updates to remapping
-structures other than first-stage mapping (including updates to not-
-present entries or present entries whose programming resulted in
-translation faults) requires explicit invalidation of the caches."
-Exclude the first-level page table from this optimization.
-
-Generally using first-stage translation in vIOMMU implies nested
-translation enabled in the physical IOMMU. In this case the first-stage
-page table is wholly captured by the guest. The vIOMMU only needs to
-transfer the cache invalidations on vIOMMU to the physical IOMMU.
-Forcing the default domain to strict mode will cause more frequent
-cache invalidations, resulting in performance degradation. In a real
-performance benchmark test measured by iperf receive, the performance
-result on Sapphire Rapids 100Gb NIC shows:
-w/ this fix ~51 Gbits/s, w/o this fix ~39.3 Gbits/s.
-
-Theoretically a first-stage IOMMU page table can still be shadowed
-in absence of the caching mode, e.g. with host write-protecting guest
-IOMMU page table to synchronize changed PTEs with the physical
-IOMMU page table. In this case the shadowing overhead is decoupled
-from emulating IOTLB invalidation then the overhead of the latter part
-is solely decided by the frequency of IOTLB invalidations. Hence
-allowing guest default dma domain to be lazy can also benefit the
-overall performance by reducing the total VM-exit numbers.
-
-Fixes: 29b32839725f ("iommu/vt-d: Do not use flush-queue when caching-mode is on")
-Reported-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Suggested-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Signed-off-by: Tina Zhang <tina.zhang@intel.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/20230214025618.2292889-1-tina.zhang@intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: e5bbbff5b7d7 ("clk: gcc-qcs404: Add PCIe resets")
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221226042154.2666748-14-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/qcs404.dtsi | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 994dffa1db57a..b40ef352b0efc 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -4005,7 +4005,8 @@ int __init intel_iommu_init(void)
- 		 * is likely to be much lower than the overhead of synchronizing
- 		 * the virtual and physical IOMMU page-tables.
- 		 */
--		if (cap_caching_mode(iommu->cap)) {
-+		if (cap_caching_mode(iommu->cap) &&
-+		    !first_level_by_default(IOMMU_DOMAIN_DMA)) {
- 			pr_info_once("IOMMU batching disallowed due to virtualization\n");
- 			iommu_set_dma_strict();
- 		}
+diff --git a/arch/arm64/boot/dts/qcom/qcs404.dtsi b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+index 18cc8e3bc93ac..fd0d634a373fc 100644
+--- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
++++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+@@ -775,7 +775,7 @@ pcie_phy: phy@7786000 {
+ 
+ 			clocks = <&gcc GCC_PCIE_0_PIPE_CLK>;
+ 			resets = <&gcc GCC_PCIEPHY_0_PHY_BCR>,
+-				 <&gcc 21>;
++				 <&gcc GCC_PCIE_0_PIPE_ARES>;
+ 			reset-names = "phy", "pipe";
+ 
+ 			clock-output-names = "pcie_0_pipe_clk";
+@@ -1305,12 +1305,12 @@ pcie: pci@10000000 {
+ 				 <&gcc GCC_PCIE_0_SLV_AXI_CLK>;
+ 			clock-names = "iface", "aux", "master_bus", "slave_bus";
+ 
+-			resets = <&gcc 18>,
+-				 <&gcc 17>,
+-				 <&gcc 15>,
+-				 <&gcc 19>,
++			resets = <&gcc GCC_PCIE_0_AXI_MASTER_ARES>,
++				 <&gcc GCC_PCIE_0_AXI_SLAVE_ARES>,
++				 <&gcc GCC_PCIE_0_AXI_MASTER_STICKY_ARES>,
++				 <&gcc GCC_PCIE_0_CORE_STICKY_ARES>,
+ 				 <&gcc GCC_PCIE_0_BCR>,
+-				 <&gcc 16>;
++				 <&gcc GCC_PCIE_0_AHB_ARES>;
+ 			reset-names = "axi_m",
+ 				      "axi_s",
+ 				      "axi_m_sticky",
 -- 
 2.39.2
 
