@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 576D76AEE1A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91EF16AF2C9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232418AbjCGSJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:09:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48076 "EHLO
+        id S233468AbjCGS41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:56:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232366AbjCGSJK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF48185A5E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:24 -0800 (PST)
+        with ESMTP id S233462AbjCGS4K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9DDB9749B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B33EB819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7662CC433D2;
-        Tue,  7 Mar 2023 17:58:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9021AB819CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6447C433D2;
+        Tue,  7 Mar 2023 18:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211884;
-        bh=NlbxwG6eUCX4juJ50RjoPsRPj/g18EsVLrVnO1RNEic=;
+        s=korg; t=1678214583;
+        bh=iYX5qWHMaH8B8G9kRwtvIs+1rTAjqHYKdfBR7y97xeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KbEYZdHIOtHOv3gCvo2VAZYeZGanyJSOh2b32JoKjpkzOo09wUef/ivtx/UF2HTn4
-         LOtzg/CQ7l7rWUf2RXbtqigbIC1gzsucIkbZ6nWEny90TCVKm2BJBPfK+Xgi7a++1I
-         Et1c1nZqvzVjjLbeU3HWa1IFP66aGoY70YMswyQA=
+        b=wlUBf9uvXN+D2gR+ljrb7uf1vTsQAAKnJBFQ0B2n1TEV32wTOSumFlSacz6N0UNLU
+         wr6uq1XovIwg/P7H6z8Sz6/DZZIMb5tNeF8CfwRDD4hHFotv9XFoEGj894fZwCgA8w
+         xfQIo9qgaO/kpaohb3AsDjkMSUoYCNc7u4PzUUD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.2 1001/1001] drm/edid: fix parsing of 3D modes from HDMI VSDB
+        Antonio Alvarez Feijoo <antonio.feijoo@suse.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Subject: [PATCH 6.1 839/885] tools/bootconfig: fix single & used for logical condition
 Date:   Tue,  7 Mar 2023 18:02:53 +0100
-Message-Id: <20230307170105.748347529@linuxfoundation.org>
+Message-Id: <20230307170038.301092294@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,76 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
 
-commit 72794d16bd535a984e6653a18f5862405b49b5f9 upstream.
+commit cf8c59a3756b2735c409a9b3ac1e4ec556546a7a upstream.
 
-Commit 537d9ed2f6c1 ("drm/edid: convert add_cea_modes() to use cea db
-iter") inadvertently moved the do_hdmi_vsdb_modes() call within the db
-iteration loop, always passing NULL as the CTA VDB to
-do_hdmi_vsdb_modes(), skipping a lot of stereo modes.
+A single & will create a background process and return true, so the grep
+command will run even if the file checked in the first condition does not
+exist.
 
-Move the call back outside of the loop.
+Link: https://lore.kernel.org/all/20230112114215.17103-1-antonio.feijoo@suse.com/
 
-This does mean only one CTA VDB and HDMI VSDB combination will be
-handled, but it's an unlikely scenario to have more than one of either
-block, and it was not accounted for before the regression either.
-
-Fixes: 537d9ed2f6c1 ("drm/edid: convert add_cea_modes() to use cea db iter")
-Cc: <stable@vger.kernel.org> # v6.0+
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/cf159b8816191ed595a3cb954acaf189c4528cc7.1672826282.git.jani.nikula@intel.com
+Fixes: 1eaad3ac3f39 ("tools/bootconfig: Use per-group/all enable option in ftrace2bconf script")
+Signed-off-by: Antonio Alvarez Feijoo <antonio.feijoo@suse.com>
+Cc: stable@vger.kernel.org
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_edid.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ tools/bootconfig/scripts/ftrace2bconf.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -5249,13 +5249,12 @@ static int add_cea_modes(struct drm_conn
- {
- 	const struct cea_db *db;
- 	struct cea_db_iter iter;
-+	const u8 *hdmi = NULL, *video = NULL;
-+	u8 hdmi_len = 0, video_len = 0;
- 	int modes = 0;
- 
- 	cea_db_iter_edid_begin(drm_edid, &iter);
- 	cea_db_iter_for_each(db, &iter) {
--		const u8 *hdmi = NULL, *video = NULL;
--		u8 hdmi_len = 0, video_len = 0;
--
- 		if (cea_db_tag(db) == CTA_DB_VIDEO) {
- 			video = cea_db_data(db);
- 			video_len = cea_db_payload_len(db);
-@@ -5271,18 +5270,17 @@ static int add_cea_modes(struct drm_conn
- 			modes += do_y420vdb_modes(connector, vdb420,
- 						  cea_db_payload_len(db) - 1);
- 		}
--
--		/*
--		 * We parse the HDMI VSDB after having added the cea modes as we
--		 * will be patching their flags when the sink supports stereo
--		 * 3D.
--		 */
--		if (hdmi)
--			modes += do_hdmi_vsdb_modes(connector, hdmi, hdmi_len,
--						    video, video_len);
- 	}
- 	cea_db_iter_end(&iter);
- 
-+	/*
-+	 * We parse the HDMI VSDB after having added the cea modes as we will be
-+	 * patching their flags when the sink supports stereo 3D.
-+	 */
-+	if (hdmi)
-+		modes += do_hdmi_vsdb_modes(connector, hdmi, hdmi_len,
-+					    video, video_len);
-+
- 	return modes;
+--- a/tools/bootconfig/scripts/ftrace2bconf.sh
++++ b/tools/bootconfig/scripts/ftrace2bconf.sh
+@@ -93,7 +93,7 @@ referred_vars() {
  }
  
+ event_is_enabled() { # enable-file
+-	test -f $1 & grep -q "1" $1
++	test -f $1 && grep -q "1" $1
+ }
+ 
+ per_event_options() { # event-dir
 
 
