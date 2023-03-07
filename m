@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E294A6AEEE3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF2FA6AEA61
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229801AbjCGSRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:17:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38672 "EHLO
+        id S231705AbjCGRdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:33:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232593AbjCGSR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB69BA80FC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:12:22 -0800 (PST)
+        with ESMTP id S231682AbjCGRcu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3517C8482A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 666506152F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F2EC433D2;
-        Tue,  7 Mar 2023 18:12:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C13C86150C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5CACC433EF;
+        Tue,  7 Mar 2023 17:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212741;
-        bh=UKj/Yz1lvupNizeVrO4etaeCaHmugzEYepmlLeh6XJg=;
+        s=korg; t=1678210112;
+        bh=bPidgu5Mn4F6JXnlGpJzBju1CCgh/IdAdrSNXD8Kpa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PfOMFP4QSLjMH4ZoiJa1TgAztq72rToKvrHSvSaveQY3PN5kGGjGLQoQbameng65s
-         aBSo7lBD6u2yX7kFcFytpWN+SkhLXb/yOHgu8NRAvqOECIPcM6jdcHbdP3mHD0dnIB
-         RDjD5BWsSDjYbA9ncRBDDHNPLDIOJlmS/BMljx54=
+        b=sQAKcUadP+GqM0QwrABiOWcA8LvMEQW6gnm/We73nfTYvLzrwWD/VYxXq6LHVpEgk
+         O6y2qx5Wci/Xa/SLIG7pAmrJ3k42FDXpyVqxZ626dMo/1uvrd3oVTlELjLon116usX
+         zhQ2y3NEO9hpsda3Fy8XXtanBkf54WublNjZsp0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Olga Kornievskaia <aglo@umich.edu>,
+        NeilBrown <neilb@suse.de>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 275/885] hwmon: (ftsteutates) Fix scaling of measurements
+Subject: [PATCH 6.2 0437/1001] NFS: fix disabling of swap
 Date:   Tue,  7 Mar 2023 17:53:29 +0100
-Message-Id: <20230307170013.954308141@linuxfoundation.org>
+Message-Id: <20230307170040.319549230@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,122 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit ca8fd8c16a8b77dfcf7f6ce52d2c863220693a78 ]
+[ Upstream commit 5bab56fff53ce161ed859d9559a10361d4f79578 ]
 
-A user complained that the ftsteutates driver was displaying
-bogus values since its introduction. This happens because the
-sensor measurements need to be scaled in order to produce
-meaningful results:
-- the fan speed needs to be multiplied by 60 since its in RPS
-- the temperature is in degrees celsius and needs an offset of 64
-- the voltage is in 1/256 of 3.3V
+When swap is activated to a file on an NFSv4 mount we arrange that the
+state manager thread is always present as starting a new thread requires
+memory allocations that might block waiting for swap.
 
-The offical datasheet says the voltage needs to be divided by 256,
-but this is likely an off-by-one-error, since even the BIOS
-devides by 255 (otherwise 3.3V could not be measured).
+Unfortunately the code for allowing the state manager thread to exit when
+swap is disabled was not tested properly and does not work.
+This can be seen by examining /proc/fs/nfsfs/servers after disabling swap
+and unmounting the filesystem.  The servers file will still list one
+entry.  Also a "ps" listing will show the state manager thread is still
+present.
 
-The voltage channels additionally need a board-specific multiplier,
-however this can be done by the driver since its board-specific.
+There are two problems.
+ 1/ rpc_clnt_swap_deactivate() doesn't walk up the ->cl_parent list to
+    find the primary client on which the state manager runs.
 
-The reason the missing scaling of measurements is the way Fujitsu
-used this driver when it was still out-of-tree. Back then, all
-scaling was done in userspace by libsensors, even the generic one.
+ 2/ The thread is not woken up properly and it immediately goes back to
+    sleep without checking whether it is really needed.  Using
+    nfs4_schedule_state_manager() ensures a proper wake-up.
 
-Tested on a Fujitsu DS3401-B1.
-
-Fixes: 08426eda58e0 ("hwmon: Add driver for FTS BMC chip "Teutates"")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20221224041855.83981-2-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reported-by: Olga Kornievskaia <aglo@umich.edu>
+Fixes: 4dc73c679114 ("NFSv4: keep state manager thread active if swap is enabled")
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/hwmon/ftsteutates.rst |  4 ++++
- drivers/hwmon/ftsteutates.c         | 19 +++++++++++++------
- 2 files changed, 17 insertions(+), 6 deletions(-)
+ fs/nfs/nfs4proc.c | 4 +++-
+ net/sunrpc/clnt.c | 2 ++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/hwmon/ftsteutates.rst b/Documentation/hwmon/ftsteutates.rst
-index 58a2483d8d0da..198fa8e2819da 100644
---- a/Documentation/hwmon/ftsteutates.rst
-+++ b/Documentation/hwmon/ftsteutates.rst
-@@ -22,6 +22,10 @@ enhancements. It can monitor up to 4 voltages, 16 temperatures and
- 8 fans. It also contains an integrated watchdog which is currently
- implemented in this driver.
- 
-+The 4 voltages require a board-specific multiplier, since the BMC can
-+only measure voltages up to 3.3V and thus relies on voltage dividers.
-+Consult your motherboard manual for details.
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 40d749f29ed3f..4214286e01450 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -10604,7 +10604,9 @@ static void nfs4_disable_swap(struct inode *inode)
+ 	/* The state manager thread will now exit once it is
+ 	 * woken.
+ 	 */
+-	wake_up_var(&NFS_SERVER(inode)->nfs_client->cl_state);
++	struct nfs_client *clp = NFS_SERVER(inode)->nfs_client;
 +
- To clear a temperature or fan alarm, execute the following command with the
- correct path to the alarm file::
- 
-diff --git a/drivers/hwmon/ftsteutates.c b/drivers/hwmon/ftsteutates.c
-index f5b8e724a8ca1..ffa0bb3648775 100644
---- a/drivers/hwmon/ftsteutates.c
-+++ b/drivers/hwmon/ftsteutates.c
-@@ -12,6 +12,7 @@
- #include <linux/i2c.h>
- #include <linux/init.h>
- #include <linux/jiffies.h>
-+#include <linux/math.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
- #include <linux/slab.h>
-@@ -347,13 +348,15 @@ static ssize_t in_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->volt[index]);
-+	value = DIV_ROUND_CLOSEST(data->volt[index] * 3300, 255);
-+
-+	return sprintf(buf, "%d\n", value);
++	nfs4_schedule_state_manager(clp);
  }
  
- static ssize_t temp_value_show(struct device *dev,
-@@ -361,13 +364,15 @@ static ssize_t temp_value_show(struct device *dev,
+ static const struct inode_operations nfs4_dir_inode_operations = {
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 0b0b9f1eed469..fd7e1c630493e 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -3350,6 +3350,8 @@ rpc_clnt_swap_deactivate_callback(struct rpc_clnt *clnt,
+ void
+ rpc_clnt_swap_deactivate(struct rpc_clnt *clnt)
  {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->temp_input[index]);
-+	value = (data->temp_input[index] - 64) * 1000;
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t temp_fault_show(struct device *dev,
-@@ -436,13 +441,15 @@ static ssize_t fan_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->fan_input[index]);
-+	value = data->fan_input[index] * 60;
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t fan_source_show(struct device *dev,
++	while (clnt != clnt->cl_parent)
++		clnt = clnt->cl_parent;
+ 	if (atomic_dec_if_positive(&clnt->cl_swapper) == 0)
+ 		rpc_clnt_iterate_for_each_xprt(clnt,
+ 				rpc_clnt_swap_deactivate_callback, NULL);
 -- 
 2.39.2
 
