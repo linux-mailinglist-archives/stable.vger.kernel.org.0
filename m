@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC25F6AECE0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:58:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB4E6AECE2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:59:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbjCGR6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:58:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57690 "EHLO
+        id S230422AbjCGR7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:59:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229676AbjCGR63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:58:29 -0500
+        with ESMTP id S230056AbjCGR6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:58:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2B15271
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:52:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF9686B9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:52:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2394A61526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:52:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A1D8C433D2;
-        Tue,  7 Mar 2023 17:52:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E0CF61469
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:52:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA63C433EF;
+        Tue,  7 Mar 2023 17:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211573;
-        bh=LJhnb9MBHdPu93ufgQtRq6eOAG5j3TVbHLI/pJGV3qE=;
+        s=korg; t=1678211576;
+        bh=T6mTpMVzcnfdsX/jVA0WmAs8XLAYTQOOl3CAuaVSy+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdXZGMXqnNnEGCeNGb+/eThU+SGQE0VKAR+tLWo2Ii/A8jLh2gWql8M3lk7i3BuWm
-         L8ctsSaHDTxwBnwbpCOH3IEQyEJuQ4RLGmWQpwCDr0HAHAvAphCkTiM4z/9EIrOHpT
-         z5P09fG8/Wq8zkIZFk2cxJUoN4tQRNt0VdXfFuoU=
+        b=FX3QhjPK9xmq3OWFSHV4dyOsARSEwQuJyK+v71wI3DMhbi6uqUn3D78t8NocnJsar
+         f/3nhkk4UeyUt/gkWE4GrhMT9drOE3CcCr4CDv5ANViK6+WVcKd9OUh+3v/NAD7Az5
+         Ti6xVk+JlY9sc7JcgIcYYmF2au6ZjGQZjBpAMBOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yohan Prodhomme <kernel@zoddo.fr>,
-        Marc Bornand <dev.mbornand@systemb.ch>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 6.2 0907/1001] wifi: cfg80211: Set SSID if it is not already set
-Date:   Tue,  7 Mar 2023 18:01:19 +0100
-Message-Id: <20230307170101.384125107@linuxfoundation.org>
+        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thierry Reding <treding@nvidia.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.2 0908/1001] cpuidle: add ARCH_SUSPEND_POSSIBLE dependencies
+Date:   Tue,  7 Mar 2023 18:01:20 +0100
+Message-Id: <20230307170101.434304055@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -54,62 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Bornand <dev.mbornand@systemb.ch>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit c38c701851011c94ce3be1ccb3593678d2933fd8 upstream.
+commit 7787943a3a8ade6594a68db28c166adbb1d3708c upstream.
 
-When a connection was established without going through
-NL80211_CMD_CONNECT, the ssid was never set in the wireless_dev struct.
-Now we set it in __cfg80211_connect_result() when it is not already set.
+Some ARMv4 processors don't support suspend, which leads
+to a build failure with the tegra and qualcomm cpuidle driver:
 
-When using a userspace configuration that does not call
-cfg80211_connect() (can be checked with breakpoints in the kernel),
-this patch should allow `networkctl status device_name` to output the
-SSID instead of null.
+WARNING: unmet direct dependencies detected for ARM_CPU_SUSPEND
+  Depends on [n]: ARCH_SUSPEND_POSSIBLE [=n]
+  Selected by [y]:
+  - ARM_TEGRA_CPUIDLE [=y] && CPU_IDLE [=y] && (ARM [=y] || ARM64) && (ARCH_TEGRA [=n] || COMPILE_TEST [=y]) && !ARM64 && MMU [=y]
 
-Cc: stable@vger.kernel.org
-Reported-by: Yohan Prod'homme <kernel@zoddo.fr>
-Fixes: 7b0a0e3c3a88 (wifi: cfg80211: do some rework towards MLO link APIs)
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216711
-Signed-off-by: Marc Bornand <dev.mbornand@systemb.ch>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+arch/arm/kernel/sleep.o: in function `__cpu_suspend':
+(.text+0x68): undefined reference to `cpu_sa110_suspend_size'
+(.text+0x68): undefined reference to `cpu_fa526_suspend_size'
+
+Add an explicit dependency to make randconfig builds avoid
+this combination.
+
+Fixes: faae6c9f2e68 ("cpuidle: tegra: Enable compile testing")
+Fixes: a871be6b8eee ("cpuidle: Convert Qualcomm SPM driver to a generic CPUidle driver")
+Link: https://lore.kernel.org/all/20211013160125.772873-1-arnd@kernel.org/
+Cc: All applicable <stable@vger.kernel.org>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/sme.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/cpuidle/Kconfig.arm |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -736,6 +736,7 @@ void __cfg80211_connect_result(struct ne
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
- 	const struct element *country_elem = NULL;
-+	const struct element *ssid;
- 	const u8 *country_data;
- 	u8 country_datalen;
- #ifdef CONFIG_CFG80211_WEXT
-@@ -895,6 +896,22 @@ void __cfg80211_connect_result(struct ne
- 				   country_data, country_datalen);
- 	kfree(country_data);
- 
-+	if (!wdev->u.client.ssid_len) {
-+		rcu_read_lock();
-+		for_each_valid_link(cr, link) {
-+			ssid = ieee80211_bss_get_elem(cr->links[link].bss,
-+						      WLAN_EID_SSID);
-+
-+			if (!ssid || !ssid->datalen)
-+				continue;
-+
-+			memcpy(wdev->u.client.ssid, ssid->data, ssid->datalen);
-+			wdev->u.client.ssid_len = ssid->datalen;
-+			break;
-+		}
-+		rcu_read_unlock();
-+	}
-+
- 	return;
- out:
- 	for_each_valid_link(cr, link)
+--- a/drivers/cpuidle/Kconfig.arm
++++ b/drivers/cpuidle/Kconfig.arm
+@@ -102,6 +102,7 @@ config ARM_MVEBU_V7_CPUIDLE
+ config ARM_TEGRA_CPUIDLE
+ 	bool "CPU Idle Driver for NVIDIA Tegra SoCs"
+ 	depends on (ARCH_TEGRA || COMPILE_TEST) && !ARM64 && MMU
++	depends on ARCH_SUSPEND_POSSIBLE
+ 	select ARCH_NEEDS_CPU_IDLE_COUPLED if SMP
+ 	select ARM_CPU_SUSPEND
+ 	help
+@@ -110,6 +111,7 @@ config ARM_TEGRA_CPUIDLE
+ config ARM_QCOM_SPM_CPUIDLE
+ 	bool "CPU Idle Driver for Qualcomm Subsystem Power Manager (SPM)"
+ 	depends on (ARCH_QCOM || COMPILE_TEST) && !ARM64 && MMU
++	depends on ARCH_SUSPEND_POSSIBLE
+ 	select ARM_CPU_SUSPEND
+ 	select CPU_IDLE_MULTIPLE_DRIVERS
+ 	select DT_IDLE_STATES
 
 
