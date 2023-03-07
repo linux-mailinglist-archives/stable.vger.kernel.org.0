@@ -2,65 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D4B6AE5E1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9F16AE5E6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:07:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230023AbjCGQGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:06:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52334 "EHLO
+        id S230513AbjCGQHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:07:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229932AbjCGQFz (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 7 Mar 2023 11:05:55 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A895E8C975
-        for <Stable@vger.kernel.org>; Tue,  7 Mar 2023 08:03:50 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id u5so14584423plq.7
-        for <Stable@vger.kernel.org>; Tue, 07 Mar 2023 08:03:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1678205030;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=G7hLcya3bsLv//yf0JprtSrDFewhrMQT5YQLYtI/Y+8=;
-        b=HhlJAwr8DqmGWUQSQKG77Mn/Gh6yYYR1j2fGKcMErDoLU/2WO4w78tvQGmo8qzz+Bd
-         z+vLe76wWlESF6KvD5zv8SeC+NAvZI2OhNtVa9jLuWq4nDxOG0mZ08GuWIQ40j0ve47d
-         wCNyjXMH15KF/Lpl90NsfZWOhDLQT55jBjeZV/k5txBnAGDsY8KeEu55sl6W4ZjYnJzp
-         PJilrxuNUwsZ1en+/W/K3Dx1Nuza0C8iW4/1LFjiIRH4BesAKN2JMUmORh0abKLxfa8O
-         9FUU+5gIIQldomfJ4kYWMctWkgmHx1rBLoa3jLT643ykt0S5GIx5oKwqmS3Exzn5j4tf
-         xmag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678205030;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=G7hLcya3bsLv//yf0JprtSrDFewhrMQT5YQLYtI/Y+8=;
-        b=cCkvpKaCCg93s72Y1JCIOTY2g5GCDC92sPH7xFTT/6LRDywqhZwAjn16hHoMXdpMSj
-         P9YSUsAQL9IZbZP7IdZpXxIEKhagi/X+fVBjlyfjgRq/X2zmjaqUMg75I8GyC14NWmPm
-         F/H0TSZnphrkTu8PavhPUslPNu5i90fuIdeS9jlVtiNMKnCzaJr1AYNSoUEYi5MpD9y8
-         a97mkIqihcxIwMsxBw6mGIAxqR83IY7qQ0Wko3XIBgMCQlL5J4pyDpC/kFmCj4hki5jC
-         BfVHCcLfg5wBGPfBW29e1jZoRLh0vt16W5vXrW87NLqi0qI3xzh4KZUM5EtGucLwiVEb
-         mbTw==
-X-Gm-Message-State: AO0yUKWesdvaBr7yn78wiOKqQhCBV5VrSYsj/yCJRzAKPcWue7jxSS0N
-        S8L+XcR9MRgi+ax0RxAVQImgWA==
-X-Google-Smtp-Source: AK7set8Q11G93VM5gWqdl9WiAdklDxZlW9kQBcrDhnVNMiGKZchmSzF3+ndLqHk5ffFXVnShE9uXAA==
-X-Received: by 2002:a05:6a20:8e0a:b0:c7:af88:3c8f with SMTP id y10-20020a056a208e0a00b000c7af883c8fmr19601953pzj.25.1678205030119;
-        Tue, 07 Mar 2023 08:03:50 -0800 (PST)
-Received: from GL4FX4PXWL.bytedance.net ([139.177.225.254])
-        by smtp.gmail.com with ESMTPSA id m3-20020a635803000000b00502fdc69b97sm7900009pgb.67.2023.03.07.08.03.46
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 07 Mar 2023 08:03:49 -0800 (PST)
-From:   Peng Zhang <zhangpeng.00@bytedance.com>
-To:     Liam.Howlett@oracle.com, snild@sony.com
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        maple-tree@lists.infradead.org, Stable@vger.kernel.org,
-        Peng Zhang <zhangpeng.00@bytedance.com>
-Subject: [PATCH] maple_tree: Fix the error of mas->min/max in mas_skip_node()
-Date:   Wed,  8 Mar 2023 00:03:40 +0800
-Message-Id: <20230307160340.57074-1-zhangpeng.00@bytedance.com>
-X-Mailer: git-send-email 2.37.0 (Apple Git-136)
+        with ESMTP id S230191AbjCGQGu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:06:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB5F50738
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:05:01 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B1F061460
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:05:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF4BC433EF;
+        Tue,  7 Mar 2023 16:04:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1678205100;
+        bh=7eRhLGuNQoOxkvx68hDOlLBDgGa6lwsg1pBKSq+oNQg=;
+        h=Subject:To:Cc:From:Date:From;
+        b=guqZc/5UEjmn8BS2pixI1gWYAYYgMgT0cbdbIHlEvKuh5pORBR0InCFOT6c8XTzrj
+         N0lGHF2R3RKI/iSB13e38QRTuNm3rwHb/04JtCaZ/t44kohDEI4LjNKiZS6kYVE8+6
+         AC7m+kpuSe7Kzf/bwS74qtN5waTvuGDccXGiVhk8=
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix PASID directory pointer coherency" failed to apply to 5.4-stable tree
+To:     jacob.jun.pan@linux.intel.com, ashok.raj@intel.com,
+        baolu.lu@linux.intel.com, jroedel@suse.de, kevin.tian@intel.com,
+        stable@vger.kernel.org, sukumar.ghorai@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 07 Mar 2023 17:04:52 +0100
+Message-ID: <167820509210430@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -69,45 +49,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The assignment of mas->min and mas->max is wrong. mas->min and mas->max
-should represent the range of the current node. After mas_ascend()
-returns, mas-min and mas->max already represent the range of the current
-node, so we should delete these assignments of mas->min and mas->max.
 
-Signed-off-by: Peng Zhang <zhangpeng.00@bytedance.com>
----
- lib/maple_tree.c | 10 ----------
- 1 file changed, 10 deletions(-)
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-diff --git a/lib/maple_tree.c b/lib/maple_tree.c
-index f5bee48de569..d4ddf7f8adc7 100644
---- a/lib/maple_tree.c
-+++ b/lib/maple_tree.c
-@@ -5157,9 +5157,6 @@ static inline bool mas_rewind_node(struct ma_state *mas)
-  */
- static inline bool mas_skip_node(struct ma_state *mas)
- {
--	unsigned long *pivots;
--	enum maple_type mt;
--
- 	if (mas_is_err(mas))
- 		return false;
+To reproduce the conflict and resubmit, you may use the following commands:
+
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git checkout FETCH_HEAD
+git cherry-pick -x 194b3348bdbb7db65375c72f3f774aee4cc6614e
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820509210430@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+
+Possible dependencies:
+
+194b3348bdbb ("iommu/vt-d: Fix PASID directory pointer coherency")
+803766cbf85f ("iommu/vt-d: Fix lockdep splat in intel_pasid_get_entry()")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 194b3348bdbb7db65375c72f3f774aee4cc6614e Mon Sep 17 00:00:00 2001
+From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Date: Thu, 16 Feb 2023 21:08:15 +0800
+Subject: [PATCH] iommu/vt-d: Fix PASID directory pointer coherency
+
+On platforms that do not support IOMMU Extended capability bit 0
+Page-walk Coherency, CPU caches are not snooped when IOMMU is accessing
+any translation structures. IOMMU access goes only directly to
+memory. Intel IOMMU code was missing a flush for the PASID table
+directory that resulted in the unrecoverable fault as shown below.
+
+This patch adds clflush calls whenever allocating and updating
+a PASID table directory to ensure cache coherency.
+
+On the reverse direction, there's no need to clflush the PASID directory
+pointer when we deactivate a context entry in that IOMMU hardware will
+not see the old PASID directory pointer after we clear the context entry.
+PASID directory entries are also never freed once allocated.
+
+ DMAR: DRHD: handling fault status reg 3
+ DMAR: [DMA Read NO_PASID] Request device [00:0d.2] fault addr 0x1026a4000
+       [fault reason 0x51] SM: Present bit in Directory Entry is clear
+ DMAR: Dump dmar1 table entries for IOVA 0x1026a4000
+ DMAR: scalable mode root entry: hi 0x0000000102448001, low 0x0000000101b3e001
+ DMAR: context entry: hi 0x0000000000000000, low 0x0000000101b4d401
+ DMAR: pasid dir entry: 0x0000000101b4e001
+ DMAR: pasid table entry[0]: 0x0000000000000109
+ DMAR: pasid table entry[1]: 0x0000000000000001
+ DMAR: pasid table entry[2]: 0x0000000000000000
+ DMAR: pasid table entry[3]: 0x0000000000000000
+ DMAR: pasid table entry[4]: 0x0000000000000000
+ DMAR: pasid table entry[5]: 0x0000000000000000
+ DMAR: pasid table entry[6]: 0x0000000000000000
+ DMAR: pasid table entry[7]: 0x0000000000000000
+ DMAR: PTE not present at level 4
+
+Cc: <stable@vger.kernel.org>
+Fixes: 0bbeb01a4faf ("iommu/vt-d: Manage scalalble mode PASID tables")
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reported-by: Sukumar Ghorai <sukumar.ghorai@intel.com>
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Link: https://lore.kernel.org/r/20230209212843.1788125-1-jacob.jun.pan@linux.intel.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+
+diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
+index ec964ac7d797..9d2f05cf6164 100644
+--- a/drivers/iommu/intel/pasid.c
++++ b/drivers/iommu/intel/pasid.c
+@@ -128,6 +128,9 @@ int intel_pasid_alloc_table(struct device *dev)
+ 	pasid_table->max_pasid = 1 << (order + PAGE_SHIFT + 3);
+ 	info->pasid_table = pasid_table;
  
-@@ -5173,14 +5170,7 @@ static inline bool mas_skip_node(struct ma_state *mas)
- 			mas_ascend(mas);
- 		}
- 	} while (mas->offset >= mas_data_end(mas));
--
--	mt = mte_node_type(mas->node);
--	pivots = ma_pivots(mas_mn(mas), mt);
--	mas->min = pivots[mas->offset] + 1;
- 	mas->offset++;
--	if (mas->offset < mt_slots[mt])
--		mas->max = pivots[mas->offset];
--
- 	return true;
++	if (!ecap_coherent(info->iommu->ecap))
++		clflush_cache_range(pasid_table->table, size);
++
+ 	return 0;
  }
  
--- 
-2.20.1
+@@ -215,6 +218,10 @@ static struct pasid_entry *intel_pasid_get_entry(struct device *dev, u32 pasid)
+ 			free_pgtable_page(entries);
+ 			goto retry;
+ 		}
++		if (!ecap_coherent(info->iommu->ecap)) {
++			clflush_cache_range(entries, VTD_PAGE_SIZE);
++			clflush_cache_range(&dir[dir_index].val, sizeof(*dir));
++		}
+ 	}
+ 
+ 	return &entries[index];
 
