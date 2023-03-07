@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 326356AE907
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:20:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 514206AEDCB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbjCGRU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:20:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41620 "EHLO
+        id S232172AbjCGSHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:07:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231465AbjCGRUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:20:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAF6194395
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:15:24 -0800 (PST)
+        with ESMTP id S232274AbjCGSHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBEAFACE3D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:00:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 515EAB819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D80C4339B;
-        Tue,  7 Mar 2023 17:15:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 786CC6150B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C636C4339B;
+        Tue,  7 Mar 2023 18:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209322;
-        bh=uw+d/MGSWEKxdDrXow9nFnZ5jR24MWhjnbMpVFslErw=;
+        s=korg; t=1678212017;
+        bh=Ti9D8/N2bvprk1D2kU2ST7isFhuvl0uOeemMqS7HW0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ib1iaaoDMV6f4tFKiXnAl0D74DqET3EHwPjE9uaCFkn09xwg2KPfbOx7UV9X9UB5y
-         +2VuM51RgHIm1oNQAKpYb1Uu7L7SC7JpBfX3oB+W1wiDisigCQq+IE6uX6lKElJ/v9
-         F5vHiizrct74AEkzZQAK9h79tiURYzZ3nuX0AtuE=
+        b=SCCBQZZHSs8R5SdNlys31R1BYDrH1R+xS5N8HXkkZRgP9zr6KOC2rsnNYCPkjLmQf
+         hcYHXcXk07nbFtRd/mwZpZM70DVoSNv8SSXwrf/ONbDf4EKFA30grd/29obq9pgoNJ
+         VbyVeBVVq+s/pcWJCmD2bYa+3FEtGYmzff0L3Mms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Leo Duran <leo.duran@amd.com>,
+        Kishon Vijay Abraham I <kvijayab@amd.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0181/1001] lib/mpi: Fix buffer overrun when SG is too long
-Date:   Tue,  7 Mar 2023 17:49:13 +0100
-Message-Id: <20230307170029.766186632@linuxfoundation.org>
+Subject: [PATCH 6.1 020/885] x86/acpi/boot: Do not register processors that cannot be onlined for x2APIC
+Date:   Tue,  7 Mar 2023 17:49:14 +0100
+Message-Id: <20230307170002.516902305@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +57,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Kishon Vijay Abraham I <kvijayab@amd.com>
 
-[ Upstream commit 7361d1bc307b926cbca214ab67b641123c2d6357 ]
+[ Upstream commit e2869bd7af608c343988429ceb1c2fe99644a01f ]
 
-The helper mpi_read_raw_from_sgl sets the number of entries in
-the SG list according to nbytes.  However, if the last entry
-in the SG list contains more data than nbytes, then it may overrun
-the buffer because it only allocates enough memory for nbytes.
+Section 5.2.12.12 Processor Local x2APIC Structure in the ACPI v6.5
+spec mandates that both "enabled" and "online capable" Local APIC Flags
+should be used to determine if the processor is usable or not.
 
-Fixes: 2d4d1eea540b ("lib/mpi: Add mpi sgl helpers")
-Reported-by: Roberto Sassu <roberto.sassu@huaweicloud.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+However, Linux doesn't use the "online capable" flag for x2APIC to
+determine if the processor is usable. As a result, cpu_possible_mask has
+incorrect value and results in more memory getting allocated for per_cpu
+variables than it is going to be used.
+
+Make sure Linux parses both "enabled" and "online capable" flags for
+x2APIC to correctly determine if the processor is usable.
+
+Fixes: aa06e20f1be6 ("x86/ACPI: Don't add CPUs that are not online capable")
+Reported-by: Leo Duran <leo.duran@amd.com>
+Signed-off-by: Kishon Vijay Abraham I <kvijayab@amd.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Zhang Rui <rui.zhang@intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20230105041059.39366-1-kvijayab@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/mpicoder.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/acpi/boot.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/lib/mpi/mpicoder.c b/lib/mpi/mpicoder.c
-index 39c4c67310946..3cb6bd148fa9e 100644
---- a/lib/mpi/mpicoder.c
-+++ b/lib/mpi/mpicoder.c
-@@ -504,7 +504,8 @@ MPI mpi_read_raw_from_sgl(struct scatterlist *sgl, unsigned int nbytes)
+diff --git a/arch/x86/kernel/acpi/boot.c b/arch/x86/kernel/acpi/boot.c
+index 907cc98b19380..518bda50068cb 100644
+--- a/arch/x86/kernel/acpi/boot.c
++++ b/arch/x86/kernel/acpi/boot.c
+@@ -188,6 +188,17 @@ static int acpi_register_lapic(int id, u32 acpiid, u8 enabled)
+ 	return cpu;
+ }
  
- 	while (sg_miter_next(&miter)) {
- 		buff = miter.addr;
--		len = miter.length;
-+		len = min_t(unsigned, miter.length, nbytes);
-+		nbytes -= len;
++static bool __init acpi_is_processor_usable(u32 lapic_flags)
++{
++	if (lapic_flags & ACPI_MADT_ENABLED)
++		return true;
++
++	if (acpi_support_online_capable && (lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
++		return true;
++
++	return false;
++}
++
+ static int __init
+ acpi_parse_x2apic(union acpi_subtable_headers *header, const unsigned long end)
+ {
+@@ -212,6 +223,10 @@ acpi_parse_x2apic(union acpi_subtable_headers *header, const unsigned long end)
+ 	if (apic_id == 0xffffffff)
+ 		return 0;
  
- 		for (x = 0; x < len; x++) {
- 			a <<= 8;
++	/* don't register processors that cannot be onlined */
++	if (!acpi_is_processor_usable(processor->lapic_flags))
++		return 0;
++
+ 	/*
+ 	 * We need to register disabled CPU as well to permit
+ 	 * counting disabled CPUs. This allows us to size
+@@ -250,9 +265,7 @@ acpi_parse_lapic(union acpi_subtable_headers * header, const unsigned long end)
+ 		return 0;
+ 
+ 	/* don't register processors that can not be onlined */
+-	if (acpi_support_online_capable &&
+-	    !(processor->lapic_flags & ACPI_MADT_ENABLED) &&
+-	    !(processor->lapic_flags & ACPI_MADT_ONLINE_CAPABLE))
++	if (!acpi_is_processor_usable(processor->lapic_flags))
+ 		return 0;
+ 
+ 	/*
 -- 
 2.39.2
 
