@@ -2,56 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 624FC6AEA92
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E657B6AEF17
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:20:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231654AbjCGRfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:35:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32940 "EHLO
+        id S232692AbjCGSUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:20:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbjCGReo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50EF19BA42
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:30:48 -0800 (PST)
+        with ESMTP id S232740AbjCGSUD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:20:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 182DE9EF7E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:14:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8305B81995
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:30:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F379DC433D2;
-        Tue,  7 Mar 2023 17:30:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BFC96B819BF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:14:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19AA3C433D2;
+        Tue,  7 Mar 2023 18:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210245;
-        bh=SibYQp57NS7jPG0XJfh0C067YW6BJeRZPyxGP2VFcxM=;
+        s=korg; t=1678212848;
+        bh=DbmkFlrYXDWkA1P3Od1DXFjecArkgcfctzDdE0X/Rak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOAskOO3pfYyR7f0zS/FVjZRKwusQPj2JGa8+Ru1uhAAGD1la4Bn1LzXMU82rE7VH
-         8n7OBapIcUBzMh6jb9TjEe0HnVXCk4LfOHiNM8jkziiMWUUmXjGctZyj4BwzhF6yHi
-         yJbkec5aGsNDayFqMUuKWy058VItnGieGbhc5Hqc=
+        b=Cyg/4FaVAh84aU7XuBv6xFQDwHxDB3PHuHd3/Wd/rFQFRrRTZiW6WNISzIDLBMcMF
+         SrCMIfFkE8T809yDtXUQQ5Cb9pkiNVw87CF3rRqS38LUd1hkixxvwpf144g4wvNSZJ
+         ZeLeOJJwwauHJppMB3N+KQd8K9tFihxCdpw+IEvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ian Rogers <irogers@google.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Kajol Jain <kjain@linux.ibm.com>,
-        Disha Goel <disgoel@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Guodong Liu <Guodong.Liu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0479/1001] perf tests stat_all_metrics: Change true workload to sleep workload for system wide check
+Subject: [PATCH 6.1 317/885] pinctrl: mediatek: Initialize variable *buf to zero
 Date:   Tue,  7 Mar 2023 17:54:11 +0100
-Message-Id: <20230307170042.194193521@linuxfoundation.org>
+Message-Id: <20230307170015.923678208@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -60,79 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Guodong Liu <Guodong.Liu@mediatek.com>
 
-[ Upstream commit f9fa0778ee7349a9aa3d2ea10e9f2ab843a0b44e ]
+[ Upstream commit 2e34f82ba214134ecf590fbe0cdbd87401645a8a ]
 
-Testcase stat_all_metrics.sh fails in powerpc:
+Coverity spotted that *buf is not initialized to zero in
+mtk_pctrl_dbg_show. Using uninitialized variable *buf as argument to %s
+when calling seq_printf. Fix this coverity by initializing *buf as zero.
 
-98: perf all metrics test : FAILED!
-
-Logs with verbose:
-
-  [command]# ./perf test 98 -vv
-   98: perf all metrics test                                           :
-   --- start ---
-  test child forked, pid 13262
-  Testing BRU_STALL_CPI
-  Testing COMPLETION_STALL_CPI
-   ----
-  Testing TOTAL_LOCAL_NODE_PUMPS_P23
-  Metric 'TOTAL_LOCAL_NODE_PUMPS_P23' not printed in:
-  Error:
-  Invalid event (hv_24x7/PM_PB_LNS_PUMP23,chip=3/) in per-thread mode, enable system wide with '-a'.
-  Testing TOTAL_LOCAL_NODE_PUMPS_RETRIES_P01
-  Metric 'TOTAL_LOCAL_NODE_PUMPS_RETRIES_P01' not printed in:
-  Error:
-  Invalid event (hv_24x7/PM_PB_RTY_LNS_PUMP01,chip=3/) in per-thread mode, enable system wide with '-a'.
-   ----
-
-Based on above logs, we could see some of the hv-24x7 metric events
-fails, and logs suggest to run the metric event with -a option.  This
-change happened after the commit a4b8cfcabb1d90ec ("perf stat: Delay
-metric parsing"), which delayed the metric parsing phase and now before
-metric parsing phase perf tool identifies, whether target is system-wide
-or not. With this change, perf_event_open will fails with workload
-monitoring for uncore events as expected.
-
-The perf all metric test case fails as some of the hv-24x7 metric events
-may need bigger workload with system wide monitoring to get the data.
-Fix this issue by changing current system wide check from true workload
-to sleep 0.01 workload.
-
-Result with the patch changes in powerpc:
-
-  98: perf all metrics test : Ok
-
-Fixes: a4b8cfcabb1d90ec ("perf stat: Delay metric parsing")
-Suggested-by: Ian Rogers <irogers@google.com>
-Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Tested-by: Disha Goel <disgoel@linux.ibm.com>
-Tested-by: Ian Rogers <irogers@google.com>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Cc: linuxppc-dev@lists.ozlabs.org
-Link: https://lore.kernel.org/r/20230215093827.124921-1-kjain@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 184d8e13f9b1 ("pinctrl: mediatek: Add support for pin configuration dump via debugfs.")
+Signed-off-by: Guodong Liu <Guodong.Liu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20230118062036.26258-3-Guodong.Liu@mediatek.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/shell/stat_all_metrics.sh | 2 +-
+ drivers/pinctrl/mediatek/pinctrl-paris.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/tests/shell/stat_all_metrics.sh b/tools/perf/tests/shell/stat_all_metrics.sh
-index 6e79349e42bef..22e9cb294b40e 100755
---- a/tools/perf/tests/shell/stat_all_metrics.sh
-+++ b/tools/perf/tests/shell/stat_all_metrics.sh
-@@ -11,7 +11,7 @@ for m in $(perf list --raw-dump metrics); do
-     continue
-   fi
-   # Failed so try system wide.
--  result=$(perf stat -M "$m" -a true 2>&1)
-+  result=$(perf stat -M "$m" -a sleep 0.01 2>&1)
-   if [[ "$result" =~ "${m:0:50}" ]]
-   then
-     continue
+diff --git a/drivers/pinctrl/mediatek/pinctrl-paris.c b/drivers/pinctrl/mediatek/pinctrl-paris.c
+index 3b5c9352686db..ad873bd051b68 100644
+--- a/drivers/pinctrl/mediatek/pinctrl-paris.c
++++ b/drivers/pinctrl/mediatek/pinctrl-paris.c
+@@ -712,7 +712,7 @@ static void mtk_pctrl_dbg_show(struct pinctrl_dev *pctldev, struct seq_file *s,
+ 			  unsigned int gpio)
+ {
+ 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
+-	char buf[PIN_DBG_BUF_SZ];
++	char buf[PIN_DBG_BUF_SZ] = { 0 };
+ 
+ 	(void)mtk_pctrl_show_one_pin(hw, gpio, buf, PIN_DBG_BUF_SZ);
+ 
 -- 
 2.39.2
 
