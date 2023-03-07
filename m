@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 287016AEC5F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:54:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67AA26AF198
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230500AbjCGRyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:54:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45082 "EHLO
+        id S233151AbjCGSpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:45:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230466AbjCGRyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE46994F68;
-        Tue,  7 Mar 2023 09:49:07 -0800 (PST)
+        with ESMTP id S233161AbjCGSpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC812B789E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95DBA6150C;
-        Tue,  7 Mar 2023 17:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E30BC433D2;
-        Tue,  7 Mar 2023 17:49:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 23C4CCE1C83
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:34:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE3FFC433EF;
+        Tue,  7 Mar 2023 18:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211346;
-        bh=+M1gEsg3qEIv515pBeyxMHFtrxXp6A5XzXwfNBlR9Zo=;
+        s=korg; t=1678214043;
+        bh=0p3zJVyOxCxxCj0LSM8Xc3gIsYUNvegh7IgK/izqR0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayuyW1a4AeqVn0puUPO6lGfTmriye8wkvkSK/4ASJXZ2qIEmGn6HekvZQAG/7k6YZ
-         dIsNSaw+GpGqPPFFpU9VRkr2Ri2LjM9h6eisnnTRQ/zULEBCzRMUxPDKC6mow/Dy4m
-         EjN46CuHUGtZwbFDXrSfDRTAwAN6hT6+hlxfYGUg=
+        b=KkoR9399H3xVKdwcvMpa0hw0qwyNaCv3lBWmbM2V75cpGxGZn6oOm4ty8CBxWXtFP
+         OLCOOVrVV1zSroNmgIHaDq44KgIlEsAF8U62c0u9g7VIQPlWc5/flxlZQONAOjBFO7
+         u+WhLDgBDVZkFJS7A/tB7QkAxqoShDSXO9VLhG4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andy Nguyen <theflow@google.com>,
-        Thomas Lendacky <thomas.lendacky@amd.com>,
-        Peter Gonda <pgonda@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 6.2 0833/1001] KVM: SVM: Fix potential overflow in SEVs send|receive_update_data()
-Date:   Tue,  7 Mar 2023 18:00:05 +0100
-Message-Id: <20230307170057.940444308@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 672/885] cifs: fix mount on old smb servers
+Date:   Tue,  7 Mar 2023 18:00:06 +0100
+Message-Id: <20230307170031.347894275@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,65 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Gonda <pgonda@google.com>
+From: Paulo Alcantara <pc@manguebit.com>
 
-commit f94f053aa3a5d6ff17951870483d9eb9e13de2e2 upstream.
+commit d99e86ebde2d7b3a04190f8d14de5bf6814bf10f upstream.
 
-KVM_SEV_SEND_UPDATE_DATA and KVM_SEV_RECEIVE_UPDATE_DATA have an integer
-overflow issue. Params.guest_len and offset are both 32 bits wide, with a
-large params.guest_len the check to confirm a page boundary is not
-crossed can falsely pass:
+The client was sending rfc1002 session request packet with a wrong
+length field set, therefore failing to mount shares against old SMB
+servers over port 139.
 
-    /* Check if we are crossing the page boundary *
-    offset = params.guest_uaddr & (PAGE_SIZE - 1);
-    if ((params.guest_len + offset > PAGE_SIZE))
+Fix this by calculating the correct length as specified in rfc1002.
 
-Add an additional check to confirm that params.guest_len itself is not
-greater than PAGE_SIZE.
-
-Note, this isn't a security concern as overflow can happen if and only if
-params.guest_len is greater than 0xfffff000, and the FW spec says these
-commands fail with lengths greater than 16KB, i.e. the PSP will detect
-KVM's goof.
-
-Fixes: 15fb7de1a7f5 ("KVM: SVM: Add KVM_SEV_RECEIVE_UPDATE_DATA command")
-Fixes: d3d1af85e2c7 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
-Reported-by: Andy Nguyen <theflow@google.com>
-Suggested-by: Thomas Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Peter Gonda <pgonda@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>
-Cc: kvm@vger.kernel.org
+Fixes: d7173623bf0b ("cifs: use ALIGN() and round_up() macros")
 Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20230207171354.4012821-1-pgonda@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/sev.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/connect.c | 94 ++++++++++++++++++-----------------------------
+ 1 file changed, 35 insertions(+), 59 deletions(-)
 
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -1293,7 +1293,7 @@ static int sev_send_update_data(struct k
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index b2a04b4e89a5..af49ae53aaf4 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2843,72 +2843,48 @@ ip_rfc1001_connect(struct TCP_Server_Info *server)
+ 	 * negprot - BB check reconnection in case where second
+ 	 * sessinit is sent but no second negprot
+ 	 */
+-	struct rfc1002_session_packet *ses_init_buf;
+-	unsigned int req_noscope_len;
+-	struct smb_hdr *smb_buf;
++	struct rfc1002_session_packet req = {};
++	struct smb_hdr *smb_buf = (struct smb_hdr *)&req;
++	unsigned int len;
  
- 	/* Check if we are crossing the page boundary */
- 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
--	if ((params.guest_len + offset > PAGE_SIZE))
-+	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
- 		return -EINVAL;
+-	ses_init_buf = kzalloc(sizeof(struct rfc1002_session_packet),
+-			       GFP_KERNEL);
++	req.trailer.session_req.called_len = sizeof(req.trailer.session_req.called_name);
  
- 	/* Pin guest memory */
-@@ -1473,7 +1473,7 @@ static int sev_receive_update_data(struc
+-	if (ses_init_buf) {
+-		ses_init_buf->trailer.session_req.called_len = 32;
++	if (server->server_RFC1001_name[0] != 0)
++		rfc1002mangle(req.trailer.session_req.called_name,
++			      server->server_RFC1001_name,
++			      RFC1001_NAME_LEN_WITH_NULL);
++	else
++		rfc1002mangle(req.trailer.session_req.called_name,
++			      DEFAULT_CIFS_CALLED_NAME,
++			      RFC1001_NAME_LEN_WITH_NULL);
  
- 	/* Check if we are crossing the page boundary */
- 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
--	if ((params.guest_len + offset > PAGE_SIZE))
-+	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
- 		return -EINVAL;
+-		if (server->server_RFC1001_name[0] != 0)
+-			rfc1002mangle(ses_init_buf->trailer.
+-				      session_req.called_name,
+-				      server->server_RFC1001_name,
+-				      RFC1001_NAME_LEN_WITH_NULL);
+-		else
+-			rfc1002mangle(ses_init_buf->trailer.
+-				      session_req.called_name,
+-				      DEFAULT_CIFS_CALLED_NAME,
+-				      RFC1001_NAME_LEN_WITH_NULL);
++	req.trailer.session_req.calling_len = sizeof(req.trailer.session_req.calling_name);
  
- 	hdr = psp_copy_user_blob(params.hdr_uaddr, params.hdr_len);
+-		ses_init_buf->trailer.session_req.calling_len = 32;
++	/* calling name ends in null (byte 16) from old smb convention */
++	if (server->workstation_RFC1001_name[0] != 0)
++		rfc1002mangle(req.trailer.session_req.calling_name,
++			      server->workstation_RFC1001_name,
++			      RFC1001_NAME_LEN_WITH_NULL);
++	else
++		rfc1002mangle(req.trailer.session_req.calling_name,
++			      "LINUX_CIFS_CLNT",
++			      RFC1001_NAME_LEN_WITH_NULL);
+ 
+-		/*
+-		 * calling name ends in null (byte 16) from old smb
+-		 * convention.
+-		 */
+-		if (server->workstation_RFC1001_name[0] != 0)
+-			rfc1002mangle(ses_init_buf->trailer.
+-				      session_req.calling_name,
+-				      server->workstation_RFC1001_name,
+-				      RFC1001_NAME_LEN_WITH_NULL);
+-		else
+-			rfc1002mangle(ses_init_buf->trailer.
+-				      session_req.calling_name,
+-				      "LINUX_CIFS_CLNT",
+-				      RFC1001_NAME_LEN_WITH_NULL);
+-
+-		ses_init_buf->trailer.session_req.scope1 = 0;
+-		ses_init_buf->trailer.session_req.scope2 = 0;
+-		smb_buf = (struct smb_hdr *)ses_init_buf;
+-
+-		/* sizeof RFC1002_SESSION_REQUEST with no scopes */
+-		req_noscope_len = sizeof(struct rfc1002_session_packet) - 2;
+-
+-		/* == cpu_to_be32(0x81000044) */
+-		smb_buf->smb_buf_length =
+-			cpu_to_be32((RFC1002_SESSION_REQUEST << 24) | req_noscope_len);
+-		rc = smb_send(server, smb_buf, 0x44);
+-		kfree(ses_init_buf);
+-		/*
+-		 * RFC1001 layer in at least one server
+-		 * requires very short break before negprot
+-		 * presumably because not expecting negprot
+-		 * to follow so fast.  This is a simple
+-		 * solution that works without
+-		 * complicating the code and causes no
+-		 * significant slowing down on mount
+-		 * for everyone else
+-		 */
+-		usleep_range(1000, 2000);
+-	}
+ 	/*
+-	 * else the negprot may still work without this
+-	 * even though malloc failed
++	 * As per rfc1002, @len must be the number of bytes that follows the
++	 * length field of a rfc1002 session request payload.
++	 */
++	len = sizeof(req) - offsetof(struct rfc1002_session_packet, trailer.session_req);
++
++	smb_buf->smb_buf_length = cpu_to_be32((RFC1002_SESSION_REQUEST << 24) | len);
++	rc = smb_send(server, smb_buf, len);
++	/*
++	 * RFC1001 layer in at least one server requires very short break before
++	 * negprot presumably because not expecting negprot to follow so fast.
++	 * This is a simple solution that works without complicating the code
++	 * and causes no significant slowing down on mount for everyone else
+ 	 */
++	usleep_range(1000, 2000);
+ 
+ 	return rc;
+ }
+-- 
+2.39.2
+
 
 
