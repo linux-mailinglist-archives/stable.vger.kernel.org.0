@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC996AE9A7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 498E76AEDFE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230257AbjCGR0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:26:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51270 "EHLO
+        id S230294AbjCGSI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231344AbjCGR0U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8409CFFE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:03 -0800 (PST)
+        with ESMTP id S230140AbjCGSIp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FECA3346
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6981B818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54A77C4339C;
-        Tue,  7 Mar 2023 17:21:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7EEFB819BC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4F29C433D2;
+        Tue,  7 Mar 2023 18:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209660;
-        bh=SRxSxwdC2UK5K5lirdJ2KMLSUYI6E2JgaV5+Ezi6DKE=;
+        s=korg; t=1678212163;
+        bh=8V1+x6ybit2KX4REv7T+hER5xAc/AUbnp2PO5sA8t60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egRdMMg2ul9XPwUUP7xPK0iwo9/8GNe2WhZ+Q5Ii0AG83f5Le0voJsLWOLvN/RlTt
-         h71VErWHj7qn5DPmfSmWnw9B8pYSsFlAQt4loGuEs053Ytzji42MH2FC6nHunaJ/uB
-         zl+Ri7w33z5WVJ8fJCH/dDnhwHGYiuIjjSUQdwQA=
+        b=hmKXdPW25iP8g1g4aNW3ttMRKSlkSu1dpHbBjqTTtxjorrMc1/Qr+NQ0nQ8sb6HJ7
+         nOfpzdNfyuqp4c+ABhTY/YxVKKmAxJZxdxlXhYZ4xhL3uNyw4iHBCW/nL3DsRk1GZN
+         jauQMb3cUyOQtERE+M7DurlVYh4Nd8lkB5gvp9jA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        patches@lists.linux.dev, Petr Vorel <pvorel@suse.cz>,
+        Jamie Douglass <jamiemdouglass@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0259/1001] s390/mem_detect: fix detect_memory() error handling
+Subject: [PATCH 6.1 097/885] arm64: dts: qcom: msm8992-lg-bullhead: Enable regulators
 Date:   Tue,  7 Mar 2023 17:50:31 +0100
-Message-Id: <20230307170032.972900826@linuxfoundation.org>
+Message-Id: <20230307170006.059443994@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,38 +55,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Petr Vorel <pvorel@suse.cz>
 
-[ Upstream commit 3400c35a4090704e6c465449616ab7e67a9209e7 ]
+[ Upstream commit 2866527093ddbc6356bb31f560f0b4b4decf3e2e ]
 
-Currently if for some reason sclp_early_read_info() fails,
-sclp_early_get_memsize() will not set max_physmem_end and it
-will stay uninitialized. Any garbage value other than 0 will lead
-to detect_memory() taking wrong path or returning a garbage value
-as max_physmem_end. To avoid that simply initialize max_physmem_end.
+Enable pm8994_s1, pm8994_l{26,29,30,32} regulators.
+Use values from downstream kernel on bullhead rev 1.01.
 
-Fixes: 73045a08cf55 ("s390: unify identity mapping limits handling")
-Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+NOTE: downstream kernel on angler rev 1.01 differences:
+* pm8994_l29: regulator-min-microvolt = <2700000>
+* pm8994_l{20,28,31}: use regulator-boot-on
+
+Verification:
+[    1.832460] s1: Bringing 0uV into 1025000-1025000uV
+...
+[    2.057667] l26: Bringing 0uV into 987500-987500uV
+...
+[    2.075722] l29: Bringing 0uV into 2800000-2800000uV
+[    2.076604] l30: Bringing 0uV into 1800000-1800000uV
+[    2.082431] l31: Bringing 0uV into 1262500-1262500uV
+[    2.095767] l32: Bringing 0uV into 1800000-1800000uV
+
+Fixes: f3b2c99e73be ("arm64: dts: Enable onboard SDHCI on msm8992")
+Signed-off-by: Petr Vorel <pvorel@suse.cz>
+Tested-by: Jamie Douglass <jamiemdouglass@gmail.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230203100952.13857-1-pvorel@suse.cz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/mem_detect.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../boot/dts/qcom/msm8992-lg-bullhead.dtsi    | 32 ++++++-------------
+ 1 file changed, 10 insertions(+), 22 deletions(-)
 
-diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
-index 7fa1a32ea0f3f..0a5821ef4f1fd 100644
---- a/arch/s390/boot/mem_detect.c
-+++ b/arch/s390/boot/mem_detect.c
-@@ -165,7 +165,7 @@ static void search_mem_end(void)
+diff --git a/arch/arm64/boot/dts/qcom/msm8992-lg-bullhead.dtsi b/arch/arm64/boot/dts/qcom/msm8992-lg-bullhead.dtsi
+index db05dc3ba16df..465b2828acbd4 100644
+--- a/arch/arm64/boot/dts/qcom/msm8992-lg-bullhead.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8992-lg-bullhead.dtsi
+@@ -94,8 +94,8 @@ pm8994_regulators: pm8994-regulators {
+ 		/* S1, S2, S6 and S12 are managed by RPMPD */
  
- unsigned long detect_memory(void)
- {
--	unsigned long max_physmem_end;
-+	unsigned long max_physmem_end = 0;
+ 		pm8994_s1: s1 {
+-			regulator-min-microvolt = <800000>;
+-			regulator-max-microvolt = <800000>;
++			regulator-min-microvolt = <1025000>;
++			regulator-max-microvolt = <1025000>;
+ 		};
  
- 	sclp_early_get_memsize(&max_physmem_end);
+ 		pm8994_s2: s2 {
+@@ -251,11 +251,8 @@ pm8994_l25: l25 {
+ 		};
+ 
+ 		pm8994_l26: l26 {
+-			/*
+-			 * TODO: value from downstream
+-			 * regulator-min-microvolt = <987500>;
+-			 * fails to apply
+-			 */
++			regulator-min-microvolt = <987500>;
++			regulator-max-microvolt = <987500>;
+ 		};
+ 
+ 		pm8994_l27: l27 {
+@@ -269,19 +266,13 @@ pm8994_l28: l28 {
+ 		};
+ 
+ 		pm8994_l29: l29 {
+-			/*
+-			 * TODO: Unsupported voltage range.
+-			 * regulator-min-microvolt = <2800000>;
+-			 * regulator-max-microvolt = <2800000>;
+-			 */
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <2800000>;
+ 		};
+ 
+ 		pm8994_l30: l30 {
+-			/*
+-			 * TODO: get this verified
+-			 * regulator-min-microvolt = <1800000>;
+-			 * regulator-max-microvolt = <1800000>;
+-			 */
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
+ 		};
+ 
+ 		pm8994_l31: l31 {
+@@ -290,11 +281,8 @@ pm8994_l31: l31 {
+ 		};
+ 
+ 		pm8994_l32: l32 {
+-			/*
+-			 * TODO: get this verified
+-			 * regulator-min-microvolt = <1800000>;
+-			 * regulator-max-microvolt = <1800000>;
+-			 */
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
+ 		};
+ 	};
  
 -- 
 2.39.2
