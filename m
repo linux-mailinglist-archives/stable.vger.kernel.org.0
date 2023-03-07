@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1B506AE95C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F326AEDF1
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231406AbjCGRXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:23:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41792 "EHLO
+        id S232355AbjCGSIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231361AbjCGRWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:22:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B8A8DCCB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:18:24 -0800 (PST)
+        with ESMTP id S231167AbjCGSIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A559A8EBC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81D9F614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 775AEC433A0;
-        Tue,  7 Mar 2023 17:18:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFB72B819BF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1380BC4339E;
+        Tue,  7 Mar 2023 18:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209504;
-        bh=JG5bjN08qGQAVUiT6fBjulGwx/mj3eOcOV6E0q3xiAM=;
+        s=korg; t=1678212126;
+        bh=9DTMIlPJ/QqV02WTXuv3GRPA2PdwA7vrCHcVo9G8/QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfuIo8QoxM46x2k4QHPDDsPobaM+md62kyXReQL/dyJVX5JGx56xCEUDr9s1hVXkX
-         3GmWI7/R5mSs/EkzZDVhB/VkK1k4BsuwbiWwKlxODcL3kaPrnhyIzQ3b/dDhm5TVqW
-         zM/PiIOK7hEw5f+kxrwpxM9PVT1wmDcXoE+uO3SY=
+        b=R8RsVXTL3FLQT5uY0pYJNbm03gOqhbwE4KooUCt81d7+AJMLRtLX2rruoiwI/KRMa
+         ZLgmqbg9wy2ljLgG9si+/hAF0gdQWuHdpqJ9eR3HK9vyFVW1owgl9E2ZTxzNiyrmJu
+         YNpFKAgWRSdMIVajLt4UF9Natsq++nLpAhZLPHk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ryder Lee <ryder.lee@mediatek.com>,
-        Howard Hsu <howard-yh.hsu@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0240/1001] wifi: mt76: mt7915: rework mt7915_thermal_temp_store()
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 078/885] arm64: dts: mt8192: Fix CPU map for single-cluster SoC
 Date:   Tue,  7 Mar 2023 17:50:12 +0100
-Message-Id: <20230307170032.240435116@linuxfoundation.org>
+Message-Id: <20230307170005.186217062@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,77 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Howard Hsu <howard-yh.hsu@mediatek.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit ecaccdae7a7e8f76eeb6544295ca0593c2f65a33 ]
+[ Upstream commit 160ce54d635455ffb5e9b42c5ba9cb9aaa98cdb2 ]
 
-Call mt7915_mcu_set_thermal_protect() through
-mt7915_thermal_temp_store() to update firmware trigger/restore temp
-directly.
+MT8192 features the ARM DynamIQ technology and combines both four
+Cortex-A76 (big) and four Cortex-A55 (LITTLE) CPUs in one cluster:
+fix the CPU map to reflect that.
 
-Fixes: 02ee68b95d81 ("mt76: mt7915: add control knobs for thermal throttling")
-Reviewed-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Howard Hsu <howard-yh.hsu@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Fixes: 48489980e27e ("arm64: dts: Add Mediatek SoC MT8192 and evaluation board dts and Makefile")
+Link: https://lore.kernel.org/r/20230126103526.417039-3-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7915/init.c   | 18 ++++++++++++++++--
- .../net/wireless/mediatek/mt76/mt7915/mt7915.h |  3 +++
- 2 files changed, 19 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8192.dtsi | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-index 4c351bfd4b270..a80ae31e7abff 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-@@ -83,9 +83,23 @@ static ssize_t mt7915_thermal_temp_store(struct device *dev,
- 
- 	mutex_lock(&phy->dev->mt76.mutex);
- 	val = clamp_val(DIV_ROUND_CLOSEST(val, 1000), 60, 130);
-+
-+	if ((i - 1 == MT7915_CRIT_TEMP_IDX &&
-+	     val > phy->throttle_temp[MT7915_MAX_TEMP_IDX]) ||
-+	    (i - 1 == MT7915_MAX_TEMP_IDX &&
-+	     val < phy->throttle_temp[MT7915_CRIT_TEMP_IDX])) {
-+		dev_err(phy->dev->mt76.dev,
-+			"temp1_max shall be greater than temp1_crit.");
-+		return -EINVAL;
-+	}
-+
- 	phy->throttle_temp[i - 1] = val;
- 	mutex_unlock(&phy->dev->mt76.mutex);
- 
-+	ret = mt7915_mcu_set_thermal_protect(phy);
-+	if (ret)
-+		return ret;
-+
- 	return count;
- }
- 
-@@ -195,8 +209,8 @@ static int mt7915_thermal_init(struct mt7915_phy *phy)
- 		return PTR_ERR(hwmon);
- 
- 	/* initialize critical/maximum high temperature */
--	phy->throttle_temp[0] = 110;
--	phy->throttle_temp[1] = 120;
-+	phy->throttle_temp[MT7915_CRIT_TEMP_IDX] = 110;
-+	phy->throttle_temp[MT7915_MAX_TEMP_IDX] = 120;
- 
- 	return 0;
- }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-index 855779f86bde0..e58650bbbd14a 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-@@ -70,6 +70,9 @@
- 
- #define MT7915_WED_RX_TOKEN_SIZE	12288
- 
-+#define MT7915_CRIT_TEMP_IDX		0
-+#define MT7915_MAX_TEMP_IDX		1
-+
- struct mt7915_vif;
- struct mt7915_sta;
- struct mt7915_dfs_pulse;
+diff --git a/arch/arm64/boot/dts/mediatek/mt8192.dtsi b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
+index 7da221924e37c..ef1294d960145 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8192.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
+@@ -158,19 +158,16 @@ core2 {
+ 				core3 {
+ 					cpu = <&cpu3>;
+ 				};
+-			};
+-
+-			cluster1 {
+-				core0 {
++				core4 {
+ 					cpu = <&cpu4>;
+ 				};
+-				core1 {
++				core5 {
+ 					cpu = <&cpu5>;
+ 				};
+-				core2 {
++				core6 {
+ 					cpu = <&cpu6>;
+ 				};
+-				core3 {
++				core7 {
+ 					cpu = <&cpu7>;
+ 				};
+ 			};
 -- 
 2.39.2
 
