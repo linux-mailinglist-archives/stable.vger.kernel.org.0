@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93C9A6AEF8E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C04E6AF2F2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232763AbjCGSYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:24:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49168 "EHLO
+        id S233511AbjCGS54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:57:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232653AbjCGSXu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:50 -0500
+        with ESMTP id S233368AbjCGS5j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C285A8EA3C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69A3AD000
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A776B8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D055C433EF;
-        Tue,  7 Mar 2023 18:19:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D99FAB819CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C0DFC433EF;
+        Tue,  7 Mar 2023 18:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213153;
-        bh=UjSbeJDJAnMBq4dQKZ4o0LcO4wJFbQckHcVsdbcXxSA=;
+        s=korg; t=1678214678;
+        bh=soSZRyUrefqALi6Zr0ESFaUgaRy5cOc659ECYR4vYaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5ba1iBZE0pIh3iIN4g2lGSwYZn9H0jhT2vywDnyGquloB+9jzZ1mK+mtzNS12b4p
-         utHr/j+VN5Y7givzmkuO9vRc7ksXQ95dHkdJwpu5NPs8kJsmwaGEK9/ZPHHDID8I0o
-         rUdkJuA9RxgLc4NyUHYxDfsZL39gnXR66k4PmL6s=
+        b=evNDDzMkje+Z86OkMw6JGPNseeSgLkBqQXKUXetKYhNvWoqZLVGn6bx/TeBK3s5+6
+         fYMoBOvbeb9s9kZg1jtJB703Qx0KSGkK3e7vl2l3b1koSVPIZtdzowuiv70QBvDSgK
+         O850etopt2/Le5Gdur9I4vpypxg5UYD/ZjT2QWvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 416/885] media: uvcvideo: Check for INACTIVE in uvc_ctrl_is_accessible()
+Subject: [PATCH 5.15 014/567] arm64: dts: qcom: sc7280: correct SPMI bus address cells
 Date:   Tue,  7 Mar 2023 17:55:50 +0100
-Message-Id: <20230307170020.489538109@linuxfoundation.org>
+Message-Id: <20230307165906.454717944@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,146 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 9f582f0418ed1c18f92c9e4628075d6ec9a7d9fb ]
+[ Upstream commit 8da3786a91e56fe0c4aeb2c2209744474af6e517 ]
 
-Check for inactive controls in uvc_ctrl_is_accessible().
+The SPMI bus uses two address cells and zero size cells (second reg
+entry - SPMI_USID - is not the size):
 
-Use the new value for the master_id controls if present, otherwise
-use the existing value to determine if it is OK to set the control.
-Doing this here avoids attempting to set an inactive control, which
-will return an error from the USB device, which returns an invalid
-errorcode.
+  spmi@c440000: #address-cells:0:0: 2 was expected
 
-This fixes:
-  warn: v4l2-test-controls.cpp(483): s_ctrl returned EIO
-  warn: v4l2-test-controls.cpp(483): s_ctrl returned EIO
-test VIDIOC_G/S_CTRL: OK
-  warn: v4l2-test-controls.cpp(739): s_ext_ctrls returned EIO
-  warn: v4l2-test-controls.cpp(739): s_ext_ctrls returned EIO
-  warn: v4l2-test-controls.cpp(816): s_ext_ctrls returned EIO
-test VIDIOC_G/S/TRY_EXT_CTRLS: OK
-
-Tested with:
-v4l2-ctl -c auto_exposure=1
-OK
-v4l2-ctl -c exposure_time_absolute=251
-OK
-v4l2-ctl -c auto_exposure=3
-OK
-v4l2-ctl -c exposure_time_absolute=251
-VIDIOC_S_EXT_CTRLS: failed: Input/output error
-exposure_time_absolute: Input/output error
-ERROR
-v4l2-ctl -c auto_exposure=3,exposure_time_absolute=251,auto_exposure=1
-v4l2-ctl -C auto_exposure,exposure_time_absolute  
-auto_exposure: 1
-exposure_time_absolute: 251
-
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Fixes: 14abf8dfe364 ("arm64: dts: qcom: sc7280: Add SPMI PMIC arbiter device for SC7280")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221213101921.47924-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_ctrl.c | 42 +++++++++++++++++++++++++++++++-
- drivers/media/usb/uvc/uvc_v4l2.c |  3 +--
- drivers/media/usb/uvc/uvcvideo.h |  3 ++-
- 3 files changed, 44 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7280.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index c95a2229f4fa9..6f5aaaf09ee01 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -1085,11 +1085,28 @@ static int uvc_query_v4l2_class(struct uvc_video_chain *chain, u32 req_id,
- 	return 0;
- }
- 
-+/*
-+ * Check if control @v4l2_id can be accessed by the given control @ioctl
-+ * (VIDIOC_G_EXT_CTRLS, VIDIOC_TRY_EXT_CTRLS or VIDIOC_S_EXT_CTRLS).
-+ *
-+ * For set operations on slave controls, check if the master's value is set to
-+ * manual, either in the others controls set in the same ioctl call, or from
-+ * the master's current value. This catches VIDIOC_S_EXT_CTRLS calls that set
-+ * both the master and slave control, such as for instance setting
-+ * auto_exposure=1, exposure_time_absolute=251.
-+ */
- int uvc_ctrl_is_accessible(struct uvc_video_chain *chain, u32 v4l2_id,
--			   bool read)
-+			   const struct v4l2_ext_controls *ctrls,
-+			   unsigned long ioctl)
- {
-+	struct uvc_control_mapping *master_map = NULL;
-+	struct uvc_control *master_ctrl = NULL;
- 	struct uvc_control_mapping *mapping;
- 	struct uvc_control *ctrl;
-+	bool read = ioctl == VIDIOC_G_EXT_CTRLS;
-+	s32 val;
-+	int ret;
-+	int i;
- 
- 	if (__uvc_query_v4l2_class(chain, v4l2_id, 0) >= 0)
- 		return -EACCES;
-@@ -1104,6 +1121,29 @@ int uvc_ctrl_is_accessible(struct uvc_video_chain *chain, u32 v4l2_id,
- 	if (!(ctrl->info.flags & UVC_CTRL_FLAG_SET_CUR) && !read)
- 		return -EACCES;
- 
-+	if (ioctl != VIDIOC_S_EXT_CTRLS || !mapping->master_id)
-+		return 0;
-+
-+	/*
-+	 * Iterate backwards in cases where the master control is accessed
-+	 * multiple times in the same ioctl. We want the last value.
-+	 */
-+	for (i = ctrls->count - 1; i >= 0; i--) {
-+		if (ctrls->controls[i].id == mapping->master_id)
-+			return ctrls->controls[i].value ==
-+					mapping->master_manual ? 0 : -EACCES;
-+	}
-+
-+	__uvc_find_control(ctrl->entity, mapping->master_id, &master_map,
-+			   &master_ctrl, 0);
-+
-+	if (!master_ctrl || !(master_ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR))
-+		return 0;
-+
-+	ret = __uvc_ctrl_get(chain, master_ctrl, master_map, &val);
-+	if (ret >= 0 && val != mapping->master_manual)
-+		return -EACCES;
-+
- 	return 0;
- }
- 
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index f4d4c33b6dfbd..3edb54c086b24 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -1020,8 +1020,7 @@ static int uvc_ctrl_check_access(struct uvc_video_chain *chain,
- 	int ret = 0;
- 
- 	for (i = 0; i < ctrls->count; ++ctrl, ++i) {
--		ret = uvc_ctrl_is_accessible(chain, ctrl->id,
--					    ioctl == VIDIOC_G_EXT_CTRLS);
-+		ret = uvc_ctrl_is_accessible(chain, ctrl->id, ctrls, ioctl);
- 		if (ret)
- 			break;
- 	}
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index df93db259312e..a151f583cd156 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -761,7 +761,8 @@ static inline int uvc_ctrl_rollback(struct uvc_fh *handle)
- int uvc_ctrl_get(struct uvc_video_chain *chain, struct v4l2_ext_control *xctrl);
- int uvc_ctrl_set(struct uvc_fh *handle, struct v4l2_ext_control *xctrl);
- int uvc_ctrl_is_accessible(struct uvc_video_chain *chain, u32 v4l2_id,
--			   bool read);
-+			   const struct v4l2_ext_controls *ctrls,
-+			   unsigned long ioctl);
- 
- int uvc_xu_ctrl_query(struct uvc_video_chain *chain,
- 		      struct uvc_xu_control_query *xqry);
+diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+index b795a9993cc1b..fb6473a0aa4b3 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -1494,8 +1494,8 @@ spmi_bus: spmi@c440000 {
+ 			interrupts-extended = <&pdc 1 IRQ_TYPE_LEVEL_HIGH>;
+ 			qcom,ee = <0>;
+ 			qcom,channel = <0>;
+-			#address-cells = <1>;
+-			#size-cells = <1>;
++			#address-cells = <2>;
++			#size-cells = <0>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <4>;
+ 		};
 -- 
 2.39.2
 
