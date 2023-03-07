@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD2A6AF458
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:16:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F6386AF45A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbjCGTQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:16:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43738 "EHLO
+        id S229623AbjCGTQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:16:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231487AbjCGTP4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:15:56 -0500
+        with ESMTP id S233882AbjCGTP5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:15:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3CAACD663
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:59:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B833ECD675
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:59:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F3F9B819C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:59:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACB2FC433D2;
-        Tue,  7 Mar 2023 18:59:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7108EB819DB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:59:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE1C5C433EF;
+        Tue,  7 Mar 2023 18:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215561;
-        bh=LFemGSKCbuEZ/jtF309PKpIx6NTq5rVCygcMlALJsps=;
+        s=korg; t=1678215564;
+        bh=0S5KOoV/ncGrp8GHU8QvzaVGsx4NlOYxUlI/cKNwpFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ba3sl0JTCd+3Zi4MHMxpaaVodjzgjbbj3aVVWBkowRbybx224/XHIEUJbApa9Dm+u
-         vFar6sMOyoLMdQxW9JUlcD0Q1fM5ezfFY7WQMBiYAlcGyNUEgpy//z0kXBR5ympPS6
-         ZTiNVBwWXfhDJ688CHyZmkitAh4fgL1eoHehAr+E=
+        b=ZT6A6dJzehomx1PBJsGDfP1yUoOVgA1QX5Hod1HZQsDN0UlYieZM+PzVPi2GJAeC5
+         2dPHooQakDaXL3YdjED7mXUDgiLzacQl2YggMMXkpDoNs2kAUdiQiBGCdh5tTajkyD
+         CNWcivX6ov0nUCYu3+Lb7+THqfQVMivT/AbOEYmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 302/567] Revert "char: pcmcia: cm4000_cs: Replace mdelay with usleep_range in set_protocol"
-Date:   Tue,  7 Mar 2023 18:00:38 +0100
-Message-Id: <20230307165918.942606992@linuxfoundation.org>
+Subject: [PATCH 5.15 303/567] eeprom: idt_89hpesx: Fix error handling in idt_init()
+Date:   Tue,  7 Mar 2023 18:00:39 +0100
+Message-Id: <20230307165918.991645116@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -53,58 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 70fae37a09268455b8ab4f64647086b61da6f39c ]
+[ Upstream commit d717a3ab282f51ec45142f911f7ef8a55c057de5 ]
 
-This reverts commit be826ada52f1fcabed5b5217c94609ebf5967211.
+A problem about idt_89hpesx create debugfs failed is triggered with the
+following log given:
 
-The function monitor_card() is a timer handler that runs in an
-atomic context, but it calls usleep_range() that can sleep.
-As a result, the sleep-in-atomic-context bugs will happen.
-The process is shown below:
+ [ 4973.269647] debugfs: Directory 'idt_csr' with parent '/' already present!
 
-    (atomic context)
-monitor_card()
-  set_protocol()
-    usleep_range() //sleep
+The reason is that idt_init() returns i2c_add_driver() directly without
+checking its return value, if i2c_add_driver() failed, it returns without
+destroy the newly created debugfs, resulting the debugfs of idt_csr can
+never be created later.
 
-The origin commit c1986ee9bea3 ("[PATCH] New Omnikey Cardman
-4000 driver") works fine.
+ idt_init()
+   debugfs_create_dir() # create debugfs directory
+   i2c_add_driver()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without destroy debugfs directory
 
-Fixes: be826ada52f1 ("char: pcmcia: cm4000_cs: Replace mdelay with usleep_range in set_protocol")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20230118141000.5580-1-duoming@zju.edu.cn
+Fix by removing debugfs when i2c_add_driver() returns error.
+
+Fixes: cfad6425382e ("eeprom: Add IDT 89HPESx EEPROM/CSR driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20221110020030.47711-1-yuancan@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/pcmcia/cm4000_cs.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/misc/eeprom/idt_89hpesx.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/pcmcia/cm4000_cs.c b/drivers/char/pcmcia/cm4000_cs.c
-index 8f1bce0b4fe50..7057b7bacc8cf 100644
---- a/drivers/char/pcmcia/cm4000_cs.c
-+++ b/drivers/char/pcmcia/cm4000_cs.c
-@@ -530,7 +530,8 @@ static int set_protocol(struct cm4000_dev *dev, struct ptsreq *ptsreq)
- 			DEBUGP(5, dev, "NumRecBytes is valid\n");
- 			break;
- 		}
--		usleep_range(10000, 11000);
-+		/* can not sleep as this is in atomic context */
-+		mdelay(10);
- 	}
- 	if (i == 100) {
- 		DEBUGP(5, dev, "Timeout waiting for NumRecBytes getting "
-@@ -550,7 +551,8 @@ static int set_protocol(struct cm4000_dev *dev, struct ptsreq *ptsreq)
- 			}
- 			break;
- 		}
--		usleep_range(10000, 11000);
-+		/* can not sleep as this is in atomic context */
-+		mdelay(10);
- 	}
+diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
+index 7f430742ce2b8..5298be4cc14c1 100644
+--- a/drivers/misc/eeprom/idt_89hpesx.c
++++ b/drivers/misc/eeprom/idt_89hpesx.c
+@@ -1568,12 +1568,20 @@ static struct i2c_driver idt_driver = {
+  */
+ static int __init idt_init(void)
+ {
++	int ret;
++
+ 	/* Create Debugfs directory first */
+ 	if (debugfs_initialized())
+ 		csr_dbgdir = debugfs_create_dir("idt_csr", NULL);
  
- 	/* check whether it is a short PTS reply? */
+ 	/* Add new i2c-device driver */
+-	return i2c_add_driver(&idt_driver);
++	ret = i2c_add_driver(&idt_driver);
++	if (ret) {
++		debugfs_remove_recursive(csr_dbgdir);
++		return ret;
++	}
++
++	return 0;
+ }
+ module_init(idt_init);
+ 
 -- 
 2.39.2
 
