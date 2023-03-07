@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4156AF26C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 234846AED5E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233324AbjCGSxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:53:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
+        id S229758AbjCGSDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:03:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233413AbjCGSwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9416BB04A6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:56 -0800 (PST)
+        with ESMTP id S232018AbjCGSDI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:03:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE489EF69
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 022276153C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1707AC433D2;
-        Tue,  7 Mar 2023 18:40:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B97161526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31B32C4339C;
+        Tue,  7 Mar 2023 17:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214407;
-        bh=QZ/J5c16T3DlhoxUHH4nItPt0x0tksRPap4dyxd48Xg=;
+        s=korg; t=1678211780;
+        bh=voI6a9986FzORnmDyWvB195TsofQKYj/+HwWrXED/yY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qea4CDEF234uONwAx/s3AZHLjA1XMY4cVj1RkRcNYUCSbPCmwG+v/Qnt5QgpHVz3D
-         GsB7bOLuyh/GLlFtcIwfPAqOn+NKCfcqiEUBqKHVBuPrikiu7CdZR2i75J+kgEQ71i
-         clCzVCLGxruS2K6nS1HDAWWLQXsCNtTZaaYRJsZ0=
+        b=TEUGEMzCLCxcFIcE1ZoIFbtvu/YpkWNDAFgxCECX2XBiuALaLxMlVKiP9jRe06bqO
+         Su/2SNDzDyelqkp+oe+Nwft2imByb7urjP+mnv6FGp/KWemqspE+tB+WWb8WQf6Uaj
+         F5Pag9fp5gViOAjVB0KKWHgN92SvCbBCwhJD9Pmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 6.1 813/885] ARM: dts: exynos: correct TMU phandle in Exynos4
+        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.2 0975/1001] riscv: ftrace: Remove wasted nops for !RISCV_ISA_C
 Date:   Tue,  7 Mar 2023 18:02:27 +0100
-Message-Id: <20230307170037.185605764@linuxfoundation.org>
+Message-Id: <20230307170104.526654292@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,32 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 8e4505e617a80f601e2f53a917611777f128f925 upstream.
+commit 409c8fb20c66df7150e592747412438c04aeb11f upstream.
 
-TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
-it must not have an argument to phandle.
+When CONFIG_RISCV_ISA_C=n, -fpatchable-function-entry=8 would generate
+more nops than we expect. Because it treat nop opcode as 0x00000013
+instead of 0x0001.
 
-Fixes: 328829a6ad70 ("ARM: dts: define default thermal-zones for exynos4")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230209105841.779596-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Dump of assembler code for function dw_pcie_free_msi:
+   0xffffffff806fce94 <+0>:     sd      ra,-8(sp)
+   0xffffffff806fce98 <+4>:     auipc   ra,0xff90f
+   0xffffffff806fce9c <+8>:     jalr    -684(ra) # 0xffffffff8000bbec
+<ftrace_caller>
+   0xffffffff806fcea0 <+12>:    ld      ra,-8(sp)
+   0xffffffff806fcea4 <+16>:    nop /* wasted */
+   0xffffffff806fcea8 <+20>:    nop /* wasted */
+   0xffffffff806fceac <+24>:    nop /* wasted */
+   0xffffffff806fceb0 <+28>:    nop /* wasted */
+   0xffffffff806fceb4 <+0>:     addi    sp,sp,-48
+   0xffffffff806fceb8 <+4>:     sd      s0,32(sp)
+   0xffffffff806fcebc <+8>:     sd      s1,24(sp)
+   0xffffffff806fcec0 <+12>:    sd      s2,16(sp)
+   0xffffffff806fcec4 <+16>:    sd      s3,8(sp)
+   0xffffffff806fcec8 <+20>:    sd      ra,40(sp)
+   0xffffffff806fcecc <+24>:    addi    s0,sp,48
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20230112090603.1295340-3-guoren@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/exynos4-cpu-thermal.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/Makefile |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm/boot/dts/exynos4-cpu-thermal.dtsi
-+++ b/arch/arm/boot/dts/exynos4-cpu-thermal.dtsi
-@@ -10,7 +10,7 @@
- / {
- thermal-zones {
- 	cpu_thermal: cpu-thermal {
--		thermal-sensors = <&tmu 0>;
-+		thermal-sensors = <&tmu>;
- 		polling-delay-passive = <0>;
- 		polling-delay = <0>;
- 		trips {
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -11,7 +11,11 @@ LDFLAGS_vmlinux :=
+ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
+ 	LDFLAGS_vmlinux := --no-relax
+ 	KBUILD_CPPFLAGS += -DCC_USING_PATCHABLE_FUNCTION_ENTRY
++ifeq ($(CONFIG_RISCV_ISA_C),y)
+ 	CC_FLAGS_FTRACE := -fpatchable-function-entry=8
++else
++	CC_FLAGS_FTRACE := -fpatchable-function-entry=4
++endif
+ endif
+ 
+ ifeq ($(CONFIG_CMODEL_MEDLOW),y)
 
 
