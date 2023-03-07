@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E359D6AEAA5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E27C6AEEFE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231741AbjCGRfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:35:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33230 "EHLO
+        id S232649AbjCGSTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:19:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231738AbjCGRfQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:16 -0500
+        with ESMTP id S232574AbjCGSTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:19:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E30D798845
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A909AFE1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 871F5B819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1BD1C433D2;
-        Tue,  7 Mar 2023 17:31:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD61EB819BC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B7FC433EF;
+        Tue,  7 Mar 2023 18:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210282;
-        bh=XZ1ZD3poNPKE0K7+mKw1eMs8JEvPYVrU9O5NuJuBZ14=;
+        s=korg; t=1678212798;
+        bh=zFAorT+IOu+4gFGbK5U/9e2NMRt9kL8BcwcCqVzl6v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAJNedC4U0x4G9sy6BKI/k9OtLNSBzqZ+Dv+rluzd3Tx/sNSF87ju/b9Vxu8JDAZT
-         YKoB6Nh0XydB0hNH5C3kiawK+0elo0/HpcScRvbnf2TQbrTOH/5ki1srFsRiTwWfGA
-         U9+31PbeEcogdbcA4rjITt7bqV/QMZx71ImfVxbU=
+        b=LnU4ivRHfPdWOz6dlOZw8zIFM4WAsg27Ps+tPflWn84WA6aT0SbWNLlx0pJZ8inYj
+         3q8fFNrMTjZ/WKrtOuvwr3FKPyOM3p6nwIJQC5oengo6+EYKV1HBZaqjdMrsJI2vRq
+         JLHudtiN05IDdGvC3rx4QpP1FziMP/+ImDj9UoJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0462/1001] leds: led-core: Fix refcount leak in of_led_get()
+        patches@lists.linux.dev,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 300/885] drm/bridge: lt9611: fix polarity programming
 Date:   Tue,  7 Mar 2023 17:53:54 +0100
-Message-Id: <20230307170041.435027234@linuxfoundation.org>
+Message-Id: <20230307170015.126696995@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit da1afe8e6099980fe1e2fd7436dca284af9d3f29 ]
+[ Upstream commit 0b157efa384ea417304b1da284ee2f603c607fc3 ]
 
-class_find_device_by_of_node() calls class_find_device(), it will take
-the reference, use the put_device() to drop the reference when not need
-anymore.
+Fix programming of hsync and vsync polarities
 
-Fixes: 699a8c7c4bd3 ("leds: Add of_led_get() and led_put()")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20221220121807.1543790-1-linmq006@gmail.com
+Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-4-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/led-class.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
-index 7391d2cf1370a..aa39b2a48fdff 100644
---- a/drivers/leds/led-class.c
-+++ b/drivers/leds/led-class.c
-@@ -235,6 +235,7 @@ struct led_classdev *of_led_get(struct device_node *np, int index)
+diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
+index 58f39b2792179..deb503ca956af 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -207,7 +207,6 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
  
- 	led_dev = class_find_device_by_of_node(leds_class, led_node);
- 	of_node_put(led_node);
-+	put_device(led_dev);
+ 		/* stage 2 */
+ 		{ 0x834a, 0x40 },
+-		{ 0x831d, 0x10 },
  
- 	if (!led_dev)
- 		return ERR_PTR(-EPROBE_DEFER);
+ 		/* MK limit */
+ 		{ 0x832d, 0x38 },
+@@ -222,11 +221,19 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
+ 		{ 0x8325, 0x00 },
+ 		{ 0x832a, 0x01 },
+ 		{ 0x834a, 0x10 },
+-		{ 0x831d, 0x10 },
+-		{ 0x8326, 0x37 },
+ 	};
++	u8 pol = 0x10;
+ 
+-	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
++	if (mode->flags & DRM_MODE_FLAG_NHSYNC)
++		pol |= 0x2;
++	if (mode->flags & DRM_MODE_FLAG_NVSYNC)
++		pol |= 0x1;
++	regmap_write(lt9611->regmap, 0x831d, pol);
++
++	if (mode->hdisplay == 3840)
++		regmap_multi_reg_write(lt9611->regmap, reg_cfg2, ARRAY_SIZE(reg_cfg2));
++	else
++		regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+ 
+ 	switch (mode->hdisplay) {
+ 	case 640:
+@@ -236,7 +243,7 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
+ 		regmap_write(lt9611->regmap, 0x8326, 0x37);
+ 		break;
+ 	case 3840:
+-		regmap_multi_reg_write(lt9611->regmap, reg_cfg2, ARRAY_SIZE(reg_cfg2));
++		regmap_write(lt9611->regmap, 0x8326, 0x37);
+ 		break;
+ 	}
+ 
 -- 
 2.39.2
 
