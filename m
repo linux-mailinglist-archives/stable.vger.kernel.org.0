@@ -2,148 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2066AE69E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7C26AE70B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:46:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231219AbjCGQcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:32:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39716 "EHLO
+        id S231175AbjCGQqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:46:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230211AbjCGQbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:31:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4C485B2A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:31:15 -0800 (PST)
+        with ESMTP id S231640AbjCGQp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:45:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F83494399
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:42:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B54ECE1C1E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:31:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A97CC4339C;
-        Tue,  7 Mar 2023 16:31:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678206672;
-        bh=6337S7XGFkSw+gqcbFtK1Xt1yZ+zJJzBHVOXfaKT9gs=;
-        h=Subject:To:Cc:From:Date:From;
-        b=TYzz4F66sH/MVg5UPys15ylj3tPtzE2IyiTx4k+KYavvwT7Te++Ez3R92t3HmcIIG
-         hhGLhIFOxdd5Bk6ZxAuRnhd/BFbRkoNYmBljDxEvj0sob7CvhYNi7CsjiYjh0dimLy
-         w73igsYSqgEHFBfTpaBmWRwmqq0QEQvD8huf6jEU=
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix PASID directory pointer coherency" failed to apply to 5.10-stable tree
-To:     jacob.jun.pan@linux.intel.com, ashok.raj@intel.com,
-        baolu.lu@linux.intel.com, jroedel@suse.de, kevin.tian@intel.com,
-        stable@vger.kernel.org, sukumar.ghorai@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:31:04 +0100
-Message-ID: <1678206664158120@kroah.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B84B614C8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:42:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C16F8C4339B;
+        Tue,  7 Mar 2023 16:42:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678207348;
+        bh=60mAOqykdYYRZHUtyckX9wb96vtWD0dmoH0iCqtp2Aw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Zz/W34dAT0bLkd/i8C9tsv5m5k46NW+zD1TFOq3tzJ4tdkdrEtPRA59E6hSfLVCIz
+         hx6FbQURakefUkhOYNd+A4S0vIag+oNpYjSiGIOvHXBXlplLtQw1c+y+KgopT0vohb
+         YKFKeCi7BKtqLX0NXjxO7HprTqiV+r8t422T+gjazZ7NblzrvAKm5utet/pT4u3jSt
+         4TEk2RuhhZT/OPXnW2sr55egCFC1fDv0CRuNmSVFiaVTYrdNDg1m3KtS//+I6//f5o
+         zTXw5yyFctfPvDfhynsqkBozuoQNbrbswpUBWZ6qVv3dzCtj2JExL6hiNnHp+dnubV
+         XJTRLWV2RP+xg==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     Pierre Gondois <pierre.gondois@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 6.1.y] arm64: efi: Make efi_rt_lock a raw_spinlock
+Date:   Tue,  7 Mar 2023 17:41:50 +0100
+Message-Id: <20230307164150.2430120-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <167818210919025@kroah.com>
+References: <167818210919025@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3953; i=ardb@kernel.org; h=from:subject; bh=CWfbv0hkMjmvfYeYOJZSwYQf0qfRgXHIedR2HOgl6ag=; b=owGbwMvMwCFmkMcZplerG8N4Wi2JIYU909d1dfOkO1/rHrWsYbHSPiwd8JWPZ/EVlsXCJUu3P l3E5BXeUcrCIMbBICumyCIw+++7nacnStU6z5KFmcPKBDKEgYtTACZyxY2RYXddstbFjWJLFLiC dWtZ719tf/W096b4M0Htz1yHbUyflTEyNFo8bo7M849Qi/rFtP5we7aDnNJOPoF/sVmFR9+z17K yAQA=
+X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Pierre Gondois <pierre.gondois@arm.com>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit 0e68b5517d3767562889f1d83fdb828c26adb24 ]
 
-To reproduce the conflict and resubmit, you may use the following commands:
+Running a rt-kernel base on 6.2.0-rc3-rt1 on an Ampere Altra outputs
+the following:
+  BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:46
+  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 9, name: kworker/u320:0
+  preempt_count: 2, expected: 0
+  RCU nest depth: 0, expected: 0
+  3 locks held by kworker/u320:0/9:
+  #0: ffff3fff8c27d128 ((wq_completion)efi_rts_wq){+.+.}-{0:0}, at: process_one_work (./include/linux/atomic/atomic-long.h:41)
+  #1: ffff80000861bdd0 ((work_completion)(&efi_rts_work.work)){+.+.}-{0:0}, at: process_one_work (./include/linux/atomic/atomic-long.h:41)
+  #2: ffffdf7e1ed3e460 (efi_rt_lock){+.+.}-{3:3}, at: efi_call_rts (drivers/firmware/efi/runtime-wrappers.c:101)
+  Preemption disabled at:
+  efi_virtmap_load (./arch/arm64/include/asm/mmu_context.h:248)
+  CPU: 0 PID: 9 Comm: kworker/u320:0 Tainted: G        W          6.2.0-rc3-rt1
+  Hardware name: WIWYNN Mt.Jade Server System B81.03001.0005/Mt.Jade Motherboard, BIOS 1.08.20220218 (SCP: 1.08.20220218) 2022/02/18
+  Workqueue: efi_rts_wq efi_call_rts
+  Call trace:
+  dump_backtrace (arch/arm64/kernel/stacktrace.c:158)
+  show_stack (arch/arm64/kernel/stacktrace.c:165)
+  dump_stack_lvl (lib/dump_stack.c:107 (discriminator 4))
+  dump_stack (lib/dump_stack.c:114)
+  __might_resched (kernel/sched/core.c:10134)
+  rt_spin_lock (kernel/locking/rtmutex.c:1769 (discriminator 4))
+  efi_call_rts (drivers/firmware/efi/runtime-wrappers.c:101)
+  [...]
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
-git checkout FETCH_HEAD
-git cherry-pick -x 194b3348bdbb7db65375c72f3f774aee4cc6614e
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678206664158120@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
+This seems to come from commit ff7a167961d1 ("arm64: efi: Execute
+runtime services from a dedicated stack") which adds a spinlock. This
+spinlock is taken through:
+efi_call_rts()
+\-efi_call_virt()
+  \-efi_call_virt_pointer()
+    \-arch_efi_call_virt_setup()
 
-Possible dependencies:
+Make 'efi_rt_lock' a raw_spinlock to avoid being preempted.
 
-194b3348bdbb ("iommu/vt-d: Fix PASID directory pointer coherency")
-803766cbf85f ("iommu/vt-d: Fix lockdep splat in intel_pasid_get_entry()")
+[ardb: The EFI runtime services are called with a different set of
+       translation tables, and are permitted to use the SIMD registers.
+       The context switch code preserves/restores neither, and so EFI
+       calls must be made with preemption disabled, rather than only
+       disabling migration.]
 
-thanks,
+Fixes: ff7a167961d1 ("arm64: efi: Execute runtime services from a dedicated stack")
+Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+Cc: <stable@vger.kernel.org> # v6.1+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ arch/arm64/include/asm/efi.h | 6 +++---
+ arch/arm64/kernel/efi.c      | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 194b3348bdbb7db65375c72f3f774aee4cc6614e Mon Sep 17 00:00:00 2001
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Date: Thu, 16 Feb 2023 21:08:15 +0800
-Subject: [PATCH] iommu/vt-d: Fix PASID directory pointer coherency
-
-On platforms that do not support IOMMU Extended capability bit 0
-Page-walk Coherency, CPU caches are not snooped when IOMMU is accessing
-any translation structures. IOMMU access goes only directly to
-memory. Intel IOMMU code was missing a flush for the PASID table
-directory that resulted in the unrecoverable fault as shown below.
-
-This patch adds clflush calls whenever allocating and updating
-a PASID table directory to ensure cache coherency.
-
-On the reverse direction, there's no need to clflush the PASID directory
-pointer when we deactivate a context entry in that IOMMU hardware will
-not see the old PASID directory pointer after we clear the context entry.
-PASID directory entries are also never freed once allocated.
-
- DMAR: DRHD: handling fault status reg 3
- DMAR: [DMA Read NO_PASID] Request device [00:0d.2] fault addr 0x1026a4000
-       [fault reason 0x51] SM: Present bit in Directory Entry is clear
- DMAR: Dump dmar1 table entries for IOVA 0x1026a4000
- DMAR: scalable mode root entry: hi 0x0000000102448001, low 0x0000000101b3e001
- DMAR: context entry: hi 0x0000000000000000, low 0x0000000101b4d401
- DMAR: pasid dir entry: 0x0000000101b4e001
- DMAR: pasid table entry[0]: 0x0000000000000109
- DMAR: pasid table entry[1]: 0x0000000000000001
- DMAR: pasid table entry[2]: 0x0000000000000000
- DMAR: pasid table entry[3]: 0x0000000000000000
- DMAR: pasid table entry[4]: 0x0000000000000000
- DMAR: pasid table entry[5]: 0x0000000000000000
- DMAR: pasid table entry[6]: 0x0000000000000000
- DMAR: pasid table entry[7]: 0x0000000000000000
- DMAR: PTE not present at level 4
-
-Cc: <stable@vger.kernel.org>
-Fixes: 0bbeb01a4faf ("iommu/vt-d: Manage scalalble mode PASID tables")
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reported-by: Sukumar Ghorai <sukumar.ghorai@intel.com>
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Link: https://lore.kernel.org/r/20230209212843.1788125-1-jacob.jun.pan@linux.intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index ec964ac7d797..9d2f05cf6164 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -128,6 +128,9 @@ int intel_pasid_alloc_table(struct device *dev)
- 	pasid_table->max_pasid = 1 << (order + PAGE_SHIFT + 3);
- 	info->pasid_table = pasid_table;
+diff --git a/arch/arm64/include/asm/efi.h b/arch/arm64/include/asm/efi.h
+index b13c22046de58a8f..62c846be2d76ac60 100644
+--- a/arch/arm64/include/asm/efi.h
++++ b/arch/arm64/include/asm/efi.h
+@@ -33,7 +33,7 @@ int efi_set_mapping_permissions(struct mm_struct *mm, efi_memory_desc_t *md);
+ ({									\
+ 	efi_virtmap_load();						\
+ 	__efi_fpsimd_begin();						\
+-	spin_lock(&efi_rt_lock);					\
++	raw_spin_lock(&efi_rt_lock);					\
+ })
  
-+	if (!ecap_coherent(info->iommu->ecap))
-+		clflush_cache_range(pasid_table->table, size);
-+
- 	return 0;
+ #undef arch_efi_call_virt
+@@ -42,12 +42,12 @@ int efi_set_mapping_permissions(struct mm_struct *mm, efi_memory_desc_t *md);
+ 
+ #define arch_efi_call_virt_teardown()					\
+ ({									\
+-	spin_unlock(&efi_rt_lock);					\
++	raw_spin_unlock(&efi_rt_lock);					\
+ 	__efi_fpsimd_end();						\
+ 	efi_virtmap_unload();						\
+ })
+ 
+-extern spinlock_t efi_rt_lock;
++extern raw_spinlock_t efi_rt_lock;
+ extern u64 *efi_rt_stack_top;
+ efi_status_t __efi_rt_asm_wrapper(void *, const char *, ...);
+ 
+diff --git a/arch/arm64/kernel/efi.c b/arch/arm64/kernel/efi.c
+index b273900f45668587..a30dbe4b95cd3a0f 100644
+--- a/arch/arm64/kernel/efi.c
++++ b/arch/arm64/kernel/efi.c
+@@ -146,7 +146,7 @@ asmlinkage efi_status_t efi_handle_corrupted_x18(efi_status_t s, const char *f)
+ 	return s;
  }
  
-@@ -215,6 +218,10 @@ static struct pasid_entry *intel_pasid_get_entry(struct device *dev, u32 pasid)
- 			free_pgtable_page(entries);
- 			goto retry;
- 		}
-+		if (!ecap_coherent(info->iommu->ecap)) {
-+			clflush_cache_range(entries, VTD_PAGE_SIZE);
-+			clflush_cache_range(&dir[dir_index].val, sizeof(*dir));
-+		}
- 	}
+-DEFINE_SPINLOCK(efi_rt_lock);
++DEFINE_RAW_SPINLOCK(efi_rt_lock);
  
- 	return &entries[index];
+ asmlinkage u64 *efi_rt_stack_top __ro_after_init;
+ 
+-- 
+2.39.2
 
