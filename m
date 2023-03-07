@@ -2,49 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8906E6AF4D1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 820036AF4D0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233820AbjCGTUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233814AbjCGTUV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Mar 2023 14:20:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46330 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233865AbjCGTTp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:19:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDF4BD4E3;
-        Tue,  7 Mar 2023 11:03:38 -0800 (PST)
+        with ESMTP id S233987AbjCGTTq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:19:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F7A1BD4C7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:03:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7066B819D5;
-        Tue,  7 Mar 2023 19:03:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A2FC433EF;
-        Tue,  7 Mar 2023 19:03:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03FB8B819DB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:03:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 534C5C4339B;
+        Tue,  7 Mar 2023 19:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215815;
-        bh=9Rd0waOKcoTHm8nXq0CQ+JjvJSAFcyFasPghAfRA24Q=;
+        s=korg; t=1678215818;
+        bh=1JuYttSn3ht/CJWRtuEQTErsofXMlpxaYWbopeHMiLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJL7fvISXoIXMYbmsVFoxaTvUNF0IYnwN/S9bvarZhdC7Gigo2n5c+1UYeRvxNloW
-         B/0UQex+pcj2bbHDCViwv7m0TIK4/QPZNASq0knkajL11hg9RnIyB8n2clVeamczd9
-         AaJlxtaP5QeALrVaofv6Oy5l5G6MZCjPJNebrbcA=
+        b=hpy8vvbHy6SK71TpWLuAQRqBg+3bzoAe1Gb0IPodaCMKvD3FbJkj9MWM27snhfWMr
+         cGUU3T2vZMoQRBB7jKN07FFrWQr+/0TzbU5NW1zgJEe8i4y+GfHiNH0A7X2Wa90Hg1
+         i8jPdyqOFyOyRT6/soPLl2HTNZ+q6II3ZC/rcmLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        patches@lists.linux.dev, Tim Zimmermann <tim@linux4.de>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Florent Revest <revest@chromium.org>,
-        Len Brown <lenb@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Robert Moore <robert.moore@intel.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 383/567] ACPI: Dont build ACPICA with -Os
-Date:   Tue,  7 Mar 2023 18:01:59 +0100
-Message-Id: <20230307165922.457244826@linuxfoundation.org>
+Subject: [PATCH 5.15 384/567] thermal: intel: intel_pch: Add support for Wellsburg PCH
+Date:   Tue,  7 Mar 2023 18:02:00 +0100
+Message-Id: <20230307165922.489441031@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -52,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -62,109 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Tim Zimmermann <tim@linux4.de>
 
-[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
+[ Upstream commit 40dc1929089fc844ea06d9f8bdb6211ed4517c2e ]
 
-The ACPICA code has been built with '-Os' since the beginning of git
-history, though there's no explanatory comment as to why.
+Add the PCI ID for the Wellsburg C610 series chipset PCH.
 
-This is unfortunate as GCC drops the alignment specificed by
-'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
+The driver can read the temperature from the Wellsburg PCH with only
+the PCI ID added and no other modifications.
 
-  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
-
-This prevents CONFIG_FUNCTION_ALIGNMENT and
-CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
-on the ACPICA code. This is doubly unfortunate as in subsequent patches
-arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
-implementation.
-
-Drop the '-Os' flag when building the ACPICA code. With this removed,
-the code builds cleanly and works correctly in testing so far.
-
-I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
-building and booting a kernel using ACPI, and looking for misaligned
-text symbols:
-
-* arm64:
-
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    5009
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    919
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    323
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-* x86_64:
-
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    11537
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    2805
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    1357
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-With the patch applied, the remaining unaligned text labels are a
-combination of static call trampolines and labels in assembly, which can
-be dealt with in subsequent patches.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Florent Revest <revest@chromium.org>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Robert Moore <robert.moore@intel.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-acpi@vger.kernel.org
-Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Tim Zimmermann <tim@linux4.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/intel/intel_pch_thermal.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
-index 59700433a96e5..f919811156b1f 100644
---- a/drivers/acpi/acpica/Makefile
-+++ b/drivers/acpi/acpica/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for ACPICA Core interpreter
- #
+diff --git a/drivers/thermal/intel/intel_pch_thermal.c b/drivers/thermal/intel/intel_pch_thermal.c
+index 527c91f5960be..768c66046a599 100644
+--- a/drivers/thermal/intel/intel_pch_thermal.c
++++ b/drivers/thermal/intel/intel_pch_thermal.c
+@@ -29,6 +29,7 @@
+ #define PCH_THERMAL_DID_CNL_LP	0x02F9 /* CNL-LP PCH */
+ #define PCH_THERMAL_DID_CML_H	0X06F9 /* CML-H PCH */
+ #define PCH_THERMAL_DID_LWB	0xA1B1 /* Lewisburg PCH */
++#define PCH_THERMAL_DID_WBG	0x8D24 /* Wellsburg PCH */
  
--ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
-+ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
- ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
+ /* Wildcat Point-LP  PCH Thermal registers */
+ #define WPT_TEMP	0x0000	/* Temperature */
+@@ -345,6 +346,7 @@ enum board_ids {
+ 	board_cnl,
+ 	board_cml,
+ 	board_lwb,
++	board_wbg,
+ };
  
- # use acpi.o to put all files here into acpi.o modparam namespace
+ static const struct board_info {
+@@ -375,6 +377,10 @@ static const struct board_info {
+ 		.name = "pch_lewisburg",
+ 		.ops = &pch_dev_ops_wpt,
+ 	},
++	[board_wbg] = {
++		.name = "pch_wellsburg",
++		.ops = &pch_dev_ops_wpt,
++	},
+ };
+ 
+ static int intel_pch_thermal_probe(struct pci_dev *pdev,
+@@ -490,6 +496,8 @@ static const struct pci_device_id intel_pch_thermal_id[] = {
+ 		.driver_data = board_cml, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCH_THERMAL_DID_LWB),
+ 		.driver_data = board_lwb, },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCH_THERMAL_DID_WBG),
++		.driver_data = board_wbg, },
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, intel_pch_thermal_id);
 -- 
 2.39.2
 
