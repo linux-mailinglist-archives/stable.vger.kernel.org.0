@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 661BA6AF2FA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:58:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3AD6AEFDC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:27:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233504AbjCGS6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:58:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59516 "EHLO
+        id S232975AbjCGS1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:27:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233336AbjCGS5x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A898B78AC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:20 -0800 (PST)
+        with ESMTP id S232635AbjCGS0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:26:01 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F6F0ACE2A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B271B819CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F573C433EF;
-        Tue,  7 Mar 2023 18:45:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 31061CE1C82
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19BCBC4339C;
+        Tue,  7 Mar 2023 18:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214702;
-        bh=VlpYTmL+iQlTYLQIkH/0LcjVLUtZZesgf07shiWVEbU=;
+        s=korg; t=1678213226;
+        bh=sy24AILUPaEfYDFT/WeQ+y/AMwpO/G8nbiq+P1kbGls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUNWujydvA0T+W/Oiv+h0f1v7LTH0wlw7ngR08Cppkj7G4P3FonPaF9omxUlAQQn3
-         xNoCv78F2n48MywPZQ3z2DwP3QveqNzvG8aO+PhfUTb/tV4L9zUaWjWqDVN/PfuDDL
-         6QLT6VA1YJMb4W1OqFtXxk6suqK3QADOYW0WOwFk=
+        b=yNM/sqml+WBKcXNVm8T78EWuadvwMhcwqqenmLuXc32qD401Xd+W63G+7Wwkm55+/
+         ng+qvyM52OcDRDx/8Kz9PwnX72K5GYEn4xNY7LuZTeKAYoAUD6Kro7Ou5Ro02vGOSz
+         lG1Zffs24fntjAwaPwQaLxcUz/xyxV4sg+CJAoNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 006/567] arm64: dts: qcom: msm8996-tone: Fix USB taking 6 minutes to wake up
-Date:   Tue,  7 Mar 2023 17:55:42 +0100
-Message-Id: <20230307165906.105577615@linuxfoundation.org>
+Subject: [PATCH 6.1 409/885] usb: gadget: fusb300_udc: free irq on the error path in fusb300_probe()
+Date:   Tue,  7 Mar 2023 17:55:43 +0100
+Message-Id: <20230307170020.187827325@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,49 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 43069b9cd358aebc692e654de91ee06ff66e26af ]
+[ Upstream commit a8d3392e0e5cfeb03f0cea1f2bc3f5f183c1deb4 ]
 
-The hardware turns out to be pretty sluggish at assuming it can only
-do USB2 with just a USB2 phy assigned to it - before it needed about
-6 minutes to acknowledge that.
+When request_irq(ires1->start) failed in w5300_hw_probe(), irq
+ires->start has not been freed, and on the clean_up3 error path,
+we also need to free ires1->start irq, fix it.
 
-Limit it to USB-HS explicitly to make USB come up about 720x faster.
+In addition, We should add free_irq in fusb300_remove(), and give
+the lables a proper name so that they can be understood easily,
+so add free_irq in fusb300_remove(), and update clean_up3 to
+err_alloc_request.
 
-Fixes: 9da65e441d4d ("arm64: dts: qcom: Add support for SONY Xperia X Performance / XZ / XZs (msm8996, Tone platform)")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221124220147.102611-1-konrad.dybcio@linaro.org
+Fixes: 0fe6f1d1f612 ("usb: udc: add Faraday fusb300 driver")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221123014121.1989721-1-cuigaosheng1@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/usb/gadget/udc/fusb300_udc.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi b/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi
-index 507396c4d23b6..7802abac39fa5 100644
---- a/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi
-@@ -938,10 +938,6 @@ touch_int_sleep: touch-int-sleep {
- 	};
- };
+diff --git a/drivers/usb/gadget/udc/fusb300_udc.c b/drivers/usb/gadget/udc/fusb300_udc.c
+index 5954800d652ca..08ba9c8c1e677 100644
+--- a/drivers/usb/gadget/udc/fusb300_udc.c
++++ b/drivers/usb/gadget/udc/fusb300_udc.c
+@@ -1346,6 +1346,7 @@ static int fusb300_remove(struct platform_device *pdev)
+ 	usb_del_gadget_udc(&fusb300->gadget);
+ 	iounmap(fusb300->reg);
+ 	free_irq(platform_get_irq(pdev, 0), fusb300);
++	free_irq(platform_get_irq(pdev, 1), fusb300);
  
--/*
-- * For reasons that are currently unknown (but probably related to fusb301), USB takes about
-- * 6 minutes to wake up (nothing interesting in kernel logs), but then it works as it should.
-- */
- &usb3 {
- 	status = "okay";
- 	qcom,select-utmi-as-pipe-clk;
-@@ -950,6 +946,7 @@ &usb3 {
- &usb3_dwc3 {
- 	extcon = <&usb3_id>;
- 	dr_mode = "peripheral";
-+	maximum-speed = "high-speed";
- 	phys = <&hsusb_phy1>;
- 	phy-names = "usb2-phy";
- 	snps,hird-threshold = /bits/ 8 <0>;
+ 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
+ 	for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
+@@ -1431,7 +1432,7 @@ static int fusb300_probe(struct platform_device *pdev)
+ 			IRQF_SHARED, udc_name, fusb300);
+ 	if (ret < 0) {
+ 		pr_err("request_irq1 error (%d)\n", ret);
+-		goto clean_up;
++		goto err_request_irq1;
+ 	}
+ 
+ 	INIT_LIST_HEAD(&fusb300->gadget.ep_list);
+@@ -1470,7 +1471,7 @@ static int fusb300_probe(struct platform_device *pdev)
+ 				GFP_KERNEL);
+ 	if (fusb300->ep0_req == NULL) {
+ 		ret = -ENOMEM;
+-		goto clean_up3;
++		goto err_alloc_request;
+ 	}
+ 
+ 	init_controller(fusb300);
+@@ -1485,7 +1486,10 @@ static int fusb300_probe(struct platform_device *pdev)
+ err_add_udc:
+ 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
+ 
+-clean_up3:
++err_alloc_request:
++	free_irq(ires1->start, fusb300);
++
++err_request_irq1:
+ 	free_irq(ires->start, fusb300);
+ 
+ clean_up:
 -- 
 2.39.2
 
