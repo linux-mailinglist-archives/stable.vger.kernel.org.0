@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6655E6AE9C3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F166AEE77
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231622AbjCGR1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:27:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48462 "EHLO
+        id S230045AbjCGSMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:12:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231551AbjCGR1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:05 -0500
+        with ESMTP id S231539AbjCGSL7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 475529C99C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:22:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E44AA80E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F61611A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:22:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD400C4339B;
-        Tue,  7 Mar 2023 17:22:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EB6761520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E864C433EF;
+        Tue,  7 Mar 2023 18:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209732;
-        bh=DnzysaGZBjVQCIUX9rF6rBbtTkXGZeN4zPjwDCD6FxE=;
+        s=korg; t=1678212428;
+        bh=BIzull7AXdCQXeCc/4B5HvH5hmqczsOYPlNz0RzBPK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxAlmWih9g1FshUGHbgl3ACmXylujQiOKwxZe79quZlmhce9Jb52+I708gA0FaZiT
-         MvY8UB4CNOZqCgAggdx/yeJsikNmYVnlUkTY6olmxofUhLzz1gEF/rCEGHJlxrJJKS
-         F9rGUbuPTnAqpliziDx4ALimmcB+GZNL+tGABmSo=
+        b=0YWvTebNiTDuiA6PZaPjkCt9s3LBmx+czn3AxAXdChlBHPsgGPi0dpwlQvLyi2V/6
+         uBpaNr6pBQ6tsVXQa6jsDj/8GbDcREaMYEbgYsPFQ3duK+rl3AKiJ2ag+ppeYmfX4J
+         D4DNLUQII6NCgivWw1YucyfecvcPjSQ4qXUehp+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hengqi Chen <hengqi.chen@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        patches@lists.linux.dev,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0313/1001] LoongArch, bpf: Use 4 instructions for function address in JIT
+Subject: [PATCH 6.1 151/885] selftests/xsk: print correct error codes when exiting
 Date:   Tue,  7 Mar 2023 17:51:25 +0100
-Message-Id: <20230307170035.135545645@linuxfoundation.org>
+Message-Id: <20230307170008.451069373@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +56,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hengqi Chen <hengqi.chen@gmail.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 64f50f6575721ef03d001e907455cbe3baa2a5b1 ]
+[ Upstream commit 085dcccfb7d3dc52ed708fc588587f319541bc83 ]
 
-This patch fixes the following issue of function calls in JIT, like:
+Print the correct error codes when exiting the test suite due to some
+terminal error. Some of these had a switched sign and some of them
+printed zero instead of errno.
 
-  [   29.346981] multi-func JIT bug 105 != 103
-
-The issus can be reproduced by running the "inline simple bpf_loop call"
-verifier test.
-
-This is because we are emiting 2-4 instructions for 64-bit immediate moves.
-During the first pass of JIT, the placeholder address is zero, emiting two
-instructions for it. In the extra pass, the function address is in XKVRANGE,
-emiting four instructions for it. This change the instruction index in
-JIT context. Let's always use 4 instructions for function address in JIT.
-So that the instruction sequences don't change between the first pass and
-the extra pass for function calls.
-
-Fixes: 5dc615520c4d ("LoongArch: Add BPF JIT support")
-Signed-off-by: Hengqi Chen <hengqi.chen@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Link: https://lore.kernel.org/bpf/20230214152633.2265699-1-hengqi.chen@gmail.com
+Fixes: facb7cb2e909 ("selftests/bpf: Xsk selftests - SKB POLL, NOPOLL")
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Link: https://lore.kernel.org/r/20230111093526.11682-5-magnus.karlsson@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/loongarch/net/bpf_jit.c |  2 +-
- arch/loongarch/net/bpf_jit.h | 21 +++++++++++++++++++++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ tools/testing/selftests/bpf/xskxceiver.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/loongarch/net/bpf_jit.c b/arch/loongarch/net/bpf_jit.c
-index c4b1947ebf768..288003a9f0cae 100644
---- a/arch/loongarch/net/bpf_jit.c
-+++ b/arch/loongarch/net/bpf_jit.c
-@@ -841,7 +841,7 @@ static int build_insn(const struct bpf_insn *insn, struct jit_ctx *ctx, bool ext
- 		if (ret < 0)
- 			return ret;
+diff --git a/tools/testing/selftests/bpf/xskxceiver.c b/tools/testing/selftests/bpf/xskxceiver.c
+index 51e693318b3f0..8d5d9b94b020b 100644
+--- a/tools/testing/selftests/bpf/xskxceiver.c
++++ b/tools/testing/selftests/bpf/xskxceiver.c
+@@ -350,7 +350,7 @@ static bool ifobj_zc_avail(struct ifobject *ifobject)
+ 	umem = calloc(1, sizeof(struct xsk_umem_info));
+ 	if (!umem) {
+ 		munmap(bufs, umem_sz);
+-		exit_with_error(-ENOMEM);
++		exit_with_error(ENOMEM);
+ 	}
+ 	umem->frame_size = XSK_UMEM__DEFAULT_FRAME_SIZE;
+ 	ret = xsk_configure_umem(umem, bufs, umem_sz);
+@@ -936,7 +936,7 @@ static int receive_pkts(struct test_spec *test, struct pollfd *fds)
+ 		if (ifobj->use_poll) {
+ 			ret = poll(fds, 1, POLL_TMOUT);
+ 			if (ret < 0)
+-				exit_with_error(-ret);
++				exit_with_error(errno);
  
--		move_imm(ctx, t1, func_addr, is32);
-+		move_addr(ctx, t1, func_addr);
- 		emit_insn(ctx, jirl, t1, LOONGARCH_GPR_RA, 0);
- 		move_reg(ctx, regmap[BPF_REG_0], LOONGARCH_GPR_A0);
- 		break;
-diff --git a/arch/loongarch/net/bpf_jit.h b/arch/loongarch/net/bpf_jit.h
-index ca708024fdd3e..c335dc4eed370 100644
---- a/arch/loongarch/net/bpf_jit.h
-+++ b/arch/loongarch/net/bpf_jit.h
-@@ -82,6 +82,27 @@ static inline void emit_sext_32(struct jit_ctx *ctx, enum loongarch_gpr reg, boo
- 	emit_insn(ctx, addiw, reg, reg, 0);
+ 			if (!ret) {
+ 				if (!is_umem_valid(test->ifobj_tx))
+@@ -963,7 +963,7 @@ static int receive_pkts(struct test_spec *test, struct pollfd *fds)
+ 				if (xsk_ring_prod__needs_wakeup(&umem->fq)) {
+ 					ret = poll(fds, 1, POLL_TMOUT);
+ 					if (ret < 0)
+-						exit_with_error(-ret);
++						exit_with_error(errno);
+ 				}
+ 				ret = xsk_ring_prod__reserve(&umem->fq, rcvd, &idx_fq);
+ 			}
+@@ -1014,7 +1014,7 @@ static int __send_pkts(struct ifobject *ifobject, u32 *pkt_nb, struct pollfd *fd
+ 			if (timeout) {
+ 				if (ret < 0) {
+ 					ksft_print_msg("ERROR: [%s] Poll error %d\n",
+-						       __func__, ret);
++						       __func__, errno);
+ 					return TEST_FAILURE;
+ 				}
+ 				if (ret == 0)
+@@ -1023,7 +1023,7 @@ static int __send_pkts(struct ifobject *ifobject, u32 *pkt_nb, struct pollfd *fd
+ 			}
+ 			if (ret <= 0) {
+ 				ksft_print_msg("ERROR: [%s] Poll error %d\n",
+-					       __func__, ret);
++					       __func__, errno);
+ 				return TEST_FAILURE;
+ 			}
+ 		}
+@@ -1322,18 +1322,18 @@ static void thread_common_ops(struct test_spec *test, struct ifobject *ifobject)
+ 	if (ifobject->xdp_flags & XDP_FLAGS_SKB_MODE) {
+ 		if (opts.attach_mode != XDP_ATTACHED_SKB) {
+ 			ksft_print_msg("ERROR: [%s] XDP prog not in SKB mode\n");
+-			exit_with_error(-EINVAL);
++			exit_with_error(EINVAL);
+ 		}
+ 	} else if (ifobject->xdp_flags & XDP_FLAGS_DRV_MODE) {
+ 		if (opts.attach_mode != XDP_ATTACHED_DRV) {
+ 			ksft_print_msg("ERROR: [%s] XDP prog not in DRV mode\n");
+-			exit_with_error(-EINVAL);
++			exit_with_error(EINVAL);
+ 		}
+ 	}
+ 
+ 	ret = xsk_socket__update_xskmap(ifobject->xsk->xsk, ifobject->xsk_map_fd);
+ 	if (ret)
+-		exit_with_error(-ret);
++		exit_with_error(errno);
  }
  
-+static inline void move_addr(struct jit_ctx *ctx, enum loongarch_gpr rd, u64 addr)
-+{
-+	u64 imm_11_0, imm_31_12, imm_51_32, imm_63_52;
-+
-+	/* lu12iw rd, imm_31_12 */
-+	imm_31_12 = (addr >> 12) & 0xfffff;
-+	emit_insn(ctx, lu12iw, rd, imm_31_12);
-+
-+	/* ori rd, rd, imm_11_0 */
-+	imm_11_0 = addr & 0xfff;
-+	emit_insn(ctx, ori, rd, rd, imm_11_0);
-+
-+	/* lu32id rd, imm_51_32 */
-+	imm_51_32 = (addr >> 32) & 0xfffff;
-+	emit_insn(ctx, lu32id, rd, imm_51_32);
-+
-+	/* lu52id rd, rd, imm_63_52 */
-+	imm_63_52 = (addr >> 52) & 0xfff;
-+	emit_insn(ctx, lu52id, rd, rd, imm_63_52);
-+}
-+
- static inline void move_imm(struct jit_ctx *ctx, enum loongarch_gpr rd, long imm, bool is32)
- {
- 	long imm_11_0, imm_31_12, imm_51_32, imm_63_52, imm_51_0, imm_51_31;
+ static void *worker_testapp_validate_tx(void *arg)
+@@ -1540,7 +1540,7 @@ static void swap_xsk_resources(struct ifobject *ifobj_tx, struct ifobject *ifobj
+ 
+ 	ret = xsk_socket__update_xskmap(ifobj_rx->xsk->xsk, ifobj_rx->xsk_map_fd);
+ 	if (ret)
+-		exit_with_error(-ret);
++		exit_with_error(errno);
+ }
+ 
+ static void testapp_bpf_res(struct test_spec *test)
 -- 
 2.39.2
 
