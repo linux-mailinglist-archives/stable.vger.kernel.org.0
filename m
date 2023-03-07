@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 658756AEF2E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:21:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 545D76AEACE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232661AbjCGSVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:21:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
+        id S231879AbjCGRhf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:37:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232648AbjCGSVB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:21:01 -0500
+        with ESMTP id S231859AbjCGRhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:37:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAA369EF5E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:14:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C65A02A6D3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7690961526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 878C4C433D2;
-        Tue,  7 Mar 2023 18:14:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61C7161520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58E22C4339B;
+        Tue,  7 Mar 2023 17:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212896;
-        bh=UUyMh0kMy+GPBAjE+eFPVPObeApdf5MQFnxeAomFIzU=;
+        s=korg; t=1678210389;
+        bh=f89zt+GWq/gBP07AjQpUXgAS8lN7LySw7iSWOYP0dYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AgztTOLuJ3s6S+nTjoWz+wF65/eMnoyNPj/h96PB/p57/AgoAzZbnaYu32dC0NBDM
-         +kPqgQEGbGGCFkoTjXMNoql3afPXjv6bx42ibfi0lvY1TcKiQVBhO0gIOTAgC7LlqU
-         WOQ7DcCfsc2/hP6YejC1kOY0kF8722aPrBNpS4Ds=
+        b=xGL+xL7c1NacxwLkbOhbkOK2j5qNjsXvHhE4VjjGyK9I5teH19UptJ3mMkyn2Pv/0
+         r3sK8LxBzVB04JDhBQciRdqMmq20ltePDReRgr4HRbVKcbn7jszY0x/bIe//WR0dfm
+         +V1xildlGUvMj/WJic4+8CYreI9eOlRgWoytzB40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 332/885] spi: dw_bt1: fix MUX_MMIO dependencies
+        patches@lists.linux.dev,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0494/1001] soundwire: cadence: Dont overflow the command FIFOs
 Date:   Tue,  7 Mar 2023 17:54:26 +0100
-Message-Id: <20230307170016.613279521@linuxfoundation.org>
+Message-Id: <20230307170042.818512254@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit d4bde04318c0d33705e9a77d4c7df72f262011e0 ]
+[ Upstream commit 7cbfee2e2e40d2be54196362a845a3ea0a3f877d ]
 
-Selecting a symbol with additional dependencies requires
-adding the same dependency here:
+The command FIFOs in the Cadence IP can be configured during design
+up to 32 entries, and the code in cadence_master.c was assuming the
+full 32-entry FIFO. But all current Intel implementations use an 8-entry
+FIFO.
 
-WARNING: unmet direct dependencies detected for MUX_MMIO
-  Depends on [n]: MULTIPLEXER [=y] && OF [=n]
-  Selected by [y]:
-  - SPI_DW_BT1 [=y] && SPI [=y] && SPI_MASTER [=y] && SPI_DESIGNWARE [=y] && (MIPS_BAIKAL_T1 || COMPILE_TEST [=y])
+Up to now the longest message used was 6 entries so this wasn't
+causing any problem. But future Cirrus Logic codecs have downloadable
+firmware or tuning blobs. It is more efficient for the codec driver to
+issue long transfers that can take advantage of any queuing in the
+Soundwire controller and avoid the overhead of repeatedly writing the
+page registers.
 
-Drop the 'select' here to avoid the problem. Anyone using
-the dw-bt1 SPI driver should make sure they include the
-mux driver as well now.
-
-Fixes: 7218838109fe ("spi: dw-bt1: Fix undefined devm_mux_control_get symbol")
-Fixes: abf00907538e ("spi: dw: Add Baikal-T1 SPI Controller glue driver")
-Link: https://lore.kernel.org/all/20221218192523.c6vnfo26ua6xqf26@mobilestation/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Link: https://lore.kernel.org/r/20230130140156.3620863-1-arnd@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Fixes: 2f52a5177caa ("soundwire: cdns: Add cadence library")
+Link: https://lore.kernel.org/r/20221202161812.4186897-2-rf@opensource.cirrus.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/soundwire/cadence_master.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index d1bb62f7368b7..d4b969e68c314 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -295,7 +295,6 @@ config SPI_DW_BT1
- 	tristate "Baikal-T1 SPI driver for DW SPI core"
- 	depends on MIPS_BAIKAL_T1 || COMPILE_TEST
- 	select MULTIPLEXER
--	select MUX_MMIO
- 	help
- 	  Baikal-T1 SoC is equipped with three DW APB SSI-based MMIO SPI
- 	  controllers. Two of them are pretty much normal: with IRQ, DMA,
+diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
+index a1de363eba3ff..27699f341f2c5 100644
+--- a/drivers/soundwire/cadence_master.c
++++ b/drivers/soundwire/cadence_master.c
+@@ -127,7 +127,8 @@ MODULE_PARM_DESC(cdns_mcp_int_mask, "Cadence MCP IntMask");
+ 
+ #define CDNS_MCP_CMD_BASE			0x80
+ #define CDNS_MCP_RESP_BASE			0x80
+-#define CDNS_MCP_CMD_LEN			0x20
++/* FIFO can hold 8 commands */
++#define CDNS_MCP_CMD_LEN			8
+ #define CDNS_MCP_CMD_WORD_LEN			0x4
+ 
+ #define CDNS_MCP_CMD_SSP_TAG			BIT(31)
 -- 
 2.39.2
 
