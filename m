@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EE686AEE8F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E576AEA2E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230061AbjCGSNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:13:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58528 "EHLO
+        id S231646AbjCGRbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:31:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232279AbjCGSMz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F35DD92F14
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:19 -0800 (PST)
+        with ESMTP id S231644AbjCGRbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8874F9DE0A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B535B8191D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1242FC433D2;
-        Tue,  7 Mar 2023 18:08:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67FBE614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DD56C433EF;
+        Tue,  7 Mar 2023 17:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212497;
-        bh=mx/3ElLRUgkpbzx8APLXS+aNwjRF5FuzYkqql+gdVbY=;
+        s=korg; t=1678209985;
+        bh=dm0pW1bKmQiIbknL9mOJFspkh7fXLhI9MgEMSWyiESY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wjRohL2oCDh6jypGUZ8/5LCrlDdq0plZ5jI7V8z56w6B95tzCKoiYHk2U9YqdCqQQ
-         tRGyPgOTyV1+NXLIRZB1pak040wRkuWZyseT+DoUXrtI/SlNqSV99+snkvlbg0GDwh
-         3kCZr59aTHjLJHHwKmSRAp0RajQjgXZixpPVrNm0=
+        b=AdKKRDr6ZaRh7iw47I7kRgv5s7i61CTl5kFZyMnAxmT6oyqPBbWBmyDVFEDLOFgNY
+         PeH0pLE5KcXeE1++uazZmHl+uxZ2j0PnHxssAHfUw25CVTfsZmxY1xPxMbkIiqEEm2
+         2U1e2OSJnAnrmDUxIbQe64QmjnJ2pyaRnjEkiSM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 202/885] irqchip/ti-sci: Fix refcount leak in ti_sci_intr_irq_domain_probe
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0364/1001] drm/msm/gem: Add check for kmalloc
 Date:   Tue,  7 Mar 2023 17:52:16 +0100
-Message-Id: <20230307170010.823075328@linuxfoundation.org>
+Message-Id: <20230307170037.187615340@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,35 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 02298b7bae12936ca313975b02e7f98b06670d37 ]
+[ Upstream commit d839f0811a31322c087a859c2b181e2383daa7be ]
 
-of_irq_find_parent() returns a node pointer with refcount incremented,
-We should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+Add the check for the return value of kmalloc in order to avoid
+NULL pointer dereference in copy_from_user.
 
-Fixes: cd844b0715ce ("irqchip/ti-sci-intr: Add support for Interrupt Router driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230102085611.3955984-1-linmq006@gmail.com
+Fixes: 20224d715a88 ("drm/msm/submit: Move copy_from_user ahead of locking bos")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/514678/
+Link: https://lore.kernel.org/r/20221212091117.43511-1-jiasheng@iscas.ac.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-ti-sci-intr.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/msm_gem_submit.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/irqchip/irq-ti-sci-intr.c b/drivers/irqchip/irq-ti-sci-intr.c
-index fe8fad22bcf96..020ddf29efb80 100644
---- a/drivers/irqchip/irq-ti-sci-intr.c
-+++ b/drivers/irqchip/irq-ti-sci-intr.c
-@@ -236,6 +236,7 @@ static int ti_sci_intr_irq_domain_probe(struct platform_device *pdev)
- 	}
- 
- 	parent_domain = irq_find_host(parent_node);
-+	of_node_put(parent_node);
- 	if (!parent_domain) {
- 		dev_err(dev, "Failed to find IRQ parent domain\n");
- 		return -ENODEV;
+diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
+index 73a2ca122c570..1c4be193fd23f 100644
+--- a/drivers/gpu/drm/msm/msm_gem_submit.c
++++ b/drivers/gpu/drm/msm/msm_gem_submit.c
+@@ -209,6 +209,10 @@ static int submit_lookup_cmds(struct msm_gem_submit *submit,
+ 			goto out;
+ 		}
+ 		submit->cmd[i].relocs = kmalloc(sz, GFP_KERNEL);
++		if (!submit->cmd[i].relocs) {
++			ret = -ENOMEM;
++			goto out;
++		}
+ 		ret = copy_from_user(submit->cmd[i].relocs, userptr, sz);
+ 		if (ret) {
+ 			ret = -EFAULT;
 -- 
 2.39.2
 
