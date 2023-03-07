@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5BEC6AEE82
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E41216AEA2F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbjCGSMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:12:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48102 "EHLO
+        id S231269AbjCGRb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:31:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232416AbjCGSMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E583985B14
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:45 -0800 (PST)
+        with ESMTP id S231536AbjCGRbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2250B9DE1D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 61444CE1C7C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DDCC433D2;
-        Tue,  7 Mar 2023 18:07:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35397B819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA24C4339E;
+        Tue,  7 Mar 2023 17:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212462;
-        bh=ig7WbEFZ32ClQwUK/Sv14FPS6asCI3c3+S/AYsl1nb4=;
+        s=korg; t=1678209988;
+        bh=FvEl1Q8ErGKGiCOg5wgqLkzdK1EW1aYIcBHkpOsoiHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDoCCw9E8EI3ckKzNtQ0Hmx2xMM0YCbaecquLAHef48470Rky7y8AUVpZu8+XRPSL
-         YUrhQJEgKLVH+H1alOd0GJu6mglDYulnj57JEl7oBofUTn1/PZYKJlDUIT4Lzl2NR0
-         9uHgogH8GA86ZKL1HdFGt3XiM1kkcA5TEDQKnir8=
+        b=M49+4o1T3KaHeNG0dBrEaCxaNTdXjjZKAsuOlcJZ4YPfs3xY37HJEzEyaN9qEdQMq
+         IsapuJpVTxEIUesQ+21wr503jTWInPq3z5auDCVeJ3uO+zPz4MN8BxvPAgHp8KAiUt
+         AoKNJWO8cNb29LWYP6FBXYZPsPwoHYfp/xqeqtx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tonghao Zhang <tong@infragraf.org>,
-        Quentin Monnet <quentin@isovalent.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Abel Vesa <abel.vesa@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 192/885] bpftool: profile online CPUs instead of possible
-Date:   Tue,  7 Mar 2023 17:52:06 +0100
-Message-Id: <20230307170010.363316920@linuxfoundation.org>
+Subject: [PATCH 6.2 0355/1001] drm/panel-edp: fix name for IVO product id 854b
+Date:   Tue,  7 Mar 2023 17:52:07 +0100
+Message-Id: <20230307170036.847399491@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,114 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tonghao Zhang <tong@infragraf.org>
+From: Abel Vesa <abel.vesa@linaro.org>
 
-[ Upstream commit 377c16fa3f3c60d21e4b05314c8be034ce37f2eb ]
+[ Upstream commit 9cce08cadc6ce8670280d0a042cf0b6d2987d9f9 ]
 
-The number of online cpu may be not equal to possible cpu.
-"bpftool prog profile" can not create pmu event on possible
-but on online cpu.
+The actual name is R133NW4K-R0.
 
-$ dmidecode -s system-product-name
-PowerEdge R620
-$ cat /sys/devices/system/cpu/possible
-0-47
-$ cat /sys/devices/system/cpu/online
-0-31
-
-Disable cpu dynamically:
-$ echo 0 > /sys/devices/system/cpu/cpuX/online
-
-If one cpu is offline, perf_event_open will return ENODEV.
-To fix this issue:
-* check value returned and skip offline cpu.
-* close pmu_fd immediately on error path, avoid fd leaking.
-
-Fixes: 47c09d6a9f67 ("bpftool: Introduce "prog profile" command")
-Signed-off-by: Tonghao Zhang <tong@infragraf.org>
-Cc: Quentin Monnet <quentin@isovalent.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Song Liu <song@kernel.org>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Cc: Hao Luo <haoluo@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20230202131701.29519-1-tong@infragraf.org
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: 0f9fa5f58c78 ("drm/panel-edp: add IVO M133NW4J-R3 panel entry")
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221231142721.338643-1-abel.vesa@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/prog.c | 38 ++++++++++++++++++++++++++++++--------
- 1 file changed, 30 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/panel/panel-edp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
-index c81362a001ba9..41c02b6f6f043 100644
---- a/tools/bpf/bpftool/prog.c
-+++ b/tools/bpf/bpftool/prog.c
-@@ -2166,10 +2166,38 @@ static void profile_close_perf_events(struct profiler_bpf *obj)
- 	profile_perf_event_cnt = 0;
- }
+diff --git a/drivers/gpu/drm/panel/panel-edp.c b/drivers/gpu/drm/panel/panel-edp.c
+index 5cb8dc2ebe184..ef70928c3ccbc 100644
+--- a/drivers/gpu/drm/panel/panel-edp.c
++++ b/drivers/gpu/drm/panel/panel-edp.c
+@@ -1891,7 +1891,7 @@ static const struct edp_panel_entry edp_panels[] = {
+ 	EDP_PANEL_ENTRY('C', 'M', 'N', 0x1247, &delay_200_500_e80_d50, "N120ACA-EA1"),
  
-+static int profile_open_perf_event(int mid, int cpu, int map_fd)
-+{
-+	int pmu_fd;
-+
-+	pmu_fd = syscall(__NR_perf_event_open, &metrics[mid].attr,
-+			 -1 /*pid*/, cpu, -1 /*group_fd*/, 0);
-+	if (pmu_fd < 0) {
-+		if (errno == ENODEV) {
-+			p_info("cpu %d may be offline, skip %s profiling.",
-+				cpu, metrics[mid].name);
-+			profile_perf_event_cnt++;
-+			return 0;
-+		}
-+		return -1;
-+	}
-+
-+	if (bpf_map_update_elem(map_fd,
-+				&profile_perf_event_cnt,
-+				&pmu_fd, BPF_ANY) ||
-+	    ioctl(pmu_fd, PERF_EVENT_IOC_ENABLE, 0)) {
-+		close(pmu_fd);
-+		return -1;
-+	}
-+
-+	profile_perf_events[profile_perf_event_cnt++] = pmu_fd;
-+	return 0;
-+}
-+
- static int profile_open_perf_events(struct profiler_bpf *obj)
- {
- 	unsigned int cpu, m;
--	int map_fd, pmu_fd;
-+	int map_fd;
+ 	EDP_PANEL_ENTRY('I', 'V', 'O', 0x057d, &delay_200_500_e200, "R140NWF5 RH"),
+-	EDP_PANEL_ENTRY('I', 'V', 'O', 0x854b, &delay_200_500_p2e100, "M133NW4J-R3"),
++	EDP_PANEL_ENTRY('I', 'V', 'O', 0x854b, &delay_200_500_p2e100, "R133NW4K-R0"),
  
- 	profile_perf_events = calloc(
- 		sizeof(int), obj->rodata->num_cpu * obj->rodata->num_metric);
-@@ -2188,17 +2216,11 @@ static int profile_open_perf_events(struct profiler_bpf *obj)
- 		if (!metrics[m].selected)
- 			continue;
- 		for (cpu = 0; cpu < obj->rodata->num_cpu; cpu++) {
--			pmu_fd = syscall(__NR_perf_event_open, &metrics[m].attr,
--					 -1/*pid*/, cpu, -1/*group_fd*/, 0);
--			if (pmu_fd < 0 ||
--			    bpf_map_update_elem(map_fd, &profile_perf_event_cnt,
--						&pmu_fd, BPF_ANY) ||
--			    ioctl(pmu_fd, PERF_EVENT_IOC_ENABLE, 0)) {
-+			if (profile_open_perf_event(m, cpu, map_fd)) {
- 				p_err("failed to create event %s on cpu %d",
- 				      metrics[m].name, cpu);
- 				return -1;
- 			}
--			profile_perf_events[profile_perf_event_cnt++] = pmu_fd;
- 		}
- 	}
- 	return 0;
+ 	EDP_PANEL_ENTRY('K', 'D', 'B', 0x0624, &kingdisplay_kd116n21_30nv_a010.delay, "116N21-30NV-A010"),
+ 	EDP_PANEL_ENTRY('K', 'D', 'B', 0x1120, &delay_200_500_e80_d50, "116N29-30NK-C007"),
 -- 
 2.39.2
 
