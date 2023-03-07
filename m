@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E15216AEB54
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE32E6AF07C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:31:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232046AbjCGRn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:43:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
+        id S231200AbjCGSa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231770AbjCGRmz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:42:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2333D4DE09
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:38:53 -0800 (PST)
+        with ESMTP id S229850AbjCGSaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D996A42
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00323B819A3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10D31C4339C;
-        Tue,  7 Mar 2023 17:38:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15FDEB819C5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76259C433D2;
+        Tue,  7 Mar 2023 18:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210727;
-        bh=icwTuGJvCXyJoKco19Ilnpw5Clbn22GlezxvZ5M2GHg=;
+        s=korg; t=1678213428;
+        bh=1CgsFkOgc2peu48zLHkDMJzEWQg/q7F0Np9YA8DF9l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoAAmrafXu0Lc0oY0A8zziEkcciUgU9TXmidGG008Vb8XVhQaAb2M+PBUxREL/GpF
-         vSDMQfY/A6xl4uNjyVXYMhF1dBFf+dYCVj9/sY+JxRDns5WbgfCPnPxVCbtq8eMppt
-         OOGTqjXSLsZnTUxCrT4uy0Wqs4NEja+3JmCbzrTM=
+        b=EmtvsB8KFzJqsZhJUo8rm/UTLrmg4XqxoZDCNizx+znqLw+zCPanOE6o1Bc676vlz
+         zfQif3bocrYTFz1T3ITDCIm0HcOJ/xe3pTHYoUoiM8Y/5rLUc9igIPskdG+cO/qmm3
+         JrI7s/AXTERLrPcibdvVr+OCCM9FcQ6nkh3R45JQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0635/1001] perf/x86/intel/uncore: Add Meteor Lake support
-Date:   Tue,  7 Mar 2023 17:56:47 +0100
-Message-Id: <20230307170049.140814558@linuxfoundation.org>
+        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        Luca Weiss <luca.weiss@fairphone.com>
+Subject: [PATCH 6.1 474/885] driver core: fw_devlink: Make cycle detection more robust
+Date:   Tue,  7 Mar 2023 17:56:48 +0100
+Message-Id: <20230307170023.095065922@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,261 +58,401 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit c828441f21ddc819a28b5723a72e3c840e9de1c6 ]
+[ Upstream commit 3fb16866b51ded6c016b664caad53f8d4fd9dc56 ]
 
-The uncore subsystem for Meteor Lake is similar to the previous Alder
-Lake. The main difference is that MTL provides PMU support for different
-tiles, while ADL only provides PMU support for the whole package. On
-ADL, there are CBOX, ARB, and clockbox uncore PMON units. On MTL, they
-are split into CBOX/HAC_CBOX, ARB/HAC_ARB, and cncu/sncu which provides
-a fixed counter for clockticks. Also, new MSR addresses are introduced
-on MTL.
+fw_devlink could only detect a single and simple cycle because it relied
+mainly on device link cycle detection code that only checked for cycles
+between devices. The expectation was that the firmware wouldn't have
+complicated cycles and multiple cycles between devices. That expectation
+has been proven to be wrong.
 
-The IMC uncore PMON is the same as Alder Lake. Add new PCIIDs of IMC for
-Meteor Lake.
+For example, fw_devlink could handle:
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230210190238.1726237-1-kan.liang@linux.intel.com
++-+        +-+
+|A+------> |B+
++-+        +++
+ ^          |
+ |          |
+ +----------+
+
+But it couldn't handle even something as "simple" as:
+
+ +---------------------+
+ |                     |
+ v                     |
++-+        +-+        +++
+|A+------> |B+------> |C|
++-+        +++        +-+
+ ^          |
+ |          |
+ +----------+
+
+But firmware has even more complicated cycles like:
+
+    +---------------------+
+    |                     |
+    v                     |
+   +-+       +---+       +++
++--+A+------>| B +-----> |C|<--+
+|  +-+       ++--+       +++   |
+|   ^         | ^         |    |
+|   |         | |         |    |
+|   +---------+ +---------+    |
+|                              |
++------------------------------+
+
+And this is without including parent child dependencies or nodes in the
+cycle that are just firmware nodes that'll never have a struct device
+created for them.
+
+The proper way to treat these devices it to not force any probe ordering
+between them, while still enforce dependencies between node in the
+cycles (A, B and C) and their consumers.
+
+So this patch goes all out and just deals with all types of cycles. It
+does this by:
+
+1. Following dependencies across device links, parent-child and fwnode
+   links.
+2. When it find cycles, it mark the device links and fwnode links as
+   such instead of just deleting them or making the indistinguishable
+   from proxy SYNC_STATE_ONLY device links.
+
+This way, when new nodes get added, we can immediately find and mark any
+new cycles whether the new node is a device or firmware node.
+
+Fixes: 2de9d8e0d2fe ("driver core: fw_devlink: Improve handling of cyclic dependencies")
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Tested-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
+Link: https://lore.kernel.org/r/20230207014207.1678715-9-saravanak@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore.c     |   7 ++
- arch/x86/events/intel/uncore.h     |   1 +
- arch/x86/events/intel/uncore_snb.c | 161 +++++++++++++++++++++++++++++
- 3 files changed, 169 insertions(+)
+ drivers/base/core.c | 248 +++++++++++++++++++++++---------------------
+ 1 file changed, 129 insertions(+), 119 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
-index 459b1aafd4d4a..27b34f5b87600 100644
---- a/arch/x86/events/intel/uncore.c
-+++ b/arch/x86/events/intel/uncore.c
-@@ -1765,6 +1765,11 @@ static const struct intel_uncore_init_fun adl_uncore_init __initconst = {
- 	.mmio_init = adl_uncore_mmio_init,
- };
- 
-+static const struct intel_uncore_init_fun mtl_uncore_init __initconst = {
-+	.cpu_init = mtl_uncore_cpu_init,
-+	.mmio_init = adl_uncore_mmio_init,
-+};
-+
- static const struct intel_uncore_init_fun icx_uncore_init __initconst = {
- 	.cpu_init = icx_uncore_cpu_init,
- 	.pci_init = icx_uncore_pci_init,
-@@ -1832,6 +1837,8 @@ static const struct x86_cpu_id intel_uncore_match[] __initconst = {
- 	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE,		&adl_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_P,	&adl_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_S,	&adl_uncore_init),
-+	X86_MATCH_INTEL_FAM6_MODEL(METEORLAKE,		&mtl_uncore_init),
-+	X86_MATCH_INTEL_FAM6_MODEL(METEORLAKE_L,	&mtl_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(SAPPHIRERAPIDS_X,	&spr_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(EMERALDRAPIDS_X,	&spr_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_D,	&snr_uncore_init),
-diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
-index e278e2e7c051a..305a54d88beee 100644
---- a/arch/x86/events/intel/uncore.h
-+++ b/arch/x86/events/intel/uncore.h
-@@ -602,6 +602,7 @@ void skl_uncore_cpu_init(void);
- void icl_uncore_cpu_init(void);
- void tgl_uncore_cpu_init(void);
- void adl_uncore_cpu_init(void);
-+void mtl_uncore_cpu_init(void);
- void tgl_uncore_mmio_init(void);
- void tgl_l_uncore_mmio_init(void);
- void adl_uncore_mmio_init(void);
-diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
-index 1f4869227efb9..7fd4334e12a17 100644
---- a/arch/x86/events/intel/uncore_snb.c
-+++ b/arch/x86/events/intel/uncore_snb.c
-@@ -109,6 +109,19 @@
- #define PCI_DEVICE_ID_INTEL_RPL_23_IMC		0xA728
- #define PCI_DEVICE_ID_INTEL_RPL_24_IMC		0xA729
- #define PCI_DEVICE_ID_INTEL_RPL_25_IMC		0xA72A
-+#define PCI_DEVICE_ID_INTEL_MTL_1_IMC		0x7d00
-+#define PCI_DEVICE_ID_INTEL_MTL_2_IMC		0x7d01
-+#define PCI_DEVICE_ID_INTEL_MTL_3_IMC		0x7d02
-+#define PCI_DEVICE_ID_INTEL_MTL_4_IMC		0x7d05
-+#define PCI_DEVICE_ID_INTEL_MTL_5_IMC		0x7d10
-+#define PCI_DEVICE_ID_INTEL_MTL_6_IMC		0x7d14
-+#define PCI_DEVICE_ID_INTEL_MTL_7_IMC		0x7d15
-+#define PCI_DEVICE_ID_INTEL_MTL_8_IMC		0x7d16
-+#define PCI_DEVICE_ID_INTEL_MTL_9_IMC		0x7d21
-+#define PCI_DEVICE_ID_INTEL_MTL_10_IMC		0x7d22
-+#define PCI_DEVICE_ID_INTEL_MTL_11_IMC		0x7d23
-+#define PCI_DEVICE_ID_INTEL_MTL_12_IMC		0x7d24
-+#define PCI_DEVICE_ID_INTEL_MTL_13_IMC		0x7d28
- 
- 
- #define IMC_UNCORE_DEV(a)						\
-@@ -205,6 +218,32 @@
- #define ADL_UNC_ARB_PERFEVTSEL0			0x2FD0
- #define ADL_UNC_ARB_MSR_OFFSET			0x8
- 
-+/* MTL Cbo register */
-+#define MTL_UNC_CBO_0_PER_CTR0			0x2448
-+#define MTL_UNC_CBO_0_PERFEVTSEL0		0x2442
-+
-+/* MTL HAC_ARB register */
-+#define MTL_UNC_HAC_ARB_CTR			0x2018
-+#define MTL_UNC_HAC_ARB_CTRL			0x2012
-+
-+/* MTL ARB register */
-+#define MTL_UNC_ARB_CTR				0x2418
-+#define MTL_UNC_ARB_CTRL			0x2412
-+
-+/* MTL cNCU register */
-+#define MTL_UNC_CNCU_FIXED_CTR			0x2408
-+#define MTL_UNC_CNCU_FIXED_CTRL			0x2402
-+#define MTL_UNC_CNCU_BOX_CTL			0x240e
-+
-+/* MTL sNCU register */
-+#define MTL_UNC_SNCU_FIXED_CTR			0x2008
-+#define MTL_UNC_SNCU_FIXED_CTRL			0x2002
-+#define MTL_UNC_SNCU_BOX_CTL			0x200e
-+
-+/* MTL HAC_CBO register */
-+#define MTL_UNC_HBO_CTR				0x2048
-+#define MTL_UNC_HBO_CTRL			0x2042
-+
- DEFINE_UNCORE_FORMAT_ATTR(event, event, "config:0-7");
- DEFINE_UNCORE_FORMAT_ATTR(umask, umask, "config:8-15");
- DEFINE_UNCORE_FORMAT_ATTR(chmask, chmask, "config:8-11");
-@@ -598,6 +637,115 @@ void adl_uncore_cpu_init(void)
- 	uncore_msr_uncores = adl_msr_uncores;
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index bf053e351a277..ac08d475e2828 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1865,47 +1865,6 @@ static void fw_devlink_unblock_consumers(struct device *dev)
+ 	device_links_write_unlock();
  }
  
-+static struct intel_uncore_type mtl_uncore_cbox = {
-+	.name		= "cbox",
-+	.num_counters   = 2,
-+	.perf_ctr_bits	= 48,
-+	.perf_ctr	= MTL_UNC_CBO_0_PER_CTR0,
-+	.event_ctl	= MTL_UNC_CBO_0_PERFEVTSEL0,
-+	.event_mask	= ADL_UNC_RAW_EVENT_MASK,
-+	.msr_offset	= SNB_UNC_CBO_MSR_OFFSET,
-+	.ops		= &icl_uncore_msr_ops,
-+	.format_group	= &adl_uncore_format_group,
-+};
-+
-+static struct intel_uncore_type mtl_uncore_hac_arb = {
-+	.name		= "hac_arb",
-+	.num_counters   = 2,
-+	.num_boxes	= 2,
-+	.perf_ctr_bits	= 48,
-+	.perf_ctr	= MTL_UNC_HAC_ARB_CTR,
-+	.event_ctl	= MTL_UNC_HAC_ARB_CTRL,
-+	.event_mask	= ADL_UNC_RAW_EVENT_MASK,
-+	.msr_offset	= SNB_UNC_CBO_MSR_OFFSET,
-+	.ops		= &icl_uncore_msr_ops,
-+	.format_group	= &adl_uncore_format_group,
-+};
-+
-+static struct intel_uncore_type mtl_uncore_arb = {
-+	.name		= "arb",
-+	.num_counters   = 2,
-+	.num_boxes	= 2,
-+	.perf_ctr_bits	= 48,
-+	.perf_ctr	= MTL_UNC_ARB_CTR,
-+	.event_ctl	= MTL_UNC_ARB_CTRL,
-+	.event_mask	= ADL_UNC_RAW_EVENT_MASK,
-+	.msr_offset	= SNB_UNC_CBO_MSR_OFFSET,
-+	.ops		= &icl_uncore_msr_ops,
-+	.format_group	= &adl_uncore_format_group,
-+};
-+
-+static struct intel_uncore_type mtl_uncore_hac_cbox = {
-+	.name		= "hac_cbox",
-+	.num_counters   = 2,
-+	.num_boxes	= 2,
-+	.perf_ctr_bits	= 48,
-+	.perf_ctr	= MTL_UNC_HBO_CTR,
-+	.event_ctl	= MTL_UNC_HBO_CTRL,
-+	.event_mask	= ADL_UNC_RAW_EVENT_MASK,
-+	.msr_offset	= SNB_UNC_CBO_MSR_OFFSET,
-+	.ops		= &icl_uncore_msr_ops,
-+	.format_group	= &adl_uncore_format_group,
-+};
-+
-+static void mtl_uncore_msr_init_box(struct intel_uncore_box *box)
-+{
-+	wrmsrl(uncore_msr_box_ctl(box), SNB_UNC_GLOBAL_CTL_EN);
-+}
-+
-+static struct intel_uncore_ops mtl_uncore_msr_ops = {
-+	.init_box	= mtl_uncore_msr_init_box,
-+	.disable_event	= snb_uncore_msr_disable_event,
-+	.enable_event	= snb_uncore_msr_enable_event,
-+	.read_counter	= uncore_msr_read_counter,
-+};
-+
-+static struct intel_uncore_type mtl_uncore_cncu = {
-+	.name		= "cncu",
-+	.num_counters   = 1,
-+	.num_boxes	= 1,
-+	.box_ctl	= MTL_UNC_CNCU_BOX_CTL,
-+	.fixed_ctr_bits = 48,
-+	.fixed_ctr	= MTL_UNC_CNCU_FIXED_CTR,
-+	.fixed_ctl	= MTL_UNC_CNCU_FIXED_CTRL,
-+	.single_fixed	= 1,
-+	.event_mask	= SNB_UNC_CTL_EV_SEL_MASK,
-+	.format_group	= &icl_uncore_clock_format_group,
-+	.ops		= &mtl_uncore_msr_ops,
-+	.event_descs	= icl_uncore_events,
-+};
-+
-+static struct intel_uncore_type mtl_uncore_sncu = {
-+	.name		= "sncu",
-+	.num_counters   = 1,
-+	.num_boxes	= 1,
-+	.box_ctl	= MTL_UNC_SNCU_BOX_CTL,
-+	.fixed_ctr_bits	= 48,
-+	.fixed_ctr	= MTL_UNC_SNCU_FIXED_CTR,
-+	.fixed_ctl	= MTL_UNC_SNCU_FIXED_CTRL,
-+	.single_fixed	= 1,
-+	.event_mask	= SNB_UNC_CTL_EV_SEL_MASK,
-+	.format_group	= &icl_uncore_clock_format_group,
-+	.ops		= &mtl_uncore_msr_ops,
-+	.event_descs	= icl_uncore_events,
-+};
-+
-+static struct intel_uncore_type *mtl_msr_uncores[] = {
-+	&mtl_uncore_cbox,
-+	&mtl_uncore_hac_arb,
-+	&mtl_uncore_arb,
-+	&mtl_uncore_hac_cbox,
-+	&mtl_uncore_cncu,
-+	&mtl_uncore_sncu,
-+	NULL
-+};
-+
-+void mtl_uncore_cpu_init(void)
-+{
-+	mtl_uncore_cbox.num_boxes = icl_get_cbox_num();
-+	uncore_msr_uncores = mtl_msr_uncores;
-+}
-+
- enum {
- 	SNB_PCI_UNCORE_IMC,
- };
-@@ -1264,6 +1412,19 @@ static const struct pci_device_id tgl_uncore_pci_ids[] = {
- 	IMC_UNCORE_DEV(RPL_23),
- 	IMC_UNCORE_DEV(RPL_24),
- 	IMC_UNCORE_DEV(RPL_25),
-+	IMC_UNCORE_DEV(MTL_1),
-+	IMC_UNCORE_DEV(MTL_2),
-+	IMC_UNCORE_DEV(MTL_3),
-+	IMC_UNCORE_DEV(MTL_4),
-+	IMC_UNCORE_DEV(MTL_5),
-+	IMC_UNCORE_DEV(MTL_6),
-+	IMC_UNCORE_DEV(MTL_7),
-+	IMC_UNCORE_DEV(MTL_8),
-+	IMC_UNCORE_DEV(MTL_9),
-+	IMC_UNCORE_DEV(MTL_10),
-+	IMC_UNCORE_DEV(MTL_11),
-+	IMC_UNCORE_DEV(MTL_12),
-+	IMC_UNCORE_DEV(MTL_13),
- 	{ /* end: all zeroes */ }
- };
+-/**
+- * fw_devlink_relax_cycle - Convert cyclic links to SYNC_STATE_ONLY links
+- * @con: Device to check dependencies for.
+- * @sup: Device to check against.
+- *
+- * Check if @sup depends on @con or any device dependent on it (its child or
+- * its consumer etc).  When such a cyclic dependency is found, convert all
+- * device links created solely by fw_devlink into SYNC_STATE_ONLY device links.
+- * This is the equivalent of doing fw_devlink=permissive just between the
+- * devices in the cycle. We need to do this because, at this point, fw_devlink
+- * can't tell which of these dependencies is not a real dependency.
+- *
+- * Return 1 if a cycle is found. Otherwise, return 0.
+- */
+-static int fw_devlink_relax_cycle(struct device *con, void *sup)
+-{
+-	struct device_link *link;
+-	int ret;
+-
+-	if (con == sup)
+-		return 1;
+-
+-	ret = device_for_each_child(con, sup, fw_devlink_relax_cycle);
+-	if (ret)
+-		return ret;
+-
+-	list_for_each_entry(link, &con->links.consumers, s_node) {
+-		if (!(link->flags & DL_FLAG_CYCLE) &&
+-		    device_link_flag_is_sync_state_only(link->flags))
+-			continue;
+-
+-		if (!fw_devlink_relax_cycle(link->consumer, sup))
+-			continue;
+-
+-		ret = 1;
+-
+-		fw_devlink_relax_link(link);
+-		link->flags |= DL_FLAG_CYCLE;
+-	}
+-	return ret;
+-}
  
+ static bool fwnode_init_without_drv(struct fwnode_handle *fwnode)
+ {
+@@ -1936,6 +1895,111 @@ static bool fwnode_ancestor_init_without_drv(struct fwnode_handle *fwnode)
+ 	return false;
+ }
+ 
++/**
++ * __fw_devlink_relax_cycles - Relax and mark dependency cycles.
++ * @con: Potential consumer device.
++ * @sup_handle: Potential supplier's fwnode.
++ *
++ * Needs to be called with fwnode_lock and device link lock held.
++ *
++ * Check if @sup_handle or any of its ancestors or suppliers direct/indirectly
++ * depend on @con. This function can detect multiple cyles between @sup_handle
++ * and @con. When such dependency cycles are found, convert all device links
++ * created solely by fw_devlink into SYNC_STATE_ONLY device links. Also, mark
++ * all fwnode links in the cycle with FWLINK_FLAG_CYCLE so that when they are
++ * converted into a device link in the future, they are created as
++ * SYNC_STATE_ONLY device links. This is the equivalent of doing
++ * fw_devlink=permissive just between the devices in the cycle. We need to do
++ * this because, at this point, fw_devlink can't tell which of these
++ * dependencies is not a real dependency.
++ *
++ * Return true if one or more cycles were found. Otherwise, return false.
++ */
++static bool __fw_devlink_relax_cycles(struct device *con,
++				 struct fwnode_handle *sup_handle)
++{
++	struct device *sup_dev = NULL, *par_dev = NULL;
++	struct fwnode_link *link;
++	struct device_link *dev_link;
++	bool ret = false;
++
++	if (!sup_handle)
++		return false;
++
++	/*
++	 * We aren't trying to find all cycles. Just a cycle between con and
++	 * sup_handle.
++	 */
++	if (sup_handle->flags & FWNODE_FLAG_VISITED)
++		return false;
++
++	sup_handle->flags |= FWNODE_FLAG_VISITED;
++
++	sup_dev = get_dev_from_fwnode(sup_handle);
++
++	/* Termination condition. */
++	if (sup_dev == con) {
++		ret = true;
++		goto out;
++	}
++
++	/*
++	 * If sup_dev is bound to a driver and @con hasn't started binding to a
++	 * driver, sup_dev can't be a consumer of @con. So, no need to check
++	 * further.
++	 */
++	if (sup_dev && sup_dev->links.status ==  DL_DEV_DRIVER_BOUND &&
++	    con->links.status == DL_DEV_NO_DRIVER) {
++		ret = false;
++		goto out;
++	}
++
++	list_for_each_entry(link, &sup_handle->suppliers, c_hook) {
++		if (__fw_devlink_relax_cycles(con, link->supplier)) {
++			__fwnode_link_cycle(link);
++			ret = true;
++		}
++	}
++
++	/*
++	 * Give priority to device parent over fwnode parent to account for any
++	 * quirks in how fwnodes are converted to devices.
++	 */
++	if (sup_dev)
++		par_dev = get_device(sup_dev->parent);
++	else
++		par_dev = fwnode_get_next_parent_dev(sup_handle);
++
++	if (par_dev && __fw_devlink_relax_cycles(con, par_dev->fwnode))
++		ret = true;
++
++	if (!sup_dev)
++		goto out;
++
++	list_for_each_entry(dev_link, &sup_dev->links.suppliers, c_node) {
++		/*
++		 * Ignore a SYNC_STATE_ONLY flag only if it wasn't marked as
++		 * such due to a cycle.
++		 */
++		if (device_link_flag_is_sync_state_only(dev_link->flags) &&
++		    !(dev_link->flags & DL_FLAG_CYCLE))
++			continue;
++
++		if (__fw_devlink_relax_cycles(con,
++					      dev_link->supplier->fwnode)) {
++			fw_devlink_relax_link(dev_link);
++			dev_link->flags |= DL_FLAG_CYCLE;
++			ret = true;
++		}
++	}
++
++out:
++	sup_handle->flags &= ~FWNODE_FLAG_VISITED;
++	put_device(sup_dev);
++	put_device(par_dev);
++	return ret;
++}
++
+ /**
+  * fw_devlink_create_devlink - Create a device link from a consumer to fwnode
+  * @con: consumer device for the device link
+@@ -1988,6 +2052,21 @@ static int fw_devlink_create_devlink(struct device *con,
+ 	    fwnode_is_ancestor_of(sup_handle, con->fwnode))
+ 		return -EINVAL;
+ 
++	/*
++	 * SYNC_STATE_ONLY device links don't block probing and supports cycles.
++	 * So cycle detection isn't necessary and shouldn't be done.
++	 */
++	if (!(flags & DL_FLAG_SYNC_STATE_ONLY)) {
++		device_links_write_lock();
++		if (__fw_devlink_relax_cycles(con, sup_handle)) {
++			__fwnode_link_cycle(link);
++			flags = fw_devlink_get_flags(link->flags);
++			dev_info(con, "Fixed dependency cycle(s) with %pfwf\n",
++				 sup_handle);
++		}
++		device_links_write_unlock();
++	}
++
+ 	if (sup_handle->flags & FWNODE_FLAG_NOT_DEVICE)
+ 		sup_dev = fwnode_get_next_parent_dev(sup_handle);
+ 	else
+@@ -2001,23 +2080,16 @@ static int fw_devlink_create_devlink(struct device *con,
+ 		 */
+ 		if (sup_dev->links.status == DL_DEV_NO_DRIVER &&
+ 		    sup_handle->flags & FWNODE_FLAG_INITIALIZED) {
++			dev_dbg(con,
++				"Not linking %pfwf - dev might never probe\n",
++				sup_handle);
+ 			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 
+-		/*
+-		 * If this fails, it is due to cycles in device links.  Just
+-		 * give up on this link and treat it as invalid.
+-		 */
+-		if (!device_link_add(con, sup_dev, flags) &&
+-		    !(flags & DL_FLAG_SYNC_STATE_ONLY)) {
+-			dev_info(con, "Fixing up cyclic dependency with %s\n",
+-				 dev_name(sup_dev));
+-			device_links_write_lock();
+-			fw_devlink_relax_cycle(con, sup_dev);
+-			device_links_write_unlock();
+-			device_link_add(con, sup_dev,
+-					FW_DEVLINK_FLAGS_PERMISSIVE);
++		if (!device_link_add(con, sup_dev, flags)) {
++			dev_err(con, "Failed to create device link with %s\n",
++				dev_name(sup_dev));
+ 			ret = -EINVAL;
+ 		}
+ 
+@@ -2030,49 +2102,12 @@ static int fw_devlink_create_devlink(struct device *con,
+ 	 */
+ 	if (fwnode_init_without_drv(sup_handle) ||
+ 	    fwnode_ancestor_init_without_drv(sup_handle)) {
+-		dev_dbg(con, "Not linking %pfwP - Might never probe\n",
++		dev_dbg(con, "Not linking %pfwf - might never become dev\n",
+ 			sup_handle);
+ 		return -EINVAL;
+ 	}
+ 
+-	/*
+-	 * DL_FLAG_SYNC_STATE_ONLY doesn't block probing and supports
+-	 * cycles. So cycle detection isn't necessary and shouldn't be
+-	 * done.
+-	 */
+-	if (flags & DL_FLAG_SYNC_STATE_ONLY)
+-		return -EAGAIN;
+-
+-	/*
+-	 * If we can't find the supplier device from its fwnode, it might be
+-	 * due to a cyclic dependency between fwnodes. Some of these cycles can
+-	 * be broken by applying logic. Check for these types of cycles and
+-	 * break them so that devices in the cycle probe properly.
+-	 *
+-	 * If the supplier's parent is dependent on the consumer, then the
+-	 * consumer and supplier have a cyclic dependency. Since fw_devlink
+-	 * can't tell which of the inferred dependencies are incorrect, don't
+-	 * enforce probe ordering between any of the devices in this cyclic
+-	 * dependency. Do this by relaxing all the fw_devlink device links in
+-	 * this cycle and by treating the fwnode link between the consumer and
+-	 * the supplier as an invalid dependency.
+-	 */
+-	sup_dev = fwnode_get_next_parent_dev(sup_handle);
+-	if (sup_dev && device_is_dependent(con, sup_dev)) {
+-		dev_info(con, "Fixing up cyclic dependency with %pfwP (%s)\n",
+-			 sup_handle, dev_name(sup_dev));
+-		device_links_write_lock();
+-		fw_devlink_relax_cycle(con, sup_dev);
+-		device_links_write_unlock();
+-		ret = -EINVAL;
+-	} else {
+-		/*
+-		 * Can't check for cycles or no cycles. So let's try
+-		 * again later.
+-		 */
+-		ret = -EAGAIN;
+-	}
+-
++	ret = -EAGAIN;
+ out:
+ 	put_device(sup_dev);
+ 	return ret;
+@@ -2155,10 +2190,7 @@ static void __fw_devlink_link_to_consumers(struct device *dev)
+  *
+  * The function creates normal (non-SYNC_STATE_ONLY) device links between @dev
+  * and the real suppliers of @dev. Once these device links are created, the
+- * fwnode links are deleted. When such device links are successfully created,
+- * this function is called recursively on those supplier devices. This is
+- * needed to detect and break some invalid cycles in fwnode links.  See
+- * fw_devlink_create_devlink() for more details.
++ * fwnode links are deleted.
+  *
+  * In addition, it also looks at all the suppliers of the entire fwnode tree
+  * because some of the child devices of @dev that have not been added yet
+@@ -2179,7 +2211,6 @@ static void __fw_devlink_link_to_suppliers(struct device *dev,
+ 
+ 	list_for_each_entry_safe(link, tmp, &fwnode->suppliers, c_hook) {
+ 		int ret;
+-		struct device *sup_dev;
+ 		struct fwnode_handle *sup = link->supplier;
+ 
+ 		ret = fw_devlink_create_devlink(dev, sup, link);
+@@ -2187,27 +2218,6 @@ static void __fw_devlink_link_to_suppliers(struct device *dev,
+ 			continue;
+ 
+ 		__fwnode_link_del(link);
+-
+-		/* If no device link was created, nothing more to do. */
+-		if (ret)
+-			continue;
+-
+-		/*
+-		 * If a device link was successfully created to a supplier, we
+-		 * now need to try and link the supplier to all its suppliers.
+-		 *
+-		 * This is needed to detect and delete false dependencies in
+-		 * fwnode links that haven't been converted to a device link
+-		 * yet. See comments in fw_devlink_create_devlink() for more
+-		 * details on the false dependency.
+-		 *
+-		 * Without deleting these false dependencies, some devices will
+-		 * never probe because they'll keep waiting for their false
+-		 * dependency fwnode links to be converted to device links.
+-		 */
+-		sup_dev = get_dev_from_fwnode(sup);
+-		__fw_devlink_link_to_suppliers(sup_dev, sup_dev->fwnode);
+-		put_device(sup_dev);
+ 	}
+ 
+ 	/*
 -- 
 2.39.2
 
