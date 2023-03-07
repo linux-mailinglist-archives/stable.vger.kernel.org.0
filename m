@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C41986AEA16
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4BB6AEEC1
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231577AbjCGRam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58068 "EHLO
+        id S232597AbjCGSPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:15:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231587AbjCGRaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:18 -0500
+        with ESMTP id S232598AbjCGSOy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0097A93100
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDECDA42E9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F7E261509
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F49AC433D2;
-        Tue,  7 Mar 2023 17:25:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEE676152F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E73DCC4339B;
+        Tue,  7 Mar 2023 18:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209933;
-        bh=qgjW1//CgREvjO0RBbh3usvXHix0WlXrBWdxsWuz4Ug=;
+        s=korg; t=1678212635;
+        bh=guo0JD4nztg1lIPn7QFGXXnuDWf2Ws87y9oFWgkHy2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9y1+ItjHiROoYSYQuG9n884NF+QoUbXTI79Vk5DZHzY9R43QxPNCWfdcQpx7sIwb
-         K9MMu9G11Xjn0lpaH2Mpa2pIYYZoyT/Mo+0Qjl/MhbdS76Hc3tbbbvOOCjaxDfrFGz
-         9U+fWi7OhD/sCZkyCRkpz9QZZQT+/vdEJOWr8auk=
+        b=1EVqpDpuzQk8mBxuO3zeKri4/PcmwwSfM6MWBAG1IOcLZWEvwaEuiUm1YgkiaVU6d
+         a03ec0ySSFdYrm2kVHFNVjAwDfGbVXAwEPbSb0c7B9jM8S0vPx7JKUvyxcqiV+BI+A
+         ZeOxR/tMIeftJLNK6i7xdz5ZQoAOFDn02tco7Yck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, Halil Pasic <pasic@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0378/1001] drm/msm: use strscpy instead of strncpy
-Date:   Tue,  7 Mar 2023 17:52:30 +0100
-Message-Id: <20230307170037.770439303@linuxfoundation.org>
+Subject: [PATCH 6.1 217/885] s390: vfio-ap: tighten the NIB validity check
+Date:   Tue,  7 Mar 2023 17:52:31 +0100
+Message-Id: <20230307170011.511873149@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit d7fd8634f48d76aa799ed57beb7d87dab91bde80 ]
+[ Upstream commit a64a6d23874c574d30a9816124b2dc37467f3811 ]
 
-Using strncpy can result in non-NULL-terminated destination string. Use
-strscpy instead. This fixes following warning:
+The NIB is architecturally invalid if the address designates a
+storage location that is not installed or if it is zero.
 
-drivers/gpu/drm/msm/msm_fence.c: In function ‘msm_fence_context_alloc’:
-drivers/gpu/drm/msm/msm_fence.c:25:9: warning: ‘strncpy’ specified bound 32 equals destination size [-Wstringop-truncation]
-   25 |         strncpy(fctx->name, name, sizeof(fctx->name));
-      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Fixes: f97decac5f4c ("drm/msm: Support multiple ringbuffers")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/518787/
-Link: https://lore.kernel.org/r/20230118020152.1689213-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: ec89b55e3bce ("s390: ap: implement PAPQ AQIC interception in kernel")
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_fence.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
-index a47e5837c528f..56641408ea742 100644
---- a/drivers/gpu/drm/msm/msm_fence.c
-+++ b/drivers/gpu/drm/msm/msm_fence.c
-@@ -22,7 +22,7 @@ msm_fence_context_alloc(struct drm_device *dev, volatile uint32_t *fenceptr,
- 		return ERR_PTR(-ENOMEM);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index a109c59f18f78..934515959ebf4 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -349,6 +349,8 @@ static int vfio_ap_validate_nib(struct kvm_vcpu *vcpu, dma_addr_t *nib)
+ {
+ 	*nib = vcpu->run->s.regs.gprs[2];
  
- 	fctx->dev = dev;
--	strncpy(fctx->name, name, sizeof(fctx->name));
-+	strscpy(fctx->name, name, sizeof(fctx->name));
- 	fctx->context = dma_fence_context_alloc(1);
- 	fctx->index = index++;
- 	fctx->fenceptr = fenceptr;
++	if (!*nib)
++		return -EINVAL;
+ 	if (kvm_is_error_hva(gfn_to_hva(vcpu->kvm, *nib >> PAGE_SHIFT)))
+ 		return -EINVAL;
+ 
 -- 
 2.39.2
 
