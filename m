@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 599696AF077
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E7A6AF335
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:02:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbjCGSap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:30:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58970 "EHLO
+        id S233571AbjCGTCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:02:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231993AbjCGSaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:06 -0500
+        with ESMTP id S231614AbjCGTBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:01:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACB44D281
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB13774DE4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 043A6B819C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9F7C433D2;
-        Tue,  7 Mar 2023 18:23:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 881BDB819CB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8428C433D2;
+        Tue,  7 Mar 2023 18:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213419;
-        bh=Tp8INafFk55/n+e/TcfKI1TQO4+2M/nuxjuPHA7aHaI=;
+        s=korg; t=1678214852;
+        bh=wBl9k1i0z1djvySxhngNXqjGoXkqKBSZS7tEw1BtJNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q84W1caSoicSqkInI9GgSPcyMd6AtpyDAN3dW7cyofbjRuxbptpwbPbAEvv70QRyR
-         EsFysvPLe802+bKlGF4oDQ/HSeSLtSKrUiZO9a4JQTmjJMvjeSv7m6PwGa6D5cs4bi
-         as/cJCqAZoAqKBpYQGLGX+p4C0DROVAHq8J4PEKI=
+        b=E4hoLZ5dWUpVcc6u0jZA8ugMnMi/w5hYq0svS34rZR1ZMFJ8CtyU5JkeRqnfeLkew
+         ehSk7yU9+EMIV+DoLWXlpDm9W/PEt9+zV0ecZV9H4zzYCkp0gwHQU103kQ1WRqOzbU
+         c9XBRhEhKFNvbyvdQX09fvOuK5qT8WlIdTS+Lk8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        Luca Weiss <luca.weiss@fairphone.com>
-Subject: [PATCH 6.1 473/885] driver core: fw_devlink: Improve check for fwnode with no device/driver
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Jiri Pirko <jiri@nvidia.com>, Kalle Valo <kvalo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 071/567] wifi: libertas: fix memory leak in lbs_init_adapter()
 Date:   Tue,  7 Mar 2023 17:56:47 +0100
-Message-Id: <20230307170023.055516369@linuxfoundation.org>
+Message-Id: <20230307165908.956687146@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,89 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 411c0d58ca6faa9bc4b9f5382118a31c7bb92a6f ]
+[ Upstream commit 16a03958618fb91bb1bc7077cf3211055162cc2f ]
 
-fw_devlink shouldn't defer the probe of a device to wait on a supplier
-that'll never have a struct device or will never be probed by a driver.
-We currently check if a supplier falls into this category, but don't
-check its ancestors. We need to check the ancestors too because if the
-ancestor will never probe, then the supplier will never probe either.
+When kfifo_alloc() failed in lbs_init_adapter(), cmd buffer is not
+released. Add free memory to processing error path.
 
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Tested-by: Colin Foster <colin.foster@in-advantage.com>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
-Link: https://lore.kernel.org/r/20230207014207.1678715-3-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 3fb16866b51d ("driver core: fw_devlink: Make cycle detection more robust")
+Fixes: 7919b89c8276 ("libertas: convert libertas driver to use an event/cmdresp queue")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221208121448.2845986-1-shaozhengchao@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c | 40 ++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 38 insertions(+), 2 deletions(-)
+ drivers/net/wireless/marvell/libertas/main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index f623ebc131f8d..bf053e351a277 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1907,6 +1907,35 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
- 	return ret;
- }
- 
-+static bool fwnode_init_without_drv(struct fwnode_handle *fwnode)
-+{
-+	struct device *dev;
-+	bool ret;
-+
-+	if (!(fwnode->flags & FWNODE_FLAG_INITIALIZED))
-+		return false;
-+
-+	dev = get_dev_from_fwnode(fwnode);
-+	ret = !dev || dev->links.status == DL_DEV_NO_DRIVER;
-+	put_device(dev);
-+
-+	return ret;
-+}
-+
-+static bool fwnode_ancestor_init_without_drv(struct fwnode_handle *fwnode)
-+{
-+	struct fwnode_handle *parent;
-+
-+	fwnode_for_each_parent_node(fwnode, parent) {
-+		if (fwnode_init_without_drv(parent)) {
-+			fwnode_handle_put(parent);
-+			return true;
-+		}
-+	}
-+
-+	return false;
-+}
-+
- /**
-  * fw_devlink_create_devlink - Create a device link from a consumer to fwnode
-  * @con: consumer device for the device link
-@@ -1995,9 +2024,16 @@ static int fw_devlink_create_devlink(struct device *con,
+diff --git a/drivers/net/wireless/marvell/libertas/main.c b/drivers/net/wireless/marvell/libertas/main.c
+index 64fc5e4108648..b739a490fc20a 100644
+--- a/drivers/net/wireless/marvell/libertas/main.c
++++ b/drivers/net/wireless/marvell/libertas/main.c
+@@ -870,6 +870,7 @@ static int lbs_init_adapter(struct lbs_private *priv)
+ 	ret = kfifo_alloc(&priv->event_fifo, sizeof(u32) * 16, GFP_KERNEL);
+ 	if (ret) {
+ 		pr_err("Out of memory allocating event FIFO buffer\n");
++		lbs_free_cmd_buffer(priv);
  		goto out;
  	}
  
--	/* Supplier that's already initialized without a struct device. */
--	if (sup_handle->flags & FWNODE_FLAG_INITIALIZED)
-+	/*
-+	 * Supplier or supplier's ancestor already initialized without a struct
-+	 * device or being probed by a driver.
-+	 */
-+	if (fwnode_init_without_drv(sup_handle) ||
-+	    fwnode_ancestor_init_without_drv(sup_handle)) {
-+		dev_dbg(con, "Not linking %pfwP - Might never probe\n",
-+			sup_handle);
- 		return -EINVAL;
-+	}
- 
- 	/*
- 	 * DL_FLAG_SYNC_STATE_ONLY doesn't block probing and supports
 -- 
 2.39.2
 
