@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7B6A6AECE6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF41A6AF1CC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230152AbjCGR7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:59:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56920 "EHLO
+        id S233220AbjCGSrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:47:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230186AbjCGR64 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:58:56 -0500
+        with ESMTP id S233145AbjCGSrO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:47:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89869A5D7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:53:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E38E032E79
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:36:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AC9661523
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:53:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42045C433D2;
-        Tue,  7 Mar 2023 17:53:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58A816154C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:36:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4C6C433D2;
+        Tue,  7 Mar 2023 18:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211588;
-        bh=1/QPG6KsGRdW0+u8ctnfdIkYvtHg6h6PCUX4yBmFQy4=;
+        s=korg; t=1678214179;
+        bh=U40Xjskab45RWPQzzxTgwLBAxDG+cI0CB2TPGcHJPE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dPuhrePvCnBA1i+EjmB0gjKVgxZK23/QTz8HQ7g8gSUbIZtB+L/8dqt+OabpzSr/V
-         yZwDDurgcMu1ECX84mqS6nOAVUdSPN8JxwGqWqxqm8C0SzGrUxp3UXJ0EjKBwBFyAg
-         LVK6WfFtuI9JK7yUwvnkBE8wihIqw/nJ2OLurVUo=
+        b=h2I8YOgSbF5riG6zCOe/3l1RJJ1+w76JU6JJSKVT5DqKSgqagiQ4DkMMpBHQIR+P9
+         ZSSAPDu+b4pi+ibJCSLdkJ0qoeIP6nAi4eBJuauQsuFqgywZKnwWgf/4teo60N0Xox
+         1C6g3/zfDKOV9d2d+lKRtI0obHHBbI1m2kW7ngxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.2 0911/1001] dm flakey: fix logic when corrupting a bio
+        patches@lists.linux.dev,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 6.1 749/885] selftests/ftrace: Fix eprobe syntax test case to check filter support
 Date:   Tue,  7 Mar 2023 18:01:23 +0100
-Message-Id: <20230307170101.581442144@linuxfoundation.org>
+Message-Id: <20230307170034.463921396@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-commit aa56b9b75996ff4c76a0a4181c2fa0206c3d91cc upstream.
+commit a457e944df92789ab31aaf35fae9db064e3c51c4 upstream.
 
-If "corrupt_bio_byte" is set to corrupt reads and corrupt_bio_flags is
-used, dm-flakey would erroneously return all writes as errors. Likewise,
-if "corrupt_bio_byte" is set to corrupt writes, dm-flakey would return
-errors for all reads.
+Fix eprobe syntax test case to check whether the kernel supports the filter
+on eprobe for filter syntax test command. Without this fix, this test case
+will fail if the kernel supports eprobe but doesn't support the filter on
+eprobe.
 
-Fix the logic so that if fc->corrupt_bio_byte is non-zero, dm-flakey
-will not abort reads on writes with an error.
+Link: https://lore.kernel.org/all/167309834742.640500.379128668288448035.stgit@devnote3/
 
+Fixes: 9e14bae7d049 ("selftests/ftrace: Add eprobe syntax error testcase")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-flakey.c |   23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ .../selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-flakey.c
-+++ b/drivers/md/dm-flakey.c
-@@ -361,9 +361,11 @@ static int flakey_map(struct dm_target *
- 		/*
- 		 * Corrupt matching writes.
- 		 */
--		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == WRITE)) {
--			if (all_corrupt_bio_flags_match(bio, fc))
--				corrupt_bio_data(bio, fc);
-+		if (fc->corrupt_bio_byte) {
-+			if (fc->corrupt_bio_rw == WRITE) {
-+				if (all_corrupt_bio_flags_match(bio, fc))
-+					corrupt_bio_data(bio, fc);
-+			}
- 			goto map_bio;
- 		}
+diff --git a/tools/testing/selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc
+index fc1daac7f066..4f5e8c665156 100644
+--- a/tools/testing/selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc
++++ b/tools/testing/selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc
+@@ -22,6 +22,8 @@ check_error 'e:foo/^bar.1 syscalls/sys_enter_openat'	# BAD_EVENT_NAME
+ check_error 'e:foo/bar syscalls/sys_enter_openat arg=^dfd'	# BAD_FETCH_ARG
+ check_error 'e:foo/bar syscalls/sys_enter_openat ^arg=$foo'	# BAD_ATTACH_ARG
  
-@@ -389,13 +391,14 @@ static int flakey_end_io(struct dm_targe
- 		return DM_ENDIO_DONE;
+-check_error 'e:foo/bar syscalls/sys_enter_openat if ^'	# NO_EP_FILTER
++if grep -q '<attached-group>\.<attached-event>.*\[if <filter>\]' README; then
++  check_error 'e:foo/bar syscalls/sys_enter_openat if ^'	# NO_EP_FILTER
++fi
  
- 	if (!*error && pb->bio_submitted && (bio_data_dir(bio) == READ)) {
--		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == READ) &&
--		    all_corrupt_bio_flags_match(bio, fc)) {
--			/*
--			 * Corrupt successful matching READs while in down state.
--			 */
--			corrupt_bio_data(bio, fc);
--
-+		if (fc->corrupt_bio_byte) {
-+			if ((fc->corrupt_bio_rw == READ) &&
-+			    all_corrupt_bio_flags_match(bio, fc)) {
-+				/*
-+				 * Corrupt successful matching READs while in down state.
-+				 */
-+				corrupt_bio_data(bio, fc);
-+			}
- 		} else if (!test_bit(DROP_WRITES, &fc->flags) &&
- 			   !test_bit(ERROR_WRITES, &fc->flags)) {
- 			/*
+ exit 0
+-- 
+2.39.2
+
 
 
