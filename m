@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A050C6AED77
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:04:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F092E6AF27B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231428AbjCGSE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:04:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34650 "EHLO
+        id S233467AbjCGSx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:53:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231272AbjCGSEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:04:08 -0500
+        with ESMTP id S233360AbjCGSww (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F733A4036
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:57:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AF5AB090
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AC40B819A6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46683C433D2;
-        Tue,  7 Mar 2023 17:56:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E927AB819BF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AD50C433D2;
+        Tue,  7 Mar 2023 18:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211819;
-        bh=A+L2d0s5qEvlJy5SZd8aXbR52n2VR5daQ8naEPogjco=;
+        s=korg; t=1678214446;
+        bh=gq02DswUiICYcpZAVT4by6ofriE+TCB6Gbc1Uux5ID4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5DDUmGcgg6/wSBUDGih4KAoZoie9SNaIXsonhf/grkjGhb0j6T9kA/48D+xEKqFe
-         UwU/pz6N0y8ExwghZoH5CH0GXl1YFOVQxgXP/MwvZNyWqYZOKZ0hdQBJaQ95X3DD0E
-         YdkrYsnaqLlns0QT7aJmkMxTz8GA68IFvl3aVO6A=
+        b=osGgO1SxVFbjGbBcq6axf9fZtLfjskB9K83ErreN7UTPfIpdQ4CKIWz4p8TVsAs9T
+         RmKIPs+04UBd0Gb8JL4xgLTicsv1JfKI6fmysRqDqgKLrMwbvbztcJ1SJf6E3o4PiQ
+         okNHAWw+oV4q4N1Eq90jX0lcwlGCamrqEZu8YANY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 6.2 0987/1001] iommufd: Do not add the same hwpt to the ioas->hwpt_list twice
+        patches@lists.linux.dev, Richard Henderson <rth@twiddle.net>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 6.1 825/885] alpha: fix FEN fault handling
 Date:   Tue,  7 Mar 2023 18:02:39 +0100
-Message-Id: <20230307170105.077566205@linuxfoundation.org>
+Message-Id: <20230307170037.716683808@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit b4ff830eca097df51af10a9be29e8cc817327919 upstream.
+commit 977a3009547dad4a5bc95d91be4a58c9f7eedac0 upstream.
 
-The hwpt is added to the hwpt_list only during its creation, it is never
-added again. This hunk is some missed leftover from rework. Adding it
-twice will corrupt the linked list in some cases.
+Type 3 instruction fault (FPU insn with FPU disabled) is handled
+by quietly enabling FPU and returning.  Which is fine, except that
+we need to do that both for fault in userland and in the kernel;
+the latter *can* legitimately happen - all it takes is this:
 
-It effects HWPT specific attachment, which is something the test suite
-cannot cover until we can create a legitimate struct device with a
-non-system iommu "driver" (ie we need the bus removed from the iommu code)
+.global _start
+_start:
+        call_pal 0xae
+	lda $0, 0
+	ldq $0, 0($0)
+
+- call_pal CLRFEN to clear "FPU enabled" flag and arrange for
+a signal delivery (SIGSEGV in this case).
+
+Fixed by moving the handling of type 3 into the common part of
+do_entIF(), before we check for kernel vs. user mode.
+
+Incidentally, the check for kernel mode is unidiomatic; the normal
+way to do that is !user_mode(regs).  The difference is that
+the open-coded variant treats any of bits 63..3 of regs->ps being
+set as "it's user mode" while the normal approach is to check just
+the bit 3.  PS is a 4-bit register and regs->ps always will have
+bits 63..4 clear, so the open-coded variant here is actually equivalent
+to !user_mode(regs).  Harder to follow, though...
 
 Cc: stable@vger.kernel.org
-Fixes: e8d57210035b ("iommufd: Add kAPI toward external drivers for physical devices")
-Link: https://lore.kernel.org/r/1-v1-4336b5cb2fe4+1d7-iommufd_hwpt_jgg@nvidia.com
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reported-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/iommufd/device.c |    4 ----
- 1 file changed, 4 deletions(-)
+ arch/alpha/kernel/traps.c |   30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/drivers/iommu/iommufd/device.c
-+++ b/drivers/iommu/iommufd/device.c
-@@ -346,10 +346,6 @@ int iommufd_device_attach(struct iommufd
- 		rc = iommufd_device_do_attach(idev, hwpt);
- 		if (rc)
- 			goto out_put_pt_obj;
--
--		mutex_lock(&hwpt->ioas->mutex);
--		list_add_tail(&hwpt->hwpt_item, &hwpt->ioas->hwpt_list);
--		mutex_unlock(&hwpt->ioas->mutex);
+--- a/arch/alpha/kernel/traps.c
++++ b/arch/alpha/kernel/traps.c
+@@ -233,7 +233,21 @@ do_entIF(unsigned long type, struct pt_r
+ {
+ 	int signo, code;
+ 
+-	if ((regs->ps & ~IPL_MAX) == 0) {
++	if (type == 3) { /* FEN fault */
++		/* Irritating users can call PAL_clrfen to disable the
++		   FPU for the process.  The kernel will then trap in
++		   do_switch_stack and undo_switch_stack when we try
++		   to save and restore the FP registers.
++
++		   Given that GCC by default generates code that uses the
++		   FP registers, PAL_clrfen is not useful except for DoS
++		   attacks.  So turn the bleeding FPU back on and be done
++		   with it.  */
++		current_thread_info()->pcb.flags |= 1;
++		__reload_thread(&current_thread_info()->pcb);
++		return;
++	}
++	if (!user_mode(regs)) {
+ 		if (type == 1) {
+ 			const unsigned int *data
+ 			  = (const unsigned int *) regs->pc;
+@@ -366,20 +380,6 @@ do_entIF(unsigned long type, struct pt_r
+ 		}
  		break;
- 	}
- 	case IOMMUFD_OBJ_IOAS: {
+ 
+-	      case 3: /* FEN fault */
+-		/* Irritating users can call PAL_clrfen to disable the
+-		   FPU for the process.  The kernel will then trap in
+-		   do_switch_stack and undo_switch_stack when we try
+-		   to save and restore the FP registers.
+-
+-		   Given that GCC by default generates code that uses the
+-		   FP registers, PAL_clrfen is not useful except for DoS
+-		   attacks.  So turn the bleeding FPU back on and be done
+-		   with it.  */
+-		current_thread_info()->pcb.flags |= 1;
+-		__reload_thread(&current_thread_info()->pcb);
+-		return;
+-
+ 	      case 5: /* illoc */
+ 	      default: /* unexpected instruction-fault type */
+ 		      ;
 
 
