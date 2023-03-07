@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A90AC6AF0E7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE6F6AEBD3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231276AbjCGShH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:37:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
+        id S232130AbjCGRtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:49:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233282AbjCGSfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:43 -0500
+        with ESMTP id S232253AbjCGRsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D20578C805
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 743779AA18
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE4A5B819DB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E5FCC433EF;
-        Tue,  7 Mar 2023 18:26:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B3C6B81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50637C433EF;
+        Tue,  7 Mar 2023 17:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213584;
-        bh=R8WZzBbrGpBQq+SGjS+yP1mOYgU01k+VqiIedrTi4js=;
+        s=korg; t=1678211021;
+        bh=Jw8OmNNYTj5V+E7FcTxic4oNCwUblrFvkUJnQS+FySM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXL+vFlx5WeQZ/eW9z+i06uy4U5a/NfEMqb9DAdzvaAfc07vknm2coWntbbvjWHny
-         3CwQnEDpqGgRKb/R/F8Oy02HX58OslWlSQ7SUab0W2EopRoCoPVAj7bMtFCxUIn7xL
-         dunmQiyr3NoFQDVk7xpHBBqito2P9tnK6+PwXj6U=
+        b=1JdFPFMaGtQRgA+Lg6YQ4VHC4nxBEQUIGgwHP5mZrr9lQuNMD523v51Yby/TcSXi8
+         90hjaUMFd94N41ti9+UCrRBMn0fmDZvCOIJrk7Yud5QK3wOZJWXUBR6pucr0onphSK
+         JIShqp0+ndDtNli0S8300D+0496DikWUvlRV/k0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Tejun Heo <tj@kernel.org>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 536/885] blk-cgroup: synchronize pd_free_fn() from blkg_free_workfn() and blkcg_deactivate_policy()
+        patches@lists.linux.dev, Justin Tee <justin.tee@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0698/1001] scsi: lpfc: Fix use-after-free KFENCE violation during sysfs firmware write
 Date:   Tue,  7 Mar 2023 17:57:50 +0100
-Message-Id: <20230307170025.780340286@linuxfoundation.org>
+Message-Id: <20230307170051.918940006@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,152 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Justin Tee <justin.tee@broadcom.com>
 
-[ Upstream commit f1c006f1c6850c14040f8337753a63119bba39b9 ]
+[ Upstream commit 21681b81b9ae548c5dae7ae00d931197a27f480c ]
 
-Currently parent pd can be freed before child pd:
+During the sysfs firmware write process, a use-after-free read warning is
+logged from the lpfc_wr_object() routine:
 
-t1: remove cgroup C1
-blkcg_destroy_blkgs
- blkg_destroy
-  list_del_init(&blkg->q_node)
-  // remove blkg from queue list
-  percpu_ref_kill(&blkg->refcnt)
-   blkg_release
-    call_rcu
+  BUG: KFENCE: use-after-free read in lpfc_wr_object+0x235/0x310 [lpfc]
+  Use-after-free read at 0x0000000000cf164d (in kfence-#111):
+  lpfc_wr_object+0x235/0x310 [lpfc]
+  lpfc_write_firmware.cold+0x206/0x30d [lpfc]
+  lpfc_sli4_request_firmware_update+0xa6/0x100 [lpfc]
+  lpfc_request_firmware_upgrade_store+0x66/0xb0 [lpfc]
+  kernfs_fop_write_iter+0x121/0x1b0
+  new_sync_write+0x11c/0x1b0
+  vfs_write+0x1ef/0x280
+  ksys_write+0x5f/0xe0
+  do_syscall_64+0x59/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-t2: from t1
-__blkg_release
- blkg_free
-  schedule_work
-			t4: deactivate policy
-			blkcg_deactivate_policy
-			 pd_free_fn
-			 // parent of C1 is freed first
-t3: from t2
- blkg_free_workfn
-  pd_free_fn
+The driver accessed wr_object pointer data, which was initialized into
+mailbox payload memory, after the mailbox object was released back to the
+mailbox pool.
 
-If policy(for example, ioc_timer_fn() from iocost) access parent pd from
-child pd after pd_offline_fn(), then UAF can be triggered.
+Fix by moving the mailbox free calls to the end of the routine ensuring
+that we don't reference internal mailbox memory after release.
 
-Fix the problem by delaying 'list_del_init(&blkg->q_node)' from
-blkg_destroy() to blkg_free_workfn(), and using a new disk level mutex to
-synchronize blkg_free_workfn() and blkcg_deactivate_policy().
-
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20230119110350.2287325-4-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup.c     | 35 +++++++++++++++++++++++++++++------
- include/linux/blkdev.h |  1 +
- 2 files changed, 30 insertions(+), 6 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 8d1b7757f1e4f..f8b21bead6552 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -87,16 +87,32 @@ static void blkg_free_workfn(struct work_struct *work)
- {
- 	struct blkcg_gq *blkg = container_of(work, struct blkcg_gq,
- 					     free_work);
-+	struct request_queue *q = blkg->q;
- 	int i;
- 
-+	/*
-+	 * pd_free_fn() can also be called from blkcg_deactivate_policy(),
-+	 * in order to make sure pd_free_fn() is called in order, the deletion
-+	 * of the list blkg->q_node is delayed to here from blkg_destroy(), and
-+	 * blkcg_mutex is used to synchronize blkg_free_workfn() and
-+	 * blkcg_deactivate_policy().
-+	 */
-+	if (q)
-+		mutex_lock(&q->blkcg_mutex);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 182aaae603868..55a0d4013439f 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -20819,6 +20819,7 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 	struct lpfc_mbx_wr_object *wr_object;
+ 	LPFC_MBOXQ_t *mbox;
+ 	int rc = 0, i = 0;
++	int mbox_status = 0;
+ 	uint32_t shdr_status, shdr_add_status, shdr_add_status_2;
+ 	uint32_t shdr_change_status = 0, shdr_csf = 0;
+ 	uint32_t mbox_tmo;
+@@ -20864,11 +20865,15 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 	wr_object->u.request.bde_count = i;
+ 	bf_set(lpfc_wr_object_write_length, &wr_object->u.request, written);
+ 	if (!phba->sli4_hba.intr_enable)
+-		rc = lpfc_sli_issue_mbox(phba, mbox, MBX_POLL);
++		mbox_status = lpfc_sli_issue_mbox(phba, mbox, MBX_POLL);
+ 	else {
+ 		mbox_tmo = lpfc_mbox_tmo_val(phba, mbox);
+-		rc = lpfc_sli_issue_mbox_wait(phba, mbox, mbox_tmo);
++		mbox_status = lpfc_sli_issue_mbox_wait(phba, mbox, mbox_tmo);
+ 	}
 +
- 	for (i = 0; i < BLKCG_MAX_POLS; i++)
- 		if (blkg->pd[i])
- 			blkcg_policy[i]->pd_free_fn(blkg->pd[i]);
- 
- 	if (blkg->parent)
- 		blkg_put(blkg->parent);
--	if (blkg->q)
--		blk_put_queue(blkg->q);
++	/* The mbox status needs to be maintained to detect MBOX_TIMEOUT. */
++	rc = mbox_status;
 +
-+	if (q) {
-+		list_del_init(&blkg->q_node);
-+		mutex_unlock(&q->blkcg_mutex);
-+		blk_put_queue(q);
-+	}
-+
- 	free_percpu(blkg->iostat_cpu);
- 	percpu_ref_exit(&blkg->refcnt);
- 	kfree(blkg);
-@@ -425,9 +441,14 @@ static void blkg_destroy(struct blkcg_gq *blkg)
- 	lockdep_assert_held(&blkg->q->queue_lock);
- 	lockdep_assert_held(&blkcg->lock);
- 
--	/* Something wrong if we are trying to remove same group twice */
--	WARN_ON_ONCE(list_empty(&blkg->q_node));
--	WARN_ON_ONCE(hlist_unhashed(&blkg->blkcg_node));
-+	/*
-+	 * blkg stays on the queue list until blkg_free_workfn(), see details in
-+	 * blkg_free_workfn(), hence this function can be called from
-+	 * blkcg_destroy_blkgs() first and again from blkg_destroy_all() before
-+	 * blkg_free_workfn().
-+	 */
-+	if (hlist_unhashed(&blkg->blkcg_node))
-+		return;
- 
- 	for (i = 0; i < BLKCG_MAX_POLS; i++) {
- 		struct blkcg_policy *pol = blkcg_policy[i];
-@@ -439,7 +460,6 @@ static void blkg_destroy(struct blkcg_gq *blkg)
- 	blkg->online = false;
- 
- 	radix_tree_delete(&blkcg->blkg_tree, blkg->q->id);
--	list_del_init(&blkg->q_node);
- 	hlist_del_init_rcu(&blkg->blkcg_node);
- 
- 	/*
-@@ -1226,6 +1246,7 @@ int blkcg_init_disk(struct gendisk *disk)
- 	int ret;
- 
- 	INIT_LIST_HEAD(&q->blkg_list);
-+	mutex_init(&q->blkcg_mutex);
- 
- 	new_blkg = blkg_alloc(&blkcg_root, disk, GFP_KERNEL);
- 	if (!new_blkg)
-@@ -1463,6 +1484,7 @@ void blkcg_deactivate_policy(struct request_queue *q,
- 	if (queue_is_mq(q))
- 		blk_mq_freeze_queue(q);
- 
-+	mutex_lock(&q->blkcg_mutex);
- 	spin_lock_irq(&q->queue_lock);
- 
- 	__clear_bit(pol->plid, q->blkcg_pols);
-@@ -1481,6 +1503,7 @@ void blkcg_deactivate_policy(struct request_queue *q,
+ 	/* The IOCTL status is embedded in the mailbox subheader. */
+ 	shdr_status = bf_get(lpfc_mbox_hdr_status,
+ 			     &wr_object->header.cfg_shdr.response);
+@@ -20883,10 +20888,6 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 				  &wr_object->u.response);
  	}
  
- 	spin_unlock_irq(&q->queue_lock);
-+	mutex_unlock(&q->blkcg_mutex);
+-	if (!phba->sli4_hba.intr_enable)
+-		mempool_free(mbox, phba->mbox_mem_pool);
+-	else if (rc != MBX_TIMEOUT)
+-		mempool_free(mbox, phba->mbox_mem_pool);
+ 	if (shdr_status || shdr_add_status || shdr_add_status_2 || rc) {
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
+ 				"3025 Write Object mailbox failed with "
+@@ -20904,6 +20905,12 @@ lpfc_wr_object(struct lpfc_hba *phba, struct list_head *dmabuf_list,
+ 		lpfc_log_fw_write_cmpl(phba, shdr_status, shdr_add_status,
+ 				       shdr_add_status_2, shdr_change_status,
+ 				       shdr_csf);
++
++	if (!phba->sli4_hba.intr_enable)
++		mempool_free(mbox, phba->mbox_mem_pool);
++	else if (mbox_status != MBX_TIMEOUT)
++		mempool_free(mbox, phba->mbox_mem_pool);
++
+ 	return rc;
+ }
  
- 	if (queue_is_mq(q))
- 		blk_mq_unfreeze_queue(q);
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 891f8cbcd0436..1680b6e1e5362 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -487,6 +487,7 @@ struct request_queue {
- 	DECLARE_BITMAP		(blkcg_pols, BLKCG_MAX_POLS);
- 	struct blkcg_gq		*root_blkg;
- 	struct list_head	blkg_list;
-+	struct mutex		blkcg_mutex;
- #endif
- 
- 	struct queue_limits	limits;
 -- 
 2.39.2
 
