@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A43AC6AEBC0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C05246AF02C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbjCGRst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
+        id S232700AbjCGS3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232089AbjCGRsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CB255047
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:10 -0800 (PST)
+        with ESMTP id S232806AbjCGS2e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:28:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1320ADC2B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C8ACB8191D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC63EC433EF;
-        Tue,  7 Mar 2023 17:38:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2932561530
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C110C433EF;
+        Tue,  7 Mar 2023 18:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210687;
-        bh=HqGKXdBJs5isKSytWpXh57H8LBpivFV4RXaR+qad+50=;
+        s=korg; t=1678213288;
+        bh=xHZQYkqVhAmzC8DgC7SggcxL+pPXVdNZJQkd3tIO74w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FsRh0XZmMVMZkcU7qViqKkhfbhtr7gPqWAfsVUYNCSrEcYjdMgXzOeRt+FhdDhmCr
-         P3TgV9bdMZnnFm1UVBWJp1h5vlVmxODAfmtFXW5lUEdmHyj26FGcae8ddnSex33BvH
-         fjofdJvtX78woXKFgmxfXf/y9Q1C+ADz4hcvTrz8=
+        b=W6wFJj2s4vFH5CVgh0+fpVugw3VIy7VgrRqwZsP3pDRXQiSi37Dqogq1DSX9Icipm
+         UwF6ee5rYuUHg9ksOYuFIIotunsEgZosPPOn0iVgTz/MOkMg8AFqcbtKLqD3pR3uTJ
+         kLaEHzhYYJRYt1E3uH0X0jFtaKkY8rFVcLuse4LA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0620/1001] udf: Define EFSCORRUPTED error code
-Date:   Tue,  7 Mar 2023 17:56:32 +0100
-Message-Id: <20230307170048.463067735@linuxfoundation.org>
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Hector Martin <marcan@marcan.st>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 459/885] iommu: dart: Support >64 stream IDs
+Date:   Tue,  7 Mar 2023 17:56:33 +0100
+Message-Id: <20230307170022.438663987@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,32 +54,367 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 3d2d7e61553dbcc8ba45201d8ae4f383742c8202 ]
+[ Upstream commit 510d4072df7fcf27dcd2dc1942d58b2cc02b03f2 ]
 
-Similarly to other filesystems define EFSCORRUPTED error code for
-reporting internal filesystem corruption.
+T8110 DARTs have up to 256 SIDs, so we need to switch to a bitmap to
+handle them properly.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Link: https://lore.kernel.org/r/20230113105029.26654-4-marcan@marcan.st
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Stable-dep-of: cf5c1c87c239 ("iommu/dart: Fix apple_dart_device_group for PCI groups")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/udf_sb.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iommu/apple-dart.c | 114 +++++++++++++++++++++++--------------
+ 1 file changed, 71 insertions(+), 43 deletions(-)
 
-diff --git a/fs/udf/udf_sb.h b/fs/udf/udf_sb.h
-index 291b56dd011ee..6bccff3c70f54 100644
---- a/fs/udf/udf_sb.h
-+++ b/fs/udf/udf_sb.h
-@@ -55,6 +55,8 @@
- #define MF_DUPLICATE_MD		0x01
- #define MF_MIRROR_FE_LOADED	0x02
+diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
+index 2458416122f8d..80e4436ee4de7 100644
+--- a/drivers/iommu/apple-dart.c
++++ b/drivers/iommu/apple-dart.c
+@@ -34,11 +34,10 @@
  
-+#define EFSCORRUPTED EUCLEAN
+ #include "dma-iommu.h"
+ 
+-#define DART_MAX_STREAMS 16
++#define DART_MAX_STREAMS 256
+ #define DART_MAX_TTBR 4
+ #define MAX_DARTS_PER_DEVICE 2
+ 
+-#define DART_STREAM_ALL 0xffff
+ 
+ #define DART_PARAMS1 0x00
+ #define DART_PARAMS_PAGE_SHIFT GENMASK(27, 24)
+@@ -85,6 +84,8 @@
+ struct apple_dart_hw {
+ 	u32 oas;
+ 	enum io_pgtable_fmt fmt;
 +
- struct udf_meta_data {
- 	__u32	s_meta_file_loc;
- 	__u32	s_mirror_file_loc;
++	int max_sid_count;
+ };
+ 
+ /*
+@@ -116,6 +117,7 @@ struct apple_dart {
+ 	spinlock_t lock;
+ 
+ 	u32 pgsize;
++	u32 num_streams;
+ 	u32 supports_bypass : 1;
+ 	u32 force_bypass : 1;
+ 
+@@ -143,11 +145,11 @@ struct apple_dart {
+  */
+ struct apple_dart_stream_map {
+ 	struct apple_dart *dart;
+-	unsigned long sidmap;
++	DECLARE_BITMAP(sidmap, DART_MAX_STREAMS);
+ };
+ struct apple_dart_atomic_stream_map {
+ 	struct apple_dart *dart;
+-	atomic64_t sidmap;
++	atomic_long_t sidmap[BITS_TO_LONGS(DART_MAX_STREAMS)];
+ };
+ 
+ /*
+@@ -205,50 +207,55 @@ static struct apple_dart_domain *to_dart_domain(struct iommu_domain *dom)
+ static void
+ apple_dart_hw_enable_translation(struct apple_dart_stream_map *stream_map)
+ {
++	struct apple_dart *dart = stream_map->dart;
+ 	int sid;
+ 
+-	for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS)
++	for_each_set_bit(sid, stream_map->sidmap, dart->num_streams)
+ 		writel(DART_TCR_TRANSLATE_ENABLE,
+-		       stream_map->dart->regs + DART_TCR(sid));
++		       dart->regs + DART_TCR(sid));
+ }
+ 
+ static void apple_dart_hw_disable_dma(struct apple_dart_stream_map *stream_map)
+ {
++	struct apple_dart *dart = stream_map->dart;
+ 	int sid;
+ 
+-	for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS)
+-		writel(0, stream_map->dart->regs + DART_TCR(sid));
++	for_each_set_bit(sid, stream_map->sidmap, dart->num_streams)
++		writel(0, dart->regs + DART_TCR(sid));
+ }
+ 
+ static void
+ apple_dart_hw_enable_bypass(struct apple_dart_stream_map *stream_map)
+ {
++	struct apple_dart *dart = stream_map->dart;
+ 	int sid;
+ 
+ 	WARN_ON(!stream_map->dart->supports_bypass);
+-	for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS)
++	for_each_set_bit(sid, stream_map->sidmap, dart->num_streams)
+ 		writel(DART_TCR_BYPASS0_ENABLE | DART_TCR_BYPASS1_ENABLE,
+-		       stream_map->dart->regs + DART_TCR(sid));
++		       dart->regs + DART_TCR(sid));
+ }
+ 
+ static void apple_dart_hw_set_ttbr(struct apple_dart_stream_map *stream_map,
+ 				   u8 idx, phys_addr_t paddr)
+ {
++	struct apple_dart *dart = stream_map->dart;
+ 	int sid;
+ 
+ 	WARN_ON(paddr & ((1 << DART_TTBR_SHIFT) - 1));
+-	for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS)
++	for_each_set_bit(sid, stream_map->sidmap, dart->num_streams)
+ 		writel(DART_TTBR_VALID | (paddr >> DART_TTBR_SHIFT),
+-		       stream_map->dart->regs + DART_TTBR(sid, idx));
++		       dart->regs + DART_TTBR(sid, idx));
+ }
+ 
+ static void apple_dart_hw_clear_ttbr(struct apple_dart_stream_map *stream_map,
+ 				     u8 idx)
+ {
++	struct apple_dart *dart = stream_map->dart;
+ 	int sid;
+ 
+-	for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS)
+-		writel(0, stream_map->dart->regs + DART_TTBR(sid, idx));
++	for_each_set_bit(sid, stream_map->sidmap, dart->num_streams)
++		writel(0, dart->regs + DART_TTBR(sid, idx));
+ }
+ 
+ static void
+@@ -270,7 +277,7 @@ apple_dart_hw_stream_command(struct apple_dart_stream_map *stream_map,
+ 
+ 	spin_lock_irqsave(&stream_map->dart->lock, flags);
+ 
+-	writel(stream_map->sidmap, stream_map->dart->regs + DART_STREAM_SELECT);
++	writel(stream_map->sidmap[0], stream_map->dart->regs + DART_STREAM_SELECT);
+ 	writel(command, stream_map->dart->regs + DART_STREAM_COMMAND);
+ 
+ 	ret = readl_poll_timeout_atomic(
+@@ -283,7 +290,7 @@ apple_dart_hw_stream_command(struct apple_dart_stream_map *stream_map,
+ 	if (ret) {
+ 		dev_err(stream_map->dart->dev,
+ 			"busy bit did not clear after command %x for streams %lx\n",
+-			command, stream_map->sidmap);
++			command, stream_map->sidmap[0]);
+ 		return ret;
+ 	}
+ 
+@@ -301,6 +308,7 @@ static int apple_dart_hw_reset(struct apple_dart *dart)
+ {
+ 	u32 config;
+ 	struct apple_dart_stream_map stream_map;
++	int i;
+ 
+ 	config = readl(dart->regs + DART_CONFIG);
+ 	if (config & DART_CONFIG_LOCK) {
+@@ -310,12 +318,14 @@ static int apple_dart_hw_reset(struct apple_dart *dart)
+ 	}
+ 
+ 	stream_map.dart = dart;
+-	stream_map.sidmap = DART_STREAM_ALL;
++	bitmap_zero(stream_map.sidmap, DART_MAX_STREAMS);
++	bitmap_set(stream_map.sidmap, 0, dart->num_streams);
+ 	apple_dart_hw_disable_dma(&stream_map);
+ 	apple_dart_hw_clear_all_ttbrs(&stream_map);
+ 
+ 	/* enable all streams globally since TCR is used to control isolation */
+-	writel(DART_STREAM_ALL, dart->regs + DART_STREAMS_ENABLE);
++	for (i = 0; i < BITS_TO_U32(dart->num_streams); i++)
++		writel(U32_MAX, dart->regs + DART_STREAMS_ENABLE + 4 * i);
+ 
+ 	/* clear any pending errors before the interrupt is unmasked */
+ 	writel(readl(dart->regs + DART_ERROR), dart->regs + DART_ERROR);
+@@ -325,13 +335,16 @@ static int apple_dart_hw_reset(struct apple_dart *dart)
+ 
+ static void apple_dart_domain_flush_tlb(struct apple_dart_domain *domain)
+ {
+-	int i;
++	int i, j;
+ 	struct apple_dart_atomic_stream_map *domain_stream_map;
+ 	struct apple_dart_stream_map stream_map;
+ 
+ 	for_each_stream_map(i, domain, domain_stream_map) {
+ 		stream_map.dart = domain_stream_map->dart;
+-		stream_map.sidmap = atomic64_read(&domain_stream_map->sidmap);
++
++		for (j = 0; j < BITS_TO_LONGS(stream_map.dart->num_streams); j++)
++			stream_map.sidmap[j] = atomic_long_read(&domain_stream_map->sidmap[j]);
++
+ 		apple_dart_hw_invalidate_tlb(&stream_map);
+ 	}
+ }
+@@ -416,7 +429,7 @@ static int apple_dart_finalize_domain(struct iommu_domain *domain,
+ 	struct apple_dart *dart = cfg->stream_maps[0].dart;
+ 	struct io_pgtable_cfg pgtbl_cfg;
+ 	int ret = 0;
+-	int i;
++	int i, j;
+ 
+ 	mutex_lock(&dart_domain->init_lock);
+ 
+@@ -425,8 +438,9 @@ static int apple_dart_finalize_domain(struct iommu_domain *domain,
+ 
+ 	for (i = 0; i < MAX_DARTS_PER_DEVICE; ++i) {
+ 		dart_domain->stream_maps[i].dart = cfg->stream_maps[i].dart;
+-		atomic64_set(&dart_domain->stream_maps[i].sidmap,
+-			     cfg->stream_maps[i].sidmap);
++		for (j = 0; j < BITS_TO_LONGS(dart->num_streams); j++)
++			atomic_long_set(&dart_domain->stream_maps[i].sidmap[j],
++					cfg->stream_maps[i].sidmap[j]);
+ 	}
+ 
+ 	pgtbl_cfg = (struct io_pgtable_cfg){
+@@ -461,7 +475,7 @@ apple_dart_mod_streams(struct apple_dart_atomic_stream_map *domain_maps,
+ 		       struct apple_dart_stream_map *master_maps,
+ 		       bool add_streams)
+ {
+-	int i;
++	int i, j;
+ 
+ 	for (i = 0; i < MAX_DARTS_PER_DEVICE; ++i) {
+ 		if (domain_maps[i].dart != master_maps[i].dart)
+@@ -471,12 +485,14 @@ apple_dart_mod_streams(struct apple_dart_atomic_stream_map *domain_maps,
+ 	for (i = 0; i < MAX_DARTS_PER_DEVICE; ++i) {
+ 		if (!domain_maps[i].dart)
+ 			break;
+-		if (add_streams)
+-			atomic64_or(master_maps[i].sidmap,
+-				    &domain_maps[i].sidmap);
+-		else
+-			atomic64_and(~master_maps[i].sidmap,
+-				     &domain_maps[i].sidmap);
++		for (j = 0; j < BITS_TO_LONGS(domain_maps[i].dart->num_streams); j++) {
++			if (add_streams)
++				atomic_long_or(master_maps[i].sidmap[j],
++					       &domain_maps[i].sidmap[j]);
++			else
++				atomic_long_and(~master_maps[i].sidmap[j],
++						&domain_maps[i].sidmap[j]);
++		}
+ 	}
+ 
+ 	return 0;
+@@ -640,14 +656,14 @@ static int apple_dart_of_xlate(struct device *dev, struct of_phandle_args *args)
+ 
+ 	for (i = 0; i < MAX_DARTS_PER_DEVICE; ++i) {
+ 		if (cfg->stream_maps[i].dart == dart) {
+-			cfg->stream_maps[i].sidmap |= 1 << sid;
++			set_bit(sid, cfg->stream_maps[i].sidmap);
+ 			return 0;
+ 		}
+ 	}
+ 	for (i = 0; i < MAX_DARTS_PER_DEVICE; ++i) {
+ 		if (!cfg->stream_maps[i].dart) {
+ 			cfg->stream_maps[i].dart = dart;
+-			cfg->stream_maps[i].sidmap = 1 << sid;
++			set_bit(sid, cfg->stream_maps[i].sidmap);
+ 			return 0;
+ 		}
+ 	}
+@@ -666,7 +682,7 @@ static void apple_dart_release_group(void *iommu_data)
+ 	mutex_lock(&apple_dart_groups_lock);
+ 
+ 	for_each_stream_map(i, group_master_cfg, stream_map)
+-		for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS)
++		for_each_set_bit(sid, stream_map->sidmap, stream_map->dart->num_streams)
+ 			stream_map->dart->sid2group[sid] = NULL;
+ 
+ 	kfree(iommu_data);
+@@ -685,7 +701,7 @@ static struct iommu_group *apple_dart_device_group(struct device *dev)
+ 	mutex_lock(&apple_dart_groups_lock);
+ 
+ 	for_each_stream_map(i, cfg, stream_map) {
+-		for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS) {
++		for_each_set_bit(sid, stream_map->sidmap, stream_map->dart->num_streams) {
+ 			struct iommu_group *stream_group =
+ 				stream_map->dart->sid2group[sid];
+ 
+@@ -724,7 +740,7 @@ static struct iommu_group *apple_dart_device_group(struct device *dev)
+ 		apple_dart_release_group);
+ 
+ 	for_each_stream_map(i, cfg, stream_map)
+-		for_each_set_bit(sid, &stream_map->sidmap, DART_MAX_STREAMS)
++		for_each_set_bit(sid, stream_map->sidmap, stream_map->dart->num_streams)
+ 			stream_map->dart->sid2group[sid] = group;
+ 
+ 	res = group;
+@@ -869,16 +885,26 @@ static int apple_dart_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = apple_dart_hw_reset(dart);
+-	if (ret)
+-		goto err_clk_disable;
+-
+ 	dart_params[0] = readl(dart->regs + DART_PARAMS1);
+ 	dart_params[1] = readl(dart->regs + DART_PARAMS2);
+ 	dart->pgsize = 1 << FIELD_GET(DART_PARAMS_PAGE_SHIFT, dart_params[0]);
+ 	dart->supports_bypass = dart_params[1] & DART_PARAMS_BYPASS_SUPPORT;
++
++	dart->num_streams = dart->hw->max_sid_count;
++
++	if (dart->num_streams > DART_MAX_STREAMS) {
++		dev_err(&pdev->dev, "Too many streams (%d > %d)\n",
++			dart->num_streams, DART_MAX_STREAMS);
++		ret = -EINVAL;
++		goto err_clk_disable;
++	}
++
+ 	dart->force_bypass = dart->pgsize > PAGE_SIZE;
+ 
++	ret = apple_dart_hw_reset(dart);
++	if (ret)
++		goto err_clk_disable;
++
+ 	ret = request_irq(dart->irq, apple_dart_irq, IRQF_SHARED,
+ 			  "apple-dart fault handler", dart);
+ 	if (ret)
+@@ -897,8 +923,8 @@ static int apple_dart_probe(struct platform_device *pdev)
+ 
+ 	dev_info(
+ 		&pdev->dev,
+-		"DART [pagesize %x, bypass support: %d, bypass forced: %d] initialized\n",
+-		dart->pgsize, dart->supports_bypass, dart->force_bypass);
++		"DART [pagesize %x, %d streams, bypass support: %d, bypass forced: %d] initialized\n",
++		dart->pgsize, dart->num_streams, dart->supports_bypass, dart->force_bypass);
+ 	return 0;
+ 
+ err_sysfs_remove:
+@@ -929,10 +955,12 @@ static int apple_dart_remove(struct platform_device *pdev)
+ static const struct apple_dart_hw apple_dart_hw_t8103 = {
+ 	.oas = 36,
+ 	.fmt = APPLE_DART,
++	.max_sid_count = 16,
+ };
+ static const struct apple_dart_hw apple_dart_hw_t6000 = {
+ 	.oas = 42,
+ 	.fmt = APPLE_DART2,
++	.max_sid_count = 16,
+ };
+ 
+ static __maybe_unused int apple_dart_suspend(struct device *dev)
+@@ -940,7 +968,7 @@ static __maybe_unused int apple_dart_suspend(struct device *dev)
+ 	struct apple_dart *dart = dev_get_drvdata(dev);
+ 	unsigned int sid, idx;
+ 
+-	for (sid = 0; sid < DART_MAX_STREAMS; sid++) {
++	for (sid = 0; sid < dart->num_streams; sid++) {
+ 		dart->save_tcr[sid] = readl_relaxed(dart->regs + DART_TCR(sid));
+ 		for (idx = 0; idx < DART_MAX_TTBR; idx++)
+ 			dart->save_ttbr[sid][idx] =
+@@ -962,7 +990,7 @@ static __maybe_unused int apple_dart_resume(struct device *dev)
+ 		return ret;
+ 	}
+ 
+-	for (sid = 0; sid < DART_MAX_STREAMS; sid++) {
++	for (sid = 0; sid < dart->num_streams; sid++) {
+ 		for (idx = 0; idx < DART_MAX_TTBR; idx++)
+ 			writel(dart->save_ttbr[sid][idx],
+ 			       dart->regs + DART_TTBR(sid, idx));
 -- 
 2.39.2
 
