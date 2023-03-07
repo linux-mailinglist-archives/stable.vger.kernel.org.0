@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D72F06AEFD0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:27:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9E86AEB65
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:44:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232539AbjCGS0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:26:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49694 "EHLO
+        id S231951AbjCGRoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:44:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbjCGSZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:25:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA95A92C4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:19 -0800 (PST)
+        with ESMTP id S231958AbjCGRnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:43:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 488A29CBF8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C273D61537
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F31C4339E;
-        Tue,  7 Mar 2023 18:20:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7528461514
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82629C433EF;
+        Tue,  7 Mar 2023 17:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213218;
-        bh=SM1GI1EP0XdNredmYV8rw9i5Ps7Z/TjaBcz2Bxa1uAs=;
+        s=korg; t=1678210708;
+        bh=HmcxF+peFqmhQgSYG7kODpo3e9/z7viWSwGrUKlZLxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pk2TbyTKMIco0HlSr06s5MldCJwjwTgsnfDm+452QSarU0NhtE6D9kUZ+nPE2heO4
-         w3IKFGxKduL1PB4xgMPnkEl6KTBOnbE8JwwYxp7JQ14Xye6Js12OI4Lt+wm03z5Hqg
-         zFXHYYpxNCDkPGjc5BFVeCvEnchbZ/8DO2WZQiTk=
+        b=iqoJnu/Y48fyPM1dnTTiAQ/Pak1L7BoPgyakBaHKf+o4DFYWDrLflWGcUl3avP2qe
+         PfGXEQc3PxSR6tABjjXl0GIv+5jhU/NkOpWI+ph5rKf4vaBhje/zegSwUjfizSe4+V
+         uE9esDAJKTyI7m2FtTADrJt1i8+7tiiwak+JGPVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 436/885] firmware: stratix10-svc: add missing gen_pool_destroy() in stratix10_svc_drv_probe()
+Subject: [PATCH 6.2 0598/1001] media: i2c: ov772x: Fix memleak in ov772x_probe()
 Date:   Tue,  7 Mar 2023 17:56:10 +0100
-Message-Id: <20230307170021.358209323@linuxfoundation.org>
+Message-Id: <20230307170047.450800324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,67 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 9175ee1a99d57ec07d66ff572e1d5a724477ab37 ]
+[ Upstream commit 7485edb2b6ca5960205c0a49bedfd09bba30e521 ]
 
-In error path in stratix10_svc_drv_probe(), gen_pool_destroy() should be called
-to destroy the memory pool that created by svc_create_memory_pool().
+A memory leak was reported when testing ov772x with bpf mock device:
 
-Fixes: 7ca5ce896524 ("firmware: add Intel Stratix10 service layer driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20221129163602.462369-1-dinguyen@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+AssertionError: unreferenced object 0xffff888109afa7a8 (size 8):
+  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
+  hex dump (first 8 bytes):
+    80 22 88 15 81 88 ff ff                          ."......
+  backtrace:
+    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
+    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
+    [<00000000faf48134>] v4l2_ctrl_handler_init_class+0x11d/0x180 [videodev]
+    [<00000000da376937>] ov772x_probe+0x1c3/0x68c [ov772x]
+    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
+    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
+    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
+    [<0000000048370519>] driver_probe_device+0x49/0x120
+    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
+    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
+    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
+    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
+    [<00000000ee0f3046>] device_add+0x810/0x1130
+    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
+    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
+    [<00000000a9f2159d>] of_i2c_notify+0x100/0x160
+unreferenced object 0xffff888119825c00 (size 256):
+  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
+  hex dump (first 32 bytes):
+    00 b4 a5 17 81 88 ff ff 00 5e 82 19 81 88 ff ff  .........^......
+    10 5c 82 19 81 88 ff ff 10 5c 82 19 81 88 ff ff  .\.......\......
+  backtrace:
+    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
+    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
+    [<0000000073d88e0b>] v4l2_ctrl_new.cold+0x19b/0x86f [videodev]
+    [<00000000b1f576fb>] v4l2_ctrl_new_std+0x16f/0x210 [videodev]
+    [<00000000caf7ac99>] ov772x_probe+0x1fa/0x68c [ov772x]
+    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
+    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
+    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
+    [<0000000048370519>] driver_probe_device+0x49/0x120
+    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
+    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
+    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
+    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
+    [<00000000ee0f3046>] device_add+0x810/0x1130
+    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
+    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
+
+The reason is that if priv->hdl.error is set, ov772x_probe() jumps to the
+error_mutex_destroy without doing v4l2_ctrl_handler_free(), and all
+resources allocated in v4l2_ctrl_handler_init() and v4l2_ctrl_new_std()
+are leaked.
+
+Fixes: 1112babde214 ("media: i2c: Copy ov772x soc_camera sensor driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/stratix10-svc.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/media/i2c/ov772x.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index b4081f4d88a37..1a5640b3ab422 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -1138,13 +1138,17 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 
- 	/* allocate service controller and supporting channel */
- 	controller = devm_kzalloc(dev, sizeof(*controller), GFP_KERNEL);
--	if (!controller)
--		return -ENOMEM;
-+	if (!controller) {
-+		ret = -ENOMEM;
-+		goto err_destroy_pool;
-+	}
- 
- 	chans = devm_kmalloc_array(dev, SVC_NUM_CHANNEL,
- 				   sizeof(*chans), GFP_KERNEL | __GFP_ZERO);
--	if (!chans)
--		return -ENOMEM;
-+	if (!chans) {
-+		ret = -ENOMEM;
-+		goto err_destroy_pool;
-+	}
- 
- 	controller->dev = dev;
- 	controller->num_chans = SVC_NUM_CHANNEL;
-@@ -1159,7 +1163,7 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 	ret = kfifo_alloc(&controller->svc_fifo, fifo_size, GFP_KERNEL);
- 	if (ret) {
- 		dev_err(dev, "failed to allocate FIFO\n");
--		return ret;
-+		goto err_destroy_pool;
+diff --git a/drivers/media/i2c/ov772x.c b/drivers/media/i2c/ov772x.c
+index 4189e3fc3d535..a238e63425f8c 100644
+--- a/drivers/media/i2c/ov772x.c
++++ b/drivers/media/i2c/ov772x.c
+@@ -1462,7 +1462,7 @@ static int ov772x_probe(struct i2c_client *client)
+ 	priv->subdev.ctrl_handler = &priv->hdl;
+ 	if (priv->hdl.error) {
+ 		ret = priv->hdl.error;
+-		goto error_mutex_destroy;
++		goto error_ctrl_free;
  	}
- 	spin_lock_init(&controller->svc_fifo_lock);
  
-@@ -1221,6 +1225,8 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+ 	priv->clk = clk_get(&client->dev, NULL);
+@@ -1515,7 +1515,6 @@ static int ov772x_probe(struct i2c_client *client)
+ 	clk_put(priv->clk);
+ error_ctrl_free:
+ 	v4l2_ctrl_handler_free(&priv->hdl);
+-error_mutex_destroy:
+ 	mutex_destroy(&priv->lock);
  
- err_free_kfifo:
- 	kfifo_free(&controller->svc_fifo);
-+err_destroy_pool:
-+	gen_pool_destroy(genpool);
  	return ret;
- }
- 
 -- 
 2.39.2
 
