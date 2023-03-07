@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1778E6AF0CE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 562A26AEBF8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbjCGSgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:36:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42936 "EHLO
+        id S232281AbjCGRuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:50:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232869AbjCGSfB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4A7B861E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:01 -0800 (PST)
+        with ESMTP id S232193AbjCGRuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2CD99E52A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 709A6614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64E4DC433EF;
-        Tue,  7 Mar 2023 18:27:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7131EB819BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E79C433EF;
+        Tue,  7 Mar 2023 17:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213620;
-        bh=kXVQvDbRjjHJfJN5vjStph0aXrLR7cljx3xmC6+I7xM=;
+        s=korg; t=1678211116;
+        bh=H1skC8Zwy8xVR3c45srqI4khS48b6QVIskB2y+3yfHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUro2UcqKD9LJfaovGK+pksGNmubUtNpe0Msxiejk15kf8Wyiia1G/dwC0tojZq0N
-         VeoQ7uWnqPU+XjEBkgyIlzVdPnxa4eN5xfs1sBz40SH2A2RZ+7KKlkbBSSC8fYFEVb
-         V1E+Mtypx/0X9lemWKPRnOyOmB5PUkfJ8zmGrd4M=
+        b=E7GLZZPCm7jvJogs1Yw6rdG2MIpKhatUniiyEANOEvXlt4Os8bsQg62QsBJ4jNOkN
+         7NhuUtFxyd7HH8+e38tLrhjBfDACZ0a5FRnBsWZBi2x8QLXaqVstsmQINGrnq1OIH1
+         T+rX8ubAXyi7JDrn0WXZ/PzZ2oX1HSEAMNZltlxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Thaler <dthaler@microsoft.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 564/885] bpf, docs: Fix modulo zero, division by zero, overflow, and underflow
-Date:   Tue,  7 Mar 2023 17:58:18 +0100
-Message-Id: <20230307170026.947355919@linuxfoundation.org>
+Subject: [PATCH 6.2 0727/1001] pinctrl: at91: use devm_kasprintf() to avoid potential leaks
+Date:   Tue,  7 Mar 2023 17:58:19 +0100
+Message-Id: <20230307170053.256272681@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Thaler <dthaler@microsoft.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 0eb9d19e2201068260e439a5c96dc85f9f3722a2 ]
+[ Upstream commit 1c4e5c470a56f7f7c649c0c70e603abc1eab15c4 ]
 
-Fix modulo zero, division by zero, overflow, and underflow. Also clarify how
-a negative immediate value is used in unsigned division.
+Use devm_kasprintf() instead of kasprintf() to avoid any potential
+leaks. At the moment drivers have no remove functionality thus
+there is no need for fixes tag.
 
-Signed-off-by: Dave Thaler <dthaler@microsoft.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20230124001218.827-1-dthaler1968@googlemail.com
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230203132714.1931596-1-claudiu.beznea@microchip.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/bpf/instruction-set.rst | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/pinctrl/pinctrl-at91-pio4.c | 4 ++--
+ drivers/pinctrl/pinctrl-at91.c      | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/bpf/instruction-set.rst b/Documentation/bpf/instruction-set.rst
-index 5d798437dad47..3ba6475cfbfc7 100644
---- a/Documentation/bpf/instruction-set.rst
-+++ b/Documentation/bpf/instruction-set.rst
-@@ -99,19 +99,26 @@ code      value  description
- BPF_ADD   0x00   dst += src
- BPF_SUB   0x10   dst -= src
- BPF_MUL   0x20   dst \*= src
--BPF_DIV   0x30   dst /= src
-+BPF_DIV   0x30   dst = (src != 0) ? (dst / src) : 0
- BPF_OR    0x40   dst \|= src
- BPF_AND   0x50   dst &= src
- BPF_LSH   0x60   dst <<= src
- BPF_RSH   0x70   dst >>= src
- BPF_NEG   0x80   dst = ~src
--BPF_MOD   0x90   dst %= src
-+BPF_MOD   0x90   dst = (src != 0) ? (dst % src) : dst
- BPF_XOR   0xa0   dst ^= src
- BPF_MOV   0xb0   dst = src
- BPF_ARSH  0xc0   sign extending shift right
- BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
- ========  =====  ==========================================================
+diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
+index 39b233f73e132..373eed8bc4be9 100644
+--- a/drivers/pinctrl/pinctrl-at91-pio4.c
++++ b/drivers/pinctrl/pinctrl-at91-pio4.c
+@@ -1149,8 +1149,8 @@ static int atmel_pinctrl_probe(struct platform_device *pdev)
  
-+Underflow and overflow are allowed during arithmetic operations, meaning
-+the 64-bit or 32-bit value will wrap. If eBPF program execution would
-+result in division by zero, the destination register is instead set to zero.
-+If execution would result in modulo by zero, for ``BPF_ALU64`` the value of
-+the destination register is unchanged whereas for ``BPF_ALU`` the upper
-+32 bits of the destination register are zeroed.
-+
- ``BPF_ADD | BPF_X | BPF_ALU`` means::
+ 		pin_desc[i].number = i;
+ 		/* Pin naming convention: P(bank_name)(bank_pin_number). */
+-		pin_desc[i].name = kasprintf(GFP_KERNEL, "P%c%d",
+-					     bank + 'A', line);
++		pin_desc[i].name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "P%c%d",
++						  bank + 'A', line);
  
-   dst_reg = (u32) dst_reg + (u32) src_reg;
-@@ -128,6 +135,11 @@ BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
+ 		group->name = group_names[i] = pin_desc[i].name;
+ 		group->pin = pin_desc[i].number;
+diff --git a/drivers/pinctrl/pinctrl-at91.c b/drivers/pinctrl/pinctrl-at91.c
+index 1e1813d7c5508..c405296e49896 100644
+--- a/drivers/pinctrl/pinctrl-at91.c
++++ b/drivers/pinctrl/pinctrl-at91.c
+@@ -1885,7 +1885,7 @@ static int at91_gpio_probe(struct platform_device *pdev)
+ 	}
  
-   src_reg = src_reg ^ imm32
+ 	for (i = 0; i < chip->ngpio; i++)
+-		names[i] = kasprintf(GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
++		names[i] = devm_kasprintf(&pdev->dev, GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
  
-+Also note that the division and modulo operations are unsigned. Thus, for
-+``BPF_ALU``, 'imm' is first interpreted as an unsigned 32-bit value, whereas
-+for ``BPF_ALU64``, 'imm' is first sign extended to 64 bits and the result
-+interpreted as an unsigned 64-bit value. There are no instructions for
-+signed division or modulo.
+ 	chip->names = (const char *const *)names;
  
- Byte swap instructions
- ~~~~~~~~~~~~~~~~~~~~~~
 -- 
 2.39.2
 
