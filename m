@@ -2,103 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F8D6ADBC6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 11:25:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A576ADBE3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 11:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbjCGKZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 05:25:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34962 "EHLO
+        id S230462AbjCGK2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 05:28:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229525AbjCGKZM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 05:25:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F586BB87;
-        Tue,  7 Mar 2023 02:25:11 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5212612E3;
-        Tue,  7 Mar 2023 10:25:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC0EC433D2;
-        Tue,  7 Mar 2023 10:25:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678184710;
-        bh=o0cPSYc9dA2JP/bjbrLx4zaWDnAO4a0TM9HJToYkFC4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QtWHQrqrPpYYuL+tYw6B20SoFnnMuZlXGWUo1tmwGYtM9LbrgbLDHRuR2/7waceJp
-         uqHcowVk17L36ZDRcn2z+gb1O1uU5yzGuWcVRR3OPWlJRcLaXDr7Sprc/3saM+aL4D
-         cs0pgxKZgrHmwOnnXIaoUcSHi2lT1y8ydDaVU4a63ElLP22IftdVuOTwfC2RwnVmuo
-         a47TtvmhAb+BZsVqnLfkLsxk0Te6HLNSt2fAtj+JQEsDd7bOuRj2no4HxaLirFkVTJ
-         xJ9Vxe5NlWbpMsiLxGccCR0UMWDw8fwR/Snqfz76vCySfz4OLZKM6cPLw4813EIwtY
-         ZO+EkS5hv0jvg==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1pZUW0-0000uQ-Ma; Tue, 07 Mar 2023 11:25:52 +0100
-Date:   Tue, 7 Mar 2023 11:25:52 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Luca Ceresoli <luca.ceresoli@bootlin.com>
-Cc:     Johan Hovold <johan+linaro@kernel.org>,
-        Georgi Djakov <djakov@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Artur =?utf-8?B?xZp3aWdvxYQ=?= <a.swigon@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Alexandre Bailon <abailon@baylibre.com>
-Subject: Re: [PATCH v2 04/23] interconnect: imx: fix registration race
-Message-ID: <ZAcRMNTyDrqVMxIm@hovoldconsulting.com>
-References: <20230306075651.2449-1-johan+linaro@kernel.org>
- <20230306075651.2449-5-johan+linaro@kernel.org>
- <20230307104324.121166d1@booty>
+        with ESMTP id S230386AbjCGK1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 05:27:38 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F7F52926
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 02:26:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678184781;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LJ3a4OKd2xsWg0ZM/2W4mQQK3PnmS/QZqFHDCgSJxCI=;
+        b=PBZohkIYgD4Ceyr8CMprrWIu3fztFxWGIjcW/VqVaE77jAQtNC0y0fqz4/HK3KJ+hJxGNL
+        gcdR7X1Qs/bqhwT0uQN046WwR8qSrHvxJEZJtZsxTLoBX84LTVrzEOZEKST7uR82KD6VDC
+        0UusFwuSpu4tx/Teezi6ajb5gqD0oN4=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-663-9_E1hM_jOS6VHM-Yy7nTTw-1; Tue, 07 Mar 2023 05:26:20 -0500
+X-MC-Unique: 9_E1hM_jOS6VHM-Yy7nTTw-1
+Received: by mail-ed1-f69.google.com with SMTP id k12-20020a50c8cc000000b004accf30f6d3so18274052edh.14
+        for <stable@vger.kernel.org>; Tue, 07 Mar 2023 02:26:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678184779;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LJ3a4OKd2xsWg0ZM/2W4mQQK3PnmS/QZqFHDCgSJxCI=;
+        b=AtLErkCGRQCBTEAtNSTi0JSHwC58tkrOt0jDGdbNnk4wYdwVksRyUr/+xLd6UWWCwP
+         WXSQjrqIt9g4LAeoTNgkSn8C0yqCKhH3s8n7aeOqrbdN392ib0851lLus5REu/yvzBLm
+         kBb+5hcUi7vJH1PEa8xsJhDSjLcekFxbtHl0glks3omnWul8IZ4DPDfmLCGadSOnSIpu
+         6KbkUnA3bKgd3p1Dk4XR2XyPQrLkntPAnY6SWxTIitLoeqOaaHAwYQewHnPbvgcpAeXi
+         opDcheQHVBMEqyL5rARCpoRH+Xv78gYJu9KmDbbfawHveqmP6bqZr4j8OpSnANA80Ezo
+         INiQ==
+X-Gm-Message-State: AO0yUKVP3H3jW17E9UVVDRs/VEUWY+Pxo/tvKflYoyndPEPuMJBFG4rF
+        VA3MYQ7Qi9APr5BMHcp6z/ne6Py0kYxctUsVtKs2Pm6KTLIh2iJQkq1r3OL0aaz9uupiU9LiYPt
+        D3sdPiVIe8F462jaI
+X-Received: by 2002:a17:906:3f5d:b0:871:178d:fc1e with SMTP id f29-20020a1709063f5d00b00871178dfc1emr12925485ejj.77.1678184779299;
+        Tue, 07 Mar 2023 02:26:19 -0800 (PST)
+X-Google-Smtp-Source: AK7set/KN4FcVBjwnLlfJUlXjaVjCuuB4IYPkMvYuB1ZbjJt89ZJWQB50LDzIKdonI2nx9CIUPAkeg==
+X-Received: by 2002:a17:906:3f5d:b0:871:178d:fc1e with SMTP id f29-20020a1709063f5d00b00871178dfc1emr12925476ejj.77.1678184779072;
+        Tue, 07 Mar 2023 02:26:19 -0800 (PST)
+Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
+        by smtp.gmail.com with ESMTPSA id g8-20020a17090613c800b008e45d7055f8sm5815373ejc.198.2023.03.07.02.26.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Mar 2023 02:26:18 -0800 (PST)
+Message-ID: <3a17dd23-c396-7cfb-3cfa-19cdec39f2ff@redhat.com>
+Date:   Tue, 7 Mar 2023 11:26:17 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230307104324.121166d1@booty>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH 1/2] staging: rtl8723bs: Fix key-store index handling
+Content-Language: en-US, nl
+To:     Bastien Nocera <hadess@hadess.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Pavel Skripkin <paskripkin@gmail.com>
+Cc:     linux-staging@lists.linux.dev, stable@vger.kernel.org
+References: <20230306153512.162104-1-hdegoede@redhat.com>
+ <f23d6700b79500e2da9875964aee356c60a60529.camel@hadess.net>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <f23d6700b79500e2da9875964aee356c60a60529.camel@hadess.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 07, 2023 at 10:43:24AM +0100, Luca Ceresoli wrote:
-> On Mon,  6 Mar 2023 08:56:32 +0100
-> Johan Hovold <johan+linaro@kernel.org> wrote:
-> 
-> > The current interconnect provider registration interface is inherently
-> > racy as nodes are not added until the after adding the provider. This
-> > can specifically cause racing DT lookups to fail.
-> > 
-> > Switch to using the new API where the provider is not registered until
-> > after it has been fully initialised.
-> > 
-> > Fixes: f0d8048525d7 ("interconnect: Add imx core driver")
-> > Cc: stable@vger.kernel.org      # 5.8
-> > Cc: Alexandre Bailon <abailon@baylibre.com>
-> > Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-> > Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
-> 
-> v2 works just as well, so my Tested-by is confirmed. Maybe it's useful
-> mentioning the hardware used for testing so:
-> 
-> [Tested on i.MX8MP using an MSC SM2-MB-EP1 Board]
-> Tested-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Hi,
 
-Thanks for reconfirming. Looks like Georgi has picked these up for
-6.3-rc now.
+On 3/6/23 16:40, Bastien Nocera wrote:
+> On Mon, 2023-03-06 at 16:35 +0100, Hans de Goede wrote:
+>> There are 2 issues with the key-store index handling
+>>
+>> 1. The non WEP key stores can store keys with indexes 0 -
+>> BIP_MAX_KEYID,
+>>    this means that they should be an array with BIP_MAX_KEYID + 1
+>>    entries. But some of the arrays where just BIP_MAX_KEYID entries
+>>    big. While one other array was hardcoded to a size of 6 entries,
+>>    instead of using the BIP_MAX_KEYID define.
+>>
+>> 2. The rtw_cfg80211_set_encryption() and wpa_set_encryption()
+>> functions
+>>    index check where checking that the passed in key-index would fit
+>>    inside both the WEP key store (which only has 4 entries) as well
+>> as
+>>    in the non WEP key stores. This breaks any attempts to set non WEP
+>>    keys with index 4 or 5.
+>>
+>> Issue 2. specifically breaks wifi connection with some access points
+>> which advertise PMF support. Without this fix connecting to these
+>> access points fails with the following wpa_supplicant messages:
+>>
+>>  nl80211: kernel reports: key addition failed
+>>  wlan0: WPA: Failed to configure IGTK to the driver
+>>  wlan0: RSN: Failed to configure IGTK
+>>  wlan0: CTRL-EVENT-DISCONNECTED bssid=... reason=1
+>> locally_generated=1
+>>
+>> Fix 1. by using the right size for the key-stores. After this 2. can
+>> safely be fixed by checking the right max-index value depending on
+>> the
+>> used algorithm, fixing wifi not working with some PMF capable APs.
+> 
+> Good job on both those patches.
+> 
+> Can you please also CC: the maintainer of r8188eu which looks like it
+> has similar code?
 
-Johan
+Done (added to the To: of this reply).
+
+Note I have heard that the r8188eu is now (starting with 6.2 ?) supported
+by one of the non staging realtek wifi drivers. So I think that maybe it
+can just be removed from staging altogether ?
+
+Regards,
+
+Hans
+
+
+
+
