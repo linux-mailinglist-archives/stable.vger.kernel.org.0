@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F273D6AEE76
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0256AE9C2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231572AbjCGSMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:12:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48060 "EHLO
+        id S231593AbjCGR1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229801AbjCGSL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1610CB1EC0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:08 -0800 (PST)
+        with ESMTP id S231493AbjCGR1E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C904595BFB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:22:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA792B8191D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74FD1C433EF;
-        Tue,  7 Mar 2023 18:07:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 795F2B819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB978C433EF;
+        Tue,  7 Mar 2023 17:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212424;
-        bh=MXse3LNSgcA5exqHqF/A/wHsXvDDIiqZGvkyuljOO4Y=;
+        s=korg; t=1678209729;
+        bh=O8/q0oekSETQ9Z9BiI4wlxnqeehnV0rpQl7NmBLWdHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gl6b1jtnf2dXorlnTqNNXk7Gt7LXJPDZ+D2xK43wKFbTZDljOC3Vp6fybuB6oyLX
-         mtbJ1ozHzXGz5F5XDqhtsXH4c2ves4S/WiR0tMhC+CMZxXmDcmBn46QqpAnYGsPMK4
-         SvuFlPF1jGs8Oj9qWkhzJgReK8Ozp8dvA4vutr0o=
+        b=M7q+fc06Qj5eHAdoaziNxEO7AUCzFywpavwL68vMtmUOJAuaaiDsu2cieCt32QwTC
+         rPMVdUI/owYf+J4bVgt1DZ5hLnmYy2zPeV7na7olnAGkOozC+l2BWSlmEqvd2celT0
+         Z2ltd0RBmeSzLkuJfkSE/6DyfTqo4y3JxmaMvEG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
         Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        Alexander Lobakin <aleksander.lobakin@intel.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 150/885] selftests/xsk: print correct payload for packet dump
+Subject: [PATCH 6.2 0312/1001] xsk: check IFF_UP earlier in Tx path
 Date:   Tue,  7 Mar 2023 17:51:24 +0100
-Message-Id: <20230307170008.408687578@linuxfoundation.org>
+Message-Id: <20230307170035.093307682@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,46 +57,218 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 2d0b2ae2871ae6d42a9f0a4280e0fb5bff8d38b8 ]
+[ Upstream commit 1596dae2f17ec5c6e8c8f0e3fec78c5ae55c1e0b ]
 
-Print the correct payload when the packet dump option is selected. The
-network to host conversion was forgotten and the payload was
-erronously declared to be an int instead of an unsigned int.
+Xsk Tx can be triggered via either sendmsg() or poll() syscalls. These
+two paths share a call to common function xsk_xmit() which has two
+sanity checks within. A pseudo code example to show the two paths:
 
-Fixes: facb7cb2e909 ("selftests/bpf: Xsk selftests - SKB POLL, NOPOLL")
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Link: https://lore.kernel.org/r/20230111093526.11682-2-magnus.karlsson@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+__xsk_sendmsg() :                       xsk_poll():
+if (unlikely(!xsk_is_bound(xs)))        if (unlikely(!xsk_is_bound(xs)))
+    return -ENXIO;                          return mask;
+if (unlikely(need_wait))                (...)
+    return -EOPNOTSUPP;                 xsk_xmit()
+mark napi id
+(...)
+xsk_xmit()
+
+xsk_xmit():
+if (unlikely(!(xs->dev->flags & IFF_UP)))
+	return -ENETDOWN;
+if (unlikely(!xs->tx))
+	return -ENOBUFS;
+
+As it can be observed above, in sendmsg() napi id can be marked on
+interface that was not brought up and this causes a NULL ptr
+dereference:
+
+[31757.505631] BUG: kernel NULL pointer dereference, address: 0000000000000018
+[31757.512710] #PF: supervisor read access in kernel mode
+[31757.517936] #PF: error_code(0x0000) - not-present page
+[31757.523149] PGD 0 P4D 0
+[31757.525726] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[31757.530154] CPU: 26 PID: 95641 Comm: xdpsock Not tainted 6.2.0-rc5+ #40
+[31757.536871] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0008.031920191559 03/19/2019
+[31757.547457] RIP: 0010:xsk_sendmsg+0xde/0x180
+[31757.551799] Code: 00 75 a2 48 8b 00 a8 04 75 9b 84 d2 74 69 8b 85 14 01 00 00 85 c0 75 1b 48 8b 85 28 03 00 00 48 8b 80 98 00 00 00 48 8b 40 20 <8b> 40 18 89 85 14 01 00 00 8b bd 14 01 00 00 81 ff 00 01 00 00 0f
+[31757.570840] RSP: 0018:ffffc90034f27dc0 EFLAGS: 00010246
+[31757.576143] RAX: 0000000000000000 RBX: ffffc90034f27e18 RCX: 0000000000000000
+[31757.583389] RDX: 0000000000000001 RSI: ffffc90034f27e18 RDI: ffff88984cf3c100
+[31757.590631] RBP: ffff88984714a800 R08: ffff88984714a800 R09: 0000000000000000
+[31757.597877] R10: 0000000000000001 R11: 0000000000000000 R12: 00000000fffffffa
+[31757.605123] R13: 0000000000000000 R14: 0000000000000003 R15: 0000000000000000
+[31757.612364] FS:  00007fb4c5931180(0000) GS:ffff88afdfa00000(0000) knlGS:0000000000000000
+[31757.620571] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[31757.626406] CR2: 0000000000000018 CR3: 000000184b41c003 CR4: 00000000007706e0
+[31757.633648] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[31757.640894] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[31757.648139] PKRU: 55555554
+[31757.650894] Call Trace:
+[31757.653385]  <TASK>
+[31757.655524]  sock_sendmsg+0x8f/0xa0
+[31757.659077]  ? sockfd_lookup_light+0x12/0x70
+[31757.663416]  __sys_sendto+0xfc/0x170
+[31757.667051]  ? do_sched_setscheduler+0xdb/0x1b0
+[31757.671658]  __x64_sys_sendto+0x20/0x30
+[31757.675557]  do_syscall_64+0x38/0x90
+[31757.679197]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+[31757.687969] Code: 8e f6 ff 44 8b 4c 24 2c 4c 8b 44 24 20 41 89 c4 44 8b 54 24 28 48 8b 54 24 18 b8 2c 00 00 00 48 8b 74 24 10 8b 7c 24 08 0f 05 <48> 3d 00 f0 ff ff 77 3a 44 89 e7 48 89 44 24 08 e8 b5 8e f6 ff 48
+[31757.707007] RSP: 002b:00007ffd49c73c70 EFLAGS: 00000293 ORIG_RAX: 000000000000002c
+[31757.714694] RAX: ffffffffffffffda RBX: 000055a996565380 RCX: 00007fb4c5727c16
+[31757.721939] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
+[31757.729184] RBP: 0000000000000040 R08: 0000000000000000 R09: 0000000000000000
+[31757.736429] R10: 0000000000000040 R11: 0000000000000293 R12: 0000000000000000
+[31757.743673] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[31757.754940]  </TASK>
+
+To fix this, let's make xsk_xmit a function that will be responsible for
+generic Tx, where RCU is handled accordingly and pull out sanity checks
+and xs->zc handling. Populate sanity checks to __xsk_sendmsg() and
+xsk_poll().
+
+Fixes: ca2e1a627035 ("xsk: Mark napi_id on sendmsg()")
+Fixes: 18b1ab7aa76b ("xsk: Fix race at socket teardown")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Reviewed-by: Alexander Lobakin <aleksander.lobakin@intel.com>
+Link: https://lore.kernel.org/r/20230215143309.13145-1-maciej.fijalkowski@intel.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/xskxceiver.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/xdp/xsk.c | 59 ++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 33 insertions(+), 26 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/xskxceiver.c b/tools/testing/selftests/bpf/xskxceiver.c
-index 681a5db80dae0..51e693318b3f0 100644
---- a/tools/testing/selftests/bpf/xskxceiver.c
-+++ b/tools/testing/selftests/bpf/xskxceiver.c
-@@ -767,7 +767,7 @@ static void pkt_dump(void *pkt, u32 len)
- 	struct ethhdr *ethhdr;
- 	struct udphdr *udphdr;
- 	struct iphdr *iphdr;
--	int payload, i;
-+	u32 payload, i;
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 9f0561b67c12e..13f62d2402e71 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -511,7 +511,7 @@ static struct sk_buff *xsk_build_skb(struct xdp_sock *xs,
+ 	return skb;
+ }
  
- 	ethhdr = pkt;
- 	iphdr = pkt + sizeof(*ethhdr);
-@@ -792,7 +792,7 @@ static void pkt_dump(void *pkt, u32 len)
- 	fprintf(stdout, "DEBUG>> L4: udp_hdr->src: %d\n", ntohs(udphdr->source));
- 	fprintf(stdout, "DEBUG>> L4: udp_hdr->dst: %d\n", ntohs(udphdr->dest));
- 	/*extract L5 frame */
--	payload = *((uint32_t *)(pkt + PKT_HDR_SIZE));
-+	payload = ntohl(*((u32 *)(pkt + PKT_HDR_SIZE)));
+-static int xsk_generic_xmit(struct sock *sk)
++static int __xsk_generic_xmit(struct sock *sk)
+ {
+ 	struct xdp_sock *xs = xdp_sk(sk);
+ 	u32 max_batch = TX_BATCH_SIZE;
+@@ -594,22 +594,13 @@ static int xsk_generic_xmit(struct sock *sk)
+ 	return err;
+ }
  
- 	fprintf(stdout, "DEBUG>> L5: payload: %d\n", payload);
- 	fprintf(stdout, "---------------------------------------\n");
+-static int xsk_xmit(struct sock *sk)
++static int xsk_generic_xmit(struct sock *sk)
+ {
+-	struct xdp_sock *xs = xdp_sk(sk);
+ 	int ret;
+ 
+-	if (unlikely(!(xs->dev->flags & IFF_UP)))
+-		return -ENETDOWN;
+-	if (unlikely(!xs->tx))
+-		return -ENOBUFS;
+-
+-	if (xs->zc)
+-		return xsk_wakeup(xs, XDP_WAKEUP_TX);
+-
+ 	/* Drop the RCU lock since the SKB path might sleep. */
+ 	rcu_read_unlock();
+-	ret = xsk_generic_xmit(sk);
++	ret = __xsk_generic_xmit(sk);
+ 	/* Reaquire RCU lock before going into common code. */
+ 	rcu_read_lock();
+ 
+@@ -627,17 +618,31 @@ static bool xsk_no_wakeup(struct sock *sk)
+ #endif
+ }
+ 
++static int xsk_check_common(struct xdp_sock *xs)
++{
++	if (unlikely(!xsk_is_bound(xs)))
++		return -ENXIO;
++	if (unlikely(!(xs->dev->flags & IFF_UP)))
++		return -ENETDOWN;
++
++	return 0;
++}
++
+ static int __xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ {
+ 	bool need_wait = !(m->msg_flags & MSG_DONTWAIT);
+ 	struct sock *sk = sock->sk;
+ 	struct xdp_sock *xs = xdp_sk(sk);
+ 	struct xsk_buff_pool *pool;
++	int err;
+ 
+-	if (unlikely(!xsk_is_bound(xs)))
+-		return -ENXIO;
++	err = xsk_check_common(xs);
++	if (err)
++		return err;
+ 	if (unlikely(need_wait))
+ 		return -EOPNOTSUPP;
++	if (unlikely(!xs->tx))
++		return -ENOBUFS;
+ 
+ 	if (sk_can_busy_loop(sk)) {
+ 		if (xs->zc)
+@@ -649,8 +654,11 @@ static int __xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len
+ 		return 0;
+ 
+ 	pool = xs->pool;
+-	if (pool->cached_need_wakeup & XDP_WAKEUP_TX)
+-		return xsk_xmit(sk);
++	if (pool->cached_need_wakeup & XDP_WAKEUP_TX) {
++		if (xs->zc)
++			return xsk_wakeup(xs, XDP_WAKEUP_TX);
++		return xsk_generic_xmit(sk);
++	}
+ 	return 0;
+ }
+ 
+@@ -670,11 +678,11 @@ static int __xsk_recvmsg(struct socket *sock, struct msghdr *m, size_t len, int
+ 	bool need_wait = !(flags & MSG_DONTWAIT);
+ 	struct sock *sk = sock->sk;
+ 	struct xdp_sock *xs = xdp_sk(sk);
++	int err;
+ 
+-	if (unlikely(!xsk_is_bound(xs)))
+-		return -ENXIO;
+-	if (unlikely(!(xs->dev->flags & IFF_UP)))
+-		return -ENETDOWN;
++	err = xsk_check_common(xs);
++	if (err)
++		return err;
+ 	if (unlikely(!xs->rx))
+ 		return -ENOBUFS;
+ 	if (unlikely(need_wait))
+@@ -713,21 +721,20 @@ static __poll_t xsk_poll(struct file *file, struct socket *sock,
+ 	sock_poll_wait(file, sock, wait);
+ 
+ 	rcu_read_lock();
+-	if (unlikely(!xsk_is_bound(xs))) {
+-		rcu_read_unlock();
+-		return mask;
+-	}
++	if (xsk_check_common(xs))
++		goto skip_tx;
+ 
+ 	pool = xs->pool;
+ 
+ 	if (pool->cached_need_wakeup) {
+ 		if (xs->zc)
+ 			xsk_wakeup(xs, pool->cached_need_wakeup);
+-		else
++		else if (xs->tx)
+ 			/* Poll needs to drive Tx also in copy mode */
+-			xsk_xmit(sk);
++			xsk_generic_xmit(sk);
+ 	}
+ 
++skip_tx:
+ 	if (xs->rx && !xskq_prod_is_empty(xs->rx))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+ 	if (xs->tx && xsk_tx_writeable(xs))
 -- 
 2.39.2
 
