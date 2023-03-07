@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6076AF4BB
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9A16AF498
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231540AbjCGTTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:19:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50576 "EHLO
+        id S233933AbjCGTRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:17:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233961AbjCGTTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:19:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A658C3E3E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:45 -0800 (PST)
+        with ESMTP id S229690AbjCGTRP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0663C4884;
+        Tue,  7 Mar 2023 11:01:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C5DFB819A7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50340C433EF;
-        Tue,  7 Mar 2023 19:02:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BA5F61522;
+        Tue,  7 Mar 2023 19:01:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 548E3C433EF;
+        Tue,  7 Mar 2023 19:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215762;
-        bh=qbXq1e92zH5OmeV7aTT8amah4R+6GDyhpQfYoAnLgas=;
+        s=korg; t=1678215667;
+        bh=reVceQw8Vjx9DCDFgIspNsUMefaa5uHVjxDU6awyz2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cK2HOuFrMQ8rq+HdzI6jcZj77E7GkInGNmlcx6GFS2qo6c+t58rk+KLNjR5ZGOqqX
-         /h1dTOVTQs9htjeDB4F/6ZrHOVjfsFjyJ9E5FM45Nz4b4gF/9j2Rl7QdLBAw4i27zd
-         w6Ek9F8nbvQVs7k+T1h3xhAkDu6hxQLj4dq+uo3I=
+        b=JGmT13anfTY8J7ztslV1AcWL3hN6Dn2LRdQ0oUdpWld1ylpkZv5kOoFHU39A5kVxI
+         CltbV57/aaGCBF3iC4KtMAf2NOBC63IhCAxtvPi/+S5K2uYkP+Z2zbQ2WgMBNLIU3h
+         XqZnSMLxUBE2VwpNGp/kx1+hlSQBPdMwAnMimeo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Shravan Chippa <shravan.chippa@microchip.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 335/567] dmaengine: sf-pdma: pdma_desc memory leak fix
-Date:   Tue,  7 Mar 2023 18:01:11 +0100
-Message-Id: <20230307165920.405431407@linuxfoundation.org>
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vinod Koul <vkoul@kernel.org>, dmaengine@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 336/567] dmaengine: dw-axi-dmac: Do not dereference NULL structure
+Date:   Tue,  7 Mar 2023 18:01:12 +0100
+Message-Id: <20230307165920.444892107@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,80 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravan Chippa <shravan.chippa@microchip.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit b02e07015a5ac7bbc029da931ae17914b8ae0339 ]
+[ Upstream commit be4d46edeee4b2459d2f53f37ada88bbfb634b6c ]
 
-Commit b2cc5c465c2c ("dmaengine: sf-pdma: Add multithread support for a
-DMA channel") changed sf_pdma_prep_dma_memcpy() to unconditionally
-allocate a new sf_pdma_desc each time it is called.
+If "vdesc" is NULL, it cannot be used with vd_to_axi_desc(). Leave
+"bytes" unchanged at 0. Seen under GCC 13 with -Warray-bounds:
 
-The driver previously recycled descs, by checking the in_use flag, only
-allocating additional descs if the existing one was in use. This logic
-was removed in commit b2cc5c465c2c ("dmaengine: sf-pdma: Add multithread
-support for a DMA channel"), but sf_pdma_free_desc() was not changed to
-handle the new behaviour.
+../drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c: In function 'dma_chan_tx_status':
+../drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c:329:46: warning: array subscript 0 is outside array bounds of 'struct
+virt_dma_desc[46116860184273879]' [-Warray-bounds=]
+  329 |                 bytes = vd_to_axi_desc(vdesc)->length;
+      |                                              ^~
 
-As a result, each time sf_pdma_prep_dma_memcpy() is called, the previous
-descriptor is leaked, over time leading to memory starvation:
-
-  unreferenced object 0xffffffe008447300 (size 192):
-  comm "irq/39-mchp_dsc", pid 343, jiffies 4294906910 (age 981.200s)
-  hex dump (first 32 bytes):
-    00 00 00 ff 00 00 00 00 b8 c1 00 00 00 00 00 00  ................
-    00 00 70 08 10 00 00 00 00 00 00 c0 00 00 00 00  ..p.............
-  backtrace:
-    [<00000000064a04f4>] kmemleak_alloc+0x1e/0x28
-    [<00000000018927a7>] kmem_cache_alloc+0x11e/0x178
-    [<000000002aea8d16>] sf_pdma_prep_dma_memcpy+0x40/0x112
-
-Add the missing kfree() to sf_pdma_free_desc(), and remove the redundant
-in_use flag.
-
-Fixes: b2cc5c465c2c ("dmaengine: sf-pdma: Add multithread support for a DMA channel")
-Signed-off-by: Shravan Chippa <shravan.chippa@microchip.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20230120100623.3530634-1-shravan.chippa@microchip.com
+Fixes: 8e55444da65c ("dmaengine: dw-axi-dmac: Support burst residue granularity")
+Cc: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: dmaengine@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20230127223623.never.507-kees@kernel.org
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sf-pdma/sf-pdma.c | 3 +--
- drivers/dma/sf-pdma/sf-pdma.h | 1 -
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/dma/sf-pdma/sf-pdma.c b/drivers/dma/sf-pdma/sf-pdma.c
-index ab0ad7a2f2015..dcf2b7a4183c1 100644
---- a/drivers/dma/sf-pdma/sf-pdma.c
-+++ b/drivers/dma/sf-pdma/sf-pdma.c
-@@ -96,7 +96,6 @@ sf_pdma_prep_dma_memcpy(struct dma_chan *dchan,	dma_addr_t dest, dma_addr_t src,
- 	if (!desc)
- 		return NULL;
+diff --git a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
+index 41654b2f6c600..cfc47efcb5d93 100644
+--- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
++++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
+@@ -288,8 +288,6 @@ dma_chan_tx_status(struct dma_chan *dchan, dma_cookie_t cookie,
+ 		len = vd_to_axi_desc(vdesc)->hw_desc[0].len;
+ 		completed_length = completed_blocks * len;
+ 		bytes = length - completed_length;
+-	} else {
+-		bytes = vd_to_axi_desc(vdesc)->length;
+ 	}
  
--	desc->in_use = true;
- 	desc->dirn = DMA_MEM_TO_MEM;
- 	desc->async_tx = vchan_tx_prep(&chan->vchan, &desc->vdesc, flags);
- 
-@@ -290,7 +289,7 @@ static void sf_pdma_free_desc(struct virt_dma_desc *vdesc)
- 	struct sf_pdma_desc *desc;
- 
- 	desc = to_sf_pdma_desc(vdesc);
--	desc->in_use = false;
-+	kfree(desc);
- }
- 
- static void sf_pdma_donebh_tasklet(struct tasklet_struct *t)
-diff --git a/drivers/dma/sf-pdma/sf-pdma.h b/drivers/dma/sf-pdma/sf-pdma.h
-index 0c20167b097d0..02a229a3ae225 100644
---- a/drivers/dma/sf-pdma/sf-pdma.h
-+++ b/drivers/dma/sf-pdma/sf-pdma.h
-@@ -82,7 +82,6 @@ struct sf_pdma_desc {
- 	u64				src_addr;
- 	struct virt_dma_desc		vdesc;
- 	struct sf_pdma_chan		*chan;
--	bool				in_use;
- 	enum dma_transfer_direction	dirn;
- 	struct dma_async_tx_descriptor *async_tx;
- };
+ 	spin_unlock_irqrestore(&chan->vc.lock, flags);
 -- 
 2.39.2
 
