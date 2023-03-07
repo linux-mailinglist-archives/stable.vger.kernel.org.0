@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 874386AED02
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1E186AF20B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230105AbjCGSAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:00:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
+        id S233182AbjCGSt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:49:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230089AbjCGR7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:59:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFD5ACE3D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:03 -0800 (PST)
+        with ESMTP id S233326AbjCGStc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D38A48E37
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:38:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 755E9B819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2799C433AA;
-        Tue,  7 Mar 2023 17:54:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C97D6154A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FCADC433D2;
+        Tue,  7 Mar 2023 18:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211641;
-        bh=t3xQDR4r0a/O2lHu8pZiswoxjt17Lh6WORp24in6MDI=;
+        s=korg; t=1678214220;
+        bh=pSxs59gEIRYE7s1dFnLwoAwmSb5+HPPPRBKc3pc4FcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GD9UXxqhF9S+EfJXNG7ftYAtDm4GDV6w/iV1rGNg5LelFOGDmwOvgysRpLuDyrl8o
-         WYx7MXaUD+nmugLftBNDrIETiHERE0tbM5s3VVAB6VgA/cbPQkLD+UxHBNlb3gxyoE
-         lHtbh+aQCJwb+2uR/Dacpevd1QL0ARFNvVa5U9so=
+        b=WpA3Fv3WGVCFrh3CssS0an1gTS416zaYG4YGtaaxnBvMWPhyy62IsSm6NDzRCNoqx
+         EYT7oX2ZTmb729ujMfFRAFlCgsUVbj6OjasdLlz1b/+4Yf8PFJUIDPsrREqbonuzgN
+         FOmCRZxc8DvNF825ZeUx/KznJhvDATAez3RcxYCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Stahl, Michael" <mstahl@moba.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6.2 0896/1001] Input: exc3000 - properly stop timer on shutdown
+        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Subject: [PATCH 6.1 734/885] x86/kprobes: Fix __recover_optprobed_insn check optimizing logic
 Date:   Tue,  7 Mar 2023 18:01:08 +0100
-Message-Id: <20230307170100.864912496@linuxfoundation.org>
+Message-Id: <20230307170033.867674607@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-commit 79c81d137d36f9635bbcbc3916c0cccb418a61dd upstream.
+commit 868a6fc0ca2407622d2833adefe1c4d284766c4c upstream.
 
-We need to stop the timer on driver unbind or probe failures, otherwise
-we get UAF/Oops.
+Since the following commit:
 
-Fixes: 7e577a17f2ee ("Input: add I2C attached EETI EXC3000 multi touch driver")
-Reported-by: "Stahl, Michael" <mstahl@moba.de>
-Link: https://lore.kernel.org/r/Y9dK57BFqtlf8NmN@google.com
+  commit f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
+
+modified the update timing of the KPROBE_FLAG_OPTIMIZED, a optimized_kprobe
+may be in the optimizing or unoptimizing state when op.kp->flags
+has KPROBE_FLAG_OPTIMIZED and op->list is not empty.
+
+The __recover_optprobed_insn check logic is incorrect, a kprobe in the
+unoptimizing state may be incorrectly determined as unoptimizing.
+As a result, incorrect instructions are copied.
+
+The optprobe_queued_unopt function needs to be exported for invoking in
+arch directory.
+
+Link: https://lore.kernel.org/all/20230216034247.32348-2-yangjihong1@huawei.com/
+
+Fixes: f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/exc3000.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/x86/kernel/kprobes/opt.c |    4 ++--
+ include/linux/kprobes.h       |    1 +
+ kernel/kprobes.c              |    2 +-
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/input/touchscreen/exc3000.c
-+++ b/drivers/input/touchscreen/exc3000.c
-@@ -109,6 +109,11 @@ static inline void exc3000_schedule_time
- 	mod_timer(&data->timer, jiffies + msecs_to_jiffies(EXC3000_TIMEOUT_MS));
+--- a/arch/x86/kernel/kprobes/opt.c
++++ b/arch/x86/kernel/kprobes/opt.c
+@@ -46,8 +46,8 @@ unsigned long __recover_optprobed_insn(k
+ 		/* This function only handles jump-optimized kprobe */
+ 		if (kp && kprobe_optimized(kp)) {
+ 			op = container_of(kp, struct optimized_kprobe, kp);
+-			/* If op->list is not empty, op is under optimizing */
+-			if (list_empty(&op->list))
++			/* If op is optimized or under unoptimizing */
++			if (list_empty(&op->list) || optprobe_queued_unopt(op))
+ 				goto found;
+ 		}
+ 	}
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -378,6 +378,7 @@ extern void opt_pre_handler(struct kprob
+ DEFINE_INSN_CACHE_OPS(optinsn);
+ 
+ extern void wait_for_kprobe_optimizer(void);
++bool optprobe_queued_unopt(struct optimized_kprobe *op);
+ #else /* !CONFIG_OPTPROBES */
+ static inline void wait_for_kprobe_optimizer(void) { }
+ #endif /* CONFIG_OPTPROBES */
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -662,7 +662,7 @@ void wait_for_kprobe_optimizer(void)
+ 	mutex_unlock(&kprobe_mutex);
  }
  
-+static void exc3000_shutdown_timer(void *timer)
-+{
-+	timer_shutdown_sync(timer);
-+}
-+
- static int exc3000_read_frame(struct exc3000_data *data, u8 *buf)
+-static bool optprobe_queued_unopt(struct optimized_kprobe *op)
++bool optprobe_queued_unopt(struct optimized_kprobe *op)
  {
- 	struct i2c_client *client = data->client;
-@@ -386,6 +391,11 @@ static int exc3000_probe(struct i2c_clie
- 	if (error)
- 		return error;
+ 	struct optimized_kprobe *_op;
  
-+	error = devm_add_action_or_reset(&client->dev, exc3000_shutdown_timer,
-+					 &data->timer);
-+	if (error)
-+		return error;
-+
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, exc3000_interrupt, IRQF_ONESHOT,
- 					  client->name, data);
 
 
