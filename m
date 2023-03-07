@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D7716AEC33
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93B166AF0F9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229767AbjCGRxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46178 "EHLO
+        id S232764AbjCGShR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:37:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232193AbjCGRw6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF1992F08
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:21 -0800 (PST)
+        with ESMTP id S233329AbjCGSfv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A045ADBE8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:28:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6FDAB8184E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD92C433EF;
-        Tue,  7 Mar 2023 17:42:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DC9C6154D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BC91C433EF;
+        Tue,  7 Mar 2023 18:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210938;
-        bh=NFTdsDS4VibVEjjcSLK6bi5KlwYGD0WAksdvHJ2nuOQ=;
+        s=korg; t=1678213639;
+        bh=MHvVvHcFFxtRpvQ1ATNLFyUwyZ4h6QIJd3v05fBfveY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nNU+NidT++qp+6bWSAbRtWQydb+bI36gBm76FqA7+Aq6eQcQ5exkGzQJld/ySTwIs
-         Jqv0cT3PCITkzlhZumAt+9IHwpEjMOkB0YA1tISlXr3CuNXXLt4uGyeR30NafSJ5Vg
-         ZvBLm8sSIDFtd4yHrfKxQWrzUkjtlJe0p/uRPdK4=
+        b=KrSXEx+xuL0xucAzgQOFJny8GRUUBba9r1vhEhbazOjWiF3xErmfgclfMfIxSHPlw
+         8fXctPq5loI/AcXc4KmXqdNg4l8c1ydDyf4D7zUaW+Rk92teI5m9sg/ER/FBJSj+Jw
+         x+GfRQn9dhATpk7SkD1wVguDAL2gjPTQ9oUqc1pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
-        Andreas Grosse <andig.mail@t-online.de>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0703/1001] HID: uclogic: Add frame type quirk
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 541/885] x86/fpu: Dont set TIF_NEED_FPU_LOAD for PF_IO_WORKER threads
 Date:   Tue,  7 Mar 2023 17:57:55 +0100
-Message-Id: <20230307170052.126419824@linuxfoundation.org>
+Message-Id: <20230307170025.996416408@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,142 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 14b71e6ad8ca59dd734c7fa9676f3d60bddee2a9 ]
+[ Upstream commit cb3ea4b7671b7cfbac3ee609976b790aebd0bbda ]
 
-The report descriptor used to get information about UGEE v2 devices is
-incorrect in the XP-PEN Deco Pro SW. It indicates that the device frame
-is of type UCLOGIC_PARAMS_FRAME_BUTTONS but the device has a frame of
-type UCLOGIC_PARAMS_FRAME_MOUSE.
+We don't set it on PF_KTHREAD threads as they never return to userspace,
+and PF_IO_WORKER threads are identical in that regard. As they keep
+running in the kernel until they die, skip setting the FPU flag on them.
 
-Here is the original report descriptor:
+More of a cosmetic thing that was found while debugging and
+issue and pondering why the FPU flag is set on these threads.
 
-  0x0e 0x03 0xc8 0xb3 0x34 0x65 0x08 0x00 0xff 0x1f 0xd8 0x13 0x00 0x00
-                                     ^ This byte should be 2
-
-Add a quirk to be able to fix the reported frame type.
-
-Tested-by: Mia Kanashi <chad@redpilled.dev>
-Tested-by: Andreas Grosse <andig.mail@t-online.de>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/560c844c-f128-555b-40c6-31baff27537f@kernel.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-uclogic-core.c   | 20 +-------------------
- drivers/hid/hid-uclogic-params.c |  5 +++++
- drivers/hid/hid-uclogic-params.h | 23 +++++++++++++++++++++++
- 3 files changed, 29 insertions(+), 19 deletions(-)
+ arch/x86/include/asm/fpu/sched.h | 2 +-
+ arch/x86/kernel/fpu/context.h    | 2 +-
+ arch/x86/kernel/fpu/core.c       | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index cfbbc39807a69..739984b8fa1b8 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -22,25 +22,6 @@
- 
- #include "hid-ids.h"
- 
--/* Driver data */
--struct uclogic_drvdata {
--	/* Interface parameters */
--	struct uclogic_params params;
--	/* Pointer to the replacement report descriptor. NULL if none. */
--	__u8 *desc_ptr;
--	/*
--	 * Size of the replacement report descriptor.
--	 * Only valid if desc_ptr is not NULL
--	 */
--	unsigned int desc_size;
--	/* Pen input device */
--	struct input_dev *pen_input;
--	/* In-range timer */
--	struct timer_list inrange_timer;
--	/* Last rotary encoder state, or U8_MAX for none */
--	u8 re_state;
--};
--
- /**
-  * uclogic_inrange_timeout - handle pen in-range state timeout.
-  * Emulate input events normally generated when pen goes out of range for
-@@ -202,6 +183,7 @@ static int uclogic_probe(struct hid_device *hdev,
- 	}
- 	timer_setup(&drvdata->inrange_timer, uclogic_inrange_timeout, 0);
- 	drvdata->re_state = U8_MAX;
-+	drvdata->quirks = id->driver_data;
- 	hid_set_drvdata(hdev, drvdata);
- 
- 	/* Initialize the device and retrieve interface parameters */
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 3c5eea3df3288..e052538a62fb3 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -1298,6 +1298,7 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 				       struct hid_device *hdev)
+diff --git a/arch/x86/include/asm/fpu/sched.h b/arch/x86/include/asm/fpu/sched.h
+index b2486b2cbc6e0..c2d6cd78ed0c2 100644
+--- a/arch/x86/include/asm/fpu/sched.h
++++ b/arch/x86/include/asm/fpu/sched.h
+@@ -39,7 +39,7 @@ extern void fpu_flush_thread(void);
+ static inline void switch_fpu_prepare(struct fpu *old_fpu, int cpu)
  {
- 	int rc = 0;
-+	struct uclogic_drvdata *drvdata;
- 	struct usb_interface *iface;
- 	__u8 bInterfaceNumber;
- 	const int str_desc_len = 12;
-@@ -1316,6 +1317,7 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 		goto cleanup;
- 	}
+ 	if (cpu_feature_enabled(X86_FEATURE_FPU) &&
+-	    !(current->flags & PF_KTHREAD)) {
++	    !(current->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+ 		save_fpregs_to_fpstate(old_fpu);
+ 		/*
+ 		 * The save operation preserved register state, so the
+diff --git a/arch/x86/kernel/fpu/context.h b/arch/x86/kernel/fpu/context.h
+index 958accf2ccf07..9fcfa5c4dad79 100644
+--- a/arch/x86/kernel/fpu/context.h
++++ b/arch/x86/kernel/fpu/context.h
+@@ -57,7 +57,7 @@ static inline void fpregs_restore_userregs(void)
+ 	struct fpu *fpu = &current->thread.fpu;
+ 	int cpu = smp_processor_id();
  
-+	drvdata = hid_get_drvdata(hdev);
- 	iface = to_usb_interface(hdev->dev.parent);
- 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
+-	if (WARN_ON_ONCE(current->flags & PF_KTHREAD))
++	if (WARN_ON_ONCE(current->flags & (PF_KTHREAD | PF_IO_WORKER)))
+ 		return;
  
-@@ -1382,6 +1384,9 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 	p.pen.subreport_list[0].id = UCLOGIC_RDESC_V1_FRAME_ID;
+ 	if (!fpregs_state_valid(fpu, cpu)) {
+diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+index dccce58201b7c..caf33486dc5ee 100644
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -426,7 +426,7 @@ void kernel_fpu_begin_mask(unsigned int kfpu_mask)
  
- 	/* Initialize the frame interface */
-+	if (drvdata->quirks & UCLOGIC_MOUSE_FRAME_QUIRK)
-+		frame_type = UCLOGIC_PARAMS_FRAME_MOUSE;
-+
- 	switch (frame_type) {
- 	case UCLOGIC_PARAMS_FRAME_DIAL:
- 	case UCLOGIC_PARAMS_FRAME_MOUSE:
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index a97477c02ff82..10a05c7fd9398 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -19,6 +19,8 @@
- #include <linux/usb.h>
- #include <linux/hid.h>
+ 	this_cpu_write(in_kernel_fpu, true);
  
-+#define UCLOGIC_MOUSE_FRAME_QUIRK	BIT(0)
-+
- /* Types of pen in-range reporting */
- enum uclogic_params_pen_inrange {
- 	/* Normal reports: zero - out of proximity, one - in proximity */
-@@ -215,6 +217,27 @@ struct uclogic_params {
- 	struct uclogic_params_frame frame_list[3];
- };
- 
-+/* Driver data */
-+struct uclogic_drvdata {
-+	/* Interface parameters */
-+	struct uclogic_params params;
-+	/* Pointer to the replacement report descriptor. NULL if none. */
-+	__u8 *desc_ptr;
-+	/*
-+	 * Size of the replacement report descriptor.
-+	 * Only valid if desc_ptr is not NULL
-+	 */
-+	unsigned int desc_size;
-+	/* Pen input device */
-+	struct input_dev *pen_input;
-+	/* In-range timer */
-+	struct timer_list inrange_timer;
-+	/* Last rotary encoder state, or U8_MAX for none */
-+	u8 re_state;
-+	/* Device quirks */
-+	unsigned long quirks;
-+};
-+
- /* Initialize a tablet interface and discover its parameters */
- extern int uclogic_params_init(struct uclogic_params *params,
- 				struct hid_device *hdev);
+-	if (!(current->flags & PF_KTHREAD) &&
++	if (!(current->flags & (PF_KTHREAD | PF_IO_WORKER)) &&
+ 	    !test_thread_flag(TIF_NEED_FPU_LOAD)) {
+ 		set_thread_flag(TIF_NEED_FPU_LOAD);
+ 		save_fpregs_to_fpstate(&current->thread.fpu);
 -- 
 2.39.2
 
