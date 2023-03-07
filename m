@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2DD6ADAC0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:45:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3E76ADAD5
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:47:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229685AbjCGJpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:45:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40146 "EHLO
+        id S230189AbjCGJr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:47:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229890AbjCGJpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:45:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE029747
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:45:33 -0800 (PST)
+        with ESMTP id S230199AbjCGJrY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:47:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D8856170
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:47:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A36A612AC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D29C433EF;
-        Tue,  7 Mar 2023 09:45:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B482B816A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71389C433EF;
+        Tue,  7 Mar 2023 09:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182332;
-        bh=o0OL3pZ3+27EbfJDovnjg/y6BVisdMf6/o43eA5H/zY=;
+        s=korg; t=1678182426;
+        bh=7YvSpRu+1q3kP/cNn1kdYRkw4wgm0puaVzODHVwx8Ec=;
         h=Subject:To:Cc:From:Date:From;
-        b=d9OsS31p++sd+5IlHT926X2Z8CEthN9pXeISYJPYdGLirNJgu+nXN6Iw7ij3UQs8J
-         k6hm2WbaBrV2+M93wCJTT8ZsYY9vjNT7t2DIWvGrtB5kPf6gJdQlh0JiEJkne1jS1g
-         Hn+fgaLhmli+tiCKpNTWyE6vaIGuSjjxFT26UUSQ=
-Subject: FAILED: patch "[PATCH] regulator: core: Use ktime_get_boottime() to determine how" failed to apply to 5.15-stable tree
-To:     mka@chromium.org, broonie@kernel.org, swboyd@chromium.org
+        b=Rhl/HxGOiKtaPVroTNbfv+g5JjeluXWtw+aI+v0UZsDnLi1+5HzX1y/jOTj5fq+FB
+         VpDBCx0TglGCaaD7P1FTaSjRmDADDb+DgfYSonGtlsQ/0VhflWyGcjgG+Puby6s2ED
+         ubTHeK889DXBsWq7KTqKxk0yRoFaSMCQw/6mg2kk=
+Subject: FAILED: patch "[PATCH] block: fix scan partition for exclusively open device again" failed to apply to 5.10-stable tree
+To:     yukuai3@huawei.com, axboe@kernel.dk, hch@lst.de, jack@suse.cz,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:45:29 +0100
-Message-ID: <1678182329223204@kroah.com>
+Date:   Tue, 07 Mar 2023 10:46:55 +0100
+Message-ID: <1678182415126165@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,TVD_PH_BODY_ACCOUNTS_PRE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,25 +49,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
-git cherry-pick -x 80d2c29e09e663761c2778167a625b25ffe01b6f
+git cherry-pick -x e5cfefa97bccf956ea0bb6464c1f6c84fd7a8d9f
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182329223204@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182415126165@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
-80d2c29e09e6 ("regulator: core: Use ktime_get_boottime() to determine how long a regulator was off")
-218320fec294 ("regulator: core: Fix off-on-delay-us for always-on/boot-on regulators")
-261f06315cf7 ("regulator: Flag uncontrollable regulators as always_on")
+e5cfefa97bcc ("block: fix scan partition for exclusively open device again")
+0f77b29ad14e ("block: Revert "block: Do not reread partition table on exclusively open device"")
+36369f46e917 ("block: Do not reread partition table on exclusively open device")
+704b914f15fb ("blk-mq: move srcu from blk_mq_hw_ctx to request_queue")
+2a904d00855f ("blk-mq: remove hctx_lock and hctx_unlock")
+1e9c23034d7b ("blk-mq: move more plug handling from blk_mq_submit_bio into blk_add_rq_to_plug")
+0c5bcc92d94a ("blk-mq: simplify the plug handling in blk_mq_submit_bio")
+e16e506ccd67 ("block: merge disk_scan_partitions and blkdev_reread_part")
+95febeb61bf8 ("block: fix missing queue put in error path")
+b637108a4022 ("blk-mq: fix filesystem I/O request allocation")
+b131f2011115 ("blk-mq: rename blk_attempt_bio_merge")
+9ef4d0209cba ("blk-mq: add one API for waiting until quiesce is done")
+900e08075202 ("block: move queue enter logic into blk_mq_submit_bio()")
+c98cb5bbdab1 ("block: make bio_queue_enter() fast-path available inline")
+71539717c105 ("block: split request allocation components into helpers")
+a1cb65377e70 ("blk-mq: only try to run plug merge if request has same queue with incoming bio")
+781dd830ec4f ("block: move RQF_ELV setting into allocators")
+a2247f19ee1c ("block: Add independent access ranges support")
+e94f68527a35 ("block: kill extra rcu lock/unlock in queue enter")
+179ae84f7ef5 ("block: clean up blk_mq_submit_bio() merging")
 
 thanks,
 
@@ -74,58 +92,95 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 80d2c29e09e663761c2778167a625b25ffe01b6f Mon Sep 17 00:00:00 2001
-From: Matthias Kaehlcke <mka@chromium.org>
-Date: Thu, 23 Feb 2023 00:33:30 +0000
-Subject: [PATCH] regulator: core: Use ktime_get_boottime() to determine how
- long a regulator was off
+From e5cfefa97bccf956ea0bb6464c1f6c84fd7a8d9f Mon Sep 17 00:00:00 2001
+From: Yu Kuai <yukuai3@huawei.com>
+Date: Fri, 17 Feb 2023 10:22:00 +0800
+Subject: [PATCH] block: fix scan partition for exclusively open device again
 
-For regulators with 'off-on-delay-us' the regulator framework currently
-uses ktime_get() to determine how long the regulator has been off
-before re-enabling it (after a delay if needed). A problem with using
-ktime_get() is that it doesn't account for the time the system is
-suspended. As a result a regulator with a longer 'off-on-delay' (e.g.
-500ms) that was switched off during suspend might still incurr in a
-delay on resume before it is re-enabled, even though the regulator
-might have been off for hours. ktime_get_boottime() accounts for
-suspend time, use it instead of ktime_get().
+As explained in commit 36369f46e917 ("block: Do not reread partition table
+on exclusively open device"), reread partition on the device that is
+exclusively opened by someone else is problematic.
 
-Fixes: a8ce7bd89689 ("regulator: core: Fix off_on_delay handling")
-Cc: stable@vger.kernel.org    # 5.13+
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20230223003301.v2.1.I9719661b8eb0a73b8c416f9c26cf5bd8c0563f99@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch will make sure partition scan will only be proceed if current
+thread open the device exclusively, or the device is not opened
+exclusively, and in the later case, other scanners and exclusive openers
+will be blocked temporarily until partition scan is done.
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index ae69e493913d..4fcd36055b02 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1584,7 +1584,7 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 	}
+Fixes: 10c70d95c0f2 ("block: remove the bd_openers checks in blk_drop_partitions")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20230217022200.3092987-3-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/block/genhd.c b/block/genhd.c
+index 820e27d88cbf..c0a73cd76bb1 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -359,6 +359,7 @@ EXPORT_SYMBOL_GPL(disk_uevent);
+ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
+ {
+ 	struct block_device *bdev;
++	int ret = 0;
  
- 	if (rdev->desc->off_on_delay)
--		rdev->last_off = ktime_get();
-+		rdev->last_off = ktime_get_boottime();
+ 	if (disk->flags & (GENHD_FL_NO_PART | GENHD_FL_HIDDEN))
+ 		return -EINVAL;
+@@ -368,11 +369,27 @@ int disk_scan_partitions(struct gendisk *disk, fmode_t mode)
+ 		return -EBUSY;
  
- 	/* If the constraints say the regulator should be on at this point
- 	 * and we have control then make sure it is enabled.
-@@ -2673,7 +2673,7 @@ static int _regulator_do_enable(struct regulator_dev *rdev)
- 		 * this regulator was disabled.
- 		 */
- 		ktime_t end = ktime_add_us(rdev->last_off, rdev->desc->off_on_delay);
--		s64 remaining = ktime_us_delta(end, ktime_get());
-+		s64 remaining = ktime_us_delta(end, ktime_get_boottime());
+ 	set_bit(GD_NEED_PART_SCAN, &disk->state);
+-	bdev = blkdev_get_by_dev(disk_devt(disk), mode, NULL);
++	/*
++	 * If the device is opened exclusively by current thread already, it's
++	 * safe to scan partitons, otherwise, use bd_prepare_to_claim() to
++	 * synchronize with other exclusive openers and other partition
++	 * scanners.
++	 */
++	if (!(mode & FMODE_EXCL)) {
++		ret = bd_prepare_to_claim(disk->part0, disk_scan_partitions);
++		if (ret)
++			return ret;
++	}
++
++	bdev = blkdev_get_by_dev(disk_devt(disk), mode & ~FMODE_EXCL, NULL);
+ 	if (IS_ERR(bdev))
+-		return PTR_ERR(bdev);
+-	blkdev_put(bdev, mode);
+-	return 0;
++		ret =  PTR_ERR(bdev);
++	else
++		blkdev_put(bdev, mode);
++
++	if (!(mode & FMODE_EXCL))
++		bd_abort_claiming(disk->part0, disk_scan_partitions);
++	return ret;
+ }
  
- 		if (remaining > 0)
- 			_regulator_delay_helper(remaining);
-@@ -2912,7 +2912,7 @@ static int _regulator_do_disable(struct regulator_dev *rdev)
- 	}
+ /**
+@@ -494,6 +511,11 @@ int __must_check device_add_disk(struct device *parent, struct gendisk *disk,
+ 		if (ret)
+ 			goto out_unregister_bdi;
  
- 	if (rdev->desc->off_on_delay)
--		rdev->last_off = ktime_get();
-+		rdev->last_off = ktime_get_boottime();
- 
- 	trace_regulator_disable_complete(rdev_get_name(rdev));
- 
++		/* Make sure the first partition scan will be proceed */
++		if (get_capacity(disk) && !(disk->flags & GENHD_FL_NO_PART) &&
++		    !test_bit(GD_SUPPRESS_PART_SCAN, &disk->state))
++			set_bit(GD_NEED_PART_SCAN, &disk->state);
++
+ 		bdev_add(disk->part0, ddev->devt);
+ 		if (get_capacity(disk))
+ 			disk_scan_partitions(disk, FMODE_READ);
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 6dd49d877584..9c5f637ff153 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -528,7 +528,7 @@ static int blkdev_common_ioctl(struct block_device *bdev, fmode_t mode,
+ 			return -EACCES;
+ 		if (bdev_is_partition(bdev))
+ 			return -EINVAL;
+-		return disk_scan_partitions(bdev->bd_disk, mode & ~FMODE_EXCL);
++		return disk_scan_partitions(bdev->bd_disk, mode);
+ 	case BLKTRACESTART:
+ 	case BLKTRACESTOP:
+ 	case BLKTRACETEARDOWN:
 
