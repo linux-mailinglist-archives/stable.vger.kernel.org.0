@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 185766AEDE9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C7C06AE959
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231274AbjCGSIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:08:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46928 "EHLO
+        id S231402AbjCGRXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:23:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231272AbjCGSID (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B03F2ACE2B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:42 -0800 (PST)
+        with ESMTP id S231229AbjCGRWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:22:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D22A17FD6D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:18:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38FC36151E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 011A8C433A4;
-        Tue,  7 Mar 2023 18:01:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A18EB81987
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:18:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F3EC4339B;
+        Tue,  7 Mar 2023 17:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212101;
-        bh=43W2j4eiBuNIi5H896k2NY4MReDUamO1JGOBhk39PTs=;
+        s=korg; t=1678209494;
+        bh=JEOQEUjjdwbB4mqUdUGq5hQYTdj1oNoOzvtqRQNMLl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKB9hHqEL14Y+u53Grm36PkF/M2ySasC6d2pX2E2AMRX5m8Y0d7t4EKL3CNRMDFOA
-         OnuG6Q6GxEJvdftW2/kXbTO9/2FJ/3NzyspS/8iw0XeKCqHX0ZF5sNM0vxZ2F0haOX
-         +5z3otk6L18VKOWmv/9KLY7cY4TXk6ftTTjw59Qk=
+        b=RH1OGsnsVTfJuQ2DyldagUqL5+bRjFdqsvwiOJWQW9ju2VH1etO1v48I53bQ34zKp
+         CwTX5aCsA2dfmJ6P8f1+Cwo3Uma7V+99MeHjFr1htg6V+Vu/DUNhY8F7mEa50+++r/
+         DHZmzn1Z1tVYR11ADWVRMcq+LZf7FAHHhMmynyQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Kemeng Shi <shikemeng@huaweicloud.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 076/885] sbitmap: correct wake_batch recalculation to avoid potential IO hung
+        patches@lists.linux.dev, Ryder Lee <ryder.lee@mediatek.com>,
+        Howard Hsu <howard-yh.hsu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0238/1001] wifi: mt76: mt7915: call mt7915_mcu_set_thermal_throttling() only after init_work
 Date:   Tue,  7 Mar 2023 17:50:10 +0100
-Message-Id: <20230307170005.082969961@linuxfoundation.org>
+Message-Id: <20230307170032.157243223@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kemeng Shi <shikemeng@huaweicloud.com>
+From: Howard Hsu <howard-yh.hsu@mediatek.com>
 
-[ Upstream commit b5fcf7871acb7f9a3a8ed341a68bd86aba3e254a ]
+[ Upstream commit 7d12b38ab6f6b77198cd3a66db19587bbdd3308c ]
 
-Commit 180dccb0dba4f ("blk-mq: fix tag_get wait task can't be awakened")
-mentioned that in case of shared tags, there could be just one real
-active hctx(queue) because of lazy detection of tag idle. Then driver tag
-allocation may wait forever on this real active hctx(queue) if wake_batch
-is > hctx_max_depth where hctx_max_depth is available tags depth for the
-actve hctx(queue). However, the condition wake_batch > hctx_max_depth is
-not strong enough to avoid IO hung as the sbitmap_queue_wake_up will only
-wake up one wait queue for each wake_batch even though there is only one
-waiter in the woken wait queue. After this, there is only one tag to free
-and wake_batch may not be reached anymore. Commit 180dccb0dba4f ("blk-mq:
-fix tag_get wait task can't be awakened") methioned that driver tag
-allocation may wait forever. Actually, the inactive hctx(queue) will be
-truely idle after at most 30 seconds and will call blk_mq_tag_wakeup_all
-to wake one waiter per wait queue to break the hung. But IO hung for 30
-seconds is also not acceptable. Set batch size to small enough that depth
-of the shared hctx(queue) is enough to wake up all of the queues like
-sbq_calc_wake_batch do to fix this potential IO hung.
+Enable thermal management by default shall not be executed during mcu
+init. This causes thermal configuration being reset to the firmware
+default settings.
 
-Although hctx_max_depth will be clamped to at least 4 while wake_batch
-recalculation does not do the clamp, the wake_batch will be always
-recalculated to 1 when hctx_max_depth <= 4.
-
-Fixes: 180dccb0dba4 ("blk-mq: fix tag_get wait task can't be awakened")
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
-Link: https://lore.kernel.org/r/20230116205059.3821738-6-shikemeng@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 0063b86c9120 ("mt76: mt7915e: Enable thermal management by default")
+Reviewed-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Howard Hsu <howard-yh.hsu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/sbitmap.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/init.c | 3 +--
+ drivers/net/wireless/mediatek/mt76/mt7915/main.c | 6 ++++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/lib/sbitmap.c b/lib/sbitmap.c
-index a7c3dc3d2d174..e918cd8695f14 100644
---- a/lib/sbitmap.c
-+++ b/lib/sbitmap.c
-@@ -464,13 +464,10 @@ void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
- 					    unsigned int users)
- {
- 	unsigned int wake_batch;
--	unsigned int min_batch;
- 	unsigned int depth = (sbq->sb.depth + users - 1) / users;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+index c810c31fbd6e9..41019ba24a048 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+@@ -201,8 +201,7 @@ static int mt7915_thermal_init(struct mt7915_phy *phy)
+ 	phy->throttle_temp[0] = 110;
+ 	phy->throttle_temp[1] = 120;
  
--	min_batch = sbq->sb.depth >= (4 * SBQ_WAIT_QUEUES) ? 4 : 1;
--
- 	wake_batch = clamp_val(depth / SBQ_WAIT_QUEUES,
--			min_batch, SBQ_WAKE_BATCH);
-+			1, SBQ_WAKE_BATCH);
- 
- 	WRITE_ONCE(sbq->wake_batch, wake_batch);
+-	return mt7915_mcu_set_thermal_throttling(phy,
+-						 MT7915_THERMAL_THROTTLE_MAX);
++	return 0;
  }
+ 
+ static void mt7915_led_set_config(struct led_classdev *led_cdev,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/main.c b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+index 0511d6a505b09..98af032eba097 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
+@@ -57,6 +57,12 @@ int mt7915_run(struct ieee80211_hw *hw)
+ 		mt7915_mac_enable_nf(dev, phy->mt76->band_idx);
+ 	}
+ 
++	ret = mt7915_mcu_set_thermal_throttling(phy,
++						MT7915_THERMAL_THROTTLE_MAX);
++
++	if (ret)
++		goto out;
++
+ 	ret = mt76_connac_mcu_set_rts_thresh(&dev->mt76, 0x92b,
+ 					     phy->mt76->band_idx);
+ 	if (ret)
 -- 
 2.39.2
 
