@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F5CB6AE8FD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8102E6AEDB2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229801AbjCGRUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:20:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
+        id S232329AbjCGSGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:06:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231248AbjCGRTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:19:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD2D8C53D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:15:01 -0800 (PST)
+        with ESMTP id S232240AbjCGSGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:06:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C38DACE01
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:59:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E830614E1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:15:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B10C433EF;
-        Tue,  7 Mar 2023 17:14:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41D48B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:59:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A925FC433EF;
+        Tue,  7 Mar 2023 17:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209300;
-        bh=3DwLHOYp38wdLyy+Ft282z31473iRxPK0HdVsTsI04U=;
+        s=korg; t=1678211957;
+        bh=fg+x+bkFX6ZUErlos+KNhs00/QnMBAaIv1Y9TMxot/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ob0fyZyA0ZAfdIvSpmUQRZ91ycDZAZ49d+xHIWpaSRuC4XqcpY/N3zqzFe/9lBT2m
-         JABBY4V2J38I/DjTb96Afx6WGWnurdZ30l0DDORdX3isK0HxM5DQg20lQdSBTeNXih
-         jX0Z0SVLDyZvMFgzxQWuYuz/Mb5SdC8At1Cz62xA=
+        b=qaeIL/xTLAXsQEo2t9m/jKGJFWAJdVXHly9srnZl3iiW6e+LQx+W9spaXIAcba+o6
+         0Ht7jRIQprJ5E+CO56UoElieHrzif4YH8IGlJxXMDYxmnYbOEMjMNGud6F4v8cuilS
+         tmthEd9O2zuHSr90mYtC0W1szO75j78CO3rcQZpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
+        Michal Simek <michal.simek@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0174/1001] crypto: x86/ghash - fix unaligned access in ghash_setkey()
-Date:   Tue,  7 Mar 2023 17:49:06 +0100
-Message-Id: <20230307170029.491327817@linuxfoundation.org>
+Subject: [PATCH 6.1 013/885] ARM: zynq: Fix refcount leak in zynq_early_slcr_init
+Date:   Tue,  7 Mar 2023 17:49:07 +0100
+Message-Id: <20230307170002.209388542@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Qiheng Lin <linqiheng@huawei.com>
 
-[ Upstream commit 116db2704c193fff6d73ea6c2219625f0c9bdfc8 ]
+[ Upstream commit 9eedb910a3be0005b88c696a8552c0d4c9937cd4 ]
 
-The key can be unaligned, so use the unaligned memory access helpers.
+of_find_compatible_node() returns a node pointer with refcount incremented,
+we should use of_node_put() on error path.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 8ceee72808d1 ("crypto: ghash-clmulni-intel - use C implementation for setkey()")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 3329659df030 ("ARM: zynq: Simplify SLCR initialization")
+Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
+Link: https://lore.kernel.org/r/20221129140544.41293-1-linqiheng@huawei.com
+Signed-off-by: Michal Simek <michal.simek@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/ghash-clmulni-intel_glue.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/mach-zynq/slcr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/crypto/ghash-clmulni-intel_glue.c b/arch/x86/crypto/ghash-clmulni-intel_glue.c
-index 1f1a95f3dd0ca..c0ab0ff4af655 100644
---- a/arch/x86/crypto/ghash-clmulni-intel_glue.c
-+++ b/arch/x86/crypto/ghash-clmulni-intel_glue.c
-@@ -19,6 +19,7 @@
- #include <crypto/internal/simd.h>
- #include <asm/cpu_device_id.h>
- #include <asm/simd.h>
-+#include <asm/unaligned.h>
+diff --git a/arch/arm/mach-zynq/slcr.c b/arch/arm/mach-zynq/slcr.c
+index 37707614885a5..9765b3f4c2fc5 100644
+--- a/arch/arm/mach-zynq/slcr.c
++++ b/arch/arm/mach-zynq/slcr.c
+@@ -213,6 +213,7 @@ int __init zynq_early_slcr_init(void)
+ 	zynq_slcr_regmap = syscon_regmap_lookup_by_compatible("xlnx,zynq-slcr");
+ 	if (IS_ERR(zynq_slcr_regmap)) {
+ 		pr_err("%s: failed to find zynq-slcr\n", __func__);
++		of_node_put(np);
+ 		return -ENODEV;
+ 	}
  
- #define GHASH_BLOCK_SIZE	16
- #define GHASH_DIGEST_SIZE	16
-@@ -54,15 +55,14 @@ static int ghash_setkey(struct crypto_shash *tfm,
- 			const u8 *key, unsigned int keylen)
- {
- 	struct ghash_ctx *ctx = crypto_shash_ctx(tfm);
--	be128 *x = (be128 *)key;
- 	u64 a, b;
- 
- 	if (keylen != GHASH_BLOCK_SIZE)
- 		return -EINVAL;
- 
- 	/* perform multiplication by 'x' in GF(2^128) */
--	a = be64_to_cpu(x->a);
--	b = be64_to_cpu(x->b);
-+	a = get_unaligned_be64(key);
-+	b = get_unaligned_be64(key + 8);
- 
- 	ctx->shash.a = (b << 1) | (a >> 63);
- 	ctx->shash.b = (a << 1) | (b >> 63);
 -- 
 2.39.2
 
