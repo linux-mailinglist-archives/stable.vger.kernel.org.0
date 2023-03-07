@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 465B16AEE35
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9E36AEE38
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232462AbjCGSKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
+        id S232341AbjCGSK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:10:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232399AbjCGSKF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD321A3B7F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:04:32 -0800 (PST)
+        with ESMTP id S232401AbjCGSKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18423A401C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:04:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 676A0B819C1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:04:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B72E7C4339E;
-        Tue,  7 Mar 2023 18:04:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDCC46151E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:04:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E119AC433D2;
+        Tue,  7 Mar 2023 18:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212270;
-        bh=bESz5YXKTObq0V7ITK9xXLVOrD03FJnvaNMiMWEXcb4=;
+        s=korg; t=1678212273;
+        bh=XCImc+tFjFoIy6KSUTXZv2uZkPNg/LzBc/qx1p72oHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtqJKRfg8q7arAqUJR/LuztLq32Sc6vH2+Mx2W8/G7YeMZicoHegGD7OTlsfActaU
-         MuqCUY3bsg2mnVHYVEJhnLVPdstolvXQKnSNChcqcJ7BWAcYoc6NI7wghDyYyZE4vS
-         Dhk8elDe5LQrisrhZ9WMwpUwV188pBPz7gqZ+4Ck=
+        b=K3qmn5qXyAL/8LBArVxYwB2gFhcINAcqQbEpzxG+cYHv5rLds8RL4rTo5Hm6vXjTn
+         m7QBaW4gXOC9zbVdIJuCStDaN8jNWFkvcKZr89LIn5WXG8RfWdWRJot99aHYhHXwi1
+         KgCYBz0CjVPQ0iniCfSdzYKQuoxmlLj8+WKnzGm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 131/885] wifi: wilc1000: add missing unregister_netdev() in wilc_netdev_ifc_init()
-Date:   Tue,  7 Mar 2023 17:51:05 +0100
-Message-Id: <20230307170007.541420641@linuxfoundation.org>
+Subject: [PATCH 6.1 132/885] wifi: brcmfmac: fix potential memory leak in brcmf_netdev_start_xmit()
+Date:   Tue,  7 Mar 2023 17:51:06 +0100
+Message-Id: <20230307170007.591546506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -53,63 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 2b88974ecb358990e1c33fabcd0b9e142bab7f21 ]
+[ Upstream commit 212fde3fe76e962598ce1d47b97cc78afdfc71b3 ]
 
-Fault injection test reports this issue:
+The brcmf_netdev_start_xmit() returns NETDEV_TX_OK without freeing skb
+in case of pskb_expand_head() fails, add dev_kfree_skb() to fix it.
+Compile tested only.
 
-kernel BUG at net/core/dev.c:10731!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-Call Trace:
-  <TASK>
-  wilc_netdev_ifc_init+0x19f/0x220 [wilc1000 884bf126e9e98af6a708f266a8dffd53f99e4bf5]
-  wilc_cfg80211_init+0x30c/0x380 [wilc1000 884bf126e9e98af6a708f266a8dffd53f99e4bf5]
-  wilc_bus_probe+0xad/0x2b0 [wilc1000_spi 1520a7539b6589cc6cde2ae826a523a33f8bacff]
-  spi_probe+0xe4/0x140
-  really_probe+0x17e/0x3f0
-  __driver_probe_device+0xe3/0x170
-  driver_probe_device+0x49/0x120
-
-The root case here is alloc_ordered_workqueue() fails, but
-cfg80211_unregister_netdevice() or unregister_netdev() not be called in
-error handling path. To fix add unregister_netdev goto lable to add the
-unregister operation in error handling path.
-
-Fixes: 09ed8bfc5215 ("wilc1000: Rename workqueue from "WILC_wq" to "NETDEV-wq"")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Fixes: 270a6c1f65fe ("brcmfmac: rework headroom check in .start_xmit()")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1669289902-23639-1-git-send-email-wangyufen@huawei.com
+Link: https://lore.kernel.org/r/1668684782-47422-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/microchip/wilc1000/netdev.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/microchip/wilc1000/netdev.c b/drivers/net/wireless/microchip/wilc1000/netdev.c
-index 6f3ae0dff77ce..e9f59de31b0b9 100644
---- a/drivers/net/wireless/microchip/wilc1000/netdev.c
-+++ b/drivers/net/wireless/microchip/wilc1000/netdev.c
-@@ -981,7 +981,7 @@ struct wilc_vif *wilc_netdev_ifc_init(struct wilc *wl, const char *name,
- 						    ndev->name);
- 	if (!wl->hif_workqueue) {
- 		ret = -ENOMEM;
--		goto error;
-+		goto unregister_netdev;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 595ae3ae561ef..175272c2694d7 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -335,6 +335,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
+ 			bphy_err(drvr, "%s: failed to expand headroom\n",
+ 				 brcmf_ifname(ifp));
+ 			atomic_inc(&drvr->bus_if->stats.pktcow_failed);
++			dev_kfree_skb(skb);
+ 			goto done;
+ 		}
  	}
- 
- 	ndev->needs_free_netdev = true;
-@@ -996,6 +996,11 @@ struct wilc_vif *wilc_netdev_ifc_init(struct wilc *wl, const char *name,
- 
- 	return vif;
- 
-+unregister_netdev:
-+	if (rtnl_locked)
-+		cfg80211_unregister_netdevice(ndev);
-+	else
-+		unregister_netdev(ndev);
-   error:
- 	free_netdev(ndev);
- 	return ERR_PTR(ret);
 -- 
 2.39.2
 
