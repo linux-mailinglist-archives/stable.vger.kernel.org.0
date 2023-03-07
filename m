@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9FA6AE95A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4585D6AEE27
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231395AbjCGRXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:23:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41700 "EHLO
+        id S231272AbjCGSKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:10:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231246AbjCGRWp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:22:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE3A570B8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:18:18 -0800 (PST)
+        with ESMTP id S232408AbjCGSJY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 914A39EF5D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D1536150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78FDC433AA;
-        Tue,  7 Mar 2023 17:18:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 317E3B819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B79C433EF;
+        Tue,  7 Mar 2023 18:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209497;
-        bh=MeAWj6Pyy/rxDL+DCELItmLqxIh4NPgLYIE2PWFKp7M=;
+        s=korg; t=1678212225;
+        bh=ljZjyTQsxVP30oF7K+QaQZ/2RsjXiKWXtTh4xk9w4LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yp5NrgCRT1UJH5WgJpeMkS/0mXkIBxSvv9oPjlMAv5xAtsEqjxHiuR2x7Q3dLgGGl
-         zjWKub7OXX+afe32auH+ZssKOw2X59TZheqiedwJhZ8BFCKS1O086TscvZtqUGNqtL
-         9iQbwBUAXpgmfv4w9hRgg57k5nUyNJo1khDBquls=
+        b=r854Dg9SH616uMqeSBEYxO7ZfmRk/osMW5IzOwXUO/9obYKM1ydja3C7rL+Uj2J1S
+         xgWWy/JWfoF52HBAHRGBaFnMNOsJrxkcnROz7hCHagZrgPumBKBf4LmnC0sIegD+Dx
+         MQRCVWBnnlgLBC+2FmDgyJ8PA9O35mJl5RSWXNOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ryder Lee <ryder.lee@mediatek.com>,
-        Howard Hsu <howard-yh.hsu@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0239/1001] wifi: mt76: mt7915: rework mt7915_mcu_set_thermal_throttling
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 077/885] arm64: dts: mt8195: Fix CPU map for single-cluster SoC
 Date:   Tue,  7 Mar 2023 17:50:11 +0100
-Message-Id: <20230307170032.205048849@linuxfoundation.org>
+Message-Id: <20230307170005.136362784@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,154 +56,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Howard Hsu <howard-yh.hsu@mediatek.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 5ad42d19f6596e54b091827c397fdb7c091d45f7 ]
+[ Upstream commit cc4f0b13a887b483faa45084616998a21b63889d ]
 
-This patch includes 2 changes:
-1. Firmware expects to disable thermal protect first before
-reconfiguring.
-2. Separate setting thermal_protect and setting thermal_tx_duty into
-different functions. These two firmware commands do not need to send
-together.
+MT8195 features the ARM DynamIQ technology and combines both four
+Cortex-A78 (big) and four Cortex-A55 (LITTLE) CPUs in one cluster:
+fix the CPU map to reflect that.
 
-Fixes: 34b877d972be ("mt76: mt7915: add thermal cooling device support")
-Reviewed-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Howard Hsu <howard-yh.hsu@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Fixes: 37f2582883be ("arm64: dts: Add mediatek SoC mt8195 and evaluation board")
+Link: https://lore.kernel.org/r/20230126103526.417039-2-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7915/init.c  |  3 --
- .../net/wireless/mediatek/mt76/mt7915/main.c  |  5 ++
- .../net/wireless/mediatek/mt76/mt7915/mcu.c   | 54 +++++++++++--------
- .../wireless/mediatek/mt76/mt7915/mt7915.h    |  1 +
- 4 files changed, 37 insertions(+), 26 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8195.dtsi | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-index 41019ba24a048..4c351bfd4b270 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-@@ -134,9 +134,6 @@ mt7915_thermal_set_cur_throttle_state(struct thermal_cooling_device *cdev,
- 	if (state > MT7915_CDEV_THROTTLE_MAX)
- 		return -EINVAL;
+diff --git a/arch/arm64/boot/dts/mediatek/mt8195.dtsi b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
+index 6dad8aaee436c..774c2de1fd01e 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8195.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
+@@ -150,22 +150,20 @@ core2 {
+ 				core3 {
+ 					cpu = <&cpu3>;
+ 				};
+-			};
  
--	if (phy->throttle_temp[0] > phy->throttle_temp[1])
--		return 0;
--
- 	if (state == phy->cdev_state)
- 		return 0;
+-			cluster1 {
+-				core0 {
++				core4 {
+ 					cpu = <&cpu4>;
+ 				};
  
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/main.c b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-index 98af032eba097..7589af4b3dab7 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/main.c
-@@ -60,6 +60,11 @@ int mt7915_run(struct ieee80211_hw *hw)
- 	ret = mt7915_mcu_set_thermal_throttling(phy,
- 						MT7915_THERMAL_THROTTLE_MAX);
+-				core1 {
++				core5 {
+ 					cpu = <&cpu5>;
+ 				};
  
-+	if (ret)
-+		goto out;
-+
-+	ret = mt7915_mcu_set_thermal_protect(phy);
-+
- 	if (ret)
- 		goto out;
+-				core2 {
++				core6 {
+ 					cpu = <&cpu6>;
+ 				};
  
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index d9d6846ba8e02..a861312ba3ed1 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -3060,6 +3060,29 @@ int mt7915_mcu_get_temperature(struct mt7915_phy *phy)
- }
- 
- int mt7915_mcu_set_thermal_throttling(struct mt7915_phy *phy, u8 state)
-+{
-+	struct mt7915_dev *dev = phy->dev;
-+	struct mt7915_mcu_thermal_ctrl req = {
-+		.band_idx = phy->mt76->band_idx,
-+		.ctrl_id = THERMAL_PROTECT_DUTY_CONFIG,
-+	};
-+	int level, ret;
-+
-+	/* set duty cycle and level */
-+	for (level = 0; level < 4; level++) {
-+		req.duty.duty_level = level;
-+		req.duty.duty_cycle = state;
-+		state /= 2;
-+
-+		ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(THERMAL_PROT),
-+					&req, sizeof(req), false);
-+		if (ret)
-+			return ret;
-+	}
-+	return 0;
-+}
-+
-+int mt7915_mcu_set_thermal_protect(struct mt7915_phy *phy)
- {
- 	struct mt7915_dev *dev = phy->dev;
- 	struct {
-@@ -3072,29 +3095,18 @@ int mt7915_mcu_set_thermal_throttling(struct mt7915_phy *phy, u8 state)
- 	} __packed req = {
- 		.ctrl = {
- 			.band_idx = phy->mt76->band_idx,
-+			.type.protect_type = 1,
-+			.type.trigger_type = 1,
- 		},
- 	};
--	int level;
--
--	if (!state) {
--		req.ctrl.ctrl_id = THERMAL_PROTECT_DISABLE;
--		goto out;
--	}
--
--	/* set duty cycle and level */
--	for (level = 0; level < 4; level++) {
--		int ret;
-+	int ret;
- 
--		req.ctrl.ctrl_id = THERMAL_PROTECT_DUTY_CONFIG;
--		req.ctrl.duty.duty_level = level;
--		req.ctrl.duty.duty_cycle = state;
--		state /= 2;
-+	req.ctrl.ctrl_id = THERMAL_PROTECT_DISABLE;
-+	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(THERMAL_PROT),
-+				&req, sizeof(req.ctrl), false);
- 
--		ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(THERMAL_PROT),
--					&req, sizeof(req.ctrl), false);
--		if (ret)
--			return ret;
--	}
-+	if (ret)
-+		return ret;
- 
- 	/* set high-temperature trigger threshold */
- 	req.ctrl.ctrl_id = THERMAL_PROTECT_ENABLE;
-@@ -3103,10 +3115,6 @@ int mt7915_mcu_set_thermal_throttling(struct mt7915_phy *phy, u8 state)
- 	req.trigger_temp = cpu_to_le32(phy->throttle_temp[1]);
- 	req.sustain_time = cpu_to_le16(10);
- 
--out:
--	req.ctrl.type.protect_type = 1;
--	req.ctrl.type.trigger_type = 1;
--
- 	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(THERMAL_PROT),
- 				 &req, sizeof(req), false);
- }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-index 6351feba6bdf9..855779f86bde0 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-@@ -543,6 +543,7 @@ int mt7915_mcu_apply_tx_dpd(struct mt7915_phy *phy);
- int mt7915_mcu_get_chan_mib_info(struct mt7915_phy *phy, bool chan_switch);
- int mt7915_mcu_get_temperature(struct mt7915_phy *phy);
- int mt7915_mcu_set_thermal_throttling(struct mt7915_phy *phy, u8 state);
-+int mt7915_mcu_set_thermal_protect(struct mt7915_phy *phy);
- int mt7915_mcu_get_rx_rate(struct mt7915_phy *phy, struct ieee80211_vif *vif,
- 			   struct ieee80211_sta *sta, struct rate_info *rate);
- int mt7915_mcu_rdd_background_enable(struct mt7915_phy *phy,
+-				core3 {
++				core7 {
+ 					cpu = <&cpu7>;
+ 				};
+ 			};
 -- 
 2.39.2
 
