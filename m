@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E316AF4B5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:19:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6FAB6AF4EB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:21:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233754AbjCGTS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:18:59 -0500
+        id S233893AbjCGTVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:21:14 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233975AbjCGTS3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:18:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B486C3E01
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:25 -0800 (PST)
+        with ESMTP id S233902AbjCGTUq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:20:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE5925964
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:04:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC6C36152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2E21C433D2;
-        Tue,  7 Mar 2023 19:02:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B2A2B817C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:04:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F055C4339B;
+        Tue,  7 Mar 2023 19:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215744;
-        bh=Hw5QfoakXNLEy6GSZj+5wQlFv8k8rjL6ttV4LN9kdus=;
+        s=korg; t=1678215878;
+        bh=15sDA5DKukliQb3d+h19ZtlO5w0AT0Qz8DpjVraT9rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wO28NG2eri2Z5RQ2YMfjx1aNwF5HfZBB/oa+KDfjha25/2If+VUsR4dLZqX+QCGkK
-         MB+yI52Fh2dT0NIYCwgIdyK5iRKPSwq5t+VTYxF/lwxBQnED7JR7Fl3chYTwQbkMWZ
-         3pix+HWqPMz3yGjZtAlwel0FtB1aReWTDvvkjwXM=
+        b=w3Ypk8Myw+zX8OgWYijrf6BhbvRDy/4UiVpMDDgCJL+nDi9gs3cVnXgDQNic6GTrR
+         qldry8OHHSiz9buW1LdvF/iwACZ3fUw1WFacBgdPu+fG1OhtQ7wDuEh0v862hnmafO
+         2h68sKfSZel4ar9YwZZHy3qWv6HNKEjsNyoIqzZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ming Qian <ming.qian@nxp.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 359/567] media: imx-jpeg: Apply clk_bulk api instead of operating specific clk
-Date:   Tue,  7 Mar 2023 18:01:35 +0100
-Message-Id: <20230307165921.441100320@linuxfoundation.org>
+Subject: [PATCH 5.15 360/567] media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
+Date:   Tue,  7 Mar 2023 18:01:36 +0100
+Message-Id: <20230307165921.472492456@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,104 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Qian <ming.qian@nxp.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 61fe43dc9f454bc3caa99dbdd8f5fa3ba813981a ]
+[ Upstream commit 29b0589a865b6f66d141d79b2dd1373e4e50fe17 ]
 
-using the api of clk_bulk can simplify the code.
-and the clock of the jpeg codec may be changed,
-the clk_bulk api can be compatible with the future change.
+When the ene device is detaching, function ene_remove() will
+be called. But there is no function to cancel tx_sim_timer
+in ene_remove(), the timer handler ene_tx_irqsim() could race
+with ene_remove(). As a result, the UAF bugs could happen,
+the process is shown below.
 
-Fixes: 4c2e5156d9fa ("media: imx-jpeg: Add pm-runtime support for imx-jpeg")
-Signed-off-by: Ming Qian <ming.qian@nxp.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+    (cleanup routine)          |        (timer routine)
+                               | mod_timer(&dev->tx_sim_timer, ..)
+ene_remove()                   | (wait a time)
+                               | ene_tx_irqsim()
+                               |   dev->hw_lock //USE
+                               |   ene_tx_sample(dev) //USE
+
+Fix by adding del_timer_sync(&dev->tx_sim_timer) in ene_remove(),
+The tx_sim_timer could stop before ene device is deallocated.
+
+What's more, The rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove() and the deallocated
+functions such as free_irq(), release_region() and so on
+should be called behind them. Because the rc_unregister_device()
+is well synchronized. Otherwise, race conditions may happen. The
+situations that may lead to race conditions are shown below.
+
+Firstly, the rx receiver is disabled with ene_rx_disable()
+before rc_unregister_device() in ene_remove(), which means it
+can be enabled again if a process opens /dev/lirc0 between
+ene_rx_disable() and rc_unregister_device().
+
+Secondly, the irqaction descriptor is freed by free_irq()
+before the rc device is unregistered, which means irqaction
+descriptor may be accessed again after it is deallocated.
+
+Thirdly, the timer can call ene_tx_sample() that can write
+to the io ports, which means the io ports could be accessed
+again after they are deallocated by release_region().
+
+Therefore, the rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove().
+
+Suggested by: Sean Young <sean@mess.org>
+
+Fixes: 9ea53b74df9c ("V4L/DVB: STAGING: remove lirc_ene0100 driver")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/imx-jpeg/mxc-jpeg.c | 35 +++++-----------------
- drivers/media/platform/imx-jpeg/mxc-jpeg.h |  4 +--
- 2 files changed, 10 insertions(+), 29 deletions(-)
+ drivers/media/rc/ene_ir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.c b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-index 984fcdfa0f098..e515325683a47 100644
---- a/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-+++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.c
-@@ -2105,19 +2105,12 @@ static int mxc_jpeg_probe(struct platform_device *pdev)
- 	jpeg->mode = mode;
+diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
+index e09270916fbca..11ee21a7db8f0 100644
+--- a/drivers/media/rc/ene_ir.c
++++ b/drivers/media/rc/ene_ir.c
+@@ -1106,6 +1106,8 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 	struct ene_device *dev = pnp_get_drvdata(pnp_dev);
+ 	unsigned long flags;
  
- 	/* Get clocks */
--	jpeg->clk_ipg = devm_clk_get(dev, "ipg");
--	if (IS_ERR(jpeg->clk_ipg)) {
--		dev_err(dev, "failed to get clock: ipg\n");
--		ret = PTR_ERR(jpeg->clk_ipg);
--		goto err_clk;
--	}
--
--	jpeg->clk_per = devm_clk_get(dev, "per");
--	if (IS_ERR(jpeg->clk_per)) {
--		dev_err(dev, "failed to get clock: per\n");
--		ret = PTR_ERR(jpeg->clk_per);
-+	ret = devm_clk_bulk_get_all(&pdev->dev, &jpeg->clks);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to get clock\n");
- 		goto err_clk;
- 	}
-+	jpeg->num_clks = ret;
++	rc_unregister_device(dev->rdev);
++	del_timer_sync(&dev->tx_sim_timer);
+ 	spin_lock_irqsave(&dev->hw_lock, flags);
+ 	ene_rx_disable(dev);
+ 	ene_rx_restore_hw_buffer(dev);
+@@ -1113,7 +1115,6 @@ static void ene_remove(struct pnp_dev *pnp_dev)
  
- 	ret = mxc_jpeg_attach_pm_domains(jpeg);
- 	if (ret < 0) {
-@@ -2214,32 +2207,20 @@ static int mxc_jpeg_runtime_resume(struct device *dev)
- 	struct mxc_jpeg_dev *jpeg = dev_get_drvdata(dev);
- 	int ret;
- 
--	ret = clk_prepare_enable(jpeg->clk_ipg);
--	if (ret < 0) {
--		dev_err(dev, "failed to enable clock: ipg\n");
--		goto err_ipg;
--	}
--
--	ret = clk_prepare_enable(jpeg->clk_per);
-+	ret = clk_bulk_prepare_enable(jpeg->num_clks, jpeg->clks);
- 	if (ret < 0) {
--		dev_err(dev, "failed to enable clock: per\n");
--		goto err_per;
-+		dev_err(dev, "failed to enable clock\n");
-+		return ret;
- 	}
- 
- 	return 0;
--
--err_per:
--	clk_disable_unprepare(jpeg->clk_ipg);
--err_ipg:
--	return ret;
+ 	free_irq(dev->irq, dev);
+ 	release_region(dev->hw_io, ENE_IO_SIZE);
+-	rc_unregister_device(dev->rdev);
+ 	kfree(dev);
  }
  
- static int mxc_jpeg_runtime_suspend(struct device *dev)
- {
- 	struct mxc_jpeg_dev *jpeg = dev_get_drvdata(dev);
- 
--	clk_disable_unprepare(jpeg->clk_ipg);
--	clk_disable_unprepare(jpeg->clk_per);
-+	clk_bulk_disable_unprepare(jpeg->num_clks, jpeg->clks);
- 
- 	return 0;
- }
-diff --git a/drivers/media/platform/imx-jpeg/mxc-jpeg.h b/drivers/media/platform/imx-jpeg/mxc-jpeg.h
-index 542993eb8d5b0..495000800d552 100644
---- a/drivers/media/platform/imx-jpeg/mxc-jpeg.h
-+++ b/drivers/media/platform/imx-jpeg/mxc-jpeg.h
-@@ -112,8 +112,8 @@ struct mxc_jpeg_dev {
- 	spinlock_t			hw_lock; /* hardware access lock */
- 	unsigned int			mode;
- 	struct mutex			lock; /* v4l2 ioctls serialization */
--	struct clk			*clk_ipg;
--	struct clk			*clk_per;
-+	struct clk_bulk_data		*clks;
-+	int				num_clks;
- 	struct platform_device		*pdev;
- 	struct device			*dev;
- 	void __iomem			*base_reg;
 -- 
 2.39.2
 
