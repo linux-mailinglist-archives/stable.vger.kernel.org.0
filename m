@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 643416AEB10
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1257A6AF2E2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231702AbjCGRjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:39:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50570 "EHLO
+        id S233539AbjCGS5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:57:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231799AbjCGRj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:39:27 -0500
+        with ESMTP id S233434AbjCGS5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7148A18A7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01415B421D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 816C4B819A3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8804C433D2;
-        Tue,  7 Mar 2023 17:35:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BAF8B819CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB3AAC433A7;
+        Tue,  7 Mar 2023 18:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210539;
-        bh=dfx7WlhRyvmaTgFrGn55IsFod+CXcvHbiv8UIwl9W14=;
+        s=korg; t=1678214669;
+        bh=gFcAyf1PGl1n4dTWqiuPLEv/mL7kH3Gy4DziT3IvLmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LL8wtx4JYiyC9AyRQHEVI6bWf4YQYkxv+l5RfA3+9ZmP9vI2htnWs8thR+839fE9F
-         9Lvck9LxnAPU9AozIUSAyJfRchEngGth2HouPyK5kdnXbYVkpBIsHmSz1g2AWzDwoh
-         KNOGQe+xCl1q8EZpWneWGf+d4OySLjA754Fs7/i4=
+        b=ZHIRty64VQC9w/6Me2WWUe1yxaor+mLCbSd0E1ASzlGIWZHcOtEpSrSrRu1KQbM5t
+         dl3zilYoZHSjNBWszyRDNMYtyCVlnqg4KyXoMkYZtqHnZRhGaRS99ctejAmghqSA9/
+         /Emh8XuJDQWOajoDlwHuO23jKyGHpbW1jf7Ecpco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bob Pearson <rpearsonhpe@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0574/1001] RDMA/rxe: Cleanup page variables in rxe_mr.c
-Date:   Tue,  7 Mar 2023 17:55:46 +0100
-Message-Id: <20230307170046.372539055@linuxfoundation.org>
+Subject: [PATCH 5.15 011/567] arm64: dts: mediatek: mt8183: Fix systimer 13 MHz clock description
+Date:   Tue,  7 Mar 2023 17:55:47 +0100
+Message-Id: <20230307165906.330803725@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,150 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 325a7eb85199ec9c5b5a7af812f43ea16b735569 ]
+[ Upstream commit ce8a06b5bac75ccce99c0cf91b96b767d64f28a7 ]
 
-Cleanup usage of mr->page_shift and mr->page_mask and introduce
-an extractor for mr->ibmr.page_size. Normal usage in the kernel
-has page_mask masking out offset in page rather than masking out
-the page number. The rxe driver had reversed that which was confusing.
-Implicitly there can be a per mr page_size which was not uniformly
-supported.
+The systimer block derives its 13 MHz clock by dividing the main 26 MHz
+oscillator clock by 2 internally, not through the TOPCKGEN clock
+controller.
 
-Link: https://lore.kernel.org/r/20230119235936.19728-6-rpearsonhpe@gmail.com
-Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Stable-dep-of: 5ff31dfcd6d2 ("Subject: RDMA/rxe: Handle zero length rdma")
+On the MT8183 this divider is set either by power-on-reset or by the
+bootloader. The bootloader may then make the divider unconfigurable to,
+but can be read out by, the operating system.
+
+Making the systimer block take the 26 MHz clock directly requires
+changing the implementations. As an ABI compatible fix, change the
+input clock of the systimer block a fixed factor divide-by-2 clock
+that takes the 26 MHz oscillator as its input.
+
+Fixes: 5bc8e2875ffb ("arm64: dts: mt8183: add systimer0 device node")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221201084229.3464449-2-wenst@chromium.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_mr.c    | 31 ++++++++++++---------------
- drivers/infiniband/sw/rxe/rxe_verbs.h | 11 +++++++---
- 2 files changed, 22 insertions(+), 20 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8183.dtsi | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
-index 5c4ce43914fa2..2181165ea40d7 100644
---- a/drivers/infiniband/sw/rxe/rxe_mr.c
-+++ b/drivers/infiniband/sw/rxe/rxe_mr.c
-@@ -62,6 +62,9 @@ static void rxe_mr_init(int access, struct rxe_mr *mr)
- 	mr->lkey = mr->ibmr.lkey = lkey;
- 	mr->rkey = mr->ibmr.rkey = rkey;
+diff --git a/arch/arm64/boot/dts/mediatek/mt8183.dtsi b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+index f4e0bea8ddcb6..81fde34ffd52a 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8183.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+@@ -299,6 +299,15 @@ psci {
+ 		method          = "smc";
+ 	};
  
-+	mr->ibmr.page_size = PAGE_SIZE;
-+	mr->page_mask = PAGE_MASK;
-+	mr->page_shift = PAGE_SHIFT;
- 	mr->state = RXE_MR_STATE_INVALID;
- }
- 
-@@ -151,9 +154,6 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
- 		goto err_release_umem;
- 	}
- 
--	mr->page_shift = PAGE_SHIFT;
--	mr->page_mask = PAGE_SIZE - 1;
--
- 	num_buf			= 0;
- 	map = mr->map;
- 	if (length > 0) {
-@@ -182,7 +182,7 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
- 				goto err_release_umem;
- 			}
- 			buf->addr = (uintptr_t)vaddr;
--			buf->size = PAGE_SIZE;
-+			buf->size = mr_page_size(mr);
- 			num_buf++;
- 			buf++;
- 
-@@ -191,10 +191,9 @@ int rxe_mr_init_user(struct rxe_dev *rxe, u64 start, u64 length, u64 iova,
- 
- 	mr->umem = umem;
- 	mr->access = access;
--	mr->offset = ib_umem_offset(umem);
-+	mr->page_offset = ib_umem_offset(umem);
- 	mr->state = RXE_MR_STATE_VALID;
- 	mr->ibmr.type = IB_MR_TYPE_USER;
--	mr->ibmr.page_size = PAGE_SIZE;
- 
- 	return 0;
- 
-@@ -248,29 +247,27 @@ int rxe_map_mr_sg(struct ib_mr *ibmr, struct scatterlist *sg,
- 		  int sg_nents, unsigned int *sg_offset)
- {
- 	struct rxe_mr *mr = to_rmr(ibmr);
--	int n;
--
--	mr->nbuf = 0;
-+	unsigned int page_size = mr_page_size(mr);
- 
--	n = ib_sg_to_pages(ibmr, sg, sg_nents, sg_offset, rxe_set_page);
-+	mr->page_shift = ilog2(page_size);
-+	mr->page_mask = ~((u64)page_size - 1);
-+	mr->page_offset = ibmr->iova & (page_size - 1);
- 
--	mr->page_shift = ilog2(ibmr->page_size);
--	mr->page_mask = ibmr->page_size - 1;
--	mr->offset = ibmr->iova & mr->page_mask;
-+	mr->nbuf = 0;
- 
--	return n;
-+	return ib_sg_to_pages(ibmr, sg, sg_nents, sg_offset, rxe_set_page);
- }
- 
- static void lookup_iova(struct rxe_mr *mr, u64 iova, int *m_out, int *n_out,
- 			size_t *offset_out)
- {
--	size_t offset = iova - mr->ibmr.iova + mr->offset;
-+	size_t offset = iova - mr->ibmr.iova + mr->page_offset;
- 	int			map_index;
- 	int			buf_index;
- 	u64			length;
- 
- 	if (likely(mr->page_shift)) {
--		*offset_out = offset & mr->page_mask;
-+		*offset_out = offset & (mr_page_size(mr) - 1);
- 		offset >>= mr->page_shift;
- 		*n_out = offset & mr->map_mask;
- 		*m_out = offset >> mr->map_shift;
-@@ -329,7 +326,7 @@ int rxe_flush_pmem_iova(struct rxe_mr *mr, u64 iova, int length)
- 	if (mr->ibmr.type == IB_MR_TYPE_DMA)
- 		return -EFAULT;
- 
--	offset = (iova - mr->ibmr.iova + mr->offset) & mr->page_mask;
-+	offset = (iova - mr->ibmr.iova + mr->page_offset) & mr->page_mask;
- 	while (length > 0) {
- 		u8 *va;
- 		int bytes;
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
-index 19ddfa8904803..bfc94caaeec57 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.h
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
-@@ -310,11 +310,11 @@ struct rxe_mr {
- 	u32			lkey;
- 	u32			rkey;
- 	enum rxe_mr_state	state;
--	u32			offset;
- 	int			access;
- 
--	int			page_shift;
--	int			page_mask;
-+	unsigned int		page_offset;
-+	unsigned int		page_shift;
-+	u64			page_mask;
- 	int			map_shift;
- 	int			map_mask;
- 
-@@ -329,6 +329,11 @@ struct rxe_mr {
- 	struct rxe_map		**map;
- };
- 
-+static inline unsigned int mr_page_size(struct rxe_mr *mr)
-+{
-+	return mr ? mr->ibmr.page_size : PAGE_SIZE;
-+}
++	clk13m: fixed-factor-clock-13m {
++		compatible = "fixed-factor-clock";
++		#clock-cells = <0>;
++		clocks = <&clk26m>;
++		clock-div = <2>;
++		clock-mult = <1>;
++		clock-output-names = "clk13m";
++	};
 +
- enum rxe_mw_state {
- 	RXE_MW_STATE_INVALID	= RXE_MR_STATE_INVALID,
- 	RXE_MW_STATE_FREE	= RXE_MR_STATE_FREE,
+ 	clk26m: oscillator {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+@@ -610,8 +619,7 @@ systimer: timer@10017000 {
+ 				     "mediatek,mt6765-timer";
+ 			reg = <0 0x10017000 0 0x1000>;
+ 			interrupts = <GIC_SPI 200 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&topckgen CLK_TOP_CLK13M>;
+-			clock-names = "clk13m";
++			clocks = <&clk13m>;
+ 		};
+ 
+ 		iommu: iommu@10205000 {
 -- 
 2.39.2
 
