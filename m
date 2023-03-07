@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1162A6AED8E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E64816AF296
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232024AbjCGSFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:05:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39044 "EHLO
+        id S233473AbjCGSyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:54:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232422AbjCGSFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55F2C4E5C9
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:07 -0800 (PST)
+        with ESMTP id S233395AbjCGSxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB80C221A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB7C361509
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAAF4C433D2;
-        Tue,  7 Mar 2023 17:58:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D112D61531
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:41:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6AB4C433A1;
+        Tue,  7 Mar 2023 18:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211887;
-        bh=Kf4U3z9o1Jis115Nt0QAsxq4847OoVkrqJJWO984S1M=;
+        s=korg; t=1678214486;
+        bh=4ESyf6xhul6VZ8JrwY4WdLacfcd0MT65HXrkcNvlxVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUy7PD/EqMtNizg+d5bsx+5eoEzFKsXapZjSkZJZhKIfsqqO9EoBSTmB0GDJ3FkaE
-         gidAUJtYwnS4bCTLL7LtPXOj/Mm57MbXmbQpsrWxdwYTGwEN1pVWBJBNP4tuwG7kKV
-         fIZvwvKGHgZpKWYZWoy+0ExzQ/MgBAAXZpYj6ybY=
+        b=j4v/sMw6umexvLn80U7xCohkbMTCg28ru2fykMondAWIjpqK9KZG+0ZR8YdfV40lr
+         eBTz31n4KN5RDmQss6/Kmi9utsenIeO4g+YivlyIQEO7fC6HzVS17qEe76xNmz5cD3
+         ZctDcO25u+T7layqXZE3mTaks/DnBPaPvGoFzPhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steve Sistare <steven.sistare@oracle.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 6.2 0993/1001] vfio/type1: restore locked_vm
+        patches@lists.linux.dev, Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Hugh Dickins <hughd@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 831/885] mm: memcontrol: deprecate charge moving
 Date:   Tue,  7 Mar 2023 18:02:45 +0100
-Message-Id: <20230307170105.377939093@linuxfoundation.org>
+Message-Id: <20230307170037.946609862@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,82 +58,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Sistare <steven.sistare@oracle.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-commit 90fdd158a695d70403163f9a0e4efc5b20f3fd3e upstream.
+commit da34a8484d162585e22ed8c1e4114aa2f60e3567 upstream.
 
-When a vfio container is preserved across exec or fork-exec, the new
-task's mm has a locked_vm count of 0.  After a dma vaddr is updated using
-VFIO_DMA_MAP_FLAG_VADDR, locked_vm remains 0, and the pinned memory does
-not count against the task's RLIMIT_MEMLOCK.
+Charge moving mode in cgroup1 allows memory to follow tasks as they
+migrate between cgroups.  This is, and always has been, a questionable
+thing to do - for several reasons.
 
-To restore the correct locked_vm count, when VFIO_DMA_MAP_FLAG_VADDR is
-used and the dma's mm has changed, add the dma's locked_vm count to
-the new mm->locked_vm, subject to the rlimit, and subtract it from the
-old mm->locked_vm.
+First, it's expensive.  Pages need to be identified, locked and isolated
+from various MM operations, and reassigned, one by one.
 
-Fixes: c3cbab24db38 ("vfio/type1: implement interfaces to update vaddr")
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve Sistare <steven.sistare@oracle.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Link: https://lore.kernel.org/r/1675184289-267876-5-git-send-email-steven.sistare@oracle.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Second, it's unreliable.  Once pages are charged to a cgroup, there isn't
+always a clear owner task anymore.  Cache isn't moved at all, for example.
+Mapped memory is moved - but if trylocking or isolating a page fails,
+it's arbitrarily left behind.  Frequent moving between domains may leave a
+task's memory scattered all over the place.
+
+Third, it isn't really needed.  Launcher tasks can kick off workload tasks
+directly in their target cgroup.  Using dedicated per-workload groups
+allows fine-grained policy adjustments - no need to move tasks and their
+physical pages between control domains.  The feature was never
+forward-ported to cgroup2, and it hasn't been missed.
+
+Despite it being a niche usecase, the maintenance overhead of supporting
+it is enormous.  Because pages are moved while they are live and subject
+to various MM operations, the synchronization rules are complicated.
+There are lock_page_memcg() in MM and FS code, which non-cgroup people
+don't understand.  In some cases we've been able to shift code and cgroup
+API calls around such that we can rely on native locking as much as
+possible.  But that's fragile, and sometimes we need to hold MM locks for
+longer than we otherwise would (pte lock e.g.).
+
+Mark the feature deprecated. Hopefully we can remove it soon.
+
+And backport into -stable kernels so that people who develop against
+earlier kernels are warned about this deprecation as early as possible.
+
+[akpm@linux-foundation.org: fix memory.rst underlining]
+Link: https://lkml.kernel.org/r/Y5COd+qXwk/S+n8N@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vfio/vfio_iommu_type1.c |   35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ Documentation/admin-guide/cgroup-v1/memory.rst |   13 +++++++++++--
+ mm/memcontrol.c                                |    4 ++++
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -1591,6 +1591,38 @@ static bool vfio_iommu_iova_dma_valid(st
- 	return list_empty(iova);
- }
+--- a/Documentation/admin-guide/cgroup-v1/memory.rst
++++ b/Documentation/admin-guide/cgroup-v1/memory.rst
+@@ -86,6 +86,8 @@ Brief summary of control files.
+  memory.swappiness		     set/show swappiness parameter of vmscan
+ 				     (See sysctl's vm.swappiness)
+  memory.move_charge_at_immigrate     set/show controls of moving charges
++                                     This knob is deprecated and shouldn't be
++                                     used.
+  memory.oom_control		     set/show oom controls.
+  memory.numa_stat		     show the number of memory usage per numa
+ 				     node
+@@ -716,8 +718,15 @@ NOTE2:
+        It is recommended to set the soft limit always below the hard limit,
+        otherwise the hard limit will take precedence.
  
-+static int vfio_change_dma_owner(struct vfio_dma *dma)
-+{
-+	struct task_struct *task = current->group_leader;
-+	struct mm_struct *mm = current->mm;
-+	long npage = dma->locked_vm;
-+	bool lock_cap;
-+	int ret;
+-8. Move charges at task migration
+-=================================
++8. Move charges at task migration (DEPRECATED!)
++===============================================
 +
-+	if (mm == dma->mm)
-+		return 0;
++THIS IS DEPRECATED!
 +
-+	lock_cap = capable(CAP_IPC_LOCK);
-+	ret = mm_lock_acct(task, mm, lock_cap, npage);
-+	if (ret)
-+		return ret;
-+
-+	if (mmget_not_zero(dma->mm)) {
-+		mm_lock_acct(dma->task, dma->mm, dma->lock_cap, -npage);
-+		mmput(dma->mm);
-+	}
-+
-+	if (dma->task != task) {
-+		put_task_struct(dma->task);
-+		dma->task = get_task_struct(task);
-+	}
-+	mmdrop(dma->mm);
-+	dma->mm = mm;
-+	mmgrab(dma->mm);
-+	dma->lock_cap = lock_cap;
-+	return 0;
-+}
-+
- static int vfio_dma_do_map(struct vfio_iommu *iommu,
- 			   struct vfio_iommu_type1_dma_map *map)
++It's expensive and unreliable! It's better practice to launch workload
++tasks directly from inside their target cgroup. Use dedicated workload
++cgroups to allow fine-grained policy adjustments without having to
++move physical pages between control domains.
+ 
+ Users can move charges associated with a task along with task migration, that
+ is, uncharge task's pages from the old cgroup and charge them to the new cgroup.
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3910,6 +3910,10 @@ static int mem_cgroup_move_charge_write(
  {
-@@ -1640,6 +1672,9 @@ static int vfio_dma_do_map(struct vfio_i
- 			   dma->size != size) {
- 			ret = -EINVAL;
- 		} else {
-+			ret = vfio_change_dma_owner(dma);
-+			if (ret)
-+				goto out_unlock;
- 			dma->vaddr = vaddr;
- 			dma->vaddr_invalid = false;
- 			iommu->vaddr_invalid_count--;
+ 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
+ 
++	pr_warn_once("Cgroup memory moving (move_charge_at_immigrate) is deprecated. "
++		     "Please report your usecase to linux-mm@kvack.org if you "
++		     "depend on this functionality.\n");
++
+ 	if (val & ~MOVE_MASK)
+ 		return -EINVAL;
+ 
 
 
