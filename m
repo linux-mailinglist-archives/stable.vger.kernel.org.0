@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5B26AF4D3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:20:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 715156AF4D4
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:20:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233856AbjCGTUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:20:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52778 "EHLO
+        id S233865AbjCGTUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:20:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234007AbjCGTTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:19:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720E9BE5E5;
-        Tue,  7 Mar 2023 11:03:46 -0800 (PST)
+        with ESMTP id S234021AbjCGTTw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:19:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CAE6C5612
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:03:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11971B816D5;
-        Tue,  7 Mar 2023 19:03:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66CB9C433EF;
-        Tue,  7 Mar 2023 19:03:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F4EEB819CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:03:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A101AC433D2;
+        Tue,  7 Mar 2023 19:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215824;
-        bh=pomdqlKicSgY5Dl5pV6ivI2uLRUcm+sbw4BPuD808js=;
+        s=korg; t=1678215828;
+        bh=zHzvPhiTP1yu2aZkueAGwAUIvsQzhPIs2WmN/NU/ijo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAFd6duOLkir1aEd4+1mJ5Dg6A98OwTVtRAKiy8pL2MgNvoM1i9Cep+GNP2OOFDxj
-         iMUg2drFKDUgDfJ0n+ameuRnUlNOVf9VtIGeu28T3mgeg0ZoLO/H18p/IiX1ZRMJ5V
-         nLWjwDg7mChGA3xUPjDqQ6Vkn4hfVHVK4Yju7Jpo=
+        b=nBeDrDsXPdpamlot5J6IJQYEi49cUfbY9ZYRwdXv1tN40o0+97cz9qR3zzqrPzoEW
+         HrMuoxhddg9nyPI7GBhqnjM7py+sKoPB4Uwz27EWLW2ApqtoJO+xCHlICnicGFoWWV
+         0kub5zmsNC4tXxGsAkf1hrbNQK3kw+Wp99RyQ69E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Weili Qian <qianweili@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org, Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 386/567] crypto: hisilicon: Wipe entire pool on error
-Date:   Tue,  7 Mar 2023 18:02:02 +0100
-Message-Id: <20230307165922.561452946@linuxfoundation.org>
+Subject: [PATCH 5.15 387/567] net: bcmgenet: Add a check for oversized packets
+Date:   Tue,  7 Mar 2023 18:02:03 +0100
+Message-Id: <20230307165922.602607854@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -48,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit aa85923a954e7704bc9d3847dabeb8540aa98d13 ]
+[ Upstream commit 5c0862c2c962052ed5055220a00ac1cefb92fbcd ]
 
-To work around a Clang __builtin_object_size bug that shows up under
-CONFIG_FORTIFY_SOURCE and UBSAN_BOUNDS, move the per-loop-iteration
-mem_block wipe into a single wipe of the entire pool structure after
-the loop.
+Occasionnaly we may get oversized packets from the hardware which
+exceed the nomimal 2KiB buffer size we allocate SKBs with. Add an early
+check which drops the packet to avoid invoking skb_over_panic() and move
+on to processing the next packet.
 
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1780
-Cc: Weili Qian <qianweili@huawei.com>
-Cc: Zhou Wang <wangzhou1@hisilicon.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
-Link: https://lore.kernel.org/r/20230106041945.never.831-kees@kernel.org
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sgl.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/crypto/hisilicon/sgl.c b/drivers/crypto/hisilicon/sgl.c
-index 057273769f264..3dbe5405d17bc 100644
---- a/drivers/crypto/hisilicon/sgl.c
-+++ b/drivers/crypto/hisilicon/sgl.c
-@@ -122,9 +122,8 @@ struct hisi_acc_sgl_pool *hisi_acc_create_sgl_pool(struct device *dev,
- 	for (j = 0; j < i; j++) {
- 		dma_free_coherent(dev, block_size, block[j].sgl,
- 				  block[j].sgl_dma);
--		memset(block + j, 0, sizeof(*block));
- 	}
--	kfree(pool);
-+	kfree_sensitive(pool);
- 	return ERR_PTR(-ENOMEM);
- }
- EXPORT_SYMBOL_GPL(hisi_acc_create_sgl_pool);
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index ea13917537526..92cd2916e8015 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -2267,6 +2267,14 @@ static unsigned int bcmgenet_desc_rx(struct bcmgenet_rx_ring *ring,
+ 			  __func__, p_index, ring->c_index,
+ 			  ring->read_ptr, dma_length_status);
+ 
++		if (unlikely(len > RX_BUF_LENGTH)) {
++			netif_err(priv, rx_status, dev, "oversized packet\n");
++			dev->stats.rx_length_errors++;
++			dev->stats.rx_errors++;
++			dev_kfree_skb_any(skb);
++			goto next;
++		}
++
+ 		if (unlikely(!(dma_flag & DMA_EOP) || !(dma_flag & DMA_SOP))) {
+ 			netif_err(priv, rx_status, dev,
+ 				  "dropping fragmented packet!\n");
 -- 
 2.39.2
 
