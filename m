@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 258366AEE2C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0806AE9A1
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232411AbjCGSKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46060 "EHLO
+        id S231375AbjCGR0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:26:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232342AbjCGSJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD95A2F1F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:04:01 -0800 (PST)
+        with ESMTP id S231524AbjCGRZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C557984F7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC4486152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:04:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E7AC433EF;
-        Tue,  7 Mar 2023 18:04:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC84761506
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11FBC433D2;
+        Tue,  7 Mar 2023 17:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212241;
-        bh=uXL8tvDNL6joXIwJYPGmUQ3pc3WHA5dKKQuhqPkHH5g=;
+        s=korg; t=1678209648;
+        bh=1KNS3GZixRBzlSzNLEoNnsKdjP1+e7LcCFJWefsqy2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IspMPIgSH/rKcgABi1z48Xq0S1RTCcPzQ85WX9fga2GGWEsTevrsgsnDmRdFrdRUQ
-         0mDWgPZyp6v4Gf+qDHXlpCpqPIHisi8KPRWHikJHvAPYfpwyl1cQN0H2YluKavimAE
-         nZwLjA9lMKMcmYjo8xmJlaaHa9nD9absAlgK0rvs=
+        b=hUr01KHqyFb/4B2JAvMMPVPdhyO9SEQKkIwbzCUutpEZ0wDSYQUvxhD3CJRFN2RXS
+         adl2zVuCaI3N+8xFKNxbvecE2AiPSriUY0xqLY5qVKfnltYWPeocnhnLaMmqsiIu+B
+         V1OMhIry8Z7CE9WF4/DYuPCFe5LpDOEsezcpiF+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 123/885] wifi: rtl8xxxu: dont call dev_kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 6.2 0285/1001] wifi: iwl4965: Add missing check for create_singlethread_workqueue()
 Date:   Tue,  7 Mar 2023 17:50:57 +0100
-Message-Id: <20230307170007.192403726@linuxfoundation.org>
+Message-Id: <20230307170034.032946759@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,45 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 4c2005ac87685907b3719b4f40215b578efd27c4 ]
+[ Upstream commit 26e6775f75517ad6844fe5b79bc5f3fa8c22ee61 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+Add the check for the return value of the create_singlethread_workqueue()
+in order to avoid NULL pointer dereference.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
-
-In this case, dev_kfree_skb() is called to free and drop the SKB when
-it's shutdown, so replace it with dev_kfree_skb_irq(). Compile tested
-only.
-
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Fixes: b481de9ca074 ("[IWLWIFI]: add iwlwifi wireless drivers")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221208143517.2383424-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20230209010748.45454-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlegacy/4965-mac.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index e445084e358f9..8d91939dea8cf 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5270,7 +5270,7 @@ static void rtl8xxxu_queue_rx_urb(struct rtl8xxxu_priv *priv,
- 		pending = priv->rx_urb_pending_count;
- 	} else {
- 		skb = (struct sk_buff *)rx_urb->urb.context;
--		dev_kfree_skb(skb);
-+		dev_kfree_skb_irq(skb);
- 		usb_free_urb(&rx_urb->urb);
+diff --git a/drivers/net/wireless/intel/iwlegacy/4965-mac.c b/drivers/net/wireless/intel/iwlegacy/4965-mac.c
+index 721b4042b4bf7..4d3c544ff2e66 100644
+--- a/drivers/net/wireless/intel/iwlegacy/4965-mac.c
++++ b/drivers/net/wireless/intel/iwlegacy/4965-mac.c
+@@ -6211,10 +6211,12 @@ il4965_bg_txpower_work(struct work_struct *work)
+ 	mutex_unlock(&il->mutex);
+ }
+ 
+-static void
++static int
+ il4965_setup_deferred_work(struct il_priv *il)
+ {
+ 	il->workqueue = create_singlethread_workqueue(DRV_NAME);
++	if (!il->workqueue)
++		return -ENOMEM;
+ 
+ 	init_waitqueue_head(&il->wait_command_queue);
+ 
+@@ -6233,6 +6235,8 @@ il4965_setup_deferred_work(struct il_priv *il)
+ 	timer_setup(&il->watchdog, il_bg_watchdog, 0);
+ 
+ 	tasklet_setup(&il->irq_tasklet, il4965_irq_tasklet);
++
++	return 0;
+ }
+ 
+ static void
+@@ -6618,7 +6622,10 @@ il4965_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		goto out_disable_msi;
  	}
  
+-	il4965_setup_deferred_work(il);
++	err = il4965_setup_deferred_work(il);
++	if (err)
++		goto out_free_irq;
++
+ 	il4965_setup_handlers(il);
+ 
+ 	/*********************************************
+@@ -6656,6 +6663,7 @@ il4965_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ out_destroy_workqueue:
+ 	destroy_workqueue(il->workqueue);
+ 	il->workqueue = NULL;
++out_free_irq:
+ 	free_irq(il->pci_dev->irq, il);
+ out_disable_msi:
+ 	pci_disable_msi(il->pci_dev);
 -- 
 2.39.2
 
