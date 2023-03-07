@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9086AEA12
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2666AEEBB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231488AbjCGRag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
+        id S232583AbjCGSPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:15:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231512AbjCGRaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3FD98FBD7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:24 -0800 (PST)
+        with ESMTP id S232579AbjCGSOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9271FA4019
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40D92614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380CFC433D2;
-        Tue,  7 Mar 2023 17:25:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52F1761523
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63A18C4339C;
+        Tue,  7 Mar 2023 18:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209923;
-        bh=s3KaKlDDj7G6H6GRqUzGTVuX9Sw4ePwY2BIIvr3TU74=;
+        s=korg; t=1678212626;
+        bh=eheIJxglOvkHpvdmE86asflKw6YkCWw7icCzVyYcAlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBR2Y692jKwx8ss+xt8U5iAU6Xht30zqR2rwi+0nVJc93kLNs7FxCU2lxXFi3/HQt
-         ICPZSFSiQrpgSJkNNQp+dWnTQBDJOg06mU5RPAIUzyJmOp7Hj9XWTOIWB4eTtuygVj
-         XuYpWNsq497aAWfbvIfeaNzzvs7jnBhC8IRx1KaY=
+        b=wFY0gA2o9HMbYV4i3kRx1kxMz2TBLXmTeMnKRsY2c+oNwX8DeZE8nOCMzq27ljqUB
+         ENxakCXcuZhydZ3+waavf1tyw8lErAcpZAzNprUlp5WOyJObsbsyf1NHmmuaocPCcj
+         vJlt8UbhTtDlpS3Dlnk3G8KKGNX4nEMSb+J0fvWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev,
+        Alexander Coffin <alex.coffin@matician.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0375/1001] drm/msm/dsi: Allow 2 CTRLs on v2.5.0
-Date:   Tue,  7 Mar 2023 17:52:27 +0100
-Message-Id: <20230307170037.638580312@linuxfoundation.org>
+Subject: [PATCH 6.1 214/885] Bluetooth: L2CAP: Fix potential user-after-free
+Date:   Tue,  7 Mar 2023 17:52:28 +0100
+Message-Id: <20230307170011.388056403@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,43 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 1ae654ded7c5a19dc13f57a4fe4434fef879b6f9 ]
+[ Upstream commit df5703348813235874d851934e957c3723d71644 ]
 
-v2.5.0 support was originally added for SC7280, but this hw is also
-present on SM8350, which has one more DSI host. Bump up the dsi count
-and fill in the register of the secondary host to allow it to probe.
+This fixes all instances of which requires to allocate a buffer calling
+alloc_skb which may release the chan lock and reacquire later which
+makes it possible that the chan is disconnected in the meantime.
 
-This should not have any adverse effects on SC7280, as the secondary
-CTRL will only be touched if it's defined, anyway.
-
-Fixes: 65c391b31994 ("drm/msm/dsi: Add DSI support for SC7280")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/519513/
-Link: https://lore.kernel.org/r/20230120210101.2146852-1-konrad.dybcio@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: a6a5568c03c4 ("Bluetooth: Lock the L2CAP channel when sending")
+Reported-by: Alexander Coffin <alex.coffin@matician.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_cfg.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/l2cap_core.c | 24 ------------------------
+ net/bluetooth/l2cap_sock.c |  8 ++++++++
+ 2 files changed, 8 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-index 7e97c239ed489..e0bd452a9f1e6 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-@@ -209,8 +209,8 @@ static const struct msm_dsi_config sc7280_dsi_cfg = {
- 	.num_regulators = ARRAY_SIZE(sc7280_dsi_regulators),
- 	.bus_clk_names = dsi_sc7280_bus_clk_names,
- 	.num_bus_clks = ARRAY_SIZE(dsi_sc7280_bus_clk_names),
--	.io_start = { 0xae94000 },
--	.num_dsi = 1,
-+	.io_start = { 0xae94000, 0xae96000 },
-+	.num_dsi = 2,
- };
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 9fdede5fe71c7..da85768b04b76 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -2683,14 +2683,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
+ 		if (IS_ERR(skb))
+ 			return PTR_ERR(skb);
  
- static const char * const dsi_qcm2290_bus_clk_names[] = {
+-		/* Channel lock is released before requesting new skb and then
+-		 * reacquired thus we need to recheck channel state.
+-		 */
+-		if (chan->state != BT_CONNECTED) {
+-			kfree_skb(skb);
+-			return -ENOTCONN;
+-		}
+-
+ 		l2cap_do_send(chan, skb);
+ 		return len;
+ 	}
+@@ -2735,14 +2727,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
+ 		if (IS_ERR(skb))
+ 			return PTR_ERR(skb);
+ 
+-		/* Channel lock is released before requesting new skb and then
+-		 * reacquired thus we need to recheck channel state.
+-		 */
+-		if (chan->state != BT_CONNECTED) {
+-			kfree_skb(skb);
+-			return -ENOTCONN;
+-		}
+-
+ 		l2cap_do_send(chan, skb);
+ 		err = len;
+ 		break;
+@@ -2763,14 +2747,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
+ 		 */
+ 		err = l2cap_segment_sdu(chan, &seg_queue, msg, len);
+ 
+-		/* The channel could have been closed while segmenting,
+-		 * check that it is still connected.
+-		 */
+-		if (chan->state != BT_CONNECTED) {
+-			__skb_queue_purge(&seg_queue);
+-			err = -ENOTCONN;
+-		}
+-
+ 		if (err)
+ 			break;
+ 
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index ca8f07f3542b8..eebe256104bc0 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1624,6 +1624,14 @@ static struct sk_buff *l2cap_sock_alloc_skb_cb(struct l2cap_chan *chan,
+ 	if (!skb)
+ 		return ERR_PTR(err);
+ 
++	/* Channel lock is released before requesting new skb and then
++	 * reacquired thus we need to recheck channel state.
++	 */
++	if (chan->state != BT_CONNECTED) {
++		kfree_skb(skb);
++		return ERR_PTR(-ENOTCONN);
++	}
++
+ 	skb->priority = sk->sk_priority;
+ 
+ 	bt_cb(skb)->l2cap.chan = chan;
 -- 
 2.39.2
 
