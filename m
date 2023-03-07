@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3046AEA53
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBBE6AEA55
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231712AbjCGRcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:32:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58144 "EHLO
+        id S231688AbjCGRcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:32:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231453AbjCGRc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:29 -0500
+        with ESMTP id S231654AbjCGRcc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA49051C89
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF8525976
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BF89614D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 522B2C433D2;
-        Tue,  7 Mar 2023 17:28:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55953611A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED55C4339B;
+        Tue,  7 Mar 2023 17:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210081;
-        bh=bgJat9e200h2YSsyIdzGEs6f6MG3hxGIJfbxabKFI2M=;
+        s=korg; t=1678210084;
+        bh=rQ8K/nxpmkvedn/ysiWgrzDJ8ZECXdrkILNVFSxAcEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UueabdkEm6xnWAUJzf0H0VwaG/YxQeD8uczP2/m1dUGMY5+fe38Gyg5F/AW7oE5hr
-         QskS9Jllyqm6enwJXVDVRBcSE58vSzRWBhcet/WB6yAlNihJ/JhZSGZDYw1cTkM5vm
-         NI/kUUzfBlWjhgwUDDciZlTaTPhjh8oXwFVsNjbQ=
+        b=q1P1NWO6COlW2pQ3T6PXsstF/pDXPWqdBfDB/vr7zd5hhjkH0W2w7KcQmNTxSVuvS
+         xxnFAhXeQH01a2maz+LZBW1buQ9EISew+0fkfZa3WMihcY8SEMACnMEFqIXuEYFfsF
+         +5FLqE8dYj6Mdq8BV74P2rZ1Bbjri3Op4WaOPYn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
+        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
         Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0395/1001] drm/mediatek: Use NULL instead of 0 for NULL pointer
-Date:   Tue,  7 Mar 2023 17:52:47 +0100
-Message-Id: <20230307170038.491216659@linuxfoundation.org>
+Subject: [PATCH 6.2 0396/1001] drm/mediatek: Drop unbalanced obj unref
+Date:   Tue,  7 Mar 2023 17:52:48 +0100
+Message-Id: <20230307170038.525682004@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -56,34 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 4744cde06f57dd6fbaac468663b1fe2f653eaa16 ]
+[ Upstream commit 4deef811828e87e26a978d5d6433b261d4713849 ]
 
-Use NULL for NULL pointer to fix the following sparse warning:
-drivers/gpu/drm/mediatek/mtk_drm_gem.c:265:27: sparse: warning: Using plain integer as NULL pointer
+In the error path, mtk_drm_gem_object_mmap() is dropping an obj
+reference that it doesn't own.
 
-Fixes: 3df64d7b0a4f ("drm/mediatek: Implement gem prime vmap/vunmap function")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20230111024443.24559-1-miles.chen@mediatek.com/
+Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20230119231255.2883365-1-robdclark@gmail.com/
 Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_gem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_drm_gem.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/mediatek/mtk_drm_gem.c b/drivers/gpu/drm/mediatek/mtk_drm_gem.c
-index 47e96b0289f98..06aadd5e7f5ba 100644
+index 06aadd5e7f5ba..6c204ccfb9ece 100644
 --- a/drivers/gpu/drm/mediatek/mtk_drm_gem.c
 +++ b/drivers/gpu/drm/mediatek/mtk_drm_gem.c
-@@ -262,6 +262,6 @@ void mtk_drm_gem_prime_vunmap(struct drm_gem_object *obj,
- 		return;
+@@ -164,8 +164,6 @@ static int mtk_drm_gem_object_mmap(struct drm_gem_object *obj,
  
- 	vunmap(vaddr);
--	mtk_gem->kvaddr = 0;
-+	mtk_gem->kvaddr = NULL;
- 	kfree(mtk_gem->pages);
+ 	ret = dma_mmap_attrs(priv->dma_dev, vma, mtk_gem->cookie,
+ 			     mtk_gem->dma_addr, obj->size, mtk_gem->dma_attrs);
+-	if (ret)
+-		drm_gem_vm_close(vma);
+ 
+ 	return ret;
  }
 -- 
 2.39.2
