@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 999DD6AF358
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:04:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9D96AF363
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233625AbjCGTD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:03:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43188 "EHLO
+        id S233650AbjCGTEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:04:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233630AbjCGTDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:03:30 -0500
+        with ESMTP id S233522AbjCGTEE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:04:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2715BD4FA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:49:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0112A2D52
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:49:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C890B818EB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21F68C433EF;
-        Tue,  7 Mar 2023 18:49:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B6B8B819CA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:49:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1804C433D2;
+        Tue,  7 Mar 2023 18:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214956;
-        bh=f+t0gIHRejU19Svk7mfYc+K40A4IsUI5ICQo0dXlZ6A=;
+        s=korg; t=1678214990;
+        bh=e/Pre2imnpWXGVk6zzLY2qTyBv+tmMkJDbggQiyPIfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gxjvb84kx6YoEatajNFqLQx0WnLxJbC3eHG4PO7uBOcWQYIAu2x/YZHqh13U5D42o
-         pt4fmS48tCFVe6jcJ7SruIumxnJLq4uKBCOZV8zEtcN5uOjHUbcEncznZyBHE5aT0A
-         Uo9F9AJYhMA3cguRiTWGumwr91IWVghDU6uyqajo=
+        b=s+zB58my8QWDvVl224/KuilYX6l0K9FIsCG+29d3x5WEGk312e9AwjNenaz03DILU
+         c9hsjgYTGIzxQBUzbVqeeri528mLgqjDcOFQvD6zQFuoLUM+XOx+nqs5ZrSy1WXslj
+         +Cm02jkc5PmBgPqPb3szHfFXWYiODEr/HjngZOCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Elliott, Robert (Servers)" <elliott@hpe.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Tejun Heo <tj@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Don <joshdon@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Boqun Feng <boqun.feng@gmail.com>,
+        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
         "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Elliott@vger.kernel.org
-Subject: [PATCH 5.15 087/567] genirq: Fix the return type of kstat_cpu_irqs_sum()
-Date:   Tue,  7 Mar 2023 17:57:03 +0100
-Message-Id: <20230307165909.651068811@linuxfoundation.org>
+        Oleg Nesterov <oleg@redhat.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/567] rcu-tasks: Improve comments explaining tasks_rcu_exit_srcu purpose
+Date:   Tue,  7 Mar 2023 17:57:04 +0100
+Message-Id: <20230307165909.700070962@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -61,42 +59,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit 47904aed898a08f028572b9b5a5cc101ddfb2d82 ]
+[ Upstream commit e4e1e8089c5fd948da12cb9f4adc93821036945f ]
 
-The type of member ->irqs_sum is unsigned long, but kstat_cpu_irqs_sum()
-returns int, which can result in truncation.  Therefore, change the
-kstat_cpu_irqs_sum() function's return value to unsigned long to avoid
-truncation.
+Make sure we don't need to look again into the depths of git blame in
+order not to miss a subtle part about how rcu-tasks is dealing with
+exiting tasks.
 
-Fixes: f2c66cd8eedd ("/proc/stat: scalability of irq num per cpu")
-Reported-by: Elliott, Robert (Servers) <elliott@hpe.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Josh Don <joshdon@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+Suggested-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
+Suggested-by: Paul E. McKenney <paulmck@kernel.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Stable-dep-of: 28319d6dc5e2 ("rcu-tasks: Fix synchronize_rcu_tasks() VS zap_pid_ns_processes()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kernel_stat.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/rcu/tasks.h | 37 +++++++++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
-index 69ae6b2784645..f9460fbea0a81 100644
---- a/include/linux/kernel_stat.h
-+++ b/include/linux/kernel_stat.h
-@@ -72,7 +72,7 @@ extern unsigned int kstat_irqs_usr(unsigned int irq);
- /*
-  * Number of interrupts per cpu, since bootup
-  */
--static inline unsigned int kstat_cpu_irqs_sum(unsigned int cpu)
-+static inline unsigned long kstat_cpu_irqs_sum(unsigned int cpu)
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index 4bd07cc3c0eab..d937bacf27b68 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -451,11 +451,21 @@ static void rcu_tasks_pertask(struct task_struct *t, struct list_head *hop)
+ static void rcu_tasks_postscan(struct list_head *hop)
  {
- 	return kstat_cpu(cpu).irqs_sum;
+ 	/*
+-	 * Wait for tasks that are in the process of exiting.  This
+-	 * does only part of the job, ensuring that all tasks that were
+-	 * previously exiting reach the point where they have disabled
+-	 * preemption, allowing the later synchronize_rcu() to finish
+-	 * the job.
++	 * Exiting tasks may escape the tasklist scan. Those are vulnerable
++	 * until their final schedule() with TASK_DEAD state. To cope with
++	 * this, divide the fragile exit path part in two intersecting
++	 * read side critical sections:
++	 *
++	 * 1) An _SRCU_ read side starting before calling exit_notify(),
++	 *    which may remove the task from the tasklist, and ending after
++	 *    the final preempt_disable() call in do_exit().
++	 *
++	 * 2) An _RCU_ read side starting with the final preempt_disable()
++	 *    call in do_exit() and ending with the final call to schedule()
++	 *    with TASK_DEAD state.
++	 *
++	 * This handles the part 1). And postgp will handle part 2) with a
++	 * call to synchronize_rcu().
+ 	 */
+ 	synchronize_srcu(&tasks_rcu_exit_srcu);
  }
+@@ -522,7 +532,10 @@ static void rcu_tasks_postgp(struct rcu_tasks *rtp)
+ 	 *
+ 	 * In addition, this synchronize_rcu() waits for exiting tasks
+ 	 * to complete their final preempt_disable() region of execution,
+-	 * cleaning up after the synchronize_srcu() above.
++	 * cleaning up after synchronize_srcu(&tasks_rcu_exit_srcu),
++	 * enforcing the whole region before tasklist removal until
++	 * the final schedule() with TASK_DEAD state to be an RCU TASKS
++	 * read side critical section.
+ 	 */
+ 	synchronize_rcu();
+ }
+@@ -612,7 +625,11 @@ void show_rcu_tasks_classic_gp_kthread(void)
+ EXPORT_SYMBOL_GPL(show_rcu_tasks_classic_gp_kthread);
+ #endif // !defined(CONFIG_TINY_RCU)
+ 
+-/* Do the srcu_read_lock() for the above synchronize_srcu().  */
++/*
++ * Contribute to protect against tasklist scan blind spot while the
++ * task is exiting and may be removed from the tasklist. See
++ * corresponding synchronize_srcu() for further details.
++ */
+ void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
+ {
+ 	preempt_disable();
+@@ -620,7 +637,11 @@ void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
+ 	preempt_enable();
+ }
+ 
+-/* Do the srcu_read_unlock() for the above synchronize_srcu().  */
++/*
++ * Contribute to protect against tasklist scan blind spot while the
++ * task is exiting and may be removed from the tasklist. See
++ * corresponding synchronize_srcu() for further details.
++ */
+ void exit_tasks_rcu_finish(void) __releases(&tasks_rcu_exit_srcu)
+ {
+ 	struct task_struct *t = current;
 -- 
 2.39.2
 
