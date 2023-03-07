@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD08C6AF3C3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E876AF3CC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:09:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233454AbjCGTJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:09:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58436 "EHLO
+        id S229914AbjCGTJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:09:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233394AbjCGTIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:08:49 -0500
+        with ESMTP id S231614AbjCGTJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:09:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D00A403C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:53:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47100B3285
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:54:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8159AB819CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE18C433EF;
-        Tue,  7 Mar 2023 18:53:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA770B819D6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:53:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 033A2C433A0;
+        Tue,  7 Mar 2023 18:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215221;
-        bh=zwiNKgV0mD1E1iirvNL2YozEKwdMZGEHTQuYnC0+8PY=;
+        s=korg; t=1678215224;
+        bh=s45eB0R8juTjlWTD+m+madG1BptmyRT70x9JDqDwhck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7nkW0Wfj1MmSMiC0hsZZoE94JezpyvgFQcYKszV6s7/bOAilmYdt1YqzF14YbdJd
-         dJ0u42NVnfOmyApmwMgg9FGUZSR4yjqTjdFMKZhEwhnBDL0bFXHT7NaaHavhDOmucX
-         iax/MyWS99fMaZ6lF4bTJ9Tjdm2LxSUK7PM7UGAQ=
+        b=znt60Lyinku90X5tDZSfOZSN+QGs4GWznUD4Zecprs12pI4Ztj3SFDBJaIdDLSMFi
+         BAZQpC27p1bOQ3xSiTUoFSswkfAHjJqXoKC9wcY1kahUzvk31BgkWkp6QdaXWwzPw1
+         a8DCew0FAZTcKGNcL8BuG5W18/P3gIXfSiiaOwEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 158/567] irqchip/irq-bcm7120-l2: Set IRQ_LEVEL for level triggered interrupts
-Date:   Tue,  7 Mar 2023 17:58:14 +0100
-Message-Id: <20230307165912.775085133@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 159/567] selftests/net: Interpret UDP_GRO cmsg data as an int value
+Date:   Tue,  7 Mar 2023 17:58:15 +0100
+Message-Id: <20230307165912.816137837@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,39 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit 13a157b38ca5b4f9eed81442b8821db293755961 ]
+[ Upstream commit 436864095a95fcc611c20c44a111985fa9848730 ]
 
-When support for the interrupt controller was added with a5042de2688d,
-we forgot to update the flags to be set to contain IRQ_LEVEL. While the
-flow handler is correct, the output from /proc/interrupts does not show
-such interrupts as being level triggered when they are, correct that.
+Data passed to user-space with a (SOL_UDP, UDP_GRO) cmsg carries an
+int (see udp_cmsg_recv), not a u16 value, as strace confirms:
 
-Fixes: a5042de2688d ("irqchip: bcm7120-l2: Add Broadcom BCM7120-style Level 2 interrupt controller")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221216230934.2478345-3-f.fainelli@gmail.com
+  recvmsg(8, {msg_name=...,
+              msg_iov=[{iov_base="\0\0..."..., iov_len=96000}],
+              msg_iovlen=1,
+              msg_control=[{cmsg_len=20,         <-- sizeof(cmsghdr) + 4
+                            cmsg_level=SOL_UDP,
+                            cmsg_type=0x68}],    <-- UDP_GRO
+                            msg_controllen=24,
+                            msg_flags=0}, 0) = 11200
+
+Interpreting the data as an u16 value won't work on big-endian platforms.
+Since it is too late to back out of this API decision [1], fix the test.
+
+[1]: https://lore.kernel.org/netdev/20230131174601.203127-1-jakub@cloudflare.com/
+
+Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-bcm7120-l2.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/net/udpgso_bench_rx.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/irqchip/irq-bcm7120-l2.c b/drivers/irqchip/irq-bcm7120-l2.c
-index f23d7651ea847..e91b38a6fc3df 100644
---- a/drivers/irqchip/irq-bcm7120-l2.c
-+++ b/drivers/irqchip/irq-bcm7120-l2.c
-@@ -271,7 +271,8 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
- 		flags |= IRQ_GC_BE_IO;
+diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
+index 4058c7451e70d..f35a924d4a303 100644
+--- a/tools/testing/selftests/net/udpgso_bench_rx.c
++++ b/tools/testing/selftests/net/udpgso_bench_rx.c
+@@ -214,11 +214,10 @@ static void do_verify_udp(const char *data, int len)
  
- 	ret = irq_alloc_domain_generic_chips(data->domain, IRQS_PER_WORD, 1,
--				dn->full_name, handle_level_irq, clr, 0, flags);
-+				dn->full_name, handle_level_irq, clr,
-+				IRQ_LEVEL, flags);
- 	if (ret) {
- 		pr_err("failed to allocate generic irq chip\n");
- 		goto out_free_domain;
+ static int recv_msg(int fd, char *buf, int len, int *gso_size)
+ {
+-	char control[CMSG_SPACE(sizeof(uint16_t))] = {0};
++	char control[CMSG_SPACE(sizeof(int))] = {0};
+ 	struct msghdr msg = {0};
+ 	struct iovec iov = {0};
+ 	struct cmsghdr *cmsg;
+-	uint16_t *gsosizeptr;
+ 	int ret;
+ 
+ 	iov.iov_base = buf;
+@@ -237,8 +236,7 @@ static int recv_msg(int fd, char *buf, int len, int *gso_size)
+ 		     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+ 			if (cmsg->cmsg_level == SOL_UDP
+ 			    && cmsg->cmsg_type == UDP_GRO) {
+-				gsosizeptr = (uint16_t *) CMSG_DATA(cmsg);
+-				*gso_size = *gsosizeptr;
++				*gso_size = *(int *)CMSG_DATA(cmsg);
+ 				break;
+ 			}
+ 		}
 -- 
 2.39.2
 
