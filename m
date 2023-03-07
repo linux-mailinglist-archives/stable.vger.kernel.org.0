@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3DF6AF597
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:27:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 544DA6AF598
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:27:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234096AbjCGT1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:27:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
+        id S234102AbjCGT1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:27:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234073AbjCGT1R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:27:17 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D939EF43
+        with ESMTP id S234106AbjCGT1S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:27:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D4BFA18BB
         for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:13:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E284ECE1C79
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B98EC433EF;
-        Tue,  7 Mar 2023 19:13:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C56E461520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:13:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3FFDC433D2;
+        Tue,  7 Mar 2023 19:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216388;
-        bh=cyEnrYpXsnZOy1MKketWp6wTLUm03WwqL6ud0l6wyT8=;
+        s=korg; t=1678216391;
+        bh=5CYc9GiOdvjsJkIoeFnX4LTEym7sB6WSHJhrbT0SXH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZhNdJXX3Mk1UvVna57y//8sa2Eow9cDzoGeEjEIJXi3nHP0hR0rF2r5jPcO/1ihCH
-         YXGz6JIgbiIviaoRkjREBXIYRs3p3Xf96UEvBshLZOHQpAvY24M1bmF9Ni7+rrwLP9
-         5dP2pwMrECpBmJMKxBG292D2ZCJqFhyoQvSS6yzM=
+        b=Aq+db/5iXjkmWc6PLoczK+rys/QTKtP3Av9CYbKGBFdKvlJFZMmU+1k3Pkr81x3e3
+         bW9TI5gNFAGPDiICUYDhFMyY96s77935cV3jU2qRuutOEnJIqGgIsafvx7U8lsLI5T
+         ttDJVvmgkTkSwhPFPCqzUUFmmmpKu7DurpT+7DDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        patches@lists.linux.dev, William Tseng <william.tseng@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.15 566/567] drm/i915: Dont use BAR mappings for ring buffers with LLC
-Date:   Tue,  7 Mar 2023 18:05:02 +0100
-Message-Id: <20230307165930.480053867@linuxfoundation.org>
+Subject: [PATCH 5.15 567/567] drm/edid: fix AVI infoframe aspect ratio handling
+Date:   Tue,  7 Mar 2023 18:05:03 +0100
+Message-Id: <20230307165930.529770084@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -61,53 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Harrison <John.C.Harrison@Intel.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-commit 85636167e3206c3fbd52254fc432991cc4e90194 upstream.
+commit 1cbc1f0d324ba6c4d1b10ac6362b5e0b029f63d5 upstream.
 
-Direction from hardware is that ring buffers should never be mapped
-via the BAR on systems with LLC. There are too many caching pitfalls
-due to the way BAR accesses are routed. So it is safest to just not
-use it.
+We try to avoid sending VICs defined in the later specs in AVI
+infoframes to sinks that conform to the earlier specs, to not upset
+them, and use 0 for the VIC instead. However, we do this detection and
+conversion to 0 too early, as we'll need the actual VIC to figure out
+the aspect ratio.
 
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.9+
-Tested-by: Jouni Högander <jouni.hogander@intel.com>
-Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
-(cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
+In particular, for a mode with 64:27 aspect ratio, 0 for VIC fails the
+AVI infoframe generation altogether with -EINVAL.
+
+Separate the VIC lookup from the "filtering", and postpone the
+filtering, to use the proper VIC for aspect ratio handling, and the 0
+VIC for the infoframe video code as needed.
+
+Reported-by: William Tseng <william.tseng@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6153
+Cc: <stable@vger.kernel.org>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/c3e78cc6d01ed237f71ad0038826b08d83d75eef.1672826282.git.jani.nikula@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/intel_ring.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_edid.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_ring.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ring.c
-@@ -51,7 +51,7 @@ int intel_ring_pin(struct intel_ring *ri
- 	if (unlikely(ret))
- 		goto err_unpin;
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5598,8 +5598,6 @@ static u8 drm_mode_hdmi_vic(const struct
+ static u8 drm_mode_cea_vic(const struct drm_connector *connector,
+ 			   const struct drm_display_mode *mode)
+ {
+-	u8 vic;
+-
+ 	/*
+ 	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
+ 	 * we should send its VIC in vendor infoframes, else send the
+@@ -5609,13 +5607,18 @@ static u8 drm_mode_cea_vic(const struct
+ 	if (drm_mode_hdmi_vic(connector, mode))
+ 		return 0;
  
--	if (i915_vma_is_map_and_fenceable(vma)) {
-+	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915)) {
- 		addr = (void __force *)i915_vma_pin_iomap(vma);
- 	} else {
- 		int type = i915_coherent_map_type(vma->vm->i915, vma->obj, false);
-@@ -96,7 +96,7 @@ void intel_ring_unpin(struct intel_ring
- 		return;
+-	vic = drm_match_cea_mode(mode);
++	return drm_match_cea_mode(mode);
++}
  
- 	i915_vma_unset_ggtt_write(vma);
--	if (i915_vma_is_map_and_fenceable(vma))
-+	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
- 		i915_vma_unpin_iomap(vma);
- 	else
- 		i915_gem_object_unpin_map(vma->obj);
+-	/*
+-	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
+-	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
+-	 * have to make sure we dont break HDMI 1.4 sinks.
+-	 */
++/*
++ * Avoid sending VICs defined in HDMI 2.0 in AVI infoframes to sinks that
++ * conform to HDMI 1.4.
++ *
++ * HDMI 1.4 (CTA-861-D) VIC range: [1..64]
++ * HDMI 2.0 (CTA-861-F) VIC range: [1..107]
++ */
++static u8 vic_for_avi_infoframe(const struct drm_connector *connector, u8 vic)
++{
+ 	if (!is_hdmi2_sink(connector) && vic > 64)
+ 		return 0;
+ 
+@@ -5691,7 +5694,7 @@ drm_hdmi_avi_infoframe_from_display_mode
+ 		picture_aspect = HDMI_PICTURE_ASPECT_NONE;
+ 	}
+ 
+-	frame->video_code = vic;
++	frame->video_code = vic_for_avi_infoframe(connector, vic);
+ 	frame->picture_aspect = picture_aspect;
+ 	frame->active_aspect = HDMI_ACTIVE_ASPECT_PICTURE;
+ 	frame->scan_mode = HDMI_SCAN_MODE_UNDERSCAN;
 
 
