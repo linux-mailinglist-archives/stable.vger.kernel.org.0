@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 239F56AEEC2
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63CB46AEA37
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229872AbjCGSQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:16:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56316 "EHLO
+        id S231665AbjCGRb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:31:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229801AbjCGSO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:59 -0500
+        with ESMTP id S231654AbjCGRbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32CBA8EA5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41DADA1025
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABFDD61537
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3808C433EF;
-        Tue,  7 Mar 2023 18:10:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5D47614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC3B3C433EF;
+        Tue,  7 Mar 2023 17:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212641;
-        bh=MhZrypLdQ94TSB6z2WRf3tO8RBjMmuX9xZYdwxeF+rA=;
+        s=korg; t=1678210010;
+        bh=YDON1Xo2Gj7X9JkaInKK1RjrkfH6g4LBvF7wIFMwI4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aeiP6pt+X0V7Q0+H9F2wLt1D3mgbiqN2M32Ryxk+PCT4ZEU4I55JAlSAO9Nb6JJB3
-         WQ675kDSPinySqB3kII0AJ2dAEEnFTlX8yfgofYfn3RIYHWmqsGovcSPluTmLA7a1v
-         abOPZxpq6qcxD0g9nJVUC+bxtWpUDRLhm4aDnrFw=
+        b=JOcesobwnNSxBo965EqQNG/1PNfWXsDLHNNcBqMJupvqkIkcSUm6XnASu3Z5eJSE7
+         hWZ+LB+40TH4/cDmkg7F1+ujjdWLXfoHvbPE1fIIj71cb83tCDK4q1VS0lWJ4ThoLo
+         nb60AmdReWVBLx9jBKBB+DouIIMxAXiZgNaFSej8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yongqin Liu <yongqin.liu@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 242/885] thermal/drivers/hisi: Drop second sensor hi3660
+Subject: [PATCH 6.2 0404/1001] spi: dw_bt1: fix MUX_MMIO dependencies
 Date:   Tue,  7 Mar 2023 17:52:56 +0100
-Message-Id: <20230307170012.530624369@linuxfoundation.org>
+Message-Id: <20230307170038.858548079@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongqin Liu <yongqin.liu@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 15cc25829a97c3957e520e971868aacc84341317 ]
+[ Upstream commit d4bde04318c0d33705e9a77d4c7df72f262011e0 ]
 
-The commit 74c8e6bffbe1 ("driver core: Add __alloc_size hint to devm
-allocators") exposes a panic "BRK handler: Fatal exception" on the
-hi3660_thermal_probe funciton.
-This is because the function allocates memory for only one
-sensors array entry, but tries to fill up a second one.
+Selecting a symbol with additional dependencies requires
+adding the same dependency here:
 
-Fix this by removing the unneeded second access.
+WARNING: unmet direct dependencies detected for MUX_MMIO
+  Depends on [n]: MULTIPLEXER [=y] && OF [=n]
+  Selected by [y]:
+  - SPI_DW_BT1 [=y] && SPI [=y] && SPI_MASTER [=y] && SPI_DESIGNWARE [=y] && (MIPS_BAIKAL_T1 || COMPILE_TEST [=y])
 
-Fixes: 7d3a2a2bbadb ("thermal/drivers/hisi: Fix number of sensors on hi3660")
-Signed-off-by: Yongqin Liu <yongqin.liu@linaro.org>
-Link: https://lore.kernel.org/linux-mm/20221101223321.1326815-5-keescook@chromium.org/
-Link: https://lore.kernel.org/r/20230210141507.71014-1-yongqin.liu@linaro.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Drop the 'select' here to avoid the problem. Anyone using
+the dw-bt1 SPI driver should make sure they include the
+mux driver as well now.
+
+Fixes: 7218838109fe ("spi: dw-bt1: Fix undefined devm_mux_control_get symbol")
+Fixes: abf00907538e ("spi: dw: Add Baikal-T1 SPI Controller glue driver")
+Link: https://lore.kernel.org/all/20221218192523.c6vnfo26ua6xqf26@mobilestation/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20230130140156.3620863-1-arnd@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/hisi_thermal.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/spi/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/thermal/hisi_thermal.c b/drivers/thermal/hisi_thermal.c
-index d6974db7aaf76..15af90f5c7d91 100644
---- a/drivers/thermal/hisi_thermal.c
-+++ b/drivers/thermal/hisi_thermal.c
-@@ -427,10 +427,6 @@ static int hi3660_thermal_probe(struct hisi_thermal_data *data)
- 	data->sensor[0].irq_name = "tsensor_a73";
- 	data->sensor[0].data = data;
- 
--	data->sensor[1].id = HI3660_LITTLE_SENSOR;
--	data->sensor[1].irq_name = "tsensor_a53";
--	data->sensor[1].data = data;
--
- 	return 0;
- }
- 
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 3b1c0878bb857..930c6075b78cf 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -295,7 +295,6 @@ config SPI_DW_BT1
+ 	tristate "Baikal-T1 SPI driver for DW SPI core"
+ 	depends on MIPS_BAIKAL_T1 || COMPILE_TEST
+ 	select MULTIPLEXER
+-	select MUX_MMIO
+ 	help
+ 	  Baikal-T1 SoC is equipped with three DW APB SSI-based MMIO SPI
+ 	  controllers. Two of them are pretty much normal: with IRQ, DMA,
 -- 
 2.39.2
 
