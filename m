@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B360A6AEB97
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:46:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD0656AF09A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:32:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232111AbjCGRqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:46:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
+        id S231127AbjCGSc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:32:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232100AbjCGRps (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:45:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2C1A4B18
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:41:16 -0800 (PST)
+        with ESMTP id S229645AbjCGScA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:32:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B303B3725
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:24:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40D59614D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:41:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582C2C433EF;
-        Tue,  7 Mar 2023 17:41:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 132D2B819D1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 448CCC4339C;
+        Tue,  7 Mar 2023 18:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210875;
-        bh=0UrN5Ya4jNeVaBqvPSKD6LjakYrw8VQiuRe0x97UxME=;
+        s=korg; t=1678213478;
+        bh=15sDA5DKukliQb3d+h19ZtlO5w0AT0Qz8DpjVraT9rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qr0u6QVO30i0nqjeRpN6l2gF+g23c+fvhFub8Ghcj+Qh7FN1TnxH8yLXIwiVJSiQW
-         PdrDQDjmlyZRykM81W6rA+TAAwqlMOOWjoObd+SJbdDnYb2NXi0txEFWUfj3YQfwmY
-         zAHJ1PyPjHLYYfc9V9mtkk+B9+tkL69OCa8JknEI=
+        b=Wqt+0/MAujyI0YVLNrnpdIz1NGsehUVKYhU2prHMgcIkaoj1MqqOtDwm4MuUrUyNS
+         P+2NG6GatlxEhyAsImXqRaf/GVMAd3vJ6zt9EHClPw0YMYseKdWSS2LPPmDE+q2rQ6
+         GpD1P16hi8c4uFrUy/S90JwsyNumLY5jToFo/hPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0682/1001] hv_netvsc: Check status in SEND_RNDIS_PKT completion message
+Subject: [PATCH 6.1 520/885] media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
 Date:   Tue,  7 Mar 2023 17:57:34 +0100
-Message-Id: <20230307170051.192194367@linuxfoundation.org>
+Message-Id: <20230307170025.065911136@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit dca5161f9bd052e9e73be90716ffd57e8762c697 ]
+[ Upstream commit 29b0589a865b6f66d141d79b2dd1373e4e50fe17 ]
 
-Completion responses to SEND_RNDIS_PKT messages are currently processed
-regardless of the status in the response, so that resources associated
-with the request are freed.  While this is appropriate, code bugs that
-cause sending a malformed message, or errors on the Hyper-V host, go
-undetected. Fix this by checking the status and outputting a rate-limited
-message if there is an error.
+When the ene device is detaching, function ene_remove() will
+be called. But there is no function to cancel tx_sim_timer
+in ene_remove(), the timer handler ene_tx_irqsim() could race
+with ene_remove(). As a result, the UAF bugs could happen,
+the process is shown below.
 
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Link: https://lore.kernel.org/r/1676264881-48928-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+    (cleanup routine)          |        (timer routine)
+                               | mod_timer(&dev->tx_sim_timer, ..)
+ene_remove()                   | (wait a time)
+                               | ene_tx_irqsim()
+                               |   dev->hw_lock //USE
+                               |   ene_tx_sample(dev) //USE
+
+Fix by adding del_timer_sync(&dev->tx_sim_timer) in ene_remove(),
+The tx_sim_timer could stop before ene device is deallocated.
+
+What's more, The rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove() and the deallocated
+functions such as free_irq(), release_region() and so on
+should be called behind them. Because the rc_unregister_device()
+is well synchronized. Otherwise, race conditions may happen. The
+situations that may lead to race conditions are shown below.
+
+Firstly, the rx receiver is disabled with ene_rx_disable()
+before rc_unregister_device() in ene_remove(), which means it
+can be enabled again if a process opens /dev/lirc0 between
+ene_rx_disable() and rc_unregister_device().
+
+Secondly, the irqaction descriptor is freed by free_irq()
+before the rc device is unregistered, which means irqaction
+descriptor may be accessed again after it is deallocated.
+
+Thirdly, the timer can call ene_tx_sample() that can write
+to the io ports, which means the io ports could be accessed
+again after they are deallocated by release_region().
+
+Therefore, the rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove().
+
+Suggested by: Sean Young <sean@mess.org>
+
+Fixes: 9ea53b74df9c ("V4L/DVB: STAGING: remove lirc_ene0100 driver")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/media/rc/ene_ir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
-index 79f4e13620a46..da737d959e81c 100644
---- a/drivers/net/hyperv/netvsc.c
-+++ b/drivers/net/hyperv/netvsc.c
-@@ -851,6 +851,7 @@ static void netvsc_send_completion(struct net_device *ndev,
- 	u32 msglen = hv_pkt_datalen(desc);
- 	struct nvsp_message *pkt_rqst;
- 	u64 cmd_rqst;
-+	u32 status;
+diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
+index e09270916fbca..11ee21a7db8f0 100644
+--- a/drivers/media/rc/ene_ir.c
++++ b/drivers/media/rc/ene_ir.c
+@@ -1106,6 +1106,8 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 	struct ene_device *dev = pnp_get_drvdata(pnp_dev);
+ 	unsigned long flags;
  
- 	/* First check if this is a VMBUS completion without data payload */
- 	if (!msglen) {
-@@ -922,6 +923,23 @@ static void netvsc_send_completion(struct net_device *ndev,
- 		break;
++	rc_unregister_device(dev->rdev);
++	del_timer_sync(&dev->tx_sim_timer);
+ 	spin_lock_irqsave(&dev->hw_lock, flags);
+ 	ene_rx_disable(dev);
+ 	ene_rx_restore_hw_buffer(dev);
+@@ -1113,7 +1115,6 @@ static void ene_remove(struct pnp_dev *pnp_dev)
  
- 	case NVSP_MSG1_TYPE_SEND_RNDIS_PKT_COMPLETE:
-+		if (msglen < sizeof(struct nvsp_message_header) +
-+		    sizeof(struct nvsp_1_message_send_rndis_packet_complete)) {
-+			if (net_ratelimit())
-+				netdev_err(ndev, "nvsp_rndis_pkt_complete length too small: %u\n",
-+					   msglen);
-+			return;
-+		}
-+
-+		/* If status indicates an error, output a message so we know
-+		 * there's a problem. But process the completion anyway so the
-+		 * resources are released.
-+		 */
-+		status = nvsp_packet->msg.v1_msg.send_rndis_pkt_complete.status;
-+		if (status != NVSP_STAT_SUCCESS && net_ratelimit())
-+			netdev_err(ndev, "nvsp_rndis_pkt_complete error status: %x\n",
-+				   status);
-+
- 		netvsc_send_tx_complete(ndev, net_device, incoming_channel,
- 					desc, budget);
- 		break;
+ 	free_irq(dev->irq, dev);
+ 	release_region(dev->hw_io, ENE_IO_SIZE);
+-	rc_unregister_device(dev->rdev);
+ 	kfree(dev);
+ }
+ 
 -- 
 2.39.2
 
