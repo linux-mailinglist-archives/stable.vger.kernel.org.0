@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB5A6AF3A8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2EB06AF3A7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233699AbjCGTHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:07:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53356 "EHLO
+        id S229792AbjCGTHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:07:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233626AbjCGTHH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:07 -0500
+        with ESMTP id S233680AbjCGTHG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A36ABB00
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3E4A769F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 641B8B8184E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C405AC433EF;
-        Tue,  7 Mar 2023 18:52:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D890B819CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4ADEC433EF;
+        Tue,  7 Mar 2023 18:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215140;
-        bh=KQBlLybgoHYyduY3H45GDNEceaxOQ73iT2hdWZDASw8=;
+        s=korg; t=1678215143;
+        bh=vdIuM0E6QKL+iwCuTYTEPoD61H/n1eSG8Yh9OwLELjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWkRQ10hjbFugu5qWHTb0x3w+gHBME30I4uB1iMH79qsP5YHtznZYER3aSQDPbpbW
-         Ipo2cyMu7BmDk8wuH9/9KL+5Z6TsRyw9qr7xx3pzS7oD/I1dPQvEA9XkzDq/RCtt/+
-         rV7UDNg8GEzWqkH7Vt5aFG0DlA/7Zxc/8MelIi+s=
+        b=YTnjP2IRp+f1hV3jj86ry9cRi+Luk18ITZzbWrnUei9nR0vcYZxnMNfMWKhuiOPpF
+         dsskcTCxj6fP3TRyge0TdLk35h24Py4D6LIJIYteNqJpCUeKh9Pz/4JvRQlJOAwahd
+         wQ2klG3zWTcSrGK2ig9RKQWxlFBAH9rH82b6kFRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        patches@lists.linux.dev,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 165/567] drm/fourcc: Add missing big-endian XRGB1555 and RGB565 formats
-Date:   Tue,  7 Mar 2023 17:58:21 +0100
-Message-Id: <20230307165913.097353603@linuxfoundation.org>
+Subject: [PATCH 5.15 166/567] drm/bridge: ti-sn65dsi83: Fix delay after reset deassert to match spec
+Date:   Tue,  7 Mar 2023 17:58:22 +0100
+Message-Id: <20230307165913.138672515@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,48 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-[ Upstream commit 6fb6c979ca628583d4d0c59a0f8ff977e581ecc0 ]
+[ Upstream commit 4b03d5e0d3e86ee492d54254927d020dc0fe8acf ]
 
-As of commit eae06120f1974e1a ("drm: refuse ADDFB2 ioctl for broken
-bigendian drivers"), drivers must set the
-quirk_addfb_prefer_host_byte_order quirk to make the drm_mode_addfb()
-compat code work correctly on big-endian machines.
+The datasheet specifies a delay of 10 milliseconds, but the current
+driver only waits for 1 ms. Fix this to make sure the initialization
+sequence meets the spec.
 
-While that works fine for big-endian XRGB8888 and ARGB8888, which are
-mapped to the existing little-endian BGRX8888 and BGRA8888 formats, it
-does not work for big-endian XRGB1555 and RGB565, as the latter are not
-listed in the format database.
-
-Fix this by adding the missing formats.  Limit this to big-endian
-platforms, as there is currently no need to support these formats on
-little-endian platforms.
-
-Fixes: 6960e6da9cec3f66 ("drm: fix drm_mode_addfb() on big endian machines.")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/3ee1f8144feb96c28742b22384189f1f83bcfc1a.1669221671.git.geert@linux-m68k.org
+Fixes: ceb515ba29ba ("drm/bridge: ti-sn65dsi83: Add TI SN65DSI83 and SN65DSI84 driver")
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reviewed-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221122081219.20143-1-frieder@fris.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_fourcc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/bridge/ti-sn65dsi83.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
-index 32ee023aed266..7940d948ffdcb 100644
---- a/drivers/gpu/drm/drm_fourcc.c
-+++ b/drivers/gpu/drm/drm_fourcc.c
-@@ -153,6 +153,10 @@ const struct drm_format_info *__drm_format_info(u32 format)
- 		{ .format = DRM_FORMAT_BGRA5551,	.depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1, .has_alpha = true },
- 		{ .format = DRM_FORMAT_RGB565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_BGR565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+#ifdef __BIG_ENDIAN
-+		{ .format = DRM_FORMAT_XRGB1555 | DRM_FORMAT_BIG_ENDIAN, .depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+		{ .format = DRM_FORMAT_RGB565 | DRM_FORMAT_BIG_ENDIAN, .depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+#endif
- 		{ .format = DRM_FORMAT_RGB888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_BGR888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_XRGB8888,	.depth = 24, .num_planes = 1, .cpp = { 4, 0, 0 }, .hsub = 1, .vsub = 1 },
+diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi83.c b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+index c901c0e1a3b04..b3cb910b30852 100644
+--- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
+@@ -381,6 +381,8 @@ static void sn65dsi83_atomic_enable(struct drm_bridge *bridge,
+ 	u16 val;
+ 	int ret;
+ 
++	usleep_range(10000, 11000);
++
+ 	/* Get the LVDS format from the bridge state. */
+ 	bridge_state = drm_atomic_get_new_bridge_state(state, bridge);
+ 
 -- 
 2.39.2
 
