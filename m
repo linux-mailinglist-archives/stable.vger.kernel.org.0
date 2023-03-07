@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B34976AF2DB
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 035AD6AF227
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:50:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230064AbjCGS5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:57:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
+        id S232124AbjCGSuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:50:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231614AbjCGS4s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:48 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A5F0B4F54
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:15 -0800 (PST)
+        with ESMTP id S233234AbjCGSu2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3A54B06E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:38:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 46626CE1C6A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F08AC433A8;
-        Tue,  7 Mar 2023 18:27:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04FD0B818EB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5624CC433A0;
+        Tue,  7 Mar 2023 18:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213670;
-        bh=ZD2lhVTKv+fJfnyWpbsYZ/EwEqN+oNVOTFlEy8tigvg=;
+        s=korg; t=1678213673;
+        bh=zuNOdGvzLBnCU+FQG2keN40nn2lHeZhWBsiBou5Ia5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7Co4vX9nxHFq5jBExuk5Ne2qwoRJLsyRs7L/mNS7vrmFX0AA/kYJRDK/U1X/E9Gd
-         AJBckykhoADAhWLpFB1kkB4oHsJ+Z4YnM0/tA3q9YATvnjmtl497D6esv0Ek3RY2OR
-         zvB5VITRIQozZ1C6ZGAqmO2quNFLGXJGrZZIDZLw=
+        b=YD6YhOWdlOTPfF8WEPO3wjO1KMKnoWM2le7UT6l9RPm1ZDsy+jm+OI6pvi/F///xO
+         Z5oCBF9Ym/+VCrzvWwTSMhzvhsLcB1H1JGxW46hRa5x2rO0hHC6TdzAccJMmSjski6
+         73Hf7iD1hJhH9yKr2++dcGyQbe0ldc6+WA+aH0UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 582/885] PM: domains: fix memory leak with using debugfs_lookup()
-Date:   Tue,  7 Mar 2023 17:58:36 +0100
-Message-Id: <20230307170027.649835623@linuxfoundation.org>
+Subject: [PATCH 6.1 583/885] PM: EM: fix memory leak with using debugfs_lookup()
+Date:   Tue,  7 Mar 2023 17:58:37 +0100
+Message-Id: <20230307170027.695561094@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -56,7 +56,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 0b6200e1e9f53dabdc30d0f6c51af9a5f664d32b ]
+[ Upstream commit a0e8c13ccd6a9a636d27353da62c2410c4eca337 ]
 
 When calling debugfs_lookup() the result must have dput() called on it,
 otherwise the memory will leak over time.  To make things simpler, just
@@ -64,32 +64,28 @@ call debugfs_lookup_and_remove() instead which handles all of the logic
 at once.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/domain.c | 5 +----
+ kernel/power/energy_model.c | 5 +----
  1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/base/power/domain.c b/drivers/base/power/domain.c
-index 6471b559230e9..b411201f75bfb 100644
---- a/drivers/base/power/domain.c
-+++ b/drivers/base/power/domain.c
-@@ -220,13 +220,10 @@ static void genpd_debug_add(struct generic_pm_domain *genpd);
+diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
+index f82111837b8d1..7b44f5b89fa15 100644
+--- a/kernel/power/energy_model.c
++++ b/kernel/power/energy_model.c
+@@ -87,10 +87,7 @@ static void em_debug_create_pd(struct device *dev)
  
- static void genpd_debug_remove(struct generic_pm_domain *genpd)
+ static void em_debug_remove_pd(struct device *dev)
  {
--	struct dentry *d;
+-	struct dentry *debug_dir;
 -
- 	if (!genpd_debugfs_dir)
- 		return;
- 
--	d = debugfs_lookup(genpd->name, genpd_debugfs_dir);
--	debugfs_remove(d);
-+	debugfs_lookup_and_remove(genpd->name, genpd_debugfs_dir);
+-	debug_dir = debugfs_lookup(dev_name(dev), rootdir);
+-	debugfs_remove_recursive(debug_dir);
++	debugfs_lookup_and_remove(dev_name(dev), rootdir);
  }
  
- static void genpd_update_accounting(struct generic_pm_domain *genpd)
+ static int __init em_debug_init(void)
 -- 
 2.39.2
 
