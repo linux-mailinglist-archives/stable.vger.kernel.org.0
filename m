@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC696AF117
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:39:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 734176AF155
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230427AbjCGSjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:39:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55106 "EHLO
+        id S232910AbjCGSm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:42:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230400AbjCGSir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F23ABCFDA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:30:19 -0800 (PST)
+        with ESMTP id S231387AbjCGSmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:42:09 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF03A0B0A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D099961543
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77E3C4339B;
-        Tue,  7 Mar 2023 18:29:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1A7F4CE1C8C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F23FAC433D2;
+        Tue,  7 Mar 2023 18:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213770;
-        bh=259BU0aR50K2kGvxwxmG/OldUG0ZAqQD/drm9J1ALLc=;
+        s=korg; t=1678213773;
+        bh=RfJ7zhBNlfLKvAEqmB7zionVyR+2H9D4eBTQ8wY+WUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttA1n3CyIkwfumjmwzeAN7YNSanR6O9wAPtcmtgXwCh4buM5KhsOmIXSoK9R3BFqi
-         8Dx6kBn9I8/thza3Vc0b6clYdH2KJb3ATws3EonDtuFHLBNFlyV2vSgAeqAkjcsmuA
-         JEvl/HxTaoT3eQzMd5RZLHMkNjLr5LuIEb9g2n5c=
+        b=DLRc+0uqrlQ9hTctdf2ciFSRuYbD/gS0KPbAoVCkvnD083ssZZXqdjR9plgGkz79i
+         wyNjLwC0SkOd+ZZwIHIwOm48upCkuGwCI0bRFeQbYnPDNeYSMwahW90VjdI3VFROdV
+         75yvO9hjfSsd1ayjSkDitXisW9GOiq932MbqTLhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
         Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 614/885] drm: rcar-du: Add quirk for H3 ES1.x pclk workaround
-Date:   Tue,  7 Mar 2023 17:59:08 +0100
-Message-Id: <20230307170028.975043828@linuxfoundation.org>
+Subject: [PATCH 6.1 615/885] drm: rcar-du: Fix setting a reserved bit in DPLLCR
+Date:   Tue,  7 Mar 2023 17:59:09 +0100
+Message-Id: <20230307170029.026352051@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,161 +57,132 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
 
-[ Upstream commit 4f548bc48a2b4c4e54eecfddb6f7d24aa1b98768 ]
+[ Upstream commit 5fbc2f3b91d27e12b614947048764099570cbb55 ]
 
-rcar_du_crtc.c does a soc_device_match() in
-rcar_du_crtc_set_display_timing() to find out if the SoC is H3 ES1.x, and
-if so, apply a workaround.
+On H3 ES1.x two bits in DPLLCR are used to select the DU input dot clock
+source. These are bits 20 and 21 for DU2, and bits 22 and 23 for DU1. On
+non-ES1.x, only the higher bits are used (bits 21 and 23), and the lower
+bits are reserved and should be set to 0.
 
-We will need another H3 ES1.x check in the following patch, so rather than
-adding more soc_device_match() calls, let's add a rcar_du_device_info
-entry for the ES1, and a quirk flag,
-RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY, for the workaround.
+The current code always sets the lower bits, even on non-ES1.x.
+
+For both DU1 and DU2, on all SoC versions, when writing zeroes to those
+bits the input clock is DCLKIN, and thus there's no difference between
+ES1.x and non-ES1.x.
+
+For DU1, writing 0b10 to the bits (or only writing the higher bit)
+results in using PLL0 as the input clock, so in this case there's also
+no difference between ES1.x and non-ES1.x.
+
+However, for DU2, writing 0b10 to the bits results in using PLL0 as the
+input clock on ES1.x, whereas on non-ES1.x it results in using PLL1. On
+ES1.x you need to write 0b11 to select PLL1.
+
+The current code always writes 0b11 to PLCS0 field to select PLL1 on all
+SoC versions, which works but causes an illegal (in the sense of not
+allowed by the documentation) write to a reserved bit field.
+
+To remove the illegal bit write on PLSC0 we need to handle the input dot
+clock selection differently for ES1.x and non-ES1.x.
+
+Add a new quirk, RCAR_DU_QUIRK_H3_ES1_PLL, for this. This way we can
+always set the bit 21 on PLSC0 when choosing the PLL as the source
+clock, and additionally set the bit 20 when on ES1.x.
 
 Signed-off-by: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
 Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_crtc.c |  8 +----
- drivers/gpu/drm/rcar-du/rcar_du_drv.c  | 48 ++++++++++++++++++++++++++
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 23 ++++++++++++++++++++---
+ drivers/gpu/drm/rcar-du/rcar_du_drv.c  |  3 ++-
  drivers/gpu/drm/rcar-du/rcar_du_drv.h  |  1 +
- 3 files changed, 50 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_du_regs.h |  8 ++------
+ 4 files changed, 25 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-index 3619e1ddeb620..f2d3266509cc1 100644
+index f2d3266509cc1..b7dd59fe119e6 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-@@ -10,7 +10,6 @@
- #include <linux/clk.h>
- #include <linux/mutex.h>
- #include <linux/platform_device.h>
--#include <linux/sys_soc.h>
+@@ -245,13 +245,30 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 		       | DPLLCR_N(dpll.n) | DPLLCR_M(dpll.m)
+ 		       | DPLLCR_STBY;
  
- #include <drm/drm_atomic.h>
- #include <drm/drm_atomic_helper.h>
-@@ -204,11 +203,6 @@ static void rcar_du_escr_divider(struct clk *clk, unsigned long target,
- 	}
- }
+-		if (rcrtc->index == 1)
++		if (rcrtc->index == 1) {
+ 			dpllcr |= DPLLCR_PLCS1
+ 			       |  DPLLCR_INCS_DOTCLKIN1;
+-		else
+-			dpllcr |= DPLLCR_PLCS0
++		} else {
++			dpllcr |= DPLLCR_PLCS0_PLL
+ 			       |  DPLLCR_INCS_DOTCLKIN0;
  
--static const struct soc_device_attribute rcar_du_r8a7795_es1[] = {
--	{ .soc_id = "r8a7795", .revision = "ES1.*" },
--	{ /* sentinel */ }
--};
--
- static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- {
- 	const struct drm_display_mode *mode = &rcrtc->crtc.state->adjusted_mode;
-@@ -238,7 +232,7 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- 		 * no post-divider when a display PLL is present (as shown by
- 		 * the workaround breaking HDMI output on M3-W during testing).
- 		 */
--		if (soc_device_match(rcar_du_r8a7795_es1)) {
-+		if (rcdu->info->quirks & RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY) {
- 			target *= 2;
- 			div = 1;
- 		}
++			/*
++			 * On ES2.x we have a single mux controlled via bit 21,
++			 * which selects between DCLKIN source (bit 21 = 0) and
++			 * a PLL source (bit 21 = 1), where the PLL is always
++			 * PLL1.
++			 *
++			 * On ES1.x we have an additional mux, controlled
++			 * via bit 20, for choosing between PLL0 (bit 20 = 0)
++			 * and PLL1 (bit 20 = 1). We always want to use PLL1,
++			 * so on ES1.x, in addition to setting bit 21, we need
++			 * to set the bit 20.
++			 */
++
++			if (rcdu->info->quirks & RCAR_DU_QUIRK_H3_ES1_PLL)
++				dpllcr |= DPLLCR_PLCS0_H3ES1X_PLL1;
++		}
++
+ 		rcar_du_group_write(rcrtc->group, DPLLCR, dpllcr);
+ 
+ 		escr = ESCR_DCLKSEL_DCLKIN | div;
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index a2776f1d6f2c2..0dada0646b2eb 100644
+index 0dada0646b2eb..6381578c4db58 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -16,6 +16,7 @@
- #include <linux/platform_device.h>
- #include <linux/pm.h>
- #include <linux/slab.h>
-+#include <linux/sys_soc.h>
- #include <linux/wait.h>
- 
- #include <drm/drm_atomic_helper.h>
-@@ -386,6 +387,42 @@ static const struct rcar_du_device_info rcar_du_r8a7795_info = {
- 	.dpll_mask =  BIT(2) | BIT(1),
- };
- 
-+static const struct rcar_du_device_info rcar_du_r8a7795_es1_info = {
-+	.gen = 3,
-+	.features = RCAR_DU_FEATURE_CRTC_IRQ
-+		  | RCAR_DU_FEATURE_CRTC_CLOCK
-+		  | RCAR_DU_FEATURE_VSP1_SOURCE
-+		  | RCAR_DU_FEATURE_INTERLACED
-+		  | RCAR_DU_FEATURE_TVM_SYNC,
-+	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY,
-+	.channels_mask = BIT(3) | BIT(2) | BIT(1) | BIT(0),
-+	.routes = {
-+		/*
-+		 * R8A7795 has one RGB output, two HDMI outputs and one
-+		 * LVDS output.
-+		 */
-+		[RCAR_DU_OUTPUT_DPAD0] = {
-+			.possible_crtcs = BIT(3),
-+			.port = 0,
-+		},
-+		[RCAR_DU_OUTPUT_HDMI0] = {
-+			.possible_crtcs = BIT(1),
-+			.port = 1,
-+		},
-+		[RCAR_DU_OUTPUT_HDMI1] = {
-+			.possible_crtcs = BIT(2),
-+			.port = 2,
-+		},
-+		[RCAR_DU_OUTPUT_LVDS0] = {
-+			.possible_crtcs = BIT(0),
-+			.port = 3,
-+		},
-+	},
-+	.num_lvds = 1,
-+	.num_rpf = 5,
-+	.dpll_mask =  BIT(2) | BIT(1),
-+};
-+
- static const struct rcar_du_device_info rcar_du_r8a7796_info = {
- 	.gen = 3,
- 	.features = RCAR_DU_FEATURE_CRTC_IRQ
-@@ -554,6 +591,11 @@ static const struct of_device_id rcar_du_of_table[] = {
- 
- MODULE_DEVICE_TABLE(of, rcar_du_of_table);
- 
-+static const struct soc_device_attribute rcar_du_soc_table[] = {
-+	{ .soc_id = "r8a7795", .revision = "ES1.*", .data = &rcar_du_r8a7795_es1_info },
-+	{ /* sentinel */ }
-+};
-+
- const char *rcar_du_output_name(enum rcar_du_output output)
- {
- 	static const char * const names[] = {
-@@ -645,6 +687,7 @@ static void rcar_du_shutdown(struct platform_device *pdev)
- 
- static int rcar_du_probe(struct platform_device *pdev)
- {
-+	const struct soc_device_attribute *soc_attr;
- 	struct rcar_du_device *rcdu;
- 	unsigned int mask;
- 	int ret;
-@@ -659,8 +702,13 @@ static int rcar_du_probe(struct platform_device *pdev)
- 		return PTR_ERR(rcdu);
- 
- 	rcdu->dev = &pdev->dev;
-+
- 	rcdu->info = of_device_get_match_data(rcdu->dev);
- 
-+	soc_attr = soc_device_match(rcar_du_soc_table);
-+	if (soc_attr)
-+		rcdu->info = soc_attr->data;
-+
- 	platform_set_drvdata(pdev, rcdu);
- 
- 	/* I/O resources */
+@@ -394,7 +394,8 @@ static const struct rcar_du_device_info rcar_du_r8a7795_es1_info = {
+ 		  | RCAR_DU_FEATURE_VSP1_SOURCE
+ 		  | RCAR_DU_FEATURE_INTERLACED
+ 		  | RCAR_DU_FEATURE_TVM_SYNC,
+-	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY,
++	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY
++		| RCAR_DU_QUIRK_H3_ES1_PLL,
+ 	.channels_mask = BIT(3) | BIT(2) | BIT(1) | BIT(0),
+ 	.routes = {
+ 		/*
 diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-index 5cfa2bb7ad93d..df87ccab146f4 100644
+index df87ccab146f4..acc3673fefe18 100644
 --- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
 +++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-@@ -34,6 +34,7 @@ struct rcar_du_device;
- #define RCAR_DU_FEATURE_NO_BLENDING	BIT(5)	/* PnMR.SPIM does not have ALP nor EOR bits */
+@@ -35,6 +35,7 @@ struct rcar_du_device;
  
  #define RCAR_DU_QUIRK_ALIGN_128B	BIT(0)	/* Align pitches to 128 bytes */
-+#define RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY BIT(1)	/* H3 ES1 has pclk stability issue */
+ #define RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY BIT(1)	/* H3 ES1 has pclk stability issue */
++#define RCAR_DU_QUIRK_H3_ES1_PLL	BIT(2)	/* H3 ES1 PLL setup differs from non-ES1 */
  
  enum rcar_du_output {
  	RCAR_DU_OUTPUT_DPAD0,
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_regs.h b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
+index c1bcb0e8b5b4e..789ae9285108e 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_regs.h
++++ b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
+@@ -283,12 +283,8 @@
+ #define DPLLCR			0x20044
+ #define DPLLCR_CODE		(0x95 << 24)
+ #define DPLLCR_PLCS1		(1 << 23)
+-/*
+- * PLCS0 is bit 21, but H3 ES1.x requires bit 20 to be set as well. As bit 20
+- * isn't implemented by other SoC in the Gen3 family it can safely be set
+- * unconditionally.
+- */
+-#define DPLLCR_PLCS0		(3 << 20)
++#define DPLLCR_PLCS0_PLL	(1 << 21)
++#define DPLLCR_PLCS0_H3ES1X_PLL1	(1 << 20)
+ #define DPLLCR_CLKE		(1 << 18)
+ #define DPLLCR_FDPLL(n)		((n) << 12)
+ #define DPLLCR_N(n)		((n) << 5)
 -- 
 2.39.2
 
