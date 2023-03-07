@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B445C6AF0DE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8CC6AEBE4
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbjCGSgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:36:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40820 "EHLO
+        id S232223AbjCGRuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:50:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232965AbjCGSfC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:02 -0500
+        with ESMTP id S231975AbjCGRtb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:49:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30BE0B95CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B20A0F27
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5410961560
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 479DAC4339B;
-        Tue,  7 Mar 2023 18:26:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 338D46150C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:44:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49BACC433D2;
+        Tue,  7 Mar 2023 17:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213611;
-        bh=DK72REUFYDwfSdx2BvqmMqv8vFgeCV7k36eZc41VOy0=;
+        s=korg; t=1678211063;
+        bh=xey5SH/i9RLQ6CEcuELbYnSzWIy1nSOFkZeE9dMPwsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUMSRb0QFHPZPjQfpYipmsDWMQki9tKs0IZOI0HPuYEWRJWYi2pZRKYREvuBj7MSR
-         r/01iddLTle4AIiJMemv8Ik/IeuvN1eSsCDvgN3IJkDOUXP3ikqrTCeMghO8MQv2Ac
-         AlzpORU0e02wQ7fL0mkGFSWj3VwCrVbejMjxVkKY=
+        b=hnuMmRQr6mD6k0qyzZy8JDQ3/dgbqSxlPhSgJZHchfQTg7i+naRBiySpGP2/A8vCT
+         bo6uVxJp2lE4LMeQCk5zKj/EOAMwlOA0YhxODS7Wf6lppBh6vRk/2zVAXrCXcy9Va2
+         DdF1bvhxiGZ77lAOPpUlWsc4o1dVSIB3A8uytb8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.1 562/885] ice: add missing checks for PF vsi type
+        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0724/1001] hwmon: (coretemp) Simplify platform device handling
 Date:   Tue,  7 Mar 2023 17:58:16 +0100
-Message-Id: <20230307170026.866801838@linuxfoundation.org>
+Message-Id: <20230307170053.111843785@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +55,278 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 6a8d013e904ad9a66706fcc926ec9993bed7d190 ]
+[ Upstream commit 6d03bbff456befeccdd4d663177c4d6c75d0c4ff ]
 
-There were a few places we had missed checking the VSI type to make sure
-it was definitely a PF VSI, before calling setup functions intended only
-for the PF VSI.
+Coretemp's platform driver is unconventional. All the real work is done
+globally by the initcall and CPU hotplug notifiers, while the "driver"
+effectively just wraps an allocation and the registration of the hwmon
+interface in a long-winded round-trip through the driver core.  The whole
+logic of dynamically creating and destroying platform devices to bring
+the interfaces up and down is error prone, since it assumes
+platform_device_add() will synchronously bind the driver and set drvdata
+before it returns, thus results in a NULL dereference if drivers_autoprobe
+is turned off for the platform bus. Furthermore, the unusual approach of
+doing that from within a CPU hotplug notifier, already commented in the
+code that it deadlocks suspend, also causes lockdep issues for other
+drivers or subsystems which may want to legitimately register a CPU
+hotplug notifier from a platform bus notifier.
 
-This doesn't fix any explicit bugs but cleans up the code in a few
-places and removes one explicit != vsi->type check that can be
-superseded by this code (it's a super set)
+All of these issues can be solved by ripping this unusual behaviour out
+completely, simply tying the platform devices to the lifetime of the
+module itself, and directly managing the hwmon interfaces from the
+hotplug notifiers. There is a slight user-visible change in that
+/sys/bus/platform/drivers/coretemp will no longer appear, and
+/sys/devices/platform/coretemp.n will remain present if package n is
+hotplugged off, but hwmon users should really only be looking for the
+presence of the hwmon interfaces, whose behaviour remains unchanged.
 
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/lkml/20220922101036.87457-1-janusz.krzysztofik@linux.intel.com/
+Link: https://gitlab.freedesktop.org/drm/intel/issues/6641
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Link: https://lore.kernel.org/r/20230103114620.15319-1-janusz.krzysztofik@linux.intel.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/hwmon/coretemp.c | 128 ++++++++++++++++++---------------------
+ 1 file changed, 58 insertions(+), 70 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 72f97bb50b09c..3c6bb3f9ac780 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -6159,15 +6159,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
- {
- 	int err;
- 
--	if (vsi->netdev) {
-+	if (vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_set_rx_mode(vsi->netdev);
- 
--		if (vsi->type != ICE_VSI_LB) {
--			err = ice_vsi_vlan_setup(vsi);
--
--			if (err)
--				return err;
--		}
-+		err = ice_vsi_vlan_setup(vsi);
-+		if (err)
-+			return err;
- 	}
- 	ice_vsi_cfg_dcb_rings(vsi);
- 
-@@ -6348,7 +6345,7 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 
- 	if (vsi->port_info &&
- 	    (vsi->port_info->phy.link_info.link_info & ICE_AQ_LINK_UP) &&
--	    vsi->netdev) {
-+	    vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_print_link_msg(vsi, true);
- 		netif_tx_start_all_queues(vsi->netdev);
- 		netif_carrier_on(vsi->netdev);
-@@ -6360,7 +6357,9 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 	 * set the baseline so counters are ready when interface is up
- 	 */
- 	ice_update_eth_stats(vsi);
--	ice_service_task_schedule(pf);
-+
-+	if (vsi->type == ICE_VSI_PF)
-+		ice_service_task_schedule(pf);
- 
- 	return 0;
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index ca7a9b373bbd6..3e440ebe2508c 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -588,66 +588,49 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
+ 		ida_free(&pdata->ida, indx - BASE_SYSFS_ATTR_NO);
  }
+ 
+-static int coretemp_probe(struct platform_device *pdev)
++static int coretemp_device_add(int zoneid)
+ {
+-	struct device *dev = &pdev->dev;
++	struct platform_device *pdev;
+ 	struct platform_data *pdata;
++	int err;
+ 
+ 	/* Initialize the per-zone data structures */
+-	pdata = devm_kzalloc(dev, sizeof(struct platform_data), GFP_KERNEL);
++	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
+-	pdata->pkg_id = pdev->id;
++	pdata->pkg_id = zoneid;
+ 	ida_init(&pdata->ida);
+-	platform_set_drvdata(pdev, pdata);
+ 
+-	pdata->hwmon_dev = devm_hwmon_device_register_with_groups(dev, DRVNAME,
+-								  pdata, NULL);
+-	return PTR_ERR_OR_ZERO(pdata->hwmon_dev);
+-}
+-
+-static int coretemp_remove(struct platform_device *pdev)
+-{
+-	struct platform_data *pdata = platform_get_drvdata(pdev);
+-	int i;
++	pdev = platform_device_alloc(DRVNAME, zoneid);
++	if (!pdev) {
++		err = -ENOMEM;
++		goto err_free_pdata;
++	}
+ 
+-	for (i = MAX_CORE_DATA - 1; i >= 0; --i)
+-		if (pdata->core_data[i])
+-			coretemp_remove_core(pdata, i);
++	err = platform_device_add(pdev);
++	if (err)
++		goto err_put_dev;
+ 
+-	ida_destroy(&pdata->ida);
++	platform_set_drvdata(pdev, pdata);
++	zone_devices[zoneid] = pdev;
+ 	return 0;
+-}
+ 
+-static struct platform_driver coretemp_driver = {
+-	.driver = {
+-		.name = DRVNAME,
+-	},
+-	.probe = coretemp_probe,
+-	.remove = coretemp_remove,
+-};
++err_put_dev:
++	platform_device_put(pdev);
++err_free_pdata:
++	kfree(pdata);
++	return err;
++}
+ 
+-static struct platform_device *coretemp_device_add(unsigned int cpu)
++static void coretemp_device_remove(int zoneid)
+ {
+-	int err, zoneid = topology_logical_die_id(cpu);
+-	struct platform_device *pdev;
+-
+-	if (zoneid < 0)
+-		return ERR_PTR(-ENOMEM);
+-
+-	pdev = platform_device_alloc(DRVNAME, zoneid);
+-	if (!pdev)
+-		return ERR_PTR(-ENOMEM);
+-
+-	err = platform_device_add(pdev);
+-	if (err) {
+-		platform_device_put(pdev);
+-		return ERR_PTR(err);
+-	}
++	struct platform_device *pdev = zone_devices[zoneid];
++	struct platform_data *pdata = platform_get_drvdata(pdev);
+ 
+-	zone_devices[zoneid] = pdev;
+-	return pdev;
++	ida_destroy(&pdata->ida);
++	kfree(pdata);
++	platform_device_unregister(pdev);
+ }
+ 
+ static int coretemp_cpu_online(unsigned int cpu)
+@@ -671,7 +654,10 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 	if (!cpu_has(c, X86_FEATURE_DTHERM))
+ 		return -ENODEV;
+ 
+-	if (!pdev) {
++	pdata = platform_get_drvdata(pdev);
++	if (!pdata->hwmon_dev) {
++		struct device *hwmon;
++
+ 		/* Check the microcode version of the CPU */
+ 		if (chk_ucode_version(cpu))
+ 			return -EINVAL;
+@@ -682,9 +668,11 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 		 * online. So, initialize per-pkg data structures and
+ 		 * then bring this core online.
+ 		 */
+-		pdev = coretemp_device_add(cpu);
+-		if (IS_ERR(pdev))
+-			return PTR_ERR(pdev);
++		hwmon = hwmon_device_register_with_groups(&pdev->dev, DRVNAME,
++							  pdata, NULL);
++		if (IS_ERR(hwmon))
++			return PTR_ERR(hwmon);
++		pdata->hwmon_dev = hwmon;
+ 
+ 		/*
+ 		 * Check whether pkgtemp support is available.
+@@ -694,7 +682,6 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 			coretemp_add_core(pdev, cpu, 1);
+ 	}
+ 
+-	pdata = platform_get_drvdata(pdev);
+ 	/*
+ 	 * Check whether a thread sibling is already online. If not add the
+ 	 * interface for this CPU core.
+@@ -713,18 +700,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	struct temp_data *tdata;
+ 	int i, indx = -1, target;
+ 
+-	/*
+-	 * Don't execute this on suspend as the device remove locks
+-	 * up the machine.
+-	 */
++	/* No need to tear down any interfaces for suspend */
+ 	if (cpuhp_tasks_frozen)
+ 		return 0;
+ 
+ 	/* If the physical CPU device does not exist, just return */
+-	if (!pdev)
+-		return 0;
+-
+ 	pd = platform_get_drvdata(pdev);
++	if (!pd->hwmon_dev)
++		return 0;
+ 
+ 	for (i = 0; i < NUM_REAL_CORES; i++) {
+ 		if (pd->cpu_map[i] == topology_core_id(cpu)) {
+@@ -756,13 +739,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	}
+ 
+ 	/*
+-	 * If all cores in this pkg are offline, remove the device. This
+-	 * will invoke the platform driver remove function, which cleans up
+-	 * the rest.
++	 * If all cores in this pkg are offline, remove the interface.
+ 	 */
++	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
+ 	if (cpumask_empty(&pd->cpumask)) {
+-		zone_devices[topology_logical_die_id(cpu)] = NULL;
+-		platform_device_unregister(pdev);
++		if (tdata)
++			coretemp_remove_core(pd, PKG_SYSFS_ATTR_NO);
++		hwmon_device_unregister(pd->hwmon_dev);
++		pd->hwmon_dev = NULL;
+ 		return 0;
+ 	}
+ 
+@@ -770,7 +754,6 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	 * Check whether this core is the target for the package
+ 	 * interface. We need to assign it to some other cpu.
+ 	 */
+-	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
+ 	if (tdata && tdata->cpu == cpu) {
+ 		target = cpumask_first(&pd->cpumask);
+ 		mutex_lock(&tdata->update_lock);
+@@ -789,7 +772,7 @@ static enum cpuhp_state coretemp_hp_online;
+ 
+ static int __init coretemp_init(void)
+ {
+-	int err;
++	int i, err;
+ 
+ 	/*
+ 	 * CPUID.06H.EAX[0] indicates whether the CPU has thermal
+@@ -805,20 +788,22 @@ static int __init coretemp_init(void)
+ 	if (!zone_devices)
+ 		return -ENOMEM;
+ 
+-	err = platform_driver_register(&coretemp_driver);
+-	if (err)
+-		goto outzone;
++	for (i = 0; i < max_zones; i++) {
++		err = coretemp_device_add(i);
++		if (err)
++			goto outzone;
++	}
+ 
+ 	err = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "hwmon/coretemp:online",
+ 				coretemp_cpu_online, coretemp_cpu_offline);
+ 	if (err < 0)
+-		goto outdrv;
++		goto outzone;
+ 	coretemp_hp_online = err;
+ 	return 0;
+ 
+-outdrv:
+-	platform_driver_unregister(&coretemp_driver);
+ outzone:
++	while (i--)
++		coretemp_device_remove(i);
+ 	kfree(zone_devices);
+ 	return err;
+ }
+@@ -826,8 +811,11 @@ module_init(coretemp_init)
+ 
+ static void __exit coretemp_exit(void)
+ {
++	int i;
++
+ 	cpuhp_remove_state(coretemp_hp_online);
+-	platform_driver_unregister(&coretemp_driver);
++	for (i = 0; i < max_zones; i++)
++		coretemp_device_remove(i);
+ 	kfree(zone_devices);
+ }
+ module_exit(coretemp_exit)
 -- 
 2.39.2
 
