@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2EB06AF3A7
+	by mail.lfdr.de (Postfix) with ESMTP id 309776AF3A6
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229792AbjCGTHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233695AbjCGTHa (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Mar 2023 14:07:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233680AbjCGTHG (ORCPT
+        with ESMTP id S233694AbjCGTHG (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3E4A769F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:25 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B603ABB25
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D890B819CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4ADEC433EF;
-        Tue,  7 Mar 2023 18:52:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E041C6153F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D64BFC4339E;
+        Tue,  7 Mar 2023 18:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215143;
-        bh=vdIuM0E6QKL+iwCuTYTEPoD61H/n1eSG8Yh9OwLELjA=;
+        s=korg; t=1678215146;
+        bh=rKQy7ey6ElBUvbB4KDDRuMG2JhIKKKpQC3FYFX2B1qU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTnjP2IRp+f1hV3jj86ry9cRi+Luk18ITZzbWrnUei9nR0vcYZxnMNfMWKhuiOPpF
-         dsskcTCxj6fP3TRyge0TdLk35h24Py4D6LIJIYteNqJpCUeKh9Pz/4JvRQlJOAwahd
-         wQ2klG3zWTcSrGK2ig9RKQWxlFBAH9rH82b6kFRQ=
+        b=gWo3Qyi/Hb2wQZbM9XFZ5ZliG/IaFlB/rl/qzBv9Cxwh2oTRIbn/XOC4vaiwNY1Vu
+         ee8lTJb+BepHaW8I5kii02Ya2RWEpdF1DgIFsi/z3iApNdZUOec+l/0xZzdLe4lPs2
+         2YkZ2wsFawIijcPZp8rb+9Fba/tWUdff13+2Dktg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 166/567] drm/bridge: ti-sn65dsi83: Fix delay after reset deassert to match spec
-Date:   Tue,  7 Mar 2023 17:58:22 +0100
-Message-Id: <20230307165913.138672515@linuxfoundation.org>
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Marek Vasut <marex@denx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 167/567] drm: mxsfb: DRM_MXSFB should depend on ARCH_MXS || ARCH_MXC
+Date:   Tue,  7 Mar 2023 17:58:23 +0100
+Message-Id: <20230307165913.183576696@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -56,37 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 4b03d5e0d3e86ee492d54254927d020dc0fe8acf ]
+[ Upstream commit 7783cc67862f9166c901bfa0f80b717aa8d354dd ]
 
-The datasheet specifies a delay of 10 milliseconds, but the current
-driver only waits for 1 ms. Fix this to make sure the initialization
-sequence meets the spec.
+Freescale/NXP i.MX LCDIF and eLCDIF LCD controllers are only present on
+Freescale/NXP i.MX SoCs.  Hence add a dependency on ARCH_MXS ||
+ARCH_MXC, to prevent asking the user about this driver when configuring
+a kernel without Freescale/NXP i.MX support.
 
-Fixes: ceb515ba29ba ("drm/bridge: ti-sn65dsi83: Add TI SN65DSI83 and SN65DSI84 driver")
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221122081219.20143-1-frieder@fris.de
+Fixes: 45d59d704080cc0c ("drm: Add new driver for MXSFB controller")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/98e74779ca2bc575d91afff03369e86b080c01ac.1669046358.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi83.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/mxsfb/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi83.c b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
-index c901c0e1a3b04..b3cb910b30852 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi83.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi83.c
-@@ -381,6 +381,8 @@ static void sn65dsi83_atomic_enable(struct drm_bridge *bridge,
- 	u16 val;
- 	int ret;
- 
-+	usleep_range(10000, 11000);
-+
- 	/* Get the LVDS format from the bridge state. */
- 	bridge_state = drm_atomic_get_new_bridge_state(state, bridge);
- 
+diff --git a/drivers/gpu/drm/mxsfb/Kconfig b/drivers/gpu/drm/mxsfb/Kconfig
+index ee22cd25d3e3d..e7201e16119a4 100644
+--- a/drivers/gpu/drm/mxsfb/Kconfig
++++ b/drivers/gpu/drm/mxsfb/Kconfig
+@@ -8,6 +8,7 @@ config DRM_MXSFB
+ 	tristate "i.MX (e)LCDIF LCD controller"
+ 	depends on DRM && OF
+ 	depends on COMMON_CLK
++	depends on ARCH_MXS || ARCH_MXC || COMPILE_TEST
+ 	select DRM_MXS
+ 	select DRM_KMS_HELPER
+ 	select DRM_KMS_CMA_HELPER
 -- 
 2.39.2
 
