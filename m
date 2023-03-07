@@ -2,54 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC4126AEAF5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6206AEF6D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231772AbjCGRiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:38:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42462 "EHLO
+        id S229610AbjCGSXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231783AbjCGRia (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 990569B2FE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:31 -0800 (PST)
+        with ESMTP id S232674AbjCGSXQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6195076BA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 318106151F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3545DC433D2;
-        Tue,  7 Mar 2023 17:34:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19353B819C5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FF60C433EF;
+        Tue,  7 Mar 2023 18:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210470;
-        bh=73/jf5tayVahqmoE7BYGHFk8bN8s9t7hPJj2tipDwgs=;
+        s=korg; t=1678213073;
+        bh=zXvqU6FIbEeTx/ihMnNNWWP34AeqqWOeJw814cGkHnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffhXQrb3RXAZOLk8X3PaV8hYIln3LZptk8tvB95x0P2IK581D44jaJfZj0Cun+fYb
-         ZHC4L6hij3hJB/PvDStZPlbk2q/eC8kaYpuYZzPJIU5GI1C/uNWz1MgBuCmDdkppwD
-         RigOlkoV5+qyX+Bv+1iQ5RqNgtSt84lj0KZgWJjw=
+        b=rM982VCBKB27sn/7iuvkU1nLd8/YM5hdf0MB22aEPDOtcWjaS+qH4jEGAId9if1uo
+         ZhLGrB48sJxCi0SzmWSKkUG8Y4XJwQhbZR+74D0K/JCmwH8AaF7XpurXa6O/Fl7pt8
+         aFBVfRwAMkBGh5QdviNK1LamDqZ9wAwpsJXc8+uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        Luca Weiss <luca.weiss@fairphone.com>
-Subject: [PATCH 6.2 0551/1001] driver core: fw_devlink: Dont purge child fwnodes consumer links
-Date:   Tue,  7 Mar 2023 17:55:23 +0100
-Message-Id: <20230307170045.379172082@linuxfoundation.org>
+        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
+        James Clark <james.clark@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 390/885] perf inject: Use perf_data__read() for auxtrace
+Date:   Tue,  7 Mar 2023 17:55:24 +0100
+Message-Id: <20230307170019.314222737@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,197 +61,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 3a2dbc510c437ca392516b0105bad8e7970e6614 ]
+[ Upstream commit 1746212daeba95e9ae1639227dc0c3591d41deeb ]
 
-When a device X is bound successfully to a driver, if it has a child
-firmware node Y that doesn't have a struct device created by then, we
-delete fwnode links where the child firmware node Y is the supplier. We
-did this to avoid blocking the consumers of the child firmware node Y
-from deferring probe indefinitely.
+In copy_bytes(), it reads the data from the (input) fd and writes it to
+the output file.  But it does with the read(2) unconditionally which
+caused a problem of mixing buffered vs unbuffered I/O together.
 
-While that a step in the right direction, it's better to make the
-consumers of the child firmware node Y to be consumers of the device X
-because device X is probably implementing whatever functionality is
-represented by child firmware node Y. By doing this, we capture the
-device dependencies more accurately and ensure better
-probe/suspend/resume ordering.
+You can see the problem when using pipes.
 
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Tested-by: Colin Foster <colin.foster@in-advantage.com>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
-Link: https://lore.kernel.org/r/20230207014207.1678715-2-saravanak@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 6a6dfdf8b3ff ("driver core: fw_devlink: Allow marking a fwnode link as being part of a cycle")
+  $ perf record -e intel_pt// -o- true | perf inject -b > /dev/null
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.000 MB - ]
+  0x45c0 [0x30]: failed to process type: 71
+
+It should use perf_data__read() to honor the 'use_stdio' setting.
+
+Fixes: 601366678c93618f ("perf data: Allow to use stdio functions for pipe mode")
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lore.kernel.org/r/20230131023350.1903992-2-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c | 97 ++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 79 insertions(+), 18 deletions(-)
+ tools/perf/builtin-inject.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 609d1b04ee75a..b29c483e9ca7b 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -54,11 +54,12 @@ static LIST_HEAD(deferred_sync);
- static unsigned int defer_sync_state_count = 1;
- static DEFINE_MUTEX(fwnode_link_lock);
- static bool fw_devlink_is_permissive(void);
-+static void __fw_devlink_link_to_consumers(struct device *dev);
- static bool fw_devlink_drv_reg_done;
- static bool fw_devlink_best_effort;
+diff --git a/tools/perf/builtin-inject.c b/tools/perf/builtin-inject.c
+index e254f18986f7c..e2ce5f294cbd4 100644
+--- a/tools/perf/builtin-inject.c
++++ b/tools/perf/builtin-inject.c
+@@ -215,14 +215,14 @@ static int perf_event__repipe_event_update(struct perf_tool *tool,
  
- /**
-- * fwnode_link_add - Create a link between two fwnode_handles.
-+ * __fwnode_link_add - Create a link between two fwnode_handles.
-  * @con: Consumer end of the link.
-  * @sup: Supplier end of the link.
-  *
-@@ -74,22 +75,18 @@ static bool fw_devlink_best_effort;
-  * Attempts to create duplicate links between the same pair of fwnode handles
-  * are ignored and there is no reference counting.
-  */
--int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
-+static int __fwnode_link_add(struct fwnode_handle *con,
-+			     struct fwnode_handle *sup)
+ #ifdef HAVE_AUXTRACE_SUPPORT
+ 
+-static int copy_bytes(struct perf_inject *inject, int fd, off_t size)
++static int copy_bytes(struct perf_inject *inject, struct perf_data *data, off_t size)
  {
- 	struct fwnode_link *link;
--	int ret = 0;
--
--	mutex_lock(&fwnode_link_lock);
+ 	char buf[4096];
+ 	ssize_t ssz;
+ 	int ret;
  
- 	list_for_each_entry(link, &sup->consumers, s_hook)
- 		if (link->consumer == con)
--			goto out;
-+			return 0;
- 
- 	link = kzalloc(sizeof(*link), GFP_KERNEL);
--	if (!link) {
--		ret = -ENOMEM;
--		goto out;
--	}
-+	if (!link)
-+		return -ENOMEM;
- 
- 	link->supplier = sup;
- 	INIT_LIST_HEAD(&link->s_hook);
-@@ -100,9 +97,17 @@ int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
- 	list_add(&link->c_hook, &con->suppliers);
- 	pr_debug("%pfwP Linked as a fwnode consumer to %pfwP\n",
- 		 con, sup);
--out:
--	mutex_unlock(&fwnode_link_lock);
- 
-+	return 0;
-+}
-+
-+int fwnode_link_add(struct fwnode_handle *con, struct fwnode_handle *sup)
-+{
-+	int ret;
-+
-+	mutex_lock(&fwnode_link_lock);
-+	ret = __fwnode_link_add(con, sup);
-+	mutex_unlock(&fwnode_link_lock);
- 	return ret;
- }
- 
-@@ -181,6 +186,51 @@ void fw_devlink_purge_absent_suppliers(struct fwnode_handle *fwnode)
- }
- EXPORT_SYMBOL_GPL(fw_devlink_purge_absent_suppliers);
- 
-+/**
-+ * __fwnode_links_move_consumers - Move consumer from @from to @to fwnode_handle
-+ * @from: move consumers away from this fwnode
-+ * @to: move consumers to this fwnode
-+ *
-+ * Move all consumer links from @from fwnode to @to fwnode.
-+ */
-+static void __fwnode_links_move_consumers(struct fwnode_handle *from,
-+					  struct fwnode_handle *to)
-+{
-+	struct fwnode_link *link, *tmp;
-+
-+	list_for_each_entry_safe(link, tmp, &from->consumers, s_hook) {
-+		__fwnode_link_add(link->consumer, to);
-+		__fwnode_link_del(link);
-+	}
-+}
-+
-+/**
-+ * __fw_devlink_pickup_dangling_consumers - Pick up dangling consumers
-+ * @fwnode: fwnode from which to pick up dangling consumers
-+ * @new_sup: fwnode of new supplier
-+ *
-+ * If the @fwnode has a corresponding struct device and the device supports
-+ * probing (that is, added to a bus), then we want to let fw_devlink create
-+ * MANAGED device links to this device, so leave @fwnode and its descendant's
-+ * fwnode links alone.
-+ *
-+ * Otherwise, move its consumers to the new supplier @new_sup.
-+ */
-+static void __fw_devlink_pickup_dangling_consumers(struct fwnode_handle *fwnode,
-+						   struct fwnode_handle *new_sup)
-+{
-+	struct fwnode_handle *child;
-+
-+	if (fwnode->dev && fwnode->dev->bus)
-+		return;
-+
-+	fwnode->flags |= FWNODE_FLAG_NOT_DEVICE;
-+	__fwnode_links_move_consumers(fwnode, new_sup);
-+
-+	fwnode_for_each_available_child_node(fwnode, child)
-+		__fw_devlink_pickup_dangling_consumers(child, new_sup);
-+}
-+
- #ifdef CONFIG_SRCU
- static DEFINE_MUTEX(device_links_lock);
- DEFINE_STATIC_SRCU(device_links_srcu);
-@@ -1274,16 +1324,23 @@ void device_links_driver_bound(struct device *dev)
- 	 * them. So, fw_devlink no longer needs to create device links to any
- 	 * of the device's suppliers.
- 	 *
--	 * Also, if a child firmware node of this bound device is not added as
--	 * a device by now, assume it is never going to be added and make sure
--	 * other devices don't defer probe indefinitely by waiting for such a
--	 * child device.
-+	 * Also, if a child firmware node of this bound device is not added as a
-+	 * device by now, assume it is never going to be added. Make this bound
-+	 * device the fallback supplier to the dangling consumers of the child
-+	 * firmware node because this bound device is probably implementing the
-+	 * child firmware node functionality and we don't want the dangling
-+	 * consumers to defer probe indefinitely waiting for a device for the
-+	 * child firmware node.
- 	 */
- 	if (dev->fwnode && dev->fwnode->dev == dev) {
- 		struct fwnode_handle *child;
- 		fwnode_links_purge_suppliers(dev->fwnode);
-+		mutex_lock(&fwnode_link_lock);
- 		fwnode_for_each_available_child_node(dev->fwnode, child)
--			fw_devlink_purge_absent_suppliers(child);
-+			__fw_devlink_pickup_dangling_consumers(child,
-+							       dev->fwnode);
-+		__fw_devlink_link_to_consumers(dev);
-+		mutex_unlock(&fwnode_link_lock);
- 	}
- 	device_remove_file(dev, &dev_attr_waiting_for_supplier);
- 
-@@ -1863,7 +1920,11 @@ static int fw_devlink_create_devlink(struct device *con,
- 	    fwnode_is_ancestor_of(sup_handle, con->fwnode))
- 		return -EINVAL;
- 
--	sup_dev = get_dev_from_fwnode(sup_handle);
-+	if (sup_handle->flags & FWNODE_FLAG_NOT_DEVICE)
-+		sup_dev = fwnode_get_next_parent_dev(sup_handle);
-+	else
-+		sup_dev = get_dev_from_fwnode(sup_handle);
-+
- 	if (sup_dev) {
- 		/*
- 		 * If it's one of those drivers that don't actually bind to
+ 	while (size > 0) {
+-		ssz = read(fd, buf, min(size, (off_t)sizeof(buf)));
++		ssz = perf_data__read(data, buf, min(size, (off_t)sizeof(buf)));
+ 		if (ssz < 0)
+ 			return -errno;
+ 		ret = output_bytes(inject, buf, ssz);
+@@ -260,7 +260,7 @@ static s64 perf_event__repipe_auxtrace(struct perf_session *session,
+ 		ret = output_bytes(inject, event, event->header.size);
+ 		if (ret < 0)
+ 			return ret;
+-		ret = copy_bytes(inject, perf_data__fd(session->data),
++		ret = copy_bytes(inject, session->data,
+ 				 event->auxtrace.size);
+ 	} else {
+ 		ret = output_bytes(inject, event,
 -- 
 2.39.2
 
