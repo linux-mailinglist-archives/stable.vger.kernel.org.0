@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E974C6AEE59
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA8116AE9CB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230106AbjCGSLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51838 "EHLO
+        id S231524AbjCGR1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229570AbjCGSKx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 999AC9313A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:49 -0800 (PST)
+        with ESMTP id S231208AbjCGR1W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD18B98E90
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:22:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53E2AB8191D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E5AFC433D2;
-        Tue,  7 Mar 2023 18:05:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7062261506
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:22:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6727EC433D2;
+        Tue,  7 Mar 2023 17:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212347;
-        bh=W8wNhwf0e2XJd0PsTiU0DgU7Btwmrn3F433F+gB5/XM=;
+        s=korg; t=1678209756;
+        bh=nVYbC7voebsDPs7edFFUL9OPjtrePAbLx5csCHCuL4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrOtsPJKlmIY7YU5znBH7Lx0IJ+XIcRrJU1r6pTdb5pIQezH2FHe/LtzIOD0vyKnE
-         lkvNZ2/gFD1d58LYxe/VLnLIFwFdfPERZ8TESRhhfN+oJvrTHg6oylhI27BIXjl3BL
-         Rppp9XeUuEXEDfa7FGTQqHJC7ckvxIFF97i+Z5pA=
+        b=axhrdnuBDziOkQFwfNI2wWEm005wr1xDWLKCPEerUeGUQw8WobzjNp494laKwDEQF
+         72/isHZwgHALXgDr0gllIomxoLy0V23Zgd+LFylKbCeR8PXhciLwVpHkq7407x6G4c
+         /9+HpBJtjG/jZqfWcMkEdmVvVfe4xqhfoYwZTCkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 157/885] x86/signal: Fix the value returned by strict_sas_size()
-Date:   Tue,  7 Mar 2023 17:51:31 +0100
-Message-Id: <20230307170008.741054300@linuxfoundation.org>
+        patches@lists.linux.dev, Cong Wang <cong.wang@bytedance.com>,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0320/1001] l2tp: Avoid possible recursive deadlock in l2tp_tunnel_register()
+Date:   Tue,  7 Mar 2023 17:51:32 +0100
+Message-Id: <20230307170035.425847938@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +56,300 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit ef6dfc4b238a435ab552207ec09e4a82b6426d31 ]
+[ Upstream commit 9ca5e7ecab064f1f47da07f7c1ddf40e4bc0e5ac ]
 
-Functions used with __setup() return 1 when the argument has been
-successfully parsed.
+When a file descriptor of pppol2tp socket is passed as file descriptor
+of UDP socket, a recursive deadlock occurs in l2tp_tunnel_register().
+This situation is reproduced by the following program:
 
-Reverse the returned value so that 1 is returned when kstrtobool() is
-successful (i.e. returns 0).
+int main(void)
+{
+	int sock;
+	struct sockaddr_pppol2tp addr;
 
-My understanding of these __setup() functions is that returning 1 or 0
-does not change much anyway - so this is more of a cleanup than a
-functional fix.
+	sock = socket(AF_PPPOX, SOCK_DGRAM, PX_PROTO_OL2TP);
+	if (sock < 0) {
+		perror("socket");
+		return 1;
+	}
 
-I spot it and found it spurious while looking at something else.
-Even if the output is not perfect, you'll get the idea with:
+	addr.sa_family = AF_PPPOX;
+	addr.sa_protocol = PX_PROTO_OL2TP;
+	addr.pppol2tp.pid = 0;
+	addr.pppol2tp.fd = sock;
+	addr.pppol2tp.addr.sin_family = PF_INET;
+	addr.pppol2tp.addr.sin_port = htons(0);
+	addr.pppol2tp.addr.sin_addr.s_addr = inet_addr("192.168.0.1");
+	addr.pppol2tp.s_tunnel = 1;
+	addr.pppol2tp.s_session = 0;
+	addr.pppol2tp.d_tunnel = 0;
+	addr.pppol2tp.d_session = 0;
 
-   $ git grep -B2 -A10 retu.*kstrtobool | grep __setup -B10
+	if (connect(sock, (const struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		perror("connect");
+		return 1;
+	}
 
-Fixes: 3aac3ebea08f ("x86/signal: Implement sigaltstack size validation")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/73882d43ebe420c9d8fb82d0560021722b243000.1673717552.git.christophe.jaillet@wanadoo.fr
+	return 0;
+}
+
+This program causes the following lockdep warning:
+
+ ============================================
+ WARNING: possible recursive locking detected
+ 6.2.0-rc5-00205-gc96618275234 #56 Not tainted
+ --------------------------------------------
+ repro/8607 is trying to acquire lock:
+ ffff8880213c8130 (sk_lock-AF_PPPOX){+.+.}-{0:0}, at: l2tp_tunnel_register+0x2b7/0x11c0
+
+ but task is already holding lock:
+ ffff8880213c8130 (sk_lock-AF_PPPOX){+.+.}-{0:0}, at: pppol2tp_connect+0xa82/0x1a30
+
+ other info that might help us debug this:
+  Possible unsafe locking scenario:
+
+        CPU0
+        ----
+   lock(sk_lock-AF_PPPOX);
+   lock(sk_lock-AF_PPPOX);
+
+  *** DEADLOCK ***
+
+  May be due to missing lock nesting notation
+
+ 1 lock held by repro/8607:
+  #0: ffff8880213c8130 (sk_lock-AF_PPPOX){+.+.}-{0:0}, at: pppol2tp_connect+0xa82/0x1a30
+
+ stack backtrace:
+ CPU: 0 PID: 8607 Comm: repro Not tainted 6.2.0-rc5-00205-gc96618275234 #56
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.1-2.fc37 04/01/2014
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x100/0x178
+  __lock_acquire.cold+0x119/0x3b9
+  ? lockdep_hardirqs_on_prepare+0x410/0x410
+  lock_acquire+0x1e0/0x610
+  ? l2tp_tunnel_register+0x2b7/0x11c0
+  ? lock_downgrade+0x710/0x710
+  ? __fget_files+0x283/0x3e0
+  lock_sock_nested+0x3a/0xf0
+  ? l2tp_tunnel_register+0x2b7/0x11c0
+  l2tp_tunnel_register+0x2b7/0x11c0
+  ? sprintf+0xc4/0x100
+  ? l2tp_tunnel_del_work+0x6b0/0x6b0
+  ? debug_object_deactivate+0x320/0x320
+  ? lockdep_init_map_type+0x16d/0x7a0
+  ? lockdep_init_map_type+0x16d/0x7a0
+  ? l2tp_tunnel_create+0x2bf/0x4b0
+  ? l2tp_tunnel_create+0x3c6/0x4b0
+  pppol2tp_connect+0x14e1/0x1a30
+  ? pppol2tp_put_sk+0xd0/0xd0
+  ? aa_sk_perm+0x2b7/0xa80
+  ? aa_af_perm+0x260/0x260
+  ? bpf_lsm_socket_connect+0x9/0x10
+  ? pppol2tp_put_sk+0xd0/0xd0
+  __sys_connect_file+0x14f/0x190
+  __sys_connect+0x133/0x160
+  ? __sys_connect_file+0x190/0x190
+  ? lockdep_hardirqs_on+0x7d/0x100
+  ? ktime_get_coarse_real_ts64+0x1b7/0x200
+  ? ktime_get_coarse_real_ts64+0x147/0x200
+  ? __audit_syscall_entry+0x396/0x500
+  __x64_sys_connect+0x72/0xb0
+  do_syscall_64+0x38/0xb0
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+This patch fixes the issue by getting/creating the tunnel before
+locking the pppol2tp socket.
+
+Fixes: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
+Cc: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Reviewed-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/signal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/l2tp/l2tp_ppp.c | 125 ++++++++++++++++++++++++--------------------
+ 1 file changed, 67 insertions(+), 58 deletions(-)
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index 9c7265b524c73..82c562e2cc982 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -923,7 +923,7 @@ static bool strict_sigaltstack_size __ro_after_init = false;
- 
- static int __init strict_sas_size(char *arg)
- {
--	return kstrtobool(arg, &strict_sigaltstack_size);
-+	return kstrtobool(arg, &strict_sigaltstack_size) == 0;
+diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
+index db2e584c625e5..f011af6601c9c 100644
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
+@@ -650,54 +650,22 @@ static int pppol2tp_tunnel_mtu(const struct l2tp_tunnel *tunnel)
+ 	return mtu - PPPOL2TP_HEADER_OVERHEAD;
  }
- __setup("strict_sas_size", strict_sas_size);
  
+-/* connect() handler. Attach a PPPoX socket to a tunnel UDP socket
+- */
+-static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
+-			    int sockaddr_len, int flags)
++static struct l2tp_tunnel *pppol2tp_tunnel_get(struct net *net,
++					       const struct l2tp_connect_info *info,
++					       bool *new_tunnel)
+ {
+-	struct sock *sk = sock->sk;
+-	struct pppox_sock *po = pppox_sk(sk);
+-	struct l2tp_session *session = NULL;
+-	struct l2tp_connect_info info;
+ 	struct l2tp_tunnel *tunnel;
+-	struct pppol2tp_session *ps;
+-	struct l2tp_session_cfg cfg = { 0, };
+-	bool drop_refcnt = false;
+-	bool drop_tunnel = false;
+-	bool new_session = false;
+-	bool new_tunnel = false;
+ 	int error;
+ 
+-	error = pppol2tp_sockaddr_get_info(uservaddr, sockaddr_len, &info);
+-	if (error < 0)
+-		return error;
++	*new_tunnel = false;
+ 
+-	lock_sock(sk);
+-
+-	/* Check for already bound sockets */
+-	error = -EBUSY;
+-	if (sk->sk_state & PPPOX_CONNECTED)
+-		goto end;
+-
+-	/* We don't supporting rebinding anyway */
+-	error = -EALREADY;
+-	if (sk->sk_user_data)
+-		goto end; /* socket is already attached */
+-
+-	/* Don't bind if tunnel_id is 0 */
+-	error = -EINVAL;
+-	if (!info.tunnel_id)
+-		goto end;
+-
+-	tunnel = l2tp_tunnel_get(sock_net(sk), info.tunnel_id);
+-	if (tunnel)
+-		drop_tunnel = true;
++	tunnel = l2tp_tunnel_get(net, info->tunnel_id);
+ 
+ 	/* Special case: create tunnel context if session_id and
+ 	 * peer_session_id is 0. Otherwise look up tunnel using supplied
+ 	 * tunnel id.
+ 	 */
+-	if (!info.session_id && !info.peer_session_id) {
++	if (!info->session_id && !info->peer_session_id) {
+ 		if (!tunnel) {
+ 			struct l2tp_tunnel_cfg tcfg = {
+ 				.encap = L2TP_ENCAPTYPE_UDP,
+@@ -706,40 +674,82 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
+ 			/* Prevent l2tp_tunnel_register() from trying to set up
+ 			 * a kernel socket.
+ 			 */
+-			if (info.fd < 0) {
+-				error = -EBADF;
+-				goto end;
+-			}
++			if (info->fd < 0)
++				return ERR_PTR(-EBADF);
+ 
+-			error = l2tp_tunnel_create(info.fd,
+-						   info.version,
+-						   info.tunnel_id,
+-						   info.peer_tunnel_id, &tcfg,
++			error = l2tp_tunnel_create(info->fd,
++						   info->version,
++						   info->tunnel_id,
++						   info->peer_tunnel_id, &tcfg,
+ 						   &tunnel);
+ 			if (error < 0)
+-				goto end;
++				return ERR_PTR(error);
+ 
+ 			l2tp_tunnel_inc_refcount(tunnel);
+-			error = l2tp_tunnel_register(tunnel, sock_net(sk),
+-						     &tcfg);
++			error = l2tp_tunnel_register(tunnel, net, &tcfg);
+ 			if (error < 0) {
+ 				kfree(tunnel);
+-				goto end;
++				return ERR_PTR(error);
+ 			}
+-			drop_tunnel = true;
+-			new_tunnel = true;
++
++			*new_tunnel = true;
+ 		}
+ 	} else {
+ 		/* Error if we can't find the tunnel */
+-		error = -ENOENT;
+ 		if (!tunnel)
+-			goto end;
++			return ERR_PTR(-ENOENT);
+ 
+ 		/* Error if socket is not prepped */
+-		if (!tunnel->sock)
+-			goto end;
++		if (!tunnel->sock) {
++			l2tp_tunnel_dec_refcount(tunnel);
++			return ERR_PTR(-ENOENT);
++		}
+ 	}
+ 
++	return tunnel;
++}
++
++/* connect() handler. Attach a PPPoX socket to a tunnel UDP socket
++ */
++static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
++			    int sockaddr_len, int flags)
++{
++	struct sock *sk = sock->sk;
++	struct pppox_sock *po = pppox_sk(sk);
++	struct l2tp_session *session = NULL;
++	struct l2tp_connect_info info;
++	struct l2tp_tunnel *tunnel;
++	struct pppol2tp_session *ps;
++	struct l2tp_session_cfg cfg = { 0, };
++	bool drop_refcnt = false;
++	bool new_session = false;
++	bool new_tunnel = false;
++	int error;
++
++	error = pppol2tp_sockaddr_get_info(uservaddr, sockaddr_len, &info);
++	if (error < 0)
++		return error;
++
++	/* Don't bind if tunnel_id is 0 */
++	if (!info.tunnel_id)
++		return -EINVAL;
++
++	tunnel = pppol2tp_tunnel_get(sock_net(sk), &info, &new_tunnel);
++	if (IS_ERR(tunnel))
++		return PTR_ERR(tunnel);
++
++	lock_sock(sk);
++
++	/* Check for already bound sockets */
++	error = -EBUSY;
++	if (sk->sk_state & PPPOX_CONNECTED)
++		goto end;
++
++	/* We don't supporting rebinding anyway */
++	error = -EALREADY;
++	if (sk->sk_user_data)
++		goto end; /* socket is already attached */
++
+ 	if (tunnel->peer_tunnel_id == 0)
+ 		tunnel->peer_tunnel_id = info.peer_tunnel_id;
+ 
+@@ -840,8 +850,7 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
+ 	}
+ 	if (drop_refcnt)
+ 		l2tp_session_dec_refcount(session);
+-	if (drop_tunnel)
+-		l2tp_tunnel_dec_refcount(tunnel);
++	l2tp_tunnel_dec_refcount(tunnel);
+ 	release_sock(sk);
+ 
+ 	return error;
 -- 
 2.39.2
 
