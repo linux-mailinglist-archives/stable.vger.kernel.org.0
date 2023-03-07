@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44116AEA18
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7FF6AEE9E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbjCGRap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33280 "EHLO
+        id S232439AbjCGSNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:13:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229624AbjCGRaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B97A7298
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:42 -0800 (PST)
+        with ESMTP id S229919AbjCGSN3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C79D630DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:09:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A1481CE1C5B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A84CFC433D2;
-        Tue,  7 Mar 2023 17:25:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64BC761527
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:09:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F4EC433D2;
+        Tue,  7 Mar 2023 18:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209939;
-        bh=7XEPJpHC8AYayc5evUds2qby7kCszTqJNfo3jnDvlU0=;
+        s=korg; t=1678212543;
+        bh=s+B3LnhsW5Uqu4KBKDffU/YnyS0l0TmXFRcnmdemX1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0hagIPWZz31wR0yot78flbjohnVQf/OWuH4mw1+HH5eCbrXrqitYD021M1B7bCyH
-         bK2kSlCR/FLdVQBbIfF3/LQOWSBt1MhfRgNa4srDiPymG8fwjX8oWHOhZCqEFd3Vem
-         SdBFvMremZl9oxU97OyK6bgcuyCmceA13zIgU25Y=
+        b=QbKPPYgAW6aSVEKGXz3MMNcRireIVGFtbybyV6IGZE+9sjTRAh8MGjYen+Zhm54pY
+         r6VxVET2UqcKCt+c60Kk5XGDuxarsrZRRD3qo1I3UHURKJ1SjTKOc0D+HCunqGSbpz
+         AB290GgG8CJl3389kvV/UWnjaonGSLP5H/KNr53g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Halil Pasic <pasic@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0380/1001] drm/msm/dpu: Add check for pstates
+Subject: [PATCH 6.1 218/885] s390/ap: fix status returned by ap_aqic()
 Date:   Tue,  7 Mar 2023 17:52:32 +0100
-Message-Id: <20230307170037.855994326@linuxfoundation.org>
+Message-Id: <20230307170011.561962423@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 93340e10b9c5fc86730d149636e0aa8b47bb5a34 ]
+[ Upstream commit 394740d7645ea767795074287769dd26dbd4d782 ]
 
-As kzalloc may fail and return NULL pointer,
-it should be better to check pstates
-in order to avoid the NULL pointer dereference.
+There function ap_aqic() tries to grab the status from the
+wrong part of the register. Thus we always end up with
+zeros. Which is wrong, among others, because we detect
+failures via status.response_code.
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/514160/
-Link: https://lore.kernel.org/r/20221206080236.43687-1-jiasheng@iscas.ac.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Janosch Frank <frankja@linux.ibm.com>
+Fixes: 159491f3b509 ("s390/ap: rework assembler functions to use unions for in/out register variables")
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/include/asm/ap.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index 22c2787b7b381..c9d1c412628e9 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -1153,6 +1153,8 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
- 	bool needs_dirtyfb = dpu_crtc_needs_dirtyfb(crtc_state);
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index f508f5025e388..876afe46f316d 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -239,7 +239,10 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
+ 	union {
+ 		unsigned long value;
+ 		struct ap_qirq_ctrl qirqctrl;
+-		struct ap_queue_status status;
++		struct {
++			u32 _pad;
++			struct ap_queue_status status;
++		};
+ 	} reg1;
+ 	unsigned long reg2 = pa_ind;
  
- 	pstates = kzalloc(sizeof(*pstates) * DPU_STAGE_MAX * 4, GFP_KERNEL);
-+	if (!pstates)
-+		return -ENOMEM;
+@@ -253,7 +256,7 @@ static inline struct ap_queue_status ap_aqic(ap_qid_t qid,
+ 		"	lgr	%[reg1],1\n"		/* gr1 (status) into reg1 */
+ 		: [reg1] "+&d" (reg1)
+ 		: [reg0] "d" (reg0), [reg2] "d" (reg2)
+-		: "cc", "0", "1", "2");
++		: "cc", "memory", "0", "1", "2");
  
- 	if (!crtc_state->enable || !crtc_state->active) {
- 		DRM_DEBUG_ATOMIC("crtc%d -> enable %d, active %d, skip atomic_check\n",
+ 	return reg1.status;
+ }
 -- 
 2.39.2
 
