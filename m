@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D38D76AEEC0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2916AEA15
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232550AbjCGSP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:15:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56864 "EHLO
+        id S231540AbjCGRaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:30:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbjCGSO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:56 -0500
+        with ESMTP id S231549AbjCGRaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:30:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697E0A6BE6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41955900BC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C465614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CA56C4339C;
-        Tue,  7 Mar 2023 18:10:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EB20614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73928C433EF;
+        Tue,  7 Mar 2023 17:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212629;
-        bh=ikaPOVkBs20x7SKIdRC3nkcYptCk9juuj1IYP3FYGPk=;
+        s=korg; t=1678209929;
+        bh=2zb3YJ3mcP+geSV3Elhnpk7gwlVhNAdYGW/0v7avtQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntCiocsDpQ7J/wGdqBpLNz/QmrbmJFrtEycA29Okm1JSvGaySlRG154XiVaxEPZRO
-         W8b5PKlJtr39Od73+orNj0xZms7u/n2YGxAThKy89rihRLzjrYzlW2uUZe6hYsiiNp
-         1JUkBXaCJLstguSlTYBfFKcaD+Zj20YNvrlhwySE=
+        b=JdJ4dg61tV1RxvtIKiuL/8JYeDcxfX/KYBOWoM6Apu0yNsi2WDrdLKX6tq70+YhyV
+         DYfM2RObuoiQMra8Sgsks6QUEno3Vs6HvIhOFR0WI93WiJNCdgF7xa7WAEZquzvTxo
+         Sm9Qw2s9GMiNlhrjTHC4OcmQBOpNfJBKx2YHJeRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengping Jiang <jiangzp@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 215/885] Bluetooth: hci_qca: get wakeup status from serdev device handle
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Jessica Zhang <quic_jesszhan@quicinc.com>
+Subject: [PATCH 6.2 0377/1001] drm/msm/dpu: sc7180: add missing WB2 clock control
 Date:   Tue,  7 Mar 2023 17:52:29 +0100
-Message-Id: <20230307170011.428748410@linuxfoundation.org>
+Message-Id: <20230307170037.719269433@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengping Jiang <jiangzp@google.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 03b0093f7b310493bc944a20f725228cfe0d3fea ]
+[ Upstream commit 255f056181ac69278dcd8778f0be32a21b2d2a6a ]
 
-Bluetooth controller attached via the UART is handled by the serdev driver.
-Get the wakeup status from the device handle through serdev, instead of the
-parent path.
+Add missing DPU_CLK_CTRL_WB2 to sc7180_mdp clocks array.
 
-Fixes: c1a74160eaf1 ("Bluetooth: hci_qca: Add device_may_wakeup support")
-Signed-off-by: Zhengping Jiang <jiangzp@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 51e4d60e6ba5 ("drm/msm/dpu: add writeback support for sc7180")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Tested-by: Jessica Zhang <quic_jesszhan@quicinc.com> # Trogdor (sc7180)
+Patchwork: https://patchwork.freedesktop.org/patch/518504/
+Link: https://lore.kernel.org/r/20230116103055.780767-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index e4398590b0edc..7b9fd5f104335 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -1582,10 +1582,11 @@ static bool qca_wakeup(struct hci_dev *hdev)
- 	struct hci_uart *hu = hci_get_drvdata(hdev);
- 	bool wakeup;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+index 2196e205efa5e..83f1dd2c22bd7 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.c
+@@ -459,6 +459,8 @@ static const struct dpu_mdp_cfg sc7180_mdp[] = {
+ 		.reg_off = 0x2B4, .bit_off = 8},
+ 	.clk_ctrls[DPU_CLK_CTRL_CURSOR1] = {
+ 		.reg_off = 0x2C4, .bit_off = 8},
++	.clk_ctrls[DPU_CLK_CTRL_WB2] = {
++		.reg_off = 0x3B8, .bit_off = 24},
+ 	},
+ };
  
--	/* UART driver handles the interrupt from BT SoC.So we need to use
--	 * device handle of UART driver to get the status of device may wakeup.
-+	/* BT SoC attached through the serial bus is handled by the serdev driver.
-+	 * So we need to use the device handle of the serdev driver to get the
-+	 * status of device may wakeup.
- 	 */
--	wakeup = device_may_wakeup(hu->serdev->ctrl->dev.parent);
-+	wakeup = device_may_wakeup(&hu->serdev->ctrl->dev);
- 	bt_dev_dbg(hu->hdev, "wakeup status : %d", wakeup);
- 
- 	return wakeup;
 -- 
 2.39.2
 
