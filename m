@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF966ADABD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:44:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD9716ADABC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:44:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbjCGJox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:44:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38912 "EHLO
+        id S230019AbjCGJoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:44:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230306AbjCGJon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:44:43 -0500
+        with ESMTP id S230472AbjCGJos (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:44:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FDD25BCA1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:44:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B92F3B842
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:44:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B081061298
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6CA4C433D2;
-        Tue,  7 Mar 2023 09:44:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DD766126D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3336FC4339C;
+        Tue,  7 Mar 2023 09:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182270;
-        bh=lVRUDrGwD7qVj48336wEb1b5RMUme454EXyUSo/WsjM=;
+        s=korg; t=1678182279;
+        bh=VRMd3q6a/O9tSqIrByW0O/hgLxYDqRMi6Y9tM9uJavc=;
         h=Subject:To:Cc:From:Date:From;
-        b=auRhqgp7OVZ623yEcfS+tMc8iz9F0JSmNYdiwwr60Co1ZGBqNtilzi6MYlEHHrzZi
-         siV0rRMj4r55b5QZ1CETYPBTTSGk0uCR0fCt9MNMUE2hvJjsKWac8vBtZJ44zd49ZI
-         OQRGkLF0072Q9JOg1N3jnh7P2QidbahUK2rCbuDQ=
-Subject: FAILED: patch "[PATCH] arm64: Reset KASAN tag in copy_highpage with HW tags only" failed to apply to 6.1-stable tree
+        b=EBwjxjVKFSWOOyQvSvdKCC3ATiQmKb7SrqxgeiPLSuoUBIpmQ5FZ2bMB5gAfxcAiX
+         HsyMuvfZKvWG3eA/EqBzcM23JxrXwx+VNTzoifw0QbaRy9kvHk/xxdPFctvEF2UsUn
+         UsgysOWCb1e3e6C4W9TCugoaWKXuD1eNjycpFuQE=
+Subject: FAILED: patch "[PATCH] arm64: Reset KASAN tag in copy_highpage with HW tags only" failed to apply to 5.15-stable tree
 To:     pcc@google.com, Kuan-Ying.Lee@mediatek.com, andreyknvl@gmail.com,
         catalin.marinas@arm.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:44:27 +0100
-Message-ID: <1678182267252151@kroah.com>
+Date:   Tue, 07 Mar 2023 10:44:28 +0100
+Message-ID: <16781822685041@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,25 +49,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x e74a68468062d7ebd8ce17069e12ccc64cc6a58c
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182267252151@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781822685041@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 e74a68468062 ("arm64: Reset KASAN tag in copy_highpage with HW tags only")
 d77e59a8fccd ("arm64: mte: Lock a page for MTE tag initialisation")
 e059853d14ca ("arm64: mte: Fix/clarify the PG_mte_tagged semantics")
+a8e5e5146ad0 ("arm64: mte: Avoid setting PG_mte_tagged if no tags cleared or restored")
+20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags"")
+70c248aca9e7 ("mm: kasan: Skip unpoisoning of user pages")
+da08e9b79323 ("mm/shmem: convert shmem_swapin_page() to shmem_swapin_folio()")
+b1d0ec3a9a25 ("mm/shmem: convert shmem_getpage_gfp to use a folio")
+72827e5c2bcb ("mm/shmem: convert shmem_alloc_and_acct_page to use a folio")
+069d849cde3a ("mm/shmem: turn shmem_should_replace_page into shmem_should_replace_folio")
+b7dd44a12cf2 ("mm/shmem: convert shmem_add_to_page_cache to take a folio")
+dfe98499ef28 ("shmem: convert shmem_alloc_hugepage() to use vma_alloc_folio()")
+e9d0ca922816 ("kasan, page_alloc: rework kasan_unpoison_pages call site")
+7e3cbba65de2 ("kasan, page_alloc: move kernel_init_free_pages in post_alloc_hook")
+89b271163328 ("kasan, page_alloc: move SetPageSkipKASanPoison in post_alloc_hook")
+9294b1281d0a ("kasan, page_alloc: combine tag_clear_highpage calls in post_alloc_hook")
+b42090ae6f3a ("kasan, page_alloc: merge kasan_alloc_pages into post_alloc_hook")
+b8491b9052fe ("kasan, page_alloc: refactor init checks in post_alloc_hook")
+1c0e5b24f117 ("kasan: only apply __GFP_ZEROTAGS when memory is zeroed")
+7c13c163e036 ("kasan, page_alloc: merge kasan_free_pages into free_pages_prepare")
 
 thanks,
 
