@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B285C6AF306
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D72F06AEFD0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbjCGS7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:59:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59412 "EHLO
+        id S232539AbjCGS0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:26:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233221AbjCGS6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:58:21 -0500
+        with ESMTP id S232790AbjCGSZC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:25:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4C11B8F29
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA95A92C4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D581061526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DF9C433D2;
-        Tue,  7 Mar 2023 18:45:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C273D61537
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F31C4339E;
+        Tue,  7 Mar 2023 18:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214739;
-        bh=rTk69nocpTX5ACZCoLGZIks9FomZSl6Uk1+IpU3XJNM=;
+        s=korg; t=1678213218;
+        bh=SM1GI1EP0XdNredmYV8rw9i5Ps7Z/TjaBcz2Bxa1uAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MggHzT+BvpyNzka+RdUIgW+RSHM50xQKtR13ZoN40mJhkP4+zy1u0gvI1nvY2UNHR
-         ba9WMd/Z3suQHURWnGSjZlcTlZ3dd9LM0FhUJeBbmLsdcZ/Se/C8hfmZS+iRB7DFwY
-         FmREMBuWBmwD9aEXE37K0zmZ8zwtM9+2zTwDdSpU=
+        b=pk2TbyTKMIco0HlSr06s5MldCJwjwTgsnfDm+452QSarU0NhtE6D9kUZ+nPE2heO4
+         w3IKFGxKduL1PB4xgMPnkEl6KTBOnbE8JwwYxp7JQ14Xye6Js12OI4Lt+wm03z5Hqg
+         zFXHYYpxNCDkPGjc5BFVeCvEnchbZ/8DO2WZQiTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Angus Chen <angus.chen@jaguarmicro.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/567] ARM: imx: Call ida_simple_remove() for ida_simple_get
+Subject: [PATCH 6.1 436/885] firmware: stratix10-svc: add missing gen_pool_destroy() in stratix10_svc_drv_probe()
 Date:   Tue,  7 Mar 2023 17:56:10 +0100
-Message-Id: <20230307165907.401633875@linuxfoundation.org>
+Message-Id: <20230307170021.358209323@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angus Chen <angus.chen@jaguarmicro.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ebeb49f43c8952f12aa20f03f00d7009edc2d1c5 ]
+[ Upstream commit 9175ee1a99d57ec07d66ff572e1d5a724477ab37 ]
 
-The function call ida_simple_get maybe fail,we should deal with it.
-And if ida_simple_get success ,it need to call ida_simple_remove also.
-BTW,devm_kasprintf can handle id is zero for consistency.
+In error path in stratix10_svc_drv_probe(), gen_pool_destroy() should be called
+to destroy the memory pool that created by svc_create_memory_pool().
 
-Fixes: e76bdfd7403a ("ARM: imx: Added perf functionality to mmdc driver")
-Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 7ca5ce896524 ("firmware: add Intel Stratix10 service layer driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Link: https://lore.kernel.org/r/20221129163602.462369-1-dinguyen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-imx/mmdc.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/firmware/stratix10-svc.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
-index af12668d0bf51..b9efe9da06e0b 100644
---- a/arch/arm/mach-imx/mmdc.c
-+++ b/arch/arm/mach-imx/mmdc.c
-@@ -99,6 +99,7 @@ struct mmdc_pmu {
- 	cpumask_t cpu;
- 	struct hrtimer hrtimer;
- 	unsigned int active_events;
-+	int id;
- 	struct device *dev;
- 	struct perf_event *mmdc_events[MMDC_NUM_COUNTERS];
- 	struct hlist_node node;
-@@ -433,8 +434,6 @@ static enum hrtimer_restart mmdc_pmu_timer_handler(struct hrtimer *hrtimer)
- static int mmdc_pmu_init(struct mmdc_pmu *pmu_mmdc,
- 		void __iomem *mmdc_base, struct device *dev)
- {
--	int mmdc_num;
--
- 	*pmu_mmdc = (struct mmdc_pmu) {
- 		.pmu = (struct pmu) {
- 			.task_ctx_nr    = perf_invalid_context,
-@@ -452,15 +451,16 @@ static int mmdc_pmu_init(struct mmdc_pmu *pmu_mmdc,
- 		.active_events = 0,
- 	};
+diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
+index b4081f4d88a37..1a5640b3ab422 100644
+--- a/drivers/firmware/stratix10-svc.c
++++ b/drivers/firmware/stratix10-svc.c
+@@ -1138,13 +1138,17 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
  
--	mmdc_num = ida_simple_get(&mmdc_ida, 0, 0, GFP_KERNEL);
-+	pmu_mmdc->id = ida_simple_get(&mmdc_ida, 0, 0, GFP_KERNEL);
+ 	/* allocate service controller and supporting channel */
+ 	controller = devm_kzalloc(dev, sizeof(*controller), GFP_KERNEL);
+-	if (!controller)
+-		return -ENOMEM;
++	if (!controller) {
++		ret = -ENOMEM;
++		goto err_destroy_pool;
++	}
  
--	return mmdc_num;
-+	return pmu_mmdc->id;
+ 	chans = devm_kmalloc_array(dev, SVC_NUM_CHANNEL,
+ 				   sizeof(*chans), GFP_KERNEL | __GFP_ZERO);
+-	if (!chans)
+-		return -ENOMEM;
++	if (!chans) {
++		ret = -ENOMEM;
++		goto err_destroy_pool;
++	}
+ 
+ 	controller->dev = dev;
+ 	controller->num_chans = SVC_NUM_CHANNEL;
+@@ -1159,7 +1163,7 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+ 	ret = kfifo_alloc(&controller->svc_fifo, fifo_size, GFP_KERNEL);
+ 	if (ret) {
+ 		dev_err(dev, "failed to allocate FIFO\n");
+-		return ret;
++		goto err_destroy_pool;
+ 	}
+ 	spin_lock_init(&controller->svc_fifo_lock);
+ 
+@@ -1221,6 +1225,8 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+ 
+ err_free_kfifo:
+ 	kfifo_free(&controller->svc_fifo);
++err_destroy_pool:
++	gen_pool_destroy(genpool);
+ 	return ret;
  }
  
- static int imx_mmdc_remove(struct platform_device *pdev)
- {
- 	struct mmdc_pmu *pmu_mmdc = platform_get_drvdata(pdev);
- 
-+	ida_simple_remove(&mmdc_ida, pmu_mmdc->id);
- 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
- 	perf_pmu_unregister(&pmu_mmdc->pmu);
- 	iounmap(pmu_mmdc->mmdc_base);
-@@ -474,7 +474,6 @@ static int imx_mmdc_perf_init(struct platform_device *pdev, void __iomem *mmdc_b
- {
- 	struct mmdc_pmu *pmu_mmdc;
- 	char *name;
--	int mmdc_num;
- 	int ret;
- 	const struct of_device_id *of_id =
- 		of_match_device(imx_mmdc_dt_ids, &pdev->dev);
-@@ -497,14 +496,14 @@ static int imx_mmdc_perf_init(struct platform_device *pdev, void __iomem *mmdc_b
- 		cpuhp_mmdc_state = ret;
- 	}
- 
--	mmdc_num = mmdc_pmu_init(pmu_mmdc, mmdc_base, &pdev->dev);
--	pmu_mmdc->mmdc_ipg_clk = mmdc_ipg_clk;
--	if (mmdc_num == 0)
--		name = "mmdc";
--	else
--		name = devm_kasprintf(&pdev->dev,
--				GFP_KERNEL, "mmdc%d", mmdc_num);
-+	ret = mmdc_pmu_init(pmu_mmdc, mmdc_base, &pdev->dev);
-+	if (ret < 0)
-+		goto  pmu_free;
- 
-+	name = devm_kasprintf(&pdev->dev,
-+				GFP_KERNEL, "mmdc%d", ret);
-+
-+	pmu_mmdc->mmdc_ipg_clk = mmdc_ipg_clk;
- 	pmu_mmdc->devtype_data = (struct fsl_mmdc_devtype_data *)of_id->data;
- 
- 	hrtimer_init(&pmu_mmdc->hrtimer, CLOCK_MONOTONIC,
-@@ -525,6 +524,7 @@ static int imx_mmdc_perf_init(struct platform_device *pdev, void __iomem *mmdc_b
- 
- pmu_register_err:
- 	pr_warn("MMDC Perf PMU failed (%d), disabled\n", ret);
-+	ida_simple_remove(&mmdc_ida, pmu_mmdc->id);
- 	cpuhp_state_remove_instance_nocalls(cpuhp_mmdc_state, &pmu_mmdc->node);
- 	hrtimer_cancel(&pmu_mmdc->hrtimer);
- pmu_free:
 -- 
 2.39.2
 
