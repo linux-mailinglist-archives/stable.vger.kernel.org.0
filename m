@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ABC46AF342
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBAC56AF086
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:31:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231466AbjCGTCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:02:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
+        id S230329AbjCGSbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:31:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231458AbjCGTC2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:02:28 -0500
+        with ESMTP id S230365AbjCGSap (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:45 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411E9BAD3C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325BEAA26A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:24:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 189FEB818EB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4682FC433D2;
-        Tue,  7 Mar 2023 18:47:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAA98B819D6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:24:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15915C433EF;
+        Tue,  7 Mar 2023 18:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214873;
-        bh=AC4xYdcmtLFqFTo1rNgoXDTX/M0IY0Qp9rbHrFaprss=;
+        s=korg; t=1678213444;
+        bh=7yWxaMxHdI68XXXm8a7ajbUrP39xIKgSSg6qiaqnVr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQlWsGCTMEPuR/udHK5OJiacATC9FFIp44l12BjYOQpJ+gbqtRbIQa5m8KOoh2Lsm
-         dmujMVH5/CYwSZUU5Usr6eSP7O/nIk/Q26EdEgtWAXaGxv+vOlUfxBRT0KkgaSqXau
-         ovUb0rpSJ8miwMzWd8eidyZa0vUQbLAp9W7cG6uQ=
+        b=jBxmEY87sH4kOLlNAJgT/h5+o/N1e2owI+pWT4FbVwLBSqqKVCMwjhj3V9c+j/D6m
+         HjI/FMpHlwN70y5kQvcsGBORpM5iRVac3HPf6frnKiRlLOY1SErIMxglo94bWYjkOk
+         yPzABaTXT5WKMQtN3lRhhOgBIy8RqxeXoOJI65wU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/567] wifi: wilc1000: fix potential memory leak in wilc_mac_xmit()
+        patches@lists.linux.dev, Neill Kapron <nkapron@google.com>,
+        Lee Jones <lee@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 479/885] phy: rockchip-typec: fix tcphy_get_mode error case
 Date:   Tue,  7 Mar 2023 17:56:53 +0100
-Message-Id: <20230307165909.238795474@linuxfoundation.org>
+Message-Id: <20230307170023.293754404@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Neill Kapron <nkapron@google.com>
 
-[ Upstream commit deb962ec9e1c9a81babd3d37542ad4bd6ac3396e ]
+[ Upstream commit 4ca651df07183e29cdad7272255e23aec0169a1b ]
 
-The wilc_mac_xmit() returns NETDEV_TX_OK without freeing skb, add
-dev_kfree_skb() to fix it. Compile tested only.
+The existing logic in tcphy_get_mode() can cause the phy to be
+incorrectly configured to USB UFP or DisplayPort mode when
+extcon_get_state returns an error code.
 
-Fixes: c5c77ba18ea6 ("staging: wilc1000: Add SDIO/SPI 802.11 driver")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1668684964-48622-1-git-send-email-zhangchangzhong@huawei.com
+extcon_get_state() can return 0, 1, or a negative error code.
+
+It is possible to get into the failing state with an extcon driver
+which does not support the extcon connector id specified as the
+second argument to extcon_get_state().
+
+tcphy_get_mode()
+->extcon_get_state()
+-->find_cable_index_by_id()
+--->return -EINVAL;
+
+Fixes: e96be45cb84e ("phy: Add USB Type-C PHY driver for rk3399")
+Signed-off-by: Neill Kapron <nkapron@google.com>
+Reviewed-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20230126001013.3707873-1-nkapron@google.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/microchip/wilc1000/netdev.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/phy/rockchip/phy-rockchip-typec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/microchip/wilc1000/netdev.c b/drivers/net/wireless/microchip/wilc1000/netdev.c
-index 9dfb1a285e6a4..5e3ec20e24dad 100644
---- a/drivers/net/wireless/microchip/wilc1000/netdev.c
-+++ b/drivers/net/wireless/microchip/wilc1000/netdev.c
-@@ -724,6 +724,7 @@ netdev_tx_t wilc_mac_xmit(struct sk_buff *skb, struct net_device *ndev)
+diff --git a/drivers/phy/rockchip/phy-rockchip-typec.c b/drivers/phy/rockchip/phy-rockchip-typec.c
+index d76440ae10ff4..6aea512e5d4ee 100644
+--- a/drivers/phy/rockchip/phy-rockchip-typec.c
++++ b/drivers/phy/rockchip/phy-rockchip-typec.c
+@@ -821,10 +821,10 @@ static int tcphy_get_mode(struct rockchip_typec_phy *tcphy)
+ 	mode = MODE_DFP_USB;
+ 	id = EXTCON_USB_HOST;
  
- 	if (skb->dev != ndev) {
- 		netdev_err(ndev, "Packet not destined to this device\n");
-+		dev_kfree_skb(skb);
- 		return NETDEV_TX_OK;
- 	}
+-	if (ufp) {
++	if (ufp > 0) {
+ 		mode = MODE_UFP_USB;
+ 		id = EXTCON_USB;
+-	} else if (dp) {
++	} else if (dp > 0) {
+ 		mode = MODE_DFP_DP;
+ 		id = EXTCON_DISP_DP;
  
 -- 
 2.39.2
