@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B166AF0F9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9126AEBAF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232764AbjCGShR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:37:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
+        id S232164AbjCGRrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:47:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233329AbjCGSfv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:51 -0500
+        with ESMTP id S232165AbjCGRr1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A045ADBE8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:28:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F5BCA26
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DC9C6154D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BC91C433EF;
-        Tue,  7 Mar 2023 18:27:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC51C6151B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECCC1C433D2;
+        Tue,  7 Mar 2023 17:42:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213639;
-        bh=MHvVvHcFFxtRpvQ1ATNLFyUwyZ4h6QIJd3v05fBfveY=;
+        s=korg; t=1678210941;
+        bh=a0cFAltp+eLQqk0uTpKIVk/zAurYpeThSXjM+yNoyrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrSXEx+xuL0xucAzgQOFJny8GRUUBba9r1vhEhbazOjWiF3xErmfgclfMfIxSHPlw
-         8fXctPq5loI/AcXc4KmXqdNg4l8c1ydDyf4D7zUaW+Rk92teI5m9sg/ER/FBJSj+Jw
-         x+GfRQn9dhATpk7SkD1wVguDAL2gjPTQ9oUqc1pg=
+        b=Yoxt/D23bwedkpzIEYe7lomIC6k1N032N8/OUFbYVlugkowo7IB2w5v5RcZFB42gm
+         FnBmPFQVOG8nrx60W2xLuMpIvXOlIwHSOzzHVfm3qNiAouZbEHUhcLkqGoFx1A9/gX
+         dRf+MNE8dl+qZ19GhMvPgarYwaKCqAVzpZ1GSIpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 541/885] x86/fpu: Dont set TIF_NEED_FPU_LOAD for PF_IO_WORKER threads
-Date:   Tue,  7 Mar 2023 17:57:55 +0100
-Message-Id: <20230307170025.996416408@linuxfoundation.org>
+        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
+        Andreas Grosse <andig.mail@t-online.de>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0704/1001] HID: uclogic: Add battery quirk
+Date:   Tue,  7 Mar 2023 17:57:56 +0100
+Message-Id: <20230307170052.165173407@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit cb3ea4b7671b7cfbac3ee609976b790aebd0bbda ]
+[ Upstream commit f60c377f52de37f8705c5fc6d57737fdaf309ff9 ]
 
-We don't set it on PF_KTHREAD threads as they never return to userspace,
-and PF_IO_WORKER threads are identical in that regard. As they keep
-running in the kernel until they die, skip setting the FPU flag on them.
+Some UGEE v2 tablets have a wireless version with an internal battery
+and their firmware is able to report their battery level.
 
-More of a cosmetic thing that was found while debugging and
-issue and pondering why the FPU flag is set on these threads.
+However, there was not found a field on their descriptor indicating
+whether the tablet has battery or not, making it mandatory to classify
+such devices through the UCLOGIC_BATTERY_QUIRK quirk.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/560c844c-f128-555b-40c6-31baff27537f@kernel.dk
+Tested-by: Mia Kanashi <chad@redpilled.dev>
+Tested-by: Andreas Grosse <andig.mail@t-online.de>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fpu/sched.h | 2 +-
- arch/x86/kernel/fpu/context.h    | 2 +-
- arch/x86/kernel/fpu/core.c       | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-uclogic-params.c | 5 +++++
+ drivers/hid/hid-uclogic-params.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/arch/x86/include/asm/fpu/sched.h b/arch/x86/include/asm/fpu/sched.h
-index b2486b2cbc6e0..c2d6cd78ed0c2 100644
---- a/arch/x86/include/asm/fpu/sched.h
-+++ b/arch/x86/include/asm/fpu/sched.h
-@@ -39,7 +39,7 @@ extern void fpu_flush_thread(void);
- static inline void switch_fpu_prepare(struct fpu *old_fpu, int cpu)
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index e052538a62fb3..23624d5b07b5a 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -1222,6 +1222,11 @@ static int uclogic_params_ugee_v2_init_frame_mouse(struct uclogic_params *p)
+  */
+ static bool uclogic_params_ugee_v2_has_battery(struct hid_device *hdev)
  {
- 	if (cpu_feature_enabled(X86_FEATURE_FPU) &&
--	    !(current->flags & PF_KTHREAD)) {
-+	    !(current->flags & (PF_KTHREAD | PF_IO_WORKER))) {
- 		save_fpregs_to_fpstate(old_fpu);
- 		/*
- 		 * The save operation preserved register state, so the
-diff --git a/arch/x86/kernel/fpu/context.h b/arch/x86/kernel/fpu/context.h
-index 958accf2ccf07..9fcfa5c4dad79 100644
---- a/arch/x86/kernel/fpu/context.h
-+++ b/arch/x86/kernel/fpu/context.h
-@@ -57,7 +57,7 @@ static inline void fpregs_restore_userregs(void)
- 	struct fpu *fpu = &current->thread.fpu;
- 	int cpu = smp_processor_id();
++	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
++
++	if (drvdata->quirks & UCLOGIC_BATTERY_QUIRK)
++		return true;
++
+ 	/* The XP-PEN Deco LW vendor, product and version are identical to the
+ 	 * Deco L. The only difference reported by their firmware is the product
+ 	 * name. Add a quirk to support battery reporting on the wireless
+diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
+index 10a05c7fd9398..b0e7f3807939b 100644
+--- a/drivers/hid/hid-uclogic-params.h
++++ b/drivers/hid/hid-uclogic-params.h
+@@ -20,6 +20,7 @@
+ #include <linux/hid.h>
  
--	if (WARN_ON_ONCE(current->flags & PF_KTHREAD))
-+	if (WARN_ON_ONCE(current->flags & (PF_KTHREAD | PF_IO_WORKER)))
- 		return;
+ #define UCLOGIC_MOUSE_FRAME_QUIRK	BIT(0)
++#define UCLOGIC_BATTERY_QUIRK		BIT(1)
  
- 	if (!fpregs_state_valid(fpu, cpu)) {
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index dccce58201b7c..caf33486dc5ee 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -426,7 +426,7 @@ void kernel_fpu_begin_mask(unsigned int kfpu_mask)
- 
- 	this_cpu_write(in_kernel_fpu, true);
- 
--	if (!(current->flags & PF_KTHREAD) &&
-+	if (!(current->flags & (PF_KTHREAD | PF_IO_WORKER)) &&
- 	    !test_thread_flag(TIF_NEED_FPU_LOAD)) {
- 		set_thread_flag(TIF_NEED_FPU_LOAD);
- 		save_fpregs_to_fpstate(&current->thread.fpu);
+ /* Types of pen in-range reporting */
+ enum uclogic_params_pen_inrange {
 -- 
 2.39.2
 
