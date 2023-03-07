@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ADDB6AF251
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 794976AF269
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233399AbjCGSwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:52:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49978 "EHLO
+        id S233419AbjCGSxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:53:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231582AbjCGSwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:07 -0500
+        with ESMTP id S233422AbjCGSw1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7801EABB0B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C14A0A76BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E81F261553
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9707BC433D2;
-        Tue,  7 Mar 2023 18:40:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA5C861522
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C08EFC433EF;
+        Tue,  7 Mar 2023 18:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214423;
-        bh=P7l3hCwk6/SmIpaROSjikC3nQg9RFAAHyiph282nYOM=;
+        s=korg; t=1678214426;
+        bh=JpkiudbFw1+UH56kEHKE3F7PCePPSJWgniHvOjjJoLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXSDBOE1IhjQTl15fjNOMMd/VHOU0t/JH/zycpJyhgMA1jWmYQNf7CH5oZkY8Z1Jb
-         k+8/qq/TGi/9hGevkb5X66gh4EueRty43tdGefjEEidaU9ErRsian2TiCtNQsxcV6K
-         L9aaMEpZIFpmvU0xpaODPEi5ZOLHUGw2fsvxvPlQ=
+        b=zJ0M0D804x0iR4gdu2AzLHa4sMzwxvvKqmPGzAQmvqOaqJ4ah/T5XWC0YKg/CDMV+
+         uiyo/FMh3PWv5VQZ1j7alxkmMNrqSBTAupA3r8cd1+2pCaoeo2BG2FcsisElB1CXnn
+         74afuehbnDOjc7tz2KU2c2HxvaanC/y/ceckCeyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 6.1 817/885] ARM: dts: exynos: correct TMU phandle in Odroid HC1
-Date:   Tue,  7 Mar 2023 18:02:31 +0100
-Message-Id: <20230307170037.344439621@linuxfoundation.org>
+        patches@lists.linux.dev, Muchun Song <muchun.song@linux.dev>,
+        Will Deacon <will@kernel.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 6.1 818/885] arm64: mm: hugetlb: Disable HUGETLB_PAGE_OPTIMIZE_VMEMMAP
+Date:   Tue,  7 Mar 2023 18:02:32 +0100
+Message-Id: <20230307170037.382985759@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -53,77 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-commit 2e3d0e20d8456f876607a8af61fdb83dfbf98cb6 upstream.
+commit 060a2c92d1b627c86c5c42ca69baf00457c00c5a upstream.
 
-TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
-it must not have an argument to phandle.  This was not critical before,
-but since rework of thermal Devicetree initialization in the
-commit 3fd6d6e2b4e8 ("thermal/of: Rework the thermal device tree
-initialization"), this leads to errors registering thermal zones other
-than first one:
+Revert the HUGETLB_PAGE_FREE_VMEMMAP selection from commit 1e63ac088f20
+("arm64: mm: hugetlb: enable HUGETLB_PAGE_FREE_VMEMMAP for arm64") but
+keep the flush_dcache_page() compound_head() change as it aligns with
+the corresponding check in the __sync_icache_dcache() function.
 
-  thermal_sys: cpu0-thermal: Failed to read thermal-sensors cells: -2
-  thermal_sys: Failed to find thermal zone for tmu id=0
-  exynos-tmu 10064000.tmu: Failed to register sensor: -2
-  exynos-tmu: probe of 10064000.tmu failed with error -2
+The original config option was renamed in commit 47010c040dec ("mm:
+hugetlb_vmemmap: cleanup CONFIG_HUGETLB_PAGE_FREE_VMEMMAP*") to
+HUGETLB_PAGE_OPTIMIZE_VMEMMAP and the flush_dcache_page() check was
+further simplified by commit 2da1c30929a2 ("mm: hugetlb_vmemmap: delete
+hugetlb_optimize_vmemmap_enabled()").
 
-Fixes: 1ac49427b566 ("ARM: dts: exynos: Add support for Hardkernel's Odroid HC1 board")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230209105841.779596-5-krzysztof.kozlowski@linaro.org
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+The reason for the revert is that the generic vmemmap_remap_pte()
+function changes both the permissions (writeable to read-only) and the
+output address (pfn) of the vmemmap ptes. This is deemed UNPREDICTABLE
+by the Arm architecture without a break-before-make sequence (make the
+PTE invalid, TLBI, write the new valid PTE). However, such sequence is
+not possible since the vmemmap may be concurrently accessed by the
+kernel. Disable the optimisation until a better solution is found.
+
+Fixes: 1e63ac088f20 ("arm64: mm: hugetlb: enable HUGETLB_PAGE_FREE_VMEMMAP for arm64")
+Cc: <stable@vger.kernel.org> # 5.19.x
+Cc: Muchun Song <muchun.song@linux.dev>
+Cc: Will Deacon <will@kernel.org>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/Y9pZALdn3pKiJUeQ@arm.com
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/20230222175232.540851-1-catalin.marinas@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/exynos5422-odroidhc1.dts |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm64/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-+++ b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-@@ -31,7 +31,7 @@
- 
- 	thermal-zones {
- 		cpu0_thermal: cpu0-thermal {
--			thermal-sensors = <&tmu_cpu0 0>;
-+			thermal-sensors = <&tmu_cpu0>;
- 			trips {
- 				cpu0_alert0: cpu-alert-0 {
- 					temperature = <70000>; /* millicelsius */
-@@ -86,7 +86,7 @@
- 			};
- 		};
- 		cpu1_thermal: cpu1-thermal {
--			thermal-sensors = <&tmu_cpu1 0>;
-+			thermal-sensors = <&tmu_cpu1>;
- 			trips {
- 				cpu1_alert0: cpu-alert-0 {
- 					temperature = <70000>;
-@@ -130,7 +130,7 @@
- 			};
- 		};
- 		cpu2_thermal: cpu2-thermal {
--			thermal-sensors = <&tmu_cpu2 0>;
-+			thermal-sensors = <&tmu_cpu2>;
- 			trips {
- 				cpu2_alert0: cpu-alert-0 {
- 					temperature = <70000>;
-@@ -174,7 +174,7 @@
- 			};
- 		};
- 		cpu3_thermal: cpu3-thermal {
--			thermal-sensors = <&tmu_cpu3 0>;
-+			thermal-sensors = <&tmu_cpu3>;
- 			trips {
- 				cpu3_alert0: cpu-alert-0 {
- 					temperature = <70000>;
-@@ -218,7 +218,7 @@
- 			};
- 		};
- 		gpu_thermal: gpu-thermal {
--			thermal-sensors = <&tmu_gpu 0>;
-+			thermal-sensors = <&tmu_gpu>;
- 			trips {
- 				gpu_alert0: gpu-alert-0 {
- 					temperature = <70000>;
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -98,7 +98,6 @@ config ARM64
+ 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select ARCH_WANT_HUGE_PMD_SHARE if ARM64_4K_PAGES || (ARM64_16K_PAGES && !ARM64_VA_BITS_36)
+-	select ARCH_WANT_HUGETLB_PAGE_OPTIMIZE_VMEMMAP
+ 	select ARCH_WANT_LD_ORPHAN_WARN
+ 	select ARCH_WANTS_NO_INSTR
+ 	select ARCH_WANTS_THP_SWAP if ARM64_4K_PAGES
 
 
