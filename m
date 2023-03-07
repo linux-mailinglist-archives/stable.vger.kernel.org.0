@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 937FE6AEE43
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 121BA6AE9B9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232257AbjCGSKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
+        id S231436AbjCGR1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbjCGSKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9A4974B2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:09 -0800 (PST)
+        with ESMTP id S231445AbjCGR0n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 395639E668
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10AA8B819BC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F429C433EF;
-        Tue,  7 Mar 2023 18:05:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9212614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBCFEC433D2;
+        Tue,  7 Mar 2023 17:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212306;
-        bh=MWhiQgNujATw0PoR9bSWRV9Y91s/Rl7SOHJwQoD4yQM=;
+        s=korg; t=1678209704;
+        bh=MhZrypLdQ94TSB6z2WRf3tO8RBjMmuX9xZYdwxeF+rA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YpU10SRB5FZta55gGgii2YqVCewr1fSqw99m5GHOHPVCpvt19rlAl6XeC/RH0YZn3
-         Z0m1HzQwWqZuNwkOWS/3Hgj3+uKHzTLWjfdv1KpGs+W7f750hZbcdEHy2lDjV6NT2g
-         xVArKTRu/fnNKNeWkmNqnISWwWkMWWDeqZQQrcjw=
+        b=NMpGv6ID7S5OxIeNrkeo4FAl2AH/FyaII3ZnMe+42ULOF4N47o3K6wYqj+WH4ATMT
+         z7sm+rNdMlQbkxnsYkD/jEx/GL/Gmry5y1lmLo+XMG+ZgKzpV4W7CkeLfAFFwYrlCi
+         ch8blCW1kE4ILoKtxF0TeBKVeFQCQGXjC7mihMuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Elliott, Robert (Servers)" <elliott@hpe.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Tejun Heo <tj@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Don <joshdon@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Elliott@vger.kernel.org
-Subject: [PATCH 6.1 142/885] genirq: Fix the return type of kstat_cpu_irqs_sum()
-Date:   Tue,  7 Mar 2023 17:51:16 +0100
-Message-Id: <20230307170008.026734570@linuxfoundation.org>
+        patches@lists.linux.dev, Yongqin Liu <yongqin.liu@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0305/1001] thermal/drivers/hisi: Drop second sensor hi3660
+Date:   Tue,  7 Mar 2023 17:51:17 +0100
+Message-Id: <20230307170034.797754744@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,42 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Yongqin Liu <yongqin.liu@linaro.org>
 
-[ Upstream commit 47904aed898a08f028572b9b5a5cc101ddfb2d82 ]
+[ Upstream commit 15cc25829a97c3957e520e971868aacc84341317 ]
 
-The type of member ->irqs_sum is unsigned long, but kstat_cpu_irqs_sum()
-returns int, which can result in truncation.  Therefore, change the
-kstat_cpu_irqs_sum() function's return value to unsigned long to avoid
-truncation.
+The commit 74c8e6bffbe1 ("driver core: Add __alloc_size hint to devm
+allocators") exposes a panic "BRK handler: Fatal exception" on the
+hi3660_thermal_probe funciton.
+This is because the function allocates memory for only one
+sensors array entry, but tries to fill up a second one.
 
-Fixes: f2c66cd8eedd ("/proc/stat: scalability of irq num per cpu")
-Reported-by: Elliott, Robert (Servers) <elliott@hpe.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Josh Don <joshdon@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fix this by removing the unneeded second access.
+
+Fixes: 7d3a2a2bbadb ("thermal/drivers/hisi: Fix number of sensors on hi3660")
+Signed-off-by: Yongqin Liu <yongqin.liu@linaro.org>
+Link: https://lore.kernel.org/linux-mm/20221101223321.1326815-5-keescook@chromium.org/
+Link: https://lore.kernel.org/r/20230210141507.71014-1-yongqin.liu@linaro.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kernel_stat.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/hisi_thermal.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
-index ddb5a358fd829..90e2fdc17d79f 100644
---- a/include/linux/kernel_stat.h
-+++ b/include/linux/kernel_stat.h
-@@ -75,7 +75,7 @@ extern unsigned int kstat_irqs_usr(unsigned int irq);
- /*
-  * Number of interrupts per cpu, since bootup
-  */
--static inline unsigned int kstat_cpu_irqs_sum(unsigned int cpu)
-+static inline unsigned long kstat_cpu_irqs_sum(unsigned int cpu)
- {
- 	return kstat_cpu(cpu).irqs_sum;
+diff --git a/drivers/thermal/hisi_thermal.c b/drivers/thermal/hisi_thermal.c
+index d6974db7aaf76..15af90f5c7d91 100644
+--- a/drivers/thermal/hisi_thermal.c
++++ b/drivers/thermal/hisi_thermal.c
+@@ -427,10 +427,6 @@ static int hi3660_thermal_probe(struct hisi_thermal_data *data)
+ 	data->sensor[0].irq_name = "tsensor_a73";
+ 	data->sensor[0].data = data;
+ 
+-	data->sensor[1].id = HI3660_LITTLE_SENSOR;
+-	data->sensor[1].irq_name = "tsensor_a53";
+-	data->sensor[1].data = data;
+-
+ 	return 0;
  }
+ 
 -- 
 2.39.2
 
