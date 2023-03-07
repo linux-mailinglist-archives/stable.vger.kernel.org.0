@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 088DE6AF30D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 211FE6AEB1B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:40:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbjCGS7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:59:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39244 "EHLO
+        id S231707AbjCGRka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:40:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233507AbjCGS7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:59:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A6CB78B3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:09 -0800 (PST)
+        with ESMTP id S231962AbjCGRkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9649E510
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:36:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA17A6153D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05168C433D2;
-        Tue,  7 Mar 2023 18:45:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F30C6614E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:36:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F13FC433EF;
+        Tue,  7 Mar 2023 17:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214751;
-        bh=PapvG0E6EoFxtdm+V5ky51kFUpBrhUzjhMs2oXaG8wI=;
+        s=korg; t=1678210573;
+        bh=JUZpk+dIhUmznIZCxnIwBLzvBh2X6kYGXdYbolgujo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffk8Gu/Om8kpOrfMazkliisyMaMiAbyBByVF7FHp6qmHjsvma671wuDBI34GXpW4u
-         tydz4TmTLCJkf/+zlxl9XNTOTkCrDXYqBzv6BLmuEoEGj948RrIUGJJvqR/bOrgoh9
-         VIhQduWVdvF5oxWVJduwtPoz/yYG5GTDyOAp38/c=
+        b=ePGzx8yXSnnOV5KZTDTbjMhgo1KrIMmPeclWKrQLS8wSKqgRPoGTwHn6qEe5uk0wb
+         LzwMLwXyabWToWUC1wEy+9bAtnoHVN8stzg3Z3BBiDcavRNG0Q2w4vcrqmEAzEFhPT
+         UYcRLqU0pSlkQ0Aw46Ow2hFopVIvpL7ijoNlqK0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Petr Vorel <petr.vorel@gmail.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/567] arm64: dts: qcom: msm8992-bullhead: Disable dfps_data_mem
+Subject: [PATCH 6.2 0584/1001] media: platform: ti: Add missing check for devm_regulator_get
 Date:   Tue,  7 Mar 2023 17:55:56 +0100
-Message-Id: <20230307165906.781689475@linuxfoundation.org>
+Message-Id: <20230307170046.826048252@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,44 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Vorel <petr.vorel@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 4dee5aa44b924036511a744ceb3abb1ceeb96bb6 ]
+[ Upstream commit da8e05f84a11c3cc3b0ba0a3c62d20e358002d99 ]
 
-It's disabled on downstream [1] thus not shown on downstream dmesg.
+Add check for the return value of devm_regulator_get since it may return
+error pointer.
 
-Removing it fixes warnings on v6.1:
-
-[    0.000000] OF: reserved mem: OVERLAP DETECTED!
-[    0.000000] dfps_data_mem@3400000 (0x0000000003400000--0x0000000003401000) overlaps with memory@3400000 (0x0000000003400000--0x0000000004600000)
-
-[1] https://android.googlesource.com/kernel/msm.git/+/android-7.0.0_r0.17/arch/arm64/boot/dts/lge/msm8992-bullhead.dtsi#137
-
-Fixes: 976d321f32dc ("arm64: dts: qcom: msm8992: Make the DT an overlay on top of 8994")
-
-Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221226185440.440968-3-pevik@seznam.cz
+Fixes: 448de7e7850b ("[media] omap3isp: OMAP3 ISP core")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/ti/omap3isp/isp.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
-index 8e20bb13bd65e..84ba740cb957b 100644
---- a/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
-+++ b/arch/arm64/boot/dts/qcom/msm8992-bullhead-rev-101.dts
-@@ -14,6 +14,9 @@
- /* cont_splash_mem has different memory mapping */
- /delete-node/ &cont_splash_mem;
+diff --git a/drivers/media/platform/ti/omap3isp/isp.c b/drivers/media/platform/ti/omap3isp/isp.c
+index 1d40bb59ff814..e7327e38482de 100644
+--- a/drivers/media/platform/ti/omap3isp/isp.c
++++ b/drivers/media/platform/ti/omap3isp/isp.c
+@@ -2307,7 +2307,16 @@ static int isp_probe(struct platform_device *pdev)
  
-+/* disabled on downstream, conflicts with cont_splash_mem */
-+/delete-node/ &dfps_data_mem;
+ 	/* Regulators */
+ 	isp->isp_csiphy1.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy1");
++	if (IS_ERR(isp->isp_csiphy1.vdd)) {
++		ret = PTR_ERR(isp->isp_csiphy1.vdd);
++		goto error;
++	}
 +
- / {
- 	model = "LG Nexus 5X";
- 	compatible = "lg,bullhead", "qcom,msm8992";
+ 	isp->isp_csiphy2.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy2");
++	if (IS_ERR(isp->isp_csiphy2.vdd)) {
++		ret = PTR_ERR(isp->isp_csiphy2.vdd);
++		goto error;
++	}
+ 
+ 	/* Clocks
+ 	 *
 -- 
 2.39.2
 
