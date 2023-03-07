@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D706AF4AE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:18:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 118636AF4B0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:18:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233949AbjCGTS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:18:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42156 "EHLO
+        id S233870AbjCGTSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:18:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233934AbjCGTSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:18:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA6ABCB8B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:07 -0800 (PST)
+        with ESMTP id S229996AbjCGTSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:18:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82F5BCBA4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:02:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFC386152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEC08C433EF;
-        Tue,  7 Mar 2023 19:02:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0B886150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:02:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5D06C433EF;
+        Tue,  7 Mar 2023 19:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215726;
-        bh=O7oGpUsLIr36DRK1pW5NrTutdzxiBGaF0I8IVipmUBw=;
+        s=korg; t=1678215729;
+        bh=gcZMNbwiI3XQpyCGIt02Y6E6L+h6ITfgGkIg4QMS/H8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fU80eyALEHD2OpHa7zDo+4S8z0bf3zFZ4Z21MtnlJeqIWAa4ryQtIlqxdSJjHQFw3
-         WhdE2uQcKADjUYySPlKknMXWiGRrPJIGU1/otqD1T345tyWyfOuFwLqIvtQ3++dyQC
-         G7CvT+j6inrzQC8Qol9tjMQvXiJrT9qc7UQJBZT0=
+        b=Zi2GMjZ4VjtVHdHmfDQicPBcjrllaxumIqHu0KrB/B6iQe/0nzW5ThweK7VMxuOzm
+         NIz68BflMBPCrWKlXcfUBAKMKphzC4aH2QGh78ctE4p7LS2BBMSPZqYh7W6Bq7H8XL
+         +GZKosn/jhTc//dGUnaFq/qZSzeezeELqku0Cyos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        patches@lists.linux.dev, Adam Ford <aford173@gmail.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 354/567] media: i2c: ov772x: Fix memleak in ov772x_probe()
-Date:   Tue,  7 Mar 2023 18:01:30 +0100
-Message-Id: <20230307165921.220006228@linuxfoundation.org>
+Subject: [PATCH 5.15 355/567] media: i2c: imx219: Split common registers from mode tables
+Date:   Tue,  7 Mar 2023 18:01:31 +0100
+Message-Id: <20230307165921.273284297@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -46,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,92 +56,312 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 7485edb2b6ca5960205c0a49bedfd09bba30e521 ]
+[ Upstream commit 8508455961d5a9e8907bcfd8dcd58f19d9b6ce47 ]
 
-A memory leak was reported when testing ov772x with bpf mock device:
+There are four modes, and each mode has a table of registers.
+Some of the registers are common to all modes, so create new
+tables for these common registers to reduce duplicate code.
 
-AssertionError: unreferenced object 0xffff888109afa7a8 (size 8):
-  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
-  hex dump (first 8 bytes):
-    80 22 88 15 81 88 ff ff                          ."......
-  backtrace:
-    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
-    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
-    [<00000000faf48134>] v4l2_ctrl_handler_init_class+0x11d/0x180 [videodev]
-    [<00000000da376937>] ov772x_probe+0x1c3/0x68c [ov772x]
-    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
-    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
-    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
-    [<0000000048370519>] driver_probe_device+0x49/0x120
-    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
-    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
-    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
-    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
-    [<00000000ee0f3046>] device_add+0x810/0x1130
-    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
-    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
-    [<00000000a9f2159d>] of_i2c_notify+0x100/0x160
-unreferenced object 0xffff888119825c00 (size 256):
-  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
-  hex dump (first 32 bytes):
-    00 b4 a5 17 81 88 ff ff 00 5e 82 19 81 88 ff ff  .........^......
-    10 5c 82 19 81 88 ff ff 10 5c 82 19 81 88 ff ff  .\.......\......
-  backtrace:
-    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
-    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
-    [<0000000073d88e0b>] v4l2_ctrl_new.cold+0x19b/0x86f [videodev]
-    [<00000000b1f576fb>] v4l2_ctrl_new_std+0x16f/0x210 [videodev]
-    [<00000000caf7ac99>] ov772x_probe+0x1fa/0x68c [ov772x]
-    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
-    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
-    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
-    [<0000000048370519>] driver_probe_device+0x49/0x120
-    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
-    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
-    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
-    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
-    [<00000000ee0f3046>] device_add+0x810/0x1130
-    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
-    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
-
-The reason is that if priv->hdl.error is set, ov772x_probe() jumps to the
-error_mutex_destroy without doing v4l2_ctrl_handler_free(), and all
-resources allocated in v4l2_ctrl_handler_init() and v4l2_ctrl_new_std()
-are leaked.
-
-Fixes: 1112babde214 ("media: i2c: Copy ov772x soc_camera sensor driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Stable-dep-of: ef86447e775f ("media: i2c: imx219: Fix binning for RAW8 capture")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov772x.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/i2c/imx219.c | 206 +++++++++++--------------------------
+ 1 file changed, 59 insertions(+), 147 deletions(-)
 
-diff --git a/drivers/media/i2c/ov772x.c b/drivers/media/i2c/ov772x.c
-index 78602a2f70b0f..e05b48c90faed 100644
---- a/drivers/media/i2c/ov772x.c
-+++ b/drivers/media/i2c/ov772x.c
-@@ -1462,7 +1462,7 @@ static int ov772x_probe(struct i2c_client *client)
- 	priv->subdev.ctrl_handler = &priv->hdl;
- 	if (priv->hdl.error) {
- 		ret = priv->hdl.error;
--		goto error_mutex_destroy;
-+		goto error_ctrl_free;
- 	}
+diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
+index e10af3f74b38f..faa5dab3c2ec8 100644
+--- a/drivers/media/i2c/imx219.c
++++ b/drivers/media/i2c/imx219.c
+@@ -145,23 +145,61 @@ struct imx219_mode {
+ 	struct imx219_reg_list reg_list;
+ };
  
- 	priv->clk = clk_get(&client->dev, NULL);
-@@ -1515,7 +1515,6 @@ static int ov772x_probe(struct i2c_client *client)
- 	clk_put(priv->clk);
- error_ctrl_free:
- 	v4l2_ctrl_handler_free(&priv->hdl);
--error_mutex_destroy:
- 	mutex_destroy(&priv->lock);
+-/*
+- * Register sets lifted off the i2C interface from the Raspberry Pi firmware
+- * driver.
+- * 3280x2464 = mode 2, 1920x1080 = mode 1, 1640x1232 = mode 4, 640x480 = mode 7.
+- */
+-static const struct imx219_reg mode_3280x2464_regs[] = {
+-	{0x0100, 0x00},
++static const struct imx219_reg imx219_common_regs[] = {
++	{0x0100, 0x00},	/* Mode Select */
++
++	/* To Access Addresses 3000-5fff, send the following commands */
+ 	{0x30eb, 0x0c},
+ 	{0x30eb, 0x05},
+ 	{0x300a, 0xff},
+ 	{0x300b, 0xff},
+ 	{0x30eb, 0x05},
+ 	{0x30eb, 0x09},
+-	{0x0114, 0x01},
+-	{0x0128, 0x00},
+-	{0x012a, 0x18},
++
++	/* PLL Clock Table */
++	{0x0301, 0x05},	/* VTPXCK_DIV */
++	{0x0303, 0x01},	/* VTSYSCK_DIV */
++	{0x0304, 0x03},	/* PREPLLCK_VT_DIV 0x03 = AUTO set */
++	{0x0305, 0x03}, /* PREPLLCK_OP_DIV 0x03 = AUTO set */
++	{0x0306, 0x00},	/* PLL_VT_MPY */
++	{0x0307, 0x39},
++	{0x030b, 0x01},	/* OP_SYS_CLK_DIV */
++	{0x030c, 0x00},	/* PLL_OP_MPY */
++	{0x030d, 0x72},
++
++	/* Undocumented registers */
++	{0x455e, 0x00},
++	{0x471e, 0x4b},
++	{0x4767, 0x0f},
++	{0x4750, 0x14},
++	{0x4540, 0x00},
++	{0x47b4, 0x14},
++	{0x4713, 0x30},
++	{0x478b, 0x10},
++	{0x478f, 0x10},
++	{0x4793, 0x10},
++	{0x4797, 0x0e},
++	{0x479b, 0x0e},
++
++	/* Frame Bank Register Group "A" */
++	{0x0162, 0x0d},	/* Line_Length_A */
++	{0x0163, 0x78},
++	{0x0170, 0x01}, /* X_ODD_INC_A */
++	{0x0171, 0x01}, /* Y_ODD_INC_A */
++
++	/* Output setup registers */
++	{0x0114, 0x01},	/* CSI 2-Lane Mode */
++	{0x0128, 0x00},	/* DPHY Auto Mode */
++	{0x012a, 0x18},	/* EXCK_Freq */
+ 	{0x012b, 0x00},
++};
++
++/*
++ * Register sets lifted off the i2C interface from the Raspberry Pi firmware
++ * driver.
++ * 3280x2464 = mode 2, 1920x1080 = mode 1, 1640x1232 = mode 4, 640x480 = mode 7.
++ */
++static const struct imx219_reg mode_3280x2464_regs[] = {
+ 	{0x0164, 0x00},
+ 	{0x0165, 0x00},
+ 	{0x0166, 0x0c},
+@@ -174,53 +212,15 @@ static const struct imx219_reg mode_3280x2464_regs[] = {
+ 	{0x016d, 0xd0},
+ 	{0x016e, 0x09},
+ 	{0x016f, 0xa0},
+-	{0x0170, 0x01},
+-	{0x0171, 0x01},
+-	{0x0174, 0x00},
++	{0x0174, 0x00},	/* No-Binning */
+ 	{0x0175, 0x00},
+-	{0x0301, 0x05},
+-	{0x0303, 0x01},
+-	{0x0304, 0x03},
+-	{0x0305, 0x03},
+-	{0x0306, 0x00},
+-	{0x0307, 0x39},
+-	{0x030b, 0x01},
+-	{0x030c, 0x00},
+-	{0x030d, 0x72},
+ 	{0x0624, 0x0c},
+ 	{0x0625, 0xd0},
+ 	{0x0626, 0x09},
+ 	{0x0627, 0xa0},
+-	{0x455e, 0x00},
+-	{0x471e, 0x4b},
+-	{0x4767, 0x0f},
+-	{0x4750, 0x14},
+-	{0x4540, 0x00},
+-	{0x47b4, 0x14},
+-	{0x4713, 0x30},
+-	{0x478b, 0x10},
+-	{0x478f, 0x10},
+-	{0x4793, 0x10},
+-	{0x4797, 0x0e},
+-	{0x479b, 0x0e},
+-	{0x0162, 0x0d},
+-	{0x0163, 0x78},
+ };
  
- 	return ret;
+ static const struct imx219_reg mode_1920_1080_regs[] = {
+-	{0x0100, 0x00},
+-	{0x30eb, 0x05},
+-	{0x30eb, 0x0c},
+-	{0x300a, 0xff},
+-	{0x300b, 0xff},
+-	{0x30eb, 0x05},
+-	{0x30eb, 0x09},
+-	{0x0114, 0x01},
+-	{0x0128, 0x00},
+-	{0x012a, 0x18},
+-	{0x012b, 0x00},
+-	{0x0162, 0x0d},
+-	{0x0163, 0x78},
+ 	{0x0164, 0x02},
+ 	{0x0165, 0xa8},
+ 	{0x0166, 0x0a},
+@@ -233,49 +233,15 @@ static const struct imx219_reg mode_1920_1080_regs[] = {
+ 	{0x016d, 0x80},
+ 	{0x016e, 0x04},
+ 	{0x016f, 0x38},
+-	{0x0170, 0x01},
+-	{0x0171, 0x01},
+-	{0x0174, 0x00},
++	{0x0174, 0x00},	/* No-Binning */
+ 	{0x0175, 0x00},
+-	{0x0301, 0x05},
+-	{0x0303, 0x01},
+-	{0x0304, 0x03},
+-	{0x0305, 0x03},
+-	{0x0306, 0x00},
+-	{0x0307, 0x39},
+-	{0x030b, 0x01},
+-	{0x030c, 0x00},
+-	{0x030d, 0x72},
+ 	{0x0624, 0x07},
+ 	{0x0625, 0x80},
+ 	{0x0626, 0x04},
+ 	{0x0627, 0x38},
+-	{0x455e, 0x00},
+-	{0x471e, 0x4b},
+-	{0x4767, 0x0f},
+-	{0x4750, 0x14},
+-	{0x4540, 0x00},
+-	{0x47b4, 0x14},
+-	{0x4713, 0x30},
+-	{0x478b, 0x10},
+-	{0x478f, 0x10},
+-	{0x4793, 0x10},
+-	{0x4797, 0x0e},
+-	{0x479b, 0x0e},
+ };
+ 
+ static const struct imx219_reg mode_1640_1232_regs[] = {
+-	{0x0100, 0x00},
+-	{0x30eb, 0x0c},
+-	{0x30eb, 0x05},
+-	{0x300a, 0xff},
+-	{0x300b, 0xff},
+-	{0x30eb, 0x05},
+-	{0x30eb, 0x09},
+-	{0x0114, 0x01},
+-	{0x0128, 0x00},
+-	{0x012a, 0x18},
+-	{0x012b, 0x00},
+ 	{0x0164, 0x00},
+ 	{0x0165, 0x00},
+ 	{0x0166, 0x0c},
+@@ -288,53 +254,15 @@ static const struct imx219_reg mode_1640_1232_regs[] = {
+ 	{0x016d, 0x68},
+ 	{0x016e, 0x04},
+ 	{0x016f, 0xd0},
+-	{0x0170, 0x01},
+-	{0x0171, 0x01},
+-	{0x0174, 0x01},
++	{0x0174, 0x01},	/* x2-Binning */
+ 	{0x0175, 0x01},
+-	{0x0301, 0x05},
+-	{0x0303, 0x01},
+-	{0x0304, 0x03},
+-	{0x0305, 0x03},
+-	{0x0306, 0x00},
+-	{0x0307, 0x39},
+-	{0x030b, 0x01},
+-	{0x030c, 0x00},
+-	{0x030d, 0x72},
+ 	{0x0624, 0x06},
+ 	{0x0625, 0x68},
+ 	{0x0626, 0x04},
+ 	{0x0627, 0xd0},
+-	{0x455e, 0x00},
+-	{0x471e, 0x4b},
+-	{0x4767, 0x0f},
+-	{0x4750, 0x14},
+-	{0x4540, 0x00},
+-	{0x47b4, 0x14},
+-	{0x4713, 0x30},
+-	{0x478b, 0x10},
+-	{0x478f, 0x10},
+-	{0x4793, 0x10},
+-	{0x4797, 0x0e},
+-	{0x479b, 0x0e},
+-	{0x0162, 0x0d},
+-	{0x0163, 0x78},
+ };
+ 
+ static const struct imx219_reg mode_640_480_regs[] = {
+-	{0x0100, 0x00},
+-	{0x30eb, 0x05},
+-	{0x30eb, 0x0c},
+-	{0x300a, 0xff},
+-	{0x300b, 0xff},
+-	{0x30eb, 0x05},
+-	{0x30eb, 0x09},
+-	{0x0114, 0x01},
+-	{0x0128, 0x00},
+-	{0x012a, 0x18},
+-	{0x012b, 0x00},
+-	{0x0162, 0x0d},
+-	{0x0163, 0x78},
+ 	{0x0164, 0x03},
+ 	{0x0165, 0xe8},
+ 	{0x0166, 0x08},
+@@ -347,35 +275,12 @@ static const struct imx219_reg mode_640_480_regs[] = {
+ 	{0x016d, 0x80},
+ 	{0x016e, 0x01},
+ 	{0x016f, 0xe0},
+-	{0x0170, 0x01},
+-	{0x0171, 0x01},
+-	{0x0174, 0x03},
++	{0x0174, 0x03},	/* x2-analog binning */
+ 	{0x0175, 0x03},
+-	{0x0301, 0x05},
+-	{0x0303, 0x01},
+-	{0x0304, 0x03},
+-	{0x0305, 0x03},
+-	{0x0306, 0x00},
+-	{0x0307, 0x39},
+-	{0x030b, 0x01},
+-	{0x030c, 0x00},
+-	{0x030d, 0x72},
+ 	{0x0624, 0x06},
+ 	{0x0625, 0x68},
+ 	{0x0626, 0x04},
+ 	{0x0627, 0xd0},
+-	{0x455e, 0x00},
+-	{0x471e, 0x4b},
+-	{0x4767, 0x0f},
+-	{0x4750, 0x14},
+-	{0x4540, 0x00},
+-	{0x47b4, 0x14},
+-	{0x4713, 0x30},
+-	{0x478b, 0x10},
+-	{0x478f, 0x10},
+-	{0x4793, 0x10},
+-	{0x4797, 0x0e},
+-	{0x479b, 0x0e},
+ };
+ 
+ static const struct imx219_reg raw8_framefmt_regs[] = {
+@@ -1041,6 +946,13 @@ static int imx219_start_streaming(struct imx219 *imx219)
+ 	if (ret < 0)
+ 		return ret;
+ 
++	/* Send all registers that are common to all modes */
++	ret = imx219_write_regs(imx219, imx219_common_regs, ARRAY_SIZE(imx219_common_regs));
++	if (ret) {
++		dev_err(&client->dev, "%s failed to send mfg header\n", __func__);
++		goto err_rpm_put;
++	}
++
+ 	/* Apply default values of current mode */
+ 	reg_list = &imx219->mode->reg_list;
+ 	ret = imx219_write_regs(imx219, reg_list->regs, reg_list->num_of_regs);
 -- 
 2.39.2
 
