@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E96026AEEDA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E956AEA3A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232573AbjCGSRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:17:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39216 "EHLO
+        id S231636AbjCGRcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:32:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232578AbjCGSRD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4080B06E3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:11:48 -0800 (PST)
+        with ESMTP id S231639AbjCGRbo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:44 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C472C9E658
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86FCE614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D949C4339B;
-        Tue,  7 Mar 2023 18:11:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3EEADCE1C5B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E7CC433EF;
+        Tue,  7 Mar 2023 17:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212708;
-        bh=ixEwJp9WTAMQNd18J15BF1Jy9Qoxvt+YxPUGOkeBAGU=;
+        s=korg; t=1678210016;
+        bh=ZEsx3hybzgMn0/X7Oo4PMhsjxp+KlFZ7CejCUZaKrXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r4E14U3BW97TwMpCmK7XFJ5G+x80Qpt9cNl97PRg1bIKnq5byaITrxzDgHzHiM7B3
-         Orow7cOQHpmij34E6yJwBVaslQWkASUxgTO5NKgTuqGhYdruoX45KVilW8IX2iAOwf
-         z7TPmXN8ydNuKHW2YLVnLII9fnbkQcpVPTTS4TDI=
+        b=CBOZcHbsJyxzaX+GtvCdJBptVe7jG374ytWLeDKv22U6wUAswuSM3+skXMfFD9n4R
+         S1wn7T8hJOBoP7sQNQacHltch2Y0bZAJ6cLH6QYcf5p6uboh+zsooClsrEbLXYUTn9
+         20qj2DPlseB/onpzD79e6pCGosyUc3VIQIiy7RxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 244/885] wifi: mac80211: pass sta to ieee80211_rx_data_set_sta()
+Subject: [PATCH 6.2 0406/1001] ASoC: mchp-spdifrx: fix return value in case completion times out
 Date:   Tue,  7 Mar 2023 17:52:58 +0100
-Message-Id: <20230307170012.609527113@linuxfoundation.org>
+Message-Id: <20230307170038.943849943@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,119 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 0d846bdc11101ac0ba4d89c2be359af08cb9379b ]
+[ Upstream commit a4c4161d6eae3ef5f486d1638ef452d9bc1376b0 ]
 
-There's at least one case in ieee80211_rx_for_interface()
-where we might pass &((struct sta_info *)NULL)->sta to it
-only to then do container_of(), and then checking the
-result for NULL, but checking the result of container_of()
-for NULL looks really odd.
+wait_for_completion_interruptible_timeout() returns 0 in case of
+timeout. Check this into account when returning from function.
 
-Fix this by just passing the struct sta_info * instead.
-
-Fixes: e66b7920aa5a ("wifi: mac80211: fix initialization of rx->link and rx->link_sta")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230130120647.638049-3-claudiu.beznea@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 26 +++++++++++---------------
- 1 file changed, 11 insertions(+), 15 deletions(-)
+ sound/soc/atmel/mchp-spdifrx.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 08e01bddc9fb2..44e407e1a14c7 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -4094,13 +4094,8 @@ static bool ieee80211_rx_data_set_link(struct ieee80211_rx_data *rx,
- }
- 
- static bool ieee80211_rx_data_set_sta(struct ieee80211_rx_data *rx,
--				      struct ieee80211_sta *pubsta,
--				      int link_id)
-+				      struct sta_info *sta, int link_id)
- {
--	struct sta_info *sta;
--
--	sta = container_of(pubsta, struct sta_info, sta);
--
- 	rx->link_id = link_id;
- 	rx->sta = sta;
- 
-@@ -4138,7 +4133,7 @@ void ieee80211_release_reorder_timeout(struct sta_info *sta, int tid)
- 	if (sta->sta.valid_links)
- 		link_id = ffs(sta->sta.valid_links) - 1;
- 
--	if (!ieee80211_rx_data_set_sta(&rx, &sta->sta, link_id))
-+	if (!ieee80211_rx_data_set_sta(&rx, sta, link_id))
- 		return;
- 
- 	tid_agg_rx = rcu_dereference(sta->ampdu_mlme.tid_rx[tid]);
-@@ -4184,7 +4179,7 @@ void ieee80211_mark_rx_ba_filtered_frames(struct ieee80211_sta *pubsta, u8 tid,
- 
- 	sta = container_of(pubsta, struct sta_info, sta);
- 
--	if (!ieee80211_rx_data_set_sta(&rx, pubsta, -1))
-+	if (!ieee80211_rx_data_set_sta(&rx, sta, -1))
- 		return;
- 
- 	rcu_read_lock();
-@@ -4892,6 +4887,7 @@ static void __ieee80211_rx_handle_8023(struct ieee80211_hw *hw,
- 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
- 	struct ieee80211_fast_rx *fast_rx;
- 	struct ieee80211_rx_data rx;
-+	struct sta_info *sta;
- 	int link_id = -1;
- 
- 	memset(&rx, 0, sizeof(rx));
-@@ -4919,7 +4915,8 @@ static void __ieee80211_rx_handle_8023(struct ieee80211_hw *hw,
- 	 * link_id is used only for stats purpose and updating the stats on
- 	 * the deflink is fine?
- 	 */
--	if (!ieee80211_rx_data_set_sta(&rx, pubsta, link_id))
-+	sta = container_of(pubsta, struct sta_info, sta);
-+	if (!ieee80211_rx_data_set_sta(&rx, sta, link_id))
- 		goto drop;
- 
- 	fast_rx = rcu_dereference(rx.sta->fast_rx);
-@@ -4959,7 +4956,7 @@ static bool ieee80211_rx_for_interface(struct ieee80211_rx_data *rx,
- 			link_id = status->link_id;
+diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
+index 2d86e0ec930fa..7f359371b31bf 100644
+--- a/sound/soc/atmel/mchp-spdifrx.c
++++ b/sound/soc/atmel/mchp-spdifrx.c
+@@ -524,9 +524,10 @@ static int mchp_spdifrx_cs_get(struct mchp_spdifrx_dev *dev,
+ 	ret = wait_for_completion_interruptible_timeout(&ch_stat->done,
+ 							msecs_to_jiffies(100));
+ 	/* IP might not be started or valid stream might not be present */
+-	if (ret < 0) {
++	if (ret <= 0) {
+ 		dev_dbg(dev->dev, "channel status for channel %d timeout\n",
+ 			channel);
++		return ret ? : -ETIMEDOUT;
  	}
  
--	if (!ieee80211_rx_data_set_sta(rx, &sta->sta, link_id))
-+	if (!ieee80211_rx_data_set_sta(rx, sta, link_id))
- 		return false;
+ 	memcpy(uvalue->value.iec958.status, ch_stat->data,
+@@ -580,7 +581,7 @@ static int mchp_spdifrx_subcode_ch_get(struct mchp_spdifrx_dev *dev,
+ 		dev_dbg(dev->dev, "user data for channel %d timeout\n",
+ 			channel);
+ 		mchp_spdifrx_isr_blockend_dis(dev);
+-		return ret;
++		return ret ? : -ETIMEDOUT;
+ 	}
  
- 	return ieee80211_prepare_and_rx_handle(rx, skb, consume);
-@@ -5026,7 +5023,8 @@ static void __ieee80211_rx_handle_packet(struct ieee80211_hw *hw,
- 			link_id = status->link_id;
- 
- 		if (pubsta) {
--			if (!ieee80211_rx_data_set_sta(&rx, pubsta, link_id))
-+			sta = container_of(pubsta, struct sta_info, sta);
-+			if (!ieee80211_rx_data_set_sta(&rx, sta, link_id))
- 				goto out;
- 
- 			/*
-@@ -5063,8 +5061,7 @@ static void __ieee80211_rx_handle_packet(struct ieee80211_hw *hw,
- 			}
- 
- 			rx.sdata = prev_sta->sdata;
--			if (!ieee80211_rx_data_set_sta(&rx, &prev_sta->sta,
--						       link_id))
-+			if (!ieee80211_rx_data_set_sta(&rx, prev_sta, link_id))
- 				goto out;
- 
- 			if (!status->link_valid && prev_sta->sta.mlo)
-@@ -5077,8 +5074,7 @@ static void __ieee80211_rx_handle_packet(struct ieee80211_hw *hw,
- 
- 		if (prev_sta) {
- 			rx.sdata = prev_sta->sdata;
--			if (!ieee80211_rx_data_set_sta(&rx, &prev_sta->sta,
--						       link_id))
-+			if (!ieee80211_rx_data_set_sta(&rx, prev_sta, link_id))
- 				goto out;
- 
- 			if (!status->link_valid && prev_sta->sta.mlo)
+ 	spin_lock_irqsave(&user_data->lock, flags);
 -- 
 2.39.2
 
