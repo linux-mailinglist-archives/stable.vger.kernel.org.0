@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9C26AF106
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:38:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73DE86AF2D7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232971AbjCGSi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:38:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42930 "EHLO
+        id S233338AbjCGS46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:56:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233001AbjCGSiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D25B04A2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:29:32 -0800 (PST)
+        with ESMTP id S233311AbjCGS4n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7922FCB669
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 28345CE1C90
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2812DC433EF;
-        Tue,  7 Mar 2023 18:28:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48C2EB819DB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB40C433EF;
+        Tue,  7 Mar 2023 18:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213695;
-        bh=Lm82ebFm2qYNzcZJIZnTcs+9rXjIc8uyrsa6jIsuAdY=;
+        s=korg; t=1678213699;
+        bh=c9U5+zjEEfnJ+GJrBvDYLOqr8/0PM90ddpJhhT8lThQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/hHx3IoxSQZgRUcFnld0DTKQtVxCRUA4o+nLIWlpojXlkxJB214hRjxFX6Tng6bj
-         63t6FsPfklt/A+nqYKtRSfm6/+9HnVr5MsMB69ad8HLv5L7CUZby8j/O/VUTJSK1pf
-         D6h1MfCvFufhkP7SMQnvdChQbz6PqjiPPD1N8Jo0=
+        b=HbJchuyxy2GPNOoVSrx4AmCh8LCLKjIJXyw7VWHxysemA0HrqHzJq9/KEbLI+s6Ej
+         O3N3vCi3n7EzhEcq13Xi2nqKnQQQtQiRc9c6ikgnYNBhcQNTKOniECrG7wR2xRIJEs
+         ogNc69I/K14GaeBS0MBtGWFaLY7tYqgrBfQA20OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baoquan He <bhe@redhat.com>,
-        Alexander Potapenko <glider@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 589/885] s390/kfence: fix page fault reporting
-Date:   Tue,  7 Mar 2023 17:58:43 +0100
-Message-Id: <20230307170027.971674223@linuxfoundation.org>
+Subject: [PATCH 6.1 590/885] devlink: Fix TP_STRUCT_entry in trace of devlink health report
+Date:   Tue,  7 Mar 2023 17:58:44 +0100
+Message-Id: <20230307170028.016751977@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -55,172 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-[ Upstream commit d9c2cf67b9cfd643ba85d51bc865a89a92e4f979 ]
+[ Upstream commit d0ab772c1f1558af84f3293a52e9e886e08e0754 ]
 
-Baoquan He reported lots of KFENCE reports when /proc/kcore is read,
-e.g. with crash or even simpler with dd:
+Fix a bug in trace point definition for devlink health report, as
+TP_STRUCT_entry of reporter_name should get reporter_name and not msg.
 
- BUG: KFENCE: invalid read in copy_from_kernel_nofault+0x5e/0x120
- Invalid read at 0x00000000f4f5149f:
-  copy_from_kernel_nofault+0x5e/0x120
-  read_kcore+0x6b2/0x870
-  proc_reg_read+0x9a/0xf0
-  vfs_read+0x94/0x270
-  ksys_read+0x70/0x100
-  __do_syscall+0x1d0/0x200
-  system_call+0x82/0xb0
+Note no fixes tag as this is a harmless bug as both reporter_name and
+msg are strings and TP_fast_assign for this entry is correct.
 
-The reason for this is that read_kcore() simply reads memory that might
-have been unmapped by KFENCE with copy_from_kernel_nofault(). Any fault due
-to pages being unmapped by KFENCE would be handled gracefully by the fault
-handler (exception table fixup).
-
-However the s390 fault handler first reports the fault, and only afterwards
-would perform the exception table fixup. Most architectures have this in
-reversed order, which also avoids the false positive KFENCE reports when an
-unmapped page is accessed.
-
-Therefore change the s390 fault handler so it handles exception table
-fixups before KFENCE page faults are reported.
-
-Reported-by: Baoquan He <bhe@redhat.com>
-Tested-by: Baoquan He <bhe@redhat.com>
-Acked-by: Alexander Potapenko <glider@google.com>
-Link: https://lore.kernel.org/r/20230213183858.1473681-1-hca@linux.ibm.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/fault.c | 49 +++++++++++++++++++++++++++++++-------------
- 1 file changed, 35 insertions(+), 14 deletions(-)
+ include/trace/events/devlink.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 9649d9382e0ae..8e84ed2bb944e 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -96,6 +96,20 @@ static enum fault_type get_fault_type(struct pt_regs *regs)
- 	return KERNEL_FAULT;
- }
+diff --git a/include/trace/events/devlink.h b/include/trace/events/devlink.h
+index 24969184c5348..77ff7cfc6049a 100644
+--- a/include/trace/events/devlink.h
++++ b/include/trace/events/devlink.h
+@@ -88,7 +88,7 @@ TRACE_EVENT(devlink_health_report,
+ 		__string(bus_name, devlink_to_dev(devlink)->bus->name)
+ 		__string(dev_name, dev_name(devlink_to_dev(devlink)))
+ 		__string(driver_name, devlink_to_dev(devlink)->driver->name)
+-		__string(reporter_name, msg)
++		__string(reporter_name, reporter_name)
+ 		__string(msg, msg)
+ 	),
  
-+static unsigned long get_fault_address(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return trans_exc_code & __FAIL_ADDR_MASK;
-+}
-+
-+static bool fault_is_write(struct pt_regs *regs)
-+{
-+	unsigned long trans_exc_code = regs->int_parm_long;
-+
-+	return (trans_exc_code & store_indication) == 0x400;
-+}
-+
- static int bad_address(void *p)
- {
- 	unsigned long dummy;
-@@ -228,15 +242,26 @@ static noinline void do_sigsegv(struct pt_regs *regs, int si_code)
- 			(void __user *)(regs->int_parm_long & __FAIL_ADDR_MASK));
- }
- 
--static noinline void do_no_context(struct pt_regs *regs)
-+static noinline void do_no_context(struct pt_regs *regs, vm_fault_t fault)
- {
-+	enum fault_type fault_type;
-+	unsigned long address;
-+	bool is_write;
-+
- 	if (fixup_exception(regs))
- 		return;
-+	fault_type = get_fault_type(regs);
-+	if ((fault_type == KERNEL_FAULT) && (fault == VM_FAULT_BADCONTEXT)) {
-+		address = get_fault_address(regs);
-+		is_write = fault_is_write(regs);
-+		if (kfence_handle_page_fault(address, is_write, regs))
-+			return;
-+	}
- 	/*
- 	 * Oops. The kernel tried to access some bad page. We'll have to
- 	 * terminate things with extreme prejudice.
- 	 */
--	if (get_fault_type(regs) == KERNEL_FAULT)
-+	if (fault_type == KERNEL_FAULT)
- 		printk(KERN_ALERT "Unable to handle kernel pointer dereference"
- 		       " in virtual kernel address space\n");
- 	else
-@@ -255,7 +280,7 @@ static noinline void do_low_address(struct pt_regs *regs)
- 		die (regs, "Low-address protection");
- 	}
- 
--	do_no_context(regs);
-+	do_no_context(regs, VM_FAULT_BADACCESS);
- }
- 
- static noinline void do_sigbus(struct pt_regs *regs)
-@@ -286,28 +311,28 @@ static noinline void do_fault_error(struct pt_regs *regs, vm_fault_t fault)
- 		fallthrough;
- 	case VM_FAULT_BADCONTEXT:
- 	case VM_FAULT_PFAULT:
--		do_no_context(regs);
-+		do_no_context(regs, fault);
- 		break;
- 	case VM_FAULT_SIGNAL:
- 		if (!user_mode(regs))
--			do_no_context(regs);
-+			do_no_context(regs, fault);
- 		break;
- 	default: /* fault & VM_FAULT_ERROR */
- 		if (fault & VM_FAULT_OOM) {
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				pagefault_out_of_memory();
- 		} else if (fault & VM_FAULT_SIGSEGV) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigsegv(regs, SEGV_MAPERR);
- 		} else if (fault & VM_FAULT_SIGBUS) {
- 			/* Kernel mode? Handle exceptions or die */
- 			if (!user_mode(regs))
--				do_no_context(regs);
-+				do_no_context(regs, fault);
- 			else
- 				do_sigbus(regs);
- 		} else
-@@ -334,7 +359,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	struct mm_struct *mm;
- 	struct vm_area_struct *vma;
- 	enum fault_type type;
--	unsigned long trans_exc_code;
- 	unsigned long address;
- 	unsigned int flags;
- 	vm_fault_t fault;
-@@ -351,9 +375,8 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 		return 0;
- 
- 	mm = tsk->mm;
--	trans_exc_code = regs->int_parm_long;
--	address = trans_exc_code & __FAIL_ADDR_MASK;
--	is_write = (trans_exc_code & store_indication) == 0x400;
-+	address = get_fault_address(regs);
-+	is_write = fault_is_write(regs);
- 
- 	/*
- 	 * Verify that the fault happened in user space, that
-@@ -364,8 +387,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	type = get_fault_type(regs);
- 	switch (type) {
- 	case KERNEL_FAULT:
--		if (kfence_handle_page_fault(address, is_write, regs))
--			return 0;
- 		goto out;
- 	case USER_FAULT:
- 	case GMAP_FAULT:
 -- 
 2.39.2
 
