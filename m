@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0923C6AE602
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:11:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E67C76AE603
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:11:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230146AbjCGQLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33034 "EHLO
+        id S230075AbjCGQLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:11:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230075AbjCGQKo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:10:44 -0500
+        with ESMTP id S230263AbjCGQKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:10:45 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9542C211C6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:09:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FB9769FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:10:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4523EB8190C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:09:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AC9FC433D2;
-        Tue,  7 Mar 2023 16:09:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8DF2B8191F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:10:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16556C433D2;
+        Tue,  7 Mar 2023 16:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678205397;
-        bh=9QgUivoUH8p/FXZl0zTDP/S35ZkRAkmOd/LBIpOaDPI=;
+        s=korg; t=1678205405;
+        bh=Kff6zrmeOJ0Kzq29nZHqGjcVhl/1pqYQ2K1tcSpK8vA=;
         h=Subject:To:Cc:From:Date:From;
-        b=VTdiFI1DG7YVWQwMP7OVjsOpf67EsTa4mgNdgVAZeByPumtuQQdagxwF6pc1DanFF
-         tKNmoRRMaRx+mNxZ8vMjUmwQf7R0xMRdHfHmayB0z56fl4KkJg20Bkc1QDh+N+Tw+1
-         Z/qYa3yjYcudAZG3WDgPti4MZPac1j/kgpYg60bM=
-Subject: FAILED: patch "[PATCH] drm/i915: Don't use stolen memory for ring buffers with LLC" failed to apply to 4.19-stable tree
+        b=Pg9iRmG03M+pE4E+cSTH8atTr/rUBK/rbZ0l4UeUtmC7JZfMYmOWYKZyx0yznB4Gv
+         wDytMlQJCNy36X7MC6cXiUU/xhxjNmDeEAi0VkxyltgSiYPRPGQ6G/itliSNkfVD91
+         ND0PpOWRQNvJ1TwJ0P2aYM//xFNokGIpVYKDjF5s=
+Subject: FAILED: patch "[PATCH] drm/i915: Don't use stolen memory for ring buffers with LLC" failed to apply to 4.14-stable tree
 To:     John.C.Harrison@Intel.com, chris@chris-wilson.co.uk,
         daniele.ceraolospurio@intel.com, jani.nikula@intel.com,
         jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
@@ -36,8 +36,8 @@ To:     John.C.Harrison@Intel.com, chris@chris-wilson.co.uk,
         stable@vger.kernel.org, tvrtko.ursulin@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:09:53 +0100
-Message-ID: <16782053932851@kroah.com>
+Date:   Tue, 07 Mar 2023 17:10:01 +0100
+Message-ID: <167820540147158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -52,19 +52,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x 690e0ec8e63da9a29b39fedc6ed5da09c7c82651
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16782053932851@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820540147158@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
