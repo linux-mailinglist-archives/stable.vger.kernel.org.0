@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01AEF6AF41C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D946AF41D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233770AbjCGTNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:13:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33072 "EHLO
+        id S233841AbjCGTNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:13:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233768AbjCGTNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDFE6A568B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:56:57 -0800 (PST)
+        with ESMTP id S233775AbjCGTNV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05429E050
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B7716150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:56:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55386C433D2;
-        Tue,  7 Mar 2023 18:56:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4542161535
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E185C433EF;
+        Tue,  7 Mar 2023 18:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215416;
-        bh=w/OFUmNltoAFo66qK+uQlG9sHZGyUPwRkXH2JuihsB4=;
+        s=korg; t=1678215419;
+        bh=swp73buNF4bcESxc5yLMy3EHNGRa6xJNXcABsi5SLWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hj5C4mHeEbsRtzZzEGVvyTKuKd2RBLgjDxrQ38SGBDLHHKuXifwSprfimy3IMXH4X
-         BlR0YtnHyU2COArqdjoTt32SCLpLBBjzU7ugewxIuHkWcrFHD3Typo7Nivj0jqRlVV
-         zlodeATMUCTsMW5tYsnPDFJ0V5dxeWsiwMn02dU0=
+        b=IpAlyBzb0XurIp+WY25EJPXDAH2wWQTY1Ui5ZZlqVYgNKzcBPiFnuZjFGOOYJTGM9
+         umJM1w3kyBQIy0YJquC0uGu+2e1S26/rk6XOlvX/w1Jo5Q1ArwOqjDuZtz1ZIpSVXM
+         wpbjiDdXmTob4XaGgD8gTBwA21nElRgkCGuhwIc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        patches@lists.linux.dev, Asahi Lina <lina@asahilina.net>,
+        Javier Martinez Canillas <javierm@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 253/567] hid: bigben_probe(): validate report count
-Date:   Tue,  7 Mar 2023 17:59:49 +0100
-Message-Id: <20230307165916.932191538@linuxfoundation.org>
+Subject: [PATCH 5.15 254/567] drm/shmem-helper: Fix locking for drm_gem_shmem_get_pages_sgt()
+Date:   Tue,  7 Mar 2023 17:59:50 +0100
+Message-Id: <20230307165916.968124293@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,55 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Asahi Lina <lina@asahilina.net>
 
-[ Upstream commit b94335f899542a0da5fafc38af8edcaf90195843 ]
+[ Upstream commit ddddedaa0db99481c5e5abe628ad54f65e8765bc ]
 
-bigben_probe() does not validate that the output report has the
-needed report values in the first field.
-A malicious device registering a report with one field and a single
-value causes an head OOB write in bigben_worker() when
-accessing report_field->value[1] to report_field->value[7].
-Use hid_validate_values() which takes care of all the needed checks.
+Other functions touching shmem->sgt take the pages lock, so do that here
+too. drm_gem_shmem_get_pages() & co take the same lock, so move to the
+_locked() variants to avoid recursive locking.
 
-Fixes: 256a90ed9e46 ("HID: hid-bigbenff: driver for BigBen Interactive PS3OFMINIPAD gamepad")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230211-bigben-oob-v1-1-d2849688594c@diag.uniroma1.it
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Discovered while auditing locking to write the Rust abstractions.
+
+Fixes: 2194a63a818d ("drm: Add library for shmem backed GEM objects")
+Fixes: 4fa3d66f132b ("drm/shmem: Do dma_unmap_sg before purging pages")
+Signed-off-by: Asahi Lina <lina@asahilina.net>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230205125124.2260-1-lina@asahilina.net
+(cherry picked from commit aa8c85affe3facd3842c8912186623415931cc72)
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c | 54 ++++++++++++++++----------
+ 1 file changed, 34 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index 9d6560db762b1..a02cb517b4c47 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -371,7 +371,6 @@ static int bigben_probe(struct hid_device *hid,
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index 15c3849e995bd..1af541c12a45f 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -651,23 +651,7 @@ struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem)
+ }
+ EXPORT_SYMBOL_GPL(drm_gem_shmem_get_sg_table);
+ 
+-/**
+- * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
+- *				 scatter/gather table for a shmem GEM object.
+- * @shmem: shmem GEM object
+- *
+- * This function returns a scatter/gather table suitable for driver usage. If
+- * the sg table doesn't exist, the pages are pinned, dma-mapped, and a sg
+- * table created.
+- *
+- * This is the main function for drivers to get at backing storage, and it hides
+- * and difference between dma-buf imported and natively allocated objects.
+- * drm_gem_shmem_get_sg_table() should not be directly called by drivers.
+- *
+- * Returns:
+- * A pointer to the scatter/gather table of pinned pages or errno on failure.
+- */
+-struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
++static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_object *shmem)
  {
- 	struct bigben_device *bigben;
- 	struct hid_input *hidinput;
--	struct list_head *report_list;
- 	struct led_classdev *led;
- 	char *name;
- 	size_t name_sz;
-@@ -396,14 +395,12 @@ static int bigben_probe(struct hid_device *hid,
- 		return error;
- 	}
+ 	struct drm_gem_object *obj = &shmem->base;
+ 	int ret;
+@@ -678,7 +662,7 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
  
--	report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
--	if (list_empty(report_list)) {
-+	bigben->report = hid_validate_values(hid, HID_OUTPUT_REPORT, 0, 0, 8);
-+	if (!bigben->report) {
- 		hid_err(hid, "no output report found\n");
- 		error = -ENODEV;
- 		goto error_hw_stop;
- 	}
--	bigben->report = list_entry(report_list->next,
--		struct hid_report, list);
+ 	WARN_ON(obj->import_attach);
  
- 	if (list_empty(&hid->inputs)) {
- 		hid_err(hid, "no inputs found\n");
+-	ret = drm_gem_shmem_get_pages(shmem);
++	ret = drm_gem_shmem_get_pages_locked(shmem);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+@@ -700,10 +684,40 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
+ 	sg_free_table(sgt);
+ 	kfree(sgt);
+ err_put_pages:
+-	drm_gem_shmem_put_pages(shmem);
++	drm_gem_shmem_put_pages_locked(shmem);
+ 	return ERR_PTR(ret);
+ }
+-EXPORT_SYMBOL_GPL(drm_gem_shmem_get_pages_sgt);
++
++/**
++ * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
++ *				 scatter/gather table for a shmem GEM object.
++ * @shmem: shmem GEM object
++ *
++ * This function returns a scatter/gather table suitable for driver usage. If
++ * the sg table doesn't exist, the pages are pinned, dma-mapped, and a sg
++ * table created.
++ *
++ * This is the main function for drivers to get at backing storage, and it hides
++ * and difference between dma-buf imported and natively allocated objects.
++ * drm_gem_shmem_get_sg_table() should not be directly called by drivers.
++ *
++ * Returns:
++ * A pointer to the scatter/gather table of pinned pages or errno on failure.
++ */
++struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
++{
++	int ret;
++	struct sg_table *sgt;
++
++	ret = mutex_lock_interruptible(&shmem->pages_lock);
++	if (ret)
++		return ERR_PTR(ret);
++	sgt = drm_gem_shmem_get_pages_sgt_locked(shmem);
++	mutex_unlock(&shmem->pages_lock);
++
++	return sgt;
++}
++EXPORT_SYMBOL(drm_gem_shmem_get_pages_sgt);
+ 
+ /**
+  * drm_gem_shmem_prime_import_sg_table - Produce a shmem GEM object from
 -- 
 2.39.2
 
