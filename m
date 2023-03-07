@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27AEC6AF034
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19E1F6AF336
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbjCGS32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:29:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57160 "EHLO
+        id S233599AbjCGTCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:02:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231742AbjCGS3F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AC18B0483
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:51 -0800 (PST)
+        with ESMTP id S233498AbjCGTBi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:01:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC708769ED
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8203261537
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B822C433D2;
-        Tue,  7 Mar 2023 18:21:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF494B817AE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29F35C433D2;
+        Tue,  7 Mar 2023 18:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213310;
-        bh=sRWK1XnHSKvmslb1Uh92CXDwu2HzmlyIQC4SITts1w0=;
+        s=korg; t=1678214830;
+        bh=SsSdd7WURiikL9NB5e+ddUO9NxXQ35H+uSYxU1IcLp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4T+uJtsaNy0Th4cZTNW8CSdL9ZKN9qT41HfhG5CBq76EgzUs7MLqT5aGaVcCF2t8
-         LxDErQsUrQjWBaMdTqoHWevHCsIDp9Ltrx9EUWRip2p43iOO0EjxSoAVO1ivW3dNzC
-         CigUKMzaohNyED0vCiyM+OaOaYCqhOgrZVA2n7rc=
+        b=0BgavZAoQyrSYHO+j6/bWRAL5VJplANQpgBY1hMPuzs1nDj/Y7p+puUb+HtNjQzzx
+         ukxPvBJvyzNhF/68o1vvZvMM+aejF6T0cXRMTaiXF0tpRk25fBcFNiGkubLV9EKe8S
+         AarSTxPYkg1q1QI09spK7wCTLpgFgDe/w0+QV/ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
-        Shenwei Wang <shenwei.wang@nxp.com>,
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 466/885] serial: fsl_lpuart: fix RS485 RTS polariy inverse issue
+Subject: [PATCH 5.15 064/567] arm64: dts: qcom: pmk8350: Use the correct PON compatible
 Date:   Tue,  7 Mar 2023 17:56:40 +0100
-Message-Id: <20230307170022.740711223@linuxfoundation.org>
+Message-Id: <20230307165908.668050510@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,43 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shenwei Wang <shenwei.wang@nxp.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 3957b9501a5a8fa709ae4a47483714491471f6db ]
+[ Upstream commit c0ee8e0ba5cc17623e63349a168b41e407b1eef0 ]
 
-The previous 'commit 846651eca073 ("serial: fsl_lpuart: RS485 RTS
-polariy is inverse")' only fixed the inverse issue on lpuart 8bit
-platforms.
+A special compatible was introduced for PMK8350 both in the driver and
+the bindings to facilitate for 2 base registers (PBS & HLOS). Use it.
 
-This is a follow-up patch to fix the RS485 polarity inverse
-issue on lpuart 32bit platforms.
-
-Fixes: 03895cf41d18 ("tty: serial: fsl_lpuart: Add support for RS-485")
-Reported-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Shenwei Wang <shenwei.wang@nxp.com>
-Link: https://lore.kernel.org/r/20230207162420.3647904-1-shenwei.wang@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b2de43136058 ("arm64: dts: qcom: pmk8350: Add peripherals for pmk8350")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230213212930.2115182-1-konrad.dybcio@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/pmk8350.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index f6ac46879dc7b..13a6cd0116a13 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1393,9 +1393,9 @@ static int lpuart32_config_rs485(struct uart_port *port, struct ktermios *termio
- 		 * Note: UART is assumed to be active high.
- 		 */
- 		if (rs485->flags & SER_RS485_RTS_ON_SEND)
--			modem &= ~UARTMODEM_TXRTSPOL;
--		else if (rs485->flags & SER_RS485_RTS_AFTER_SEND)
- 			modem |= UARTMODEM_TXRTSPOL;
-+		else if (rs485->flags & SER_RS485_RTS_AFTER_SEND)
-+			modem &= ~UARTMODEM_TXRTSPOL;
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/pmk8350.dtsi b/arch/arm64/boot/dts/qcom/pmk8350.dtsi
+index 530adc87a4096..fc38f77d12a36 100644
+--- a/arch/arm64/boot/dts/qcom/pmk8350.dtsi
++++ b/arch/arm64/boot/dts/qcom/pmk8350.dtsi
+@@ -16,7 +16,7 @@ pmk8350: pmic@0 {
+ 		#size-cells = <0>;
  
- 	lpuart32_write(&sport->port, modem, UARTMODIR);
+ 		pmk8350_pon: pon@1300 {
+-			compatible = "qcom,pm8998-pon";
++			compatible = "qcom,pmk8350-pon";
+ 			reg = <0x1300>, <0x800>;
+ 			reg-names = "hlos", "pbs";
+ 
 -- 
 2.39.2
 
