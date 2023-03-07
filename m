@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C796AF375
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 371EB6AF3A2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233615AbjCGTFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:05:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
+        id S233491AbjCGTHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:07:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233491AbjCGTEx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:04:53 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC11BF8EB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:50:29 -0800 (PST)
+        with ESMTP id S233514AbjCGTG5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:06:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E345968F4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A2CF2CE1C93
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:50:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9645CC433D2;
-        Tue,  7 Mar 2023 18:50:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32562B819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 952A1C4339B;
+        Tue,  7 Mar 2023 18:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215003;
-        bh=/IG47hQpwi5I9tjNK9hCayohghJ30Y62H2Hcj9FZOYc=;
+        s=korg; t=1678215128;
+        bh=4bzhCnmK1XqjWVAwFBuudtMyfviKxF03krUNw9+tjFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvcVo/cKQeCU08y5qFb3eW0LexPtuaaATmiPTwvGSiA3isTxlDOBHb8XY8mTxQHOi
-         9WGZ8hnh6LjvYQAUZdEJGY5LHFknrOgM9FEfc7mn1FaN3SpqDPXrG0pFDHgsM48cvB
-         8RMFdmjXokaThGudriB18TiBBxAhKEQudehWWXcM=
+        b=TywTDnxN8EePKlfzX2SKdtOrc1iYOdTBwjZhHNxQFFjqvBnx54ZQByl47p9jNXcDU
+         jyPB0JIKAMLJ+EnYrIbGV1mJUfFSGItB20ewF2TjYYoHS2LUNFE8xdSEozGr5tFQsw
+         p8lvpqnTHDMyESt6M2QeByvr0NMW+beFIJi0t5pM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ashok Raj <ashok.raj@intel.com>,
+        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
+        Ashok Raj <ashok.raj@intel.com>,
         "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 118/567] x86/microcode: Check CPU capabilities after late microcode update correctly
-Date:   Tue,  7 Mar 2023 17:57:34 +0100
-Message-Id: <20230307165911.012962264@linuxfoundation.org>
+Subject: [PATCH 5.15 119/567] x86/microcode: Adjust late loading result reporting message
+Date:   Tue,  7 Mar 2023 17:57:35 +0100
+Message-Id: <20230307165911.062182433@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -56,146 +58,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ashok Raj <ashok.raj@intel.com>
 
-[ Upstream commit c0dd9245aa9e25a697181f6085692272c9ec61bc ]
+[ Upstream commit 6eab3abac7043226e5375e9ead0c7607ced6767b ]
 
-The kernel caches each CPU's feature bits at boot in an x86_capability[]
-structure. However, the capabilities in the BSP's copy can be turned off
-as a result of certain command line parameters or configuration
-restrictions, for example the SGX bit. This can cause a mismatch when
-comparing the values before and after the microcode update.
+During late microcode loading, the "Reload completed" message is issued
+unconditionally, regardless of success or failure.
 
-Another example is X86_FEATURE_SRBDS_CTRL which gets added only after
-microcode update:
+Adjust the message to report the result of the update.
 
-#  --- cpuid.before	2023-01-21 14:54:15.652000747 +0100
-#  +++ cpuid.after	2023-01-21 14:54:26.632001024 +0100
-#  @@ -10,7 +10,7 @@ CPU:
-#      0x00000004 0x04: eax=0x00000000 ebx=0x00000000 ecx=0x00000000 edx=0x00000000
-#      0x00000005 0x00: eax=0x00000040 ebx=0x00000040 ecx=0x00000003 edx=0x11142120
-#      0x00000006 0x00: eax=0x000027f7 ebx=0x00000002 ecx=0x00000001 edx=0x00000000
-#  -   0x00000007 0x00: eax=0x00000000 ebx=0x029c6fbf ecx=0x40000000 edx=0xbc002400
-#  +   0x00000007 0x00: eax=0x00000000 ebx=0x029c6fbf ecx=0x40000000 edx=0xbc002e00
-  									     ^^^
+  [ bp: Massage. ]
 
-and which proves for a gazillionth time that late loading is a bad bad
-idea.
-
-microcode_check() is called after an update to report any previously
-cached CPUID bits which might have changed due to the update.
-
-Therefore, store the cached CPU caps before the update and compare them
-with the CPU caps after the microcode update has succeeded.
-
-Thus, the comparison is done between the CPUID *hardware* bits before
-and after the upgrade instead of using the cached, possibly runtime
-modified values in BSP's boot_cpu_data copy.
-
-As a result, false warnings about CPUID bits changes are avoided.
-
-  [ bp:
-  	- Massage.
-	- Add SRBDS_CTRL example.
-	- Add kernel-doc.
-	- Incorporate forgotten review feedback from dhansen.
-	]
-
-Fixes: 1008c52c09dc ("x86/CPU: Add a microcode loader callback")
+Fixes: 9bd681251b7c ("x86/microcode: Announce reload operation's completion")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230109153555.4986-3-ashok.raj@intel.com
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/lkml/874judpqqd.ffs@tglx/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/processor.h     |  1 +
- arch/x86/kernel/cpu/common.c         | 36 ++++++++++++++++++----------
- arch/x86/kernel/cpu/microcode/core.c |  6 +++++
- 3 files changed, 30 insertions(+), 13 deletions(-)
+ arch/x86/kernel/cpu/microcode/core.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index eb6d6d1057929..3e3bd5b7d5dbe 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -836,6 +836,7 @@ bool xen_set_default_idle(void);
- 
- void __noreturn stop_this_cpu(void *dummy);
- void microcode_check(struct cpuinfo_x86 *prev_info);
-+void store_cpu_caps(struct cpuinfo_x86 *info);
- 
- enum l1tf_mitigations {
- 	L1TF_MITIGATION_OFF,
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index f2cd244d31311..f7b4bbe71cdf9 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -2150,6 +2150,25 @@ void cpu_init_secondary(void)
- #endif
- 
- #ifdef CONFIG_MICROCODE_LATE_LOADING
-+/**
-+ * store_cpu_caps() - Store a snapshot of CPU capabilities
-+ * @curr_info: Pointer where to store it
-+ *
-+ * Returns: None
-+ */
-+void store_cpu_caps(struct cpuinfo_x86 *curr_info)
-+{
-+	/* Reload CPUID max function as it might've changed. */
-+	curr_info->cpuid_level = cpuid_eax(0);
-+
-+	/* Copy all capability leafs and pick up the synthetic ones. */
-+	memcpy(&curr_info->x86_capability, &boot_cpu_data.x86_capability,
-+	       sizeof(curr_info->x86_capability));
-+
-+	/* Get the hardware CPUID leafs */
-+	get_cpu_cap(curr_info);
-+}
-+
- /**
-  * microcode_check() - Check if any CPU capabilities changed after an update.
-  * @prev_info:	CPU capabilities stored before an update.
-@@ -2162,22 +2181,13 @@ void cpu_init_secondary(void)
-  */
- void microcode_check(struct cpuinfo_x86 *prev_info)
- {
--	perf_check_microcode();
--
--	/* Reload CPUID max function as it might've changed. */
--	prev_info->cpuid_level = cpuid_eax(0);
-+	struct cpuinfo_x86 curr_info;
- 
--	/*
--	 * Copy all capability leafs to pick up the synthetic ones so that
--	 * memcmp() below doesn't fail on that. The ones coming from CPUID will
--	 * get overwritten in get_cpu_cap().
--	 */
--	memcpy(&prev_info->x86_capability, &boot_cpu_data.x86_capability,
--	       sizeof(prev_info->x86_capability));
-+	perf_check_microcode();
- 
--	get_cpu_cap(prev_info);
-+	store_cpu_caps(&curr_info);
- 
--	if (!memcmp(&prev_info->x86_capability, &boot_cpu_data.x86_capability,
-+	if (!memcmp(&prev_info->x86_capability, &curr_info.x86_capability,
- 		    sizeof(prev_info->x86_capability)))
- 		return;
- 
 diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
-index 9592dbf628b43..30d1bd36934dd 100644
+index 30d1bd36934dd..7efdfc16144e5 100644
 --- a/arch/x86/kernel/cpu/microcode/core.c
 +++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -514,6 +514,12 @@ static int microcode_reload_late(void)
- 	atomic_set(&late_cpus_in,  0);
- 	atomic_set(&late_cpus_out, 0);
+@@ -521,11 +521,14 @@ static int microcode_reload_late(void)
+ 	store_cpu_caps(&prev_info);
  
-+	/*
-+	 * Take a snapshot before the microcode update in order to compare and
-+	 * check whether any bits changed after an update.
-+	 */
-+	store_cpu_caps(&prev_info);
-+
  	ret = stop_machine_cpuslocked(__reload_late, NULL, cpu_online_mask);
- 	if (ret == 0)
+-	if (ret == 0)
++	if (!ret) {
++		pr_info("Reload succeeded, microcode revision: 0x%x -> 0x%x\n",
++			old, boot_cpu_data.microcode);
  		microcode_check(&prev_info);
+-
+-	pr_info("Reload completed, microcode revision: 0x%x -> 0x%x\n",
+-		old, boot_cpu_data.microcode);
++	} else {
++		pr_info("Reload failed, current microcode revision: 0x%x\n",
++			boot_cpu_data.microcode);
++	}
+ 
+ 	return ret;
+ }
 -- 
 2.39.2
 
