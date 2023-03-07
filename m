@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B189F6AED97
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B16326AE8F3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:19:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230476AbjCGSFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:05:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45074 "EHLO
+        id S230173AbjCGRTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:19:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231262AbjCGSF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC7499261
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:34 -0800 (PST)
+        with ESMTP id S230091AbjCGRTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:19:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A448ABD1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42D5961509
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F95C433EF;
-        Tue,  7 Mar 2023 17:58:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17506B819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E755C433EF;
+        Tue,  7 Mar 2023 17:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211911;
-        bh=7Z+Fn9ZUuoduw5vlFdXNr8hPtaOplts1EwEa5yZqNcI=;
+        s=korg; t=1678209281;
+        bh=zGHRFoAzOqbZoTr8Eb9g8FmawEQ02ZQvdjQ+SCzP5lI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWNu5JS009VN/WKw6TcHKCSyL5/JyKUkQBPVmVdj8f2ng3+SBcNWe3YYyHjVJyDGo
-         6v5f9EMlKwMstrM/ahSkUzrZNXkXiTArlse6JQ02bXC+EQ6CANtQ7nIHs77kXaoftf
-         mpV+eNxuaTJQjPXpSZiu+FKAC1pFJj8idKS9Ykyw=
+        b=LfQy3T9KCo/kKZcXyXrBbvtn3zwnteOKp90tyGKRBMVdCPoPwcC0DrhlILlXHKev2
+         +xqYHq4VBRCG7idiHEmLybGpzHcOB7qyTZg512Eg6n8vqVp1GSfwLqmGfEup6oAbVb
+         yAPR+UIvhmT3hQGEppbPIrGAsKK8MwT1g+A6dF+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 007/885] arm64: dts: qcom: msm8996-tone: Fix USB taking 6 minutes to wake up
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0169/1001] wifi: libertas: if_usb: dont call kfree_skb() under spin_lock_irqsave()
 Date:   Tue,  7 Mar 2023 17:49:01 +0100
-Message-Id: <20230307170001.948927770@linuxfoundation.org>
+Message-Id: <20230307170029.299622618@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 43069b9cd358aebc692e654de91ee06ff66e26af ]
+[ Upstream commit 3968e81ba644f10a7d45bae2539560db9edac501 ]
 
-The hardware turns out to be pretty sluggish at assuming it can only
-do USB2 with just a USB2 phy assigned to it - before it needed about
-6 minutes to acknowledge that.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
+tested only.
 
-Limit it to USB-HS explicitly to make USB come up about 720x faster.
-
-Fixes: 9da65e441d4d ("arm64: dts: qcom: Add support for SONY Xperia X Performance / XZ / XZs (msm8996, Tone platform)")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221124220147.102611-1-konrad.dybcio@linaro.org
+Fixes: a3128feef6d5 ("libertas: use irqsave() in USB's complete callback")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207150008.111743-3-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/wireless/marvell/libertas/if_usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi b/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi
-index ca7c8d2e1d3d9..a60decd894291 100644
---- a/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8996-sony-xperia-tone.dtsi
-@@ -944,10 +944,6 @@ touch_int_sleep: touch-int-sleep {
- 	};
- };
+diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
+index 32fdc4150b605..2240b4db8c036 100644
+--- a/drivers/net/wireless/marvell/libertas/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas/if_usb.c
+@@ -637,7 +637,7 @@ static inline void process_cmdrequest(int recvlength, uint8_t *recvbuff,
+ 	priv->resp_len[i] = (recvlength - MESSAGE_HEADER_LEN);
+ 	memcpy(priv->resp_buf[i], recvbuff + MESSAGE_HEADER_LEN,
+ 		priv->resp_len[i]);
+-	kfree_skb(skb);
++	dev_kfree_skb_irq(skb);
+ 	lbs_notify_command_response(priv, i);
  
--/*
-- * For reasons that are currently unknown (but probably related to fusb301), USB takes about
-- * 6 minutes to wake up (nothing interesting in kernel logs), but then it works as it should.
-- */
- &usb3 {
- 	status = "okay";
- 	qcom,select-utmi-as-pipe-clk;
-@@ -956,6 +952,7 @@ &usb3 {
- &usb3_dwc3 {
- 	extcon = <&usb3_id>;
- 	dr_mode = "peripheral";
-+	maximum-speed = "high-speed";
- 	phys = <&hsusb_phy1>;
- 	phy-names = "usb2-phy";
- 	snps,hird-threshold = /bits/ 8 <0>;
+ 	spin_unlock_irqrestore(&priv->driver_lock, flags);
 -- 
 2.39.2
 
