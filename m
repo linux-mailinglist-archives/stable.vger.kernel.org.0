@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 423AA6AEC1C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:52:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 580DB6AF204
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:49:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbjCGRwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:52:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S233329AbjCGStd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:49:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232280AbjCGRwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:01 -0500
+        with ESMTP id S233296AbjCGStL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1425EA5907
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:46:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6134DA102E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:37:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C7A8614E8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:46:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE47C433D2;
-        Tue,  7 Mar 2023 17:46:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69BD06152F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F603C4339B;
+        Tue,  7 Mar 2023 18:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211194;
-        bh=7CtELBry5mtomORHx/JS1mGjx/8sLFLfdBGQFqYYanw=;
+        s=korg; t=1678213798;
+        bh=jKZlzn2zgAqVSSQzYMdPXgrQ+56PWN+KQo7GH48Xnks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EU4IQKmcGkKeR3YSQ4XU7YyppFOLiJUIP/flUp3M8kHNF6LH5UA8Ijc3la1rDXSgV
-         Ci9OHx7xKTdRxQSc1uqLUKLL3UFA+i8bcPIRWpY9JQKla0WLxTy8jWXCVUqSxqwZ36
-         0ETvOMrE0KAyMDRCIWYG2qG2AtFA1MbpoGEYmlyM=
+        b=jyOwG7IKDmcLNICnEBx6fIDxBvmTW+fKPdmBAp+mIkB78koQnUL++rZFrWy+Hn9VK
+         RA8VcSkHlwoyeDcFwcRe6QpwHyWJiGFeNLRHOM6ha7BuYo0uQcSVC+vqzz6tirK2Xm
+         5ILCm4RLF+2x3X3IswegKvezCqYtthoEt1wcklvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.2 0783/1001] btrfs: sysfs: update fs features directory asynchronously
-Date:   Tue,  7 Mar 2023 17:59:15 +0100
-Message-Id: <20230307170055.725859565@linuxfoundation.org>
+        patches@lists.linux.dev, Shinhyung Kang <s47.kang@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 622/885] ASoC: soc-compress: Reposition and add pcm_mutex
+Date:   Tue,  7 Mar 2023 17:59:16 +0100
+Message-Id: <20230307170029.282355243@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,222 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: 강신형 <s47.kang@samsung.com>
 
-commit b7625f461da6734a21c38ba6e7558538a116a2e3 upstream.
+[ Upstream commit aa9ff6a4955fdba02b54fbc4386db876603703b7 ]
 
-[BUG]
-Since the introduction of per-fs feature sysfs interface
-(/sys/fs/btrfs/<UUID>/features/), the content of that directory is never
-updated.
+If panic_on_warn is set and compress stream(DPCM) is started,
+then kernel panic occurred because card->pcm_mutex isn't held appropriately.
+In the following functions, warning were issued at this line
+"snd_soc_dpcm_mutex_assert_held".
 
-Thus for the following case, that directory will not show the new
-features like RAID56:
+static int dpcm_be_connect(struct snd_soc_pcm_runtime *fe,
+		struct snd_soc_pcm_runtime *be, int stream)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-  # mkfs.btrfs -f $dev1 $dev2 $dev3
-  # mount $dev1 $mnt
-  # btrfs balance start -f -mconvert=raid5 $mnt
-  # ls /sys/fs/btrfs/$uuid/features/
-  extended_iref  free_space_tree  no_holes  skinny_metadata
+void dpcm_be_disconnect(struct snd_soc_pcm_runtime *fe, int stream)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-While after unmount and mount, we got the correct features:
+void snd_soc_runtime_action(struct snd_soc_pcm_runtime *rtd,
+			    int stream, int action)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(rtd);
+	...
+}
 
-  # umount $mnt
-  # mount $dev1 $mnt
-  # ls /sys/fs/btrfs/$uuid/features/
-  extended_iref  free_space_tree  no_holes  raid56 skinny_metadata
+int dpcm_dapm_stream_event(struct snd_soc_pcm_runtime *fe, int dir,
+	int event)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-[CAUSE]
-Because we never really try to update the content of per-fs features/
-directory.
+These functions are called by soc_compr_set_params_fe, soc_compr_open_fe
+and soc_compr_free_fe
+without pcm_mutex locking. And this is call stack.
 
-We had an attempt to update the features directory dynamically in commit
-14e46e04958d ("btrfs: synchronize incompat feature bits with sysfs
-files"), but unfortunately it get reverted in commit e410e34fad91
-("Revert "btrfs: synchronize incompat feature bits with sysfs files"").
-The problem in the original patch is, in the context of
-btrfs_create_chunk(), we can not afford to update the sysfs group.
+[  414.527841][ T2179] pc : dpcm_process_paths+0x5a4/0x750
+[  414.527848][ T2179] lr : dpcm_process_paths+0x37c/0x750
+[  414.527945][ T2179] Call trace:
+[  414.527949][ T2179]  dpcm_process_paths+0x5a4/0x750
+[  414.527955][ T2179]  soc_compr_open_fe+0xb0/0x2cc
+[  414.527972][ T2179]  snd_compr_open+0x180/0x248
+[  414.527981][ T2179]  snd_open+0x15c/0x194
+[  414.528003][ T2179]  chrdev_open+0x1b0/0x220
+[  414.528023][ T2179]  do_dentry_open+0x30c/0x594
+[  414.528045][ T2179]  vfs_open+0x34/0x44
+[  414.528053][ T2179]  path_openat+0x914/0xb08
+[  414.528062][ T2179]  do_filp_open+0xc0/0x170
+[  414.528068][ T2179]  do_sys_openat2+0x94/0x18c
+[  414.528076][ T2179]  __arm64_sys_openat+0x78/0xa4
+[  414.528084][ T2179]  invoke_syscall+0x48/0x10c
+[  414.528094][ T2179]  el0_svc_common+0xbc/0x104
+[  414.528099][ T2179]  do_el0_svc+0x34/0xd8
+[  414.528103][ T2179]  el0_svc+0x34/0xc4
+[  414.528125][ T2179]  el0t_64_sync_handler+0x8c/0xfc
+[  414.528133][ T2179]  el0t_64_sync+0x1a0/0x1a4
+[  414.528142][ T2179] Kernel panic - not syncing: panic_on_warn set ...
 
-The exported but never utilized function, btrfs_sysfs_feature_update()
-is the leftover of such attempt.  As even if we go sysfs_update_group(),
-new files will need extra memory allocation, and we have no way to
-specify the sysfs update to go GFP_NOFS.
+So, I reposition and add pcm_mutex to resolve lockdep error.
 
-[FIX]
-This patch will address the old problem by doing asynchronous sysfs
-update in the cleaner thread.
-
-This involves the following changes:
-
-- Make __btrfs_(set|clear)_fs_(incompat|compat_ro) helpers to set
-  BTRFS_FS_FEATURE_CHANGED flag when needed
-
-- Update btrfs_sysfs_feature_update() to use sysfs_update_group()
-  And drop unnecessary arguments.
-
-- Call btrfs_sysfs_feature_update() in cleaner_kthread
-  If we have the BTRFS_FS_FEATURE_CHANGED flag set.
-
-- Wake up cleaner_kthread in btrfs_commit_transaction if we have
-  BTRFS_FS_FEATURE_CHANGED flag
-
-By this, all the previously dangerous call sites like
-btrfs_create_chunk() need no new changes, as above helpers would
-have already set the BTRFS_FS_FEATURE_CHANGED flag.
-
-The real work happens at cleaner_kthread, thus we pay the cost of
-delaying the update to sysfs directory, but the delayed time should be
-small enough that end user can not distinguish though it might get
-delayed if the cleaner thread is busy with removing subvolumes or
-defrag.
-
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shinhyung Kang <s47.kang@samsung.com>
+Link: https://lore.kernel.org/r/016401d90ac4$7b6848c0$7238da40$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c     |    3 +++
- fs/btrfs/fs.c          |    4 ++++
- fs/btrfs/fs.h          |    6 ++++++
- fs/btrfs/sysfs.c       |   29 ++++++++---------------------
- fs/btrfs/sysfs.h       |    3 +--
- fs/btrfs/transaction.c |    5 +++++
- 6 files changed, 27 insertions(+), 23 deletions(-)
+ sound/soc/soc-compress.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1910,6 +1910,9 @@ static int cleaner_kthread(void *arg)
- 			goto sleep;
- 		}
+diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
+index cb0ed2fea893a..e7aa6f360cabe 100644
+--- a/sound/soc/soc-compress.c
++++ b/sound/soc/soc-compress.c
+@@ -149,6 +149,8 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
+ 	if (ret < 0)
+ 		goto be_err;
  
-+		if (test_and_clear_bit(BTRFS_FS_FEATURE_CHANGED, &fs_info->flags))
-+			btrfs_sysfs_feature_update(fs_info);
++	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
 +
- 		btrfs_run_delayed_iputs(fs_info);
+ 	/* calculate valid and active FE <-> BE dpcms */
+ 	dpcm_process_paths(fe, stream, &list, 1);
+ 	fe->dpcm[stream].runtime = fe_substream->runtime;
+@@ -184,7 +186,6 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
+ 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_OPEN;
+ 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_NO;
  
- 		again = btrfs_clean_one_deleted_snapshot(fs_info);
---- a/fs/btrfs/fs.c
-+++ b/fs/btrfs/fs.c
-@@ -24,6 +24,7 @@ void __btrfs_set_fs_incompat(struct btrf
- 				name, flag);
- 		}
- 		spin_unlock(&fs_info->super_lock);
-+		set_bit(BTRFS_FS_FEATURE_CHANGED, &fs_info->flags);
- 	}
- }
+-	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	snd_soc_runtime_activate(fe, stream);
+ 	mutex_unlock(&fe->card->pcm_mutex);
  
-@@ -46,6 +47,7 @@ void __btrfs_clear_fs_incompat(struct bt
- 				name, flag);
- 		}
- 		spin_unlock(&fs_info->super_lock);
-+		set_bit(BTRFS_FS_FEATURE_CHANGED, &fs_info->flags);
- 	}
- }
+@@ -215,7 +216,6 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
  
-@@ -68,6 +70,7 @@ void __btrfs_set_fs_compat_ro(struct btr
- 				name, flag);
- 		}
- 		spin_unlock(&fs_info->super_lock);
-+		set_bit(BTRFS_FS_FEATURE_CHANGED, &fs_info->flags);
- 	}
- }
+ 	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	snd_soc_runtime_deactivate(fe, stream);
+-	mutex_unlock(&fe->card->pcm_mutex);
  
-@@ -90,5 +93,6 @@ void __btrfs_clear_fs_compat_ro(struct b
- 				name, flag);
- 		}
- 		spin_unlock(&fs_info->super_lock);
-+		set_bit(BTRFS_FS_FEATURE_CHANGED, &fs_info->flags);
- 	}
- }
---- a/fs/btrfs/fs.h
-+++ b/fs/btrfs/fs.h
-@@ -125,6 +125,12 @@ enum {
- 	 */
- 	BTRFS_FS_NO_OVERCOMMIT,
+ 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_FE;
  
-+	/*
-+	 * Indicate if we have some features changed, this is mostly for
-+	 * cleaner thread to update the sysfs interface.
-+	 */
-+	BTRFS_FS_FEATURE_CHANGED,
+@@ -234,6 +234,8 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
+ 
+ 	dpcm_be_disconnect(fe, stream);
+ 
++	mutex_unlock(&fe->card->pcm_mutex);
 +
- #if BITS_PER_LONG == 32
- 	/* Indicate if we have error/warn message printed on 32bit systems */
- 	BTRFS_FS_32BIT_ERROR,
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -2272,36 +2272,23 @@ void btrfs_sysfs_del_one_qgroup(struct b
-  * Change per-fs features in /sys/fs/btrfs/UUID/features to match current
-  * values in superblock. Call after any changes to incompat/compat_ro flags
-  */
--void btrfs_sysfs_feature_update(struct btrfs_fs_info *fs_info,
--		u64 bit, enum btrfs_feature_set set)
-+void btrfs_sysfs_feature_update(struct btrfs_fs_info *fs_info)
- {
--	struct btrfs_fs_devices *fs_devs;
- 	struct kobject *fsid_kobj;
--	u64 __maybe_unused features;
--	int __maybe_unused ret;
-+	int ret;
+ 	fe->dpcm[stream].runtime = NULL;
  
- 	if (!fs_info)
- 		return;
- 
--	/*
--	 * See 14e46e04958df74 and e410e34fad913dd, feature bit updates are not
--	 * safe when called from some contexts (eg. balance)
--	 */
--	features = get_features(fs_info, set);
--	ASSERT(bit & supported_feature_masks[set]);
+ 	snd_soc_link_compr_shutdown(cstream, 0);
+@@ -409,8 +411,9 @@ static int soc_compr_set_params_fe(struct snd_compr_stream *cstream,
+ 	ret = snd_soc_link_compr_set_params(cstream);
+ 	if (ret < 0)
+ 		goto out;
 -
--	fs_devs = fs_info->fs_devices;
--	fsid_kobj = &fs_devs->fsid_kobj;
--
-+	fsid_kobj = &fs_info->fs_devices->fsid_kobj;
- 	if (!fsid_kobj->state_initialized)
- 		return;
++	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	dpcm_dapm_stream_event(fe, stream, SND_SOC_DAPM_STREAM_START);
++	mutex_unlock(&fe->card->pcm_mutex);
+ 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_PREPARE;
  
--	/*
--	 * FIXME: this is too heavy to update just one value, ideally we'd like
--	 * to use sysfs_update_group but some refactoring is needed first.
--	 */
--	sysfs_remove_group(fsid_kobj, &btrfs_feature_attr_group);
--	ret = sysfs_create_group(fsid_kobj, &btrfs_feature_attr_group);
-+	ret = sysfs_update_group(fsid_kobj, &btrfs_feature_attr_group);
-+	if (ret < 0)
-+		btrfs_warn(fs_info,
-+			   "failed to update /sys/fs/btrfs/%pU/features: %d",
-+			   fs_info->fs_devices->fsid, ret);
- }
- 
- int __init btrfs_init_sysfs(void)
---- a/fs/btrfs/sysfs.h
-+++ b/fs/btrfs/sysfs.h
-@@ -19,8 +19,7 @@ void btrfs_sysfs_remove_device(struct bt
- int btrfs_sysfs_add_fsid(struct btrfs_fs_devices *fs_devs);
- void btrfs_sysfs_remove_fsid(struct btrfs_fs_devices *fs_devs);
- void btrfs_sysfs_update_sprout_fsid(struct btrfs_fs_devices *fs_devices);
--void btrfs_sysfs_feature_update(struct btrfs_fs_info *fs_info,
--		u64 bit, enum btrfs_feature_set set);
-+void btrfs_sysfs_feature_update(struct btrfs_fs_info *fs_info);
- void btrfs_kobject_uevent(struct block_device *bdev, enum kobject_action action);
- 
- int __init btrfs_init_sysfs(void);
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2464,6 +2464,11 @@ int btrfs_commit_transaction(struct btrf
- 	wake_up(&fs_info->transaction_wait);
- 	btrfs_trans_state_lockdep_release(fs_info, BTRFS_LOCKDEP_TRANS_UNBLOCKED);
- 
-+	/* If we have features changed, wake up the cleaner to update sysfs. */
-+	if (test_bit(BTRFS_FS_FEATURE_CHANGED, &fs_info->flags) &&
-+	    fs_info->cleaner_kthread)
-+		wake_up_process(fs_info->cleaner_kthread);
-+
- 	ret = btrfs_write_and_wait_transaction(trans);
- 	if (ret) {
- 		btrfs_handle_fs_error(fs_info, ret,
+ out:
+-- 
+2.39.2
+
 
 
