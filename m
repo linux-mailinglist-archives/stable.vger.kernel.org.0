@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5BA46AEA07
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DA16AEE93
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231431AbjCGRaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60560 "EHLO
+        id S232517AbjCGSN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:13:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231641AbjCGR3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:49 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E632EA225E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:24:58 -0800 (PST)
+        with ESMTP id S232516AbjCGSNF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8575596F27
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5EC87CE1C5C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:24:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427ECC433D2;
-        Tue,  7 Mar 2023 17:24:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18BCA6152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2104CC433EF;
+        Tue,  7 Mar 2023 18:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209895;
-        bh=HOxsuVUBfl+D7F19ZyIKj47BOtbQP8UHZbQBJrSecwg=;
+        s=korg; t=1678212509;
+        bh=eBjxfsF3Nd6mluMTuFMMfjrjKK1dm6eJVWVTPmK/vuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glfuc+cGXzmxJXcO6/ZDuj5uEgvm94Xx+q4uH27iO2WNZ0zJj8E7bAIiDj9ZG11hr
-         ovlXXkLq/e7D9SvwnhLrJ6uN7k4qKFN3UlB2UonFigJlC4vy26viVStzScmeq29OxO
-         jlZLcDkv70ehjIJa+6UdKnwAF9Ylqa96EfVpYxcA=
+        b=ycMUM5ycl+89H+sr4nvJy10Ss8MoJGA6oGbFqf/klJ38VZJMrNQFmMyzH4sUOAc7k
+         jtDu9xuwXhICFWhYL73rEu2nbSJxN4umK6ypunbi9Gu1qDDAAa3fd9uY1zNlwezjpl
+         zIGN/Kx2+Zokmx/NLUhoplJEtGeafbveLYnFprak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0367/1001] drm/bridge: lt9611: fix HPD reenablement
+Subject: [PATCH 6.1 205/885] s390/boot: cleanup decompressor header files
 Date:   Tue,  7 Mar 2023 17:52:19 +0100
-Message-Id: <20230307170037.303489216@linuxfoundation.org>
+Message-Id: <20230307170010.958625060@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit a7790f6bd38f3642b60ae3504a2c749135b89451 ]
+[ Upstream commit 9c3205b2b062420c26b33924b910880889acf832 ]
 
-The driver will reset the bridge in the atomic_pre_enable(). However
-this will also drop the HPD interrupt state. Instead of resetting the
-bridge, properly wake it up. This fixes the HPD interrupt delivery after
-the disable/enable cycle.
+Move declarations to appropriate header files. Instead of cryptic
+casting directly assign struct vmlinux_info type to _vmlinux_info
+linker script variable - wich it actually is.
 
-Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-3-dmitry.baryshkov@linaro.org
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Stable-dep-of: 22476f47b6b7 ("s390/boot: fix mem_detect extended area allocation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/s390/boot/boot.h         | 24 ++++++++++++++++++++++--
+ arch/s390/boot/decompressor.c |  1 +
+ arch/s390/boot/decompressor.h | 26 --------------------------
+ 3 files changed, 23 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index 2714184cc53f4..58f39b2792179 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -856,12 +856,18 @@ static enum drm_mode_status lt9611_bridge_mode_valid(struct drm_bridge *bridge,
- static void lt9611_bridge_pre_enable(struct drm_bridge *bridge)
- {
- 	struct lt9611 *lt9611 = bridge_to_lt9611(bridge);
-+	static const struct reg_sequence reg_cfg[] = {
-+		{ 0x8102, 0x12 },
-+		{ 0x8123, 0x40 },
-+		{ 0x8130, 0xea },
-+		{ 0x8011, 0xfa },
-+	};
+diff --git a/arch/s390/boot/boot.h b/arch/s390/boot/boot.h
+index 70418389414d3..f6e82cf7851e2 100644
+--- a/arch/s390/boot/boot.h
++++ b/arch/s390/boot/boot.h
+@@ -8,10 +8,26 @@
  
- 	if (!lt9611->sleep)
- 		return;
+ #ifndef __ASSEMBLY__
  
--	lt9611_reset(lt9611);
--	regmap_write(lt9611->regmap, 0x80ee, 0x01);
-+	regmap_multi_reg_write(lt9611->regmap,
-+			       reg_cfg, ARRAY_SIZE(reg_cfg));
++struct vmlinux_info {
++	unsigned long default_lma;
++	void (*entry)(void);
++	unsigned long image_size;	/* does not include .bss */
++	unsigned long bss_size;		/* uncompressed image .bss size */
++	unsigned long bootdata_off;
++	unsigned long bootdata_size;
++	unsigned long bootdata_preserved_off;
++	unsigned long bootdata_preserved_size;
++	unsigned long dynsym_start;
++	unsigned long rela_dyn_start;
++	unsigned long rela_dyn_end;
++	unsigned long amode31_size;
++};
++
+ void startup_kernel(void);
+ unsigned long detect_memory(void);
+ bool is_ipl_block_dump(void);
+ void store_ipl_parmblock(void);
++unsigned long read_ipl_report(unsigned long safe_offset);
+ void setup_boot_command_line(void);
+ void parse_boot_command_line(void);
+ void verify_facilities(void);
+@@ -20,6 +36,7 @@ void sclp_early_setup_buffer(void);
+ void print_pgm_check_info(void);
+ unsigned long get_random_base(unsigned long safe_addr);
+ void __printf(1, 2) decompressor_printk(const char *fmt, ...);
++void error(char *m);
  
- 	lt9611->sleep = false;
- }
+ /* Symbols defined by linker scripts */
+ extern const char kernel_version[];
+@@ -31,8 +48,11 @@ extern char __boot_data_start[], __boot_data_end[];
+ extern char __boot_data_preserved_start[], __boot_data_preserved_end[];
+ extern char _decompressor_syms_start[], _decompressor_syms_end[];
+ extern char _stack_start[], _stack_end[];
+-
+-unsigned long read_ipl_report(unsigned long safe_offset);
++extern char _end[];
++extern unsigned char _compressed_start[];
++extern unsigned char _compressed_end[];
++extern struct vmlinux_info _vmlinux_info;
++#define vmlinux _vmlinux_info
+ 
+ #endif /* __ASSEMBLY__ */
+ #endif /* BOOT_BOOT_H */
+diff --git a/arch/s390/boot/decompressor.c b/arch/s390/boot/decompressor.c
+index 623f6775d01d7..aad6f31fbd3d9 100644
+--- a/arch/s390/boot/decompressor.c
++++ b/arch/s390/boot/decompressor.c
+@@ -11,6 +11,7 @@
+ #include <linux/string.h>
+ #include <asm/page.h>
+ #include "decompressor.h"
++#include "boot.h"
+ 
+ /*
+  * gzip declarations
+diff --git a/arch/s390/boot/decompressor.h b/arch/s390/boot/decompressor.h
+index f75cc31a77dd9..92b81d2ea35d6 100644
+--- a/arch/s390/boot/decompressor.h
++++ b/arch/s390/boot/decompressor.h
+@@ -2,37 +2,11 @@
+ #ifndef BOOT_COMPRESSED_DECOMPRESSOR_H
+ #define BOOT_COMPRESSED_DECOMPRESSOR_H
+ 
+-#include <linux/stddef.h>
+-
+ #ifdef CONFIG_KERNEL_UNCOMPRESSED
+ static inline void *decompress_kernel(void) { return NULL; }
+ #else
+ void *decompress_kernel(void);
+ #endif
+ unsigned long mem_safe_offset(void);
+-void error(char *m);
+-
+-struct vmlinux_info {
+-	unsigned long default_lma;
+-	void (*entry)(void);
+-	unsigned long image_size;	/* does not include .bss */
+-	unsigned long bss_size;		/* uncompressed image .bss size */
+-	unsigned long bootdata_off;
+-	unsigned long bootdata_size;
+-	unsigned long bootdata_preserved_off;
+-	unsigned long bootdata_preserved_size;
+-	unsigned long dynsym_start;
+-	unsigned long rela_dyn_start;
+-	unsigned long rela_dyn_end;
+-	unsigned long amode31_size;
+-};
+-
+-/* Symbols defined by linker scripts */
+-extern char _end[];
+-extern unsigned char _compressed_start[];
+-extern unsigned char _compressed_end[];
+-extern char _vmlinux_info[];
+-
+-#define vmlinux (*(struct vmlinux_info *)_vmlinux_info)
+ 
+ #endif /* BOOT_COMPRESSED_DECOMPRESSOR_H */
 -- 
 2.39.2
 
