@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C00A6AE8F1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:19:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C59B46AEDAA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229628AbjCGRTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:19:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59360 "EHLO
+        id S231206AbjCGSGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:06:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229872AbjCGRS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:18:57 -0500
+        with ESMTP id S230520AbjCGSGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:06:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0DE88897
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DD32ACBA8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:59:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15356B819A8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32652C433EF;
-        Tue,  7 Mar 2023 17:14:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9902B81850
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28FEFC433EF;
+        Tue,  7 Mar 2023 17:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209278;
-        bh=qzdMr4xBW/suCFA5m+op5SswmK1Mp4IkmsKpAa2DTbc=;
+        s=korg; t=1678211908;
+        bh=VjkHx3JK16D4GBljREd1LXwEppihWd14k/F4O+hTDsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDuVmqqA+4ynNJCqsVRcNJqRcnLBE0YRtjwAQEAuKuqbWYW1bBZTzXPqrYbXH32d8
-         pezyj+KAShWnUXiWwhtkGqXuur5cP/s73RQ370FE4/j6uJPFUFRSpSM2geMe+F6tS7
-         OeyB0A3dZ8OYe6cIO5UTgC8OJxu2OdK7pVZjXfJQ=
+        b=vGPL3GgBIWi8DAyYb4YFJp3cMJq2eFxam2MmZYUvLPN4f+7scPHvfv3pn+itaKaZB
+         r538viM0rCgmMU0Cidry9Cg4plPYfMNcqU7ElX/bStD4nZ/xjUCgg0Hqi0CwHxotVY
+         1r0wqJNL8Jb7/AYGiUdYz/zKmlLcmpoMEDeyE8v4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0168/1001] wifi: libertas_tf: dont call kfree_skb() under spin_lock_irqsave()
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 006/885] arm64: dts: qcom: qcs404: use symbol names for PCIe resets
 Date:   Tue,  7 Mar 2023 17:49:00 +0100
-Message-Id: <20230307170029.271216360@linuxfoundation.org>
+Message-Id: <20230307170001.909153878@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 9388ce97b98216833c969191ee6df61a7201d797 ]
+[ Upstream commit 41a37d157a613444c97e8f71a5fb2a21116b70d7 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
-tested only.
+The commit e5bbbff5b7d7 ("clk: gcc-qcs404: Add PCIe resets") added names
+for PCIe resets, but it did not change the existing qcs404.dtsi to use
+these names. Do it now and use symbol names to make it easier to check
+and modify the dtsi in future.
 
-Fixes: fc75122fabb5 ("libertas_tf: use irqsave() in USB's complete callback")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207150008.111743-2-yangyingliang@huawei.com
+Fixes: e5bbbff5b7d7 ("clk: gcc-qcs404: Add PCIe resets")
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221226042154.2666748-14-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/qcs404.dtsi | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-index 75b5319d033f3..1750f5e93de21 100644
---- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-@@ -613,7 +613,7 @@ static inline void process_cmdrequest(int recvlength, uint8_t *recvbuff,
- 	spin_lock_irqsave(&priv->driver_lock, flags);
- 	memcpy(priv->cmd_resp_buff, recvbuff + MESSAGE_HEADER_LEN,
- 	       recvlength - MESSAGE_HEADER_LEN);
--	kfree_skb(skb);
-+	dev_kfree_skb_irq(skb);
- 	lbtf_cmd_response_rx(priv);
- 	spin_unlock_irqrestore(&priv->driver_lock, flags);
- }
+diff --git a/arch/arm64/boot/dts/qcom/qcs404.dtsi b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+index 80f2d05595fa6..bec1b6e5a67ac 100644
+--- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
++++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+@@ -792,7 +792,7 @@ pcie_phy: phy@7786000 {
+ 
+ 			clocks = <&gcc GCC_PCIE_0_PIPE_CLK>;
+ 			resets = <&gcc GCC_PCIEPHY_0_PHY_BCR>,
+-				 <&gcc 21>;
++				 <&gcc GCC_PCIE_0_PIPE_ARES>;
+ 			reset-names = "phy", "pipe";
+ 
+ 			clock-output-names = "pcie_0_pipe_clk";
+@@ -1322,12 +1322,12 @@ pcie: pci@10000000 {
+ 				 <&gcc GCC_PCIE_0_SLV_AXI_CLK>;
+ 			clock-names = "iface", "aux", "master_bus", "slave_bus";
+ 
+-			resets = <&gcc 18>,
+-				 <&gcc 17>,
+-				 <&gcc 15>,
+-				 <&gcc 19>,
++			resets = <&gcc GCC_PCIE_0_AXI_MASTER_ARES>,
++				 <&gcc GCC_PCIE_0_AXI_SLAVE_ARES>,
++				 <&gcc GCC_PCIE_0_AXI_MASTER_STICKY_ARES>,
++				 <&gcc GCC_PCIE_0_CORE_STICKY_ARES>,
+ 				 <&gcc GCC_PCIE_0_BCR>,
+-				 <&gcc 16>;
++				 <&gcc GCC_PCIE_0_AHB_ARES>;
+ 			reset-names = "axi_m",
+ 				      "axi_s",
+ 				      "axi_m_sticky",
 -- 
 2.39.2
 
