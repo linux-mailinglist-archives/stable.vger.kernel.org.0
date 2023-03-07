@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1292A6AEEF6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FE06AEAA9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232615AbjCGSTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:19:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38670 "EHLO
+        id S231820AbjCGRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:35:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232636AbjCGSSb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:18:31 -0500
+        with ESMTP id S231633AbjCGRf1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFBD36FF4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75BB69E50B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45AFD61522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:12:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CDA4C433EF;
-        Tue,  7 Mar 2023 18:12:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1178C61517
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 086C1C433D2;
+        Tue,  7 Mar 2023 17:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212773;
-        bh=XLp4Iqj69xNIDXZULuLZOC9l4XqroUKX1pD8/YERI74=;
+        s=korg; t=1678210294;
+        bh=t+sx0BVTR0Go1P6U7jNoGbVyXib9607yhBQNUQ0/FmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Drk9Rkd3WO+Y3WpFxOYrA6JxD6M1SKT2UDwAv6cy0l/8EUeZQhLiOzh6tslOCaVIz
-         e1elYlKIntiLPwQp53Mxy9RC4pKcmzACUsc3UmaIckgvGANIY0p+HhksbxI4CvOCeS
-         0E33wC5U6RgJTPZ6ocvW7BdIQ2STek2VJ0PxGk8w=
+        b=BkCo4VigxQTwkqx2jTyvuJcux144OZibc6StvrYXHSahtmUEvKNZWzk3H+VhrRgss
+         IEZrtKFbHI03kYakre2OMdTnVH878MkhKpdadIEx2kZha1FGwZd7id/gGNQmhaqFJ/
+         mSTUya1+D9MM9YU99vtenq+am/DtX4LWyD3y3eb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 293/885] drm/msm/adreno: Fix null ptr access in adreno_gpu_cleanup()
-Date:   Tue,  7 Mar 2023 17:53:47 +0100
-Message-Id: <20230307170014.807305718@linuxfoundation.org>
+Subject: [PATCH 6.2 0456/1001] NFSD: copy the whole verifier in nfsd_copy_write_verifier
+Date:   Tue,  7 Mar 2023 17:53:48 +0100
+Message-Id: <20230307170041.152004336@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <quic_akhilpo@quicinc.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit dbeedbcb268d055d8895aceca427f897e12c2b50 ]
+[ Upstream commit 90d2175572470ba7f55da8447c72ddd4942923c4 ]
 
-Fix the below kernel panic due to null pointer access:
-[   18.504431] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000048
-[   18.513464] Mem abort info:
-[   18.516346]   ESR = 0x0000000096000005
-[   18.520204]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   18.525706]   SET = 0, FnV = 0
-[   18.528878]   EA = 0, S1PTW = 0
-[   18.532117]   FSC = 0x05: level 1 translation fault
-[   18.537138] Data abort info:
-[   18.540110]   ISV = 0, ISS = 0x00000005
-[   18.544060]   CM = 0, WnR = 0
-[   18.547109] user pgtable: 4k pages, 39-bit VAs, pgdp=0000000112826000
-[   18.553738] [0000000000000048] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000
-[   18.562690] Internal error: Oops: 0000000096000005 [#1] PREEMPT SMP
-**Snip**
-[   18.696758] Call trace:
-[   18.699278]  adreno_gpu_cleanup+0x30/0x88
-[   18.703396]  a6xx_destroy+0xc0/0x130
-[   18.707066]  a6xx_gpu_init+0x308/0x424
-[   18.710921]  adreno_bind+0x178/0x288
-[   18.714590]  component_bind_all+0xe0/0x214
-[   18.718797]  msm_drm_bind+0x1d4/0x614
-[   18.722566]  try_to_bring_up_aggregate_device+0x16c/0x1b8
-[   18.728105]  __component_add+0xa0/0x158
-[   18.732048]  component_add+0x20/0x2c
-[   18.735719]  adreno_probe+0x40/0xc0
-[   18.739300]  platform_probe+0xb4/0xd4
-[   18.743068]  really_probe+0xfc/0x284
-[   18.746738]  __driver_probe_device+0xc0/0xec
-[   18.751129]  driver_probe_device+0x48/0x110
-[   18.755421]  __device_attach_driver+0xa8/0xd0
-[   18.759900]  bus_for_each_drv+0x90/0xdc
-[   18.763843]  __device_attach+0xfc/0x174
-[   18.767786]  device_initial_probe+0x20/0x2c
-[   18.772090]  bus_probe_device+0x40/0xa0
-[   18.776032]  deferred_probe_work_func+0x94/0xd0
-[   18.780686]  process_one_work+0x190/0x3d0
-[   18.784805]  worker_thread+0x280/0x3d4
-[   18.788659]  kthread+0x104/0x1c0
-[   18.791981]  ret_from_fork+0x10/0x20
-[   18.795654] Code: f9400408 aa0003f3 aa1f03f4 91142015 (f9402516)
-[   18.801913] ---[ end trace 0000000000000000 ]---
-[   18.809039] Kernel panic - not syncing: Oops: Fatal exception
+Currently, we're only memcpy'ing the first __be32. Ensure we copy into
+both words.
 
-Fixes: 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in adreno_gpu_{init, cleanup}")
-Signed-off-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/515605/
-Link: https://lore.kernel.org/r/20221221203925.v2.1.Ib978de92c4bd000b515486aad72e96c2481f84d0@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 91d2e9b56cf5 ("NFSD: Clean up the nfsd_net::nfssvc_boot field")
+Reported-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_gpu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfsd/nfssvc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-index 2e7531d2a5d6e..dfd4eec217859 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-@@ -1082,13 +1082,13 @@ int adreno_gpu_init(struct drm_device *drm, struct platform_device *pdev,
- void adreno_gpu_cleanup(struct adreno_gpu *adreno_gpu)
- {
- 	struct msm_gpu *gpu = &adreno_gpu->base;
--	struct msm_drm_private *priv = gpu->dev->dev_private;
-+	struct msm_drm_private *priv = gpu->dev ? gpu->dev->dev_private : NULL;
- 	unsigned int i;
+diff --git a/fs/nfsd/nfssvc.c b/fs/nfsd/nfssvc.c
+index 325d3d3f12110..a0ecec54d3d7d 100644
+--- a/fs/nfsd/nfssvc.c
++++ b/fs/nfsd/nfssvc.c
+@@ -363,7 +363,7 @@ void nfsd_copy_write_verifier(__be32 verf[2], struct nfsd_net *nn)
  
- 	for (i = 0; i < ARRAY_SIZE(adreno_gpu->info->fw); i++)
- 		release_firmware(adreno_gpu->fw[i]);
- 
--	if (pm_runtime_enabled(&priv->gpu_pdev->dev))
-+	if (priv && pm_runtime_enabled(&priv->gpu_pdev->dev))
- 		pm_runtime_disable(&priv->gpu_pdev->dev);
- 
- 	msm_gpu_cleanup(&adreno_gpu->base);
+ 	do {
+ 		read_seqbegin_or_lock(&nn->writeverf_lock, &seq);
+-		memcpy(verf, nn->writeverf, sizeof(*verf));
++		memcpy(verf, nn->writeverf, sizeof(nn->writeverf));
+ 	} while (need_seqretry(&nn->writeverf_lock, seq));
+ 	done_seqretry(&nn->writeverf_lock, seq);
+ }
 -- 
 2.39.2
 
