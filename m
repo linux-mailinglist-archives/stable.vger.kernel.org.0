@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D457C6AF399
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:06:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD8C6AF3C8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233428AbjCGTG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:06:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52332 "EHLO
+        id S229736AbjCGTJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:09:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233491AbjCGTG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:06:26 -0500
+        with ESMTP id S233652AbjCGTJF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:09:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D556C708C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:51:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE33AF777
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:54:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F6061549
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D13F0C433D2;
-        Tue,  7 Mar 2023 18:51:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 537386154A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:53:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49433C4339C;
+        Tue,  7 Mar 2023 18:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215106;
-        bh=n3ZhEP9KsXAw4++LidweLuAekS5fPFKekHszB/1TUwQ=;
+        s=korg; t=1678215236;
+        bh=i9HiGPAw0P4mdSAJYS+B3ZFFFpAQNYgf1G4OjeLDTyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eK2JlCHl3S/wmRhryg0ibYHRLxQkDWaGuQUH5yc0zhO9rWrtiRqYzB+d/lbgZcoLv
-         022Ml5fT/88f2sAkq4Qg9B5DG0jau26FHIO3mMlWu2VgavMY3lNHoYKvJ882OsVF5D
-         EcshZUpFBspJRbJk80Sx4kYW90m+n2XoJW8Svrq0=
+        b=PqnR/F2RjgTQAVePIuB6HRHT8VzgiYReBnZrBsYOP5j21pQf4T7RKmbS1Lbm8bYAc
+         c7k+NCwxD8MtjBtYdm5nMqTKkcDA1HwWPvCx+2b2ZLSl+Cmq3X/VDiaf8VNn7lg5Q2
+         772thQNl0GuSBkLKuaQFnzMw7CwA73jn8QxeuC/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
-        Christian Lamparter <chunkeey@gmail.com>,
+        patches@lists.linux.dev, Shayne Chen <shayne.chen@mediatek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 152/567] crypto: crypto4xx - Call dma_unmap_page when done
-Date:   Tue,  7 Mar 2023 17:58:08 +0100
-Message-Id: <20230307165912.527783323@linuxfoundation.org>
+Subject: [PATCH 5.15 153/567] wifi: mac80211: make rate u32 in sta_set_rate_info_rx()
+Date:   Tue,  7 Mar 2023 17:58:09 +0100
+Message-Id: <20230307165912.576395851@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,62 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Shayne Chen <shayne.chen@mediatek.com>
 
-[ Upstream commit bcdda4301bdc4955d45f7e1ffefb6207967b067e ]
+[ Upstream commit 59336e07b287d91dc4ec265e07724e8f7e3d0209 ]
 
-In crypto4xx_cipher_done, we should be unmapping the dst page, not
-mapping it.
+The value of last_rate in ieee80211_sta_rx_stats is degraded from u32 to
+u16 after being assigned to rate variable, which causes information loss
+in STA_STATS_FIELD_TYPE and later bitfields.
 
-This was flagged by a sparse warning about the unused addr variable.
-While we're at it, also fix a sparse warning regarding the unused
-ctx variable in crypto4xx_ahash_done (by actually using it).
-
-Fixes: 049359d65527 ("crypto: amcc - Add crypt4xx driver")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Tested-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Link: https://lore.kernel.org/r/20230209110659.25447-1-shayne.chen@mediatek.com
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/amcc/crypto4xx_core.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ net/mac80211/sta_info.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/amcc/crypto4xx_core.c b/drivers/crypto/amcc/crypto4xx_core.c
-index 8278d98074e9a..e1556a3582a30 100644
---- a/drivers/crypto/amcc/crypto4xx_core.c
-+++ b/drivers/crypto/amcc/crypto4xx_core.c
-@@ -522,7 +522,6 @@ static void crypto4xx_cipher_done(struct crypto4xx_device *dev,
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index f1e263b2c2957..14db465289c53 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2190,7 +2190,7 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u32 rate,
+ 
+ static int sta_set_rate_info_rx(struct sta_info *sta, struct rate_info *rinfo)
  {
- 	struct skcipher_request *req;
- 	struct scatterlist *dst;
--	dma_addr_t addr;
+-	u16 rate = READ_ONCE(sta_get_last_rx_stats(sta)->last_rate);
++	u32 rate = READ_ONCE(sta_get_last_rx_stats(sta)->last_rate);
  
- 	req = skcipher_request_cast(pd_uinfo->async_req);
- 
-@@ -531,8 +530,8 @@ static void crypto4xx_cipher_done(struct crypto4xx_device *dev,
- 					  req->cryptlen, req->dst);
- 	} else {
- 		dst = pd_uinfo->dest_va;
--		addr = dma_map_page(dev->core_dev->device, sg_page(dst),
--				    dst->offset, dst->length, DMA_FROM_DEVICE);
-+		dma_unmap_page(dev->core_dev->device, pd->dest, dst->length,
-+			       DMA_FROM_DEVICE);
- 	}
- 
- 	if (pd_uinfo->sa_va->sa_command_0.bf.save_iv == SA_SAVE_IV) {
-@@ -557,10 +556,9 @@ static void crypto4xx_ahash_done(struct crypto4xx_device *dev,
- 	struct ahash_request *ahash_req;
- 
- 	ahash_req = ahash_request_cast(pd_uinfo->async_req);
--	ctx  = crypto_tfm_ctx(ahash_req->base.tfm);
-+	ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(ahash_req));
- 
--	crypto4xx_copy_digest_to_dst(ahash_req->result, pd_uinfo,
--				     crypto_tfm_ctx(ahash_req->base.tfm));
-+	crypto4xx_copy_digest_to_dst(ahash_req->result, pd_uinfo, ctx);
- 	crypto4xx_ret_sg_desc(dev, pd_uinfo);
- 
- 	if (pd_uinfo->state & PD_ENTRY_BUSY)
+ 	if (rate == STA_STATS_RATE_INVALID)
+ 		return -EINVAL;
 -- 
 2.39.2
 
