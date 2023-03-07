@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED686AEE63
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AD8D6AE9E9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232492AbjCGSLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
+        id S230284AbjCGR2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:28:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232399AbjCGSK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390BD1F915
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:03 -0800 (PST)
+        with ESMTP id S231639AbjCGR22 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D536395455
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC356614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4C59C433D2;
-        Tue,  7 Mar 2023 18:06:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71B8BB818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F3B9C433D2;
+        Tue,  7 Mar 2023 17:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212362;
-        bh=h/INin/ag10OW4uhSKg4KQHV+iAyBhKa8ikwEI21Cq8=;
+        s=korg; t=1678209818;
+        bh=Xm66yzCkKyvPsqNUy9kCVebKIt30mXB/4WkmbfJGT0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykq+kEE13hbBz6KY1jkfUH181BedkRnHcBuxisGTht9nplkIn95Ym17i7AXUu0mcD
-         JPzayFOxs9usNJXw3awdGVzSDhH0NfKyZUj+h1uRCH59RB2m/9IR6me0aSwwxXcLI4
-         aqWpnk+oGwRWmevk3MBAt4/C74NPTW8ld1VlQurU=
+        b=1gpBXokSUN4mDN5yB8y+NFFjL/Fm0+7qC6h4npH9p/Y3weznhAGJSQYm/8tA4unY+
+         fjjLR6q9MU6B/S1FHQUkonsKFhJWNNh6uEGvs87wTFI3PUUsYd7oj+iLayDM2qff+D
+         vfleA5g3D5PU5QbsQpGTXIlphv+ercgkzwDgisXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zong-Zhe Yang <kevin_yang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 162/885] wifi: rtw89: fix potential leak in rtw89_append_probe_req_ie()
+        patches@lists.linux.dev, Emeel Hakim <ehakim@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0324/1001] net/mlx5e: Align IPsec ASO result memory to be as required by hardware
 Date:   Tue,  7 Mar 2023 17:51:36 +0100
-Message-Id: <20230307170008.962548633@linuxfoundation.org>
+Message-Id: <20230307170035.582847562@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zong-Zhe Yang <kevin_yang@realtek.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 4a0e218cc9c42d1903ade8b5a371dcf48cf918c5 ]
+[ Upstream commit f2b6cfda76d2119871e10fa01ecdc7178401ef22 ]
 
-Do `kfree_skb(new)` before `goto out` to prevent potential leak.
+Hardware requires an alignment to 64 bytes to return ASO data. Missing
+this alignment caused to unpredictable results while ASO events were
+generated.
 
-Fixes: 895907779752 ("rtw89: 8852a: add ieee80211_ops::hw_scan")
-Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230103141054.17372-1-pkshih@realtek.com
+Fixes: 8518d05b8f9a ("net/mlx5e: Create Advanced Steering Operation object for IPsec")
+Reported-by: Emeel Hakim <ehakim@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/de0302c572b90c9224a72868d4e0d657b6313c4b.1676797613.git.leon@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/fw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/fw.c b/drivers/net/wireless/realtek/rtw89/fw.c
-index d57e3610fb88e..1d57a8c5e97df 100644
---- a/drivers/net/wireless/realtek/rtw89/fw.c
-+++ b/drivers/net/wireless/realtek/rtw89/fw.c
-@@ -2525,8 +2525,10 @@ static int rtw89_append_probe_req_ie(struct rtw89_dev *rtwdev,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.h b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.h
+index 8bed9c3610754..d739d77d68986 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec.h
+@@ -119,7 +119,7 @@ struct mlx5e_ipsec_work {
+ };
  
- 		list_add_tail(&info->list, &scan_info->pkt_list[band]);
- 		ret = rtw89_fw_h2c_add_pkt_offload(rtwdev, &info->id, new);
--		if (ret)
-+		if (ret) {
-+			kfree_skb(new);
- 			goto out;
-+		}
- 
- 		kfree_skb(new);
- 	}
+ struct mlx5e_ipsec_aso {
+-	u8 ctx[MLX5_ST_SZ_BYTES(ipsec_aso)];
++	u8 __aligned(64) ctx[MLX5_ST_SZ_BYTES(ipsec_aso)];
+ 	dma_addr_t dma_addr;
+ 	struct mlx5_aso *aso;
+ 	/* Protect ASO WQ access, as it is global to whole IPsec */
 -- 
 2.39.2
 
