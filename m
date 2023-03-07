@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3776AF24C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DE486AED54
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233366AbjCGSwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:52:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47288 "EHLO
+        id S230195AbjCGSD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:03:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233289AbjCGSwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C84BABB04
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:27 -0800 (PST)
+        with ESMTP id S230156AbjCGSCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9369DE25
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51187B819CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 976D6C433D2;
-        Tue,  7 Mar 2023 18:39:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DECB26150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E62D8C4339C;
+        Tue,  7 Mar 2023 17:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214389;
-        bh=7oRs06MOKabU/AB0P/fGhK/4WWAyhir/j7o4cOqjFSI=;
+        s=korg; t=1678211763;
+        bh=f8D20QC3CJzX/ndMRx1yYHKDtzyAqslqUxzqFV+byVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/SCruR3yGGSv3ZITajY9m4yBchaWvhZc1LmLrJRHDIWB+KFgiFBLM5wQ0Du8BvKe
-         cm9sSBrD6BiRNjlQquUei3KCxbjzLf903H3UIiLVp20NRzLB9nih5g97Ld/DH3qhBI
-         u4kY09ppZ4cTRL1k9mWFsTyl0MkxVWdmjSaVnu1w=
+        b=WZ2ga/11E+bYHWk20zYhG/c3ZTFYbCM7r3nqu82qk8d4ulSB6OE0OVU51VnCBAb95
+         HMeC8TSgL+PT71tnnzOFxPaLI+SyDBljGnhhwXBxW9DVBC4KgHGpkXlheS6Erwl0DA
+         CWpNP2g9CY8Ls4Rv5LXHX7GWIn5mtOMvy3qiliN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.1 807/885] dm flakey: fix a bug with 32-bit highmem systems
+        patches@lists.linux.dev, Conor Dooley <conor.dooley@microchip.com>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.2 0969/1001] RISC-V: add a spin_shadow_stack declaration
 Date:   Tue,  7 Mar 2023 18:02:21 +0100
-Message-Id: <20230307170036.949279200@linuxfoundation.org>
+Message-Id: <20230307170104.265482008@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-commit 8eb29c4fbf9661e6bd4dd86197a37ffe0ecc9d50 upstream.
+commit eb9be8310c58c166f9fae3b71c0ad9d6741b4897 upstream.
 
-The function page_address does not work with 32-bit systems with high
-memory. Use bvec_kmap_local/kunmap_local instead.
+The patchwork automation reported a sparse complaint that
+spin_shadow_stack was not declared and should be static:
+../arch/riscv/kernel/traps.c:335:15: warning: symbol 'spin_shadow_stack' was not declared. Should it be static?
 
+However, this is used in entry.S and therefore shouldn't be static.
+The same applies to the shadow_stack that this pseudo spinlock is
+trying to protect, so do like its charge and add a declaration to
+thread_info.h
+
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Fixes: 7e1864332fbc ("riscv: fix race when vmap stack overflow")
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20230210185945.915806-1-conor@kernel.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-flakey.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/riscv/include/asm/thread_info.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-flakey.c
-+++ b/drivers/md/dm-flakey.c
-@@ -307,8 +307,9 @@ static void corrupt_bio_data(struct bio
- 			struct page *page = bio_iter_page(bio, iter);
- 			if (unlikely(page == ZERO_PAGE(0)))
- 				break;
--			segment = (page_address(page) + bio_iter_offset(bio, iter));
-+			segment = bvec_kmap_local(&bvec);
- 			segment[corrupt_bio_byte] = fc->corrupt_bio_value;
-+			kunmap_local(segment);
- 			DMDEBUG("Corrupting data bio=%p by writing %u to byte %u "
- 				"(rw=%c bi_opf=%u bi_sector=%llu size=%u)\n",
- 				bio, fc->corrupt_bio_value, fc->corrupt_bio_byte,
+--- a/arch/riscv/include/asm/thread_info.h
++++ b/arch/riscv/include/asm/thread_info.h
+@@ -43,6 +43,7 @@
+ #ifndef __ASSEMBLY__
+ 
+ extern long shadow_stack[SHADOW_OVERFLOW_STACK_SIZE / sizeof(long)];
++extern unsigned long spin_shadow_stack;
+ 
+ #include <asm/processor.h>
+ #include <asm/csr.h>
 
 
