@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D706AF06A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3CE6AF06B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbjCGSac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:30:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57186 "EHLO
+        id S229545AbjCGSad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231424AbjCGS37 (ORCPT
+        with ESMTP id S231687AbjCGS37 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:59 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA93E399
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:30 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6844195457
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EAB5CCE1C88
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3377C4339E;
-        Tue,  7 Mar 2023 18:23:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 041D161501
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFEF3C4339B;
+        Tue,  7 Mar 2023 18:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213407;
-        bh=pVo9CTcdTCogM2tzqn0lqJt1q9wQawngu5IFVOa+R3o=;
+        s=korg; t=1678213410;
+        bh=NhYw4bSy6NA5eKY0nyC03eusX43PNuiWSg4HbU9hLiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NPkpHuRQjkOdw5rpiiaSfh9O4R/A40E3lq2OvTlIRB+uxHMZGs82QFY6tdURDD+A
-         UjXs1WrzrJFzCIyWInZa4Zf4sYm8WSXlmV3HHfcRWTsHFZ/ljoruYtuZDXBnIwhOwK
-         tj97Tuh5N95lmqWs+EVnUlyCQDldQm3Raq9xs5/Y=
+        b=X7wMJG7tO4BxAq21x/emOaK5GaTTVr8ZCNWDxMCAdwBeJYg+n+sKC8eZKAyEFjAY0
+         6NkkQtIr6lQpCaUihrqeFpMslhUtnCiqT0nEHW+zcRo9rsbGEriceYhpdUKm0/rURC
+         pqxNMOY1+IbLnYCCllhTRDJw4zhSsWX+MvYbaxAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 496/885] media: platform: ti: Add missing check for devm_regulator_get
-Date:   Tue,  7 Mar 2023 17:57:10 +0100
-Message-Id: <20230307170024.007129640@linuxfoundation.org>
+Subject: [PATCH 6.1 497/885] media: imx: imx7-media-csi: fix missing clk_disable_unprepare() in imx7_csi_init()
+Date:   Tue,  7 Mar 2023 17:57:11 +0100
+Message-Id: <20230307170024.043406018@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -55,43 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit da8e05f84a11c3cc3b0ba0a3c62d20e358002d99 ]
+[ Upstream commit cea606d9e996a77eed57fc60709e0728341450e3 ]
 
-Add check for the return value of devm_regulator_get since it may return
-error pointer.
+Add missing clk_disable_unprepare(), if imx7_csi_dma_setup() fails
+in imx7_csi_init().
 
-Fixes: 448de7e7850b ("[media] omap3isp: OMAP3 ISP core")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Fixes: ff43ca911978 ("media: imx: imx7-media-csi: Move CSI configuration before source start")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti/omap3isp/isp.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/media/imx/imx7-media-csi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/ti/omap3isp/isp.c b/drivers/media/platform/ti/omap3isp/isp.c
-index 24d2383400b0a..11ae479ee89c8 100644
---- a/drivers/media/platform/ti/omap3isp/isp.c
-+++ b/drivers/media/platform/ti/omap3isp/isp.c
-@@ -2308,7 +2308,16 @@ static int isp_probe(struct platform_device *pdev)
+diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
+index c77401f184d74..5f6376c3269ab 100644
+--- a/drivers/staging/media/imx/imx7-media-csi.c
++++ b/drivers/staging/media/imx/imx7-media-csi.c
+@@ -638,8 +638,10 @@ static int imx7_csi_init(struct imx7_csi *csi)
+ 	imx7_csi_configure(csi);
  
- 	/* Regulators */
- 	isp->isp_csiphy1.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy1");
-+	if (IS_ERR(isp->isp_csiphy1.vdd)) {
-+		ret = PTR_ERR(isp->isp_csiphy1.vdd);
-+		goto error;
-+	}
-+
- 	isp->isp_csiphy2.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy2");
-+	if (IS_ERR(isp->isp_csiphy2.vdd)) {
-+		ret = PTR_ERR(isp->isp_csiphy2.vdd);
-+		goto error;
+ 	ret = imx7_csi_dma_setup(csi);
+-	if (ret < 0)
++	if (ret < 0) {
++		clk_disable_unprepare(csi->mclk);
+ 		return ret;
 +	}
  
- 	/* Clocks
- 	 *
+ 	return 0;
+ }
 -- 
 2.39.2
 
