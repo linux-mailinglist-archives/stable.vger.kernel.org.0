@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CBCD6AEE4A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 591C96AE99D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232449AbjCGSLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48010 "EHLO
+        id S231521AbjCGR0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231629AbjCGSK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B357C974BE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:28 -0800 (PST)
+        with ESMTP id S231557AbjCGRZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0987C94390
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EA97B8191D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F162C433EF;
-        Tue,  7 Mar 2023 18:05:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFBEDB819AD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE553C433EF;
+        Tue,  7 Mar 2023 17:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212326;
-        bh=nfiPZBITQwwzYfDU1ad7LkVzxZhDOaYxUcVtx77DVUU=;
+        s=korg; t=1678209632;
+        bh=QWiufvSY18xyAYhN9U/7BhkGAcbUi0Aa4xBhKUhlFrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2c3Y+3JaQePzbc8lpXHrHbIcpUNDR7dHX+Rb+dXyePAFO1SEEo/Y35YH20HzxZ+Ge
-         mS5rcBIvH/4sBH3JHveaE06YRhgM+iL8rdRoUhqQGZXuzgxvvIyBWJOEnBxOjIEy/j
-         vTR4ttJVPSOkpUKLH5+VFvEzyyL9qOQDoDUy7ZCw=
+        b=UwDv0GOJkItx1Bz6lJvNB1vJ4C92usypbbtbKsX3+YhJGY3BB7Pbsx4tmWob8s3K1
+         hpUQLITiDa/bKwWkF7T7NYVfyxOjATu8JOf7KNyt1Ty7s2B0CD254PzOO4abdo+4wq
+         xUndelzSkEVOLq4PwFndTokgQlJuOsHLY3v0ec3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 119/885] wifi: rtlwifi: rtl8188ee: dont call kfree_skb() under spin_lock_irqsave()
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0281/1001] m68k: /proc/hardware should depend on PROC_FS
 Date:   Tue,  7 Mar 2023 17:50:53 +0100
-Message-Id: <20230307170007.035960186@linuxfoundation.org>
+Message-Id: <20230307170033.854707667@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,55 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 2611687fa7ffc84190f92292de0b80468de17220 ]
+[ Upstream commit 1e5b5df65af99013b4d31607ddb3ca5731dbe44d ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. All the SKBs have
-been dequeued from the old queue, so it's safe to enqueue these
-SKBs to a free queue, then free them after spin_unlock_irqrestore()
-at once. Compile tested only.
+When CONFIG_PROC_FS is not set, there is a build error for an unused
+function. Make PROC_HARDWARE depend on PROC_FS to prevent this error.
 
-Fixes: 7fe3b3abb5da ("rtlwifi: rtl8188ee: rtl8821ae: Fix a queue locking problem")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207141411.46098-3-yangyingliang@huawei.com
+In file included from ../arch/m68k/kernel/setup.c:3:
+../arch/m68k/kernel/setup_mm.c:477:12: error: 'hardware_proc_show' defined but not used [-Werror=unused-function]
+  477 | static int hardware_proc_show(struct seq_file *m, void *v)
+      |            ^~~~~~~~~~~~~~~~~~
+
+Fixes: 66d857b08b8c ("m68k: merge m68k and m68knommu arch directories") # v3.0
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20230209010825.24136-1-rdunlap@infradead.org
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/m68k/Kconfig.devices | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c
-index 58c2ab3d44bef..de61c9c0ddec4 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c
-@@ -68,8 +68,10 @@ static void _rtl88ee_return_beacon_queue_skb(struct ieee80211_hw *hw)
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
- 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
- 	struct rtl8192_tx_ring *ring = &rtlpci->tx_ring[BEACON_QUEUE];
-+	struct sk_buff_head free_list;
- 	unsigned long flags;
- 
-+	skb_queue_head_init(&free_list);
- 	spin_lock_irqsave(&rtlpriv->locks.irq_th_lock, flags);
- 	while (skb_queue_len(&ring->queue)) {
- 		struct rtl_tx_desc *entry = &ring->desc[ring->idx];
-@@ -79,10 +81,12 @@ static void _rtl88ee_return_beacon_queue_skb(struct ieee80211_hw *hw)
- 				 rtlpriv->cfg->ops->get_desc(hw, (u8 *)entry,
- 						true, HW_DESC_TXBUFF_ADDR),
- 				 skb->len, DMA_TO_DEVICE);
--		kfree_skb(skb);
-+		__skb_queue_tail(&free_list, skb);
- 		ring->idx = (ring->idx + 1) % ring->entries;
- 	}
- 	spin_unlock_irqrestore(&rtlpriv->locks.irq_th_lock, flags);
-+
-+	__skb_queue_purge(&free_list);
- }
- 
- static void _rtl88ee_disable_bcn_sub_func(struct ieee80211_hw *hw)
+diff --git a/arch/m68k/Kconfig.devices b/arch/m68k/Kconfig.devices
+index 6a87b4a5fcac2..e6e3efac18407 100644
+--- a/arch/m68k/Kconfig.devices
++++ b/arch/m68k/Kconfig.devices
+@@ -19,6 +19,7 @@ config HEARTBEAT
+ # We have a dedicated heartbeat LED. :-)
+ config PROC_HARDWARE
+ 	bool "/proc/hardware support"
++	depends on PROC_FS
+ 	help
+ 	  Say Y here to support the /proc/hardware file, which gives you
+ 	  access to information about the machine you're running on,
 -- 
 2.39.2
 
