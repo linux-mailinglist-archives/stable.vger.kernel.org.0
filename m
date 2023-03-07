@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF5D6ADA9C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:43:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A006ADA9D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:43:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229809AbjCGJnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:43:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36254 "EHLO
+        id S230077AbjCGJnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:43:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230405AbjCGJnN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:43:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AD6F3B221
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:43:11 -0800 (PST)
+        with ESMTP id S230042AbjCGJnR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:43:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00F9B234CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:43:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9E08B815B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED3B9C4339B;
-        Tue,  7 Mar 2023 09:43:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4638B816A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17AEAC433EF;
+        Tue,  7 Mar 2023 09:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182188;
-        bh=dcEk3C4JNTROXd4c7e9ISYoNcIK100rwNYGiT3R0lsE=;
+        s=korg; t=1678182191;
+        bh=umjBUdLV3n6MpOp7DSva+Fe7AJiiyOixKN4Pg9sDea4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Qt3laKbDhR+e+IKow5bq/NwtFl36I7LAzTJmJ1yzA4cuh2PFusbgBw5zqEzFlVwb/
-         tn9fJyiXRQIeRnkbEV/fpNeWDaJ9EVebuifkmKFf+oj8PfLQwLSKSsgeYr1W/oW5cD
-         mSXmh8aeFDIYs64r6ktpvXineP60o90SxAxEUS3M=
-Subject: FAILED: patch "[PATCH] ARM: dts: exynos: correct TMU phandle in Odroid XU3 family" failed to apply to 4.19-stable tree
+        b=Bqny9lHeLn1No8/QUuXBkDzCtR8wMYGRjlxHMr2K4Ee6U6uP3h/dIGN4OVBUYRtBq
+         K+ohmKUlxRq11O+zddZv6qDOrg3regPeijM+roRIag1cGbAbhJK85HFc+WjICPSurI
+         7su3bxtjuCv9IDWXmkUfGOiN/9waTG307WueAAc0=
+Subject: FAILED: patch "[PATCH] ARM: dts: exynos: correct TMU phandle in Odroid XU3 family" failed to apply to 4.14-stable tree
 To:     krzysztof.kozlowski@linaro.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:42:57 +0100
-Message-ID: <1678182177164135@kroah.com>
+Date:   Tue, 07 Mar 2023 10:42:58 +0100
+Message-ID: <167818217898188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -48,24 +48,28 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x a3583e92d188ec6c58c7f603ac5e72dd8a11c21a
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182177164135@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167818217898188@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
 a3583e92d188 ("ARM: dts: exynos: correct TMU phandle in Odroid XU3 family")
 1c651356f482 ("ARM: dts: exynos: Add GPU thermal zone cooling maps for Odroid XU3/XU4/HC1")
+1ac49427b566 ("ARM: dts: exynos: Add support for Hardkernel's Odroid HC1 board")
+a798f2f02f4c ("ARM: dts: exynos: Move audio clocks configuration to odroidxu3-audio.dtsi")
+227c23b5dee1 ("ARM: dts: exynos: Add power button for Odroid XU3/4")
+e740731dae94 ("ARM: dts: exynos: fix incomplete Odroid-XU3/4 thermal-zones definition")
 
 thanks,
 
