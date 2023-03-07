@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8F96AEE7D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4D946AE9F6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:29:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232511AbjCGSMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:12:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57022 "EHLO
+        id S231315AbjCGR3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:29:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232279AbjCGSMM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D99363D939
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:28 -0800 (PST)
+        with ESMTP id S231426AbjCGR3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:10 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28254A0289
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:24:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BE56B8191D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC13DC433D2;
-        Tue,  7 Mar 2023 18:07:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 58323CE1C5D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:24:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E1EC433D2;
+        Tue,  7 Mar 2023 17:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212446;
-        bh=NJ74QcUob+6BxRPqjTNR1yBFskAuWL/bmKJPPQjq9NA=;
+        s=korg; t=1678209846;
+        bh=fYrUHkdw9yhnOmqN9DQmG9V0OSCmA5psQYNPMf+DzjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pf6to4pbmU7JNJZxLxAWv3xgYVKCJQ84ktEV0nfTak520GzRRtGjyhO7bMbcAcLSu
-         NxSyJwzULElHkBbJiG3Ecx8qKvkDNcjlH+oQj2ml/8wGbxYCrB/4sKPwex7051McaC
-         S4ISLxDb7FkSoWk3IilmV5xdgQmcAK3zm+cN9Sy0=
+        b=l186N4pfPWmB3Qx9xkNrpVMxp+VyCt1JdowvEaMpJdEX0KkZWICam0+Ca87MbHtm8
+         4I1QynRVWWmWZUisep2b1J03v7RhFY3t+BQicgsQUx23vp0OT72UPvURe3PCuso+Em
+         LusWOUI3scnuYjWTQUFhG1vrVr+AkYPKYf9hFKX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Gregory Greenman <gregory.greenman@intel.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 187/885] wifi: iwlwifi: mei: fix compilation errors in rfkill()
-Date:   Tue,  7 Mar 2023 17:52:01 +0100
-Message-Id: <20230307170010.133070722@linuxfoundation.org>
+Subject: [PATCH 6.2 0350/1001] drm/vc4: hvs: SCALER_DISPBKGND_AUTOHS is only valid on HVS4
+Date:   Tue,  7 Mar 2023 17:52:02 +0100
+Message-Id: <20230307170036.642750195@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory Greenman <gregory.greenman@intel.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 9cbd5a8abca904441e36861e3a92961bec41d13f ]
+[ Upstream commit 982ee94486863a41c6af9f2ab3f6681f72bc5c48 ]
 
-The rfkill() callback was invoked with wrong parameters.
-It was missed since MEI is defined now as depending on BROKEN.
-Fix that.
+The bit used for SCALER_DISPBKGND_AUTOHS in SCALER_DISPBKGNDX
+has been repurposed on HVS5 to configure whether a display can
+win back-to-back arbitration wins for the COB.
 
-Fixes: d288067ede4b ("wifi: iwlwifi: mei: avoid blocking sap messages handling due to rtnl lock")
-Fixes: 5aa7ce31bd84 ("wifi: iwlwifi: mei: make sure ownership confirmed message is sent")
-Fixes: 95170a46b7dd ("wifi: iwlwifi: mei: don't send SAP commands if AMT is disabled")
-Link: https://lore.kernel.org/r/20230126222821.305122-2-gregory.greenman@intel.com
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+This is not desirable, therefore only select this bit on HVS4,
+and explicitly clear it on HVS5.
+
+Fixes: c54619b0bfb3 ("drm/vc4: Add support for the BCM2711 HVS5")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://lore.kernel.org/r/20221207-rpi-hvs-crtc-misc-v1-3-1f8e0770798b@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mei/main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hvs.c  | 10 ++++++----
+ drivers/gpu/drm/vc4/vc4_regs.h |  1 +
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mei/main.c b/drivers/net/wireless/intel/iwlwifi/mei/main.c
-index c0142093c7682..27eb28290e234 100644
---- a/drivers/net/wireless/intel/iwlwifi/mei/main.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mei/main.c
-@@ -784,7 +784,7 @@ static void iwl_mei_handle_amt_state(struct mei_cl_device *cldev,
- 	if (mei->amt_enabled)
- 		iwl_mei_set_init_conf(mei);
- 	else if (iwl_mei_cache.ops)
--		iwl_mei_cache.ops->rfkill(iwl_mei_cache.priv, false, false);
-+		iwl_mei_cache.ops->rfkill(iwl_mei_cache.priv, false);
+diff --git a/drivers/gpu/drm/vc4/vc4_hvs.c b/drivers/gpu/drm/vc4/vc4_hvs.c
+index b335815eac6a5..57d99e7199ee5 100644
+--- a/drivers/gpu/drm/vc4/vc4_hvs.c
++++ b/drivers/gpu/drm/vc4/vc4_hvs.c
+@@ -370,28 +370,30 @@ static int vc4_hvs_init_channel(struct vc4_hvs *hvs, struct drm_crtc *crtc,
+ 	 * mode.
+ 	 */
+ 	dispctrl = SCALER_DISPCTRLX_ENABLE;
++	dispbkgndx = HVS_READ(SCALER_DISPBKGNDX(chan));
  
- 	schedule_work(&mei->netdev_work);
+-	if (!vc4->is_vc5)
++	if (!vc4->is_vc5) {
+ 		dispctrl |= VC4_SET_FIELD(mode->hdisplay,
+ 					  SCALER_DISPCTRLX_WIDTH) |
+ 			    VC4_SET_FIELD(mode->vdisplay,
+ 					  SCALER_DISPCTRLX_HEIGHT) |
+ 			    (oneshot ? SCALER_DISPCTRLX_ONESHOT : 0);
+-	else
++		dispbkgndx |= SCALER_DISPBKGND_AUTOHS;
++	} else {
+ 		dispctrl |= VC4_SET_FIELD(mode->hdisplay,
+ 					  SCALER5_DISPCTRLX_WIDTH) |
+ 			    VC4_SET_FIELD(mode->vdisplay,
+ 					  SCALER5_DISPCTRLX_HEIGHT) |
+ 			    (oneshot ? SCALER5_DISPCTRLX_ONESHOT : 0);
++		dispbkgndx &= ~SCALER5_DISPBKGND_BCK2BCK;
++	}
  
-@@ -825,7 +825,7 @@ static void iwl_mei_handle_csme_taking_ownership(struct mei_cl_device *cldev,
- 		 */
- 		mei->csme_taking_ownership = true;
+ 	HVS_WRITE(SCALER_DISPCTRLX(chan), dispctrl);
  
--		iwl_mei_cache.ops->rfkill(iwl_mei_cache.priv, true, true);
-+		iwl_mei_cache.ops->rfkill(iwl_mei_cache.priv, true);
- 	} else {
- 		iwl_mei_send_sap_msg(cldev,
- 				     SAP_MSG_NOTIF_CSME_OWNERSHIP_CONFIRMED);
-@@ -1695,7 +1695,7 @@ int iwl_mei_register(void *priv, const struct iwl_mei_ops *ops)
- 			if (mei->amt_enabled)
- 				iwl_mei_send_sap_msg(mei->cldev,
- 						     SAP_MSG_NOTIF_WIFIDR_UP);
--			ops->rfkill(priv, mei->link_prot_state, false);
-+			ops->rfkill(priv, mei->link_prot_state);
- 		}
- 	}
- 	ret = 0;
+-	dispbkgndx = HVS_READ(SCALER_DISPBKGNDX(chan));
+ 	dispbkgndx &= ~SCALER_DISPBKGND_GAMMA;
+ 	dispbkgndx &= ~SCALER_DISPBKGND_INTERLACE;
+ 
+ 	HVS_WRITE(SCALER_DISPBKGNDX(chan), dispbkgndx |
+-		  SCALER_DISPBKGND_AUTOHS |
+ 		  ((!vc4->is_vc5) ? SCALER_DISPBKGND_GAMMA : 0) |
+ 		  (interlace ? SCALER_DISPBKGND_INTERLACE : 0));
+ 
+diff --git a/drivers/gpu/drm/vc4/vc4_regs.h b/drivers/gpu/drm/vc4/vc4_regs.h
+index f121905c404d1..95deacdc31e77 100644
+--- a/drivers/gpu/drm/vc4/vc4_regs.h
++++ b/drivers/gpu/drm/vc4/vc4_regs.h
+@@ -366,6 +366,7 @@
+ 
+ #define SCALER_DISPBKGND0                       0x00000044
+ # define SCALER_DISPBKGND_AUTOHS		BIT(31)
++# define SCALER5_DISPBKGND_BCK2BCK		BIT(31)
+ # define SCALER_DISPBKGND_INTERLACE		BIT(30)
+ # define SCALER_DISPBKGND_GAMMA			BIT(29)
+ # define SCALER_DISPBKGND_TESTMODE_MASK		VC4_MASK(28, 25)
 -- 
 2.39.2
 
