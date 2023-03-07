@@ -2,86 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C24A6AEA48
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A23F56AEEC9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231652AbjCGRc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:32:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33192 "EHLO
+        id S232624AbjCGSQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:16:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231453AbjCGRcI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0398E900BA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:33 -0800 (PST)
+        with ESMTP id S232591AbjCGSPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:15:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1116AE050
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE653B8199E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00615C4339B;
-        Tue,  7 Mar 2023 17:27:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4A236152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4A7C433EF;
+        Tue,  7 Mar 2023 18:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210050;
-        bh=cDv81CRFHIsoqIGkZy7byR7wvu4GaiIgPSCBNHJh2BE=;
+        s=korg; t=1678212656;
+        bh=vUnBYUQj9odB+ptw+kVORsNBFOCSeS5wYxn8Jnchdjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDwXVUohu0yEG1a1Hjb8bihDS9jI7z9qoaI6TCTkb4dcywYR407xo1HPEdYq6p08J
-         mE5/maFZX4xk+xYFXCWCLDc9lj/HoOoKxsj9oCzKxkUCttzccZESq40WwGwPtRcW1f
-         Ls8fuHnlnjxTChjcDfuOsR9SdPZO+fcBY5/NzxcQ=
+        b=V3VUQQtdf0enWYNBBXSS7x5xhDWkMb58vFS2H3MkOhtNR0sXN5kPU/pJprlTzfyJL
+         /jj9nHDLbFxtdog140pumCPAXQmQUXadQw8HEAajsCx5b4WzgjoOu2yW2qAZbUwDN7
+         bJPUu/laCYMzChRHNeTPi9uW8SJ3H3reHnZZuk2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Eugene Shalygin <eugene.shalygin@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0416/1001] hwmon: (asus-ec-sensors) add missing mutex path
-Date:   Tue,  7 Mar 2023 17:53:08 +0100
-Message-Id: <20230307170039.385924749@linuxfoundation.org>
+Subject: [PATCH 6.1 255/885] net/smc: fix application data exception
+Date:   Tue,  7 Mar 2023 17:53:09 +0100
+Message-Id: <20230307170013.073793924@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NORMAL_HTTP_TO_IP,
+        NUMERIC_HTTP_ADDR,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Shalygin <eugene.shalygin@gmail.com>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-[ Upstream commit e2de0e6abd91b05411cb1f0953115dbbbe9b11ce ]
+[ Upstream commit 475f9ff63ee8c296aa46c6e9e9ad9bdd301c6bdf ]
 
-Add missing mutex path for ProArt X570-CREATOR WIFI.
+There is a certain probability that following
+exceptions will occur in the wrk benchmark test:
 
-Fixes: de8fbac5e59e (hwmon: (asus-ec-sensors) implement locking via the ACPI global lock)
-Signed-off-by: Eugene Shalygin <eugene.shalygin@gmail.com>
-Link: https://lore.kernel.org/r/20230121111728.168514-2-eugene.shalygin@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Running 10s test @ http://11.213.45.6:80
+  8 threads and 64 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     3.72ms   13.94ms 245.33ms   94.17%
+    Req/Sec     1.96k   713.67     5.41k    75.16%
+  155262 requests in 10.10s, 23.10MB read
+Non-2xx or 3xx responses: 3
+
+We will find that the error is HTTP 400 error, which is a serious
+exception in our test, which means the application data was
+corrupted.
+
+Consider the following scenarios:
+
+CPU0                            CPU1
+
+buf_desc->used = 0;
+                                cmpxchg(buf_desc->used, 0, 1)
+                                deal_with(buf_desc)
+
+memset(buf_desc->cpu_addr,0);
+
+This will cause the data received by a victim connection to be cleared,
+thus triggering an HTTP 400 error in the server.
+
+This patch exchange the order between clear used and memset, add
+barrier to ensure memory consistency.
+
+Fixes: 1c5526968e27 ("net/smc: Clear memory when release and reuse buffer")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/asus-ec-sensors.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/smc/smc_core.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hwmon/asus-ec-sensors.c b/drivers/hwmon/asus-ec-sensors.c
-index a901e4e33d81d..b4d65916b3c00 100644
---- a/drivers/hwmon/asus-ec-sensors.c
-+++ b/drivers/hwmon/asus-ec-sensors.c
-@@ -299,6 +299,7 @@ static const struct ec_board_info board_info_pro_art_x570_creator_wifi = {
- 	.sensors = SENSOR_SET_TEMP_CHIPSET_CPU_MB | SENSOR_TEMP_VRM |
- 		SENSOR_TEMP_T_SENSOR | SENSOR_FAN_CPU_OPT |
- 		SENSOR_CURR_CPU | SENSOR_IN_CPU_CORE,
-+	.mutex_path = ASUS_HW_ACCESS_MUTEX_ASMX,
- 	.family = family_amd_500_series,
- };
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c305d8dd23f80..c19d4b7c1f28a 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1120,8 +1120,9 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
  
+ 		smc_buf_free(lgr, is_rmb, buf_desc);
+ 	} else {
+-		buf_desc->used = 0;
+-		memset(buf_desc->cpu_addr, 0, buf_desc->len);
++		/* memzero_explicit provides potential memory barrier semantics */
++		memzero_explicit(buf_desc->cpu_addr, buf_desc->len);
++		WRITE_ONCE(buf_desc->used, 0);
+ 	}
+ }
+ 
+@@ -1132,19 +1133,17 @@ static void smc_buf_unuse(struct smc_connection *conn,
+ 		if (!lgr->is_smcd && conn->sndbuf_desc->is_vm) {
+ 			smcr_buf_unuse(conn->sndbuf_desc, false, lgr);
+ 		} else {
+-			conn->sndbuf_desc->used = 0;
+-			memset(conn->sndbuf_desc->cpu_addr, 0,
+-			       conn->sndbuf_desc->len);
++			memzero_explicit(conn->sndbuf_desc->cpu_addr, conn->sndbuf_desc->len);
++			WRITE_ONCE(conn->sndbuf_desc->used, 0);
+ 		}
+ 	}
+ 	if (conn->rmb_desc) {
+ 		if (!lgr->is_smcd) {
+ 			smcr_buf_unuse(conn->rmb_desc, true, lgr);
+ 		} else {
+-			conn->rmb_desc->used = 0;
+-			memset(conn->rmb_desc->cpu_addr, 0,
+-			       conn->rmb_desc->len +
+-			       sizeof(struct smcd_cdc_msg));
++			memzero_explicit(conn->rmb_desc->cpu_addr,
++					 conn->rmb_desc->len + sizeof(struct smcd_cdc_msg));
++			WRITE_ONCE(conn->rmb_desc->used, 0);
+ 		}
+ 	}
+ }
 -- 
 2.39.2
 
