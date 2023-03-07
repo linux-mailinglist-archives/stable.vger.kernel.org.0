@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 857CB6AEC73
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A392E6AEC75
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229922AbjCGRzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48732 "EHLO
+        id S230095AbjCGRz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:55:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232240AbjCGRyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7DAA6BE2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:36 -0800 (PST)
+        with ESMTP id S232313AbjCGRyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE0713500
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56E5DB819BF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A7DC433EF;
-        Tue,  7 Mar 2023 17:49:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94BF06150C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B80BC433EF;
+        Tue,  7 Mar 2023 17:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211374;
-        bh=ybwUmn4F15p2eLwNeR7IdyjQdQODVoCYoekGAy1XjwM=;
+        s=korg; t=1678211380;
+        bh=E6grqiW+07SwF9r2lMOOUaNn5k1CsHyOWIfCSWOHr6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bejhNWtk5nPQGqSu+46wLq6ti+/bEqH7zW5FA0TviVe8IDR94Ma4yUIFWz53jeQlQ
-         NLXwUodXOnqiZ9ZQ7DyZUIfDDkrmkxXY/dnBXzLw4ydzFzbiEdR89Hx3YRrT2ZPXtB
-         Ca89azmeyZzNak/jsQImbjn7D0ClH6uCwTZDGS20=
+        b=czRr4Zng29xDMMyR5LCZFy+cpD1Tb0SDwu/w/TElj8Y5VV8X998l08WIW+5qg+nkQ
+         8okAr14adZaFFKvSsHv2jo2HqrhxzGaBg7LnxquD4efASVPAfL1fDLOMQDoJdmCHKM
+         xs3gpZOn8RRyA5/mwXBnz/4kX8+pJvSTjcISerHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 6.2 0842/1001] x86/microcode/amd: Remove load_microcode_amd()s bsp parameter
-Date:   Tue,  7 Mar 2023 18:00:14 +0100
-Message-Id: <20230307170058.335720945@linuxfoundation.org>
+Subject: [PATCH 6.2 0843/1001] x86/microcode/AMD: Add a @cpu parameter to the reloading functions
+Date:   Tue,  7 Mar 2023 18:00:15 +0100
+Message-Id: <20230307170058.372692408@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -42,8 +42,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,84 +54,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Borislav Petkov (AMD) <bp@alien8.de>
 
-commit 2355370cd941cbb20882cc3f34460f9f2b8f9a18 upstream.
+commit a5ad92134bd153a9ccdcddf09a95b088f36c3cce upstream.
 
-It is always the BSP.
-
-No functional changes.
+Will be used in a subsequent change.
 
 Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-2-bp@alien8.de
+Link: https://lore.kernel.org/r/20230130161709.11615-3-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/microcode/amd.c |   19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ arch/x86/include/asm/microcode.h     |    4 ++--
+ arch/x86/include/asm/microcode_amd.h |    4 ++--
+ arch/x86/kernel/cpu/microcode/amd.c  |    2 +-
+ arch/x86/kernel/cpu/microcode/core.c |    6 +++---
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
+--- a/arch/x86/include/asm/microcode.h
++++ b/arch/x86/include/asm/microcode.h
+@@ -125,13 +125,13 @@ static inline unsigned int x86_cpuid_fam
+ #ifdef CONFIG_MICROCODE
+ extern void __init load_ucode_bsp(void);
+ extern void load_ucode_ap(void);
+-void reload_early_microcode(void);
++void reload_early_microcode(unsigned int cpu);
+ extern bool initrd_gone;
+ void microcode_bsp_resume(void);
+ #else
+ static inline void __init load_ucode_bsp(void)			{ }
+ static inline void load_ucode_ap(void)				{ }
+-static inline void reload_early_microcode(void)			{ }
++static inline void reload_early_microcode(unsigned int cpu)	{ }
+ static inline void microcode_bsp_resume(void)			{ }
+ #endif
+ 
+--- a/arch/x86/include/asm/microcode_amd.h
++++ b/arch/x86/include/asm/microcode_amd.h
+@@ -47,12 +47,12 @@ struct microcode_amd {
+ extern void __init load_ucode_amd_bsp(unsigned int family);
+ extern void load_ucode_amd_ap(unsigned int family);
+ extern int __init save_microcode_in_initrd_amd(unsigned int family);
+-void reload_ucode_amd(void);
++void reload_ucode_amd(unsigned int cpu);
+ #else
+ static inline void __init load_ucode_amd_bsp(unsigned int family) {}
+ static inline void load_ucode_amd_ap(unsigned int family) {}
+ static inline int __init
+ save_microcode_in_initrd_amd(unsigned int family) { return -EINVAL; }
+-static inline void reload_ucode_amd(void) {}
++static inline void reload_ucode_amd(unsigned int cpu) {}
+ #endif
+ #endif /* _ASM_X86_MICROCODE_AMD_H */
 --- a/arch/x86/kernel/cpu/microcode/amd.c
 +++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -553,8 +553,7 @@ void load_ucode_amd_ap(unsigned int cpui
- 	apply_microcode_early_amd(cpuid_1_eax, cp.data, cp.size, false);
+@@ -578,7 +578,7 @@ int __init save_microcode_in_initrd_amd(
+ 	return 0;
  }
  
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size);
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size);
- 
- int __init save_microcode_in_initrd_amd(unsigned int cpuid_1_eax)
+-void reload_ucode_amd(void)
++void reload_ucode_amd(unsigned int cpu)
  {
-@@ -572,7 +571,7 @@ int __init save_microcode_in_initrd_amd(
- 	if (!desc.mc)
- 		return -EINVAL;
- 
--	ret = load_microcode_amd(true, x86_family(cpuid_1_eax), desc.data, desc.size);
-+	ret = load_microcode_amd(x86_family(cpuid_1_eax), desc.data, desc.size);
- 	if (ret > UCODE_UPDATED)
- 		return -EINVAL;
- 
-@@ -850,8 +849,7 @@ static enum ucode_state __load_microcode
- 	return UCODE_OK;
+ 	struct microcode_amd *mc;
+ 	u32 rev, dummy __always_unused;
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -298,7 +298,7 @@ struct cpio_data find_microcode_in_initr
+ #endif
  }
  
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
+-void reload_early_microcode(void)
++void reload_early_microcode(unsigned int cpu)
  {
- 	struct ucode_patch *p;
- 	enum ucode_state ret;
-@@ -875,10 +873,6 @@ load_microcode_amd(bool save, u8 family,
- 		ret = UCODE_NEW;
- 	}
+ 	int vendor, family;
  
--	/* save BSP's matching patch for early load */
--	if (!save)
--		return ret;
--
- 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
- 	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
+@@ -312,7 +312,7 @@ void reload_early_microcode(void)
+ 		break;
+ 	case X86_VENDOR_AMD:
+ 		if (family >= 0x10)
+-			reload_ucode_amd();
++			reload_ucode_amd(cpu);
+ 		break;
+ 	default:
+ 		break;
+@@ -567,7 +567,7 @@ void microcode_bsp_resume(void)
+ 	if (uci->mc)
+ 		microcode_ops->apply_microcode(cpu);
+ 	else
+-		reload_early_microcode();
++		reload_early_microcode(cpu);
+ }
  
-@@ -905,14 +899,9 @@ static enum ucode_state request_microcod
- {
- 	char fw_name[36] = "amd-ucode/microcode_amd.bin";
- 	struct cpuinfo_x86 *c = &cpu_data(cpu);
--	bool bsp = c->cpu_index == boot_cpu_data.cpu_index;
- 	enum ucode_state ret = UCODE_NFOUND;
- 	const struct firmware *fw;
- 
--	/* reload ucode container only on the boot cpu */
--	if (!bsp)
--		return UCODE_OK;
--
- 	if (c->x86 >= 0x15)
- 		snprintf(fw_name, sizeof(fw_name), "amd-ucode/microcode_amd_fam%.2xh.bin", c->x86);
- 
-@@ -925,7 +914,7 @@ static enum ucode_state request_microcod
- 	if (!verify_container(fw->data, fw->size, false))
- 		goto fw_release;
- 
--	ret = load_microcode_amd(bsp, c->x86, fw->data, fw->size);
-+	ret = load_microcode_amd(c->x86, fw->data, fw->size);
- 
-  fw_release:
- 	release_firmware(fw);
+ static struct syscore_ops mc_syscore_ops = {
 
 
