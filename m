@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E026AEB14
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F096AF2E8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231896AbjCGRkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:40:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
+        id S233543AbjCGS5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:57:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231785AbjCGRjp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:39:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3698B98870
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:53 -0800 (PST)
+        with ESMTP id S230312AbjCGS5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6925AB7DBB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB35861514
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1083C433EF;
-        Tue,  7 Mar 2023 17:35:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C96E1B819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 097EAC433D2;
+        Tue,  7 Mar 2023 18:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210552;
-        bh=sLfTNoFhbdLlSB+wZ1XKYVxRV1FYTt+K2o2LMzANZPE=;
+        s=korg; t=1678214675;
+        bh=PPG5PSyANALMaTgj7m34n/pMmDM0zsdW7NKS87XXSzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGweNjIZcWRGMcr6BFYycDcb4vHNQTuB729n+ON92ow19a/CRxuNKDb+6qIo3Pqo5
-         fJ7z5x2Jk5Un8atUBaVsA178Gexgo4tpYexAi+I8cYskvZkVv9JAG+yqa/LZjBDnoK
-         xXuqd6FiG1SOI97bAZRdZ4YAq4pVJUEz6za40yvw=
+        b=BT4j6biD7rkrq0MOqmCYuH15F8IiRt+O3vWwFoDgxZXBVGvA5N8XQKnJYw4FvSQzv
+         FPkYUSz57r7W2CoJTx+a3RPkoKwUjrFzioDe+GCerMb6G/4j2icwH8y4YPydK8E/fQ
+         3+QLQQc3dlleeaBsHV+Ewlg2UmhaA+4anS/1BvXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Long Li <longli@microsoft.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0577/1001] RDMA/mana_ib: Fix a bug when the PF indicates more entries for registering memory on first packet
+Subject: [PATCH 5.15 013/567] arm64: dts: qcom: sc7180: correct SPMI bus address cells
 Date:   Tue,  7 Mar 2023 17:55:49 +0100
-Message-Id: <20230307170046.506934840@linuxfoundation.org>
+Message-Id: <20230307165906.403379884@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 89d42b8c85b4c67d310c5ccaf491acbf71a260c3 ]
+[ Upstream commit 1f75745537222172f84783d369bbd1fb2d4b6414 ]
 
-When registering memory in a large chunk that doesn't fit into a single PF
-message, the PF may return GDMA_STATUS_MORE_ENTRIES on the first message if
-there are more messages needed for registering more chunks.
+The SPMI bus uses two address cells and zero size cells (second reg
+entry - SPMI_USID - is not the size):
 
-Fix the VF to make it process the correct return code.
+  spmi@c440000: #address-cells:0:0: 2 was expected
 
-Fixes: 0266a177631d ("RDMA/mana_ib: Add a driver for Microsoft Azure Network Adapter")
-Link: https://lore.kernel.org/r/1676507522-21018-1-git-send-email-longli@linuxonhyperv.com
-Signed-off-by: Long Li <longli@microsoft.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 0f9dc5f09fbd ("arm64: dts: qcom: sc7180: Add SPMI PMIC arbiter device")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221213101921.47924-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mana/main.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7180.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mana/main.c b/drivers/infiniband/hw/mana/main.c
-index 8b3bc302d6f3a..7be4c3adb4e2b 100644
---- a/drivers/infiniband/hw/mana/main.c
-+++ b/drivers/infiniband/hw/mana/main.c
-@@ -249,7 +249,8 @@ static int
- mana_ib_gd_first_dma_region(struct mana_ib_dev *dev,
- 			    struct gdma_context *gc,
- 			    struct gdma_create_dma_region_req *create_req,
--			    size_t num_pages, mana_handle_t *gdma_region)
-+			    size_t num_pages, mana_handle_t *gdma_region,
-+			    u32 expected_status)
- {
- 	struct gdma_create_dma_region_resp create_resp = {};
- 	unsigned int create_req_msg_size;
-@@ -261,7 +262,7 @@ mana_ib_gd_first_dma_region(struct mana_ib_dev *dev,
- 
- 	err = mana_gd_send_request(gc, create_req_msg_size, create_req,
- 				   sizeof(create_resp), &create_resp);
--	if (err || create_resp.hdr.status) {
-+	if (err || create_resp.hdr.status != expected_status) {
- 		ibdev_dbg(&dev->ib_dev,
- 			  "Failed to create DMA region: %d, 0x%x\n",
- 			  err, create_resp.hdr.status);
-@@ -372,14 +373,21 @@ int mana_ib_gd_create_dma_region(struct mana_ib_dev *dev, struct ib_umem *umem,
- 
- 	page_addr_list = create_req->page_addr_list;
- 	rdma_umem_for_each_dma_block(umem, &biter, page_sz) {
-+		u32 expected_status = 0;
-+
- 		page_addr_list[tail++] = rdma_block_iter_dma_address(&biter);
- 		if (tail < num_pages_to_handle)
- 			continue;
- 
-+		if (num_pages_processed + num_pages_to_handle <
-+		    num_pages_total)
-+			expected_status = GDMA_STATUS_MORE_ENTRIES;
-+
- 		if (!num_pages_processed) {
- 			/* First create message */
- 			err = mana_ib_gd_first_dma_region(dev, gc, create_req,
--							  tail, gdma_region);
-+							  tail, gdma_region,
-+							  expected_status);
- 			if (err)
- 				goto out;
- 
-@@ -392,14 +400,8 @@ int mana_ib_gd_create_dma_region(struct mana_ib_dev *dev, struct ib_umem *umem,
- 			page_addr_list = add_req->page_addr_list;
- 		} else {
- 			/* Subsequent create messages */
--			u32 expected_s = 0;
--
--			if (num_pages_processed + num_pages_to_handle <
--			    num_pages_total)
--				expected_s = GDMA_STATUS_MORE_ENTRIES;
--
- 			err = mana_ib_gd_add_dma_region(dev, gc, add_req, tail,
--							expected_s);
-+							expected_status);
- 			if (err)
- 				break;
- 		}
+diff --git a/arch/arm64/boot/dts/qcom/sc7180.dtsi b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+index de86ae3a7fd27..12816d60e2494 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+@@ -3241,8 +3241,8 @@ spmi_bus: spmi@c440000 {
+ 			interrupts-extended = <&pdc 1 IRQ_TYPE_LEVEL_HIGH>;
+ 			qcom,ee = <0>;
+ 			qcom,channel = <0>;
+-			#address-cells = <1>;
+-			#size-cells = <1>;
++			#address-cells = <2>;
++			#size-cells = <0>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <4>;
+ 			cell-index = <0>;
 -- 
 2.39.2
 
