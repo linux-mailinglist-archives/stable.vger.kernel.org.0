@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E75E6AEC7A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E04526AF17B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:44:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230363AbjCGRzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46138 "EHLO
+        id S233191AbjCGSoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:44:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232357AbjCGRy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:57 -0500
+        with ESMTP id S232925AbjCGSoN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:44:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80C439CBFA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E08B5A9F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2F4861507
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BED63C433D2;
-        Tue,  7 Mar 2023 17:49:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A112E61545
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98935C433D2;
+        Tue,  7 Mar 2023 18:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211392;
-        bh=ix4XA8LgIeBUpIBPMcFU6UVI/cKS8WZK4a9MKCdJvEU=;
+        s=korg; t=1678213988;
+        bh=wdddd97lNEsy7Qh7KtufU0XtlIg1UTyiH9R6gbRW7/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLTsgkCrJqgEZ3bSdQCWJfpuSmUFHbHYhP3cLhTh/fiUl518C5KFq8R3B3S57ehzO
-         0Pcp5qBi3kgOZmm23eJbQzryyAgILPpWIoxjvlON/HUgZ0POcwhu+0EIMcpAv5t0k1
-         hdY5XzMBberHe2iwNvVQRou8MFV/AS1mFpvpAI5U=
+        b=Dfcg7PJfZ4+FPDsXYniqKGoyMGSmBd38yVygtRs19DREyXaJc/P2BnBRUtb15B+vM
+         Knc2Qwt4BXXSrSkOo5dmHE5OPK13ETy9HXEiYWorDOp11JoLgUX3rXg5ioGpRgCnMs
+         DN2zvWeQ3JYwIbju+yVDXzgjD4M4wY+BUw8tdDwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Larry Dewey <larry.dewey@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>, stable@kernel.org
-Subject: [PATCH 6.2 0847/1001] virt/sev-guest: Return -EIO if certificate buffer is not large enough
+        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 685/885] ksmbd: fix possible memory leak in smb2_lock()
 Date:   Tue,  7 Mar 2023 18:00:19 +0100
-Message-Id: <20230307170058.569605003@linuxfoundation.org>
+Message-Id: <20230307170031.875792007@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit dd093fb08e8f8a958fec4eef36f9f09eac047f60 upstream.
+commit d3ca9f7aeba793d74361d88a8800b2f205c9236b upstream.
 
-Commit
+argv needs to be free when setup_async_work fails or when the current
+process is woken up.
 
-  47894e0fa6a5 ("virt/sev-guest: Prevent IV reuse in the SNP guest driver")
-
-changed the behavior associated with the return value when the caller
-does not supply a large enough certificate buffer. Prior to the commit a
-value of -EIO was returned. Now, 0 is returned.  This breaks the
-established ABI with the user.
-
-Change the code to detect the buffer size error and return -EIO.
-
-Fixes: 47894e0fa6a5 ("virt/sev-guest: Prevent IV reuse in the SNP guest driver")
-Reported-by: Larry Dewey <larry.dewey@amd.com>
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Tested-by: Larry Dewey <larry.dewey@amd.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/2afbcae6daf13f7ad5a4296692e0a0fe1bc1e4ee.1677083979.git.thomas.lendacky@amd.com
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virt/coco/sev-guest/sev-guest.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ fs/ksmbd/smb2pdu.c   |   28 +++++++++++++---------------
+ fs/ksmbd/vfs_cache.c |    5 ++---
+ 2 files changed, 15 insertions(+), 18 deletions(-)
 
---- a/drivers/virt/coco/sev-guest/sev-guest.c
-+++ b/drivers/virt/coco/sev-guest/sev-guest.c
-@@ -377,9 +377,26 @@ static int handle_guest_request(struct s
- 		snp_dev->input.data_npages = certs_npages;
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -6642,7 +6642,7 @@ int smb2_cancel(struct ksmbd_work *work)
+ 	struct ksmbd_conn *conn = work->conn;
+ 	struct smb2_hdr *hdr = smb2_get_msg(work->request_buf);
+ 	struct smb2_hdr *chdr;
+-	struct ksmbd_work *cancel_work = NULL, *iter;
++	struct ksmbd_work *iter;
+ 	struct list_head *command_list;
+ 
+ 	ksmbd_debug(SMB, "smb2 cancel called on mid %llu, async flags 0x%x\n",
+@@ -6664,7 +6664,9 @@ int smb2_cancel(struct ksmbd_work *work)
+ 				    "smb2 with AsyncId %llu cancelled command = 0x%x\n",
+ 				    le64_to_cpu(hdr->Id.AsyncId),
+ 				    le16_to_cpu(chdr->Command));
+-			cancel_work = iter;
++			iter->state = KSMBD_WORK_CANCELLED;
++			if (iter->cancel_fn)
++				iter->cancel_fn(iter->cancel_argv);
+ 			break;
+ 		}
+ 		spin_unlock(&conn->request_lock);
+@@ -6683,18 +6685,12 @@ int smb2_cancel(struct ksmbd_work *work)
+ 				    "smb2 with mid %llu cancelled command = 0x%x\n",
+ 				    le64_to_cpu(hdr->MessageId),
+ 				    le16_to_cpu(chdr->Command));
+-			cancel_work = iter;
++			iter->state = KSMBD_WORK_CANCELLED;
+ 			break;
+ 		}
+ 		spin_unlock(&conn->request_lock);
  	}
  
-+	/*
-+	 * Increment the message sequence number. There is no harm in doing
-+	 * this now because decryption uses the value stored in the response
-+	 * structure and any failure will wipe the VMPCK, preventing further
-+	 * use anyway.
-+	 */
-+	snp_inc_msg_seqno(snp_dev);
-+
- 	if (fw_err)
- 		*fw_err = err;
- 
-+	/*
-+	 * If an extended guest request was issued and the supplied certificate
-+	 * buffer was not large enough, a standard guest request was issued to
-+	 * prevent IV reuse. If the standard request was successful, return -EIO
-+	 * back to the caller as would have originally been returned.
-+	 */
-+	if (!rc && err == SNP_GUEST_REQ_INVALID_LEN)
-+		return -EIO;
-+
- 	if (rc) {
- 		dev_alert(snp_dev->dev,
- 			  "Detected error from ASP request. rc: %d, fw_err: %llu\n",
-@@ -395,9 +412,6 @@ static int handle_guest_request(struct s
- 		goto disable_vmpck;
- 	}
- 
--	/* Increment to new message sequence after payload decryption was successful. */
--	snp_inc_msg_seqno(snp_dev);
+-	if (cancel_work) {
+-		cancel_work->state = KSMBD_WORK_CANCELLED;
+-		if (cancel_work->cancel_fn)
+-			cancel_work->cancel_fn(cancel_work->cancel_argv);
+-	}
 -
+ 	/* For SMB2_CANCEL command itself send no response*/
+ 	work->send_no_response = 1;
  	return 0;
+@@ -7055,6 +7051,14 @@ skip:
  
- disable_vmpck:
+ 				ksmbd_vfs_posix_lock_wait(flock);
+ 
++				spin_lock(&work->conn->request_lock);
++				spin_lock(&fp->f_lock);
++				list_del(&work->fp_entry);
++				work->cancel_fn = NULL;
++				kfree(argv);
++				spin_unlock(&fp->f_lock);
++				spin_unlock(&work->conn->request_lock);
++
+ 				if (work->state != KSMBD_WORK_ACTIVE) {
+ 					list_del(&smb_lock->llist);
+ 					spin_lock(&work->conn->llist_lock);
+@@ -7063,9 +7067,6 @@ skip:
+ 					locks_free_lock(flock);
+ 
+ 					if (work->state == KSMBD_WORK_CANCELLED) {
+-						spin_lock(&fp->f_lock);
+-						list_del(&work->fp_entry);
+-						spin_unlock(&fp->f_lock);
+ 						rsp->hdr.Status =
+ 							STATUS_CANCELLED;
+ 						kfree(smb_lock);
+@@ -7087,9 +7088,6 @@ skip:
+ 				list_del(&smb_lock->clist);
+ 				spin_unlock(&work->conn->llist_lock);
+ 
+-				spin_lock(&fp->f_lock);
+-				list_del(&work->fp_entry);
+-				spin_unlock(&fp->f_lock);
+ 				goto retry;
+ 			} else if (!rc) {
+ 				spin_lock(&work->conn->llist_lock);
+--- a/fs/ksmbd/vfs_cache.c
++++ b/fs/ksmbd/vfs_cache.c
+@@ -364,12 +364,11 @@ static void __put_fd_final(struct ksmbd_
+ 
+ static void set_close_state_blocked_works(struct ksmbd_file *fp)
+ {
+-	struct ksmbd_work *cancel_work, *ctmp;
++	struct ksmbd_work *cancel_work;
+ 
+ 	spin_lock(&fp->f_lock);
+-	list_for_each_entry_safe(cancel_work, ctmp, &fp->blocked_works,
++	list_for_each_entry(cancel_work, &fp->blocked_works,
+ 				 fp_entry) {
+-		list_del(&cancel_work->fp_entry);
+ 		cancel_work->state = KSMBD_WORK_CLOSED;
+ 		cancel_work->cancel_fn(cancel_work->cancel_argv);
+ 	}
 
 
