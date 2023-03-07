@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0CE6AE67A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:30:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B2066AE69E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:32:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbjCGQab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:30:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38760 "EHLO
+        id S231219AbjCGQcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:32:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229525AbjCGQab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:30:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C37863609A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:30:29 -0800 (PST)
+        with ESMTP id S230211AbjCGQbf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:31:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4C485B2A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:31:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8048AB81908
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19D5C433D2;
-        Tue,  7 Mar 2023 16:30:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3B54ECE1C1E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A97CC4339C;
+        Tue,  7 Mar 2023 16:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678206627;
-        bh=7itQ7ZUbBGYIlvOasS07nGY2FUrIz9OoRoKwj2+nG8o=;
+        s=korg; t=1678206672;
+        bh=6337S7XGFkSw+gqcbFtK1Xt1yZ+zJJzBHVOXfaKT9gs=;
         h=Subject:To:Cc:From:Date:From;
-        b=pfxPwUEBODqfksq/EOneS90yA6m9diumbZRs0lJ21eLVvMKSlLdg16MlN/GVktQoX
-         wLAdNcZ4LVdEZGtm/Q5YGKfi31ff5eq4gPn9tgm15pqqa213TCsyhNpnsNFkVdbZAo
-         fjLOGweIT0U/CraLlX8bCmpAl4vYO+BobH3p3yas=
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix PASID directory pointer coherency" failed to apply to 5.15-stable tree
+        b=TYzz4F66sH/MVg5UPys15ylj3tPtzE2IyiTx4k+KYavvwT7Te++Ez3R92t3HmcIIG
+         hhGLhIFOxdd5Bk6ZxAuRnhd/BFbRkoNYmBljDxEvj0sob7CvhYNi7CsjiYjh0dimLy
+         w73igsYSqgEHFBfTpaBmWRwmqq0QEQvD8huf6jEU=
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix PASID directory pointer coherency" failed to apply to 5.10-stable tree
 To:     jacob.jun.pan@linux.intel.com, ashok.raj@intel.com,
         baolu.lu@linux.intel.com, jroedel@suse.de, kevin.tian@intel.com,
         stable@vger.kernel.org, sukumar.ghorai@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:30:23 +0100
-Message-ID: <167820662222233@kroah.com>
+Date:   Tue, 07 Mar 2023 17:31:04 +0100
+Message-ID: <1678206664158120@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -50,23 +50,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 194b3348bdbb7db65375c72f3f774aee4cc6614e
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820662222233@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678206664158120@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
 194b3348bdbb ("iommu/vt-d: Fix PASID directory pointer coherency")
+803766cbf85f ("iommu/vt-d: Fix lockdep splat in intel_pasid_get_entry()")
 
 thanks,
 
