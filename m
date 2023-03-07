@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21F26AF51F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 426CA6AF521
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233989AbjCGTWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:22:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53768 "EHLO
+        id S234009AbjCGTWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:22:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233987AbjCGTWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21845C0802
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:03 -0800 (PST)
+        with ESMTP id S234069AbjCGTWN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:13 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10AEA968CF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96FEBB8117B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA54FC433EF;
-        Tue,  7 Mar 2023 19:07:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5565ECE1C5D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A9A3C433D2;
+        Tue,  7 Mar 2023 19:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216021;
-        bh=Y4JlnfNnT8ib0B7uWkhvO5bKf+jE2kECZJYrm/omIY8=;
+        s=korg; t=1678216027;
+        bh=oZITP4/suD3CmMoRH/Cej2TC4XB7/KH60t3HZyQbbTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mA8LlFthuHIETv8XaI1xe3Ss/Fmmv97DDO/IOXjJxMRpR38ELNMWE/+24T36OaESw
-         ErNUe0/tfRFH7E6rfFA99Iqp+Q1MV+Vxe0Eu08gMkJQO/BPTZYoX7V9OG5btWrbolN
-         eZPxzeGa4ZihXyNPQkJucRqqmML/QR+eaMMPL7nY=
+        b=aCuZ4oRiXPEt1cXa770TJextS22N9T9zYteGISQYE6tkh2sL9aAI0ZixkOEdIWA+c
+         szdECKvWy1TITUJfti1lZcwXtwjz0UX0F8bttTLPravjHdWVsOOf+mK6GmEJm3HAAk
+         kjmqLYLarEjZwJJ/NeAv61X42qgFbDVC9PgQVah4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Alexander Aring <aahringo@redhat.com>,
         David Teigland <teigland@redhat.com>
-Subject: [PATCH 5.15 450/567] fs: dlm: dont set stop rx flag after node reset
-Date:   Tue,  7 Mar 2023 18:03:06 +0100
-Message-Id: <20230307165925.421181928@linuxfoundation.org>
+Subject: [PATCH 5.15 451/567] fs: dlm: move sending fin message into state change handling
+Date:   Tue,  7 Mar 2023 18:03:07 +0100
+Message-Id: <20230307165925.458265078@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,17 +55,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Aring <aahringo@redhat.com>
 
-commit 15c63db8e86a72e0d5cfb9bf0cd1870e39a3e5fe upstream.
+commit a58496361802070996f9bd76e941d109c4a85ebd upstream.
 
-Similar to the stop tx flag, the rx flag should warn about a dlm message
-being received at DLM_FIN state change, when we are assuming no other
-dlm application messages. If we receive a FIN message and we are in the
-state DLM_FIN_WAIT2 we call midcomms_node_reset() which puts the
-midcomms node into DLM_CLOSED state. Afterwards we should not set the
-DLM_NODE_FLAG_STOP_RX flag any more.  This patch changes the setting
-DLM_NODE_FLAG_STOP_RX in those state changes when we receive a FIN
-message and we assume there will be no other dlm application messages
-received until we hit DLM_CLOSED state.
+This patch moves the send fin handling, which should appear in a specific
+state change, into the state change handling while the per node
+state_lock is held. I experienced issues with other messages because
+we changed the state and a fin message was sent out in a different state.
 
 Cc: stable@vger.kernel.org
 Fixes: 489d8e559c65 ("fs: dlm: add reliable connection if reconnect")
@@ -73,27 +68,94 @@ Signed-off-by: Alexander Aring <aahringo@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/midcomms.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/dlm/midcomms.c |   33 +++++++++------------------------
+ 1 file changed, 9 insertions(+), 24 deletions(-)
 
 --- a/fs/dlm/midcomms.c
 +++ b/fs/dlm/midcomms.c
-@@ -504,6 +504,7 @@ static void dlm_midcomms_receive_buffer(
+@@ -394,7 +394,7 @@ static int dlm_send_fin(struct midcomms_
+ 	struct dlm_mhandle *mh;
+ 	char *ppc;
+ 
+-	mh = dlm_midcomms_get_mhandle(node->nodeid, mb_len, GFP_NOFS, &ppc);
++	mh = dlm_midcomms_get_mhandle(node->nodeid, mb_len, GFP_ATOMIC, &ppc);
+ 	if (!mh)
+ 		return -ENOMEM;
+ 
+@@ -498,8 +498,8 @@ static void dlm_midcomms_receive_buffer(
+ 					node->state = DLM_LAST_ACK;
+ 					pr_debug("switch node %d to state %s case 1\n",
+ 						 node->nodeid, dlm_state_str(node->state));
+-					spin_unlock(&node->state_lock);
+-					goto send_fin;
++					set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
++					dlm_send_fin(node, dlm_pas_fin_ack_rcv);
+ 				}
  				break;
  			case DLM_FIN_WAIT1:
- 				node->state = DLM_CLOSING;
-+				set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
- 				pr_debug("switch node %d to state %s\n",
- 					 node->nodeid, dlm_state_str(node->state));
- 				break;
-@@ -524,8 +525,6 @@ static void dlm_midcomms_receive_buffer(
- 				return;
- 			}
- 			spin_unlock(&node->state_lock);
+@@ -542,12 +542,6 @@ static void dlm_midcomms_receive_buffer(
+ 		log_print_ratelimited("ignore dlm msg because seq mismatch, seq: %u, expected: %u, nodeid: %d",
+ 				      seq, node->seq_next, node->nodeid);
+ 	}
 -
--			set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
+-	return;
+-
+-send_fin:
+-	set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
+-	dlm_send_fin(node, dlm_pas_fin_ack_rcv);
+ }
+ 
+ static struct midcomms_node *
+@@ -1268,11 +1262,11 @@ void dlm_midcomms_remove_member(int node
+ 		case DLM_CLOSE_WAIT:
+ 			/* passive shutdown DLM_LAST_ACK case 2 */
+ 			node->state = DLM_LAST_ACK;
+-			spin_unlock(&node->state_lock);
+-
+ 			pr_debug("switch node %d to state %s case 2\n",
+ 				 node->nodeid, dlm_state_str(node->state));
+-			goto send_fin;
++			set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
++			dlm_send_fin(node, dlm_pas_fin_ack_rcv);
++			break;
+ 		case DLM_LAST_ACK:
+ 			/* probably receive fin caught it, do nothing */
  			break;
- 		default:
- 			WARN_ON(test_bit(DLM_NODE_FLAG_STOP_RX, &node->flags));
+@@ -1288,12 +1282,6 @@ void dlm_midcomms_remove_member(int node
+ 	spin_unlock(&node->state_lock);
+ 
+ 	srcu_read_unlock(&nodes_srcu, idx);
+-	return;
+-
+-send_fin:
+-	set_bit(DLM_NODE_FLAG_STOP_RX, &node->flags);
+-	dlm_send_fin(node, dlm_pas_fin_ack_rcv);
+-	srcu_read_unlock(&nodes_srcu, idx);
+ }
+ 
+ static void midcomms_node_release(struct rcu_head *rcu)
+@@ -1324,6 +1312,7 @@ static void midcomms_shutdown(struct mid
+ 		node->state = DLM_FIN_WAIT1;
+ 		pr_debug("switch node %d to state %s case 2\n",
+ 			 node->nodeid, dlm_state_str(node->state));
++		dlm_send_fin(node, dlm_act_fin_ack_rcv);
+ 		break;
+ 	case DLM_CLOSED:
+ 		/* we have what we want */
+@@ -1337,12 +1326,8 @@ static void midcomms_shutdown(struct mid
+ 	}
+ 	spin_unlock(&node->state_lock);
+ 
+-	if (node->state == DLM_FIN_WAIT1) {
+-		dlm_send_fin(node, dlm_act_fin_ack_rcv);
+-
+-		if (DLM_DEBUG_FENCE_TERMINATION)
+-			msleep(5000);
+-	}
++	if (DLM_DEBUG_FENCE_TERMINATION)
++		msleep(5000);
+ 
+ 	/* wait for other side dlm + fin */
+ 	ret = wait_event_timeout(node->shutdown_wait,
 
 
