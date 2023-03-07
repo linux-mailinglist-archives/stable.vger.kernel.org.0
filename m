@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18DBF6AEBA7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056726AF076
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231977AbjCGRrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:47:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60860 "EHLO
+        id S233057AbjCGSae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232007AbjCGRqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:46:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B69A6BF0;
-        Tue,  7 Mar 2023 09:41:47 -0800 (PST)
+        with ESMTP id S232858AbjCGSaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94308A4020
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DA09B8184E;
-        Tue,  7 Mar 2023 17:41:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBFC0C433D2;
-        Tue,  7 Mar 2023 17:41:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F50A6154F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 249E7C433D2;
+        Tue,  7 Mar 2023 18:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210904;
-        bh=J3f4qv5kjF2i82DUy43TciALYCtsEwkz6/MXBKiSoLc=;
+        s=korg; t=1678213413;
+        bh=+LTA0n8ztw/j1cORx/hPzDCPRpiwl5uFEUaAES4uhUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHU22/X41ET5yuAZMpjrefT414SQ4aT0E/9beAXEs8ZaFTI1PZTqk2MXD5BEcdCML
-         BKeEPMZXsM/2qwYQK6TIqaKpzANWeayRU9rcVyHtTRGoIQjNRVjzrTffEJbVQ+haA7
-         egxjg26jXEo5YikZm8GPQAIsqsH0L+yxQb20bxZg=
+        b=uSqaZo7AesOJKlNWJHpdYX+1qJWQ3RA6r+ywe6E7IOES21BlMKf8DZlAwHzAHbmZI
+         3ygxqyySnNXf0IiQv5ey5az03a1Ak9Ie5/+boY2OZ5rNiHOOaKey0SEBYjFZnevCV9
+         2WYiM2erf7RNV16xvXowRxX2OFAAW9HNyDCy87dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Weili Qian <qianweili@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0660/1001] crypto: hisilicon: Wipe entire pool on error
+Subject: [PATCH 6.1 498/885] powerpc: Remove linker flag from KBUILD_AFLAGS
 Date:   Tue,  7 Mar 2023 17:57:12 +0100
-Message-Id: <20230307170050.239540731@linuxfoundation.org>
+Message-Id: <20230307170024.091929646@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,45 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit aa85923a954e7704bc9d3847dabeb8540aa98d13 ]
+[ Upstream commit 31f48f16264bc70962fb3e7ec62da64d0a2ba04a ]
 
-To work around a Clang __builtin_object_size bug that shows up under
-CONFIG_FORTIFY_SOURCE and UBSAN_BOUNDS, move the per-loop-iteration
-mem_block wipe into a single wipe of the entire pool structure after
-the loop.
+When clang's -Qunused-arguments is dropped from KBUILD_CPPFLAGS, it
+points out that KBUILD_AFLAGS contains a linker flag, which will be
+unused:
 
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1780
-Cc: Weili Qian <qianweili@huawei.com>
-Cc: Zhou Wang <wangzhou1@hisilicon.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
-Link: https://lore.kernel.org/r/20230106041945.never.831-kees@kernel.org
+  clang: error: -Wl,-a32: 'linker' input unused [-Werror,-Wunused-command-line-argument]
+
+This was likely supposed to be '-Wa,-a$(BITS)'. However, this change is
+unnecessary, as all supported versions of clang and gcc will pass '-a64'
+or '-a32' to GNU as based on the value of '-m'; the behavior of the
+latest stable release of the oldest supported major version of each
+compiler is shown below and each compiler's latest release exhibits the
+same behavior (GCC 12.2.0 and Clang 15.0.6).
+
+  $ powerpc64-linux-gcc --version | head -1
+  powerpc64-linux-gcc (GCC) 5.5.0
+
+  $ powerpc64-linux-gcc -m64 -### -x assembler-with-cpp -c -o /dev/null /dev/null &| grep 'as '
+  .../as -a64 -mppc64 -many -mbig -o /dev/null /tmp/cctwuBzZ.s
+
+  $ powerpc64-linux-gcc -m32 -### -x assembler-with-cpp -c -o /dev/null /dev/null &| grep 'as '
+  .../as -a32 -mppc -many -mbig -o /dev/null /tmp/ccaZP4mF.sg
+
+  $ clang --version | head -1
+  Ubuntu clang version 11.1.0-++20211011094159+1fdec59bffc1-1~exp1~20211011214622.5
+
+  $ clang --target=powerpc64-linux-gnu -fno-integrated-as -m64 -### \
+    -x assembler-with-cpp -c -o /dev/null /dev/null &| grep gnu-as
+   "/usr/bin/powerpc64-linux-gnu-as" "-a64" "-mppc64" "-many" "-o" "/dev/null" "/tmp/null-80267c.s"
+
+  $ clang --target=powerpc64-linux-gnu -fno-integrated-as -m64 -### \
+    -x assembler-with-cpp -c -o /dev/null /dev/null &| grep gnu-as
+   "/usr/bin/powerpc64-linux-gnu-as" "-a32" "-mppc" "-many" "-o" "/dev/null" "/tmp/null-ab8f8d.s"
+
+Remove this flag altogether to avoid future issues.
+
+Fixes: 1421dc6d4829 ("powerpc/kbuild: Use flags variables rather than overriding LD/CC/AS")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sgl.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/hisilicon/sgl.c b/drivers/crypto/hisilicon/sgl.c
-index 2b6f2281cfd6c..0974b00414050 100644
---- a/drivers/crypto/hisilicon/sgl.c
-+++ b/drivers/crypto/hisilicon/sgl.c
-@@ -124,9 +124,8 @@ struct hisi_acc_sgl_pool *hisi_acc_create_sgl_pool(struct device *dev,
- 	for (j = 0; j < i; j++) {
- 		dma_free_coherent(dev, block_size, block[j].sgl,
- 				  block[j].sgl_dma);
--		memset(block + j, 0, sizeof(*block));
- 	}
--	kfree(pool);
-+	kfree_sensitive(pool);
- 	return ERR_PTR(-ENOMEM);
- }
- EXPORT_SYMBOL_GPL(hisi_acc_create_sgl_pool);
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index dc4cbf0a5ca95..4fd630efe39d3 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -90,7 +90,7 @@ aflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mlittle-endian
+ 
+ ifeq ($(HAS_BIARCH),y)
+ KBUILD_CFLAGS	+= -m$(BITS)
+-KBUILD_AFLAGS	+= -m$(BITS) -Wl,-a$(BITS)
++KBUILD_AFLAGS	+= -m$(BITS)
+ KBUILD_LDFLAGS	+= -m elf$(BITS)$(LDEMULATION)
+ endif
+ 
 -- 
 2.39.2
 
