@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EC6A6AF310
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:00:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BA8B6AEB41
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:41:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbjCGTAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:00:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34292 "EHLO
+        id S231946AbjCGRl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:41:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233562AbjCGS7M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:59:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5120BCDA0E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:17 -0800 (PST)
+        with ESMTP id S231783AbjCGRlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:41:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B7AA6BEB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:37:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69AB461531
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:46:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6899CC433D2;
-        Tue,  7 Mar 2023 18:46:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9173B8191D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E0A9C433A0;
+        Tue,  7 Mar 2023 17:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214775;
-        bh=3SBZ4D0hR1XkF4OMzgSlHEJWam4VBHB8M/ICI/zSPBE=;
+        s=korg; t=1678210649;
+        bh=GxxFSXMNTqKtNsSPRZSLW+3w8I9CBF/zqPlg4wgMPYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDd0qQw2katjT35I3ZB8qk7TfnYj7r+YaYCy7MQTr14OX7GeuSQBRaEmEa4yS2vch
-         AFME/EMj7JS67Na5XAg8As6cr54pQ4vBmKLUTOC2q4EWDnibBCTEecxV8HWwLNhQF7
-         ebsjozj+Lde7WYiqsVqixOnPsy0P6gJH+Ygwlvxk=
+        b=jnARjzm8x3O4xFVdr/h8n2VcNVVn6yPW5/9r/HlDgiVfzQJ4eMRjQGsEWdT3tcOxA
+         sQvdUvDtJeKxZ4FVnpx/dIVTdLOZThZVHQLvAIA5tJrdBiFiGusMJTYNPjQgEDi8Lr
+         xaOL1CbezR/3YcIdv07egOtfJYApQ1E0qEAWjAj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Pardini <ricardo@pardini.net>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Dong Chuanjian <chuanjian@nfschina.com>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 045/567] arm64: dts: amlogic: meson-sm1-odroid-hc4: fix active fan thermal trip
+Subject: [PATCH 6.2 0609/1001] media: drivers/media/v4l2-core/v4l2-h264 : add detection of null pointers
 Date:   Tue,  7 Mar 2023 17:56:21 +0100
-Message-Id: <20230307165907.867991060@linuxfoundation.org>
+Message-Id: <20230307170047.935274353@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,47 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <neil.armstrong@linaro.org>
+From: Dong Chuanjian <chuanjian@nfschina.com>
 
-[ Upstream commit 1d2f14117aa7773efff50f832b85fc7779e586e0 ]
+[ Upstream commit be3ae7cf4326e95bb1d5413b63baabc26f4a1324 ]
 
-Add an active trip tied to the on-board fan cooling device, which is better
-than describing it along the passive cooling maps.
+When the pointer variable is judged to be null, null is returned
+directly.
 
-Fixes: 33b14f663df8 ("arm64: dts: meson: add initial device-tree for ODROID-HC4")
-Reported-by: Ricardo Pardini <ricardo@pardini.net>
-Link: https://lore.kernel.org/r/20230124-topic-odroid-hc4-upstream-fix-fan-trip-v1-1-b0c6aa355d93@linaro.org
-Tested-by: Ricardo Pardini <ricardo@pardini.net>
-[narmstrong: added Ricardo's tested-by from off-list chat]
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+[hverkuil: fix two checkpatch warnings]
+
+Signed-off-by: Dong Chuanjian <chuanjian@nfschina.com>
+Acked-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Fixes: d3f756ad629b ("media: v4l2: Trace calculated p/b0/b1 initial reflist")
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-h264.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
-index f3f953225bf5b..15fece2e63205 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid-hc4.dts
-@@ -76,9 +76,17 @@ sound {
- };
+diff --git a/drivers/media/v4l2-core/v4l2-h264.c b/drivers/media/v4l2-core/v4l2-h264.c
+index 72bd64f651981..c00197d095e75 100644
+--- a/drivers/media/v4l2-core/v4l2-h264.c
++++ b/drivers/media/v4l2-core/v4l2-h264.c
+@@ -305,6 +305,8 @@ static const char *format_ref_list_p(const struct v4l2_h264_reflist_builder *bui
+ 	int n = 0, i;
  
- &cpu_thermal {
-+	trips {
-+		cpu_active: cpu-active {
-+			temperature = <60000>; /* millicelsius */
-+			hysteresis = <2000>; /* millicelsius */
-+			type = "active";
-+		};
-+	};
-+
- 	cooling-maps {
- 		map {
--			trip = <&cpu_passive>;
-+			trip = <&cpu_active>;
- 			cooling-device = <&fan0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
- 		};
- 	};
+ 	*out_str = kmalloc(tmp_str_size, GFP_KERNEL);
++	if (!(*out_str))
++		return NULL;
+ 
+ 	n += snprintf(*out_str + n, tmp_str_size - n, "|");
+ 
+@@ -343,6 +345,8 @@ static const char *format_ref_list_b(const struct v4l2_h264_reflist_builder *bui
+ 	int n = 0, i;
+ 
+ 	*out_str = kmalloc(tmp_str_size, GFP_KERNEL);
++	if (!(*out_str))
++		return NULL;
+ 
+ 	n += snprintf(*out_str + n, tmp_str_size - n, "|");
+ 
 -- 
 2.39.2
 
