@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0915A6AEDF4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 675736AE96B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231536AbjCGSId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:08:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43752 "EHLO
+        id S230512AbjCGRX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:23:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232315AbjCGSIU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:20 -0500
+        with ESMTP id S231421AbjCGRXc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:23:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB40A6BDD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5AC996F10
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5160A61520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47C93C433D2;
-        Tue,  7 Mar 2023 18:02:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51F8B6150C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D283C433EF;
+        Tue,  7 Mar 2023 17:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212135;
-        bh=2CIHEEFvvogr5xFWv0kvSmQuX9HiQp1f0a6KGIFpkHE=;
+        s=korg; t=1678209542;
+        bh=+L8c6t1GA8Q4YAy7iNEjKchtUVA5LabF+Cm/zx3WlNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkYLzjO48prQ5GXq7t+1uVLEC78QTn9E3KrKvdAJQqmApQiN7BBs6t5i4iOpax/gn
-         3q83EE+32RURUdepWL++xMhYTfMUnYYKi6eMpT9hChRaIIeqyzcYPVsKdYd5yrnLpz
-         wuomOPG0trCa38ivbMhkpbo/Gtpht7b1aLKA7GvY=
+        b=n0z34ZOK3TRI9/Sw38B5CojVB5VNHuYnnSF6UAN8kEVeOX2OI3rIl6tC35F95WdJp
+         5EPi/BD08ZX/8mExCttzIcKhLE8+Rd4JpLnzyWQSZh6vlCHg7tdS2yMHGz/P0KYZEZ
+         GzTSxlBHWMB1HVPMPlj1gaQKOH3EIOqRLd3a9Hlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kemeng Shi <shikemeng@huaweicloud.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 089/885] blk-mq: correct stale comment of .get_budget
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0251/1001] wifi: mt76: add memory barrier to SDIO queue kick
 Date:   Tue,  7 Mar 2023 17:50:23 +0100
-Message-Id: <20230307170005.686818212@linuxfoundation.org>
+Message-Id: <20230307170032.680312727@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kemeng Shi <shikemeng@huaweicloud.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit 01542f651a9f58a9b176c3d3dc3eefbacee53b78 ]
+[ Upstream commit 5f54237ad798f41cb6a503271aa9ca47188cfb9b ]
 
-Commit 88022d7201e96 ("blk-mq: don't handle failure in .get_budget")
-remove BLK_STS_RESOURCE return value and we only check if we can get
-the budget from .get_budget() now.
-Correct stale comment that ".get_budget() returns BLK_STS_NO_RESOURCE"
-to ".get_budget() fails to get the budget".
+Ensure the entry has been fully updated before SDIO bus worker access
+it. This patch would fix potential memory risk in both mt7663s and
+mt7921s.
 
-Fixes: 88022d7201e9 ("blk-mq: don't handle failure in .get_budget")
-Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 764dee47e2c1 ("mt76: sdio: move common code in mt76_sdio module")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sched.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/sdio.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
-index 176704a0e4da4..91fb5d1465cac 100644
---- a/block/blk-mq-sched.c
-+++ b/block/blk-mq-sched.c
-@@ -81,7 +81,7 @@ static bool blk_mq_dispatch_hctx_list(struct list_head *rq_list)
- /*
-  * Only SCSI implements .get_budget and .put_budget, and SCSI restarts
-  * its queue by itself in its completion handler, so we don't need to
-- * restart queue if .get_budget() returns BLK_STS_NO_RESOURCE.
-+ * restart queue if .get_budget() fails to get the budget.
-  *
-  * Returns -EAGAIN if hctx->dispatch was found non-empty and run_work has to
-  * be run again.  This is necessary to avoid starving flushes.
-@@ -209,7 +209,7 @@ static struct blk_mq_ctx *blk_mq_next_ctx(struct blk_mq_hw_ctx *hctx,
- /*
-  * Only SCSI implements .get_budget and .put_budget, and SCSI restarts
-  * its queue by itself in its completion handler, so we don't need to
-- * restart queue if .get_budget() returns BLK_STS_NO_RESOURCE.
-+ * restart queue if .get_budget() fails to get the budget.
-  *
-  * Returns -EAGAIN if hctx->dispatch was found non-empty and run_work has to
-  * be run again.  This is necessary to avoid starving flushes.
+diff --git a/drivers/net/wireless/mediatek/mt76/sdio.c b/drivers/net/wireless/mediatek/mt76/sdio.c
+index 228bc7d45011c..419723118ded8 100644
+--- a/drivers/net/wireless/mediatek/mt76/sdio.c
++++ b/drivers/net/wireless/mediatek/mt76/sdio.c
+@@ -562,6 +562,10 @@ mt76s_tx_queue_skb_raw(struct mt76_dev *dev, struct mt76_queue *q,
+ 
+ 	q->entry[q->head].buf_sz = len;
+ 	q->entry[q->head].skb = skb;
++
++	/* ensure the entry fully updated before bus access */
++	smp_wmb();
++
+ 	q->head = (q->head + 1) % q->ndesc;
+ 	q->queued++;
+ 
 -- 
 2.39.2
 
