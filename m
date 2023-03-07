@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D4A6AED0E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 615CF6AF2BD
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229639AbjCGSA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:00:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57528 "EHLO
+        id S233355AbjCGS4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:56:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232399AbjCGSAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:31 -0500
+        with ESMTP id S233363AbjCGSzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:55:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A01699C3C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6674457F4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 171EAB819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67B69C433EF;
-        Tue,  7 Mar 2023 17:54:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4409CB819D1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B20C433D2;
+        Tue,  7 Mar 2023 18:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211671;
-        bh=7S4sb5OLz0mqz8LvUnV51zCb2W8YlnZ3t+bi/7xca+U=;
+        s=korg; t=1678214272;
+        bh=uIYNMFmncTTRgN2qlNAyef2CpIPhlvxozbQrLYKfnyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfEDGtlgyOCQCqkqlV2AA2PL2ruGrTLcIqWMTpoh9tx8vWbvMTjWXn3TCP3+rZu1y
-         trZiHiotbfh24wvdi1IgxvmiZfmgx1tzuzF0eEfoMBy353DUk4icthKKZKQLY9q5J/
-         rQ4eXnKPcI8V3hgwY924ovga3OmmYy0K5XjeNDnw=
+        b=iQxs0k15JlQRQfB6JZlw+jjuSqWrsmJ8w0gzEHuRYAxT0W3Q8aG/z2G3cvY/49tAb
+         /VdDpAAOMwyNEDhTefbdlLePW0giegV2h9WVqL34dPHVMR1mOhHEIwrIaxQGHNT7JG
+         mW/uYxlUKUijPu+RQf7pAKfpo/Sk9C7zWdv+tpw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 6.2 0939/1001] dax/kmem: Fix leak of memory-hotplug resources
+        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 6.1 777/885] irqdomain: Drop bogus fwspec-mapping error handling
 Date:   Tue,  7 Mar 2023 18:01:51 +0100
-Message-Id: <20230307170102.865879642@linuxfoundation.org>
+Message-Id: <20230307170035.697057192@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,136 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit e686c32590f40bffc45f105c04c836ffad3e531a upstream.
+commit e3b7ab025e931accdc2c12acf9b75c6197f1c062 upstream.
 
-While experimenting with CXL region removal the following corruption of
-/proc/iomem appeared.
+In case a newly allocated IRQ ever ends up not having any associated
+struct irq_data it would not even be possible to dispose the mapping.
 
-Before:
-f010000000-f04fffffff : CXL Window 0
-  f010000000-f02fffffff : region4
-    f010000000-f02fffffff : dax4.0
-      f010000000-f02fffffff : System RAM (kmem)
+Replace the bogus disposal with a WARN_ON().
 
-After (modprobe -r cxl_test):
-f010000000-f02fffffff : **redacted binary garbage**
-  f010000000-f02fffffff : System RAM (kmem)
+This will also be used to fix a shared-interrupt mapping race, hence the
+CC-stable tag.
 
-...and testing further the same is visible with persistent memory
-assigned to kmem:
-
-Before:
-480000000-243fffffff : Persistent Memory
-  480000000-57e1fffff : namespace3.0
-  580000000-243fffffff : dax3.0
-    580000000-243fffffff : System RAM (kmem)
-
-After (ndctl disable-region all):
-480000000-243fffffff : Persistent Memory
-  580000000-243fffffff : ***redacted binary garbage***
-    580000000-243fffffff : System RAM (kmem)
-
-The corrupted data is from a use-after-free of the "dax4.0" and "dax3.0"
-resources, and it also shows that the "System RAM (kmem)" resource is
-not being removed. The bug does not appear after "modprobe -r kmem", it
-requires the parent of "dax4.0" and "dax3.0" to be removed which
-re-parents the leaked "System RAM (kmem)" instances. Those in turn
-reference the freed resource as a parent.
-
-First up for the fix is release_mem_region_adjustable() needs to
-reliably delete the resource inserted by add_memory_driver_managed().
-That is thwarted by a check for IORESOURCE_SYSRAM that predates the
-dax/kmem driver, from commit:
-
-65c78784135f ("kernel, resource: check for IORESOURCE_SYSRAM in release_mem_region_adjustable")
-
-That appears to be working around the behavior of HMM's
-"MEMORY_DEVICE_PUBLIC" facility that has since been deleted. With that
-check removed the "System RAM (kmem)" resource gets removed, but
-corruption still occurs occasionally because the "dax" resource is not
-reliably removed.
-
-The dax range information is freed before the device is unregistered, so
-the driver can not reliably recall (another use after free) what it is
-meant to release. Lastly if that use after free got lucky, the driver
-was covering up the leak of "System RAM (kmem)" due to its use of
-release_resource() which detaches, but does not free, child resources.
-The switch to remove_resource() forces remove_memory() to be responsible
-for the deletion of the resource added by add_memory_driver_managed().
-
-Fixes: c2f3011ee697 ("device-dax: add an allocation interface for device-dax instances")
-Cc: <stable@vger.kernel.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Reviewed-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/167653656244.3147810.5705900882794040229.stgit@dwillia2-xfh.jf.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 1e2a7d78499e ("irqdomain: Don't set type when mapping an IRQ")
+Cc: stable@vger.kernel.org      # 4.8
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-4-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dax/bus.c  |    2 +-
- drivers/dax/kmem.c |    4 ++--
- kernel/resource.c  |   14 --------------
- 3 files changed, 3 insertions(+), 17 deletions(-)
+ kernel/irq/irqdomain.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/drivers/dax/bus.c
-+++ b/drivers/dax/bus.c
-@@ -427,8 +427,8 @@ static void unregister_dev_dax(void *dev
- 	dev_dbg(dev, "%s\n", __func__);
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -853,13 +853,8 @@ unsigned int irq_create_fwspec_mapping(s
+ 	}
  
- 	kill_dev_dax(dev_dax);
--	free_dev_dax_ranges(dev_dax);
- 	device_del(dev);
-+	free_dev_dax_ranges(dev_dax);
- 	put_device(dev);
- }
+ 	irq_data = irq_get_irq_data(virq);
+-	if (!irq_data) {
+-		if (irq_domain_is_hierarchy(domain))
+-			irq_domain_free_irqs(virq, 1);
+-		else
+-			irq_dispose_mapping(virq);
++	if (WARN_ON(!irq_data))
+ 		return 0;
+-	}
  
---- a/drivers/dax/kmem.c
-+++ b/drivers/dax/kmem.c
-@@ -146,7 +146,7 @@ static int dev_dax_kmem_probe(struct dev
- 		if (rc) {
- 			dev_warn(dev, "mapping%d: %#llx-%#llx memory add failed\n",
- 					i, range.start, range.end);
--			release_resource(res);
-+			remove_resource(res);
- 			kfree(res);
- 			data->res[i] = NULL;
- 			if (mapped)
-@@ -195,7 +195,7 @@ static void dev_dax_kmem_remove(struct d
- 
- 		rc = remove_memory(range.start, range_len(&range));
- 		if (rc == 0) {
--			release_resource(data->res[i]);
-+			remove_resource(data->res[i]);
- 			kfree(data->res[i]);
- 			data->res[i] = NULL;
- 			success++;
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -1343,20 +1343,6 @@ retry:
- 			continue;
- 		}
- 
--		/*
--		 * All memory regions added from memory-hotplug path have the
--		 * flag IORESOURCE_SYSTEM_RAM. If the resource does not have
--		 * this flag, we know that we are dealing with a resource coming
--		 * from HMM/devm. HMM/devm use another mechanism to add/release
--		 * a resource. This goes via devm_request_mem_region and
--		 * devm_release_mem_region.
--		 * HMM/devm take care to release their resources when they want,
--		 * so if we are dealing with them, let us just back off here.
--		 */
--		if (!(res->flags & IORESOURCE_SYSRAM)) {
--			break;
--		}
--
- 		if (!(res->flags & IORESOURCE_MEM))
- 			break;
- 
+ 	/* Store trigger type */
+ 	irqd_set_trigger_type(irq_data, type);
 
 
