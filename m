@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1277A6AEFC0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCACB6AEB4E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbjCGS0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:26:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53132 "EHLO
+        id S231963AbjCGRm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:42:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232846AbjCGSYx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:24:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 270E1A3B6D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:14 -0800 (PST)
+        with ESMTP id S232027AbjCGRmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:42:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55FB799BE9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:38:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCA5FB819C2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B84C4339E;
-        Tue,  7 Mar 2023 18:20:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C6F961525
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623F6C4339C;
+        Tue,  7 Mar 2023 17:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213212;
-        bh=jnBCoKJC7GwPrc7UGWKAZFZMHTHhVWq6oaYDBqb2qqo=;
+        s=korg; t=1678210702;
+        bh=HfELA5bv6JNGGKsubN/vePsaoGTwJhQONqPLJajGitU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsXMSyo6TmwEA/GyCqUPYQ/Vv+fT9IO5bI0KUhPVK2gRQ2dZeh3UxTGeNEV8wf6E4
-         T3pnJ5jeF3AB6UO8283xyStJlUUZ1RjSv1S05tEwdW9myFxKxHGq3jYzY4usy4dJ6/
-         pks5xsuVcAWV10goeZSp+U9ywK3cpvW+8yWd3ASU=
+        b=rpGJdTsTptsrNCZB653hyCXNhSObtNHKhpqdbX0Z0c7hHd8IZNdKrddRR5DvfQBRt
+         KP5uUZJlW31bel6XPL/cEITKR7eyx4DAxLMLF4Pd2iB/QAN2Xzu0rZIG0rH2TctOP8
+         zbC5Hvj4VTt6UCiFu8wB8wTE+c/YjtokI3MaxkaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
+        patches@lists.linux.dev, Nishanth Menon <nm@ti.com>,
+        Jai Luthra <j-luthra@ti.com>,
+        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 434/885] eeprom: idt_89hpesx: Fix error handling in idt_init()
+Subject: [PATCH 6.2 0596/1001] media: ov5640: Handle delays when no reset_gpio set
 Date:   Tue,  7 Mar 2023 17:56:08 +0100
-Message-Id: <20230307170021.265130706@linuxfoundation.org>
+Message-Id: <20230307170047.357957072@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +57,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Jai Luthra <j-luthra@ti.com>
 
-[ Upstream commit d717a3ab282f51ec45142f911f7ef8a55c057de5 ]
+[ Upstream commit d7ff69139908842adf824be4f50c7e9ac5886c04 ]
 
-A problem about idt_89hpesx create debugfs failed is triggered with the
-following log given:
+Some module manufacturers [1][2] don't expose the RESETB and PWDN pins
+of the sensor directly through the 15-pin FFC connector. Instead wiring
+~PWDN gpio to the sensor pins with appropriate delays.
 
- [ 4973.269647] debugfs: Directory 'idt_csr' with parent '/' already present!
+In such cases, reset_gpio will not be available to the driver, but it
+will still be toggled when the sensor is powered on, and thus we should
+still honor the wait time of >= 5ms + 1ms + 20ms (see figure 2-3 in [3])
+before attempting any i/o operations over SCCB.
 
-The reason is that idt_init() returns i2c_add_driver() directly without
-checking its return value, if i2c_add_driver() failed, it returns without
-destroy the newly created debugfs, resulting the debugfs of idt_csr can
-never be created later.
+Also, rename the function to ov5640_powerup_sequence to better match the
+datasheet (section 2.7).
 
- idt_init()
-   debugfs_create_dir() # create debugfs directory
-   i2c_add_driver()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without destroy debugfs directory
+[1] https://digilent.com/reference/_media/reference/add-ons/pcam-5c/pcam_5c_sch.pdf
+[2] https://www.alinx.com/public/upload/file/AN5641_User_Manual.pdf
+[3] https://cdn.sparkfun.com/datasheets/Sensors/LightImaging/OV5640_datasheet.pdf
 
-Fix by removing debugfs when i2c_add_driver() returns error.
-
-Fixes: cfad6425382e ("eeprom: Add IDT 89HPESx EEPROM/CSR driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Acked-by: Serge Semin <fancer.lancer@gmail.com>
-Link: https://lore.kernel.org/r/20221110020030.47711-1-yuancan@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 19a81c1426c1 ("[media] add Omnivision OV5640 sensor driver")
+Reported-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Jai Luthra <j-luthra@ti.com>
+Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/idt_89hpesx.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/media/i2c/ov5640.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
-index bb3ed352b95f9..367054e0ced4e 100644
---- a/drivers/misc/eeprom/idt_89hpesx.c
-+++ b/drivers/misc/eeprom/idt_89hpesx.c
-@@ -1566,12 +1566,20 @@ static struct i2c_driver idt_driver = {
-  */
- static int __init idt_init(void)
- {
-+	int ret;
-+
- 	/* Create Debugfs directory first */
- 	if (debugfs_initialized())
- 		csr_dbgdir = debugfs_create_dir("idt_csr", NULL);
- 
- 	/* Add new i2c-device driver */
--	return i2c_add_driver(&idt_driver);
-+	ret = i2c_add_driver(&idt_driver);
-+	if (ret) {
-+		debugfs_remove_recursive(csr_dbgdir);
-+		return ret;
-+	}
-+
-+	return 0;
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 75dada60298b5..c159f297ab92a 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2425,11 +2425,22 @@ static void ov5640_power(struct ov5640_dev *sensor, bool enable)
+ 	gpiod_set_value_cansleep(sensor->pwdn_gpio, enable ? 0 : 1);
  }
- module_init(idt_init);
  
+-static void ov5640_reset(struct ov5640_dev *sensor)
++/*
++ * From section 2.7 power up sequence:
++ * t0 + t1 + t2 >= 5ms	Delay from DOVDD stable to PWDN pull down
++ * t3 >= 1ms		Delay from PWDN pull down to RESETB pull up
++ * t4 >= 20ms		Delay from RESETB pull up to SCCB (i2c) stable
++ *
++ * Some modules don't expose RESETB/PWDN pins directly, instead providing a
++ * "PWUP" GPIO which is wired through appropriate delays and inverters to the
++ * pins.
++ *
++ * In such cases, this gpio should be mapped to pwdn_gpio in the driver, and we
++ * should still toggle the pwdn_gpio below with the appropriate delays, while
++ * the calls to reset_gpio will be ignored.
++ */
++static void ov5640_powerup_sequence(struct ov5640_dev *sensor)
+ {
+-	if (!sensor->reset_gpio)
+-		return;
+-
+ 	if (sensor->pwdn_gpio) {
+ 		gpiod_set_value_cansleep(sensor->reset_gpio, 0);
+ 
+@@ -2478,8 +2489,7 @@ static int ov5640_set_power_on(struct ov5640_dev *sensor)
+ 		goto xclk_off;
+ 	}
+ 
+-	ov5640_reset(sensor);
+-	ov5640_power(sensor, true);
++	ov5640_powerup_sequence(sensor);
+ 
+ 	ret = ov5640_init_slave_id(sensor);
+ 	if (ret)
 -- 
 2.39.2
 
