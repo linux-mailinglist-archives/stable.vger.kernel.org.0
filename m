@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D3896AEDEC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9A06AE939
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232089AbjCGSIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:08:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46038 "EHLO
+        id S231340AbjCGRWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:22:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232326AbjCGSIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69423A8E8D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:48 -0800 (PST)
+        with ESMTP id S229792AbjCGRVr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:21:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 354F196604
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:16:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 428DC6150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD3CC433D2;
-        Tue,  7 Mar 2023 18:01:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D06F8B819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:16:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A5B2C433EF;
+        Tue,  7 Mar 2023 17:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212107;
-        bh=2kG26NafuKtgjutR27bE/ZpyKsxhcTAPfbvyZv3FybE=;
+        s=korg; t=1678209414;
+        bh=dg2uGb66nUgR7L9Jjq8PbY3a0g0AV5oNw5kOTumhD+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1VtMuGEuZH5qopIRcwVnVIu+LvxLTBnScgaQs+c18oYXGr3YnN771/o3Dk36JUKK
-         /7a7pOV+WxToJfq+KPqqJN9EtEDymvoBLd83z8B4/PWEj73U2dxZmp0Ug/YwSWvWHA
-         lwiN3rrgWwwX2Nzg9M8Hfi5Pwp7odG83UEyX386M=
+        b=YoZg0dKSrC5qaYWz31jiaJQ3h98WJIQ7dn+cjHHXZPssPp027ZLx8YzNnsi7A3GJg
+         b+vzpDKgPmwpJ4wXo6wMgIBvd9ccZYbQ3WKUb7vNiP1qXp4Ea+9s6BV/hosUoONrKo
+         pe5IIlNNzPCoV2IcLvTQ8wUjxXpFI7O49xP91OYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vaishnav Achath <vaishnav.a@ti.com>,
-        Jayesh Choudhary <j-choudhary@ti.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+        patches@lists.linux.dev,
+        Shivani Baranwal <quic_shivbara@quicinc.com>,
+        Veerendranath Jakkam <quic_vjakkam@quicinc.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 049/885] arm64: dts: ti: k3-j7200: Fix wakeup pinmux range
+Subject: [PATCH 6.2 0211/1001] wifi: cfg80211: Fix extended KCK key length check in nl80211_set_rekey_data()
 Date:   Tue,  7 Mar 2023 17:49:43 +0100
-Message-Id: <20230307170003.851439494@linuxfoundation.org>
+Message-Id: <20230307170031.054756824@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,88 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaishnav Achath <vaishnav.a@ti.com>
+From: Shivani Baranwal <quic_shivbara@quicinc.com>
 
-[ Upstream commit 9ae21ac445e911e3541985c20052fc05d60f6879 ]
+[ Upstream commit df4969ca135b9b3b2c38c07514aaa775112ac835 ]
 
-The WKUP_PADCONFIG register region in J7200 has multiple non-addressable
-regions, split the existing wkup_pmx region as follows to avoid the
-non-addressable regions and include all valid WKUP_PADCONFIG registers.
-Also update references to old nodes with new ones.
+The extended KCK key length check wrongly using the KEK key attribute
+for validation. Due to this GTK rekey offload is failing when the KCK
+key length is 24 bytes even though the driver advertising
+WIPHY_FLAG_SUPPORTS_EXT_KEK_KCK flag. Use correct attribute to fix the
+same.
 
-wkup_pmx0 -> 13 pins (WKUP_PADCONFIG 0 - 12)
-wkup_pmx1 -> 2 pins (WKUP_PADCONFIG 14 - 15)
-wkup_pmx2 -> 59 pins (WKUP_PADCONFIG 26 - 84)
-wkup_pmx3 -> 8 pins (WKUP_PADCONFIG 93 - 100)
-
-J7200 Datasheet (Table 6-106, Section 6.4 Pin Multiplexing) :
-	https://www.ti.com/lit/ds/symlink/dra821u.pdf
-
-Fixes: d361ed88455f ("arm64: dts: ti: Add support for J7200 SoC")
-
-Signed-off-by: Vaishnav Achath <vaishnav.a@ti.com>
-Reviewed-by: Jayesh Choudhary <j-choudhary@ti.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20230119042622.22310-1-vaishnav.a@ti.com
+Fixes: 093a48d2aa4b ("cfg80211: support bigger kek/kck key length")
+Signed-off-by: Shivani Baranwal <quic_shivbara@quicinc.com>
+Signed-off-by: Veerendranath Jakkam <quic_vjakkam@quicinc.com>
+Link: https://lore.kernel.org/r/20221206143715.1802987-2-quic_vjakkam@quicinc.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dts/ti/k3-j7200-common-proc-board.dts     |  2 +-
- .../boot/dts/ti/k3-j7200-mcu-wakeup.dtsi      | 29 ++++++++++++++++++-
- 2 files changed, 29 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
-index 7e8552fd2b6ae..50009f963a324 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
-@@ -80,7 +80,7 @@ vdd_sd_dv: gpio-regulator-TLV71033 {
- 	};
- };
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 33a82ecab9d56..02b9a0280896c 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -13809,7 +13809,7 @@ static int nl80211_set_rekey_data(struct sk_buff *skb, struct genl_info *info)
+ 		return -ERANGE;
+ 	if (nla_len(tb[NL80211_REKEY_DATA_KCK]) != NL80211_KCK_LEN &&
+ 	    !(rdev->wiphy.flags & WIPHY_FLAG_SUPPORTS_EXT_KEK_KCK &&
+-	      nla_len(tb[NL80211_REKEY_DATA_KEK]) == NL80211_KCK_EXT_LEN))
++	      nla_len(tb[NL80211_REKEY_DATA_KCK]) == NL80211_KCK_EXT_LEN))
+ 		return -ERANGE;
  
--&wkup_pmx0 {
-+&wkup_pmx2 {
- 	mcu_cpsw_pins_default: mcu-cpsw-pins-default {
- 		pinctrl-single,pins = <
- 			J721E_WKUP_IOPAD(0x0068, PIN_OUTPUT, 0) /* MCU_RGMII1_TX_CTL */
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-index d3fb86b2ea939..f04c6c890c33d 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-@@ -56,7 +56,34 @@ chipid@43000014 {
- 	wkup_pmx0: pinctrl@4301c000 {
- 		compatible = "pinctrl-single";
- 		/* Proxy 0 addressing */
--		reg = <0x00 0x4301c000 0x00 0x178>;
-+		reg = <0x00 0x4301c000 0x00 0x34>;
-+		#pinctrl-cells = <1>;
-+		pinctrl-single,register-width = <32>;
-+		pinctrl-single,function-mask = <0xffffffff>;
-+	};
-+
-+	wkup_pmx1: pinctrl@0x4301c038 {
-+		compatible = "pinctrl-single";
-+		/* Proxy 0 addressing */
-+		reg = <0x00 0x4301c038 0x00 0x8>;
-+		#pinctrl-cells = <1>;
-+		pinctrl-single,register-width = <32>;
-+		pinctrl-single,function-mask = <0xffffffff>;
-+	};
-+
-+	wkup_pmx2: pinctrl@0x4301c068 {
-+		compatible = "pinctrl-single";
-+		/* Proxy 0 addressing */
-+		reg = <0x00 0x4301c068 0x00 0xec>;
-+		#pinctrl-cells = <1>;
-+		pinctrl-single,register-width = <32>;
-+		pinctrl-single,function-mask = <0xffffffff>;
-+	};
-+
-+	wkup_pmx3: pinctrl@0x4301c174 {
-+		compatible = "pinctrl-single";
-+		/* Proxy 0 addressing */
-+		reg = <0x00 0x4301c174 0x00 0x20>;
- 		#pinctrl-cells = <1>;
- 		pinctrl-single,register-width = <32>;
- 		pinctrl-single,function-mask = <0xffffffff>;
+ 	rekey_data.kek = nla_data(tb[NL80211_REKEY_DATA_KEK]);
 -- 
 2.39.2
 
