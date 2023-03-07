@@ -2,64 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C53D26AF474
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB0F6AF46F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230019AbjCGTQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:16:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42156 "EHLO
+        id S233616AbjCGTQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:16:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233903AbjCGTP7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:15:59 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA969D160B;
-        Tue,  7 Mar 2023 10:59:28 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id m20-20020a17090ab79400b00239d8e182efso17479002pjr.5;
-        Tue, 07 Mar 2023 10:59:28 -0800 (PST)
+        with ESMTP id S230162AbjCGTQA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:16:00 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE8AF9FE6F;
+        Tue,  7 Mar 2023 10:59:29 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id p20so15138192plw.13;
+        Tue, 07 Mar 2023 10:59:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678215568;
+        d=gmail.com; s=20210112; t=1678215569;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vTTlW5wBweKyzFgRUchw4DAOPNZXpMvxZNLnQ0TRyhM=;
-        b=i1aSQzoXOMsGvmdZrC1cQP9atiwhkAIPo856vZCYXHWXnmAPT4KI7fklYnXDCAfjOi
-         FtRLD6JQu4p1oGIBuEom3kZZpxZXJBGDAGuR3jkS7NbaJpkfIjVibpUBTFOWSPw4Nbim
-         udxVFuIBamFSc7XPt5Dc0APOghtnB0hVkuVyPFFHRq296D55q10O493/u3fYbPUlmNu+
-         lDpdOzjx85WIUlObjJMIAFEW9BzbTTEqENruXB2bNXveJ/VxST/VePF3c2YW9vwpSRUY
-         HMHOOgsv/tckYJq4wV7LjEt2PYYehncnF7ky/0v/vtoPL0Qcmxm38ALYuNz2l9kPACoK
-         uJFg==
+        bh=KOXF001rhRxZuqFFDlNcwqSqhf9g7Mw9x8kZ8yl6lH8=;
+        b=pXW4sldrNoI1/DCOpMzWxDH740WtYrVE7E1BxA1dscco7kL5VvwXX+rK91yUZP9TrC
+         yrRKVeUYEZrEa46YwSM8AFHpgXlLmH9IbmAzCI2+fVAvd6SdmyHAtcLqB9FRV/jP60uK
+         CsJ9RM7tbBv8m3Ji3jiD0huYpP9UwN+oBorCLOSh5/3NXkZCZp86JEJn09Vhu9xrFf2f
+         NmU0Lz2GXhik4PT0JeGrn0cpgYYdLTazLWG8rwE9uB4xvm/eGsMN0AzJs6vC3qJnNMK5
+         MgFe6uLWTO11LZHfUcOtOmZt0s2e7/4m+lJ908YU9Y3TJTycdEVwtDkUEEOswEVbEwKO
+         DgGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678215568;
+        d=1e100.net; s=20210112; t=1678215569;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vTTlW5wBweKyzFgRUchw4DAOPNZXpMvxZNLnQ0TRyhM=;
-        b=ZEb0KzctlDAIZULwRjYLIre28dX1FPfg3U205VjshRzHmJeRBfzVFlLAldMrDPncYv
-         zIaxm9mspyImxEks4BsICPrvFHmj6wP77gLPl+00FONmAiI72MrQWWFmVH3CLFmnocMN
-         TWqmaIaAp8yB2FXubiH10c3NBm+UlXvMJugDAtdqVjDy7h60XlUmm/5YHoIl4hSAYMkn
-         QFoweRfT1SdDQvz/8S+ghoppI9SB6VLr7px5WXFyvDI7RFFgsvfJ33RA4RnpegX9aF5t
-         eJQNYHfkg/rm40HAo3V9njR/X2jhZgrFLV07hVE0RhhV8/LYLEkx+oY6sFbiKkNz99NN
-         OX5g==
-X-Gm-Message-State: AO0yUKXIDJWYXDWkx8MXVj/hOzLhtNeruEqtqdkGK1Q914dk3MyZIwOz
-        a8QUTSNPWyQal/YaBhDCn5jcJEHUv82OHg==
-X-Google-Smtp-Source: AK7set8wsCAzYWAEMKG06p/Ytyn7h4UcTQQUG/YtQXiCRF406f/lJgxtaO8UUhy84ZB2p4SmMSiklg==
-X-Received: by 2002:a17:902:9a03:b0:19c:d505:cdba with SMTP id v3-20020a1709029a0300b0019cd505cdbamr13367777plp.62.1678215568020;
-        Tue, 07 Mar 2023 10:59:28 -0800 (PST)
+        bh=KOXF001rhRxZuqFFDlNcwqSqhf9g7Mw9x8kZ8yl6lH8=;
+        b=TU7hYJbeMfrqwrFrtA9CRSqlMFFG08E861ulQMknIJZesBHFRreXxTmoyq6vlGxyJr
+         GRnkm4/jA/zQ6FFq2PSLjQR/9H3EsB+opyE7akLT/PqLeqfJfDFqgfC5NE+iW7nhOUR6
+         Dsi16iTO/FCNftqDXgMQfXVTUMh+c7G3mznU0RJpz0UhMVlH0SFd6LVeVL64jCLbYvB2
+         QGLkWaO42Gd3pylwBHqI8sbiEthLOH4uXA3kGBgCV8ZRZNt5WE+sDQwH5Gd6r484YOyj
+         NSADJsm//OixMqKz1U3w0VdzUM+x0gWTO3qRPxqulOlgZIhnskq6kSDSdipva9BzQBGv
+         ZExQ==
+X-Gm-Message-State: AO0yUKX2ulCrDP3j7CvdRyk3NDqSXZbZdpwzVaCYqmCUM7DapSMVMbGf
+        h14BXjykAcOl42F5l4KEsVK2FQmzVHA1JA==
+X-Google-Smtp-Source: AK7set84HdqY+mXTzkl/AOQcapYHtvlZ+FGxAOT3cDo+doddvtLrCFJfYUktX5LTMz1i2oNEJDe8hw==
+X-Received: by 2002:a17:902:d4cf:b0:19c:eb9a:7712 with SMTP id o15-20020a170902d4cf00b0019ceb9a7712mr21434710plg.1.1678215569114;
+        Tue, 07 Mar 2023 10:59:29 -0800 (PST)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:6f2b:1857:847c:366c])
-        by smtp.gmail.com with ESMTPSA id ku4-20020a170903288400b001943d58268csm8745658plb.55.2023.03.07.10.59.27
+        by smtp.gmail.com with ESMTPSA id ku4-20020a170903288400b001943d58268csm8745658plb.55.2023.03.07.10.59.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Mar 2023 10:59:27 -0800 (PST)
+        Tue, 07 Mar 2023 10:59:28 -0800 (PST)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
-        chandan.babu@oracle.com, "Darrick J. Wong" <djwong@kernel.org>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
+        chandan.babu@oracle.com, Dave Chinner <dchinner@redhat.com>,
+        "Darrick J . Wong" <djwong@kernel.org>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 01/11] xfs: use setattr_copy to set vfs inode attributes
-Date:   Tue,  7 Mar 2023 10:59:12 -0800
-Message-Id: <20230307185922.125907-2-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 02/11] xfs: remove XFS_PREALLOC_SYNC
+Date:   Tue,  7 Mar 2023 10:59:13 -0800
+Message-Id: <20230307185922.125907-3-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.40.0.rc0.216.gc4246ad0f0-goog
 In-Reply-To: <20230307185922.125907-1-leah.rumancik@gmail.com>
 References: <20230307185922.125907-1-leah.rumancik@gmail.com>
@@ -75,158 +73,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Dave Chinner <dchinner@redhat.com>
 
-commit e014f37db1a2d109afa750042ac4d69cf3e3d88e upsream.
+commit 472c6e46f589c26057596dcba160712a5b3e02c5 upstream.
 
-Filipe Manana pointed out that XFS' behavior w.r.t. setuid/setgid
-revocation isn't consistent with btrfs[1] or ext4.  Those two
-filesystems use the VFS function setattr_copy to convey certain
-attributes from struct iattr into the VFS inode structure.
+[partial backport for dependency -
+ xfs_ioc_space() still uses XFS_PREALLOC_SYNC]
 
-Andrey Zhadchenko reported[2] that XFS uses the wrong user namespace to
-decide if it should clear setgid and setuid on a file attribute update.
-This is a second symptom of the problem that Filipe noticed.
+Callers can acheive the same thing by calling xfs_log_force_inode()
+after making their modifications. There is no need for
+xfs_update_prealloc_flags() to do this.
 
-XFS, on the other hand, open-codes setattr_copy in xfs_setattr_mode,
-xfs_setattr_nonsize, and xfs_setattr_time.  Regrettably, setattr_copy is
-/not/ a simple copy function; it contains additional logic to clear the
-setgid bit when setting the mode, and XFS' version no longer matches.
-
-The VFS implements its own setuid/setgid stripping logic, which
-establishes consistent behavior.  It's a tad unfortunate that it's
-scattered across notify_change, should_remove_suid, and setattr_copy but
-XFS should really follow the Linux VFS.  Adapt XFS to use the VFS
-functions and get rid of the old functions.
-
-[1] https://lore.kernel.org/fstests/CAL3q7H47iNQ=Wmk83WcGB-KBJVOEtR9+qGczzCeXJ9Y2KCV25Q@mail.gmail.com/
-[2] https://lore.kernel.org/linux-xfs/20220221182218.748084-1-andrey.zhadchenko@virtuozzo.com/
-
-Fixes: 7fa294c8991c ("userns: Allow chown and setgid preservation")
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/xfs_iops.c | 56 +++--------------------------------------------
- fs/xfs/xfs_pnfs.c |  3 ++-
- 2 files changed, 5 insertions(+), 54 deletions(-)
+ fs/xfs/xfs_file.c | 13 +++++++------
+ fs/xfs/xfs_pnfs.c |  6 ++++--
+ 2 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
-index a607d6aca5c4..1eb71275e5b0 100644
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -634,37 +634,6 @@ xfs_vn_getattr(
- 	return 0;
+diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+index 240eb932c014..752b676c92e3 100644
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -95,8 +95,6 @@ xfs_update_prealloc_flags(
+ 		ip->i_diflags &= ~XFS_DIFLAG_PREALLOC;
+ 
+ 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+-	if (flags & XFS_PREALLOC_SYNC)
+-		xfs_trans_set_sync(tp);
+ 	return xfs_trans_commit(tp);
  }
  
--static void
--xfs_setattr_mode(
--	struct xfs_inode	*ip,
--	struct iattr		*iattr)
--{
--	struct inode		*inode = VFS_I(ip);
--	umode_t			mode = iattr->ia_mode;
--
--	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
--
--	inode->i_mode &= S_IFMT;
--	inode->i_mode |= mode & ~S_IFMT;
--}
--
--void
--xfs_setattr_time(
--	struct xfs_inode	*ip,
--	struct iattr		*iattr)
--{
--	struct inode		*inode = VFS_I(ip);
--
--	ASSERT(xfs_isilocked(ip, XFS_ILOCK_EXCL));
--
--	if (iattr->ia_valid & ATTR_ATIME)
--		inode->i_atime = iattr->ia_atime;
--	if (iattr->ia_valid & ATTR_CTIME)
--		inode->i_ctime = iattr->ia_ctime;
--	if (iattr->ia_valid & ATTR_MTIME)
--		inode->i_mtime = iattr->ia_mtime;
--}
--
- static int
- xfs_vn_change_ok(
- 	struct user_namespace	*mnt_userns,
-@@ -763,16 +732,6 @@ xfs_setattr_nonsize(
- 		gid = (mask & ATTR_GID) ? iattr->ia_gid : igid;
- 		uid = (mask & ATTR_UID) ? iattr->ia_uid : iuid;
- 
--		/*
--		 * CAP_FSETID overrides the following restrictions:
--		 *
--		 * The set-user-ID and set-group-ID bits of a file will be
--		 * cleared upon successful return from chown()
--		 */
--		if ((inode->i_mode & (S_ISUID|S_ISGID)) &&
--		    !capable(CAP_FSETID))
--			inode->i_mode &= ~(S_ISUID|S_ISGID);
--
- 		/*
- 		 * Change the ownerships and register quota modifications
- 		 * in the transaction.
-@@ -784,7 +743,6 @@ xfs_setattr_nonsize(
- 				olddquot1 = xfs_qm_vop_chown(tp, ip,
- 							&ip->i_udquot, udqp);
- 			}
--			inode->i_uid = uid;
- 		}
- 		if (!gid_eq(igid, gid)) {
- 			if (XFS_IS_GQUOTA_ON(mp)) {
-@@ -795,15 +753,10 @@ xfs_setattr_nonsize(
- 				olddquot2 = xfs_qm_vop_chown(tp, ip,
- 							&ip->i_gdquot, gdqp);
- 			}
--			inode->i_gid = gid;
+@@ -1059,9 +1057,6 @@ xfs_file_fallocate(
  		}
  	}
  
--	if (mask & ATTR_MODE)
--		xfs_setattr_mode(ip, iattr);
--	if (mask & (ATTR_ATIME|ATTR_CTIME|ATTR_MTIME))
--		xfs_setattr_time(ip, iattr);
+-	if (file->f_flags & O_DSYNC)
+-		flags |= XFS_PREALLOC_SYNC;
 -
-+	setattr_copy(mnt_userns, inode, iattr);
- 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+ 	error = xfs_update_prealloc_flags(ip, flags);
+ 	if (error)
+ 		goto out_unlock;
+@@ -1084,8 +1079,14 @@ xfs_file_fallocate(
+ 	 * leave shifted extents past EOF and hence losing access to
+ 	 * the data that is contained within them.
+ 	 */
+-	if (do_file_insert)
++	if (do_file_insert) {
+ 		error = xfs_insert_file_space(ip, offset, len);
++		if (error)
++			goto out_unlock;
++	}
++
++	if (file->f_flags & O_DSYNC)
++		error = xfs_log_force_inode(ip);
  
- 	XFS_STATS_INC(mp, xs_ig_attrchg);
-@@ -1028,11 +981,8 @@ xfs_setattr_size(
- 		xfs_inode_clear_eofblocks_tag(ip);
- 	}
- 
--	if (iattr->ia_valid & ATTR_MODE)
--		xfs_setattr_mode(ip, iattr);
--	if (iattr->ia_valid & (ATTR_ATIME|ATTR_CTIME|ATTR_MTIME))
--		xfs_setattr_time(ip, iattr);
--
-+	ASSERT(!(iattr->ia_valid & (ATTR_UID | ATTR_GID)));
-+	setattr_copy(mnt_userns, inode, iattr);
- 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
- 
- 	XFS_STATS_INC(mp, xs_ig_attrchg);
+ out_unlock:
+ 	xfs_iunlock(ip, iolock);
 diff --git a/fs/xfs/xfs_pnfs.c b/fs/xfs/xfs_pnfs.c
-index 5e1d29d8b2e7..8865f7d4404a 100644
+index 8865f7d4404a..3a82a13d880c 100644
 --- a/fs/xfs/xfs_pnfs.c
 +++ b/fs/xfs/xfs_pnfs.c
-@@ -283,7 +283,8 @@ xfs_fs_commit_blocks(
- 	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL);
- 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
- 
--	xfs_setattr_time(ip, iattr);
-+	ASSERT(!(iattr->ia_valid & (ATTR_UID | ATTR_GID)));
-+	setattr_copy(&init_user_ns, inode, iattr);
- 	if (update_isize) {
- 		i_size_write(inode, iattr->ia_size);
- 		ip->i_disk_size = iattr->ia_size;
+@@ -164,10 +164,12 @@ xfs_fs_map_blocks(
+ 		 * that the blocks allocated and handed out to the client are
+ 		 * guaranteed to be present even after a server crash.
+ 		 */
+-		error = xfs_update_prealloc_flags(ip,
+-				XFS_PREALLOC_SET | XFS_PREALLOC_SYNC);
++		error = xfs_update_prealloc_flags(ip, XFS_PREALLOC_SET);
++		if (!error)
++			error = xfs_log_force_inode(ip);
+ 		if (error)
+ 			goto out_unlock;
++
+ 	} else {
+ 		xfs_iunlock(ip, lock_flags);
+ 	}
 -- 
 2.40.0.rc0.216.gc4246ad0f0-goog
 
