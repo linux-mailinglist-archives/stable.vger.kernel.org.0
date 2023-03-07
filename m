@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AFA36AF317
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:00:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A862A6AEB49
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:42:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233311AbjCGTAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:00:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43062 "EHLO
+        id S232037AbjCGRmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:42:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233591AbjCGS7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:59:50 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B3D0CDA29
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:46:41 -0800 (PST)
+        with ESMTP id S231931AbjCGRmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:42:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C323900B3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:38:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 377DFCE1C84
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:46:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A25C433D2;
-        Tue,  7 Mar 2023 18:46:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 209BEB819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:37:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A23C433D2;
+        Tue,  7 Mar 2023 17:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214796;
-        bh=csudxZ8cB4LFSdKSt2pa2wCSn8Ox7RcGz7stDE/n4UA=;
+        s=korg; t=1678210668;
+        bh=prsMAXBLEpmcHoAVQhQ3yXiTOi7C3nvSr56IzG4XjhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkUZ/Cd9uNQS9YBbwXgWx1d1b8TGUUUcpE5t8vV5xpKeWuQuzkMlrZftvgpKTYfn/
-         4mI5a6cKFiimiM6JntIWDE3Txa7DBk3Ol+raVbKQUg3KFnv8xYVi2MOhZyjJfgEwb3
-         bL9a1butbdm/emfOy3e/FaV/YF/yYjjihl14Hvtc=
+        b=p8+dsppsJkqRfrl7ycID8E02+xjIUXX1N4YB/IPocCH2EGK46XIIr1c6hMQ3h85mU
+         V+khW0wnr+GINheFB+Nc59FX1AqxU93kxToSBpRcICriI2Tysht//ax5638X9GzuqO
+         zdeW4LOLJx2qFfXT2kw0JxZUeedvtYPZbjHXRhf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Tasos Sahanidis <tasos@tasossah.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 051/567] ARM: dts: imx7s: correct iomuxc gpr mux controller cells
+Subject: [PATCH 6.2 0615/1001] media: saa7134: Use video_unregister_device for radio_dev
 Date:   Tue,  7 Mar 2023 17:56:27 +0100
-Message-Id: <20230307165908.130180422@linuxfoundation.org>
+Message-Id: <20230307170048.231925688@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,34 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit 0e3e1946606a2919b1dda9967ab2e1c5af2fedd6 ]
+[ Upstream commit bc7635c6435c77a0c168e2cc6535740adfaff4e4 ]
 
-Per binding doc reg-mux.yaml, the #mux-control-cells should be 1
+The radio device doesn't use vb2, thus calling vb2_video_unregister_device()
+which results in the following warning being printed on module unload.
 
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
-Fixes: 94a905a79f2c ("ARM: dts: imx7s: add multiplexer controls")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+WARNING: CPU: 1 PID: 215963 at drivers/media/common/videobuf2/videobuf2-v4l2.c:1236 vb2_video_unregister_device+0xc6/0xe0 [videobuf2_v4l2]
+
+Fixes: 11788d9b7e91 ("media: media/pci: use vb2_video_unregister_device()")
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx7s.dtsi | 2 +-
+ drivers/media/pci/saa7134/saa7134-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
-index 95f22513a7c02..f4d2009d998b7 100644
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -497,7 +497,7 @@ gpr: iomuxc-gpr@30340000 {
- 
- 				mux: mux-controller {
- 					compatible = "mmio-mux";
--					#mux-control-cells = <0>;
-+					#mux-control-cells = <1>;
- 					mux-reg-masks = <0x14 0x00000010>;
- 				};
- 
+diff --git a/drivers/media/pci/saa7134/saa7134-core.c b/drivers/media/pci/saa7134/saa7134-core.c
+index 96328b0af1641..cf2871306987c 100644
+--- a/drivers/media/pci/saa7134/saa7134-core.c
++++ b/drivers/media/pci/saa7134/saa7134-core.c
+@@ -978,7 +978,7 @@ static void saa7134_unregister_video(struct saa7134_dev *dev)
+ 	}
+ 	if (dev->radio_dev) {
+ 		if (video_is_registered(dev->radio_dev))
+-			vb2_video_unregister_device(dev->radio_dev);
++			video_unregister_device(dev->radio_dev);
+ 		else
+ 			video_device_release(dev->radio_dev);
+ 		dev->radio_dev = NULL;
 -- 
 2.39.2
 
