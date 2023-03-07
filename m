@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD9E6AE936
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:22:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1066AEDEA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbjCGRWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:22:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41700 "EHLO
+        id S230426AbjCGSIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231192AbjCGRVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:21:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F8B98EBD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:16:51 -0800 (PST)
+        with ESMTP id S231539AbjCGSIG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE16A8E87
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D53F7B819AE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC88C433EF;
-        Tue,  7 Mar 2023 17:16:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30D606151D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F963C433EF;
+        Tue,  7 Mar 2023 18:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209408;
-        bh=sUZm+FyBMYJ6zyPvw9griu/YdHdoy8TRddoR0u202i4=;
+        s=korg; t=1678212104;
+        bh=AVQJGKVHr3r+Rt0ku7YpVWMS0+tSxIJnMQyS+7jsB1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdOYHu+cAqRkexKct53TGAnBUCBVSRdZPLzfgEurwF+x7psEpNFMSYv2igpVkOawv
-         5SxV7r/inBY0J+znT/rv9rc0oSoMYUJvRlzpKxivEOSHPCpXgwfwTvbXwxkiGPEFtj
-         g5xlltps/P9hROAnKojlWvsOQGDnGX5I6soEXJjs=
+        b=Hj68D/pXAMldAwPNmdIgEkhkRCnTVrqYBOxMX8G7yM4YTxGfdkip26J2M+qWO4YoN
+         C/MdvUNX9/KGoCI3o8h5/XhAgQU7qQe6aCu9+5bqMVhYzzqg0l6NIZdnix4DNs+/BS
+         +Wx76WVbwInsM1SlOwb6qpcxP/WOOEBj9wWIvLm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0209/1001] wifi: ath9k: Fix potential stack-out-of-bounds write in ath9k_wmi_rsp_callback()
-Date:   Tue,  7 Mar 2023 17:49:41 +0100
-Message-Id: <20230307170030.969119674@linuxfoundation.org>
+Subject: [PATCH 6.1 048/885] ARM: s3c: fix s3c64xx_set_timer_source prototype
+Date:   Tue,  7 Mar 2023 17:49:42 +0100
+Message-Id: <20230307170003.799358478@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 8a2f35b9830692f7a616f2f627f943bc748af13a ]
+[ Upstream commit 5bf52f5e4d12b8109f348cab60cb7d51092c4270 ]
 
-Fix a stack-out-of-bounds write that occurs in a WMI response callback
-function that is called after a timeout occurs in ath9k_wmi_cmd().
-The callback writes to wmi->cmd_rsp_buf, a stack-allocated buffer that
-could no longer be valid when a timeout occurs. Set wmi->last_seq_id to
-0 when a timeout occurred.
+The prototype does not match the definition, as gcc-13 points
+out:
 
-Found by a modified version of syzkaller.
+arch/arm/mach-s3c/s3c64xx.c:169:13: error: conflicting types for 's3c64xx_set_timer_source' due to enum/integer mismatch; have 'void(unsigned int,  unsigned int)' [-Werror=enum-int-mismatch]
+  169 | void __init s3c64xx_set_timer_source(unsigned int event, unsigned int source)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from arch/arm/mach-s3c/s3c64xx.c:50:
+arch/arm/mach-s3c/s3c64xx.h:62:20: note: previous declaration of 's3c64xx_set_timer_source' with type 'void(enum s3c64xx_timer_mode,  enum s3c64xx_timer_mode)'
+   62 | extern void __init s3c64xx_set_timer_source(enum s3c64xx_timer_mode event,
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~
 
-BUG: KASAN: stack-out-of-bounds in ath9k_wmi_ctrl_rx
-Write of size 4
-Call Trace:
- memcpy
- ath9k_wmi_ctrl_rx
- ath9k_htc_rx_msg
- ath9k_hif_usb_reg_in_cb
- __usb_hcd_giveback_urb
- usb_hcd_giveback_urb
- dummy_timer
- call_timer_fn
- run_timer_softirq
- __do_softirq
- irq_exit_rcu
- sysvec_apic_timer_interrupt
-
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230104124130.10996-1-linuxlovemin@yonsei.ac.kr
+Fixes: 4280506ac9bb ("ARM: SAMSUNG: Move all platforms to new clocksource driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230118090224.2162863-1-arnd@kernel.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-s3c/s3c64xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
-index f315c54bd3ac0..19345b8f7bfd5 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.c
-+++ b/drivers/net/wireless/ath/ath9k/wmi.c
-@@ -341,6 +341,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
- 	if (!time_left) {
- 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
- 			wmi_cmd_to_name(cmd_id));
-+		wmi->last_seq_id = 0;
- 		mutex_unlock(&wmi->op_mutex);
- 		return -ETIMEDOUT;
- 	}
+diff --git a/arch/arm/mach-s3c/s3c64xx.c b/arch/arm/mach-s3c/s3c64xx.c
+index 0a8116c108fe4..dce2b0e953088 100644
+--- a/arch/arm/mach-s3c/s3c64xx.c
++++ b/arch/arm/mach-s3c/s3c64xx.c
+@@ -173,7 +173,8 @@ static struct samsung_pwm_variant s3c64xx_pwm_variant = {
+ 	.tclk_mask	= (1 << 7) | (1 << 6) | (1 << 5),
+ };
+ 
+-void __init s3c64xx_set_timer_source(unsigned int event, unsigned int source)
++void __init s3c64xx_set_timer_source(enum s3c64xx_timer_mode event,
++				     enum s3c64xx_timer_mode source)
+ {
+ 	s3c64xx_pwm_variant.output_mask = BIT(SAMSUNG_PWM_NUM) - 1;
+ 	s3c64xx_pwm_variant.output_mask &= ~(BIT(event) | BIT(source));
 -- 
 2.39.2
 
