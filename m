@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAE16AEA64
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 869306AEA65
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231612AbjCGRdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:33:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60498 "EHLO
+        id S231700AbjCGRdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:33:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231604AbjCGRcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49FB985344
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:42 -0800 (PST)
+        with ESMTP id S231707AbjCGRc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F3D87369
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:28:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBC75614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA361C4339C;
-        Tue,  7 Mar 2023 17:28:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C72CEB8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7C0C433D2;
+        Tue,  7 Mar 2023 17:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210121;
-        bh=hiAi7rAKPCo3vhcTyVvDLAXjvYrnPzRQdiEqCUUZDjA=;
+        s=korg; t=1678210124;
+        bh=BaSysB2cGpLNgLaNHuUncvKJvtQ459DHO45Z2Y1/SFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRxe3VWvMo3NMpa2nRBje78FngmEAnkoWt5zXppcmL8FlkjF0kPJ6Op7pQsVb2Hmt
-         DtKv2g0Vq/5ixUjrRD9z8k7okY+x6SwuHS0aIEVbz3709CILsTs08vf7I3yzDc+Db0
-         5OrNVNrWJbo2/jUrjZJmHCEfek3dYJx5GZKqT9NY=
+        b=c5YXywQw9AxeA+9ens7WiSn/HKSVeKwyZJeCP9cjcEkL5xCafmn9r4dwRe2Pl0uZX
+         qqdUTTBykQOB7DjHEWGJp11xZX5cDOyG9JWocU7qECQ2QPHra03XtNQbcAqUX6Vp9E
+         BuCN9t5pXwRoyWtnyRO0jBm6xlwNc+fycZWwbZH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Balasubramani Vivekanandan <balasubramani.vivekanandan@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Gustavo Sousa <gustavo.sousa@intel.com>,
-        Matt Atwood <matthew.s.atwood@intel.com>,
-        Ashutosh Dixit <ashutosh.dixit@intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0440/1001] drm/i915: Fix GEN8_MISCCPCTL
-Date:   Tue,  7 Mar 2023 17:53:32 +0100
-Message-Id: <20230307170040.440477433@linuxfoundation.org>
+Subject: [PATCH 6.2 0441/1001] spi: synquacer: Fix timeout handling in synquacer_spi_transfer_one()
+Date:   Tue,  7 Mar 2023 17:53:33 +0100
+Message-Id: <20230307170040.489255014@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -51,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -61,137 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas De Marchi <lucas.demarchi@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6a8b2e4984f73f8d00c8c16b87a8b115d34088e4 ]
+[ Upstream commit e6a0b671880207566e1ece983bf989dde60bc1d7 ]
 
-Register 0x9424 is not replicated on any platform, so it shouldn't be
-declared with REG_MCR(). Declaring it with _MMIO() is basically
-duplicate of the GEN7 version, so just remove the GEN8 and change all
-the callers to use the right functions.
+wait_for_completion_timeout() never returns a <0 value. It returns either
+on timeout or a positive value (at least 1, or number of jiffies left
+till timeout)
 
-Old versions of the gen8 bspec page used to contain a table with MCR
-registers, apparently implying 0x9400 - 0x94ff registers were
-replicated. However that table went away and there is no information
-related to the ranges for gen8 anymore. Moreover the current behavior of
-the driver wouldn't do anything special for 0x9424 since there is no
-equivalent table in intel_gt_mcr.c: the driver would just fallback to
-intel_uncore_{read,write}(). Therefore, do not care about the possible
-special case for gen8 and just use the register as non-MCR for all the
-platforms.
+So, fix the error handling path and return -ETIMEDOUT should a timeout
+occur.
 
-One place doing read + write is also converted to intel_uncore_rmw().
-
-v2: Reword commit message adding the justification wrt gen8
-
-Fixes: a9e69428b1b4 ("drm/i915: Define MCR registers explicitly")
-Cc: Balasubramani Vivekanandan <balasubramani.vivekanandan@intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Gustavo Sousa <gustavo.sousa@intel.com>
-Cc: Matt Atwood <matthew.s.atwood@intel.com>
-Cc: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230206165410.3056073-1-lucas.demarchi@intel.com
-(cherry picked from commit 869bace73ae2b4227e57ee3fd994bfa7d4808938)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: b0823ee35cf9 ("spi: Add spi driver for Socionext SynQuacer platform")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: https://lore.kernel.org/r/c2040bf3cfa201fd8890cfab14fa5a701ffeca14.1676466072.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_gt_regs.h     |  5 +----
- drivers/gpu/drm/i915/gt/intel_workarounds.c |  4 ++--
- drivers/gpu/drm/i915/gt/uc/intel_guc_fw.c   |  5 ++---
- drivers/gpu/drm/i915/intel_pm.c             | 10 +++++-----
- 4 files changed, 10 insertions(+), 14 deletions(-)
+ drivers/spi/spi-synquacer.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_gt_regs.h b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-index 0d47c930956e0..3b6ef0eb47e76 100644
---- a/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
-@@ -681,10 +681,7 @@
- #define GEN6_RSTCTL				_MMIO(0x9420)
+diff --git a/drivers/spi/spi-synquacer.c b/drivers/spi/spi-synquacer.c
+index 47cbe73137c23..dc188f9202c97 100644
+--- a/drivers/spi/spi-synquacer.c
++++ b/drivers/spi/spi-synquacer.c
+@@ -472,10 +472,9 @@ static int synquacer_spi_transfer_one(struct spi_master *master,
+ 		read_fifo(sspi);
+ 	}
  
- #define GEN7_MISCCPCTL				_MMIO(0x9424)
--#define   GEN7_DOP_CLOCK_GATE_ENABLE		(1 << 0)
--
--#define GEN8_MISCCPCTL				MCR_REG(0x9424)
--#define   GEN8_DOP_CLOCK_GATE_ENABLE		REG_BIT(0)
-+#define   GEN7_DOP_CLOCK_GATE_ENABLE		REG_BIT(0)
- #define   GEN12_DOP_CLOCK_GATE_RENDER_ENABLE	REG_BIT(1)
- #define   GEN8_DOP_CLOCK_GATE_CFCLK_ENABLE	(1 << 2)
- #define   GEN8_DOP_CLOCK_GATE_GUC_ENABLE	(1 << 4)
-diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-index 80b0e9a56330c..d92b006d4cd2e 100644
---- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -1673,7 +1673,7 @@ dg2_gt_workarounds_init(struct intel_gt *gt, struct i915_wa_list *wal)
- 	wa_mcr_write_or(wal, XEHP_SQCM, EN_32B_ACCESS);
+-	if (status < 0) {
+-		dev_err(sspi->dev, "failed to transfer. status: 0x%x\n",
+-			status);
+-		return status;
++	if (status == 0) {
++		dev_err(sspi->dev, "failed to transfer. Timeout.\n");
++		return -ETIMEDOUT;
+ 	}
  
- 	/* Wa_14015795083 */
--	wa_mcr_write_clr(wal, GEN8_MISCCPCTL, GEN12_DOP_CLOCK_GATE_RENDER_ENABLE);
-+	wa_write_clr(wal, GEN7_MISCCPCTL, GEN12_DOP_CLOCK_GATE_RENDER_ENABLE);
- 
- 	/* Wa_18018781329 */
- 	wa_mcr_write_or(wal, RENDER_MOD_CTRL, FORCE_MISS_FTLB);
-@@ -1692,7 +1692,7 @@ pvc_gt_workarounds_init(struct intel_gt *gt, struct i915_wa_list *wal)
- 	pvc_init_mcr(gt, wal);
- 
- 	/* Wa_14015795083 */
--	wa_mcr_write_clr(wal, GEN8_MISCCPCTL, GEN12_DOP_CLOCK_GATE_RENDER_ENABLE);
-+	wa_write_clr(wal, GEN7_MISCCPCTL, GEN12_DOP_CLOCK_GATE_RENDER_ENABLE);
- 
- 	/* Wa_18018781329 */
- 	wa_mcr_write_or(wal, RENDER_MOD_CTRL, FORCE_MISS_FTLB);
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_fw.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_fw.c
-index 5b86b2e286e07..42c5d9d2e2182 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_fw.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_fw.c
-@@ -38,9 +38,8 @@ static void guc_prepare_xfer(struct intel_gt *gt)
- 
- 	if (GRAPHICS_VER(uncore->i915) == 9) {
- 		/* DOP Clock Gating Enable for GuC clocks */
--		intel_gt_mcr_multicast_write(gt, GEN8_MISCCPCTL,
--					     GEN8_DOP_CLOCK_GATE_GUC_ENABLE |
--					     intel_gt_mcr_read_any(gt, GEN8_MISCCPCTL));
-+		intel_uncore_rmw(uncore, GEN7_MISCCPCTL, 0,
-+				 GEN8_DOP_CLOCK_GATE_GUC_ENABLE);
- 
- 		/* allows for 5us (in 10ns units) before GT can go to RC6 */
- 		intel_uncore_write(uncore, GUC_ARAT_C6DIS, 0x1FF);
-diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
-index 73c88b1c9545c..ac61df46d02c5 100644
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -4299,8 +4299,8 @@ static void gen8_set_l3sqc_credits(struct drm_i915_private *dev_priv,
- 	u32 val;
- 
- 	/* WaTempDisableDOPClkGating:bdw */
--	misccpctl = intel_gt_mcr_multicast_rmw(to_gt(dev_priv), GEN8_MISCCPCTL,
--					       GEN8_DOP_CLOCK_GATE_ENABLE, 0);
-+	misccpctl = intel_uncore_rmw(&dev_priv->uncore, GEN7_MISCCPCTL,
-+				     GEN7_DOP_CLOCK_GATE_ENABLE, 0);
- 
- 	val = intel_gt_mcr_read_any(to_gt(dev_priv), GEN8_L3SQCREG1);
- 	val &= ~L3_PRIO_CREDITS_MASK;
-@@ -4314,7 +4314,7 @@ static void gen8_set_l3sqc_credits(struct drm_i915_private *dev_priv,
- 	 */
- 	intel_gt_mcr_read_any(to_gt(dev_priv), GEN8_L3SQCREG1);
- 	udelay(1);
--	intel_gt_mcr_multicast_write(to_gt(dev_priv), GEN8_MISCCPCTL, misccpctl);
-+	intel_uncore_write(&dev_priv->uncore, GEN7_MISCCPCTL, misccpctl);
- }
- 
- static void icl_init_clock_gating(struct drm_i915_private *dev_priv)
-@@ -4465,8 +4465,8 @@ static void skl_init_clock_gating(struct drm_i915_private *dev_priv)
- 	gen9_init_clock_gating(dev_priv);
- 
- 	/* WaDisableDopClockGating:skl */
--	intel_gt_mcr_multicast_rmw(to_gt(dev_priv), GEN8_MISCCPCTL,
--				   GEN8_DOP_CLOCK_GATE_ENABLE, 0);
-+	intel_uncore_rmw(&dev_priv->uncore, GEN7_MISCCPCTL,
-+			 GEN7_DOP_CLOCK_GATE_ENABLE, 0);
- 
- 	/* WAC6entrylatency:skl */
- 	intel_uncore_rmw(&dev_priv->uncore, FBC_LLC_READ_CTRL, 0, FBC_LLC_FULLY_OPEN);
+ 	return 0;
 -- 
 2.39.2
 
