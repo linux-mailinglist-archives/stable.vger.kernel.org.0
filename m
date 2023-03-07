@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5AEE6AF47B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D123B6AF479
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233892AbjCGTRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:17:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39162 "EHLO
+        id S233863AbjCGTRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:17:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233684AbjCGTQL (ORCPT
+        with ESMTP id S233755AbjCGTQL (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:16:11 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E59FD6E9A;
-        Tue,  7 Mar 2023 10:59:36 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id x34so14247050pjj.0;
-        Tue, 07 Mar 2023 10:59:36 -0800 (PST)
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611F0B78B1;
+        Tue,  7 Mar 2023 10:59:37 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id u3-20020a17090a450300b00239db6d7d47so12764621pjg.4;
+        Tue, 07 Mar 2023 10:59:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678215575;
+        d=gmail.com; s=20210112; t=1678215576;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=N3/89BQbS9qa9xZLhN3jaD5mzSRJ9y6W4zs9EOpt7UY=;
-        b=JXiHmriJjObPH+BM11YW8sd7uRom08ap5qhj41FY+1EkXh0YiZpFlheNN5ue2dJZh5
-         tm9CZ3RtHn+Jw6lZtx4fBdtdxaglDopjTUXJsVAlGszyP7EUbugL+eG+t4UW/uNe3D4Q
-         Kp1mb76OeOAyFdJ8hI66zY+vvHFRlqSfmkiigDq3xNHcqE6Hl35SQIcLd3o0yU5Ak6hs
-         9AX9ifgP7Q5as810jT7XVDrhCsmZUOe6gvX53Kf/cMK1bTLHUXlg7Cf58WssXGVvqZmk
-         zJmejAJ4T21rPfxyrPa7AOmCPZdojePkKIgabWPLKIZKl/tjbLggW7IzLq592sCpH3zy
-         5gyg==
+        bh=LeZLdQs5ukpKkEndJo4iQKes4wfuvpMlzUJLIUAJDBU=;
+        b=gbRMxFnlfZtjtfDzo0iEB4++od/qToZuDgx2l0g3ep6Bz0uh4LjtLzyDBNyfFd5GTI
+         GaoDP39YlhK8MEC8tNF59d6CNgyiX6qpbVLpe5QHvxGY0xaDUFS7amX5KqeIkWYDRnz0
+         6OHrYMEVXkTdfhENQD6KAiwIKezFsJdI1BO1yr3n/1xnMFuQbrDNtKywyXlG7LuQBEp6
+         v0Xtt8hYzqrhILAxTjifPUk0UZHTx1C9LPPae0jgwSbWa1LuF0AXSad/BoIJ+Mj9P8Pn
+         +apsZBkxzBSaPsYld41R3mJJrEL52pxsEPq6AopYF6W1HmvUWtB2DF3IuG5BkOi4EUd2
+         B2iA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678215575;
+        d=1e100.net; s=20210112; t=1678215576;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=N3/89BQbS9qa9xZLhN3jaD5mzSRJ9y6W4zs9EOpt7UY=;
-        b=U0UZoVGOgWRQdDEaqKMa5gSQBrAP5NPGh5XhEQGtX6tPXxSpfRilLkARreGYqJOB3r
-         EsFSs3VaAcQpr+/qLIBWV11nBRtXPZUO+Dl/lqFXPH7tOOeZnK+ktwrXrfbeR2OdLBu1
-         ovkeAX4wRmNcR/sD5k9JzaPoG2/WxALkGwAOaQEHyIwxmSUSZo/DfHjf543saT5X6iPw
-         Sdl0CUBvxFVlrdPLH0C3tILpTE0fxCGCPhtXE70WMKpKXSaTRGmwIKi1NzXHNQ7dTlc5
-         M3ZjnQ6zRPGcaWBJ/0/YlnprVj2tM/qUZk8NufQa4XboyZhEFah7XeByf/XP4ySY4gcy
-         brlA==
-X-Gm-Message-State: AO0yUKVV964pL+vZu8vS+PjEH+2R0jF2qjGOchuv3b9rFwHTEei8l5gl
-        Jw7x44DXTYmZ52weVj3zKVK/6BBu+wVBxw==
-X-Google-Smtp-Source: AK7set91vwHADNEik3Z4zIxZwvYO4F5nnFkL7/+yFvK/3UWe68uJKVH3QzceACWTGLPkxjWU7Fshdg==
-X-Received: by 2002:a17:903:18e:b0:19a:75b8:f4ff with SMTP id z14-20020a170903018e00b0019a75b8f4ffmr19823271plg.35.1678215575513;
-        Tue, 07 Mar 2023 10:59:35 -0800 (PST)
+        bh=LeZLdQs5ukpKkEndJo4iQKes4wfuvpMlzUJLIUAJDBU=;
+        b=SDagEfRkNDNIfMhJ9JVnRZLmUQxdOqVSZfELwegHYYSTK7xaMNQFH2MVsyol9l7FCl
+         Tkdo3HaMutJoHF8k/hUHY8A8FNSFtBvEbf5ijp1bjycc5mA36gCyvsp5MI45J89HOAsD
+         UejIXr+6rQRYl1zUjJALl0rseSPi+qaD+bA7bwBtBoY148g07rxp8YokeoOTys+maSSb
+         gHonklyw6pN9BSaTTYjSsLmay1WZ7x/NHazCIad9WVG9ILarZqS35v6EktEz9EuCsQxK
+         X+s46Tvzy22Wbh3bASGqH1/1y3GjEpIDzEPIti7vzl1vf2Xy1I43Eki4K/3zIRd7sKzy
+         fYAQ==
+X-Gm-Message-State: AO0yUKWEXmSiVg7ZoMRG/3gYsPwkMsv8HbiJ7UUjzaGrOCOrltlLC+0P
+        uiig156QgI4KVDdwU58Ez3l8gaC2ddjrbg==
+X-Google-Smtp-Source: AK7set96vFw3FB7rTNYejKR9IOg2586gF5sxHcigfJYFwphVwQ6qA9gldw3EodrOsc3cN2wsOGIxRA==
+X-Received: by 2002:a17:903:328e:b0:197:19f7:52b4 with SMTP id jh14-20020a170903328e00b0019719f752b4mr13668375plb.42.1678215576491;
+        Tue, 07 Mar 2023 10:59:36 -0800 (PST)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:6f2b:1857:847c:366c])
-        by smtp.gmail.com with ESMTPSA id ku4-20020a170903288400b001943d58268csm8745658plb.55.2023.03.07.10.59.34
+        by smtp.gmail.com with ESMTPSA id ku4-20020a170903288400b001943d58268csm8745658plb.55.2023.03.07.10.59.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Mar 2023 10:59:35 -0800 (PST)
+        Tue, 07 Mar 2023 10:59:36 -0800 (PST)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
         chandan.babu@oracle.com, Christian Brauner <brauner@kernel.org>,
         Leah Rumancik <leah.rumancik@gmail.com>,
         "Darrick J . Wong" <djwong@kernel.org>
-Subject: [PATCH 5.15 07/11] attr: add in_group_or_capable()
-Date:   Tue,  7 Mar 2023 10:59:18 -0800
-Message-Id: <20230307185922.125907-8-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 08/11] fs: move should_remove_suid()
+Date:   Tue,  7 Mar 2023 10:59:19 -0800
+Message-Id: <20230307185922.125907-9-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.40.0.rc0.216.gc4246ad0f0-goog
 In-Reply-To: <20230307185922.125907-1-leah.rumancik@gmail.com>
 References: <20230307185922.125907-1-leah.rumancik@gmail.com>
@@ -75,15 +75,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian Brauner <brauner@kernel.org>
 
-commit 11c2a8700cdcabf9b639b7204a1e38e2a0b6798e upstream.
+commit e243e3f94c804ecca9a8241b5babe28f35258ef4 upstream.
 
-[backport to 5.15.y, prior to vfsgid_t]
-
-In setattr_{copy,prepare}() we need to perform the same permission
-checks to determine whether we need to drop the setgid bit or not.
-Instead of open-coding it twice add a simple helper the encapsulates the
-logic. We will reuse this helpers to make dropping the setgid bit during
-write operations more consistent in a follow up patch.
+Move the helper from inode.c to attr.c. This keeps the the core of the
+set{g,u}id stripping logic in one place when we add follow-up changes.
+It is the better place anyway, since should_remove_suid() returns
+ATTR_KILL_S{G,U}ID flags.
 
 Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
@@ -91,104 +88,90 @@ Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Tested-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/attr.c     |  8 ++++----
- fs/inode.c    | 28 ++++++++++++++++++++++++----
- fs/internal.h |  2 ++
- 3 files changed, 30 insertions(+), 8 deletions(-)
+ fs/attr.c  | 29 +++++++++++++++++++++++++++++
+ fs/inode.c | 29 -----------------------------
+ 2 files changed, 29 insertions(+), 29 deletions(-)
 
 diff --git a/fs/attr.c b/fs/attr.c
-index f581c4d00897..686840aa91c8 100644
+index 686840aa91c8..f045431bab1a 100644
 --- a/fs/attr.c
 +++ b/fs/attr.c
-@@ -18,6 +18,8 @@
- #include <linux/evm.h>
- #include <linux/ima.h>
+@@ -20,6 +20,35 @@
  
-+#include "internal.h"
+ #include "internal.h"
+ 
++/*
++ * The logic we want is
++ *
++ *	if suid or (sgid and xgrp)
++ *		remove privs
++ */
++int should_remove_suid(struct dentry *dentry)
++{
++	umode_t mode = d_inode(dentry)->i_mode;
++	int kill = 0;
++
++	/* suid always must be killed */
++	if (unlikely(mode & S_ISUID))
++		kill = ATTR_KILL_SUID;
++
++	/*
++	 * sgid without any exec bits is just a mandatory locking mark; leave
++	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
++	 */
++	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
++		kill |= ATTR_KILL_SGID;
++
++	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
++		return kill;
++
++	return 0;
++}
++EXPORT_SYMBOL(should_remove_suid);
 +
  /**
   * chown_ok - verify permissions to chown inode
   * @mnt_userns:	user namespace of the mount @inode was found from
-@@ -141,8 +143,7 @@ int setattr_prepare(struct user_namespace *mnt_userns, struct dentry *dentry,
- 			mapped_gid = i_gid_into_mnt(mnt_userns, inode);
- 
- 		/* Also check the setgid bit! */
--		if (!in_group_p(mapped_gid) &&
--		    !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
-+		if (!in_group_or_capable(mnt_userns, inode, mapped_gid))
- 			attr->ia_mode &= ~S_ISGID;
- 	}
- 
-@@ -257,8 +258,7 @@ void setattr_copy(struct user_namespace *mnt_userns, struct inode *inode,
- 	if (ia_valid & ATTR_MODE) {
- 		umode_t mode = attr->ia_mode;
- 		kgid_t kgid = i_gid_into_mnt(mnt_userns, inode);
--		if (!in_group_p(kgid) &&
--		    !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
-+		if (!in_group_or_capable(mnt_userns, inode, kgid))
- 			mode &= ~S_ISGID;
- 		inode->i_mode = mode;
- 	}
 diff --git a/fs/inode.c b/fs/inode.c
-index 957b2d18ec29..a71fb82279bb 100644
+index a71fb82279bb..3811269259e1 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
-@@ -2321,6 +2321,28 @@ struct timespec64 current_time(struct inode *inode)
+@@ -1864,35 +1864,6 @@ void touch_atime(const struct path *path)
  }
- EXPORT_SYMBOL(current_time);
+ EXPORT_SYMBOL(touch_atime);
  
-+/**
-+ * in_group_or_capable - check whether caller is CAP_FSETID privileged
-+ * @mnt_userns: user namespace of the mount @inode was found from
-+ * @inode:	inode to check
-+ * @gid:	the new/current gid of @inode
-+ *
-+ * Check wether @gid is in the caller's group list or if the caller is
-+ * privileged with CAP_FSETID over @inode. This can be used to determine
-+ * whether the setgid bit can be kept or must be dropped.
-+ *
-+ * Return: true if the caller is sufficiently privileged, false if not.
-+ */
-+bool in_group_or_capable(struct user_namespace *mnt_userns,
-+			 const struct inode *inode, kgid_t gid)
-+{
-+	if (in_group_p(gid))
-+		return true;
-+	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
-+		return true;
-+	return false;
-+}
-+
- /**
-  * mode_strip_sgid - handle the sgid bit for non-directories
-  * @mnt_userns: User namespace of the mount the inode was created from
-@@ -2342,11 +2364,9 @@ umode_t mode_strip_sgid(struct user_namespace *mnt_userns,
- 		return mode;
- 	if (S_ISDIR(mode) || !dir || !(dir->i_mode & S_ISGID))
- 		return mode;
--	if (in_group_p(i_gid_into_mnt(mnt_userns, dir)))
--		return mode;
--	if (capable_wrt_inode_uidgid(mnt_userns, dir, CAP_FSETID))
-+	if (in_group_or_capable(mnt_userns, dir,
-+				i_gid_into_mnt(mnt_userns, dir)))
- 		return mode;
+-/*
+- * The logic we want is
+- *
+- *	if suid or (sgid and xgrp)
+- *		remove privs
+- */
+-int should_remove_suid(struct dentry *dentry)
+-{
+-	umode_t mode = d_inode(dentry)->i_mode;
+-	int kill = 0;
 -
- 	return mode & ~S_ISGID;
- }
- EXPORT_SYMBOL(mode_strip_sgid);
-diff --git a/fs/internal.h b/fs/internal.h
-index 9075490f21a6..c89814727281 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -150,6 +150,8 @@ extern int vfs_open(const struct path *, struct file *);
- extern long prune_icache_sb(struct super_block *sb, struct shrink_control *sc);
- extern void inode_add_lru(struct inode *inode);
- extern int dentry_needs_remove_privs(struct dentry *dentry);
-+bool in_group_or_capable(struct user_namespace *mnt_userns,
-+			 const struct inode *inode, kgid_t gid);
- 
+-	/* suid always must be killed */
+-	if (unlikely(mode & S_ISUID))
+-		kill = ATTR_KILL_SUID;
+-
+-	/*
+-	 * sgid without any exec bits is just a mandatory locking mark; leave
+-	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
+-	 */
+-	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
+-		kill |= ATTR_KILL_SGID;
+-
+-	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
+-		return kill;
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL(should_remove_suid);
+-
  /*
-  * fs-writeback.c
+  * Return mask of changes for notify_change() that need to be done as a
+  * response to write or truncate. Return 0 if nothing has to be changed.
 -- 
 2.40.0.rc0.216.gc4246ad0f0-goog
 
