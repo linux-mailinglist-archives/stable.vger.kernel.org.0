@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 952C36AEB5F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 599696AF077
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231826AbjCGRny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:43:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50130 "EHLO
+        id S229871AbjCGSap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232100AbjCGRn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:43:28 -0500
+        with ESMTP id S231993AbjCGSaG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 724D0A72B8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACB44D281
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C631CB819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00119C433D2;
-        Tue,  7 Mar 2023 17:38:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 043A6B819C5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9F7C433D2;
+        Tue,  7 Mar 2023 18:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210724;
-        bh=X6BmV7RJSLvHfFf7NeyawQIUoC2d3ZhzjYlFYKxJgKo=;
+        s=korg; t=1678213419;
+        bh=Tp8INafFk55/n+e/TcfKI1TQO4+2M/nuxjuPHA7aHaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXNqWynkwnUtL+PRhQD0HJIgcqVO+pj22GU6RdFmJgGU5aLdOKDvHikUl1u7LZ0w9
-         B89dO/zbrRypnDUpX6o+FrIDa76kCngLQ5WLFQOcFJqko3KxKncL68pZ1GRBsXpQHk
-         +pT9+ExmBZdXSx2X0NZA9RYeTDQsNyD0TPMCYhmI=
+        b=Q84W1caSoicSqkInI9GgSPcyMd6AtpyDAN3dW7cyofbjRuxbptpwbPbAEvv70QRyR
+         EsFysvPLe802+bKlGF4oDQ/HSeSLtSKrUiZO9a4JQTmjJMvjeSv7m6PwGa6D5cs4bi
+         as/cJCqAZoAqKBpYQGLGX+p4C0DROVAHq8J4PEKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0634/1001] cpuidle: lib/bug: Disable rcu_is_watching() during WARN/BUG
-Date:   Tue,  7 Mar 2023 17:56:46 +0100
-Message-Id: <20230307170049.095297036@linuxfoundation.org>
+        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
+        Colin Foster <colin.foster@in-advantage.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        Luca Weiss <luca.weiss@fairphone.com>
+Subject: [PATCH 6.1 473/885] driver core: fw_devlink: Improve check for fwnode with no device/driver
+Date:   Tue,  7 Mar 2023 17:56:47 +0100
+Message-Id: <20230307170023.055516369@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,179 +58,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit 5a5d7e9badd2cb8065db171961bd30bd3595e4b6 ]
+[ Upstream commit 411c0d58ca6faa9bc4b9f5382118a31c7bb92a6f ]
 
-In order to avoid WARN/BUG from generating nested or even recursive
-warnings, force rcu_is_watching() true during
-WARN/lockdep_rcu_suspicious().
+fw_devlink shouldn't defer the probe of a device to wait on a supplier
+that'll never have a struct device or will never be probed by a driver.
+We currently check if a supplier falls into this category, but don't
+check its ancestors. We need to check the ancestors too because if the
+ancestor will never probe, then the supplier will never probe either.
 
-Notably things like unwinding the stack can trigger rcu_dereference()
-warnings, which then triggers more unwinding which then triggers more
-warnings etc..
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230126151323.408156109@infradead.org
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Tested-by: Colin Foster <colin.foster@in-advantage.com>
+Tested-by: Sudeep Holla <sudeep.holla@arm.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Luca Weiss <luca.weiss@fairphone.com> # qcom/sm7225-fairphone-fp4
+Link: https://lore.kernel.org/r/20230207014207.1678715-3-saravanak@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 3fb16866b51d ("driver core: fw_devlink: Make cycle detection more robust")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/context_tracking.h | 27 +++++++++++++++++++++++++++
- kernel/locking/lockdep.c         |  3 +++
- kernel/panic.c                   |  5 +++++
- lib/bug.c                        | 15 ++++++++++++++-
- 4 files changed, 49 insertions(+), 1 deletion(-)
+ drivers/base/core.c | 40 ++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 38 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/context_tracking.h b/include/linux/context_tracking.h
-index dcef4a9e4d63e..d4afa8508a806 100644
---- a/include/linux/context_tracking.h
-+++ b/include/linux/context_tracking.h
-@@ -130,9 +130,36 @@ static __always_inline unsigned long ct_state_inc(int incby)
- 	return arch_atomic_add_return(incby, this_cpu_ptr(&context_tracking.state));
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index f623ebc131f8d..bf053e351a277 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1907,6 +1907,35 @@ static int fw_devlink_relax_cycle(struct device *con, void *sup)
+ 	return ret;
  }
  
-+static __always_inline bool warn_rcu_enter(void)
++static bool fwnode_init_without_drv(struct fwnode_handle *fwnode)
 +{
-+	bool ret = false;
++	struct device *dev;
++	bool ret;
 +
-+	/*
-+	 * Horrible hack to shut up recursive RCU isn't watching fail since
-+	 * lots of the actual reporting also relies on RCU.
-+	 */
-+	preempt_disable_notrace();
-+	if (rcu_dynticks_curr_cpu_in_eqs()) {
-+		ret = true;
-+		ct_state_inc(RCU_DYNTICKS_IDX);
++	if (!(fwnode->flags & FWNODE_FLAG_INITIALIZED))
++		return false;
++
++	dev = get_dev_from_fwnode(fwnode);
++	ret = !dev || dev->links.status == DL_DEV_NO_DRIVER;
++	put_device(dev);
++
++	return ret;
++}
++
++static bool fwnode_ancestor_init_without_drv(struct fwnode_handle *fwnode)
++{
++	struct fwnode_handle *parent;
++
++	fwnode_for_each_parent_node(fwnode, parent) {
++		if (fwnode_init_without_drv(parent)) {
++			fwnode_handle_put(parent);
++			return true;
++		}
 +	}
 +
-+	return ret;
++	return false;
 +}
 +
-+static __always_inline void warn_rcu_exit(bool rcu)
-+{
-+	if (rcu)
-+		ct_state_inc(RCU_DYNTICKS_IDX);
-+	preempt_enable_notrace();
-+}
-+
- #else
- static inline void ct_idle_enter(void) { }
- static inline void ct_idle_exit(void) { }
-+
-+static __always_inline bool warn_rcu_enter(void) { return false; }
-+static __always_inline void warn_rcu_exit(bool rcu) { }
- #endif /* !CONFIG_CONTEXT_TRACKING_IDLE */
+ /**
+  * fw_devlink_create_devlink - Create a device link from a consumer to fwnode
+  * @con: consumer device for the device link
+@@ -1995,9 +2024,16 @@ static int fw_devlink_create_devlink(struct device *con,
+ 		goto out;
+ 	}
  
- #endif
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index e3375bc40dadc..50d4863974e7a 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -55,6 +55,7 @@
- #include <linux/rcupdate.h>
- #include <linux/kprobes.h>
- #include <linux/lockdep.h>
-+#include <linux/context_tracking.h>
+-	/* Supplier that's already initialized without a struct device. */
+-	if (sup_handle->flags & FWNODE_FLAG_INITIALIZED)
++	/*
++	 * Supplier or supplier's ancestor already initialized without a struct
++	 * device or being probed by a driver.
++	 */
++	if (fwnode_init_without_drv(sup_handle) ||
++	    fwnode_ancestor_init_without_drv(sup_handle)) {
++		dev_dbg(con, "Not linking %pfwP - Might never probe\n",
++			sup_handle);
+ 		return -EINVAL;
++	}
  
- #include <asm/sections.h>
- 
-@@ -6555,6 +6556,7 @@ void lockdep_rcu_suspicious(const char *file, const int line, const char *s)
- {
- 	struct task_struct *curr = current;
- 	int dl = READ_ONCE(debug_locks);
-+	bool rcu = warn_rcu_enter();
- 
- 	/* Note: the following can be executed concurrently, so be careful. */
- 	pr_warn("\n");
-@@ -6595,5 +6597,6 @@ void lockdep_rcu_suspicious(const char *file, const int line, const char *s)
- 	lockdep_print_held_locks(curr);
- 	pr_warn("\nstack backtrace:\n");
- 	dump_stack();
-+	warn_rcu_exit(rcu);
- }
- EXPORT_SYMBOL_GPL(lockdep_rcu_suspicious);
-diff --git a/kernel/panic.c b/kernel/panic.c
-index 463c9295bc28a..487f5b03bf835 100644
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -34,6 +34,7 @@
- #include <linux/ratelimit.h>
- #include <linux/debugfs.h>
- #include <linux/sysfs.h>
-+#include <linux/context_tracking.h>
- #include <trace/events/error_report.h>
- #include <asm/sections.h>
- 
-@@ -679,6 +680,7 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
- void warn_slowpath_fmt(const char *file, int line, unsigned taint,
- 		       const char *fmt, ...)
- {
-+	bool rcu = warn_rcu_enter();
- 	struct warn_args args;
- 
- 	pr_warn(CUT_HERE);
-@@ -693,11 +695,13 @@ void warn_slowpath_fmt(const char *file, int line, unsigned taint,
- 	va_start(args.args, fmt);
- 	__warn(file, line, __builtin_return_address(0), taint, NULL, &args);
- 	va_end(args.args);
-+	warn_rcu_exit(rcu);
- }
- EXPORT_SYMBOL(warn_slowpath_fmt);
- #else
- void __warn_printk(const char *fmt, ...)
- {
-+	bool rcu = warn_rcu_enter();
- 	va_list args;
- 
- 	pr_warn(CUT_HERE);
-@@ -705,6 +709,7 @@ void __warn_printk(const char *fmt, ...)
- 	va_start(args, fmt);
- 	vprintk(fmt, args);
- 	va_end(args);
-+	warn_rcu_exit(rcu);
- }
- EXPORT_SYMBOL(__warn_printk);
- #endif
-diff --git a/lib/bug.c b/lib/bug.c
-index c223a2575b721..e0ff219899902 100644
---- a/lib/bug.c
-+++ b/lib/bug.c
-@@ -47,6 +47,7 @@
- #include <linux/sched.h>
- #include <linux/rculist.h>
- #include <linux/ftrace.h>
-+#include <linux/context_tracking.h>
- 
- extern struct bug_entry __start___bug_table[], __stop___bug_table[];
- 
-@@ -153,7 +154,7 @@ struct bug_entry *find_bug(unsigned long bugaddr)
- 	return module_find_bug(bugaddr);
- }
- 
--enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
-+static enum bug_trap_type __report_bug(unsigned long bugaddr, struct pt_regs *regs)
- {
- 	struct bug_entry *bug;
- 	const char *file;
-@@ -209,6 +210,18 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
- 	return BUG_TRAP_TYPE_BUG;
- }
- 
-+enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
-+{
-+	enum bug_trap_type ret;
-+	bool rcu = false;
-+
-+	rcu = warn_rcu_enter();
-+	ret = __report_bug(bugaddr, regs);
-+	warn_rcu_exit(rcu);
-+
-+	return ret;
-+}
-+
- static void clear_once_table(struct bug_entry *start, struct bug_entry *end)
- {
- 	struct bug_entry *bug;
+ 	/*
+ 	 * DL_FLAG_SYNC_STATE_ONLY doesn't block probing and supports
 -- 
 2.39.2
 
