@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95ECC6AEC6C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E8A6AF17C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:44:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229819AbjCGRzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46260 "EHLO
+        id S233153AbjCGSod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:44:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230494AbjCGRyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:41 -0500
+        with ESMTP id S233074AbjCGSoN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:44:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B8F59BA6A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D4BB5B46
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33C2FB819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FC4DC433D2;
-        Tue,  7 Mar 2023 17:49:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB03EB819CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:32:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A91FC4339C;
+        Tue,  7 Mar 2023 18:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211367;
-        bh=pSxs59gEIRYE7s1dFnLwoAwmSb5+HPPPRBKc3pc4FcY=;
+        s=korg; t=1678213968;
+        bh=+wK4g2EQI9MsPKrylAVSy3lz9m2TkGnuANr2zCXqWiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLd4JAmH+pnwzDdIrFZeJO+Xiwshp9+0asxGx8bGtqb7W+bThj1LEpONNucUcFgUw
-         VvG8NYYb9ggQe8fRHu30dC8N0Zk5hNNHCPNd2ft6JoIdNfZGRQR4pyvgrlfRh8BSGL
-         8oYxbspMctGpk80riWIVgdj+aFoGoDmXTWf4yi5k=
+        b=EAmvXb8iiYBrGixGG3BX/lXaXQ5Q8Y86sfeJ9JmGr6tcR6tlHVHo70blbqIBMB+Yb
+         8ORNonTDNBd2IyhXl3YmGuPD4ZOoFDegfLPHsDcwiUCCvdoUX3YM/Xq/jO/vSoY1xl
+         CvaH9XQeEbykkDf3xL6r1AGSYmeETZNLCej0thUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 6.2 0840/1001] x86/kprobes: Fix __recover_optprobed_insn check optimizing logic
-Date:   Tue,  7 Mar 2023 18:00:12 +0100
-Message-Id: <20230307170058.251997866@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.1 679/885] scsi: mpi3mr: Fix issues in mpi3mr_get_all_tgt_info()
+Date:   Tue,  7 Mar 2023 18:00:13 +0100
+Message-Id: <20230307170031.627813726@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 868a6fc0ca2407622d2833adefe1c4d284766c4c upstream.
+commit fb428a2005fc1260d18b989cc5199f281617f44d upstream.
 
-Since the following commit:
+The function mpi3mr_get_all_tgt_info() has four issues:
 
-  commit f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
+1) It calculates valid entry length in alltgt_info assuming the header part
+   of the struct mpi3mr_device_map_info would equal to sizeof(u32).  The
+   correct size is sizeof(u64).
 
-modified the update timing of the KPROBE_FLAG_OPTIMIZED, a optimized_kprobe
-may be in the optimizing or unoptimizing state when op.kp->flags
-has KPROBE_FLAG_OPTIMIZED and op->list is not empty.
+2) When it calculates the valid entry length kern_entrylen, it excludes one
+   entry by subtracting 1 from num_devices.
 
-The __recover_optprobed_insn check logic is incorrect, a kprobe in the
-unoptimizing state may be incorrectly determined as unoptimizing.
-As a result, incorrect instructions are copied.
+3) It copies num_device by calling memcpy(). Substitution is enough.
 
-The optprobe_queued_unopt function needs to be exported for invoking in
-arch directory.
+4) It does not specify the calculated length to sg_copy_from_buffer().
+   Instead, it specifies the payload length which is larger than the
+   alltgt_info size. It causes "BUG: KASAN: slab-out-of-bounds".
 
-Link: https://lore.kernel.org/all/20230216034247.32348-2-yangjihong1@huawei.com/
+Fix the issues by using the correct header size, removing the subtraction
+from num_devices, replacing the memcpy() with substitution and specifying
+the correct length to sg_copy_from_buffer().
 
-Fixes: f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
+Link: https://lore.kernel.org/r/20230214005019.1897251-2-shinichiro.kawasaki@wdc.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Fixes: f5e6d5a34376 ("scsi: mpi3mr: Add support for driver commands")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kprobes/opt.c |    4 ++--
- include/linux/kprobes.h       |    1 +
- kernel/kprobes.c              |    2 +-
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/mpi3mr/mpi3mr_app.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kernel/kprobes/opt.c
-+++ b/arch/x86/kernel/kprobes/opt.c
-@@ -46,8 +46,8 @@ unsigned long __recover_optprobed_insn(k
- 		/* This function only handles jump-optimized kprobe */
- 		if (kp && kprobe_optimized(kp)) {
- 			op = container_of(kp, struct optimized_kprobe, kp);
--			/* If op->list is not empty, op is under optimizing */
--			if (list_empty(&op->list))
-+			/* If op is optimized or under unoptimizing */
-+			if (list_empty(&op->list) || optprobe_queued_unopt(op))
- 				goto found;
- 		}
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_app.c b/drivers/scsi/mpi3mr/mpi3mr_app.c
+index 9baac224b213..72054e3a26cb 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_app.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_app.c
+@@ -312,7 +312,7 @@ static long mpi3mr_get_all_tgt_info(struct mpi3mr_ioc *mrioc,
+ 		num_devices++;
+ 	spin_unlock_irqrestore(&mrioc->tgtdev_lock, flags);
+ 
+-	if ((job->request_payload.payload_len == sizeof(u32)) ||
++	if ((job->request_payload.payload_len <= sizeof(u64)) ||
+ 		list_empty(&mrioc->tgtdev_list)) {
+ 		sg_copy_from_buffer(job->request_payload.sg_list,
+ 				    job->request_payload.sg_cnt,
+@@ -320,14 +320,14 @@ static long mpi3mr_get_all_tgt_info(struct mpi3mr_ioc *mrioc,
+ 		return 0;
  	}
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -378,6 +378,7 @@ extern void opt_pre_handler(struct kprob
- DEFINE_INSN_CACHE_OPS(optinsn);
  
- extern void wait_for_kprobe_optimizer(void);
-+bool optprobe_queued_unopt(struct optimized_kprobe *op);
- #else /* !CONFIG_OPTPROBES */
- static inline void wait_for_kprobe_optimizer(void) { }
- #endif /* CONFIG_OPTPROBES */
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -662,7 +662,7 @@ void wait_for_kprobe_optimizer(void)
- 	mutex_unlock(&kprobe_mutex);
- }
+-	kern_entrylen = (num_devices - 1) * sizeof(*devmap_info);
+-	size = sizeof(*alltgt_info) + kern_entrylen;
++	kern_entrylen = num_devices * sizeof(*devmap_info);
++	size = sizeof(u64) + kern_entrylen;
+ 	alltgt_info = kzalloc(size, GFP_KERNEL);
+ 	if (!alltgt_info)
+ 		return -ENOMEM;
  
--static bool optprobe_queued_unopt(struct optimized_kprobe *op)
-+bool optprobe_queued_unopt(struct optimized_kprobe *op)
- {
- 	struct optimized_kprobe *_op;
+ 	devmap_info = alltgt_info->dmi;
+-	memset((u8 *)devmap_info, 0xFF, (kern_entrylen + sizeof(*devmap_info)));
++	memset((u8 *)devmap_info, 0xFF, kern_entrylen);
+ 	spin_lock_irqsave(&mrioc->tgtdev_lock, flags);
+ 	list_for_each_entry(tgtdev, &mrioc->tgtdev_list, list) {
+ 		if (i < num_devices) {
+@@ -344,9 +344,10 @@ static long mpi3mr_get_all_tgt_info(struct mpi3mr_ioc *mrioc,
+ 	num_devices = i;
+ 	spin_unlock_irqrestore(&mrioc->tgtdev_lock, flags);
  
+-	memcpy(&alltgt_info->num_devices, &num_devices, sizeof(num_devices));
++	alltgt_info->num_devices = num_devices;
+ 
+-	usr_entrylen = (job->request_payload.payload_len - sizeof(u32)) / sizeof(*devmap_info);
++	usr_entrylen = (job->request_payload.payload_len - sizeof(u64)) /
++		sizeof(*devmap_info);
+ 	usr_entrylen *= sizeof(*devmap_info);
+ 	min_entrylen = min(usr_entrylen, kern_entrylen);
+ 	if (min_entrylen && (!memcpy(&alltgt_info->dmi, devmap_info, min_entrylen))) {
+@@ -358,7 +359,7 @@ static long mpi3mr_get_all_tgt_info(struct mpi3mr_ioc *mrioc,
+ 
+ 	sg_copy_from_buffer(job->request_payload.sg_list,
+ 			    job->request_payload.sg_cnt,
+-			    alltgt_info, job->request_payload.payload_len);
++			    alltgt_info, (min_entrylen + sizeof(u64)));
+ 	rval = 0;
+ out:
+ 	kfree(alltgt_info);
+-- 
+2.39.2
+
 
 
