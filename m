@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C544C6AE9A0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 285B16AEE2B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230474AbjCGR0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:26:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51162 "EHLO
+        id S232409AbjCGSKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:10:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229907AbjCGRZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:37 -0500
+        with ESMTP id S231629AbjCGSJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5B094766
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE0E9EF60
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3A0C614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB003C433A0;
-        Tue,  7 Mar 2023 17:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B139561520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A8EC433D2;
+        Tue,  7 Mar 2023 18:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209645;
-        bh=wOKglhwjuN2P0B8giL2A/Jo5xiwh1H7X5JHJtbhdwEM=;
+        s=korg; t=1678212238;
+        bh=TjJOiZI3jDkhq6je2d/SoQI4Ey7mhrFqitTJvH+zlaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d85RzPWcaiEVIQIXiQoPHIDZYtQXBbXMqsnFhxZZEW4JqCKhHsf19/CLQL8D3UfXY
-         l+O306D/oFZSWSu5+jUDpdTIuCfgZK43w8u+xH63o/1fP+WbxnBpfoGpk5JRyUtq2q
-         sPV08p+A9Lpd/Rzyhi4jMMJ7E9aGa/KzFWo7lCuQ=
+        b=urhHvWbES041lbk+JbK1MFtENa69yTz8RiC3TZWcKn9KkZnwQJNNeZpM/IRWyK1eR
+         Gc0MHQlNyiGSmfylNwsVyc45xBgdDKbxPjdRD23yN97uIi7/+TkBek04EKwyBsQzdJ
+         lvqYuulBnzakRx27dpc1GPIlcAr32f1yPlKyrd7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0284/1001] wifi: iwl3945: Add missing check for create_singlethread_workqueue
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Jiri Pirko <jiri@nvidia.com>, Kalle Valo <kvalo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 122/885] wifi: libertas: fix memory leak in lbs_init_adapter()
 Date:   Tue,  7 Mar 2023 17:50:56 +0100
-Message-Id: <20230307170033.985114064@linuxfoundation.org>
+Message-Id: <20230307170007.152932917@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 1fdeb8b9f29dfd64805bb49475ac7566a3cb06cb ]
+[ Upstream commit 16a03958618fb91bb1bc7077cf3211055162cc2f ]
 
-Add the check for the return value of the create_singlethread_workqueue
-in order to avoid NULL pointer dereference.
+When kfifo_alloc() failed in lbs_init_adapter(), cmd buffer is not
+released. Add free memory to processing error path.
 
-Fixes: b481de9ca074 ("[IWLWIFI]: add iwlwifi wireless drivers")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Fixes: 7919b89c8276 ("libertas: convert libertas driver to use an event/cmdresp queue")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230208063032.42763-2-jiasheng@iscas.ac.cn
+Link: https://lore.kernel.org/r/20221208121448.2845986-1-shaozhengchao@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlegacy/3945-mac.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/wireless/marvell/libertas/main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/intel/iwlegacy/3945-mac.c b/drivers/net/wireless/intel/iwlegacy/3945-mac.c
-index d7e99d50b287b..9eaf5ec133f9e 100644
---- a/drivers/net/wireless/intel/iwlegacy/3945-mac.c
-+++ b/drivers/net/wireless/intel/iwlegacy/3945-mac.c
-@@ -3372,10 +3372,12 @@ static DEVICE_ATTR(dump_errors, 0200, NULL, il3945_dump_error_log);
-  *
-  *****************************************************************************/
- 
--static void
-+static int
- il3945_setup_deferred_work(struct il_priv *il)
- {
- 	il->workqueue = create_singlethread_workqueue(DRV_NAME);
-+	if (!il->workqueue)
-+		return -ENOMEM;
- 
- 	init_waitqueue_head(&il->wait_command_queue);
- 
-@@ -3392,6 +3394,8 @@ il3945_setup_deferred_work(struct il_priv *il)
- 	timer_setup(&il->watchdog, il_bg_watchdog, 0);
- 
- 	tasklet_setup(&il->irq_tasklet, il3945_irq_tasklet);
-+
-+	return 0;
- }
- 
- static void
-@@ -3712,7 +3716,10 @@ il3945_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/drivers/net/wireless/marvell/libertas/main.c b/drivers/net/wireless/marvell/libertas/main.c
+index 8f5220cee1123..ae975304cfcfa 100644
+--- a/drivers/net/wireless/marvell/libertas/main.c
++++ b/drivers/net/wireless/marvell/libertas/main.c
+@@ -869,6 +869,7 @@ static int lbs_init_adapter(struct lbs_private *priv)
+ 	ret = kfifo_alloc(&priv->event_fifo, sizeof(u32) * 16, GFP_KERNEL);
+ 	if (ret) {
+ 		pr_err("Out of memory allocating event FIFO buffer\n");
++		lbs_free_cmd_buffer(priv);
+ 		goto out;
  	}
  
- 	il_set_rxon_channel(il, &il->bands[NL80211_BAND_2GHZ].channels[5]);
--	il3945_setup_deferred_work(il);
-+	err = il3945_setup_deferred_work(il);
-+	if (err)
-+		goto out_remove_sysfs;
-+
- 	il3945_setup_handlers(il);
- 	il_power_initialize(il);
- 
-@@ -3724,7 +3731,7 @@ il3945_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	err = il3945_setup_mac(il);
- 	if (err)
--		goto out_remove_sysfs;
-+		goto out_destroy_workqueue;
- 
- 	il_dbgfs_register(il, DRV_NAME);
- 
-@@ -3733,9 +3740,10 @@ il3945_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	return 0;
- 
--out_remove_sysfs:
-+out_destroy_workqueue:
- 	destroy_workqueue(il->workqueue);
- 	il->workqueue = NULL;
-+out_remove_sysfs:
- 	sysfs_remove_group(&pdev->dev.kobj, &il3945_attribute_group);
- out_release_irq:
- 	free_irq(il->pci_dev->irq, il);
 -- 
 2.39.2
 
