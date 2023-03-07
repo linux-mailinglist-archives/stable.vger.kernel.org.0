@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A71E96AEB5D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77FC66AF338
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:02:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232085AbjCGRnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:43:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54314 "EHLO
+        id S233086AbjCGTCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:02:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232014AbjCGRn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:43:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E723E9CBD8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:30 -0800 (PST)
+        with ESMTP id S233221AbjCGTBr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:01:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74CC495BE7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0F57B819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B15BC4339B;
-        Tue,  7 Mar 2023 17:39:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2BA06150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:48:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98EEAC433EF;
+        Tue,  7 Mar 2023 18:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210762;
-        bh=+Hhso6gxQnJ9KT4Ow7cZ+KQtXRJeT90UhIgQvLbuhhI=;
+        s=korg; t=1678214892;
+        bh=+kZBexK3tv5+4gmcN24bYL23qehO3PXtCMZHKqeweSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMj6JI2L4VkO8BUGewE2cu6jyZFDG86njVGfnhuzwnxkl0gs4GQKU1aeU0FMLMLEZ
-         LPiasd0jM6DkLswni0RtbcLUJVIpaEq82Ics8M9a60lATNUgyarMcUaJrss/9Aj+93
-         cn6crNVNC51o7NFqZEOzT/rCo36fyW+5ioSbfCQA=
+        b=kfaBq0UxzSzbeMkcQm3K6lznAUk+HK2hGNGdirQx+koy1Oh0p6YjLLX4ZVlXzWpIe
+         klsKkIR3SbM2YvvFQx+dRcFN0FAqQtDmChfw4KlMDhwKDOlgrFAtLswojAVANA+vlO
+         eA7u2RSurjD2q6KNa/KfviE6OYu1R6JE9ndRLdnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0645/1001] thermal: intel: Fix unsigned comparison with less than zero
-Date:   Tue,  7 Mar 2023 17:56:57 +0100
-Message-Id: <20230307170049.589286259@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 082/567] wifi: libertas: main: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Tue,  7 Mar 2023 17:56:58 +0100
+Message-Id: <20230307165909.436033223@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,40 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e7fcfe67f9f410736b758969477b17ea285e8e6c ]
+[ Upstream commit f393df151540bf858effbd29ff572ab94e76a4c4 ]
 
-The return value from the call to intel_tcc_get_tjmax() is int, which can
-be a negative error code. However, the return value is being assigned to
-an u32 variable 'tj_max', so making 'tj_max' an int.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
+tested only.
 
-Eliminate the following warning:
-./drivers/thermal/intel/intel_soc_dts_iosf.c:394:5-11: WARNING: Unsigned expression compared with zero: tj_max < 0
-
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3637
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Acked-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: d2e7b3425c47 ("libertas: disable functionality when interface is down")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207150008.111743-4-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_soc_dts_iosf.c | 2 +-
+ drivers/net/wireless/marvell/libertas/main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/intel/intel_soc_dts_iosf.c b/drivers/thermal/intel/intel_soc_dts_iosf.c
-index 342b0bb5a56d9..8651ff1abe754 100644
---- a/drivers/thermal/intel/intel_soc_dts_iosf.c
-+++ b/drivers/thermal/intel/intel_soc_dts_iosf.c
-@@ -405,7 +405,7 @@ struct intel_soc_dts_sensors *intel_soc_dts_iosf_init(
- {
- 	struct intel_soc_dts_sensors *sensors;
- 	bool notification;
--	u32 tj_max;
-+	int tj_max;
- 	int ret;
- 	int i;
+diff --git a/drivers/net/wireless/marvell/libertas/main.c b/drivers/net/wireless/marvell/libertas/main.c
+index b739a490fc20a..46877773a36de 100644
+--- a/drivers/net/wireless/marvell/libertas/main.c
++++ b/drivers/net/wireless/marvell/libertas/main.c
+@@ -217,7 +217,7 @@ int lbs_stop_iface(struct lbs_private *priv)
  
+ 	spin_lock_irqsave(&priv->driver_lock, flags);
+ 	priv->iface_running = false;
+-	kfree_skb(priv->currenttxskb);
++	dev_kfree_skb_irq(priv->currenttxskb);
+ 	priv->currenttxskb = NULL;
+ 	priv->tx_pending_len = 0;
+ 	spin_unlock_irqrestore(&priv->driver_lock, flags);
 -- 
 2.39.2
 
