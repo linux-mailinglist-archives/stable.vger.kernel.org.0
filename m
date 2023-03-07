@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2326AF3AC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 451716AF3AE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233704AbjCGTHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:07:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
+        id S233657AbjCGTHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:07:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233460AbjCGTHT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:19 -0500
+        with ESMTP id S233619AbjCGTH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DB8C7097
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B403AC709A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 214776152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 266D1C433EF;
-        Tue,  7 Mar 2023 18:52:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A9D461520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41731C433EF;
+        Tue,  7 Mar 2023 18:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215155;
-        bh=5crKRGoGjs7OvnBbceoKVHiUFKx5kaljmaFN01e52PI=;
+        s=korg; t=1678215158;
+        bh=O43vhxBRCnTNB8ZMCLYGbCay8udVuPvXfUkflNi9XjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzQ5+ivxjwD2JIYHn+DChtn7alpzb1SiBOboNf1Qn1/mXEBosQfx+yz7REd1aHrO6
-         tqZ8hXk+uwKoVc+rrt8hOS3AlMymySfwkqxDMb4Qncic05b6UIOILDwD2FdTS0vmJb
-         vXew3XW5hN1HNJozy4VesQwX4EHGboBXSJeYInUg=
+        b=qSkwso++1ODG8cucJwc61iXQe0PsAzv+4NUXhdVVXwGQJPd8/63B3BGTeX6ZG77gE
+         Ou63wZ7bCzVg73kGbq0cEFp3yIsHhGxPVTc/sOJxzS416hl3YUJnJV8amQNzTncX1o
+         BVPDetuQFOiv7TV8Lx6W27E/x1VE0t93orboaOlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Melissa Wen <mwen@igalia.com>,
-        Melissa Wen <melissa.srw@gmail.com>,
+        patches@lists.linux.dev,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 170/567] drm/vkms: Fix null-ptr-deref in vkms_release()
-Date:   Tue,  7 Mar 2023 17:58:26 +0100
-Message-Id: <20230307165913.312184100@linuxfoundation.org>
+Subject: [PATCH 5.15 171/567] drm/vc4: dpi: Add option for inverting pixel clock and output enable
+Date:   Tue,  7 Mar 2023 17:58:27 +0100
+Message-Id: <20230307165913.355449551@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,77 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 2fe2a8f40c21161ffe7653cc234e7934db5b7cc5 ]
+[ Upstream commit 3c2707632146b22e97b0fbf6778bab8add2eaa1d ]
 
-A null-ptr-deref is triggered when it tries to destroy the workqueue in
-vkms->output.composer_workq in vkms_release().
+DRM provides flags for inverting pixel clock and output enable
+signals, but these were not mapped to the relevant registers.
 
- KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
- CPU: 5 PID: 17193 Comm: modprobe Not tainted 6.0.0-11331-gd465bff130bf #24
- RIP: 0010:destroy_workqueue+0x2f/0x710
- ...
- Call Trace:
-  <TASK>
-  ? vkms_config_debugfs_init+0x50/0x50 [vkms]
-  __devm_drm_dev_alloc+0x15a/0x1c0 [drm]
-  vkms_init+0x245/0x1000 [vkms]
-  do_one_initcall+0xd0/0x4f0
-  do_init_module+0x1a4/0x680
-  load_module+0x6249/0x7110
-  __do_sys_finit_module+0x140/0x200
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Add those mappings.
 
-The reason is that an OOM happened which triggers the destroy of the
-workqueue, however, the workqueue is alloced in the later process,
-thus a null-ptr-deref happened. A simple call graph is shown as below:
-
- vkms_init()
-  vkms_create()
-    devm_drm_dev_alloc()
-      __devm_drm_dev_alloc()
-        devm_drm_dev_init()
-          devm_add_action_or_reset()
-            devm_add_action() # an error happened
-            devm_drm_dev_init_release()
-              drm_dev_put()
-                kref_put()
-                  drm_dev_release()
-                    vkms_release()
-                      destroy_workqueue() # null-ptr-deref happened
-    vkms_modeset_init()
-      vkms_output_init()
-        vkms_crtc_init() # where the workqueue get allocated
-
-Fix this by checking if composer_workq is NULL before passing it to
-the destroy_workqueue() in vkms_release().
-
-Fixes: 6c234fe37c57 ("drm/vkms: Implement CRC debugfs API")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221101065156.41584-3-yuancan@huawei.com
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://lore.kernel.org/r/20220613144800.326124-10-maxime@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Stable-dep-of: 0870d86eac8a ("drm/vc4: dpi: Fix format mapping for RGB565")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vkms/vkms_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_dpi.c | 66 ++++++++++++++++++++---------------
+ 1 file changed, 38 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/gpu/drm/vkms/vkms_drv.c b/drivers/gpu/drm/vkms/vkms_drv.c
-index dfe983eaa07ff..f716c5796f5fc 100644
---- a/drivers/gpu/drm/vkms/vkms_drv.c
-+++ b/drivers/gpu/drm/vkms/vkms_drv.c
-@@ -57,7 +57,8 @@ static void vkms_release(struct drm_device *dev)
- {
- 	struct vkms_device *vkms = drm_device_to_vkms_device(dev);
+diff --git a/drivers/gpu/drm/vc4/vc4_dpi.c b/drivers/gpu/drm/vc4/vc4_dpi.c
+index a90f2545baee0..0e25add2df071 100644
+--- a/drivers/gpu/drm/vc4/vc4_dpi.c
++++ b/drivers/gpu/drm/vc4/vc4_dpi.c
+@@ -148,35 +148,45 @@ static void vc4_dpi_encoder_enable(struct drm_encoder *encoder)
+ 	}
+ 	drm_connector_list_iter_end(&conn_iter);
  
--	destroy_workqueue(vkms->output.composer_workq);
-+	if (vkms->output.composer_workq)
-+		destroy_workqueue(vkms->output.composer_workq);
- }
- 
- static void vkms_atomic_commit_tail(struct drm_atomic_state *old_state)
+-	if (connector && connector->display_info.num_bus_formats) {
+-		u32 bus_format = connector->display_info.bus_formats[0];
+-
+-		switch (bus_format) {
+-		case MEDIA_BUS_FMT_RGB888_1X24:
+-			dpi_c |= VC4_SET_FIELD(DPI_FORMAT_24BIT_888_RGB,
+-					       DPI_FORMAT);
+-			break;
+-		case MEDIA_BUS_FMT_BGR888_1X24:
+-			dpi_c |= VC4_SET_FIELD(DPI_FORMAT_24BIT_888_RGB,
+-					       DPI_FORMAT);
+-			dpi_c |= VC4_SET_FIELD(DPI_ORDER_BGR, DPI_ORDER);
+-			break;
+-		case MEDIA_BUS_FMT_RGB666_1X24_CPADHI:
+-			dpi_c |= VC4_SET_FIELD(DPI_FORMAT_18BIT_666_RGB_2,
+-					       DPI_FORMAT);
+-			break;
+-		case MEDIA_BUS_FMT_RGB666_1X18:
+-			dpi_c |= VC4_SET_FIELD(DPI_FORMAT_18BIT_666_RGB_1,
+-					       DPI_FORMAT);
+-			break;
+-		case MEDIA_BUS_FMT_RGB565_1X16:
+-			dpi_c |= VC4_SET_FIELD(DPI_FORMAT_16BIT_565_RGB_3,
+-					       DPI_FORMAT);
+-			break;
+-		default:
+-			DRM_ERROR("Unknown media bus format %d\n", bus_format);
+-			break;
++	if (connector) {
++		if (connector->display_info.num_bus_formats) {
++			u32 bus_format = connector->display_info.bus_formats[0];
++
++			switch (bus_format) {
++			case MEDIA_BUS_FMT_RGB888_1X24:
++				dpi_c |= VC4_SET_FIELD(DPI_FORMAT_24BIT_888_RGB,
++						       DPI_FORMAT);
++				break;
++			case MEDIA_BUS_FMT_BGR888_1X24:
++				dpi_c |= VC4_SET_FIELD(DPI_FORMAT_24BIT_888_RGB,
++						       DPI_FORMAT);
++				dpi_c |= VC4_SET_FIELD(DPI_ORDER_BGR,
++						       DPI_ORDER);
++				break;
++			case MEDIA_BUS_FMT_RGB666_1X24_CPADHI:
++				dpi_c |= VC4_SET_FIELD(DPI_FORMAT_18BIT_666_RGB_2,
++						       DPI_FORMAT);
++				break;
++			case MEDIA_BUS_FMT_RGB666_1X18:
++				dpi_c |= VC4_SET_FIELD(DPI_FORMAT_18BIT_666_RGB_1,
++						       DPI_FORMAT);
++				break;
++			case MEDIA_BUS_FMT_RGB565_1X16:
++				dpi_c |= VC4_SET_FIELD(DPI_FORMAT_16BIT_565_RGB_3,
++						       DPI_FORMAT);
++				break;
++			default:
++				DRM_ERROR("Unknown media bus format %d\n",
++					  bus_format);
++				break;
++			}
+ 		}
++
++		if (connector->display_info.bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
++			dpi_c |= DPI_PIXEL_CLK_INVERT;
++
++		if (connector->display_info.bus_flags & DRM_BUS_FLAG_DE_LOW)
++			dpi_c |= DPI_OUTPUT_ENABLE_INVERT;
+ 	} else {
+ 		/* Default to 24bit if no connector found. */
+ 		dpi_c |= VC4_SET_FIELD(DPI_FORMAT_24BIT_888_RGB, DPI_FORMAT);
 -- 
 2.39.2
 
