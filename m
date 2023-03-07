@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E27C6AEEFE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C27C06AEAA6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232649AbjCGSTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:19:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37120 "EHLO
+        id S231758AbjCGRfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:35:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232574AbjCGSTK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:19:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A909AFE1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:32 -0800 (PST)
+        with ESMTP id S231761AbjCGRfS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B1F9DE11
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD61EB819BC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B7FC433EF;
-        Tue,  7 Mar 2023 18:13:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE24C61517
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C750CC4339B;
+        Tue,  7 Mar 2023 17:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212798;
-        bh=zFAorT+IOu+4gFGbK5U/9e2NMRt9kL8BcwcCqVzl6v8=;
+        s=korg; t=1678210285;
+        bh=LdwjwUkqCg3VSslKLuyiKhIyndt7sTH9884XM14g574=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnU4ivRHfPdWOz6dlOZw8zIFM4WAsg27Ps+tPflWn84WA6aT0SbWNLlx0pJZ8inYj
-         3q8fFNrMTjZ/WKrtOuvwr3FKPyOM3p6nwIJQC5oengo6+EYKV1HBZaqjdMrsJI2vRq
-         JLHudtiN05IDdGvC3rx4QpP1FziMP/+ImDj9UoJU=
+        b=lJd7jSqXCe6p924XSjFdsOpdvESlUTNYmwghghLYfx+iehC9wWwoEbSSml2DMtkNQ
+         rFEoejznfM3ftL40qlQwnp420jHyoiTOL8ExlT14azZYPSKpClAHfpHLuasTSRkFOv
+         BirU14bl0fIGg1SOIbMN1e/rRl61QRuQYLqqKRT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 300/885] drm/bridge: lt9611: fix polarity programming
-Date:   Tue,  7 Mar 2023 17:53:54 +0100
-Message-Id: <20230307170015.126696995@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vincent Knecht <vincent.knecht@mailoo.org>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0463/1001] leds: is31fl319x: Wrap mutex_destroy() for devm_add_action_or_rest()
+Date:   Tue,  7 Mar 2023 17:53:55 +0100
+Message-Id: <20230307170041.482534646@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 0b157efa384ea417304b1da284ee2f603c607fc3 ]
+[ Upstream commit a82c7cf803d98751cd3ddb35828faad925d71982 ]
 
-Fix programming of hsync and vsync polarities
+Clang complains that devm_add_action() takes a parameter with a wrong type:
 
-Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-4-dmitry.baryshkov@linaro.org
+warning: cast from 'void (*)(struct mutex *)' to 'void (*)(void *)' converts to incompatible function type [-Wcast-function-type-strict]
+    err = devm_add_action(dev, (void (*)(void *))mutex_destroy, &is31->lock);
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    1 warning generated.
+
+It appears that the commit e1af5c815586 ("leds: is31fl319x: Fix devm vs.
+non-devm ordering") missed two things:
+
+- whilst the commit mentions devm_add_action_or_reset() the actual change
+  utilised devm_add_action() call by mistake
+- strictly speaking the parameter is not compatible by type
+
+Fix both issues by switching to devm_add_action_or_reset() and adding a
+wrapper for mutex_destroy() call.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: e1af5c815586 ("leds: is31fl319x: Fix devm vs. non-devm ordering")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20221228093238.82713-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/leds/leds-is31fl319x.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index 58f39b2792179..deb503ca956af 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -207,7 +207,6 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
+diff --git a/drivers/leds/leds-is31fl319x.c b/drivers/leds/leds-is31fl319x.c
+index b2f4c4ec7c567..7c908414ac7e0 100644
+--- a/drivers/leds/leds-is31fl319x.c
++++ b/drivers/leds/leds-is31fl319x.c
+@@ -495,6 +495,11 @@ static inline int is31fl3196_db_to_gain(u32 dezibel)
+ 	return dezibel / IS31FL3196_AUDIO_GAIN_DB_STEP;
+ }
  
- 		/* stage 2 */
- 		{ 0x834a, 0x40 },
--		{ 0x831d, 0x10 },
- 
- 		/* MK limit */
- 		{ 0x832d, 0x38 },
-@@ -222,11 +221,19 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
- 		{ 0x8325, 0x00 },
- 		{ 0x832a, 0x01 },
- 		{ 0x834a, 0x10 },
--		{ 0x831d, 0x10 },
--		{ 0x8326, 0x37 },
- 	};
-+	u8 pol = 0x10;
- 
--	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
-+	if (mode->flags & DRM_MODE_FLAG_NHSYNC)
-+		pol |= 0x2;
-+	if (mode->flags & DRM_MODE_FLAG_NVSYNC)
-+		pol |= 0x1;
-+	regmap_write(lt9611->regmap, 0x831d, pol);
++static void is31f1319x_mutex_destroy(void *lock)
++{
++	mutex_destroy(lock);
++}
 +
-+	if (mode->hdisplay == 3840)
-+		regmap_multi_reg_write(lt9611->regmap, reg_cfg2, ARRAY_SIZE(reg_cfg2));
-+	else
-+		regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+ static int is31fl319x_probe(struct i2c_client *client)
+ {
+ 	struct is31fl319x_chip *is31;
+@@ -511,7 +516,7 @@ static int is31fl319x_probe(struct i2c_client *client)
+ 		return -ENOMEM;
  
- 	switch (mode->hdisplay) {
- 	case 640:
-@@ -236,7 +243,7 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
- 		regmap_write(lt9611->regmap, 0x8326, 0x37);
- 		break;
- 	case 3840:
--		regmap_multi_reg_write(lt9611->regmap, reg_cfg2, ARRAY_SIZE(reg_cfg2));
-+		regmap_write(lt9611->regmap, 0x8326, 0x37);
- 		break;
- 	}
+ 	mutex_init(&is31->lock);
+-	err = devm_add_action(dev, (void (*)(void *))mutex_destroy, &is31->lock);
++	err = devm_add_action_or_reset(dev, is31f1319x_mutex_destroy, &is31->lock);
+ 	if (err)
+ 		return err;
  
 -- 
 2.39.2
