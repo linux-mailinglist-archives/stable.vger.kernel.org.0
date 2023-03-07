@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 248296AE90F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:20:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D3F6AEDB3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbjCGRUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:20:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37818 "EHLO
+        id S232339AbjCGSGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:06:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230257AbjCGRUR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:20:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E509547A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:15:35 -0800 (PST)
+        with ESMTP id S232172AbjCGSGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:06:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C72ACBB0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:59:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D73CC61508
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:15:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE779C433D2;
-        Tue,  7 Mar 2023 17:15:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB6E5B819C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25061C433EF;
+        Tue,  7 Mar 2023 17:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209334;
-        bh=6um0Gxx64lpG2s6OKo6ioec+xFRQ0zfd9ZYtuoMKGdA=;
+        s=korg; t=1678211933;
+        bh=tpQbBg+mocmCFjE7wEnkN8+k5zSpHha98BgVuTAP5Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XN9q0WayZHQWXdFpFAAdb+IdnL2w/c0Sc/aQgbqSX51UCo0Mrmci1X2F3g4WTnXDZ
-         jCBN3vhlH7g2zblbtU9wwpBscn0TkZf9xYaa/Tcn9CyPw8N/ZX0FFHmaYb/kdxbGEj
-         mcdlPLSvhvKrYk/IRxCWyZ6BWQ/3OeuxunSgFbhI=
+        b=wRFaa+ya4dbaCyY5LpMQ8HjktOlRjtqh8IQ7BSuOv1kUBrSq2YbWW4YuD64nbnKcC
+         rsRQMlUWy2d18mmFmz4V6tLRZUWVmfRR6GYH3/XLp3wkXtv/TrmSFqKB+kGjvZYEUt
+         GSuB7wROpH8L7j34xoV4jDOIpoa4QOck289pW/1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0184/1001] ACPICA: nsrepair: handle cases without a return value correctly
-Date:   Tue,  7 Mar 2023 17:49:16 +0100
-Message-Id: <20230307170029.883800925@linuxfoundation.org>
+Subject: [PATCH 6.1 023/885] arm64: dts: qcom: sc8280xp: correct SPMI bus address cells
+Date:   Tue,  7 Mar 2023 17:49:17 +0100
+Message-Id: <20230307170002.652003780@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit ca843a4c79486e99a19b859ef0b9887854afe146 ]
+[ Upstream commit 76d9e8b4d54ae2cb91a68f0cb82624887de767a7 ]
 
-Previously acpi_ns_simple_repair() would crash if expected_btypes
-contained any combination of ACPI_RTYPE_NONE with a different type,
-e.g | ACPI_RTYPE_INTEGER because of slightly incorrect logic in the
-!return_object branch, which wouldn't return AE_AML_NO_RETURN_VALUE
-for such cases.
+The SPMI bus uses two address cells and zero size cells (second reg
+entry - SPMI_USID - is not the size):
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+  spmi@c440000: #address-cells:0:0: 2 was expected
 
-Link: https://github.com/acpica/acpica/pull/811
-Fixes: 61db45ca2163 ("ACPICA: Restore code that repairs NULL package elements in return values.")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221213101921.47924-3-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/nsrepair.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/qcom/sc8280xp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpica/nsrepair.c b/drivers/acpi/acpica/nsrepair.c
-index 367fcd201f96e..ec512e06a48ed 100644
---- a/drivers/acpi/acpica/nsrepair.c
-+++ b/drivers/acpi/acpica/nsrepair.c
-@@ -181,8 +181,9 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
- 	 * Try to fix if there was no return object. Warning if failed to fix.
- 	 */
- 	if (!return_object) {
--		if (expected_btypes && (!(expected_btypes & ACPI_RTYPE_NONE))) {
--			if (package_index != ACPI_NOT_PACKAGE_ELEMENT) {
-+		if (expected_btypes) {
-+			if (!(expected_btypes & ACPI_RTYPE_NONE) &&
-+			    package_index != ACPI_NOT_PACKAGE_ELEMENT) {
- 				ACPI_WARN_PREDEFINED((AE_INFO,
- 						      info->full_pathname,
- 						      ACPI_WARN_ALWAYS,
-@@ -196,14 +197,15 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
- 				if (ACPI_SUCCESS(status)) {
- 					return (AE_OK);	/* Repair was successful */
- 				}
--			} else {
-+			}
-+
-+			if (expected_btypes != ACPI_RTYPE_NONE) {
- 				ACPI_WARN_PREDEFINED((AE_INFO,
- 						      info->full_pathname,
- 						      ACPI_WARN_ALWAYS,
- 						      "Missing expected return value"));
-+				return (AE_AML_NO_RETURN_VALUE);
- 			}
--
--			return (AE_AML_NO_RETURN_VALUE);
- 		}
- 	}
- 
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+index 146a4285c3952..8181ccf9c8815 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
+@@ -1470,8 +1470,8 @@ spmi_bus: spmi@c440000 {
+ 			interrupts-extended = <&pdc 1 IRQ_TYPE_LEVEL_HIGH>;
+ 			qcom,ee = <0>;
+ 			qcom,channel = <0>;
+-			#address-cells = <1>;
+-			#size-cells = <1>;
++			#address-cells = <2>;
++			#size-cells = <0>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <4>;
+ 		};
 -- 
 2.39.2
 
