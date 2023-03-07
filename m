@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB676AEC1D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:52:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D406AEC1E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:52:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232066AbjCGRwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:52:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46214 "EHLO
+        id S232156AbjCGRwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:52:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232282AbjCGRwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:01 -0500
+        with ESMTP id S232287AbjCGRwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3209FA590B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:46:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EFE7A5919
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:46:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F4B5B818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:46:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD045C433EF;
-        Tue,  7 Mar 2023 17:46:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FCABB819C5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:46:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB6EDC433EF;
+        Tue,  7 Mar 2023 17:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211175;
-        bh=WxYwa2Cc30nYji1sh4OZhymFEFDeZ8K9EQ836M/pyes=;
+        s=korg; t=1678211178;
+        bh=V85SEr6Ec7BXA7mqt65Urq4W5Pj0GKvaHF6qJSUhH3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tt6OjYZ770zeI5iGBNoj2H6JwhTCGxUnPb8TsSmqaMU3KyrAPMU0OgN0U1BwcnhhM
-         v1LxUIvAKjMSb+qdBwaNF3n/3a90+NTN/KQGAU5OfrmVTU7GFujyK+OxNa74druUyl
-         Yf2nIT/eVumqwKDMf9EjdYG53dTIHdC2JA10RLcM=
+        b=AN7rg7mXKk2NsnvuAedHCG2OUGcCC3SvpES+eSasqCKnVGDrGb0jZ7fuxVZ9cyX5d
+         AQ7JEBTdB/OfpR1BWmf881IGNxT8WtxIe67kwQaRQjDzHWToqu0mitalIeQsxOoJii
+         CZdc842D8zAXX/ZFQ7uVzPHj/wCqmMlmKsqjs8cQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bharath SM <bharathsm@microsoft.com>,
         "Paulo Alcantara (SUSE)" <pc@manguebit.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.2 0777/1001] cifs: Check the lease context if we actually got a lease
-Date:   Tue,  7 Mar 2023 17:59:09 +0100
-Message-Id: <20230307170055.472481554@linuxfoundation.org>
+Subject: [PATCH 6.2 0778/1001] cifs: return a single-use cfid if we did not get a lease
+Date:   Tue,  7 Mar 2023 17:59:10 +0100
+Message-Id: <20230307170055.507544272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -57,13 +57,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 66d45ca1350a3bb8d5f4db8879ccad3ed492337a upstream.
+commit 8e843bf38f7be0766642a91523cfa65f2b021a8a upstream.
 
-Some servers may return that we got a lease in rsp->OplockLevel
-but then in the lease context contradict this and say we got no lease
-at all.  Thus we need to check the context if we have a lease.
-Additionally, If we do not get a lease we need to make sure we close
-the handle before we return an error to the caller.
+If we did not get a lease we can still return a single use cfid to the caller.
+The cfid will not have has_lease set and will thus not be shared with any
+other concurrent users and will be freed immediately when the caller
+drops the handle.
+
+This avoids extra roundtrips for servers that do not support directory leases
+where they would first fail to get a cfid with a lease and then fallback
+to try a normal SMB2_open()
 
 Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Cc: stable@vger.kernel.org
@@ -72,57 +75,75 @@ Reviewed-by: Paulo Alcantara (SUSE) <pc@manguebit.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cached_dir.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ fs/cifs/cached_dir.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
 --- a/fs/cifs/cached_dir.c
 +++ b/fs/cifs/cached_dir.c
-@@ -221,8 +221,7 @@ int open_cached_dir(unsigned int xid, st
+@@ -14,6 +14,7 @@
+ 
+ static struct cached_fid *init_cached_dir(const char *path);
+ static void free_cached_dir(struct cached_fid *cfid);
++static void smb2_close_cached_fid(struct kref *ref);
+ 
+ static struct cached_fid *find_or_create_cached_dir(struct cached_fids *cfids,
+ 						    const char *path,
+@@ -221,6 +222,7 @@ int open_cached_dir(unsigned int xid, st
  		}
  		goto oshr_free;
  	}
--
--	atomic_inc(&tcon->num_remote_opens);
-+	cfid->is_open = true;
++	cfid->tcon = tcon;
+ 	cfid->is_open = true;
  
  	o_rsp = (struct smb2_create_rsp *)rsp_iov[0].iov_base;
- 	oparms.fid->persistent_fid = o_rsp->PersistentFileId;
-@@ -239,7 +238,8 @@ int open_cached_dir(unsigned int xid, st
+@@ -233,7 +235,6 @@ int open_cached_dir(unsigned int xid, st
+ 	if (o_rsp->OplockLevel != SMB2_OPLOCK_LEVEL_LEASE)
+ 		goto oshr_free;
+ 
+-
+ 	smb2_parse_contexts(server, o_rsp,
  			    &oparms.fid->epoch,
  			    oparms.fid->lease_key, &oplock,
- 			    NULL, NULL);
--
-+	if (!(oplock & SMB2_LEASE_READ_CACHING_HE))
-+		goto oshr_free;
- 	qi_rsp = (struct smb2_query_info_rsp *)rsp_iov[1].iov_base;
- 	if (le32_to_cpu(qi_rsp->OutputBufferLength) < sizeof(struct smb2_file_all_info))
- 		goto oshr_free;
-@@ -262,7 +262,6 @@ int open_cached_dir(unsigned int xid, st
+@@ -260,7 +261,6 @@ int open_cached_dir(unsigned int xid, st
+ 		}
+ 	}
  	cfid->dentry = dentry;
- 	cfid->tcon = tcon;
+-	cfid->tcon = tcon;
  	cfid->time = jiffies;
--	cfid->is_open = true;
  	cfid->has_lease = true;
  
- oshr_free:
-@@ -282,12 +281,17 @@ oshr_free:
+@@ -271,7 +271,7 @@ oshr_free:
+ 	free_rsp_buf(resp_buftype[0], rsp_iov[0].iov_base);
+ 	free_rsp_buf(resp_buftype[1], rsp_iov[1].iov_base);
+ 	spin_lock(&cfids->cfid_list_lock);
+-	if (!cfid->has_lease) {
++	if (rc && !cfid->has_lease) {
+ 		if (cfid->on_list) {
+ 			list_del(&cfid->entry);
+ 			cfid->on_list = false;
+@@ -280,6 +280,15 @@ oshr_free:
+ 		rc = -ENOENT;
  	}
  	spin_unlock(&cfids->cfid_list_lock);
++	if (!rc && !cfid->has_lease) {
++		/*
++		 * We are guaranteed to have two references at this point.
++		 * One for the caller and one for a potential lease.
++		 * Release the Lease-ref so that the directory will be closed
++		 * when the caller closes the cached handle.
++		 */
++		kref_put(&cfid->refcount, smb2_close_cached_fid);
++	}
  	if (rc) {
-+		if (cfid->is_open)
-+			SMB2_close(0, cfid->tcon, cfid->fid.persistent_fid,
-+				   cfid->fid.volatile_fid);
- 		free_cached_dir(cfid);
- 		cfid = NULL;
+ 		if (cfid->is_open)
+ 			SMB2_close(0, cfid->tcon, cfid->fid.persistent_fid,
+@@ -340,6 +349,7 @@ smb2_close_cached_fid(struct kref *ref)
+ 	if (cfid->is_open) {
+ 		SMB2_close(0, cfid->tcon, cfid->fid.persistent_fid,
+ 			   cfid->fid.volatile_fid);
++		atomic_dec(&cfid->tcon->num_remote_opens);
  	}
  
--	if (rc == 0)
-+	if (rc == 0) {
- 		*ret_cfid = cfid;
-+		atomic_inc(&tcon->num_remote_opens);
-+	}
- 
- 	return rc;
- }
+ 	free_cached_dir(cfid);
 
 
