@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1CF6AEC9A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3F76AF1A3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229831AbjCGR4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:56:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46114 "EHLO
+        id S233200AbjCGSqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:46:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230015AbjCGR4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:56:20 -0500
+        with ESMTP id S233197AbjCGSpc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FF0A3B7A;
-        Tue,  7 Mar 2023 09:51:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA8BB78B8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B2DE6150B;
-        Tue,  7 Mar 2023 17:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007D6C433EF;
-        Tue,  7 Mar 2023 17:51:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56CF461553
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:34:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DB8FC433EF;
+        Tue,  7 Mar 2023 18:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211466;
-        bh=uESjakl0vzarE1AfjPMIlkdXwkxJNd7KG0ZTREvj56g=;
+        s=korg; t=1678214064;
+        bh=/3bTFbB2N69dc0PQTM/Gcuk3gy349d793chO4vugdP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmRCa417heFSmhiLbQuqQUhB95AUOx1Byx6ipm4WEWPSDz4IxkB3ycprF1WN+k6n5
-         4auaBMiso55lBTCzyJAniZiCy+CsxQ9qr2LptXKmyQADsIjxfOUrkxXFMr7sjvWnSN
-         suJkQ8gkG+j13KNEp7DlUF9TZLCm6QTdtzRKKkck=
+        b=VARbwCqvhrRYJFxgppE6vFVGUR1yKRl3f1N6QqNMygKN4zvIlmNxIZDGUcC3RaXzs
+         tkVmAlTeHD/HVZSzCUPoxr8ccw92p0jDDiTK9fWwgZL/fBqBCe/iun4IUd2E5QfbLH
+         QwlrszvIGhx5oDJYblbUq2+CsAC2MU74ce3I+Nvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 6.2 0872/1001] selftests: mount_setattr: Fix incorrect kernel headers search path
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 6.1 710/885] udf: Preserve link count of system files
 Date:   Tue,  7 Mar 2023 18:00:44 +0100
-Message-Id: <20230307170059.729328154@linuxfoundation.org>
+Message-Id: <20230307170032.897109422@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 5d11f2d0eb39d2b5c5e8f05e1f650c4a4de69918 upstream.
+commit fc8033a34a3ca7d23353e645e6dde5d364ac5f12 upstream.
 
-Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
-building against kernel headers from the build environment in scenarios
-where kernel headers are installed into a specific output directory
-(O=...).
+System files in UDF filesystem have link count 0. To not confuse VFS we
+fudge the link count to be 1 when reading such inodes however we forget
+to restore the link count of 0 when writing such inodes. Fix that.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: <stable@vger.kernel.org>  # 5.18+
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/mount_setattr/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/udf/inode.c |    9 +++++++--
+ fs/udf/super.c |    1 +
+ fs/udf/udf_i.h |    3 ++-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/mount_setattr/Makefile
-+++ b/tools/testing/selftests/mount_setattr/Makefile
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for mount selftests.
--CFLAGS = -g -I../../../../usr/include/ -Wall -O2 -pthread
-+CFLAGS = -g $(KHDR_INCLUDES) -Wall -O2 -pthread
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -1380,6 +1380,7 @@ reread:
+ 		ret = -EIO;
+ 		goto out;
+ 	}
++	iinfo->i_hidden = hidden_inode;
+ 	iinfo->i_unique = 0;
+ 	iinfo->i_lenEAttr = 0;
+ 	iinfo->i_lenExtents = 0;
+@@ -1715,8 +1716,12 @@ static int udf_update_inode(struct inode
  
- TEST_GEN_FILES += mount_setattr_test
+ 	if (S_ISDIR(inode->i_mode) && inode->i_nlink > 0)
+ 		fe->fileLinkCount = cpu_to_le16(inode->i_nlink - 1);
+-	else
+-		fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	else {
++		if (iinfo->i_hidden)
++			fe->fileLinkCount = cpu_to_le16(0);
++		else
++			fe->fileLinkCount = cpu_to_le16(inode->i_nlink);
++	}
  
+ 	fe->informationLength = cpu_to_le64(inode->i_size);
+ 
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -147,6 +147,7 @@ static struct inode *udf_alloc_inode(str
+ 	ei->i_next_alloc_goal = 0;
+ 	ei->i_strat4096 = 0;
+ 	ei->i_streamdir = 0;
++	ei->i_hidden = 0;
+ 	init_rwsem(&ei->i_data_sem);
+ 	ei->cached_extent.lstart = -1;
+ 	spin_lock_init(&ei->i_extent_cache_lock);
+--- a/fs/udf/udf_i.h
++++ b/fs/udf/udf_i.h
+@@ -44,7 +44,8 @@ struct udf_inode_info {
+ 	unsigned		i_use : 1;	/* unallocSpaceEntry */
+ 	unsigned		i_strat4096 : 1;
+ 	unsigned		i_streamdir : 1;
+-	unsigned		reserved : 25;
++	unsigned		i_hidden : 1;	/* hidden system inode */
++	unsigned		reserved : 24;
+ 	__u8			*i_data;
+ 	struct kernel_lb_addr	i_locStreamdir;
+ 	__u64			i_lenStreams;
 
 
