@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CFA6AF0DD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7972A6AEBAC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:47:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231406AbjCGSgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:36:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41184 "EHLO
+        id S232019AbjCGRre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:47:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbjCGSfI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2CE6B1B12;
-        Tue,  7 Mar 2023 10:27:15 -0800 (PST)
+        with ESMTP id S232183AbjCGRrP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FAB5653D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FDCEB819D8;
-        Tue,  7 Mar 2023 18:26:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A46CC433EF;
-        Tue,  7 Mar 2023 18:26:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20059614B5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37EB4C433D2;
+        Tue,  7 Mar 2023 17:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213617;
-        bh=ei3myPUYHO43ooPPsEK8Ufm4tloujqlPCCmu7qPEaaQ=;
+        s=korg; t=1678210929;
+        bh=/phmm9tCIS34ybRtRg65eh8Qi1oLUdWhtTdg3MLPM4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/NRjnzVVbzdGGWr9PCR/+VhJ+0WEicBLmMaNE6EtE+d2j8v+z2dmkc1LzIcDxuaW
-         cQpYVpf3UcGhwpKBmL+hZMXKyc1JBxvL6X3TxNFpt/dpu7LypncASRhqRpihKKVwrV
-         ux61+e6ypXBqhyBk2ZSBa/fzJvSo5J0VhPdAeYkw=
+        b=zVgpm2XYaw3Bud5PJZtL/t57XrJtNI/43D59oJa/Z9iOCwJL+rp/DCA8WiCn3fMrr
+         SOeIyZ25dvKfq66rDUrzzlKVXozMU002OeC9iEKc6TFdIVrzvK8EZUky//Bh6taYzz
+         Oc0HtsY6I6VF5izSagtmorxmNei58FbHe9wuh87E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-trace-kernel@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 537/885] trace/blktrace: fix memory leak with using debugfs_lookup()
-Date:   Tue,  7 Mar 2023 17:57:51 +0100
-Message-Id: <20230307170025.828526424@linuxfoundation.org>
+Subject: [PATCH 6.2 0700/1001] drm/amd: Avoid ASSERT for some message failures
+Date:   Tue,  7 Mar 2023 17:57:52 +0100
+Message-Id: <20230307170051.994689445@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,45 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 83e8864fee26f63a7435e941b7c36a20fd6fe93e ]
+[ Upstream commit 3e5019ee67760cd61b2a5fd605e1289c2f92d983 ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+On DCN314 when resuming from s0i3 an ASSERT is shown indicating that
+`VBIOSSMC_MSG_SetHardMinDcfclkByFreq` returned `VBIOSSMC_Result_Failed`.
 
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: linux-block@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-trace-kernel@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20230202141956.2299521-1-gregkh@linuxfoundation.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This isn't a driver bug; it's a BIOS/configuration bug. To make this
+easier to triage, add an explicit warning when this issue happens.
+
+This matches the behavior utilized for failures with
+`VBIOSSMC_MSG_TransferTableDram2Smu` configuration.
+
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index a66cff5a18579..a5b35bcfb0602 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -320,8 +320,8 @@ static void blk_trace_free(struct request_queue *q, struct blk_trace *bt)
- 	 * under 'q->debugfs_dir', thus lookup and remove them.
- 	 */
- 	if (!bt->dir) {
--		debugfs_remove(debugfs_lookup("dropped", q->debugfs_dir));
--		debugfs_remove(debugfs_lookup("msg", q->debugfs_dir));
-+		debugfs_lookup_and_remove("dropped", q->debugfs_dir);
-+		debugfs_lookup_and_remove("msg", q->debugfs_dir);
- 	} else {
- 		debugfs_remove(bt->dir);
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
+index f47cfe6b42bd2..0765334f08259 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
+@@ -146,6 +146,9 @@ static int dcn314_smu_send_msg_with_param(struct clk_mgr_internal *clk_mgr,
+ 		if (msg_id == VBIOSSMC_MSG_TransferTableDram2Smu &&
+ 		    param == TABLE_WATERMARKS)
+ 			DC_LOG_WARNING("Watermarks table not configured properly by SMU");
++		else if (msg_id == VBIOSSMC_MSG_SetHardMinDcfclkByFreq ||
++			 msg_id == VBIOSSMC_MSG_SetMinDeepSleepDcfclk)
++			DC_LOG_WARNING("DCFCLK_DPM is not enabled by BIOS");
+ 		else
+ 			ASSERT(0);
+ 		REG_WRITE(MP1_SMN_C2PMSG_91, VBIOSSMC_Result_OK);
 -- 
 2.39.2
 
