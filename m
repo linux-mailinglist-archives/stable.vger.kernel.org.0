@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 287946AEBB9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 401F46AF07A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232194AbjCGRsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36288 "EHLO
+        id S230139AbjCGSa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232066AbjCGRsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:01 -0500
+        with ESMTP id S230165AbjCGSaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F378F50D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08141A56B0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0A836150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDA29C433D2;
-        Tue,  7 Mar 2023 17:41:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74A0B61530
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BBAEC433EF;
+        Tue,  7 Mar 2023 18:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210912;
-        bh=LU+1oG37GVp9ieO4whK8pU3+qJA8YQyavvKZccwQgxQ=;
+        s=korg; t=1678213425;
+        bh=TCyPAF0V9tl7bAnqT4F7JiM4lT2HyLsF6nTnFs3uIDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmq69VFju85x0CCqOBk5vjJq4H1s1qjSGR8pBFy9AVWaRfIdWOsiJsyf5FUmCXrmn
-         xrlIx2a/EsOk/HwWkW7qHzFTcpCh3jtBluKOO6dF3V8fQFCyMSAFmYLbAIL2gVh/k0
-         KaPzdxjXGV4HhNwJIoxx19Op3Y7qSNLfOH6jbT+o=
+        b=WwAgx42Y/vypV1k4Iwq+9k9XcsxGBHK+T7Zq14orKFvFB19iH5CTAvHdhSnzqash/
+         gCsdfYHcSBTyfKMiqO63dbyzOn1q92IHlSkABv+fwYs0fbtjaX/bljLgRk7IzFGHQ/
+         Enkbpkxk5B5RO6txQMkg1Z9ptLz8WbYTzHdUKqo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0663/1001] s390/mm,ptdump: avoid Kasan vs Memcpy Real markers swapping
+Subject: [PATCH 6.1 501/885] media: max9286: Fix memleak in max9286_v4l2_register()
 Date:   Tue,  7 Mar 2023 17:57:15 +0100
-Message-Id: <20230307170050.374879908@linuxfoundation.org>
+Message-Id: <20230307170024.232522732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 05178996e1a77e2a4664536e6d101a086a905034 ]
+[ Upstream commit 8636c5fc7658c7c6299fb8b352d24ea4b9ba99e2 ]
 
----[ Real Memory Copy Area Start ]---
-0x001bfffffffff000-0x001c000000000000         4K PTE I
----[ Kasan Shadow Start ]---
----[ Real Memory Copy Area End ]---
-0x001c000000000000-0x001c000200000000         8G PMD RW NX
-...
----[ Kasan Shadow End ]---
+There is a kmemleak when testing the media/i2c/max9286.c with bpf mock
+device:
 
-ptdump does a stable sort of markers. Move kasan markers after
-memcpy real to avoid swapping.
+kmemleak: 5 new suspected memory leaks (see /sys/kernel/debug/kmemleak)
 
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+unreferenced object 0xffff88810defc400 (size 256):
+  comm "python3", pid 278, jiffies 4294737563 (age 31.978s)
+  hex dump (first 32 bytes):
+    28 06 a7 0a 81 88 ff ff 00 fe 22 12 81 88 ff ff  (.........".....
+    10 c4 ef 0d 81 88 ff ff 10 c4 ef 0d 81 88 ff ff  ................
+  backtrace:
+    [<00000000191de6a7>] __kmalloc_node+0x44/0x1b0
+    [<000000002f4912b7>] kvmalloc_node+0x34/0x180
+    [<0000000057dc4cae>] v4l2_ctrl_new+0x325/0x10f0 [videodev]
+    [<0000000026030272>] v4l2_ctrl_new_std+0x16f/0x210 [videodev]
+    [<00000000f0d9ea2f>] max9286_probe+0x76e/0xbff [max9286]
+    [<00000000ea8f6455>] i2c_device_probe+0x28d/0x680
+    [<0000000087529af3>] really_probe+0x17c/0x3f0
+    [<00000000b08be526>] __driver_probe_device+0xe3/0x170
+    [<000000004382edea>] driver_probe_device+0x49/0x120
+    [<000000007bde528a>] __device_attach_driver+0xf7/0x150
+    [<000000009f9c6ab4>] bus_for_each_drv+0x114/0x180
+    [<00000000c8aaf588>] __device_attach+0x1e5/0x2d0
+    [<0000000041cc06b9>] bus_probe_device+0x126/0x140
+    [<000000002309860d>] device_add+0x810/0x1130
+    [<000000002827bf98>] i2c_new_client_device+0x359/0x4f0
+    [<00000000593bdc85>] of_i2c_register_device+0xf1/0x110
+
+max9286_v4l2_register() calls v4l2_ctrl_new_std(), but won't free the
+created v412_ctrl when fwnode_graph_get_endpoint_by_id() failed, which
+causes the memleak. Call v4l2_ctrl_handler_free() to free the v412_ctrl.
+
+Fixes: 66d8c9d2422d ("media: i2c: Add MAX9286 driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/dump_pagetables.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/media/i2c/max9286.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
-index 9953819d79596..ba5f802688781 100644
---- a/arch/s390/mm/dump_pagetables.c
-+++ b/arch/s390/mm/dump_pagetables.c
-@@ -33,10 +33,6 @@ enum address_markers_idx {
- #endif
- 	IDENTITY_AFTER_NR,
- 	IDENTITY_AFTER_END_NR,
--#ifdef CONFIG_KASAN
--	KASAN_SHADOW_START_NR,
--	KASAN_SHADOW_END_NR,
--#endif
- 	VMEMMAP_NR,
- 	VMEMMAP_END_NR,
- 	VMALLOC_NR,
-@@ -47,6 +43,10 @@ enum address_markers_idx {
- 	ABS_LOWCORE_END_NR,
- 	MEMCPY_REAL_NR,
- 	MEMCPY_REAL_END_NR,
-+#ifdef CONFIG_KASAN
-+	KASAN_SHADOW_START_NR,
-+	KASAN_SHADOW_END_NR,
-+#endif
- };
+diff --git a/drivers/media/i2c/max9286.c b/drivers/media/i2c/max9286.c
+index 9c083cf142319..d034a67042e35 100644
+--- a/drivers/media/i2c/max9286.c
++++ b/drivers/media/i2c/max9286.c
+@@ -932,6 +932,7 @@ static int max9286_v4l2_register(struct max9286_priv *priv)
+ err_put_node:
+ 	fwnode_handle_put(ep);
+ err_async:
++	v4l2_ctrl_handler_free(&priv->ctrls);
+ 	max9286_v4l2_notifier_unregister(priv);
  
- static struct addr_marker address_markers[] = {
-@@ -62,10 +62,6 @@ static struct addr_marker address_markers[] = {
- #endif
- 	[IDENTITY_AFTER_NR]	= {(unsigned long)_end, "Identity Mapping Start"},
- 	[IDENTITY_AFTER_END_NR]	= {0, "Identity Mapping End"},
--#ifdef CONFIG_KASAN
--	[KASAN_SHADOW_START_NR]	= {KASAN_SHADOW_START, "Kasan Shadow Start"},
--	[KASAN_SHADOW_END_NR]	= {KASAN_SHADOW_END, "Kasan Shadow End"},
--#endif
- 	[VMEMMAP_NR]		= {0, "vmemmap Area Start"},
- 	[VMEMMAP_END_NR]	= {0, "vmemmap Area End"},
- 	[VMALLOC_NR]		= {0, "vmalloc Area Start"},
-@@ -76,6 +72,10 @@ static struct addr_marker address_markers[] = {
- 	[ABS_LOWCORE_END_NR]	= {0, "Lowcore Area End"},
- 	[MEMCPY_REAL_NR]	= {0, "Real Memory Copy Area Start"},
- 	[MEMCPY_REAL_END_NR]	= {0, "Real Memory Copy Area End"},
-+#ifdef CONFIG_KASAN
-+	[KASAN_SHADOW_START_NR]	= {KASAN_SHADOW_START, "Kasan Shadow Start"},
-+	[KASAN_SHADOW_END_NR]	= {KASAN_SHADOW_END, "Kasan Shadow End"},
-+#endif
- 	{ -1, NULL }
- };
- 
+ 	return ret;
 -- 
 2.39.2
 
