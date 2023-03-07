@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2403A6AEC44
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7076AF122
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:39:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230011AbjCGRxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S232858AbjCGSj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:39:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230344AbjCGRxY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2855530EE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:54 -0800 (PST)
+        with ESMTP id S231416AbjCGSjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:39:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4288B968D6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:30:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C812DB819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FC82C433EF;
-        Tue,  7 Mar 2023 17:47:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B81056152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC14BC433EF;
+        Tue,  7 Mar 2023 18:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211271;
-        bh=DV7mU1pwGhb/ojRJeXbCyHbWuzRtEhdUJc2RbMIhkEQ=;
+        s=korg; t=1678213821;
+        bh=ssII5eIzTK7EBf0U3We5OBB5wxLeHaDVPEJbA77P74s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tgeQ+wKj/eVVdhfkV5BYNz1m50wzXV8hl5+7FGgJdnlqY12PZjq4MdW8X7swgyyiu
-         KXlTahUsI+CKtVz+GpMFzmV04QQyLXfejschdMq+y5GBbBYhLmpOMpj0oJijnCGKIs
-         XaCqvvKHnpdi5C7v5NSUOjmxpnLsQdESNBubnNUA=
+        b=sfBvYqnyyxOQ8oYASHM2jiD7KCM4DiHC1RGm+rqBkROKeoqnW6Cq7+n9/ZHPa7dWc
+         IjA/G5xQKjPjNbEWFpFFGQq7jJ1cnQrAOHIpxpBDOPyBpMC2UvaP9VY189+RJ62Cyh
+         +8dy+LSAFSP0YRlFCznPzK/YjKwD0yJdLrVmsP8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com,
-        Liu Shixin <liushixin2@huawei.com>,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 0791/1001] hfs: fix missing hfs_bnode_get() in __hfs_bnode_create
+        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 629/885] hwmon: (coretemp) Simplify platform device handling
 Date:   Tue,  7 Mar 2023 17:59:23 +0100
-Message-Id: <20230307170056.083173080@linuxfoundation.org>
+Message-Id: <20230307170029.533668315@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,98 +55,280 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit a9dc087fd3c484fd1ed18c5efb290efaaf44ce03 upstream.
+[ Upstream commit 6d03bbff456befeccdd4d663177c4d6c75d0c4ff ]
 
-Syzbot found a kernel BUG in hfs_bnode_put():
+Coretemp's platform driver is unconventional. All the real work is done
+globally by the initcall and CPU hotplug notifiers, while the "driver"
+effectively just wraps an allocation and the registration of the hwmon
+interface in a long-winded round-trip through the driver core.  The whole
+logic of dynamically creating and destroying platform devices to bring
+the interfaces up and down is error prone, since it assumes
+platform_device_add() will synchronously bind the driver and set drvdata
+before it returns, thus results in a NULL dereference if drivers_autoprobe
+is turned off for the platform bus. Furthermore, the unusual approach of
+doing that from within a CPU hotplug notifier, already commented in the
+code that it deadlocks suspend, also causes lockdep issues for other
+drivers or subsystems which may want to legitimately register a CPU
+hotplug notifier from a platform bus notifier.
 
- kernel BUG at fs/hfs/bnode.c:466!
- invalid opcode: 0000 [#1] PREEMPT SMP KASAN
- CPU: 0 PID: 3634 Comm: kworker/u4:5 Not tainted 6.1.0-rc7-syzkaller-00190-g97ee9d1c1696 #0
- Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
- Workqueue: writeback wb_workfn (flush-7:0)
- RIP: 0010:hfs_bnode_put+0x46f/0x480 fs/hfs/bnode.c:466
- Code: 8a 80 ff e9 73 fe ff ff 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c a0 fe ff ff 48 89 df e8 db 8a 80 ff e9 93 fe ff ff e8 a1 68 2c ff <0f> 0b e8 9a 68 2c ff 0f 0b 0f 1f 84 00 00 00 00 00 55 41 57 41 56
- RSP: 0018:ffffc90003b4f258 EFLAGS: 00010293
- RAX: ffffffff825e318f RBX: 0000000000000000 RCX: ffff8880739dd7c0
- RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
- RBP: ffffc90003b4f430 R08: ffffffff825e2d9b R09: ffffed10045157d1
- R10: ffffed10045157d1 R11: 1ffff110045157d0 R12: ffff8880228abe80
- R13: ffff88807016c000 R14: dffffc0000000000 R15: ffff8880228abe00
- FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007fa6ebe88718 CR3: 000000001e93d000 CR4: 00000000003506f0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  <TASK>
-  hfs_write_inode+0x1bc/0xb40
-  write_inode fs/fs-writeback.c:1440 [inline]
-  __writeback_single_inode+0x4d6/0x670 fs/fs-writeback.c:1652
-  writeback_sb_inodes+0xb3b/0x18f0 fs/fs-writeback.c:1878
-  __writeback_inodes_wb+0x125/0x420 fs/fs-writeback.c:1949
-  wb_writeback+0x440/0x7b0 fs/fs-writeback.c:2054
-  wb_check_start_all fs/fs-writeback.c:2176 [inline]
-  wb_do_writeback fs/fs-writeback.c:2202 [inline]
-  wb_workfn+0x827/0xef0 fs/fs-writeback.c:2235
-  process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
-  worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
-  kthread+0x266/0x300 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-  </TASK>
+All of these issues can be solved by ripping this unusual behaviour out
+completely, simply tying the platform devices to the lifetime of the
+module itself, and directly managing the hwmon interfaces from the
+hotplug notifiers. There is a slight user-visible change in that
+/sys/bus/platform/drivers/coretemp will no longer appear, and
+/sys/devices/platform/coretemp.n will remain present if package n is
+hotplugged off, but hwmon users should really only be looking for the
+presence of the hwmon interfaces, whose behaviour remains unchanged.
 
-The BUG_ON() is triggered at here:
-
-/* Dispose of resources used by a node */
-void hfs_bnode_put(struct hfs_bnode *node)
-{
-	if (node) {
- 		<skipped>
- 		BUG_ON(!atomic_read(&node->refcnt)); <- we have issue here!!!!
- 		<skipped>
- 	}
-}
-
-By tracing the refcnt, I found the node is created by hfs_bmap_alloc()
-with refcnt 1.  Then the node is used by hfs_btree_write().  There is a
-missing of hfs_bnode_get() after find the node.  The issue happened in
-following path:
-
-<alloc>
- hfs_bmap_alloc
-   hfs_bnode_find
-     __hfs_bnode_create   <- allocate a new node with refcnt 1.
-   hfs_bnode_put          <- decrease the refcnt
-
-<write>
- hfs_btree_write
-   hfs_bnode_find
-     __hfs_bnode_create
-       hfs_bnode_findhash <- find the node without refcnt increased.
-   hfs_bnode_put	  <- trigger the BUG_ON() since refcnt is 0.
-
-Link: https://lkml.kernel.org/r/20221212021627.3766829-1-liushixin2@huawei.com
-Reported-by: syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Cc: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/lkml/20220922101036.87457-1-janusz.krzysztofik@linux.intel.com/
+Link: https://gitlab.freedesktop.org/drm/intel/issues/6641
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Link: https://lore.kernel.org/r/20230103114620.15319-1-janusz.krzysztofik@linux.intel.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/bnode.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/coretemp.c | 128 ++++++++++++++++++---------------------
+ 1 file changed, 58 insertions(+), 70 deletions(-)
 
---- a/fs/hfs/bnode.c
-+++ b/fs/hfs/bnode.c
-@@ -274,6 +274,7 @@ static struct hfs_bnode *__hfs_bnode_cre
- 		tree->node_hash[hash] = node;
- 		tree->node_hash_cnt++;
- 	} else {
-+		hfs_bnode_get(node2);
- 		spin_unlock(&tree->hash_lock);
- 		kfree(node);
- 		wait_event(node2->lock_wq, !test_bit(HFS_BNODE_NEW, &node2->flags));
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index 9bee4d33fbdf0..baaf8af4cb443 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -550,66 +550,49 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
+ 		ida_free(&pdata->ida, indx - BASE_SYSFS_ATTR_NO);
+ }
+ 
+-static int coretemp_probe(struct platform_device *pdev)
++static int coretemp_device_add(int zoneid)
+ {
+-	struct device *dev = &pdev->dev;
++	struct platform_device *pdev;
+ 	struct platform_data *pdata;
++	int err;
+ 
+ 	/* Initialize the per-zone data structures */
+-	pdata = devm_kzalloc(dev, sizeof(struct platform_data), GFP_KERNEL);
++	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
+-	pdata->pkg_id = pdev->id;
++	pdata->pkg_id = zoneid;
+ 	ida_init(&pdata->ida);
+-	platform_set_drvdata(pdev, pdata);
+ 
+-	pdata->hwmon_dev = devm_hwmon_device_register_with_groups(dev, DRVNAME,
+-								  pdata, NULL);
+-	return PTR_ERR_OR_ZERO(pdata->hwmon_dev);
+-}
+-
+-static int coretemp_remove(struct platform_device *pdev)
+-{
+-	struct platform_data *pdata = platform_get_drvdata(pdev);
+-	int i;
++	pdev = platform_device_alloc(DRVNAME, zoneid);
++	if (!pdev) {
++		err = -ENOMEM;
++		goto err_free_pdata;
++	}
+ 
+-	for (i = MAX_CORE_DATA - 1; i >= 0; --i)
+-		if (pdata->core_data[i])
+-			coretemp_remove_core(pdata, i);
++	err = platform_device_add(pdev);
++	if (err)
++		goto err_put_dev;
+ 
+-	ida_destroy(&pdata->ida);
++	platform_set_drvdata(pdev, pdata);
++	zone_devices[zoneid] = pdev;
+ 	return 0;
+-}
+ 
+-static struct platform_driver coretemp_driver = {
+-	.driver = {
+-		.name = DRVNAME,
+-	},
+-	.probe = coretemp_probe,
+-	.remove = coretemp_remove,
+-};
++err_put_dev:
++	platform_device_put(pdev);
++err_free_pdata:
++	kfree(pdata);
++	return err;
++}
+ 
+-static struct platform_device *coretemp_device_add(unsigned int cpu)
++static void coretemp_device_remove(int zoneid)
+ {
+-	int err, zoneid = topology_logical_die_id(cpu);
+-	struct platform_device *pdev;
+-
+-	if (zoneid < 0)
+-		return ERR_PTR(-ENOMEM);
+-
+-	pdev = platform_device_alloc(DRVNAME, zoneid);
+-	if (!pdev)
+-		return ERR_PTR(-ENOMEM);
+-
+-	err = platform_device_add(pdev);
+-	if (err) {
+-		platform_device_put(pdev);
+-		return ERR_PTR(err);
+-	}
++	struct platform_device *pdev = zone_devices[zoneid];
++	struct platform_data *pdata = platform_get_drvdata(pdev);
+ 
+-	zone_devices[zoneid] = pdev;
+-	return pdev;
++	ida_destroy(&pdata->ida);
++	kfree(pdata);
++	platform_device_unregister(pdev);
+ }
+ 
+ static int coretemp_cpu_online(unsigned int cpu)
+@@ -633,7 +616,10 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 	if (!cpu_has(c, X86_FEATURE_DTHERM))
+ 		return -ENODEV;
+ 
+-	if (!pdev) {
++	pdata = platform_get_drvdata(pdev);
++	if (!pdata->hwmon_dev) {
++		struct device *hwmon;
++
+ 		/* Check the microcode version of the CPU */
+ 		if (chk_ucode_version(cpu))
+ 			return -EINVAL;
+@@ -644,9 +630,11 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 		 * online. So, initialize per-pkg data structures and
+ 		 * then bring this core online.
+ 		 */
+-		pdev = coretemp_device_add(cpu);
+-		if (IS_ERR(pdev))
+-			return PTR_ERR(pdev);
++		hwmon = hwmon_device_register_with_groups(&pdev->dev, DRVNAME,
++							  pdata, NULL);
++		if (IS_ERR(hwmon))
++			return PTR_ERR(hwmon);
++		pdata->hwmon_dev = hwmon;
+ 
+ 		/*
+ 		 * Check whether pkgtemp support is available.
+@@ -656,7 +644,6 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 			coretemp_add_core(pdev, cpu, 1);
+ 	}
+ 
+-	pdata = platform_get_drvdata(pdev);
+ 	/*
+ 	 * Check whether a thread sibling is already online. If not add the
+ 	 * interface for this CPU core.
+@@ -675,18 +662,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	struct temp_data *tdata;
+ 	int i, indx = -1, target;
+ 
+-	/*
+-	 * Don't execute this on suspend as the device remove locks
+-	 * up the machine.
+-	 */
++	/* No need to tear down any interfaces for suspend */
+ 	if (cpuhp_tasks_frozen)
+ 		return 0;
+ 
+ 	/* If the physical CPU device does not exist, just return */
+-	if (!pdev)
+-		return 0;
+-
+ 	pd = platform_get_drvdata(pdev);
++	if (!pd->hwmon_dev)
++		return 0;
+ 
+ 	for (i = 0; i < NUM_REAL_CORES; i++) {
+ 		if (pd->cpu_map[i] == topology_core_id(cpu)) {
+@@ -718,13 +701,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	}
+ 
+ 	/*
+-	 * If all cores in this pkg are offline, remove the device. This
+-	 * will invoke the platform driver remove function, which cleans up
+-	 * the rest.
++	 * If all cores in this pkg are offline, remove the interface.
+ 	 */
++	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
+ 	if (cpumask_empty(&pd->cpumask)) {
+-		zone_devices[topology_logical_die_id(cpu)] = NULL;
+-		platform_device_unregister(pdev);
++		if (tdata)
++			coretemp_remove_core(pd, PKG_SYSFS_ATTR_NO);
++		hwmon_device_unregister(pd->hwmon_dev);
++		pd->hwmon_dev = NULL;
+ 		return 0;
+ 	}
+ 
+@@ -732,7 +716,6 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	 * Check whether this core is the target for the package
+ 	 * interface. We need to assign it to some other cpu.
+ 	 */
+-	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
+ 	if (tdata && tdata->cpu == cpu) {
+ 		target = cpumask_first(&pd->cpumask);
+ 		mutex_lock(&tdata->update_lock);
+@@ -751,7 +734,7 @@ static enum cpuhp_state coretemp_hp_online;
+ 
+ static int __init coretemp_init(void)
+ {
+-	int err;
++	int i, err;
+ 
+ 	/*
+ 	 * CPUID.06H.EAX[0] indicates whether the CPU has thermal
+@@ -767,20 +750,22 @@ static int __init coretemp_init(void)
+ 	if (!zone_devices)
+ 		return -ENOMEM;
+ 
+-	err = platform_driver_register(&coretemp_driver);
+-	if (err)
+-		goto outzone;
++	for (i = 0; i < max_zones; i++) {
++		err = coretemp_device_add(i);
++		if (err)
++			goto outzone;
++	}
+ 
+ 	err = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "hwmon/coretemp:online",
+ 				coretemp_cpu_online, coretemp_cpu_offline);
+ 	if (err < 0)
+-		goto outdrv;
++		goto outzone;
+ 	coretemp_hp_online = err;
+ 	return 0;
+ 
+-outdrv:
+-	platform_driver_unregister(&coretemp_driver);
+ outzone:
++	while (i--)
++		coretemp_device_remove(i);
+ 	kfree(zone_devices);
+ 	return err;
+ }
+@@ -788,8 +773,11 @@ module_init(coretemp_init)
+ 
+ static void __exit coretemp_exit(void)
+ {
++	int i;
++
+ 	cpuhp_remove_state(coretemp_hp_online);
+-	platform_driver_unregister(&coretemp_driver);
++	for (i = 0; i < max_zones; i++)
++		coretemp_device_remove(i);
+ 	kfree(zone_devices);
+ }
+ module_exit(coretemp_exit)
+-- 
+2.39.2
+
 
 
