@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B11A6AF0AF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:34:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6947D6AEBC9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229755AbjCGSeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:34:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33898 "EHLO
+        id S232139AbjCGRtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:49:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230365AbjCGSdp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:33:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515C5B5AB2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:25:54 -0800 (PST)
+        with ESMTP id S232222AbjCGRsh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A980D94F68
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47CEDB819D1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DBDDC433D2;
-        Tue,  7 Mar 2023 18:25:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 270F7B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 922EDC433D2;
+        Tue,  7 Mar 2023 17:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213517;
-        bh=W0X+bglo/2EJq1DlaNXfa7q21jxRw4oo7JaOBAQ6veU=;
+        s=korg; t=1678211009;
+        bh=7pcQKjnYXqWQSypu+vZwn5kDD4FPO2Z05CoGPXsuXK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ym4a62Tg0prAUmN4vs9Wn+uGYcvvh6qeQzxtDDgmhRdza2WVYTIk5NSdyAXAa0d/t
-         N+EHfjgZuLjZ5nSnwB4CQyRPVZ+KqgEIkVpBqfuiGAtf6EgGAVSsd9JFOOyS5r/BCx
-         cEu9AdUWKssVby2Y0p979Oc5ZjqHEnprsysdDVmA=
+        b=Xamt8t8ogT4TFfR0MNJF9IfozmihdXE8EuURt4HYzJbwRDVj5v0Tu2th7VNB4qZ84
+         ylR/Zc0Ez6YoWkm9aCOCB9sDAObDSpIawcjxwoQv02crP2QuP6RQKn7AYmrab+/baS
+         4DxYSksNYL01D7grVlJcTb0/gYHkLoNfLsdV4sjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        patches@lists.linux.dev,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Syed Hassan <Syed.Hassan@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 531/885] exit: Detect and fix irq disabled state in oops
-Date:   Tue,  7 Mar 2023 17:57:45 +0100
-Message-Id: <20230307170025.545378180@linuxfoundation.org>
+Subject: [PATCH 6.2 0694/1001] drm/amd/display: Defer DIG FIFO disable after VID stream enable
+Date:   Tue,  7 Mar 2023 17:57:46 +0100
+Message-Id: <20230307170051.735253825@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,57 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit 001c28e57187570e4b5aa4492c7a957fb6d65d7b ]
+[ Upstream commit 2d90a1c054831338d57b39aec4d273cf3e867590 ]
 
-If a task oopses with irqs disabled, this can cause various cascading
-problems in the oops path such as sleep-from-invalid warnings, and
-potentially worse.
+[Why]
+On some monitors we see a brief flash of corruption during the
+monitor disable sequence caused by FIFO being disabled in the middle
+of an active DP stream.
 
-Since commit 0258b5fd7c712 ("coredump: Limit coredumps to a single
-thread group"), the unconditional irq enable in coredump_task_exit()
-will "fix" the irq state to be enabled early in do_exit(), so currently
-this may not be triggerable, but that is coincidental and fragile.
+[How]
+Wait until DP vid stream is disabled before turning off the FIFO.
 
-Detect and fix the irqs_disabled() condition in the oops path before
-calling do_exit(), similarly to the way in_atomic() is handled.
+The FIFO reset on DP unblank should take care of clearing any FIFO
+error, if any.
 
-Reported-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Link: https://lore.kernel.org/lkml/20221004094401.708299-1-npiggin@gmail.com/
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Syed Hassan <Syed.Hassan@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/exit.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c   | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 15dc2ec80c467..bccfa4218356e 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -807,6 +807,8 @@ void __noreturn do_exit(long code)
- 	struct task_struct *tsk = current;
- 	int group_dead;
- 
-+	WARN_ON(irqs_disabled());
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
+index 38842f938bed0..0926db0183383 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_dio_stream_encoder.c
+@@ -278,10 +278,10 @@ static void enc314_stream_encoder_dp_blank(
+ 	struct dc_link *link,
+ 	struct stream_encoder *enc)
+ {
+-	/* New to DCN314 - disable the FIFO before VID stream disable. */
+-	enc314_disable_fifo(enc);
+-
+ 	enc1_stream_encoder_dp_blank(link, enc);
 +
- 	synchronize_group_exit(tsk, code);
++	/* Disable FIFO after the DP vid stream is disabled to avoid corruption. */
++	enc314_disable_fifo(enc);
+ }
  
- 	WARN_ON(tsk->plug);
-@@ -938,6 +940,11 @@ void __noreturn make_task_dead(int signr)
- 	if (unlikely(!tsk->pid))
- 		panic("Attempted to kill the idle task!");
- 
-+	if (unlikely(irqs_disabled())) {
-+		pr_info("note: %s[%d] exited with irqs disabled\n",
-+			current->comm, task_pid_nr(current));
-+		local_irq_enable();
-+	}
- 	if (unlikely(in_atomic())) {
- 		pr_info("note: %s[%d] exited with preempt_count %d\n",
- 			current->comm, task_pid_nr(current),
+ static void enc314_stream_encoder_dp_unblank(
 -- 
 2.39.2
 
