@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D26D6AE96D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:24:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BEC36AEDF6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbjCGRYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:24:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43502 "EHLO
+        id S232319AbjCGSIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231431AbjCGRXh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:23:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593D4A029B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:11 -0800 (PST)
+        with ESMTP id S232332AbjCGSIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D9119DE0A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D687B819A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 522C1C433D2;
-        Tue,  7 Mar 2023 17:19:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDB0B61524
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F68C433EF;
+        Tue,  7 Mar 2023 18:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209548;
-        bh=LGEzAMYWbYY42wr4lpgE8e5TWArRvlRd9jb6HRScyms=;
+        s=korg; t=1678212141;
+        bh=hKqOWbZqj6WLBgiBrKBmN5L86AzuxRhuYedqQoxKqx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZEfzpzeMQYLAt8DXFrYCCS0s+cQDLuS62IdHYp80P2ja0vfEDekQz9F2cVxFjarq
-         aChaXau36N54AP53g7jaYS5GmxV3QkeF0K701vuqYkbr54DAFiStYvEyhwvdgb617z
-         0vEMRqZ7VJOghH94UGBoXEe66G9gSdn0zJ9Il7hc=
+        b=qC59cA4NOFmTHNXdG8iX7wzANpFQeZ1vdlmez3buevrSFRu0xHuGgC2o6t+yjfRnX
+         mUNg6mNakIhRseXWJIVMIZSdc/bf00flApY1aUviyBZ7QZmgS3zjq1ujWhiEYNjorM
+         4E1qm8rfkshUIkUW61kPVLq2YMVi260Sc+gJpSuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0253/1001] wifi: mt76: mt7996: rely on mt76_connac2_mac_tx_rate_val
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 091/885] arm64: dts: qcom: msm8996 switch from RPM_SMD_BB_CLK1 to RPM_SMD_XO_CLK_SRC
 Date:   Tue,  7 Mar 2023 17:50:25 +0100
-Message-Id: <20230307170032.749480020@linuxfoundation.org>
+Message-Id: <20230307170005.782460743@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,130 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0b8e2d69467f78a7c9d87b452220e87012435e33 ]
+[ Upstream commit 8ae72166c2b73b0f2ce498ea15d4feceb9fef50e ]
 
-In order to fix a possible NULL pointer dereference in
-mt7996_mac_write_txwi() of vif pointer, export
-mt76_connac2_mac_tx_rate_val utility routine and reuse it
-in mt7996 driver.
+The vendor kernel uses RPM_SMD_XO_CLK_SRC clock as an CXO clock rather
+than using the RPM_SMD_BB_CLK1 directly. Follow this example and switch
+msm8996.dtsi to use RPM_SMD_XO_CLK_SRC clock instead of RPM_SMB_BB_CLK1.
 
-Fixes: 98686cd21624 ("wifi: mt76: mt7996: add driver for MediaTek Wi-Fi 7 (802.11be) devices")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 2b8c9c77c268 ("arm64: dts: qcom: msm8996: convert xo_board to RPM_SMD_BB_CLK1")
+Suggested-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230120061417.2623751-7-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt76_connac.h  |  3 ++
- .../wireless/mediatek/mt76/mt76_connac_mac.c  |  7 +--
- .../net/wireless/mediatek/mt76/mt7996/mac.c   | 48 +------------------
- 3 files changed, 9 insertions(+), 49 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac.h b/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-index 8ba883b03e500..2ee9a3c8e25c4 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-@@ -370,6 +370,9 @@ void mt76_connac2_mac_write_txwi(struct mt76_dev *dev, __le32 *txwi,
- 				 struct sk_buff *skb, struct mt76_wcid *wcid,
- 				 struct ieee80211_key_conf *key, int pid,
- 				 enum mt76_txq_id qid, u32 changed);
-+u16 mt76_connac2_mac_tx_rate_val(struct mt76_phy *mphy,
-+				 struct ieee80211_vif *vif,
-+				 bool beacon, bool mcast);
- bool mt76_connac2_mac_fill_txs(struct mt76_dev *dev, struct mt76_wcid *wcid,
- 			       __le32 *txs_data);
- bool mt76_connac2_mac_add_txs_skb(struct mt76_dev *dev, struct mt76_wcid *wcid,
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-index c8d0c84e688b8..aed4ee95fb2ec 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-@@ -267,9 +267,9 @@ int mt76_connac_init_tx_queues(struct mt76_phy *phy, int idx, int n_desc,
- }
- EXPORT_SYMBOL_GPL(mt76_connac_init_tx_queues);
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index a709dca48d07e..36af4fea38e73 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -712,7 +712,7 @@ gcc: clock-controller@300000 {
+ 			#power-domain-cells = <1>;
+ 			reg = <0x00300000 0x90000>;
  
--static u16
--mt76_connac2_mac_tx_rate_val(struct mt76_phy *mphy, struct ieee80211_vif *vif,
--			     bool beacon, bool mcast)
-+u16 mt76_connac2_mac_tx_rate_val(struct mt76_phy *mphy,
-+				 struct ieee80211_vif *vif,
-+				 bool beacon, bool mcast)
- {
- 	u8 mode = 0, band = mphy->chandef.chan->band;
- 	int rateidx = 0, mcast_rate;
-@@ -319,6 +319,7 @@ mt76_connac2_mac_tx_rate_val(struct mt76_phy *mphy, struct ieee80211_vif *vif,
- 	return FIELD_PREP(MT_TX_RATE_IDX, rateidx) |
- 	       FIELD_PREP(MT_TX_RATE_MODE, mode);
- }
-+EXPORT_SYMBOL_GPL(mt76_connac2_mac_tx_rate_val);
+-			clocks = <&rpmcc RPM_SMD_BB_CLK1>,
++			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>,
+ 				 <&rpmcc RPM_SMD_LN_BB_CLK>,
+ 				 <&sleep_clk>,
+ 				 <&pciephy_0>,
+@@ -1050,7 +1050,7 @@ dsi0_phy: dsi-phy@994400 {
+ 				#clock-cells = <1>;
+ 				#phy-cells = <0>;
  
- static void
- mt76_connac2_mac_write_txwi_8023(__le32 *txwi, struct sk_buff *skb,
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7996/mac.c b/drivers/net/wireless/mediatek/mt76/mt7996/mac.c
-index 96ced4c039ce1..0eb9e4d73f2c1 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7996/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7996/mac.c
-@@ -959,51 +959,6 @@ mt7996_mac_write_txwi_80211(struct mt7996_dev *dev, __le32 *txwi,
- 	}
- }
+-				clocks = <&mmcc MDSS_AHB_CLK>, <&rpmcc RPM_SMD_BB_CLK1>;
++				clocks = <&mmcc MDSS_AHB_CLK>, <&rpmcc RPM_SMD_XO_CLK_SRC>;
+ 				clock-names = "iface", "ref";
+ 				status = "disabled";
+ 			};
+@@ -1118,7 +1118,7 @@ dsi1_phy: dsi-phy@996400 {
+ 				#clock-cells = <1>;
+ 				#phy-cells = <0>;
  
--static u16
--mt7996_mac_tx_rate_val(struct mt76_phy *mphy, struct ieee80211_vif *vif,
--		       bool beacon, bool mcast)
--{
--	u8 mode = 0, band = mphy->chandef.chan->band;
--	int rateidx = 0, mcast_rate;
--
--	if (beacon) {
--		struct cfg80211_bitrate_mask *mask;
--
--		mask = &vif->bss_conf.beacon_tx_rate;
--		if (hweight16(mask->control[band].he_mcs[0]) == 1) {
--			rateidx = ffs(mask->control[band].he_mcs[0]) - 1;
--			mode = MT_PHY_TYPE_HE_SU;
--			goto out;
--		} else if (hweight16(mask->control[band].vht_mcs[0]) == 1) {
--			rateidx = ffs(mask->control[band].vht_mcs[0]) - 1;
--			mode = MT_PHY_TYPE_VHT;
--			goto out;
--		} else if (hweight8(mask->control[band].ht_mcs[0]) == 1) {
--			rateidx = ffs(mask->control[band].ht_mcs[0]) - 1;
--			mode = MT_PHY_TYPE_HT;
--			goto out;
--		} else if (hweight32(mask->control[band].legacy) == 1) {
--			rateidx = ffs(mask->control[band].legacy) - 1;
--			goto legacy;
--		}
--	}
--
--	mcast_rate = vif->bss_conf.mcast_rate[band];
--	if (mcast && mcast_rate > 0)
--		rateidx = mcast_rate - 1;
--	else
--		rateidx = ffs(vif->bss_conf.basic_rates) - 1;
--
--legacy:
--	rateidx = mt76_calculate_default_rate(mphy, rateidx);
--	mode = rateidx >> 8;
--	rateidx &= GENMASK(7, 0);
--
--out:
--	return FIELD_PREP(MT_TX_RATE_IDX, rateidx) |
--	       FIELD_PREP(MT_TX_RATE_MODE, mode);
--}
--
- void mt7996_mac_write_txwi(struct mt7996_dev *dev, __le32 *txwi,
- 			   struct sk_buff *skb, struct mt76_wcid *wcid, int pid,
- 			   struct ieee80211_key_conf *key, u32 changed)
-@@ -1091,7 +1046,8 @@ void mt7996_mac_write_txwi(struct mt7996_dev *dev, __le32 *txwi,
- 		/* Fixed rata is available just for 802.11 txd */
- 		struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
- 		bool multicast = is_multicast_ether_addr(hdr->addr1);
--		u16 rate = mt7996_mac_tx_rate_val(mphy, vif, beacon, multicast);
-+		u16 rate = mt76_connac2_mac_tx_rate_val(mphy, vif, beacon,
-+							multicast);
+-				clocks = <&mmcc MDSS_AHB_CLK>, <&rpmcc RPM_SMD_BB_CLK1>;
++				clocks = <&mmcc MDSS_AHB_CLK>, <&rpmcc RPM_SMD_XO_CLK_SRC>;
+ 				clock-names = "iface", "ref";
+ 				status = "disabled";
+ 			};
+@@ -2933,7 +2933,7 @@ kryocc: clock-controller@6400000 {
+ 			reg = <0x06400000 0x90000>;
  
- 		/* fix to bw 20 */
- 		val = MT_TXD6_FIXED_BW |
+ 			clock-names = "xo", "sys_apcs_aux";
+-			clocks = <&rpmcc RPM_SMD_BB_CLK1>, <&apcs_glb>;
++			clocks = <&rpmcc RPM_SMD_XO_A_CLK_SRC>, <&apcs_glb>;
+ 
+ 			#clock-cells = <1>;
+ 		};
+@@ -3052,7 +3052,7 @@ sdhc1: mmc@7464900 {
+ 			clock-names = "iface", "core", "xo";
+ 			clocks = <&gcc GCC_SDCC1_AHB_CLK>,
+ 				<&gcc GCC_SDCC1_APPS_CLK>,
+-				<&rpmcc RPM_SMD_BB_CLK1>;
++				<&rpmcc RPM_SMD_XO_CLK_SRC>;
+ 			resets = <&gcc GCC_SDCC1_BCR>;
+ 
+ 			pinctrl-names = "default", "sleep";
+@@ -3076,7 +3076,7 @@ sdhc2: mmc@74a4900 {
+ 			clock-names = "iface", "core", "xo";
+ 			clocks = <&gcc GCC_SDCC2_AHB_CLK>,
+ 				<&gcc GCC_SDCC2_APPS_CLK>,
+-				<&rpmcc RPM_SMD_BB_CLK1>;
++				<&rpmcc RPM_SMD_XO_CLK_SRC>;
+ 			resets = <&gcc GCC_SDCC2_BCR>;
+ 
+ 			pinctrl-names = "default", "sleep";
+@@ -3383,7 +3383,7 @@ adsp_pil: remoteproc@9300000 {
+ 			interrupt-names = "wdog", "fatal", "ready",
+ 					  "handover", "stop-ack";
+ 
+-			clocks = <&rpmcc RPM_SMD_BB_CLK1>;
++			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>;
+ 			clock-names = "xo";
+ 
+ 			memory-region = <&adsp_mem>;
 -- 
 2.39.2
 
