@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 697696AEE6B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93CCC6AEA01
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232336AbjCGSLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52400 "EHLO
+        id S230490AbjCGRaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:30:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232413AbjCGSLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:13 -0500
+        with ESMTP id S230373AbjCGR3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602D5ABADB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19F4A17CB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:24:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F019E614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913D8C433EF;
-        Tue,  7 Mar 2023 18:06:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FE57614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56B21C433D2;
+        Tue,  7 Mar 2023 17:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212386;
-        bh=BHKUmmH1uQuc+dsRin47O0oj/CdIqLOijuZB5LVslec=;
+        s=korg; t=1678209877;
+        bh=AtCwruKgpu3TE+v8RRhAfkc7TT9VcdefsPY5sMSjRvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9+LacH8rPwoq4y/B1Uep9/6y13FSsuizhDIyJlL5ln8jC0bgXbW71LVAHGRDyg9Y
-         5iTYmq73H7UsycWHD7XLzJc8rb2aNu8L1DxxDd1KKcP8qbtqy1WY2LC70PxLqXZtD5
-         yvaaF9648ITijoo1ezHpoYbpVElZIDYacppyQqLk=
+        b=KMtRVgb33obS0+0CJf+axm+e19yTlJQGGr4pHNtXBDEb2gwo79CLFYTR695J7LWFX
+         rVA6RpPnEQZUYAHzRBMoo3ZnZkbGokNcm6oITO9j8jaXnnY0Xv2eYkdkExmpY9jrcd
+         jdupcKK7aMxKFKrvNHJ1ILr464zeNCbG2IYQd8eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+e008dccab31bd3647609@syzkaller.appspotmail.com,
-        syzbot+6692c72009680f7c4eb2@syzkaller.appspotmail.com,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 168/885] wifi: ath9k: htc_hst: free skb in ath9k_htc_rx_msg() if there is no callback function
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Marek Vasut <marex@denx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0330/1001] drm: mxsfb: DRM_IMX_LCDIF should depend on ARCH_MXC
 Date:   Tue,  7 Mar 2023 17:51:42 +0100
-Message-Id: <20230307170009.238483185@linuxfoundation.org>
+Message-Id: <20230307170035.822863624@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,52 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 9b25e3985477ac3f02eca5fc1e0cc6850a3f7e69 ]
+[ Upstream commit 10ef5f2992006720318b9886961820155b3750fd ]
 
-It is stated that ath9k_htc_rx_msg() either frees the provided skb or
-passes its management to another callback function. However, the skb is
-not freed in case there is no another callback function, and Syzkaller was
-able to cause a memory leak. Also minor comment fix.
+The Freescale/NXP i.MX LCDIFv3 LCD controller is only present on
+Freescale/NXP i.MX SoCs.  Hence add a dependency on ARCH_MXC, to prevent
+asking the user about this driver when configuring a kernel without
+Freescale/NXP i.MX support.
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Reported-by: syzbot+e008dccab31bd3647609@syzkaller.appspotmail.com
-Reported-by: syzbot+6692c72009680f7c4eb2@syzkaller.appspotmail.com
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230104123546.51427-1-pchelkin@ispras.ru
+Fixes: 9db35bb349a0ef32 ("drm: lcdif: Add support for i.MX8MP LCDIF variant")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/6103c1aa65a7888c12d351ae63f29850f29f42b9.1669046403.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mxsfb/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
-index ca05b07a45e67..fe62ff668f757 100644
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -391,7 +391,7 @@ static void ath9k_htc_fw_panic_report(struct htc_target *htc_handle,
-  * HTC Messages are handled directly here and the obtained SKB
-  * is freed.
-  *
-- * Service messages (Data, WMI) passed to the corresponding
-+ * Service messages (Data, WMI) are passed to the corresponding
-  * endpoint RX handlers, which have to free the SKB.
-  */
- void ath9k_htc_rx_msg(struct htc_target *htc_handle,
-@@ -478,6 +478,8 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
- 		if (endpoint->ep_callbacks.rx)
- 			endpoint->ep_callbacks.rx(endpoint->ep_callbacks.priv,
- 						  skb, epid);
-+		else
-+			goto invalid;
- 	}
- }
- 
+diff --git a/drivers/gpu/drm/mxsfb/Kconfig b/drivers/gpu/drm/mxsfb/Kconfig
+index 116f8168bda4a..aa4b0eb2a562b 100644
+--- a/drivers/gpu/drm/mxsfb/Kconfig
++++ b/drivers/gpu/drm/mxsfb/Kconfig
+@@ -24,6 +24,7 @@ config DRM_IMX_LCDIF
+ 	tristate "i.MX LCDIFv3 LCD controller"
+ 	depends on DRM && OF
+ 	depends on COMMON_CLK
++	depends on ARCH_MXC || COMPILE_TEST
+ 	select DRM_MXS
+ 	select DRM_KMS_HELPER
+ 	select DRM_GEM_DMA_HELPER
 -- 
 2.39.2
 
