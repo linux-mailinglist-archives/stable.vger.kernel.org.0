@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A9D6AED0B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F10346AED0C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230366AbjCGSAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:00:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56344 "EHLO
+        id S230508AbjCGSAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:00:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232344AbjCGSAL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:11 -0500
+        with ESMTP id S232363AbjCGSAR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6905615B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7125499C28
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 095D661469
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10BACC433EF;
-        Tue,  7 Mar 2023 17:54:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3C2E61522
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 104FBC433EF;
+        Tue,  7 Mar 2023 17:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211662;
-        bh=grH1rfzk8g0jf2veuTXxDUMi5VAYKpNfinzHX7O3uoU=;
+        s=korg; t=1678211665;
+        bh=/ua/swVXMWEQW3uEKX2NhCvSMZh/xus9H/iyTUGrLsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANhWB0r/8ASBzQDK0swzXnLujuJahXpiCeWAqo/geUexX/xpWY5oTbmW8apwKWOrd
-         9yfdoU1A5seF5dU6BlqkL0Bu+MhmuMI7Nyh5Urp4xVbDijCQoRk75c06K9t0EL9yCB
-         tsPyTPcNHEBXio145bn223YubGP2ws51W5bS1tCk=
+        b=VvnmC/EzdIVgljntTzKX+mfHbWHUheZxiaAzhnNdKhftKHNUmR6sTfCARAgu/P01J
+         F63FlcCnfVx+e8o2Nz4F+dVDJccYaYCAo+kbz8KlzMRws/KzIARBLSWGfQluYwt2TZ
+         9Lx/qg+wMlnaJj8nfmtB2q0dtaYOBD/u5gIuz2m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 6.2 0936/1001] genirq/msi: Take the per-device MSI lock before validating the control structure
-Date:   Tue,  7 Mar 2023 18:01:48 +0100
-Message-Id: <20230307170102.723833693@linuxfoundation.org>
+        patches@lists.linux.dev, David Binderman <dcb314@hotmail.com>,
+        Dhruva Gole <d-gole@ti.com>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.2 0937/1001] spi: spi-sn-f-ospi: fix duplicate flag while assigning to mode_bits
+Date:   Tue,  7 Mar 2023 18:01:49 +0100
+Message-Id: <20230307170102.770683367@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -56,52 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Dhruva Gole <d-gole@ti.com>
 
-commit 0af2795f936f1ea1f9f1497447145dfcc7ed2823 upstream.
+commit 078a5517d22342eb0474046d3e891427a2552e3c upstream.
 
-Calling msi_ctrl_valid() ultimately results in calling
-msi_get_device_domain(), which requires holding the device MSI lock.
+Replace the SPI_TX_OCTAL flag that appeared two time with SPI_RX_OCTAL
+in the chain of '|' operators while assigning to mode_bits
 
-However, in msi_domain_populate_irqs() the lock is taken right after having
-called msi_ctrl_valid(), which is just a tad too late.
+Fixes: 1b74dd64c861 ("spi: Add Socionext F_OSPI SPI flash controller driver")
 
-Take the lock before invoking msi_ctrl_valid().
+Reported-by: David Binderman <dcb314@hotmail.com>
+Link: https://lore.kernel.org/all/DB6P189MB0568F3BE9384315F5C8C1A3E9CA49@DB6P189MB0568.EURP189.PROD.OUTLOOK.COM/
 
-Fixes: 40742716f294 ("genirq/msi: Make msi_add_simple_msi_descs() device domain aware")
-Reported-by: "Russell King (Oracle)" <linux@armlinux.org.uk>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/Y/Opu6ETe3ZzZ/8E@shell.armlinux.org.uk
-Link: https://lore.kernel.org/r/20230220190101.314446-1-maz@kernel.org
+Signed-off-by: Dhruva Gole <d-gole@ti.com>
+Link: https://lore.kernel.org/r/20230223095202.924626-1-d-gole@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/msi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/spi/spi-sn-f-ospi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
-index 783a3e6a0b10..13d96495e6d0 100644
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -1084,10 +1084,13 @@ int msi_domain_populate_irqs(struct irq_domain *domain, struct device *dev,
- 	struct xarray *xa;
- 	int ret, virq;
+diff --git a/drivers/spi/spi-sn-f-ospi.c b/drivers/spi/spi-sn-f-ospi.c
+index 348c6e1edd38..333b22dfd8db 100644
+--- a/drivers/spi/spi-sn-f-ospi.c
++++ b/drivers/spi/spi-sn-f-ospi.c
+@@ -611,7 +611,7 @@ static int f_ospi_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
--	if (!msi_ctrl_valid(dev, &ctrl))
--		return -EINVAL;
--
- 	msi_lock_descs(dev);
-+
-+	if (!msi_ctrl_valid(dev, &ctrl)) {
-+		ret = -EINVAL;
-+		goto unlock;
-+	}
-+
- 	ret = msi_domain_add_simple_msi_descs(dev, &ctrl);
- 	if (ret)
- 		goto unlock;
+ 	ctlr->mode_bits = SPI_TX_DUAL | SPI_TX_QUAD | SPI_TX_OCTAL
+-		| SPI_RX_DUAL | SPI_RX_QUAD | SPI_TX_OCTAL
++		| SPI_RX_DUAL | SPI_RX_QUAD | SPI_RX_OCTAL
+ 		| SPI_MODE_0 | SPI_MODE_1 | SPI_LSB_FIRST;
+ 	ctlr->mem_ops = &f_ospi_mem_ops;
+ 	ctlr->bus_num = -1;
 -- 
 2.39.2
 
