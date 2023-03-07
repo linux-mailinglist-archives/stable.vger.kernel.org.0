@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBAA76AF3DF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECD96AF3F6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:12:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233707AbjCGTKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:10:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60440 "EHLO
+        id S233734AbjCGTMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:12:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233711AbjCGTKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:10:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5860AF28D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:55:05 -0800 (PST)
+        with ESMTP id S233735AbjCGTLs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:11:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C582684
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:55:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF4066150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD36C433D2;
-        Tue,  7 Mar 2023 18:54:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77369B819DB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:55:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E48ECC4339B;
+        Tue,  7 Mar 2023 18:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215274;
-        bh=In982eKzMfEwU31y4cLmnSk2EsWJfMJSLyCrumuLseI=;
+        s=korg; t=1678215307;
+        bh=H78v4yoDsXx60NrZH61rRRVX438mKYVnaUKsRmQUQtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjzD/mq76bqEmZAjIfoxIsCz/5/j54lSxuyoSjNFFwhH2HMve5ziJI7gOzdLt/Qpi
-         8su7rrih8NfBnLzQO0n+vHPhmekof4xkZzB1Dgm5KwwE6PC9Oo2daCAIWevJaQvO1h
-         Y3o3sp4s3koMaElFe9nTipmGGTfVvNEUEFitDcXc=
+        b=AQ3YTaVr5WITQJI9LDQn/wSxzb7t+ChRrVodsOqX2sQxb8x9vEZGNAvdZQ1PVCqGq
+         +Dzz51HML60Uign9HZBVAnplIW6JjJVf67G8RC7DE83Q5rztwJbckGUUgUiHFcv65v
+         i33KxivVQb1t/BHwpFa04IUziHYaxnkW9sS7Do2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Alexey V. Vissarionov" <gremlin@altlinux.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 190/567] ALSA: hda/ca0132: minor fix for allocation size
-Date:   Tue,  7 Mar 2023 17:58:46 +0100
-Message-Id: <20230307165914.186073780@linuxfoundation.org>
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 191/567] drm/msm/gem: Add check for kmalloc
+Date:   Tue,  7 Mar 2023 17:58:47 +0100
+Message-Id: <20230307165914.224420105@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,38 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey V. Vissarionov <gremlin@altlinux.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 3ee0fe7fa39b14d1cea455b7041f2df933bd97d2 ]
+[ Upstream commit d839f0811a31322c087a859c2b181e2383daa7be ]
 
-Although the "dma_chan" pointer occupies more or equal space compared
-to "*dma_chan", the allocation size should use the size of variable
-itself.
+Add the check for the return value of kmalloc in order to avoid
+NULL pointer dereference in copy_from_user.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: 01ef7dbffb41 ("ALSA: hda - Update CA0132 codec to load DSP firmware binary")
-Signed-off-by: Alexey V. Vissarionov <gremlin@altlinux.org>
-Link: https://lore.kernel.org/r/20230117111522.GA15213@altlinux.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 20224d715a88 ("drm/msm/submit: Move copy_from_user ahead of locking bos")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/514678/
+Link: https://lore.kernel.org/r/20221212091117.43511-1-jiasheng@iscas.ac.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/msm_gem_submit.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index 801dd8d44953b..c0cb6e49a9b65 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -2455,7 +2455,7 @@ static int dspio_set_uint_param(struct hda_codec *codec, int mod_id,
- static int dspio_alloc_dma_chan(struct hda_codec *codec, unsigned int *dma_chan)
- {
- 	int status = 0;
--	unsigned int size = sizeof(dma_chan);
-+	unsigned int size = sizeof(*dma_chan);
- 
- 	codec_dbg(codec, "     dspio_alloc_dma_chan() -- begin\n");
- 	status = dspio_scp(codec, MASTERCONTROL, 0x20,
+diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
+index 1f74bab9e231a..83e6ccad77286 100644
+--- a/drivers/gpu/drm/msm/msm_gem_submit.c
++++ b/drivers/gpu/drm/msm/msm_gem_submit.c
+@@ -220,6 +220,10 @@ static int submit_lookup_cmds(struct msm_gem_submit *submit,
+ 			goto out;
+ 		}
+ 		submit->cmd[i].relocs = kmalloc(sz, GFP_KERNEL);
++		if (!submit->cmd[i].relocs) {
++			ret = -ENOMEM;
++			goto out;
++		}
+ 		ret = copy_from_user(submit->cmd[i].relocs, userptr, sz);
+ 		if (ret) {
+ 			ret = -EFAULT;
 -- 
 2.39.2
 
