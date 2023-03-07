@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 863A46AEBB8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9CA6AEBC1
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbjCGRsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34656 "EHLO
+        id S232133AbjCGRsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:48:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232194AbjCGRsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2C492260
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:46 -0800 (PST)
+        with ESMTP id S232203AbjCGRsU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D87E8535A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A50EA61521
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC233C433D2;
-        Tue,  7 Mar 2023 17:42:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2718CB819B4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72ADDC4339B;
+        Tue,  7 Mar 2023 17:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210966;
-        bh=E5PdtXaDPt14qRU8ga81xZOGvacwTTfBgU/lwRAnvMg=;
+        s=korg; t=1678210968;
+        bh=qhTknCAnJNvmCZog7ZAPZ8B8dQc8fSqFotbjLED+EHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAl6BZaZRfnMn8UWiLIeQAAn6/wlPau5DeW9TNyUE9PnDTg/NVO+edmlZn9pbBT5m
-         qvwe13GsHi/xCPS7La8pFwcclNUagZXqGJaHT4YsS+mCQBax4uE3gueuchPbSXtcOl
-         i9VaKo956dk8Dtq55F2PhvrlYKoraBECe7O8b5BQ=
+        b=HLySAENWufMK8GzTC82uwUyzYwk0aT+TLtEl7y/N9xWNdCupPRNssqzx71kxnl02i
+         35qYHUPnGZktdTyWkZjACdU0uMjbpJVsm+AZ7fZV+OD/BlwJdvBd4iZBP8JPsfwVjl
+         wteNT9n1SZNBbMfrAMyFuCU6MWJjIrc3yStjgzhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alan Liu <HaoPing.Liu@amd.com>, Roman Li <roman.li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Thomas Zimmermann <tzimmermann@suse.de>,
+        Javier Martinez Canillas <javierm@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0711/1001] drm/amd/display: Set hvm_enabled flag for S/G mode
-Date:   Tue,  7 Mar 2023 17:58:03 +0100
-Message-Id: <20230307170052.480013547@linuxfoundation.org>
+Subject: [PATCH 6.2 0712/1001] drm/client: Test for connectors before sending hotplug event
+Date:   Tue,  7 Mar 2023 17:58:04 +0100
+Message-Id: <20230307170052.531550478@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -47,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,41 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <roman.li@amd.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 40e9f3f067bc6fb47b878f8ba0a9cc7b93abbf49 ]
+[ Upstream commit c2bb3be64eb7182285846123219230375af61abd ]
 
-[Why]
-After enabling S/G on dcn314 a screen corruption may be observed.
-HostVM flag should be set in S/G mode to be included in DML calculations.
+Test for connectors in the client code and remove a similar test
+from the generic fbdev emulation. Do nothing if the test fails.
+Not having connectors indicates a driver bug.
 
-[How]
-In S/G mode gpu_vm_support flag is set.
-Use its value to init is_hvm_enabled.
-
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Alan Liu <HaoPing.Liu@amd.com>
-Signed-off-by: Roman Li <roman.li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230125200415.14123-2-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_client.c        | 5 +++++
+ drivers/gpu/drm/drm_fbdev_generic.c | 5 -----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 69f0ccc18aa82..027ffa5ccda46 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1239,7 +1239,7 @@ static void mmhub_read_system_context(struct amdgpu_device *adev, struct dc_phy_
- 	pa_config->gart_config.page_table_end_addr = page_table_end.quad_part << 12;
- 	pa_config->gart_config.page_table_base_addr = page_table_base.quad_part;
+diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
+index 056ab9d5f313b..313cbabb12b2d 100644
+--- a/drivers/gpu/drm/drm_client.c
++++ b/drivers/gpu/drm/drm_client.c
+@@ -198,6 +198,11 @@ void drm_client_dev_hotplug(struct drm_device *dev)
+ 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
+ 		return;
  
--	pa_config->is_hvm_enabled = 0;
-+	pa_config->is_hvm_enabled = adev->mode_info.gpu_vm_support;
++	if (!dev->mode_config.num_connector) {
++		drm_dbg_kms(dev, "No connectors found, will not send hotplug events!\n");
++		return;
++	}
++
+ 	mutex_lock(&dev->clientlist_mutex);
+ 	list_for_each_entry(client, &dev->clientlist, list) {
+ 		if (!client->funcs || !client->funcs->hotplug)
+diff --git a/drivers/gpu/drm/drm_fbdev_generic.c b/drivers/gpu/drm/drm_fbdev_generic.c
+index 593aa3283792b..215fe16ff1fb4 100644
+--- a/drivers/gpu/drm/drm_fbdev_generic.c
++++ b/drivers/gpu/drm/drm_fbdev_generic.c
+@@ -390,11 +390,6 @@ static int drm_fbdev_client_hotplug(struct drm_client_dev *client)
+ 	if (dev->fb_helper)
+ 		return drm_fb_helper_hotplug_event(dev->fb_helper);
  
- }
+-	if (!dev->mode_config.num_connector) {
+-		drm_dbg_kms(dev, "No connectors found, will not create framebuffer!\n");
+-		return 0;
+-	}
+-
+ 	drm_fb_helper_prepare(dev, fb_helper, &drm_fb_helper_generic_funcs);
  
+ 	ret = drm_fb_helper_init(dev, fb_helper);
 -- 
 2.39.2
 
