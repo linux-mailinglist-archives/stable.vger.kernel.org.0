@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 716116AEA36
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 239F56AEEC2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbjCGRbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:31:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33194 "EHLO
+        id S229872AbjCGSQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:16:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231561AbjCGRba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DA5A1000
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:49 -0800 (PST)
+        with ESMTP id S229801AbjCGSO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32CBA8EA5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75D64B818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1198C433D2;
-        Tue,  7 Mar 2023 17:26:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABFDD61537
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3808C433EF;
+        Tue,  7 Mar 2023 18:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210007;
-        bh=AG4/g8xeWWzOeT3qTMzdZ7kJpzDrPTaP8g3RF5mV5Fc=;
+        s=korg; t=1678212641;
+        bh=MhZrypLdQ94TSB6z2WRf3tO8RBjMmuX9xZYdwxeF+rA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXBWot62cteXQKPi+LxGVzwtyB37Oqo8CXHfUDQ1zHMMhRXInxvDvlRY1noy8EMGf
-         uj4WDWmK3XXLXMSUIArxZ84gpkA9LoQrXhJeQwYszZHhFqqop8Ij26ydz8rRsIe5aV
-         GDIoYvEQz8CPl8C/My8ss92XHAjCjKx8qXs38ABk=
+        b=aeiP6pt+X0V7Q0+H9F2wLt1D3mgbiqN2M32Ryxk+PCT4ZEU4I55JAlSAO9Nb6JJB3
+         WQ675kDSPinySqB3kII0AJ2dAEEnFTlX8yfgofYfn3RIYHWmqsGovcSPluTmLA7a1v
+         abOPZxpq6qcxD0g9nJVUC+bxtWpUDRLhm4aDnrFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Yongqin Liu <yongqin.liu@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0403/1001] ASoC: topology: Properly access value coming from topology file
-Date:   Tue,  7 Mar 2023 17:52:55 +0100
-Message-Id: <20230307170038.813631751@linuxfoundation.org>
+Subject: [PATCH 6.1 242/885] thermal/drivers/hisi: Drop second sensor hi3660
+Date:   Tue,  7 Mar 2023 17:52:56 +0100
+Message-Id: <20230307170012.530624369@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,37 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Yongqin Liu <yongqin.liu@linaro.org>
 
-[ Upstream commit c5d184c92df2b631fb81fe2ce6e96bfc5ba720e5 ]
+[ Upstream commit 15cc25829a97c3957e520e971868aacc84341317 ]
 
-When accessing values coming from topology, le32_to_cpu should be used.
-One of recent commits missed that.
+The commit 74c8e6bffbe1 ("driver core: Add __alloc_size hint to devm
+allocators") exposes a panic "BRK handler: Fatal exception" on the
+hi3660_thermal_probe funciton.
+This is because the function allocates memory for only one
+sensors array entry, but tries to fill up a second one.
 
-Fixes: 86e2d14b6d1a ("ASoC: topology: Add header payload_size verification")
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20230127231111.937721-2-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by removing the unneeded second access.
+
+Fixes: 7d3a2a2bbadb ("thermal/drivers/hisi: Fix number of sensors on hi3660")
+Signed-off-by: Yongqin Liu <yongqin.liu@linaro.org>
+Link: https://lore.kernel.org/linux-mm/20221101223321.1326815-5-keescook@chromium.org/
+Link: https://lore.kernel.org/r/20230210141507.71014-1-yongqin.liu@linaro.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/hisi_thermal.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index a79a2fb260b87..d68c48555a7e3 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -2408,7 +2408,7 @@ static int soc_valid_header(struct soc_tplg *tplg,
- 		return -EINVAL;
- 	}
+diff --git a/drivers/thermal/hisi_thermal.c b/drivers/thermal/hisi_thermal.c
+index d6974db7aaf76..15af90f5c7d91 100644
+--- a/drivers/thermal/hisi_thermal.c
++++ b/drivers/thermal/hisi_thermal.c
+@@ -427,10 +427,6 @@ static int hi3660_thermal_probe(struct hisi_thermal_data *data)
+ 	data->sensor[0].irq_name = "tsensor_a73";
+ 	data->sensor[0].data = data;
  
--	if (soc_tplg_get_hdr_offset(tplg) + hdr->payload_size >= tplg->fw->size) {
-+	if (soc_tplg_get_hdr_offset(tplg) + le32_to_cpu(hdr->payload_size) >= tplg->fw->size) {
- 		dev_err(tplg->dev,
- 			"ASoC: invalid header of type %d at offset %ld payload_size %d\n",
- 			le32_to_cpu(hdr->type), soc_tplg_get_hdr_offset(tplg),
+-	data->sensor[1].id = HI3660_LITTLE_SENSOR;
+-	data->sensor[1].irq_name = "tsensor_a53";
+-	data->sensor[1].data = data;
+-
+ 	return 0;
+ }
+ 
 -- 
 2.39.2
 
