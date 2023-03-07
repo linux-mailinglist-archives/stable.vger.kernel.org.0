@@ -2,53 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A906AF063
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E572D6AEC2E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbjCGSaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:30:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56750 "EHLO
+        id S232273AbjCGRxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233147AbjCGS3v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBC91360B1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:14 -0800 (PST)
+        with ESMTP id S232290AbjCGRwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:41 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13496A5931
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2125CCE1C81
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD88C433D2;
-        Tue,  7 Mar 2023 18:23:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 21205CE1BF8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C86C433EF;
+        Tue,  7 Mar 2023 17:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213391;
-        bh=lwtDCNOB1P1C3uDyD3rizenKAw16yquVBJUkXGwWKKA=;
+        s=korg; t=1678210920;
+        bh=N1EcWGLLe8wG22u64eetkzqI3wxz8TjIp8uhLlWEs9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHjvFnOmkO2WjCddZ6+Mb/3RKr52yDt6v19gRgXXZ6Oo53w/Ya1UvUR/s+Z/+TD0b
-         SkIM+tbMO2RA6AUZ7u845jZ1+g8mDtg2LbSKl2+u89RpCdjZ9I5W4uQ59YfmtbbeiV
-         86TwGRIXBvfLVDkP8nYHj3K6XmmJMn+wzDc5kdCg=
+        b=WfTFP0a7QlNzvh6mWq7JwMMExF/C3/EcRIuJvHWq+cH+8A1vjpnzNyYEUBRen44KO
+         LUoZPyfnr1SbzLK4t+JGwOP5n1UWEoB7fwOmSCnLC0U00GL0PfJg0iv2tQYPn+mRef
+         d+G1NdXjcazG+OAG8b/0f7a5h/yVYsn8YI2C6j+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Brendan Cunningham <bcunningham@cornelisnetworks.com>,
-        Patrick Kelsey <pat.kelsey@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Florent Revest <revest@chromium.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Will Deacon <will@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 492/885] IB/hfi1: Fix sdma.h tx->num_descs off-by-one errors
-Date:   Tue,  7 Mar 2023 17:57:06 +0100
-Message-Id: <20230307170023.843310078@linuxfoundation.org>
+Subject: [PATCH 6.2 0655/1001] Compiler attributes: GCC cold function alignment workarounds
+Date:   Tue,  7 Mar 2023 17:57:07 +0100
+Message-Id: <20230307170050.026752639@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,107 +60,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit fd8958efe8779d3db19c9124fce593ce681ac709 ]
+[ Upstream commit c27cd083cfb9d392f304657ed00fcde1136704e7 ]
 
-Fix three sources of error involving struct sdma_txreq.num_descs.
+Contemporary versions of GCC (e.g. GCC 12.2.0) drop the alignment
+specified by '-falign-functions=N' for functions marked with the
+__cold__ attribute, and potentially for callees of __cold__ functions as
+these may be implicitly marked as __cold__ by the compiler. LLVM appears
+to respect '-falign-functions=N' in such cases.
 
-When _extend_sdma_tx_descs() extends the descriptor array, it uses the
-value of tx->num_descs to determine how many existing entries from the
-tx's original, internal descriptor array to copy to the newly allocated
-one.  As this value was incremented before the call, the copy loop will
-access one entry past the internal descriptor array, copying its contents
-into the corresponding slot in the new array.
+This has been reported to GCC in bug 88345:
 
-If the call to _extend_sdma_tx_descs() fails, _pad_smda_tx_descs() then
-invokes __sdma_tx_clean() which uses the value of tx->num_desc to drive a
-loop that unmaps all descriptor entries in use.  As this value was
-incremented before the call, the unmap loop will invoke sdma_unmap_desc()
-on a descriptor entry whose contents consist of whatever random data was
-copied into it during (1), leading to cascading further calls into the
-kernel and driver using arbitrary data.
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
 
-_sdma_close_tx() was using tx->num_descs instead of tx->num_descs - 1.
+... which also covers alignment being dropped when '-Os' is used, which
+will be addressed in a separate patch.
 
-Fix all of the above by:
-- Only increment .num_descs after .descp is extended.
-- Use .num_descs - 1 instead of .num_descs for last .descp entry.
+Currently, use of '-falign-functions=N' is limited to
+CONFIG_FUNCTION_ALIGNMENT, which is largely used for performance and/or
+analysis reasons (e.g. with CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B), but
+isn't necessary for correct functionality. However, this dropped
+alignment isn't great for the performance and/or analysis cases.
 
-Fixes: f4d26d81ad7f ("staging/rdma/hfi1: Add coalescing support for SDMA TX descriptors")
-Link: https://lore.kernel.org/r/167656658879.2223096.10026561343022570690.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Brendan Cunningham <bcunningham@cornelisnetworks.com>
-Signed-off-by: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Subsequent patches will use CONFIG_FUNCTION_ALIGNMENT as part of arm64's
+ftrace implementation, which will require all instrumented functions to
+be aligned to at least 8-bytes.
+
+This patch works around the dropped alignment by avoiding the use of the
+__cold__ attribute when CONFIG_FUNCTION_ALIGNMENT is non-zero, and by
+specifically aligning abort(), which GCC implicitly marks as __cold__.
+As the __cold macro is now dependent upon config options (which is
+against the policy described at the top of compiler_attributes.h), it is
+moved into compiler_types.h.
+
+I've tested this by building and booting a kernel configured with
+defconfig + CONFIG_EXPERT=y + CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
+and looking for misaligned text symbols in /proc/kallsyms:
+
+* arm64:
+
+  Before:
+    # uname -rm
+    6.2.0-rc3 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    5009
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    919
+
+* x86_64:
+
+  Before:
+    # uname -rm
+    6.2.0-rc3 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    11537
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    2805
+
+There's clearly a substantial reduction in the number of misaligned
+symbols. From manual inspection, the remaining unaligned text labels are
+a combination of ACPICA functions (due to the use of '-Os'), static call
+trampolines, and non-function labels in assembly, which will be dealt
+with in subsequent patches.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Miguel Ojeda <ojeda@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20230123134603.1064407-3-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c |  4 ++--
- drivers/infiniband/hw/hfi1/sdma.h | 15 +++++++--------
- 2 files changed, 9 insertions(+), 10 deletions(-)
+ include/linux/compiler_attributes.h |  6 ------
+ include/linux/compiler_types.h      | 27 +++++++++++++++++++++++++++
+ kernel/exit.c                       |  9 ++++++++-
+ 3 files changed, 35 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index a95b654f52540..8ed20392e9f0d 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -3160,8 +3160,7 @@ int _pad_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- {
- 	int rval = 0;
+diff --git a/include/linux/compiler_attributes.h b/include/linux/compiler_attributes.h
+index 898b3458b24a0..b83126452c651 100644
+--- a/include/linux/compiler_attributes.h
++++ b/include/linux/compiler_attributes.h
+@@ -75,12 +75,6 @@
+ # define __assume_aligned(a, ...)
+ #endif
  
--	tx->num_desc++;
--	if ((unlikely(tx->num_desc == tx->desc_limit))) {
-+	if ((unlikely(tx->num_desc + 1 == tx->desc_limit))) {
- 		rval = _extend_sdma_tx_descs(dd, tx);
- 		if (rval) {
- 			__sdma_txclean(dd, tx);
-@@ -3174,6 +3173,7 @@ int _pad_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- 		SDMA_MAP_NONE,
- 		dd->sdma_pad_phys,
- 		sizeof(u32) - (tx->packet_len & (sizeof(u32) - 1)));
-+	tx->num_desc++;
- 	_sdma_close_tx(dd, tx);
- 	return rval;
- }
-diff --git a/drivers/infiniband/hw/hfi1/sdma.h b/drivers/infiniband/hw/hfi1/sdma.h
-index d8170fcbfbdd5..b023fc461bd51 100644
---- a/drivers/infiniband/hw/hfi1/sdma.h
-+++ b/drivers/infiniband/hw/hfi1/sdma.h
-@@ -631,14 +631,13 @@ static inline void sdma_txclean(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- static inline void _sdma_close_tx(struct hfi1_devdata *dd,
- 				  struct sdma_txreq *tx)
- {
--	tx->descp[tx->num_desc].qw[0] |=
--		SDMA_DESC0_LAST_DESC_FLAG;
--	tx->descp[tx->num_desc].qw[1] |=
--		dd->default_desc1;
-+	u16 last_desc = tx->num_desc - 1;
+-/*
+- *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-cold-function-attribute
+- *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Label-Attributes.html#index-cold-label-attribute
+- */
+-#define __cold                          __attribute__((__cold__))
+-
+ /*
+  * Note the long name.
+  *
+diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
+index 7c1afe0f4129c..aab34e30128e9 100644
+--- a/include/linux/compiler_types.h
++++ b/include/linux/compiler_types.h
+@@ -79,6 +79,33 @@ static inline void __chk_io_ptr(const volatile void __iomem *ptr) { }
+ /* Attributes */
+ #include <linux/compiler_attributes.h>
+ 
++#if CONFIG_FUNCTION_ALIGNMENT > 0
++#define __function_aligned		__aligned(CONFIG_FUNCTION_ALIGNMENT)
++#else
++#define __function_aligned
++#endif
 +
-+	tx->descp[last_desc].qw[0] |= SDMA_DESC0_LAST_DESC_FLAG;
-+	tx->descp[last_desc].qw[1] |= dd->default_desc1;
- 	if (tx->flags & SDMA_TXREQ_F_URGENT)
--		tx->descp[tx->num_desc].qw[1] |=
--			(SDMA_DESC1_HEAD_TO_HOST_FLAG |
--			 SDMA_DESC1_INT_REQ_FLAG);
-+		tx->descp[last_desc].qw[1] |= (SDMA_DESC1_HEAD_TO_HOST_FLAG |
-+					       SDMA_DESC1_INT_REQ_FLAG);
- }
++/*
++ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-cold-function-attribute
++ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Label-Attributes.html#index-cold-label-attribute
++ *
++ * When -falign-functions=N is in use, we must avoid the cold attribute as
++ * contemporary versions of GCC drop the alignment for cold functions. Worse,
++ * GCC can implicitly mark callees of cold functions as cold themselves, so
++ * it's not sufficient to add __function_aligned here as that will not ensure
++ * that callees are correctly aligned.
++ *
++ * See:
++ *
++ *   https://lore.kernel.org/lkml/Y77%2FqVgvaJidFpYt@FVFF77S0Q05N
++ *   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345#c9
++ */
++#if !defined(CONFIG_CC_IS_GCC) || (CONFIG_FUNCTION_ALIGNMENT == 0)
++#define __cold				__attribute__((__cold__))
++#else
++#define __cold
++#endif
++
+ /* Builtins */
  
- static inline int _sdma_txadd_daddr(
-@@ -655,6 +654,7 @@ static inline int _sdma_txadd_daddr(
- 		type,
- 		addr, len);
- 	WARN_ON(len > tx->tlen);
-+	tx->num_desc++;
- 	tx->tlen -= len;
- 	/* special cases for last */
- 	if (!tx->tlen) {
-@@ -666,7 +666,6 @@ static inline int _sdma_txadd_daddr(
- 			_sdma_close_tx(dd, tx);
- 		}
- 	}
--	tx->num_desc++;
- 	return rval;
+ /*
+diff --git a/kernel/exit.c b/kernel/exit.c
+index bccfa4218356e..f2afdb0add7c5 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -1905,7 +1905,14 @@ bool thread_group_exited(struct pid *pid)
  }
+ EXPORT_SYMBOL(thread_group_exited);
+ 
+-__weak void abort(void)
++/*
++ * This needs to be __function_aligned as GCC implicitly makes any
++ * implementation of abort() cold and drops alignment specified by
++ * -falign-functions=N.
++ *
++ * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345#c11
++ */
++__weak __function_aligned void abort(void)
+ {
+ 	BUG();
  
 -- 
 2.39.2
