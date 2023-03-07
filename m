@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CAA6AEA34
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:31:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C803C6AEEBE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:15:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230283AbjCGRbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:31:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60560 "EHLO
+        id S232580AbjCGSPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:15:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231282AbjCGRbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:31:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C609F21D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:26:42 -0800 (PST)
+        with ESMTP id S232586AbjCGSOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:14:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9072A4006
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7BC2611A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DDC3C433D2;
-        Tue,  7 Mar 2023 17:26:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2F666152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8050C433D2;
+        Tue,  7 Mar 2023 18:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210001;
-        bh=P0f8G78VEqpX7luXpK5aof1YP44ItKbBr7c0WNdHxj0=;
+        s=korg; t=1678212615;
+        bh=B9S/aU6WLfM12WVDD1l/pigUkT+l1M4h9W8B8gG929E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpvKMrlClEJEiRjN0XA3TUW4+zeUo4h+R+MvlIIiNYSvSW7BZADszgZRIZSKswMtj
-         HJZUqJ5ZmIZvkd4ouuQ+pSfsK9ximLVLksFGHqKprdeaTrK768OiabwQi12mx5xvj1
-         53PgzdqD623dai8HKCRo8yoNC7WIFPjWcCr32QIQ=
+        b=iulKDk5l57+wOsS5lW6sM1HTPMkg/Mp0G6VnLsPlu2EJ4SxV5Xq5FWr8Bgg7IERiw
+         Bjeigb8XYCdvkynXR46RlWCI2YRextKDtVQsej3Rx8O1g518Gs4vi4ZTuWhaXlbIsL
+         +U9nIWREi3LQputNhnO6VQfdjdODGSnbARBTxLuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0401/1001] gpio: pca9570: rename platform_data to chip_data
+Subject: [PATCH 6.1 239/885] wifi: mac80211: avoid u32_encode_bits() warning
 Date:   Tue,  7 Mar 2023 17:52:53 +0100
-Message-Id: <20230307170038.719342822@linuxfoundation.org>
+Message-Id: <20230307170012.401272441@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,105 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit a3f7c1d6ddcbd487964c58ff246506a781e5be8f ]
+[ Upstream commit 1d8d4af4347420d657be448f8be4c39c558f3b5d ]
 
-By convention platform_data refers to structures passed to drivers by
-code that registers devices. When talking about model-specific data
-structures associated with OF compatibles, we usually call them chip_data.
+gcc-9 triggers a false-postive warning in ieee80211_mlo_multicast_tx()
+for u32_encode_bits(ffs(links) - 1, ...), since ffs() can return zero
+on an empty bitmask, and the negative argument to u32_encode_bits()
+is then out of range:
 
-In order to avoid confusion rename all mentions of platform_data to
-chip_data.
+In file included from include/linux/ieee80211.h:21,
+                 from include/net/cfg80211.h:23,
+                 from net/mac80211/tx.c:23:
+In function 'u32_encode_bits',
+    inlined from 'ieee80211_mlo_multicast_tx' at net/mac80211/tx.c:4437:17,
+    inlined from 'ieee80211_subif_start_xmit' at net/mac80211/tx.c:4485:3:
+include/linux/bitfield.h:177:3: error: call to '__field_overflow' declared with attribute error: value doesn't fit into mask
+  177 |   __field_overflow();     \
+      |   ^~~~~~~~~~~~~~~~~~
+include/linux/bitfield.h:197:2: note: in expansion of macro '____MAKE_OP'
+  197 |  ____MAKE_OP(u##size,u##size,,)
+      |  ^~~~~~~~~~~
+include/linux/bitfield.h:200:1: note: in expansion of macro '__MAKE_OP'
+  200 | __MAKE_OP(32)
+      | ^~~~~~~~~
 
-Fixes: fbb19fe17eae ("gpio: pca9570: add slg7xl45106 support")
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Newer compiler versions do not cause problems with the zero argument
+because they do not consider this a __builtin_constant_p().
+It's also harmless since the hweight16() check already guarantees
+that this cannot be 0.
+
+Replace the ffs() with an equivalent find_first_bit() check that
+matches the later for_each_set_bit() style and avoids the warning.
+
+Fixes: 963d0e8d08d9 ("wifi: mac80211: optionally implement MLO multicast TX")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230214132025.1532147-1-arnd@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-pca9570.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ net/mac80211/tx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-pca9570.c b/drivers/gpio/gpio-pca9570.c
-index 6c07a8811a7a5..6a5a8e593ed55 100644
---- a/drivers/gpio/gpio-pca9570.c
-+++ b/drivers/gpio/gpio-pca9570.c
-@@ -18,11 +18,11 @@
- #define SLG7XL45106_GPO_REG	0xDB
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 6409097a56c7a..55220e764de68 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -4395,7 +4395,7 @@ static void ieee80211_mlo_multicast_tx(struct net_device *dev,
+ 	u32 ctrl_flags = IEEE80211_TX_CTRL_MCAST_MLO_FIRST_TX;
  
- /**
-- * struct pca9570_platform_data - GPIO platformdata
-+ * struct pca9570_chip_data - GPIO platformdata
-  * @ngpio: no of gpios
-  * @command: Command to be sent
-  */
--struct pca9570_platform_data {
-+struct pca9570_chip_data {
- 	u16 ngpio;
- 	u32 command;
- };
-@@ -36,7 +36,7 @@ struct pca9570_platform_data {
-  */
- struct pca9570 {
- 	struct gpio_chip chip;
--	const struct pca9570_platform_data *p_data;
-+	const struct pca9570_chip_data *chip_data;
- 	struct mutex lock;
- 	u8 out;
- };
-@@ -46,8 +46,8 @@ static int pca9570_read(struct pca9570 *gpio, u8 *value)
- 	struct i2c_client *client = to_i2c_client(gpio->chip.parent);
- 	int ret;
+ 	if (hweight16(links) == 1) {
+-		ctrl_flags |= u32_encode_bits(ffs(links) - 1,
++		ctrl_flags |= u32_encode_bits(find_first_bit(&links, 16) - 1,
+ 					      IEEE80211_TX_CTRL_MLO_LINK);
  
--	if (gpio->p_data->command != 0)
--		ret = i2c_smbus_read_byte_data(client, gpio->p_data->command);
-+	if (gpio->chip_data->command != 0)
-+		ret = i2c_smbus_read_byte_data(client, gpio->chip_data->command);
- 	else
- 		ret = i2c_smbus_read_byte(client);
- 
-@@ -62,8 +62,8 @@ static int pca9570_write(struct pca9570 *gpio, u8 value)
- {
- 	struct i2c_client *client = to_i2c_client(gpio->chip.parent);
- 
--	if (gpio->p_data->command != 0)
--		return i2c_smbus_write_byte_data(client, gpio->p_data->command, value);
-+	if (gpio->chip_data->command != 0)
-+		return i2c_smbus_write_byte_data(client, gpio->chip_data->command, value);
- 
- 	return i2c_smbus_write_byte(client, value);
- }
-@@ -127,8 +127,8 @@ static int pca9570_probe(struct i2c_client *client)
- 	gpio->chip.get = pca9570_get;
- 	gpio->chip.set = pca9570_set;
- 	gpio->chip.base = -1;
--	gpio->p_data = device_get_match_data(&client->dev);
--	gpio->chip.ngpio = gpio->p_data->ngpio;
-+	gpio->chip_data = device_get_match_data(&client->dev);
-+	gpio->chip.ngpio = gpio->chip_data->ngpio;
- 	gpio->chip.can_sleep = true;
- 
- 	mutex_init(&gpio->lock);
-@@ -141,15 +141,15 @@ static int pca9570_probe(struct i2c_client *client)
- 	return devm_gpiochip_add_data(&client->dev, &gpio->chip, gpio);
- }
- 
--static const struct pca9570_platform_data pca9570_gpio = {
-+static const struct pca9570_chip_data pca9570_gpio = {
- 	.ngpio = 4,
- };
- 
--static const struct pca9570_platform_data pca9571_gpio = {
-+static const struct pca9570_chip_data pca9571_gpio = {
- 	.ngpio = 8,
- };
- 
--static const struct pca9570_platform_data slg7xl45106_gpio = {
-+static const struct pca9570_chip_data slg7xl45106_gpio = {
- 	.ngpio = 8,
- 	.command = SLG7XL45106_GPO_REG,
- };
+ 		__ieee80211_subif_start_xmit(skb, sdata->dev, 0, ctrl_flags,
 -- 
 2.39.2
 
