@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62D786AF1A5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B65A76AEC0A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:51:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233197AbjCGSqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:46:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38820 "EHLO
+        id S232286AbjCGRvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:51:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233195AbjCGSpc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:32 -0500
+        with ESMTP id S232287AbjCGRvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:51:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665CD8A3AF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E15AAACB89
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 575376153C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57E9DC433EF;
-        Tue,  7 Mar 2023 18:29:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BF0061521
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A85BC4339B;
+        Tue,  7 Mar 2023 17:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213757;
-        bh=a0cFAltp+eLQqk0uTpKIVk/zAurYpeThSXjM+yNoyrk=;
+        s=korg; t=1678211156;
+        bh=b1iymnqADFw1YxCwGYeh6IlawHdac9qHjbbEVqNyOzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNPrPShJsukodrSiNravyjGZTA3MjZqrTHbU4U+KPom/JZEC2IGnRYJEwZvbI4Iil
-         +5ivQ6RfpOGohRw6A4erY32VtyF0EQ5d7AvvxdyMVDH3kTifba7Mm6hSHkGRkDS+FD
-         KCcCBz4yTWjVXBfXhKBpYW8YoWgll3qpbSN9LF0g=
+        b=MWazLjm7VFqgkz+Xt2m0oWh5WYLCFfdQnDoeFEq2fpU2F4obqF7yljNQ2L44X7fIs
+         skSBZATD3mr22a1eW1vKD7pjRb/VF4d45gwH0KXquWrotn95r+Vn9EEgs9wUaoa0QP
+         fbB5V5mjMAkJShE2GWv1DAzyQBTYgKyu0q7xICDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
-        Andreas Grosse <andig.mail@t-online.de>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 610/885] HID: uclogic: Add battery quirk
+        patches@lists.linux.dev, Volker Lendecke <vl@samba.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.2 0772/1001] cifs: Fix uninitialized memory reads for oparms.mode
 Date:   Tue,  7 Mar 2023 17:59:04 +0100
-Message-Id: <20230307170028.814838068@linuxfoundation.org>
+Message-Id: <20230307170055.261157890@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +53,789 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Volker Lendecke <vl@samba.org>
 
-[ Upstream commit f60c377f52de37f8705c5fc6d57737fdaf309ff9 ]
+commit de036dcaca65cf94bf7ff09c571c077f02bc92b4 upstream.
 
-Some UGEE v2 tablets have a wireless version with an internal battery
-and their firmware is able to report their battery level.
+Use a struct assignment with implicit member initialization
 
-However, there was not found a field on their descriptor indicating
-whether the tablet has battery or not, making it mandatory to classify
-such devices through the UCLOGIC_BATTERY_QUIRK quirk.
-
-Tested-by: Mia Kanashi <chad@redpilled.dev>
-Tested-by: Andreas Grosse <andig.mail@t-online.de>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Volker Lendecke <vl@samba.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-uclogic-params.c | 5 +++++
- drivers/hid/hid-uclogic-params.h | 1 +
- 2 files changed, 6 insertions(+)
+ fs/cifs/cached_dir.c |   13 +--
+ fs/cifs/cifsacl.c    |   34 ++++-----
+ fs/cifs/cifssmb.c    |   17 ++--
+ fs/cifs/dir.c        |   19 ++---
+ fs/cifs/file.c       |   35 +++++----
+ fs/cifs/inode.c      |   53 +++++++-------
+ fs/cifs/link.c       |   66 +++++++++--------
+ fs/cifs/smb1ops.c    |   72 ++++++++++---------
+ fs/cifs/smb2inode.c  |   17 ++--
+ fs/cifs/smb2ops.c    |  191 ++++++++++++++++++++++++++-------------------------
+ 10 files changed, 274 insertions(+), 243 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index e052538a62fb3..23624d5b07b5a 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -1222,6 +1222,11 @@ static int uclogic_params_ugee_v2_init_frame_mouse(struct uclogic_params *p)
-  */
- static bool uclogic_params_ugee_v2_has_battery(struct hid_device *hdev)
- {
-+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	if (drvdata->quirks & UCLOGIC_BATTERY_QUIRK)
-+		return true;
-+
- 	/* The XP-PEN Deco LW vendor, product and version are identical to the
- 	 * Deco L. The only difference reported by their firmware is the product
- 	 * name. Add a quirk to support battery reporting on the wireless
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index 10a05c7fd9398..b0e7f3807939b 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -20,6 +20,7 @@
- #include <linux/hid.h>
+--- a/fs/cifs/cached_dir.c
++++ b/fs/cifs/cached_dir.c
+@@ -181,12 +181,13 @@ int open_cached_dir(unsigned int xid, st
+ 	rqst[0].rq_iov = open_iov;
+ 	rqst[0].rq_nvec = SMB2_CREATE_IOV_SIZE;
  
- #define UCLOGIC_MOUSE_FRAME_QUIRK	BIT(0)
-+#define UCLOGIC_BATTERY_QUIRK		BIT(1)
+-	oparms.tcon = tcon;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_FILE);
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.fid = pfid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_FILE),
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.disposition = FILE_OPEN,
++		.fid = pfid,
++	};
  
- /* Types of pen in-range reporting */
- enum uclogic_params_pen_inrange {
--- 
-2.39.2
-
+ 	rc = SMB2_open_init(tcon, server,
+ 			    &rqst[0], &oplock, &oparms, utf16_path);
+--- a/fs/cifs/cifsacl.c
++++ b/fs/cifs/cifsacl.c
+@@ -1428,14 +1428,15 @@ static struct cifs_ntsd *get_cifs_acl_by
+ 	tcon = tlink_tcon(tlink);
+ 	xid = get_xid();
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = READ_CONTROL;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = READ_CONTROL,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.disposition = FILE_OPEN,
++		.path = path,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+ 	if (!rc) {
+@@ -1494,14 +1495,15 @@ int set_cifs_acl(struct cifs_ntsd *pnnts
+ 	else
+ 		access_flags = WRITE_DAC;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = access_flags;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = access_flags,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.disposition = FILE_OPEN,
++		.path = path,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+ 	if (rc) {
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -5372,14 +5372,15 @@ CIFSSMBSetPathInfoFB(const unsigned int
+ 	struct cifs_fid fid;
+ 	int rc;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_WRITE;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = fileName;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_WRITE,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.disposition = FILE_OPEN,
++		.path = fileName,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+ 	if (rc)
+--- a/fs/cifs/dir.c
++++ b/fs/cifs/dir.c
+@@ -304,15 +304,16 @@ static int cifs_do_create(struct inode *
+ 	if (!tcon->unix_ext && (mode & S_IWUGO) == 0)
+ 		create_options |= CREATE_OPTION_READONLY;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = desired_access;
+-	oparms.create_options = cifs_create_options(cifs_sb, create_options);
+-	oparms.disposition = disposition;
+-	oparms.path = full_path;
+-	oparms.fid = fid;
+-	oparms.reconnect = false;
+-	oparms.mode = mode;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = desired_access,
++		.create_options = cifs_create_options(cifs_sb, create_options),
++		.disposition = disposition,
++		.path = full_path,
++		.fid = fid,
++		.mode = mode,
++	};
+ 	rc = server->ops->open(xid, &oparms, oplock, buf);
+ 	if (rc) {
+ 		cifs_dbg(FYI, "cifs_create returned 0x%x\n", rc);
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -260,14 +260,15 @@ static int cifs_nt_open(const char *full
+ 	if (f_flags & O_DIRECT)
+ 		create_options |= CREATE_NO_BUFFER;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = desired_access;
+-	oparms.create_options = cifs_create_options(cifs_sb, create_options);
+-	oparms.disposition = disposition;
+-	oparms.path = full_path;
+-	oparms.fid = fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = desired_access,
++		.create_options = cifs_create_options(cifs_sb, create_options),
++		.disposition = disposition,
++		.path = full_path,
++		.fid = fid,
++	};
+ 
+ 	rc = server->ops->open(xid, &oparms, oplock, buf);
+ 	if (rc)
+@@ -848,14 +849,16 @@ cifs_reopen_file(struct cifsFileInfo *cf
+ 	if (server->ops->get_lease_key)
+ 		server->ops->get_lease_key(inode, &cfile->fid);
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = desired_access;
+-	oparms.create_options = cifs_create_options(cifs_sb, create_options);
+-	oparms.disposition = disposition;
+-	oparms.path = full_path;
+-	oparms.fid = &cfile->fid;
+-	oparms.reconnect = true;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = desired_access,
++		.create_options = cifs_create_options(cifs_sb, create_options),
++		.disposition = disposition,
++		.path = full_path,
++		.fid = &cfile->fid,
++		.reconnect = true,
++	};
+ 
+ 	/*
+ 	 * Can not refresh inode by passing in file_info buf to be returned by
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -508,14 +508,15 @@ cifs_sfu_type(struct cifs_fattr *fattr,
+ 		return PTR_ERR(tlink);
+ 	tcon = tlink_tcon(tlink);
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_READ;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_READ,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_OPEN,
++		.path = path,
++		.fid = &fid,
++	};
+ 
+ 	if (tcon->ses->server->oplocks)
+ 		oplock = REQ_OPLOCK;
+@@ -1518,14 +1519,15 @@ cifs_rename_pending_delete(const char *f
+ 		goto out;
+ 	}
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = DELETE | FILE_WRITE_ATTRIBUTES;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = full_path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = DELETE | FILE_WRITE_ATTRIBUTES,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_OPEN,
++		.path = full_path,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+ 	if (rc != 0)
+@@ -2112,15 +2114,16 @@ cifs_do_rename(const unsigned int xid, s
+ 	if (to_dentry->d_parent != from_dentry->d_parent)
+ 		goto do_rename_exit;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	/* open the file to be renamed -- we need DELETE perms */
+-	oparms.desired_access = DELETE;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = from_path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		/* open the file to be renamed -- we need DELETE perms */
++		.desired_access = DELETE,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_OPEN,
++		.path = from_path,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+ 	if (rc == 0) {
+--- a/fs/cifs/link.c
++++ b/fs/cifs/link.c
+@@ -271,14 +271,15 @@ cifs_query_mf_symlink(unsigned int xid,
+ 	int buf_type = CIFS_NO_BUFFER;
+ 	FILE_ALL_INFO file_info;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_READ;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_READ,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_OPEN,
++		.path = path,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, &file_info);
+ 	if (rc)
+@@ -313,14 +314,15 @@ cifs_create_mf_symlink(unsigned int xid,
+ 	struct cifs_open_parms oparms;
+ 	struct cifs_io_parms io_parms = {0};
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_WRITE;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_CREATE;
+-	oparms.path = path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_WRITE,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_CREATE,
++		.path = path,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+ 	if (rc)
+@@ -355,13 +357,14 @@ smb3_query_mf_symlink(unsigned int xid,
+ 	__u8 oplock = SMB2_OPLOCK_LEVEL_NONE;
+ 	struct smb2_file_all_info *pfile_info = NULL;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_READ;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_READ,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_OPEN,
++		.fid = &fid,
++	};
+ 
+ 	utf16_path = cifs_convert_path_to_utf16(path, cifs_sb);
+ 	if (utf16_path == NULL)
+@@ -421,14 +424,15 @@ smb3_create_mf_symlink(unsigned int xid,
+ 	if (!utf16_path)
+ 		return -ENOMEM;
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_WRITE;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_CREATE;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
+-	oparms.mode = 0644;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_WRITE,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_CREATE,
++		.fid = &fid,
++		.mode = 0644,
++	};
+ 
+ 	rc = SMB2_open(xid, &oparms, utf16_path, &oplock, NULL, NULL,
+ 		       NULL, NULL);
+--- a/fs/cifs/smb1ops.c
++++ b/fs/cifs/smb1ops.c
+@@ -576,14 +576,15 @@ static int cifs_query_path_info(const un
+ 		if (!(le32_to_cpu(fi.Attributes) & ATTR_REPARSE))
+ 			return 0;
+ 
+-		oparms.tcon = tcon;
+-		oparms.cifs_sb = cifs_sb;
+-		oparms.desired_access = FILE_READ_ATTRIBUTES;
+-		oparms.create_options = cifs_create_options(cifs_sb, 0);
+-		oparms.disposition = FILE_OPEN;
+-		oparms.path = full_path;
+-		oparms.fid = &fid;
+-		oparms.reconnect = false;
++		oparms = (struct cifs_open_parms) {
++			.tcon = tcon,
++			.cifs_sb = cifs_sb,
++			.desired_access = FILE_READ_ATTRIBUTES,
++			.create_options = cifs_create_options(cifs_sb, 0),
++			.disposition = FILE_OPEN,
++			.path = full_path,
++			.fid = &fid,
++		};
+ 
+ 		/* Need to check if this is a symbolic link or not */
+ 		tmprc = CIFS_open(xid, &oparms, &oplock, NULL);
+@@ -823,14 +824,15 @@ smb_set_file_info(struct inode *inode, c
+ 		goto out;
+ 	}
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = SYNCHRONIZE | FILE_WRITE_ATTRIBUTES;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = full_path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = SYNCHRONIZE | FILE_WRITE_ATTRIBUTES,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR),
++		.disposition = FILE_OPEN,
++		.path = full_path,
++		.fid = &fid,
++	};
+ 
+ 	cifs_dbg(FYI, "calling SetFileInfo since SetPathInfo for times not supported by this server\n");
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+@@ -998,15 +1000,16 @@ cifs_query_symlink(const unsigned int xi
+ 		goto out;
+ 	}
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.create_options = cifs_create_options(cifs_sb,
+-						    OPEN_REPARSE_POINT);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = full_path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.create_options = cifs_create_options(cifs_sb,
++						      OPEN_REPARSE_POINT),
++		.disposition = FILE_OPEN,
++		.path = full_path,
++		.fid = &fid,
++	};
+ 
+ 	rc = CIFS_open(xid, &oparms, &oplock, NULL);
+ 	if (rc)
+@@ -1115,15 +1118,16 @@ cifs_make_node(unsigned int xid, struct
+ 
+ 	cifs_dbg(FYI, "sfu compat create special file\n");
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_WRITE;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR |
+-						    CREATE_OPTION_SPECIAL);
+-	oparms.disposition = FILE_CREATE;
+-	oparms.path = full_path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_WRITE,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR |
++						      CREATE_OPTION_SPECIAL),
++		.disposition = FILE_CREATE,
++		.path = full_path,
++		.fid = &fid,
++	};
+ 
+ 	if (tcon->ses->server->oplocks)
+ 		oplock = REQ_OPLOCK;
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -105,14 +105,15 @@ static int smb2_compound_op(const unsign
+ 		goto finished;
+ 	}
+ 
+-	vars->oparms.tcon = tcon;
+-	vars->oparms.desired_access = desired_access;
+-	vars->oparms.disposition = create_disposition;
+-	vars->oparms.create_options = cifs_create_options(cifs_sb, create_options);
+-	vars->oparms.fid = &fid;
+-	vars->oparms.reconnect = false;
+-	vars->oparms.mode = mode;
+-	vars->oparms.cifs_sb = cifs_sb;
++	vars->oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = desired_access,
++		.disposition = create_disposition,
++		.create_options = cifs_create_options(cifs_sb, create_options),
++		.fid = &fid,
++		.mode = mode,
++		.cifs_sb = cifs_sb,
++	};
+ 
+ 	rqst[num_rqst].rq_iov = &vars->open_iov[0];
+ 	rqst[num_rqst].rq_nvec = SMB2_CREATE_IOV_SIZE;
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -772,12 +772,13 @@ smb2_qfs_tcon(const unsigned int xid, st
+ 	struct cifs_open_parms oparms;
+ 	struct cifs_fid fid;
+ 
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open(xid, &oparms, &srch_path, &oplock, NULL, NULL,
+ 		       NULL, NULL);
+@@ -818,12 +819,13 @@ smb2_is_path_accessible(const unsigned i
+ 	if (!utf16_path)
+ 		return -ENOMEM;
+ 
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open(xid, &oparms, utf16_path, &oplock, NULL, NULL,
+ 		       &err_iov, &err_buftype);
+@@ -1101,13 +1103,13 @@ smb2_set_ea(const unsigned int xid, stru
+ 	rqst[0].rq_iov = open_iov;
+ 	rqst[0].rq_nvec = SMB2_CREATE_IOV_SIZE;
+ 
+-	memset(&oparms, 0, sizeof(oparms));
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_WRITE_EA;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_WRITE_EA,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open_init(tcon, server,
+ 			    &rqst[0], &oplock, &oparms, utf16_path);
+@@ -1457,12 +1459,12 @@ smb2_ioctl_query_info(const unsigned int
+ 	rqst[0].rq_iov = &vars->open_iov[0];
+ 	rqst[0].rq_nvec = SMB2_CREATE_IOV_SIZE;
+ 
+-	memset(&oparms, 0, sizeof(oparms));
+-	oparms.tcon = tcon;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, create_options);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, create_options),
++		.fid = &fid,
++	};
+ 
+ 	if (qi.flags & PASSTHRU_FSCTL) {
+ 		switch (qi.info_type & FSCTL_DEVICE_ACCESS_MASK) {
+@@ -2092,12 +2094,13 @@ smb3_notify(const unsigned int xid, stru
+ 	}
+ 
+ 	tcon = cifs_sb_master_tcon(cifs_sb);
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open(xid, &oparms, utf16_path, &oplock, NULL, NULL, NULL,
+ 		       NULL);
+@@ -2163,12 +2166,13 @@ smb2_query_dir_first(const unsigned int
+ 	rqst[0].rq_iov = open_iov;
+ 	rqst[0].rq_nvec = SMB2_CREATE_IOV_SIZE;
+ 
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES | FILE_READ_DATA,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = fid,
++	};
+ 
+ 	rc = SMB2_open_init(tcon, server,
+ 			    &rqst[0], &oplock, &oparms, utf16_path);
+@@ -2494,12 +2498,13 @@ smb2_query_info_compound(const unsigned
+ 	rqst[0].rq_iov = open_iov;
+ 	rqst[0].rq_nvec = SMB2_CREATE_IOV_SIZE;
+ 
+-	oparms.tcon = tcon;
+-	oparms.desired_access = desired_access;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = desired_access,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open_init(tcon, server,
+ 			    &rqst[0], &oplock, &oparms, utf16_path);
+@@ -2627,12 +2632,13 @@ smb311_queryfs(const unsigned int xid, s
+ 	if (!tcon->posix_extensions)
+ 		return smb2_queryfs(xid, tcon, cifs_sb, buf);
+ 
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open(xid, &oparms, &srch_path, &oplock, NULL, NULL,
+ 		       NULL, NULL);
+@@ -2920,13 +2926,13 @@ smb2_query_symlink(const unsigned int xi
+ 	rqst[0].rq_iov = open_iov;
+ 	rqst[0].rq_nvec = SMB2_CREATE_IOV_SIZE;
+ 
+-	memset(&oparms, 0, sizeof(oparms));
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, create_options);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, create_options),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open_init(tcon, server,
+ 			    &rqst[0], &oplock, &oparms, utf16_path);
+@@ -3060,13 +3066,13 @@ smb2_query_reparse_tag(const unsigned in
+ 	rqst[0].rq_iov = open_iov;
+ 	rqst[0].rq_nvec = SMB2_CREATE_IOV_SIZE;
+ 
+-	memset(&oparms, 0, sizeof(oparms));
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, OPEN_REPARSE_POINT);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, OPEN_REPARSE_POINT),
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open_init(tcon, server,
+ 			    &rqst[0], &oplock, &oparms, utf16_path);
+@@ -3200,17 +3206,20 @@ get_smb2_acl_by_path(struct cifs_sb_info
+ 		return ERR_PTR(rc);
+ 	}
+ 
+-	oparms.tcon = tcon;
+-	oparms.desired_access = READ_CONTROL;
+-	oparms.disposition = FILE_OPEN;
+-	/*
+-	 * When querying an ACL, even if the file is a symlink we want to open
+-	 * the source not the target, and so the protocol requires that the
+-	 * client specify this flag when opening a reparse point
+-	 */
+-	oparms.create_options = cifs_create_options(cifs_sb, 0) | OPEN_REPARSE_POINT;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = READ_CONTROL,
++		.disposition = FILE_OPEN,
++		/*
++		 * When querying an ACL, even if the file is a symlink
++		 * we want to open the source not the target, and so
++		 * the protocol requires that the client specify this
++		 * flag when opening a reparse point
++		 */
++		.create_options = cifs_create_options(cifs_sb, 0) |
++				  OPEN_REPARSE_POINT,
++		.fid = &fid,
++	};
+ 
+ 	if (info & SACL_SECINFO)
+ 		oparms.desired_access |= SYSTEM_SECURITY;
+@@ -3269,13 +3278,14 @@ set_smb2_acl(struct cifs_ntsd *pnntsd, _
+ 		return rc;
+ 	}
+ 
+-	oparms.tcon = tcon;
+-	oparms.desired_access = access_flags;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.disposition = FILE_OPEN;
+-	oparms.path = path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = access_flags,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.disposition = FILE_OPEN,
++		.path = path,
++		.fid = &fid,
++	};
+ 
+ 	rc = SMB2_open(xid, &oparms, utf16_path, &oplock, NULL, NULL,
+ 		       NULL, NULL);
+@@ -5138,15 +5148,16 @@ smb2_make_node(unsigned int xid, struct
+ 
+ 	cifs_dbg(FYI, "sfu compat create special file\n");
+ 
+-	oparms.tcon = tcon;
+-	oparms.cifs_sb = cifs_sb;
+-	oparms.desired_access = GENERIC_WRITE;
+-	oparms.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR |
+-						    CREATE_OPTION_SPECIAL);
+-	oparms.disposition = FILE_CREATE;
+-	oparms.path = full_path;
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.cifs_sb = cifs_sb,
++		.desired_access = GENERIC_WRITE,
++		.create_options = cifs_create_options(cifs_sb, CREATE_NOT_DIR |
++						      CREATE_OPTION_SPECIAL),
++		.disposition = FILE_CREATE,
++		.path = full_path,
++		.fid = &fid,
++	};
+ 
+ 	if (tcon->ses->server->oplocks)
+ 		oplock = REQ_OPLOCK;
 
 
