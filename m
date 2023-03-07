@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 886236AEED2
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3568C6AEA76
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232626AbjCGSQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:16:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57900 "EHLO
+        id S231672AbjCGReM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:34:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232558AbjCGSQa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:16:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5025AA56BC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:11:24 -0800 (PST)
+        with ESMTP id S231731AbjCGRdx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:33:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955359CFD6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:29:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 317EB61523
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47451C433EF;
-        Tue,  7 Mar 2023 18:11:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 349ED61517
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:29:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43707C433EF;
+        Tue,  7 Mar 2023 17:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212683;
-        bh=2F43DLcAKIE3oAeFmtMXiwi+DBXdP8RR9TeKb2Jol/c=;
+        s=korg; t=1678210164;
+        bh=NhGsBGoqTdT0I8zUJPQxubvxLRtXHbikPeSRWymwZAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vItQ3SsqnfUOG+Gaz+c7mT+9DpKUQMg/6R6Mm0EFwG8dyFEmRKGASzOtrMFc5oo4g
-         rISiwuWIUsU8TcJC8SEi+o0QQ5VpTbF/FOQbG8704v0Ig2xF7aikVTfxB1ZCH/3pG4
-         FpH2RVykB73eafK5kkzyy3SYZsVf8QTo6pmVAYDU=
+        b=z/J7RrmuK33F0e2yjqvfwBvd1yHGjsuMcWYTbeSNTLgKjRJFRWzR1YNzNC+r2DivQ
+         4PMyDONoLZ9SuSYC/qATuuCwyNPdrviZqBqE/zN+EdtCcECsifQAmLJWg6ofjUmgJ2
+         PgpUg4vzSKmUWwVVxMR7Jn6XWt/ZidNtrs10ZxtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        patches@lists.linux.dev,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 263/885] drm: Fix potential null-ptr-deref due to drmm_mode_config_init()
-Date:   Tue,  7 Mar 2023 17:53:17 +0100
-Message-Id: <20230307170013.445661075@linuxfoundation.org>
+Subject: [PATCH 6.2 0426/1001] ASoC: qcom: q6apm-dai: Add SNDRV_PCM_INFO_BATCH flag
+Date:   Tue,  7 Mar 2023 17:53:18 +0100
+Message-Id: <20230307170039.845280458@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,78 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 834c23e4f798dcdc8af251b3c428ceef94741991 ]
+[ Upstream commit aa759f3f9f4394a3af65ad1772fca6cb9dd9e4cc ]
 
-drmm_mode_config_init() will call drm_mode_create_standard_properties()
-and won't check the ret value. When drm_mode_create_standard_properties()
-failed due to alloc, property will be a NULL pointer and may causes the
-null-ptr-deref. Fix the null-ptr-deref by adding the ret value check.
+At the moment, playing audio with PulseAudio with the qdsp6 driver
+results in distorted sound. It seems like its timer-based scheduling
+does not work properly with qdsp6 since setting tsched=0 in
+the PulseAudio configuration avoids the issue.
 
-Found null-ptr-deref while testing insert module bochs:
-general protection fault, probably for non-canonical address
-    0xdffffc000000000c: 0000 [#1] SMP KASAN PTI
-KASAN: null-ptr-deref in range [0x0000000000000060-0x0000000000000067]
-CPU: 3 PID: 249 Comm: modprobe Not tainted 6.1.0-rc1+ #364
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-RIP: 0010:drm_object_attach_property+0x73/0x3c0 [drm]
-Call Trace:
- <TASK>
- __drm_connector_init+0xb6c/0x1100 [drm]
- bochs_pci_probe.cold.11+0x4cb/0x7fe [bochs]
- pci_device_probe+0x17d/0x340
- really_probe+0x1db/0x5d0
- __driver_probe_device+0x1e7/0x250
- driver_probe_device+0x4a/0x120
- __driver_attach+0xcd/0x2c0
- bus_for_each_dev+0x11a/0x1b0
- bus_add_driver+0x3d7/0x500
- driver_register+0x18e/0x320
- do_one_initcall+0xc4/0x3e0
- do_init_module+0x1b4/0x630
- load_module+0x5dca/0x7230
- __do_sys_finit_module+0x100/0x170
- do_syscall_64+0x3f/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ff65af9f839
+Apparently this happens when the pointer() callback is not accurate
+enough. There is a SNDRV_PCM_INFO_BATCH flag that can be used to stop
+PulseAudio from using timer-based scheduling by default.
 
-Fixes: 6b4959f43a04 ("drm/atomic: atomic plane properties")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221118021651.2460-1-shangxiaojing@huawei.com
+According to https://www.alsa-project.org/pipermail/alsa-devel/2014-March/073816.html:
+
+The flag is being used in the sense explained in the previous audio
+meeting -- the data transfer granularity isn't fine enough but aligned
+to the period size (or less).
+
+q6apm-dai reports the position as multiple of
+
+prtd->pcm_count = snd_pcm_lib_period_bytes(substream)
+
+so it indeed just a multiple of the period size.
+
+Therefore adding the flag here seems appropriate and makes audio
+work out of the box.
+
+Comment log inspired by Stephan Gerhold sent for q6asm-dai.c few years back.
+
+Fixes: 9b4fe0f1cd79 ("ASoC: qdsp6: audioreach: add q6apm-dai support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230209122806.18923-4-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_mode_config.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ sound/soc/qcom/qdsp6/q6apm-dai.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mode_config.c b/drivers/gpu/drm/drm_mode_config.c
-index 688c8afe0bf17..8525ef8515406 100644
---- a/drivers/gpu/drm/drm_mode_config.c
-+++ b/drivers/gpu/drm/drm_mode_config.c
-@@ -399,6 +399,8 @@ static void drm_mode_config_init_release(struct drm_device *dev, void *ptr)
-  */
- int drmm_mode_config_init(struct drm_device *dev)
- {
-+	int ret;
-+
- 	mutex_init(&dev->mode_config.mutex);
- 	drm_modeset_lock_init(&dev->mode_config.connection_mutex);
- 	mutex_init(&dev->mode_config.idr_mutex);
-@@ -420,7 +422,11 @@ int drmm_mode_config_init(struct drm_device *dev)
- 	init_llist_head(&dev->mode_config.connector_free_list);
- 	INIT_WORK(&dev->mode_config.connector_free_work, drm_connector_free_work_fn);
- 
--	drm_mode_create_standard_properties(dev);
-+	ret = drm_mode_create_standard_properties(dev);
-+	if (ret) {
-+		drm_mode_config_cleanup(dev);
-+		return ret;
-+	}
- 
- 	/* Just to be sure */
- 	dev->mode_config.num_fb = 0;
+diff --git a/sound/soc/qcom/qdsp6/q6apm-dai.c b/sound/soc/qcom/qdsp6/q6apm-dai.c
+index bd35067a40521..7f02f5b2c33fd 100644
+--- a/sound/soc/qcom/qdsp6/q6apm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6apm-dai.c
+@@ -64,7 +64,8 @@ struct q6apm_dai_data {
+ static struct snd_pcm_hardware q6apm_dai_hardware_capture = {
+ 	.info =                 (SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_BLOCK_TRANSFER |
+ 				 SNDRV_PCM_INFO_MMAP_VALID | SNDRV_PCM_INFO_INTERLEAVED |
+-				 SNDRV_PCM_INFO_PAUSE | SNDRV_PCM_INFO_RESUME),
++				 SNDRV_PCM_INFO_PAUSE | SNDRV_PCM_INFO_RESUME |
++				 SNDRV_PCM_INFO_BATCH),
+ 	.formats =              (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE),
+ 	.rates =                SNDRV_PCM_RATE_8000_48000,
+ 	.rate_min =             8000,
+@@ -82,7 +83,8 @@ static struct snd_pcm_hardware q6apm_dai_hardware_capture = {
+ static struct snd_pcm_hardware q6apm_dai_hardware_playback = {
+ 	.info =                 (SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_BLOCK_TRANSFER |
+ 				 SNDRV_PCM_INFO_MMAP_VALID | SNDRV_PCM_INFO_INTERLEAVED |
+-				 SNDRV_PCM_INFO_PAUSE | SNDRV_PCM_INFO_RESUME),
++				 SNDRV_PCM_INFO_PAUSE | SNDRV_PCM_INFO_RESUME |
++				 SNDRV_PCM_INFO_BATCH),
+ 	.formats =              (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE),
+ 	.rates =                SNDRV_PCM_RATE_8000_192000,
+ 	.rate_min =             8000,
 -- 
 2.39.2
 
