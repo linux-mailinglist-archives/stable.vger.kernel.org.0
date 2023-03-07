@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C82D26AEBAE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0A156AF0C9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:36:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232199AbjCGRrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:47:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36524 "EHLO
+        id S230028AbjCGSgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:36:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232139AbjCGRrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:23 -0500
+        with ESMTP id S232676AbjCGSe7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:34:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56F5899BD5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB58B8632
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB29B61501
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C97E0C433EF;
-        Tue,  7 Mar 2023 17:41:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5851861530
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E348C433D2;
+        Tue,  7 Mar 2023 18:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210915;
-        bh=hN1zrcX8L/61v/ZkENGtatESrfr608Y8s+eR9V5xJug=;
+        s=korg; t=1678213548;
+        bh=8Y8W2lzCAomsar/9v8o1UjVn+d0/1WS8d/iIJJs+EU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t96BKODxnXDKdlm/YD/HydYVXu6QB8pUn3yWY6R5ErlARAiUHD+pZMTPx5Ar2zZJe
-         TyQYATlWiKefdWcY1Iy5YkShy4zp02I+iCiahqcmJ1wSpq1nE1710dkuq5+NKEUqvq
-         g5B3PvhmDYGt84Mayacfb6l7HzLaE/P/7u4CHSgI=
+        b=C5asGf4uYHRPP3lBUhUNEVYW0rFEO7AQRJgXxY8i3Q0RkI/IZ5KwSpR1cBGrpcNzk
+         IkXwtg4CU91rI6R6SIK+2OavdlSUIyZmqRt76+czvl5Fa5zIu061oJAIXXnn4teKxT
+         h5xky9NVCfwkj/gJ6JeBytttxypmE7DlKvpwVSlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alok Tiwari <alok.a.tiwari@oracle.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0664/1001] netfilter: nf_tables: NULL pointer dereference in nf_tables_updobj()
+Subject: [PATCH 6.1 502/885] media: ov2740: Fix memleak in ov2740_init_controls()
 Date:   Tue,  7 Mar 2023 17:57:16 +0100
-Message-Id: <20230307170050.423011835@linuxfoundation.org>
+Message-Id: <20230307170024.267778001@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alok Tiwari <alok.a.tiwari@oracle.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit dac7f50a45216d652887fb92d6cd3b7ca7f006ea ]
+[ Upstream commit 2d899592ed7829d0d5140853bac4d58742a6b8af ]
 
-static analyzer detect null pointer dereference case for 'type'
-function __nft_obj_type_get() can return NULL value which require to handle
-if type is NULL pointer return -ENOENT.
+There is a kmemleak when testing the media/i2c/ov2740.c with bpf mock
+device:
 
-This is a theoretical issue, since an existing object has a type, but
-better add this failsafe check.
+unreferenced object 0xffff8881090e19e0 (size 16):
+  comm "51-i2c-ov2740", pid 278, jiffies 4294781584 (age 23.613s)
+  hex dump (first 16 bytes):
+    00 f3 7c 0b 81 88 ff ff 80 75 6a 09 81 88 ff ff  ..|......uj.....
+  backtrace:
+    [<000000004e9fad8f>] __kmalloc_node+0x44/0x1b0
+    [<0000000039c802f4>] kvmalloc_node+0x34/0x180
+    [<000000009b8b5c63>] v4l2_ctrl_handler_init_class+0x11d/0x180
+[videodev]
+    [<0000000038644056>] ov2740_probe+0x37d/0x84f [ov2740]
+    [<0000000092489f59>] i2c_device_probe+0x28d/0x680
+    [<000000001038babe>] really_probe+0x17c/0x3f0
+    [<0000000098c7af1c>] __driver_probe_device+0xe3/0x170
+    [<00000000e1b3dc24>] device_driver_attach+0x34/0x80
+    [<000000005a04a34d>] bind_store+0x10b/0x1a0
+    [<00000000ce25d4f2>] drv_attr_store+0x49/0x70
+    [<000000007d9f4e9a>] sysfs_kf_write+0x8c/0xb0
+    [<00000000be6cff0f>] kernfs_fop_write_iter+0x216/0x2e0
+    [<0000000031ddb40a>] vfs_write+0x658/0x810
+    [<0000000041beecdd>] ksys_write+0xd6/0x1b0
+    [<0000000023755840>] do_syscall_64+0x38/0x90
+    [<00000000b2cc2da2>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+ov2740_init_controls() won't clean all the allocated resources in fail
+path, which may causes the memleaks. Add v4l2_ctrl_handler_free() to
+prevent memleak.
+
+Fixes: 866edc895171 ("media: i2c: Add ov2740 image sensor driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/i2c/ov2740.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 8c09e4d12ac1e..fc8256b00b320 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -6999,6 +6999,9 @@ static int nf_tables_newobj(struct sk_buff *skb, const struct nfnl_info *info,
- 			return -EOPNOTSUPP;
+diff --git a/drivers/media/i2c/ov2740.c b/drivers/media/i2c/ov2740.c
+index 5d74ad4792146..628ab86698c08 100644
+--- a/drivers/media/i2c/ov2740.c
++++ b/drivers/media/i2c/ov2740.c
+@@ -630,8 +630,10 @@ static int ov2740_init_controls(struct ov2740 *ov2740)
+ 				     V4L2_CID_TEST_PATTERN,
+ 				     ARRAY_SIZE(ov2740_test_pattern_menu) - 1,
+ 				     0, 0, ov2740_test_pattern_menu);
+-	if (ctrl_hdlr->error)
++	if (ctrl_hdlr->error) {
++		v4l2_ctrl_handler_free(ctrl_hdlr);
+ 		return ctrl_hdlr->error;
++	}
  
- 		type = __nft_obj_type_get(objtype);
-+		if (WARN_ON_ONCE(!type))
-+			return -ENOENT;
-+
- 		nft_ctx_init(&ctx, net, skb, info->nlh, family, table, NULL, nla);
+ 	ov2740->sd.ctrl_handler = ctrl_hdlr;
  
- 		return nf_tables_updobj(&ctx, type, nla[NFTA_OBJ_DATA], obj);
 -- 
 2.39.2
 
