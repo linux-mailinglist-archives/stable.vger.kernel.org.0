@@ -2,71 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0466AEA87
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9E26AEF14
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:20:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231438AbjCGRel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:34:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33294 "EHLO
+        id S232604AbjCGSUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:20:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231717AbjCGRe0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:26 -0500
+        with ESMTP id S232678AbjCGSTs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:19:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB227A18A2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:30:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94783A92DC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:14:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A322CB81995
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B9C4C433EF;
-        Tue,  7 Mar 2023 17:30:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DB8FB8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:14:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87475C433EF;
+        Tue,  7 Mar 2023 18:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210211;
-        bh=KRX+EIj7U/159DChIw1KaO1QnLiFMDOVdoHwlHI0Jxs=;
+        s=korg; t=1678212842;
+        bh=s3KaKlDDj7G6H6GRqUzGTVuX9Sw4ePwY2BIIvr3TU74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5/DGcE5hMJTQcytYFlBoOaLRGbtkUvLvSbyHb4nCVvuIrsA3Zd0kmTHR50lhfpNQ
-         1lKGYN8NNRxwF3VL3Ygmu2xqaNLpahbuCXgZosmVJ41kXGbTFor3QYnfmbvrWC5zV2
-         gTJqDPzPZlYKFFH+tSqz5h6VlIInaxqWEgD/vqIo=
+        b=ltSy4acvIcRowh6q1FvGlA7xvsOwPY/T6p5oU85dgzodJ+z2mT0nst3FAL6kXNYll
+         pPUcLE961FbYV0XWe7Flz696IrcmwkgQwzSxzfhgtnm4+5+/aNfBL4L0NFnyOM7EaE
+         GLxLWIm4IUr044l33LFSqbmWoGWhHeFVUKXMenYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kajol Jain <kjain@linux.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Caleb Biggers <caleb.biggers@intel.com>,
-        Florian Fischer <florian.fischer@muhq.space>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Clark <james.clark@arm.com>,
-        Jing Zhang <renyu.zj@linux.alibaba.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Garry <john.g.garry@oracle.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Kang Minchul <tegongkang@gmail.com>,
-        Kim Phillips <kim.phillips@amd.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mike Leach <mike.leach@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Perry Taylor <perry.taylor@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@amd.com>,
-        Rob Herring <robh@kernel.org>,
-        Sandipan Das <sandipan.das@amd.com>,
-        Stephane Eranian <eranian@google.com>,
-        Will Deacon <will@kernel.org>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0469/1001] perf jevents: Correct bad character encoding
+Subject: [PATCH 6.1 307/885] drm/msm/dsi: Allow 2 CTRLs on v2.5.0
 Date:   Tue,  7 Mar 2023 17:54:01 +0100
-Message-Id: <20230307170041.744690788@linuxfoundation.org>
+Message-Id: <20230307170015.451372852@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -81,65 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit d2e3dc829e389d686194d06f0a64adda4158faae ]
+[ Upstream commit 1ae654ded7c5a19dc13f57a4fe4434fef879b6f9 ]
 
-A character encoding issue added a "3D" character that breaks the
-metrics test.
+v2.5.0 support was originally added for SC7280, but this hw is also
+present on SM8350, which has one more DSI host. Bump up the dsi count
+and fill in the register of the secondary host to allow it to probe.
 
-Fixes: 40769665b63d8c84 ("perf jevents: Parse metrics during conversion")
-Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Caleb Biggers <caleb.biggers@intel.com>
-Cc: Florian Fischer <florian.fischer@muhq.space>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: James Clark <james.clark@arm.com>
-Cc: Jing Zhang <renyu.zj@linux.alibaba.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Garry <john.g.garry@oracle.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Kang Minchul <tegongkang@gmail.com>
-Cc: Kim Phillips <kim.phillips@amd.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Perry Taylor <perry.taylor@intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@amd.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Sandipan Das <sandipan.das@amd.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Link: https://lore.kernel.org/r/20230126233645.200509-14-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+This should not have any adverse effects on SC7280, as the secondary
+CTRL will only be touched if it's defined, anyway.
+
+Fixes: 65c391b31994 ("drm/msm/dsi: Add DSI support for SC7280")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/519513/
+Link: https://lore.kernel.org/r/20230120210101.2146852-1-konrad.dybcio@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/metric_test.py | 4 ++--
+ drivers/gpu/drm/msm/dsi/dsi_cfg.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/pmu-events/metric_test.py b/tools/perf/pmu-events/metric_test.py
-index 15315d0f716ca..6980f452df0ad 100644
---- a/tools/perf/pmu-events/metric_test.py
-+++ b/tools/perf/pmu-events/metric_test.py
-@@ -87,8 +87,8 @@ class TestMetricExpressions(unittest.TestCase):
-     after = r'min((a + b if c > 1 else c + d), e + f)'
-     self.assertEqual(ParsePerfJson(before).ToPerfJson(), after)
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
+index 7e97c239ed489..e0bd452a9f1e6 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
+@@ -209,8 +209,8 @@ static const struct msm_dsi_config sc7280_dsi_cfg = {
+ 	.num_regulators = ARRAY_SIZE(sc7280_dsi_regulators),
+ 	.bus_clk_names = dsi_sc7280_bus_clk_names,
+ 	.num_bus_clks = ARRAY_SIZE(dsi_sc7280_bus_clk_names),
+-	.io_start = { 0xae94000 },
+-	.num_dsi = 1,
++	.io_start = { 0xae94000, 0xae96000 },
++	.num_dsi = 2,
+ };
  
--    before =3D r'a if b else c if d else e'
--    after =3D r'(a if b else (c if d else e))'
-+    before = r'a if b else c if d else e'
-+    after = r'(a if b else (c if d else e))'
-     self.assertEqual(ParsePerfJson(before).ToPerfJson(), after)
- 
-   def test_ToPython(self):
+ static const char * const dsi_qcm2290_bus_clk_names[] = {
 -- 
 2.39.2
 
