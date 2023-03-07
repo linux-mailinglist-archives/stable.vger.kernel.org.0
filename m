@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E37C6AF3C7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:09:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBAA76AF3DF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233725AbjCGTJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:09:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52332 "EHLO
+        id S233707AbjCGTKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:10:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233651AbjCGTJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:09:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C80799BE2E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:54:01 -0800 (PST)
+        with ESMTP id S233711AbjCGTKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:10:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5860AF28D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:55:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61E93B819D5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69D5C433EF;
-        Tue,  7 Mar 2023 18:53:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF4066150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:54:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD36C433D2;
+        Tue,  7 Mar 2023 18:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215240;
-        bh=tkkE77GTKS4adtk1Ps2udx++24k/+2QpENqtxJq/Lg8=;
+        s=korg; t=1678215274;
+        bh=In982eKzMfEwU31y4cLmnSk2EsWJfMJSLyCrumuLseI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wx4zhdehxU07HRw6d8P6IZ/0BJyFAMv9wzReO85DA6Sb4mgYUug7NgVhwFnOW6y1h
-         Er2rn2otKCPabyPv/Me8j7roM30MQftMhlwtLDJA6wYqPhKtop5BdLmn+hF7zjKylx
-         1+nnHdon137iLpohKY58BueMIOVRA3r/tDd/g1Tk=
+        b=UjzD/mq76bqEmZAjIfoxIsCz/5/j54lSxuyoSjNFFwhH2HMve5ziJI7gOzdLt/Qpi
+         8su7rrih8NfBnLzQO0n+vHPhmekof4xkZzB1Dgm5KwwE6PC9Oo2daCAIWevJaQvO1h
+         Y3o3sp4s3koMaElFe9nTipmGGTfVvNEUEFitDcXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 189/567] drm/msm/adreno: Fix null ptr access in adreno_gpu_cleanup()
-Date:   Tue,  7 Mar 2023 17:58:45 +0100
-Message-Id: <20230307165914.145186458@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Alexey V. Vissarionov" <gremlin@altlinux.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 190/567] ALSA: hda/ca0132: minor fix for allocation size
+Date:   Tue,  7 Mar 2023 17:58:46 +0100
+Message-Id: <20230307165914.186073780@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,84 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <quic_akhilpo@quicinc.com>
+From: Alexey V. Vissarionov <gremlin@altlinux.org>
 
-[ Upstream commit dbeedbcb268d055d8895aceca427f897e12c2b50 ]
+[ Upstream commit 3ee0fe7fa39b14d1cea455b7041f2df933bd97d2 ]
 
-Fix the below kernel panic due to null pointer access:
-[   18.504431] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000048
-[   18.513464] Mem abort info:
-[   18.516346]   ESR = 0x0000000096000005
-[   18.520204]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   18.525706]   SET = 0, FnV = 0
-[   18.528878]   EA = 0, S1PTW = 0
-[   18.532117]   FSC = 0x05: level 1 translation fault
-[   18.537138] Data abort info:
-[   18.540110]   ISV = 0, ISS = 0x00000005
-[   18.544060]   CM = 0, WnR = 0
-[   18.547109] user pgtable: 4k pages, 39-bit VAs, pgdp=0000000112826000
-[   18.553738] [0000000000000048] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000
-[   18.562690] Internal error: Oops: 0000000096000005 [#1] PREEMPT SMP
-**Snip**
-[   18.696758] Call trace:
-[   18.699278]  adreno_gpu_cleanup+0x30/0x88
-[   18.703396]  a6xx_destroy+0xc0/0x130
-[   18.707066]  a6xx_gpu_init+0x308/0x424
-[   18.710921]  adreno_bind+0x178/0x288
-[   18.714590]  component_bind_all+0xe0/0x214
-[   18.718797]  msm_drm_bind+0x1d4/0x614
-[   18.722566]  try_to_bring_up_aggregate_device+0x16c/0x1b8
-[   18.728105]  __component_add+0xa0/0x158
-[   18.732048]  component_add+0x20/0x2c
-[   18.735719]  adreno_probe+0x40/0xc0
-[   18.739300]  platform_probe+0xb4/0xd4
-[   18.743068]  really_probe+0xfc/0x284
-[   18.746738]  __driver_probe_device+0xc0/0xec
-[   18.751129]  driver_probe_device+0x48/0x110
-[   18.755421]  __device_attach_driver+0xa8/0xd0
-[   18.759900]  bus_for_each_drv+0x90/0xdc
-[   18.763843]  __device_attach+0xfc/0x174
-[   18.767786]  device_initial_probe+0x20/0x2c
-[   18.772090]  bus_probe_device+0x40/0xa0
-[   18.776032]  deferred_probe_work_func+0x94/0xd0
-[   18.780686]  process_one_work+0x190/0x3d0
-[   18.784805]  worker_thread+0x280/0x3d4
-[   18.788659]  kthread+0x104/0x1c0
-[   18.791981]  ret_from_fork+0x10/0x20
-[   18.795654] Code: f9400408 aa0003f3 aa1f03f4 91142015 (f9402516)
-[   18.801913] ---[ end trace 0000000000000000 ]---
-[   18.809039] Kernel panic - not syncing: Oops: Fatal exception
+Although the "dma_chan" pointer occupies more or equal space compared
+to "*dma_chan", the allocation size should use the size of variable
+itself.
 
-Fixes: 17e822f7591f ("drm/msm: fix unbalanced pm_runtime_enable in adreno_gpu_{init, cleanup}")
-Signed-off-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/515605/
-Link: https://lore.kernel.org/r/20221221203925.v2.1.Ib978de92c4bd000b515486aad72e96c2481f84d0@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 01ef7dbffb41 ("ALSA: hda - Update CA0132 codec to load DSP firmware binary")
+Signed-off-by: Alexey V. Vissarionov <gremlin@altlinux.org>
+Link: https://lore.kernel.org/r/20230117111522.GA15213@altlinux.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_gpu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_ca0132.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-index bba68776cb25d..3fa01938f4b29 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-@@ -952,13 +952,13 @@ int adreno_gpu_init(struct drm_device *drm, struct platform_device *pdev,
- void adreno_gpu_cleanup(struct adreno_gpu *adreno_gpu)
+diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
+index 801dd8d44953b..c0cb6e49a9b65 100644
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -2455,7 +2455,7 @@ static int dspio_set_uint_param(struct hda_codec *codec, int mod_id,
+ static int dspio_alloc_dma_chan(struct hda_codec *codec, unsigned int *dma_chan)
  {
- 	struct msm_gpu *gpu = &adreno_gpu->base;
--	struct msm_drm_private *priv = gpu->dev->dev_private;
-+	struct msm_drm_private *priv = gpu->dev ? gpu->dev->dev_private : NULL;
- 	unsigned int i;
+ 	int status = 0;
+-	unsigned int size = sizeof(dma_chan);
++	unsigned int size = sizeof(*dma_chan);
  
- 	for (i = 0; i < ARRAY_SIZE(adreno_gpu->info->fw); i++)
- 		release_firmware(adreno_gpu->fw[i]);
- 
--	if (pm_runtime_enabled(&priv->gpu_pdev->dev))
-+	if (priv && pm_runtime_enabled(&priv->gpu_pdev->dev))
- 		pm_runtime_disable(&priv->gpu_pdev->dev);
- 
- 	msm_gpu_cleanup(&adreno_gpu->base);
+ 	codec_dbg(codec, "     dspio_alloc_dma_chan() -- begin\n");
+ 	status = dspio_scp(codec, MASTERCONTROL, 0x20,
 -- 
 2.39.2
 
