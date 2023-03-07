@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A13076AF3AB
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2326AF3AC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233514AbjCGTHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:07:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51668 "EHLO
+        id S233704AbjCGTHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:07:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231474AbjCGTHT (ORCPT
+        with ESMTP id S233460AbjCGTHT (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A9BA76A7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:35 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DB8C7097
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:52:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3ACEB819C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0747CC433D2;
-        Tue,  7 Mar 2023 18:52:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 214776152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 266D1C433EF;
+        Tue,  7 Mar 2023 18:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215152;
-        bh=jDUBds/hVNSD6VJmJm1WR9oK9h9S+kyz2l/Dt+rfwvA=;
+        s=korg; t=1678215155;
+        bh=5crKRGoGjs7OvnBbceoKVHiUFKx5kaljmaFN01e52PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jExtt8HbcWv5soQErvD3c8g4HUswy650uNP4YfhRp1Ki6BuJExxssXNHWm3F0GA7r
-         dD3S25LIVB+CTdlWXemdljWIkTIuC0xOyFRi+JTmxPYSlv/euyhnZY6U1eiQq4FGPo
-         AD/VkmzlKuUPbjr8k9twPrOUAEp6SSZnf1KQMTb4=
+        b=IzQ5+ivxjwD2JIYHn+DChtn7alpzb1SiBOboNf1Qn1/mXEBosQfx+yz7REd1aHrO6
+         tqZ8hXk+uwKoVc+rrt8hOS3AlMymySfwkqxDMb4Qncic05b6UIOILDwD2FdTS0vmJb
+         vXew3XW5hN1HNJozy4VesQwX4EHGboBXSJeYInUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Melissa Wen <mwen@igalia.com>,
         Melissa Wen <melissa.srw@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 169/567] drm/vkms: Fix memory leak in vkms_init()
-Date:   Tue,  7 Mar 2023 17:58:25 +0100
-Message-Id: <20230307165913.264967921@linuxfoundation.org>
+Subject: [PATCH 5.15 170/567] drm/vkms: Fix null-ptr-deref in vkms_release()
+Date:   Tue,  7 Mar 2023 17:58:26 +0100
+Message-Id: <20230307165913.312184100@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -57,71 +57,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 0d0b368b9d104b437e1f4850ae94bdb9a3601e89 ]
+[ Upstream commit 2fe2a8f40c21161ffe7653cc234e7934db5b7cc5 ]
 
-A memory leak was reported after the vkms module install failed.
+A null-ptr-deref is triggered when it tries to destroy the workqueue in
+vkms->output.composer_workq in vkms_release().
 
-unreferenced object 0xffff88810bc28520 (size 16):
-  comm "modprobe", pid 9662, jiffies 4298009455 (age 42.590s)
-  hex dump (first 16 bytes):
-    01 01 00 64 81 88 ff ff 00 00 dc 0a 81 88 ff ff  ...d............
-  backtrace:
-    [<00000000e7561ff8>] kmalloc_trace+0x27/0x60
-    [<000000000b1954a0>] 0xffffffffc45200a9
-    [<00000000abbf1da0>] do_one_initcall+0xd0/0x4f0
-    [<000000001505ee87>] do_init_module+0x1a4/0x680
-    [<00000000958079ad>] load_module+0x6249/0x7110
-    [<00000000117e4696>] __do_sys_finit_module+0x140/0x200
-    [<00000000f74b12d2>] do_syscall_64+0x35/0x80
-    [<000000008fc6fcde>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
+ CPU: 5 PID: 17193 Comm: modprobe Not tainted 6.0.0-11331-gd465bff130bf #24
+ RIP: 0010:destroy_workqueue+0x2f/0x710
+ ...
+ Call Trace:
+  <TASK>
+  ? vkms_config_debugfs_init+0x50/0x50 [vkms]
+  __devm_drm_dev_alloc+0x15a/0x1c0 [drm]
+  vkms_init+0x245/0x1000 [vkms]
+  do_one_initcall+0xd0/0x4f0
+  do_init_module+0x1a4/0x680
+  load_module+0x6249/0x7110
+  __do_sys_finit_module+0x140/0x200
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-The reason is that the vkms_init() returns without checking the return
-value of vkms_create(), and if the vkms_create() failed, the config
-allocated at the beginning of vkms_init() is leaked.
+The reason is that an OOM happened which triggers the destroy of the
+workqueue, however, the workqueue is alloced in the later process,
+thus a null-ptr-deref happened. A simple call graph is shown as below:
 
  vkms_init()
-   config = kmalloc(...) # config allocated
-   ...
-   return vkms_create() # vkms_create failed and config is leaked
+  vkms_create()
+    devm_drm_dev_alloc()
+      __devm_drm_dev_alloc()
+        devm_drm_dev_init()
+          devm_add_action_or_reset()
+            devm_add_action() # an error happened
+            devm_drm_dev_init_release()
+              drm_dev_put()
+                kref_put()
+                  drm_dev_release()
+                    vkms_release()
+                      destroy_workqueue() # null-ptr-deref happened
+    vkms_modeset_init()
+      vkms_output_init()
+        vkms_crtc_init() # where the workqueue get allocated
 
-Fix this problem by checking return value of vkms_create() and free the
-config if error happened.
+Fix this by checking if composer_workq is NULL before passing it to
+the destroy_workqueue() in vkms_release().
 
-Fixes: 2df7af93fdad ("drm/vkms: Add vkms_config type")
+Fixes: 6c234fe37c57 ("drm/vkms: Implement CRC debugfs API")
 Signed-off-by: Yuan Can <yuancan@huawei.com>
 Reviewed-by: Melissa Wen <mwen@igalia.com>
 Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221101065156.41584-2-yuancan@huawei.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20221101065156.41584-3-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vkms/vkms_drv.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vkms/vkms_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/vkms/vkms_drv.c b/drivers/gpu/drm/vkms/vkms_drv.c
-index 0ffe5f0e33f75..dfe983eaa07ff 100644
+index dfe983eaa07ff..f716c5796f5fc 100644
 --- a/drivers/gpu/drm/vkms/vkms_drv.c
 +++ b/drivers/gpu/drm/vkms/vkms_drv.c
-@@ -218,6 +218,7 @@ static int vkms_create(struct vkms_config *config)
- 
- static int __init vkms_init(void)
+@@ -57,7 +57,8 @@ static void vkms_release(struct drm_device *dev)
  {
-+	int ret;
- 	struct vkms_config *config;
+ 	struct vkms_device *vkms = drm_device_to_vkms_device(dev);
  
- 	config = kmalloc(sizeof(*config), GFP_KERNEL);
-@@ -230,7 +231,11 @@ static int __init vkms_init(void)
- 	config->writeback = enable_writeback;
- 	config->overlay = enable_overlay;
- 
--	return vkms_create(config);
-+	ret = vkms_create(config);
-+	if (ret)
-+		kfree(config);
-+
-+	return ret;
+-	destroy_workqueue(vkms->output.composer_workq);
++	if (vkms->output.composer_workq)
++		destroy_workqueue(vkms->output.composer_workq);
  }
  
- static void vkms_destroy(struct vkms_config *config)
+ static void vkms_atomic_commit_tail(struct drm_atomic_state *old_state)
 -- 
 2.39.2
 
