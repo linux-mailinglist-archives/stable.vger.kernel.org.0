@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7906AEACF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C496AEF2F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:21:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231812AbjCGRhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:37:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40332 "EHLO
+        id S232677AbjCGSV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231886AbjCGRhI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:37:08 -0500
+        with ESMTP id S229610AbjCGSVE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:21:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1104C6D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:33:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D95F9EF68
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:15:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A57086151D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:33:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3F8C4339B;
-        Tue,  7 Mar 2023 17:33:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F5DA61532
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7135CC433EF;
+        Tue,  7 Mar 2023 18:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210393;
-        bh=rAfTvp/zOhvD7wyTYJAujxQudDl7HmMD/QhKJbxAtGg=;
+        s=korg; t=1678212899;
+        bh=0Rj2PskT/NuvOnjtebmCFDvNYhe3qmSVh0YXDqbcisc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ak5Pvv/98Wn87iatYg3Seg/HTgCYEdKM3zjoljFBeqQJOajsDhaW9rkyTT1u15f1o
-         Sw6w46tj2MJEm/xmmG1bLndNp0M4nPmFSciiZv6uhigoylY9E9uNLGUwhQDkSH8pwl
-         3OmHygjZNH44cdi45nqt1xof9Zdi5iiUn2rYvB4A=
+        b=kINepXnpW4lalQNH+P8rZH7lg7fTj8WrusNBpv/xUZHaaOLfz0ckloHMugtYrfiH2
+         Se7KaU5ISH0EddFU1PMR/WuuLaVrMwAZ6A2/K6YMDE3sAxP9KWRHnFoMzUO6c2CZ7m
+         AosaxyYYbiCU2nPhKo3FXVcQ/SXzNRuSnkhjw8oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0495/1001] driver core: fix potential null-ptr-deref in device_add()
+Subject: [PATCH 6.1 333/885] ASoC: mchp-spdifrx: fix controls which rely on rsr register
 Date:   Tue,  7 Mar 2023 17:54:27 +0100
-Message-Id: <20230307170042.860427575@linuxfoundation.org>
+Message-Id: <20230307170016.666277758@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +55,363 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit f6837f34a34973ef6600c08195ed300e24e97317 ]
+[ Upstream commit fa09fa60385abbf99342494b280da8b4aebbc0e9 ]
 
-I got the following null-ptr-deref report while doing fault injection test:
+The SPDIFRX block is clocked by 2 clocks: peripheral and generic clocks.
+Peripheral clock feeds user interface (registers) and generic clock feeds
+the receiver.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000058
-CPU: 2 PID: 278 Comm: 37-i2c-ds2482 Tainted: G    B   W        N 6.1.0-rc3+
-RIP: 0010:klist_put+0x2d/0xd0
-Call Trace:
- <TASK>
- klist_remove+0xf1/0x1c0
- device_release_driver_internal+0x196/0x210
- bus_remove_device+0x1bd/0x240
- device_add+0xd3d/0x1100
- w1_add_master_device+0x476/0x490 [wire]
- ds2482_probe+0x303/0x3e0 [ds2482]
+To enable the receiver the generic clock needs to be enabled and also the
+ENABLE bit of MCHP_SPDIFRX_MR register need to be set.
 
-This is how it happened:
+The signal control exported by mchp-spdifrx driver reports wrong status
+when the receiver is disabled. This can happen when requesting the signal
+and the capture was not previously started. To solve this the receiver
+needs to be enabled (by enabling generic clock and setting ENABLE bit of
+MR register) before reading the signal status.
 
-w1_alloc_dev()
-  // The dev->driver is set to w1_master_driver.
-  memcpy(&dev->dev, device, sizeof(struct device));
-  device_add()
-    bus_add_device()
-    dpm_sysfs_add() // It fails, calls bus_remove_device.
+As with this fix there are 2 paths now that need to control the generic
+clock and ENABLE bit of SPDIFRX_MR register (one path though controls, one
+path though configuration) a mutex has been introduced. We can't rely on
+subsystem locking as the controls are protected by
+struct snd_card::controls_rwsem semaphore and configuration is protected
+by a different lock (embedded in snd_pcm_stream_lock_irq()).
 
-    // error path
-    bus_remove_device()
-      // The dev->driver is not null, but driver is not bound.
-      __device_release_driver()
-        klist_remove(&dev->p->knode_driver) <-- It causes null-ptr-deref.
+The introduction of mutex is also extended to other controls which rely on
+SPDIFRX_RSR.ULOCK bit as it has been discovered experimentally that having
+both clocks enabled but not the receiver (through ENABLE bit of SPDIFRX.MR)
+leads to inconsistent values of SPDIFRX_RSR.ULOCK. Thus on some controls we
+rely on software state (dev->trigger_enabled protected by mutex) to
+retrieve proper values.
 
-    // normal path
-    bus_probe_device() // It's not called yet.
-      device_bind_driver()
-
-If dev->driver is set, in the error path after calling bus_add_device()
-in device_add(), bus_remove_device() is called, then the device will be
-detached from driver. But device_bind_driver() is not called yet, so it
-causes null-ptr-deref while access the 'knode_driver'. To fix this, set
-dev->driver to null in the error path before calling bus_remove_device().
-
-Fixes: 57eee3d23e88 ("Driver core: Call device_pm_add() after bus_add_device() in device_add()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221205034904.2077765-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230130120647.638049-2-claudiu.beznea@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/atmel/mchp-spdifrx.c | 192 ++++++++++++++++++++++++---------
+ 1 file changed, 142 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index a3e14143ec0cf..506289e6b04dd 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -3513,6 +3513,7 @@ int device_add(struct device *dev)
- 	device_pm_remove(dev);
- 	dpm_sysfs_remove(dev);
-  DPMError:
-+	dev->driver = NULL;
- 	bus_remove_device(dev);
-  BusError:
- 	device_remove_attrs(dev);
+diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
+index ec0705cc40fab..2d86e0ec930fa 100644
+--- a/sound/soc/atmel/mchp-spdifrx.c
++++ b/sound/soc/atmel/mchp-spdifrx.c
+@@ -233,11 +233,13 @@ struct mchp_spdifrx_dev {
+ 	struct mchp_spdifrx_mixer_control	control;
+ 	spinlock_t				blockend_lock;	/* protect access to blockend_refcount */
+ 	int					blockend_refcount;
++	struct mutex				mlock;
+ 	struct device				*dev;
+ 	struct regmap				*regmap;
+ 	struct clk				*pclk;
+ 	struct clk				*gclk;
+ 	unsigned int				fmt;
++	unsigned int				trigger_enabled;
+ 	unsigned int				gclk_enabled:1;
+ };
+ 
+@@ -353,47 +355,40 @@ static int mchp_spdifrx_trigger(struct snd_pcm_substream *substream, int cmd,
+ 				struct snd_soc_dai *dai)
+ {
+ 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
+-	u32 mr;
+-	int running;
+-	int ret;
+-
+-	regmap_read(dev->regmap, SPDIFRX_MR, &mr);
+-	running = !!(mr & SPDIFRX_MR_RXEN_ENABLE);
++	int ret = 0;
+ 
+ 	switch (cmd) {
+ 	case SNDRV_PCM_TRIGGER_START:
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+-		if (!running) {
+-			mr &= ~SPDIFRX_MR_RXEN_MASK;
+-			mr |= SPDIFRX_MR_RXEN_ENABLE;
+-			/* enable overrun interrupts */
+-			regmap_write(dev->regmap, SPDIFRX_IER,
+-				     SPDIFRX_IR_OVERRUN);
+-		}
++		mutex_lock(&dev->mlock);
++		/* Enable overrun interrupts */
++		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_OVERRUN);
++
++		/* Enable receiver. */
++		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
++				   SPDIFRX_MR_RXEN_ENABLE);
++		dev->trigger_enabled = true;
++		mutex_unlock(&dev->mlock);
+ 		break;
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 	case SNDRV_PCM_TRIGGER_SUSPEND:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+-		if (running) {
+-			mr &= ~SPDIFRX_MR_RXEN_MASK;
+-			mr |= SPDIFRX_MR_RXEN_DISABLE;
+-			/* disable overrun interrupts */
+-			regmap_write(dev->regmap, SPDIFRX_IDR,
+-				     SPDIFRX_IR_OVERRUN);
+-		}
++		mutex_lock(&dev->mlock);
++		/* Disable overrun interrupts */
++		regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_OVERRUN);
++
++		/* Disable receiver. */
++		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
++				   SPDIFRX_MR_RXEN_DISABLE);
++		dev->trigger_enabled = false;
++		mutex_unlock(&dev->mlock);
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
+ 	}
+ 
+-	ret = regmap_write(dev->regmap, SPDIFRX_MR, mr);
+-	if (ret) {
+-		dev_err(dev->dev, "unable to enable/disable RX: %d\n", ret);
+-		return ret;
+-	}
+-
+-	return 0;
++	return ret;
+ }
+ 
+ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
+@@ -413,13 +408,6 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
+ 		return -EINVAL;
+ 	}
+ 
+-	regmap_read(dev->regmap, SPDIFRX_MR, &mr);
+-
+-	if (mr & SPDIFRX_MR_RXEN_ENABLE) {
+-		dev_err(dev->dev, "PCM already running\n");
+-		return -EBUSY;
+-	}
+-
+ 	if (params_channels(params) != SPDIFRX_CHANNELS) {
+ 		dev_err(dev->dev, "unsupported number of channels: %d\n",
+ 			params_channels(params));
+@@ -445,6 +433,13 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
+ 		return -EINVAL;
+ 	}
+ 
++	mutex_lock(&dev->mlock);
++	if (dev->trigger_enabled) {
++		dev_err(dev->dev, "PCM already running\n");
++		ret = -EBUSY;
++		goto unlock;
++	}
++
+ 	if (dev->gclk_enabled) {
+ 		clk_disable_unprepare(dev->gclk);
+ 		dev->gclk_enabled = 0;
+@@ -455,19 +450,24 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
+ 		dev_err(dev->dev,
+ 			"unable to set gclk min rate: rate %u * ratio %u + 1\n",
+ 			params_rate(params), SPDIFRX_GCLK_RATIO_MIN);
+-		return ret;
++		goto unlock;
+ 	}
+ 	ret = clk_prepare_enable(dev->gclk);
+ 	if (ret) {
+ 		dev_err(dev->dev, "unable to enable gclk: %d\n", ret);
+-		return ret;
++		goto unlock;
+ 	}
+ 	dev->gclk_enabled = 1;
+ 
+ 	dev_dbg(dev->dev, "GCLK range min set to %d\n",
+ 		params_rate(params) * SPDIFRX_GCLK_RATIO_MIN + 1);
+ 
+-	return regmap_write(dev->regmap, SPDIFRX_MR, mr);
++	ret = regmap_write(dev->regmap, SPDIFRX_MR, mr);
++
++unlock:
++	mutex_unlock(&dev->mlock);
++
++	return ret;
+ }
+ 
+ static int mchp_spdifrx_hw_free(struct snd_pcm_substream *substream,
+@@ -475,10 +475,12 @@ static int mchp_spdifrx_hw_free(struct snd_pcm_substream *substream,
+ {
+ 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
+ 
++	mutex_lock(&dev->mlock);
+ 	if (dev->gclk_enabled) {
+ 		clk_disable_unprepare(dev->gclk);
+ 		dev->gclk_enabled = 0;
+ 	}
++	mutex_unlock(&dev->mlock);
+ 	return 0;
+ }
+ 
+@@ -627,10 +629,24 @@ static int mchp_spdifrx_ulock_get(struct snd_kcontrol *kcontrol,
+ 	u32 val;
+ 	bool ulock_old = ctrl->ulock;
+ 
+-	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
+-	ctrl->ulock = !(val & SPDIFRX_RSR_ULOCK);
++	mutex_lock(&dev->mlock);
++
++	/*
++	 * The RSR.ULOCK has wrong value if both pclk and gclk are enabled
++	 * and the receiver is disabled. Thus we take into account the
++	 * dev->trigger_enabled here to return a real status.
++	 */
++	if (dev->trigger_enabled) {
++		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
++		ctrl->ulock = !(val & SPDIFRX_RSR_ULOCK);
++	} else {
++		ctrl->ulock = 0;
++	}
++
+ 	uvalue->value.integer.value[0] = ctrl->ulock;
+ 
++	mutex_unlock(&dev->mlock);
++
+ 	return ulock_old != ctrl->ulock;
+ }
+ 
+@@ -643,8 +659,22 @@ static int mchp_spdifrx_badf_get(struct snd_kcontrol *kcontrol,
+ 	u32 val;
+ 	bool badf_old = ctrl->badf;
+ 
+-	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
+-	ctrl->badf = !!(val & SPDIFRX_RSR_BADF);
++	mutex_lock(&dev->mlock);
++
++	/*
++	 * The RSR.ULOCK has wrong value if both pclk and gclk are enabled
++	 * and the receiver is disabled. Thus we take into account the
++	 * dev->trigger_enabled here to return a real status.
++	 */
++	if (dev->trigger_enabled) {
++		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
++		ctrl->badf = !!(val & SPDIFRX_RSR_BADF);
++	} else {
++		ctrl->badf = 0;
++	}
++
++	mutex_unlock(&dev->mlock);
++
+ 	uvalue->value.integer.value[0] = ctrl->badf;
+ 
+ 	return badf_old != ctrl->badf;
+@@ -656,11 +686,48 @@ static int mchp_spdifrx_signal_get(struct snd_kcontrol *kcontrol,
+ 	struct snd_soc_dai *dai = snd_kcontrol_chip(kcontrol);
+ 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
+ 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
+-	u32 val;
++	u32 val = ~0U, loops = 10;
++	int ret;
+ 	bool signal_old = ctrl->signal;
+ 
+-	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
+-	ctrl->signal = !(val & SPDIFRX_RSR_NOSIGNAL);
++	mutex_lock(&dev->mlock);
++
++	/*
++	 * To get the signal we need to have receiver enabled. This
++	 * could be enabled also from trigger() function thus we need to
++	 * take care of not disabling the receiver when it runs.
++	 */
++	if (!dev->trigger_enabled) {
++		ret = clk_prepare_enable(dev->gclk);
++		if (ret)
++			goto unlock;
++
++		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
++				   SPDIFRX_MR_RXEN_ENABLE);
++
++		/* Wait for RSR.ULOCK bit. */
++		while (--loops) {
++			regmap_read(dev->regmap, SPDIFRX_RSR, &val);
++			if (!(val & SPDIFRX_RSR_ULOCK))
++				break;
++			usleep_range(100, 150);
++		}
++
++		regmap_update_bits(dev->regmap, SPDIFRX_MR, SPDIFRX_MR_RXEN_MASK,
++				   SPDIFRX_MR_RXEN_DISABLE);
++
++		clk_disable_unprepare(dev->gclk);
++	} else {
++		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
++	}
++
++unlock:
++	mutex_unlock(&dev->mlock);
++
++	if (!(val & SPDIFRX_RSR_ULOCK))
++		ctrl->signal = !(val & SPDIFRX_RSR_NOSIGNAL);
++	else
++		ctrl->signal = 0;
+ 	uvalue->value.integer.value[0] = ctrl->signal;
+ 
+ 	return signal_old != ctrl->signal;
+@@ -685,18 +752,32 @@ static int mchp_spdifrx_rate_get(struct snd_kcontrol *kcontrol,
+ 	u32 val;
+ 	int rate;
+ 
+-	regmap_read(dev->regmap, SPDIFRX_RSR, &val);
+-
+-	/* if the receiver is not locked, ISF data is invalid */
+-	if (val & SPDIFRX_RSR_ULOCK || !(val & SPDIFRX_RSR_IFS_MASK)) {
++	mutex_lock(&dev->mlock);
++
++	/*
++	 * The RSR.ULOCK has wrong value if both pclk and gclk are enabled
++	 * and the receiver is disabled. Thus we take into account the
++	 * dev->trigger_enabled here to return a real status.
++	 */
++	if (dev->trigger_enabled) {
++		regmap_read(dev->regmap, SPDIFRX_RSR, &val);
++		/* If the receiver is not locked, ISF data is invalid. */
++		if (val & SPDIFRX_RSR_ULOCK || !(val & SPDIFRX_RSR_IFS_MASK)) {
++			ucontrol->value.integer.value[0] = 0;
++			goto unlock;
++		}
++	} else {
++		/* Reveicer is not locked, IFS data is invalid. */
+ 		ucontrol->value.integer.value[0] = 0;
+-		return 0;
++		goto unlock;
+ 	}
+ 
+ 	rate = clk_get_rate(dev->gclk);
+ 
+ 	ucontrol->value.integer.value[0] = rate / (32 * SPDIFRX_RSR_IFS(val));
+ 
++unlock:
++	mutex_unlock(&dev->mlock);
+ 	return 0;
+ }
+ 
+@@ -913,7 +994,18 @@ static int mchp_spdifrx_probe(struct platform_device *pdev)
+ 			"failed to get the PMC generated clock: %d\n", err);
+ 		return err;
+ 	}
++
++	/*
++	 * Signal control need a valid rate on gclk. hw_params() configures
++	 * it propertly but requesting signal before any hw_params() has been
++	 * called lead to invalid value returned for signal. Thus, configure
++	 * gclk at a valid rate, here, in initialization, to simplify the
++	 * control path.
++	 */
++	clk_set_min_rate(dev->gclk, 48000 * SPDIFRX_GCLK_RATIO_MIN + 1);
++
+ 	spin_lock_init(&dev->blockend_lock);
++	mutex_init(&dev->mlock);
+ 
+ 	dev->dev = &pdev->dev;
+ 	dev->regmap = regmap;
 -- 
 2.39.2
 
