@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2996AF477
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B8B6AF46C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:16:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbjCGTRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:17:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42440 "EHLO
+        id S233797AbjCGTQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:16:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233775AbjCGTQO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:16:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399C7B7D8E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:59:41 -0800 (PST)
+        with ESMTP id S233835AbjCGTQR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:16:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7525DB78A2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:59:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E1FB61518
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:59:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 550F6C433EF;
-        Tue,  7 Mar 2023 18:59:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21E03B819DC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:59:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65717C433D2;
+        Tue,  7 Mar 2023 18:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215579;
-        bh=lQSb9kFdpGzhvpGKQpFy0sV1b7keGhKsIKY47RqKa7Y=;
+        s=korg; t=1678215582;
+        bh=sudEGX5W3BmZp3WlcZvi252H6S5xawGJzPodbomXd9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6I+INvKmrAi5NtxZsDRwZ88+I2HbC4S2fNetDhTPuZs8O3CiNuu0pSh3wrJ5LG2E
-         a1yeszm1Dekq+/K8N4HIx7F4oPXj4LyUEXmWODC59wFq7K4li08cYpznz6YiWVwpP9
-         u9OSaRX/wY55ABfT59ZLo2OwZAfrrY5Nbto7XvGU=
+        b=FNLg0+m8+jKApI561q+OxPVv2TCvCKv9fz8Tv2MEQ4PEzknyYkpvSC33c9bp7wq2j
+         aPk7LQ0Bx9Srja0S0K00TiKHyE8woeW+b5IKhOrZTBFcDGX+lpq6HhlBrxBhnB7BQn
+         2grtoOxdIjXZDw7eW5AXDqeWo8bzz/g9QI0+XTYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 308/567] driver core: fix resource leak in device_add()
-Date:   Tue,  7 Mar 2023 18:00:44 +0100
-Message-Id: <20230307165919.213126275@linuxfoundation.org>
+Subject: [PATCH 5.15 309/567] drivers: base: transport_class: fix possible memory leak
+Date:   Tue,  7 Mar 2023 18:00:45 +0100
+Message-Id: <20230307165919.252108436@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -53,77 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 6977b1a5d67097eaa4d02b0c126c04cc6e8917c0 ]
+[ Upstream commit a86367803838b369fe5486ac18771d14723c258c ]
 
-When calling kobject_add() failed in device_add(), it will call
-cleanup_glue_dir() to free resource. But in kobject_add(),
-dev->kobj.parent has been set to NULL. This will cause resource leak.
+Current some drivers(like iscsi) call transport_register_device()
+failed, they don't call transport_destroy_device() to release the
+memory allocated in transport_setup_device(), because they don't
+know what was done, it should be internal thing to release the
+resource in register function. So fix this leak by calling destroy
+function inside register function.
 
-The process is as follows:
-device_add()
-	get_device_parent()
-		class_dir_create_and_add()
-			kobject_add()		//kobject_get()
-	...
-	dev->kobj.parent = kobj;
-	...
-	kobject_add()		//failed, but set dev->kobj.parent = NULL
-	...
-	glue_dir = get_glue_dir(dev)	//glue_dir = NULL, and goto
-					//"Error" label
-	...
-	cleanup_glue_dir()	//becaues glue_dir is NULL, not call
-				//kobject_put()
-
-The preceding problem may cause insmod mac80211_hwsim.ko to failed.
-sysfs: cannot create duplicate filename '/devices/virtual/mac80211_hwsim'
-Call Trace:
-<TASK>
-dump_stack_lvl+0x8e/0xd1
-sysfs_warn_dup.cold+0x1c/0x29
-sysfs_create_dir_ns+0x224/0x280
-kobject_add_internal+0x2aa/0x880
-kobject_add+0x135/0x1a0
-get_device_parent+0x3d7/0x590
-device_add+0x2aa/0x1cb0
-device_create_groups_vargs+0x1eb/0x260
-device_create+0xdc/0x110
-mac80211_hwsim_new_radio+0x31e/0x4790 [mac80211_hwsim]
-init_mac80211_hwsim+0x48d/0x1000 [mac80211_hwsim]
-do_one_initcall+0x10f/0x630
-do_init_module+0x19f/0x5e0
-load_module+0x64b7/0x6eb0
-__do_sys_finit_module+0x140/0x200
-do_syscall_64+0x35/0x80
-entry_SYSCALL_64_after_hwframe+0x46/0xb0
-</TASK>
-kobject_add_internal failed for mac80211_hwsim with -EEXIST, don't try to
-register things with the same name in the same directory.
-
-Fixes: cebf8fd16900 ("driver core: fix race between creating/querying glue dir and its cleanup")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221123012042.335252-1-shaozhengchao@huawei.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221110102307.3492557-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/transport_class.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index e6a7b93760e45..adf003a7e8d6a 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -3328,7 +3328,7 @@ int device_add(struct device *dev)
- 	/* we require the name to be set before, and pass NULL */
- 	error = kobject_add(&dev->kobj, dev->kobj.parent, NULL);
- 	if (error) {
--		glue_dir = get_glue_dir(dev);
-+		glue_dir = kobj;
- 		goto Error;
- 	}
+diff --git a/include/linux/transport_class.h b/include/linux/transport_class.h
+index 63076fb835e34..2efc271a96fa6 100644
+--- a/include/linux/transport_class.h
++++ b/include/linux/transport_class.h
+@@ -70,8 +70,14 @@ void transport_destroy_device(struct device *);
+ static inline int
+ transport_register_device(struct device *dev)
+ {
++	int ret;
++
+ 	transport_setup_device(dev);
+-	return transport_add_device(dev);
++	ret = transport_add_device(dev);
++	if (ret)
++		transport_destroy_device(dev);
++
++	return ret;
+ }
  
+ static inline void
 -- 
 2.39.2
 
