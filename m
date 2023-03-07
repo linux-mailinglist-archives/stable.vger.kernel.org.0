@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D5746AF3BE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 349EC6AF3C0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233634AbjCGTJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:09:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56220 "EHLO
+        id S233674AbjCGTJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:09:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233651AbjCGTIn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:08:43 -0500
+        with ESMTP id S229762AbjCGTIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:08:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BD6D9BE28
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:53:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38E7FA2C20
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:53:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A045F6152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:53:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9698DC433A4;
-        Tue,  7 Mar 2023 18:53:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CACA661535
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:53:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2086C433A0;
+        Tue,  7 Mar 2023 18:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215212;
-        bh=knVRseOLo/1uRkha+FeXmoxYbeCIOJ9fNGtorEkDjKQ=;
+        s=korg; t=1678215215;
+        bh=cny8zpQuxmEqCv6fmQJ85Kq0nV58h5RMB8uiFtKBL34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3qBL58f9Bx9adhoHmEsH+SnEWv2vMZLHDosF3+ZxArjV0gvLO8TFWwf6czb9S6B4
-         MhqjK1lDMijSbXiUPYJBDc2rx+dk84HOrELxo74NJHLuDWboM/+gulr35NZYTokG8v
-         /N8SsKslSLfuSSxWo0UC3onH2e5WkaPk5vBxjA2c=
+        b=XJUtgBWPWMMdNchTQPpByxpuFZaOeL0207Ii/rqV+yu69wE+/axbu/1HWWoFl5KNO
+         gMzYNMNpCtEb2IQzGdq9bFNVDCe56zwed+6TjYF+DPQdsbbbLFx3r00mQaHjgfkgfm
+         ZpzUBJ1/tVgX9HdrbDpTMApkejrlwUSLNZfHPfpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Mark Brown <broonie@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 186/567] scsi: qla2xxx: Fix exchange oversubscription for management commands
-Date:   Tue,  7 Mar 2023 17:58:42 +0100
-Message-Id: <20230307165914.025471889@linuxfoundation.org>
+Subject: [PATCH 5.15 187/567] ASoC: fsl_sai: Update to modern clocking terminology
+Date:   Tue,  7 Mar 2023 17:58:43 +0100
+Message-Id: <20230307165914.064646723@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -55,192 +54,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 5f63a163ed2f12c34dd4ae9b2757962ec7bb86e5 ]
+[ Upstream commit 361284a4eb598eaf28e8458c542f214d3689b134 ]
 
-Add resource checking for management (non-I/O) commands.
+As part of moving to remove the old style defines for the bus clocks update
+the fsl_sai driver to use more modern terminology for clocking.
 
-Fixes: 89c72f4245a8 ("scsi: qla2xxx: Add IOCB resource tracking")
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20210921213542.31688-6-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Stable-dep-of: a23924b7dd7b ("ASoC: fsl_sai: initialize is_dsp_mode flag")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_dfs.c    | 10 ++++-
- drivers/scsi/qla2xxx/qla_inline.h |  5 ++-
- drivers/scsi/qla2xxx/qla_iocb.c   | 67 +++++++++++++++++++++++++++++++
- drivers/scsi/qla2xxx/qla_isr.c    |  1 +
- 4 files changed, 80 insertions(+), 3 deletions(-)
+ sound/soc/fsl/fsl_sai.c | 34 +++++++++++++++++-----------------
+ sound/soc/fsl/fsl_sai.h |  2 +-
+ 2 files changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_dfs.c b/drivers/scsi/qla2xxx/qla_dfs.c
-index 85bd0e468d43e..8f6f56c9584ce 100644
---- a/drivers/scsi/qla2xxx/qla_dfs.c
-+++ b/drivers/scsi/qla2xxx/qla_dfs.c
-@@ -235,7 +235,7 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 	uint16_t mb[MAX_IOCB_MB_REG];
- 	int rc;
- 	struct qla_hw_data *ha = vha->hw;
--	u16 iocbs_used, i;
-+	u16 iocbs_used, i, exch_used;
- 
- 	rc = qla24xx_res_count_wait(vha, mb, SIZEOF_IOCB_MB_REG);
- 	if (rc != QLA_SUCCESS) {
-@@ -263,13 +263,19 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 	if (ql2xenforce_iocb_limit) {
- 		/* lock is not require. It's an estimate. */
- 		iocbs_used = ha->base_qpair->fwres.iocbs_used;
-+		exch_used = ha->base_qpair->fwres.exch_used;
- 		for (i = 0; i < ha->max_qpairs; i++) {
--			if (ha->queue_pair_map[i])
-+			if (ha->queue_pair_map[i]) {
- 				iocbs_used += ha->queue_pair_map[i]->fwres.iocbs_used;
-+				exch_used += ha->queue_pair_map[i]->fwres.exch_used;
-+			}
- 		}
- 
- 		seq_printf(s, "Driver: estimate iocb used [%d] high water limit [%d]\n",
- 			   iocbs_used, ha->base_qpair->fwres.iocbs_limit);
-+
-+		seq_printf(s, "estimate exchange used[%d] high water limit [%d] n",
-+			   exch_used, ha->base_qpair->fwres.exch_limit);
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index 5ba06df2ace51..5ec504ff060a5 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -297,23 +297,23 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
+ 		return -EINVAL;
  	}
  
- 	return 0;
-diff --git a/drivers/scsi/qla2xxx/qla_inline.h b/drivers/scsi/qla2xxx/qla_inline.h
-index 2d5a275d8b000..b0ee307b5d4b9 100644
---- a/drivers/scsi/qla2xxx/qla_inline.h
-+++ b/drivers/scsi/qla2xxx/qla_inline.h
-@@ -380,7 +380,7 @@ qla2xxx_get_fc4_priority(struct scsi_qla_host *vha)
+-	/* DAI clock master masks */
+-	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+-	case SND_SOC_DAIFMT_CBS_CFS:
++	/* DAI clock provider masks */
++	switch (fmt & SND_SOC_DAIFMT_CLOCK_PROVIDER_MASK) {
++	case SND_SOC_DAIFMT_CBC_CFC:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
+-		sai->is_slave_mode = false;
++		sai->is_consumer_mode = false;
+ 		break;
+-	case SND_SOC_DAIFMT_CBM_CFM:
+-		sai->is_slave_mode = true;
++	case SND_SOC_DAIFMT_CBP_CFP:
++		sai->is_consumer_mode = true;
+ 		break;
+-	case SND_SOC_DAIFMT_CBS_CFM:
++	case SND_SOC_DAIFMT_CBC_CFP:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
+-		sai->is_slave_mode = false;
++		sai->is_consumer_mode = false;
+ 		break;
+-	case SND_SOC_DAIFMT_CBM_CFS:
++	case SND_SOC_DAIFMT_CBP_CFC:
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
+-		sai->is_slave_mode = true;
++		sai->is_consumer_mode = true;
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -356,8 +356,8 @@ static int fsl_sai_set_bclk(struct snd_soc_dai *dai, bool tx, u32 freq)
+ 	u32 id;
+ 	int ret = 0;
  
- enum {
- 	RESOURCE_NONE,
--	RESOURCE_IOCB  = BIT_0,
-+	RESOURCE_IOCB = BIT_0,
- 	RESOURCE_EXCH = BIT_1,  /* exchange */
- 	RESOURCE_FORCE = BIT_2,
- };
-@@ -396,6 +396,8 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
- 		iores->res_type = RESOURCE_NONE;
+-	/* Don't apply to slave mode */
+-	if (sai->is_slave_mode)
++	/* Don't apply to consumer mode */
++	if (sai->is_consumer_mode)
  		return 0;
- 	}
-+	if (iores->res_type & RESOURCE_FORCE)
-+		goto force;
  
- 	if ((iores->iocb_cnt + qp->fwres.iocbs_used) >= qp->fwres.iocbs_qp_limit) {
- 		/* no need to acquire qpair lock. It's just rough calculation */
-@@ -423,6 +425,7 @@ qla_get_fw_resources(struct qla_qpair *qp, struct iocb_resource *iores)
- 			return -ENOSPC;
- 		}
- 	}
-+force:
- 	qp->fwres.iocbs_used += iores->iocb_cnt;
- 	qp->fwres.exch_used += iores->exch_cnt;
- 	return 0;
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index 399ec8da2d73c..4f48f098ea5a6 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -3817,6 +3817,65 @@ qla24xx_prlo_iocb(srb_t *sp, struct logio_entry_24xx *logio)
- 	logio->vp_index = sp->fcport->vha->vp_idx;
- }
+ 	/*
+@@ -462,7 +462,7 @@ static int fsl_sai_hw_params(struct snd_pcm_substream *substream,
  
-+int qla_get_iocbs_resource(struct srb *sp)
-+{
-+	bool get_exch;
-+	bool push_it_through = false;
-+
-+	if (!ql2xenforce_iocb_limit) {
-+		sp->iores.res_type = RESOURCE_NONE;
-+		return 0;
-+	}
-+	sp->iores.res_type = RESOURCE_NONE;
-+
-+	switch (sp->type) {
-+	case SRB_TM_CMD:
-+	case SRB_PRLI_CMD:
-+	case SRB_ADISC_CMD:
-+		push_it_through = true;
-+		fallthrough;
-+	case SRB_LOGIN_CMD:
-+	case SRB_ELS_CMD_RPT:
-+	case SRB_ELS_CMD_HST:
-+	case SRB_ELS_CMD_HST_NOLOGIN:
-+	case SRB_CT_CMD:
-+	case SRB_NVME_LS:
-+	case SRB_ELS_DCMD:
-+		get_exch = true;
-+		break;
-+
-+	case SRB_FXIOCB_DCMD:
-+	case SRB_FXIOCB_BCMD:
-+		sp->iores.res_type = RESOURCE_NONE;
-+		return 0;
-+
-+	case SRB_SA_UPDATE:
-+	case SRB_SA_REPLACE:
-+	case SRB_MB_IOCB:
-+	case SRB_ABT_CMD:
-+	case SRB_NACK_PLOGI:
-+	case SRB_NACK_PRLI:
-+	case SRB_NACK_LOGO:
-+	case SRB_LOGOUT_CMD:
-+	case SRB_CTRL_VP:
-+		push_it_through = true;
-+		fallthrough;
-+	default:
-+		get_exch = false;
-+	}
-+
-+	sp->iores.res_type |= RESOURCE_IOCB;
-+	sp->iores.iocb_cnt = 1;
-+	if (get_exch) {
-+		sp->iores.res_type |= RESOURCE_EXCH;
-+		sp->iores.exch_cnt = 1;
-+	}
-+	if (push_it_through)
-+		sp->iores.res_type |= RESOURCE_FORCE;
-+
-+	return qla_get_fw_resources(sp->qpair, &sp->iores);
-+}
-+
- int
- qla2x00_start_sp(srb_t *sp)
- {
-@@ -3831,6 +3890,12 @@ qla2x00_start_sp(srb_t *sp)
- 		return -EIO;
+ 	pins = DIV_ROUND_UP(channels, slots);
  
- 	spin_lock_irqsave(qp->qp_lock_ptr, flags);
-+	rval = qla_get_iocbs_resource(sp);
-+	if (rval) {
-+		spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
-+		return -EAGAIN;
-+	}
-+
- 	pkt = __qla2x00_alloc_iocbs(sp->qpair, sp);
- 	if (!pkt) {
- 		rval = EAGAIN;
-@@ -3931,6 +3996,8 @@ qla2x00_start_sp(srb_t *sp)
- 	wmb();
- 	qla2x00_start_iocbs(vha, qp->req);
- done:
-+	if (rval)
-+		qla_put_fw_resources(sp->qpair, &sp->iores);
- 	spin_unlock_irqrestore(qp->qp_lock_ptr, flags);
- 	return rval;
- }
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index c545f39362ffc..5589251c87f0a 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3099,6 +3099,7 @@ qla25xx_process_bidir_status_iocb(scsi_qla_host_t *vha, void *pkt,
- 	}
- 	bsg_reply->reply_payload_rcv_len = 0;
+-	if (!sai->is_slave_mode) {
++	if (!sai->is_consumer_mode) {
+ 		if (sai->bclk_ratio)
+ 			ret = fsl_sai_set_bclk(cpu_dai, tx,
+ 					       sai->bclk_ratio *
+@@ -502,12 +502,12 @@ static int fsl_sai_hw_params(struct snd_pcm_substream *substream,
+ 		val_cr4 |= FSL_SAI_CR4_CHMOD;
  
-+	qla_put_fw_resources(sp->qpair, &sp->iores);
- done:
- 	/* Return the vendor specific reply to API */
- 	bsg_reply->reply_data.vendor_reply.vendor_rsp[0] = rval;
+ 	/*
+-	 * For SAI master mode, when Tx(Rx) sync with Rx(Tx) clock, Rx(Tx) will
++	 * For SAI provider mode, when Tx(Rx) sync with Rx(Tx) clock, Rx(Tx) will
+ 	 * generate bclk and frame clock for Tx(Rx), we should set RCR4(TCR4),
+ 	 * RCR5(TCR5) for playback(capture), or there will be sync error.
+ 	 */
+ 
+-	if (!sai->is_slave_mode && fsl_sai_dir_is_synced(sai, adir)) {
++	if (!sai->is_consumer_mode && fsl_sai_dir_is_synced(sai, adir)) {
+ 		regmap_update_bits(sai->regmap, FSL_SAI_xCR4(!tx, ofs),
+ 				   FSL_SAI_CR4_SYWD_MASK | FSL_SAI_CR4_FRSZ_MASK |
+ 				   FSL_SAI_CR4_CHMOD_MASK,
+@@ -543,7 +543,7 @@ static int fsl_sai_hw_free(struct snd_pcm_substream *substream,
+ 	regmap_update_bits(sai->regmap, FSL_SAI_xCR3(tx, ofs),
+ 			   FSL_SAI_CR3_TRCE_MASK, 0);
+ 
+-	if (!sai->is_slave_mode &&
++	if (!sai->is_consumer_mode &&
+ 			sai->mclk_streams & BIT(substream->stream)) {
+ 		clk_disable_unprepare(sai->mclk_clk[sai->mclk_id[tx]]);
+ 		sai->mclk_streams &= ~BIT(substream->stream);
+@@ -577,7 +577,7 @@ static void fsl_sai_config_disable(struct fsl_sai *sai, int dir)
+ 	 * This is a hardware bug, and will be fix in the
+ 	 * next sai version.
+ 	 */
+-	if (!sai->is_slave_mode) {
++	if (!sai->is_consumer_mode) {
+ 		/* Software Reset */
+ 		regmap_write(sai->regmap, FSL_SAI_xCSR(tx, ofs), FSL_SAI_CSR_SR);
+ 		/* Clear SR bit to finish the reset */
+diff --git a/sound/soc/fsl/fsl_sai.h b/sound/soc/fsl/fsl_sai.h
+index f471467dfb3e4..93da86009c750 100644
+--- a/sound/soc/fsl/fsl_sai.h
++++ b/sound/soc/fsl/fsl_sai.h
+@@ -259,7 +259,7 @@ struct fsl_sai {
+ 	struct clk *bus_clk;
+ 	struct clk *mclk_clk[FSL_SAI_MCLK_MAX];
+ 
+-	bool is_slave_mode;
++	bool is_consumer_mode;
+ 	bool is_lsb_first;
+ 	bool is_dsp_mode;
+ 	bool synchronous[2];
 -- 
 2.39.2
 
