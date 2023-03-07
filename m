@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EAA6AEBB5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7716AEC33
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232147AbjCGRsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36592 "EHLO
+        id S229767AbjCGRxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbjCGRro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29AEF6233A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:43 -0800 (PST)
+        with ESMTP id S232193AbjCGRw6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF1992F08
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94399614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E12BC433EF;
-        Tue,  7 Mar 2023 17:42:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6FDAB8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD92C433EF;
+        Tue,  7 Mar 2023 17:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210936;
-        bh=HHqz1FCC9gX9Ud92cqAbmZ7w/4XG6y8eRiWOVWIJ4zA=;
+        s=korg; t=1678210938;
+        bh=NFTdsDS4VibVEjjcSLK6bi5KlwYGD0WAksdvHJ2nuOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QQpVMcfgXsBXMnDBchk+y2uMu9IMvvJPWzWWz28Z8wa7ZSuoc18WkPG3Uz9AR4FY
-         abwcBF0wL1RBluIZztY7FhC0WJzEbEd0+3wfWspHPivnbL93eU1HVfuo6BMi4107kL
-         10lgosb+XEMd5Ora1Is/NW7oBrVn7/OV9vLgiMXs=
+        b=nNU+NidT++qp+6bWSAbRtWQydb+bI36gBm76FqA7+Aq6eQcQ5exkGzQJld/ySTwIs
+         Jqv0cT3PCITkzlhZumAt+9IHwpEjMOkB0YA1tISlXr3CuNXXLt4uGyeR30NafSJ5Vg
+         ZvBLm8sSIDFtd4yHrfKxQWrzUkjtlJe0p/uRPdK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Wheeler <Daniel.Wheeler@amd.com>,
-        Martin Leung <Martin.Leung@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Brandon Syu <Brandon.Syu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0702/1001] drm/amd/display: fix mapping to non-allocated address
-Date:   Tue,  7 Mar 2023 17:57:54 +0100
-Message-Id: <20230307170052.085637256@linuxfoundation.org>
+        patches@lists.linux.dev, Mia Kanashi <chad@redpilled.dev>,
+        Andreas Grosse <andig.mail@t-online.de>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0703/1001] HID: uclogic: Add frame type quirk
+Date:   Tue,  7 Mar 2023 17:57:55 +0100
+Message-Id: <20230307170052.126419824@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -47,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,120 +55,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brandon Syu <Brandon.Syu@amd.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 9190d4a263264eabf715f5fc1827da45e3fdc247 ]
+[ Upstream commit 14b71e6ad8ca59dd734c7fa9676f3d60bddee2a9 ]
 
-[Why]
-There is an issue mapping non-allocated location of memory.
-It would allocate gpio registers from an array out of bounds.
+The report descriptor used to get information about UGEE v2 devices is
+incorrect in the XP-PEN Deco Pro SW. It indicates that the device frame
+is of type UCLOGIC_PARAMS_FRAME_BUTTONS but the device has a frame of
+type UCLOGIC_PARAMS_FRAME_MOUSE.
 
-[How]
-Patch correct numbers of bounds for using.
+Here is the original report descriptor:
 
-Tested-by: Daniel Wheeler <Daniel.Wheeler@amd.com>
-Reviewed-by: Martin Leung <Martin.Leung@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Brandon Syu <Brandon.Syu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  0x0e 0x03 0xc8 0xb3 0x34 0x65 0x08 0x00 0xff 0x1f 0xd8 0x13 0x00 0x00
+                                     ^ This byte should be 2
+
+Add a quirk to be able to fix the reported frame type.
+
+Tested-by: Mia Kanashi <chad@redpilled.dev>
+Tested-by: Andreas Grosse <andig.mail@t-online.de>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c   | 6 ++++--
- .../gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c   | 6 ++++--
- .../gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c   | 6 ++++--
- drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h             | 7 +++++++
- 4 files changed, 19 insertions(+), 6 deletions(-)
+ drivers/hid/hid-uclogic-core.c   | 20 +-------------------
+ drivers/hid/hid-uclogic-params.c |  5 +++++
+ drivers/hid/hid-uclogic-params.h | 23 +++++++++++++++++++++++
+ 3 files changed, 29 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c
-index 9b63c6c0cc844..e0bd0c722e006 100644
---- a/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c
-+++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn20/hw_factory_dcn20.c
-@@ -138,7 +138,8 @@ static const struct ddc_sh_mask ddc_shift[] = {
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 3),
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 4),
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 5),
--	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6)
-+	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6),
-+	DDC_MASK_SH_LIST_DCN2_VGA(__SHIFT)
- };
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index cfbbc39807a69..739984b8fa1b8 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -22,25 +22,6 @@
  
- static const struct ddc_sh_mask ddc_mask[] = {
-@@ -147,7 +148,8 @@ static const struct ddc_sh_mask ddc_mask[] = {
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 3),
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 4),
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 5),
--	DDC_MASK_SH_LIST_DCN2(_MASK, 6)
-+	DDC_MASK_SH_LIST_DCN2(_MASK, 6),
-+	DDC_MASK_SH_LIST_DCN2_VGA(_MASK)
- };
+ #include "hid-ids.h"
  
- #include "../generic_regs.h"
-diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
-index 687d4f128480e..36a5736c58c92 100644
---- a/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
-+++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn30/hw_factory_dcn30.c
-@@ -145,7 +145,8 @@ static const struct ddc_sh_mask ddc_shift[] = {
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 3),
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 4),
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 5),
--	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6)
-+	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6),
-+	DDC_MASK_SH_LIST_DCN2_VGA(__SHIFT)
- };
+-/* Driver data */
+-struct uclogic_drvdata {
+-	/* Interface parameters */
+-	struct uclogic_params params;
+-	/* Pointer to the replacement report descriptor. NULL if none. */
+-	__u8 *desc_ptr;
+-	/*
+-	 * Size of the replacement report descriptor.
+-	 * Only valid if desc_ptr is not NULL
+-	 */
+-	unsigned int desc_size;
+-	/* Pen input device */
+-	struct input_dev *pen_input;
+-	/* In-range timer */
+-	struct timer_list inrange_timer;
+-	/* Last rotary encoder state, or U8_MAX for none */
+-	u8 re_state;
+-};
+-
+ /**
+  * uclogic_inrange_timeout - handle pen in-range state timeout.
+  * Emulate input events normally generated when pen goes out of range for
+@@ -202,6 +183,7 @@ static int uclogic_probe(struct hid_device *hdev,
+ 	}
+ 	timer_setup(&drvdata->inrange_timer, uclogic_inrange_timeout, 0);
+ 	drvdata->re_state = U8_MAX;
++	drvdata->quirks = id->driver_data;
+ 	hid_set_drvdata(hdev, drvdata);
  
- static const struct ddc_sh_mask ddc_mask[] = {
-@@ -154,7 +155,8 @@ static const struct ddc_sh_mask ddc_mask[] = {
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 3),
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 4),
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 5),
--	DDC_MASK_SH_LIST_DCN2(_MASK, 6)
-+	DDC_MASK_SH_LIST_DCN2(_MASK, 6),
-+	DDC_MASK_SH_LIST_DCN2_VGA(_MASK)
- };
+ 	/* Initialize the device and retrieve interface parameters */
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 3c5eea3df3288..e052538a62fb3 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -1298,6 +1298,7 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
+ 				       struct hid_device *hdev)
+ {
+ 	int rc = 0;
++	struct uclogic_drvdata *drvdata;
+ 	struct usb_interface *iface;
+ 	__u8 bInterfaceNumber;
+ 	const int str_desc_len = 12;
+@@ -1316,6 +1317,7 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
+ 		goto cleanup;
+ 	}
  
- #include "../generic_regs.h"
-diff --git a/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c b/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
-index 9fd8b269dd79c..985f10b397509 100644
---- a/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
-+++ b/drivers/gpu/drm/amd/display/dc/gpio/dcn32/hw_factory_dcn32.c
-@@ -149,7 +149,8 @@ static const struct ddc_sh_mask ddc_shift[] = {
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 3),
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 4),
- 	DDC_MASK_SH_LIST_DCN2(__SHIFT, 5),
--	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6)
-+	DDC_MASK_SH_LIST_DCN2(__SHIFT, 6),
-+	DDC_MASK_SH_LIST_DCN2_VGA(__SHIFT)
- };
++	drvdata = hid_get_drvdata(hdev);
+ 	iface = to_usb_interface(hdev->dev.parent);
+ 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
  
- static const struct ddc_sh_mask ddc_mask[] = {
-@@ -158,7 +159,8 @@ static const struct ddc_sh_mask ddc_mask[] = {
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 3),
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 4),
- 	DDC_MASK_SH_LIST_DCN2(_MASK, 5),
--	DDC_MASK_SH_LIST_DCN2(_MASK, 6)
-+	DDC_MASK_SH_LIST_DCN2(_MASK, 6),
-+	DDC_MASK_SH_LIST_DCN2_VGA(_MASK)
- };
+@@ -1382,6 +1384,9 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
+ 	p.pen.subreport_list[0].id = UCLOGIC_RDESC_V1_FRAME_ID;
  
- #include "../generic_regs.h"
-diff --git a/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h b/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h
-index 308a543178a56..59884ef651b39 100644
---- a/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h
-+++ b/drivers/gpu/drm/amd/display/dc/gpio/ddc_regs.h
-@@ -113,6 +113,13 @@
- 	(PHY_AUX_CNTL__AUX## cd ##_PAD_RXSEL## mask_sh),\
- 	(DC_GPIO_AUX_CTRL_5__DDC_PAD## cd ##_I2CMODE## mask_sh)}
- 
-+#define DDC_MASK_SH_LIST_DCN2_VGA(mask_sh) \
-+	{DDC_MASK_SH_LIST_COMMON(mask_sh),\
-+	0,\
-+	0,\
-+	0,\
-+	0}
+ 	/* Initialize the frame interface */
++	if (drvdata->quirks & UCLOGIC_MOUSE_FRAME_QUIRK)
++		frame_type = UCLOGIC_PARAMS_FRAME_MOUSE;
 +
- struct ddc_registers {
- 	struct gpio_registers gpio;
- 	uint32_t ddc_setup;
+ 	switch (frame_type) {
+ 	case UCLOGIC_PARAMS_FRAME_DIAL:
+ 	case UCLOGIC_PARAMS_FRAME_MOUSE:
+diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
+index a97477c02ff82..10a05c7fd9398 100644
+--- a/drivers/hid/hid-uclogic-params.h
++++ b/drivers/hid/hid-uclogic-params.h
+@@ -19,6 +19,8 @@
+ #include <linux/usb.h>
+ #include <linux/hid.h>
+ 
++#define UCLOGIC_MOUSE_FRAME_QUIRK	BIT(0)
++
+ /* Types of pen in-range reporting */
+ enum uclogic_params_pen_inrange {
+ 	/* Normal reports: zero - out of proximity, one - in proximity */
+@@ -215,6 +217,27 @@ struct uclogic_params {
+ 	struct uclogic_params_frame frame_list[3];
+ };
+ 
++/* Driver data */
++struct uclogic_drvdata {
++	/* Interface parameters */
++	struct uclogic_params params;
++	/* Pointer to the replacement report descriptor. NULL if none. */
++	__u8 *desc_ptr;
++	/*
++	 * Size of the replacement report descriptor.
++	 * Only valid if desc_ptr is not NULL
++	 */
++	unsigned int desc_size;
++	/* Pen input device */
++	struct input_dev *pen_input;
++	/* In-range timer */
++	struct timer_list inrange_timer;
++	/* Last rotary encoder state, or U8_MAX for none */
++	u8 re_state;
++	/* Device quirks */
++	unsigned long quirks;
++};
++
+ /* Initialize a tablet interface and discover its parameters */
+ extern int uclogic_params_init(struct uclogic_params *params,
+ 				struct hid_device *hdev);
 -- 
 2.39.2
 
