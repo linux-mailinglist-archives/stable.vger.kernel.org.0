@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 924636AE9D9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6286AEE6D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231628AbjCGR2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:28:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51040 "EHLO
+        id S232326AbjCGSLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:11:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231644AbjCGR1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED72834F61
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:09 -0800 (PST)
+        with ESMTP id S232398AbjCGSLb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE60FACBA8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85B2DB819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2CC8C433EF;
-        Tue,  7 Mar 2023 17:23:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 34547CE1C7B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDE1C433EF;
+        Tue,  7 Mar 2023 18:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209787;
-        bh=wHJfAO5LsXajI8osGTdcr2aeOgtdaGADNY7wZzWn0Uc=;
+        s=korg; t=1678212394;
+        bh=sUZm+FyBMYJ6zyPvw9griu/YdHdoy8TRddoR0u202i4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0M7FVAKzJiSCvRk5ZNyOipTYI9MfGrkhNBN0+J3TYRR1za5bBT/cnojtSS82s9hV
-         HT4UA2TEMC1ogVDoVOoFmZ5XC3RChJGEvw2j+tyo0FsI79NRu/6/ur6s3399UndYfs
-         5o7IGL9FXEduyVG30+5iAl9s6urokf+NJrAjqATU=
+        b=c4tFQhZPL/L00uV21ElQoCXjSzLqv65u8jLesvVq5gA5/leU+oxjjTSpNxhYJw3g9
+         axJdgkkSUR1MfFH+HOEE8gYxSE4rECljrbSlhEwG+J0I3fAMcKp8/f8wMhR8WPIgZI
+         v16Tjd0/jTTJzMgdMtHQwgCqMgKMfB/gpxkmLB2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Ian Ray <ian.ray@ge.com>, Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0332/1001] drm/bridge: megachips: Fix error handling in i2c_register_driver()
+Subject: [PATCH 6.1 170/885] wifi: ath9k: Fix potential stack-out-of-bounds write in ath9k_wmi_rsp_callback()
 Date:   Tue,  7 Mar 2023 17:51:44 +0100
-Message-Id: <20230307170035.904426605@linuxfoundation.org>
+Message-Id: <20230307170009.334817741@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,63 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit 4ecff954c370b82bce45bdca2846c5c5563e8a8a ]
+[ Upstream commit 8a2f35b9830692f7a616f2f627f943bc748af13a ]
 
-A problem about insmod megachips-stdpxxxx-ge-b850v3-fw.ko failed is
-triggered with the following log given:
+Fix a stack-out-of-bounds write that occurs in a WMI response callback
+function that is called after a timeout occurs in ath9k_wmi_cmd().
+The callback writes to wmi->cmd_rsp_buf, a stack-allocated buffer that
+could no longer be valid when a timeout occurs. Set wmi->last_seq_id to
+0 when a timeout occurred.
 
-[ 4497.981497] Error: Driver 'stdp4028-ge-b850v3-fw' is already registered, aborting...
-insmod: ERROR: could not insert module megachips-stdpxxxx-ge-b850v3-fw.ko: Device or resource busy
+Found by a modified version of syzkaller.
 
-The reason is that stdpxxxx_ge_b850v3_init() returns i2c_add_driver()
-directly without checking its return value, if i2c_add_driver() failed,
-it returns without calling i2c_del_driver() on the previous i2c driver,
-resulting the megachips-stdpxxxx-ge-b850v3-fw can never be installed
-later.
-A simple call graph is shown as below:
+BUG: KASAN: stack-out-of-bounds in ath9k_wmi_ctrl_rx
+Write of size 4
+Call Trace:
+ memcpy
+ ath9k_wmi_ctrl_rx
+ ath9k_htc_rx_msg
+ ath9k_hif_usb_reg_in_cb
+ __usb_hcd_giveback_urb
+ usb_hcd_giveback_urb
+ dummy_timer
+ call_timer_fn
+ run_timer_softirq
+ __do_softirq
+ irq_exit_rcu
+ sysvec_apic_timer_interrupt
 
- stdpxxxx_ge_b850v3_init()
-   i2c_add_driver(&stdp4028_ge_b850v3_fw_driver)
-   i2c_add_driver(&stdp2690_ge_b850v3_fw_driver)
-     i2c_register_driver()
-       driver_register()
-         bus_add_driver()
-           priv = kzalloc(...) # OOM happened
-   # return without delete stdp4028_ge_b850v3_fw_driver
-
-Fix by calling i2c_del_driver() on stdp4028_ge_b850v3_fw_driver when
-i2c_add_driver() returns error.
-
-Fixes: fcfa0ddc18ed ("drm/bridge: Drivers for megachips-stdpxxxx-ge-b850v3-fw (LVDS-DP++)")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Tested-by: Ian Ray <ian.ray@ge.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221108091226.114524-1-yuancan@huawei.com
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20230104124130.10996-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index 97359f807bfc3..cbfa05a6767b5 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -440,7 +440,11 @@ static int __init stdpxxxx_ge_b850v3_init(void)
- 	if (ret)
- 		return ret;
- 
--	return i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	ret = i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	if (ret)
-+		i2c_del_driver(&stdp4028_ge_b850v3_fw_driver);
-+
-+	return ret;
- }
- module_init(stdpxxxx_ge_b850v3_init);
- 
+diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
+index f315c54bd3ac0..19345b8f7bfd5 100644
+--- a/drivers/net/wireless/ath/ath9k/wmi.c
++++ b/drivers/net/wireless/ath/ath9k/wmi.c
+@@ -341,6 +341,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
+ 	if (!time_left) {
+ 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
+ 			wmi_cmd_to_name(cmd_id));
++		wmi->last_seq_id = 0;
+ 		mutex_unlock(&wmi->op_mutex);
+ 		return -ETIMEDOUT;
+ 	}
 -- 
 2.39.2
 
