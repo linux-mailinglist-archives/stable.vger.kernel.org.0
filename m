@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A786AEB29
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:40:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE21A6AEF75
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231944AbjCGRkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:40:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53108 "EHLO
+        id S232760AbjCGSXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231919AbjCGRk1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:27 -0500
+        with ESMTP id S231154AbjCGSX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E519E650
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:36:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374F9E06D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:18:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 353D9B8199E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:36:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6123DC433D2;
-        Tue,  7 Mar 2023 17:36:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E89CDB81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:18:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A08C433EF;
+        Tue,  7 Mar 2023 18:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210591;
-        bh=trHCe/Wlp5pQuAsOXVErIkoFcPXAuIu6tmz7qucDY0Y=;
+        s=korg; t=1678213097;
+        bh=I46RAPOT1C6yO8uEpNetw6qOsclVEkCPFiZUDGa4KBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APqII9A7LIEd3AsiEliY9TSBLbOxK7uGazs8Qlu8FjYMqQo2OvWhu4yGTVgIHFcLE
-         R66G9QK6QdYvkXi0xoJm/9jIo20b+3BZx8m50ebcV1gSJbGhywRPBczb/KpxgDU3lo
-         oH2DTG4d7RvyDZlUmW1PbPSUXXBktW1OFUsKdbeI=
+        b=2vtqtwOS+GWVWWSe33Qrfg/BW7BPG/RrHYxQraTDVoPeIHDGvMKbmbBKKNA3nNGnd
+         ERvTNOE6mnvh6mH2PlDMFstf/pli+CAKqM2X0GJkZQAH+z71azgY1J/ejpyS1bMdE1
+         AJ99yqkSVr8eiH4mtQf7/UYLJhJ56whnoyQaEqmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        patches@lists.linux.dev, "kernelci.org bot" <bot@kernelci.org>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Guillaume Tucker <guillaume.tucker@collabora.com>,
+        Guenter Roeck <groeck@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0559/1001] PCI: Fix dropping valid root bus resources with .end = zero
+Subject: [PATCH 6.1 397/885] selftests: use printf instead of echo -ne
 Date:   Tue,  7 Mar 2023 17:55:31 +0100
-Message-Id: <20230307170045.739628788@linuxfoundation.org>
+Message-Id: <20230307170019.644662732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-[ Upstream commit 9d8ba74a181b1c81def21168795ed96cbe6f05ed ]
+[ Upstream commit 9e34fad00fc889abbb99d751a4c22cf2bded10df ]
 
-On r8a7791/koelsch:
+Rather than trying to guess which implementation of "echo" to run with
+support for "-ne" options, use "printf" instead of "echo -ne".  It
+handles escape characters as a standard feature and it is widespread
+among modern shells.
 
-  kmemleak: 1 new suspected memory leaks (see /sys/kernel/debug/kmemleak)
-  # cat /sys/kernel/debug/kmemleak
-  unreferenced object 0xc3a34e00 (size 64):
-    comm "swapper/0", pid 1, jiffies 4294937460 (age 199.080s)
-    hex dump (first 32 bytes):
-      b4 5d 81 f0 b4 5d 81 f0 c0 b0 a2 c3 00 00 00 00  .]...]..........
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<fe3aa979>] __kmalloc+0xf0/0x140
-      [<34bd6bc0>] resource_list_create_entry+0x18/0x38
-      [<767046bc>] pci_add_resource_offset+0x20/0x68
-      [<b3f3edf2>] devm_of_pci_get_host_bridge_resources.constprop.0+0xb0/0x390
-
-When coalescing two resources for a contiguous aperture, the second
-resource is enlarged to cover the full contiguous range, while the first
-resource is marked invalid.  This invalidation is done by clearing the
-flags, start, and end members.
-
-When adding the initial resources to the bus later, invalid resources are
-skipped.  Unfortunately, the check for an invalid resource considers only
-the end member, causing false positives.
-
-E.g. on r8a7791/koelsch, root bus resource 0 ("bus 00") is skipped, and no
-longer registered with pci_bus_insert_busn_res() (causing the memory leak),
-nor printed:
-
-   pci-rcar-gen2 ee090000.pci: host bridge /soc/pci@ee090000 ranges:
-   pci-rcar-gen2 ee090000.pci:      MEM 0x00ee080000..0x00ee08ffff -> 0x00ee080000
-   pci-rcar-gen2 ee090000.pci: PCI: revision 11
-   pci-rcar-gen2 ee090000.pci: PCI host bridge to bus 0000:00
-  -pci_bus 0000:00: root bus resource [bus 00]
-   pci_bus 0000:00: root bus resource [mem 0xee080000-0xee08ffff]
-
-Fix this by only skipping resources where all of the flags, start, and end
-members are zero.
-
-Fixes: 7c3855c423b17f6c ("PCI: Coalesce host bridge contiguous apertures")
-Link: https://lore.kernel.org/r/da0fcd5e86c74239be79c7cb03651c0fce31b515.1676036673.git.geert+renesas@glider.be
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Suggested-by: David Laight <David.Laight@ACULAB.COM>
+Fixes: 3297a4df805d ("kselftests: Enable the echo command to print newlines in Makefile")
+Fixes: 79c16b1120fe ("selftests: find echo binary to use -ne options")
+Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/probe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/Makefile | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 1779582fb5007..5988584825482 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -996,7 +996,7 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
- 	resource_list_for_each_entry_safe(window, n, &resources) {
- 		offset = window->offset;
- 		res = window->res;
--		if (!res->end)
-+		if (!res->flags && !res->start && !res->end)
- 			continue;
- 
- 		list_move_tail(&window->node, &bridge->windows);
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index 253596a1cb69c..aae64eb2ae737 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -231,11 +231,10 @@ ifdef INSTALL_PATH
+ 	@# While building kselftest-list.text skip also non-existent TARGET dirs:
+ 	@# they could be the result of a build failure and should NOT be
+ 	@# included in the generated runlist.
+-	ECHO=`which echo`; \
+ 	for TARGET in $(TARGETS); do \
+ 		BUILD_TARGET=$$BUILD/$$TARGET;	\
+-		[ ! -d $(INSTALL_PATH)/$$TARGET ] && $$ECHO "Skipping non-existent dir: $$TARGET" && continue; \
+-		$$ECHO -ne "Emit Tests for $$TARGET\n"; \
++		[ ! -d $(INSTALL_PATH)/$$TARGET ] && printf "Skipping non-existent dir: $$TARGET\n" && continue; \
++		printf "Emit Tests for $$TARGET\n"; \
+ 		$(MAKE) -s --no-print-directory OUTPUT=$$BUILD_TARGET COLLECTION=$$TARGET \
+ 			-C $$TARGET emit_tests >> $(TEST_LIST); \
+ 	done;
 -- 
 2.39.2
 
