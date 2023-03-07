@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA536AEE26
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B19E86AEDF2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229976AbjCGSKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48078 "EHLO
+        id S232370AbjCGSIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232392AbjCGSJX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:23 -0500
+        with ESMTP id S230405AbjCGSIT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD6898875
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25389AFB85
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E77EB8184E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68FE1C433EF;
-        Tue,  7 Mar 2023 18:03:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3E3EB8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B630C4339C;
+        Tue,  7 Mar 2023 18:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212222;
-        bh=ENLdNDxHKZgRxjiXGQB68f8Wvr4nYrt6LVehWIILZac=;
+        s=korg; t=1678212129;
+        bh=vtW6lQsvubAYIdtMeItCiTV47bl8+16JPge962Tixmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijPdVvo+Jw4mVboH4Z/6JR/ZBw0FNCDqluU3yMiu3CIxtYuqkgB+1qXafM3GDRuoB
-         A9muFGxLQow/LrPp5vjeC+O6i0/lPsQ2NIR8qoEkTa3SGWY3Nf8S8nUCIiFUC2AZsX
-         LEpD6viLYSWjbM+4j4fz7/Na5J8kOgFl58TjsDD0=
+        b=Vesd0TQa7eEYGJM39nW5G9UEq5WIzehQXvMklajHt4X1osYBNsy7nOkYMwjreQHbL
+         cP1hpzDvl+I/5W0RX0MSRKP9FXZIQIKlpWJXDSwQAtVRzMJuAqvYr+FGUcLT+keisd
+         iWg+5yDBIo0ey9BvZkIRVUU1KZkAyvjKswRpbq4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
         Kemeng Shi <shikemeng@huaweicloud.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 086/885] blk-mq: remove stale comment for blk_mq_sched_mark_restart_hctx
-Date:   Tue,  7 Mar 2023 17:50:20 +0100
-Message-Id: <20230307170005.555447827@linuxfoundation.org>
+Subject: [PATCH 6.1 087/885] blk-mq: wait on correct sbitmap_queue in blk_mq_mark_tag_wait
+Date:   Tue,  7 Mar 2023 17:50:21 +0100
+Message-Id: <20230307170005.596885765@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -56,37 +56,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kemeng Shi <shikemeng@huaweicloud.com>
 
-[ Upstream commit c31e76bcc379182fe67a82c618493b7b8868c672 ]
+[ Upstream commit 98b99e9412d0cde8c7b442bf5efb09528a2ede8b ]
 
-Commit 97889f9ac24f8 ("blk-mq: remove synchronize_rcu() from
-blk_mq_del_queue_tag_set()") remove handle of TAG_SHARED in restart,
-then shared_hctx_restart counted for how many hardware queues are marked
-for restart is removed too.
-Remove the stale comment that we still count hardware queues need restart.
+For shared queues case, we will only wait on bitmap_tags if we fail to get
+driver tag. However, rq could be from breserved_tags, then two problems
+will occur:
+1. io hung if no tag is currently allocated from bitmap_tags.
+2. unnecessary wakeup when tag is freed to bitmap_tags while no tag is
+freed to breserved_tags.
+Wait on the bitmap which rq from to fix this.
 
-Fixes: 97889f9ac24f ("blk-mq: remove synchronize_rcu() from blk_mq_del_queue_tag_set()")
+Fixes: f906a6a0f426 ("blk-mq: improve tag waiting setup for non-shared tags")
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-sched.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ block/blk-mq.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
-index a4f7c101b53b2..176704a0e4da4 100644
---- a/block/blk-mq-sched.c
-+++ b/block/blk-mq-sched.c
-@@ -19,8 +19,7 @@
- #include "blk-wbt.h"
- 
- /*
-- * Mark a hardware queue as needing a restart. For shared queues, maintain
-- * a count of how many hardware queues are marked for restart.
-+ * Mark a hardware queue as needing a restart.
-  */
- void blk_mq_sched_mark_restart_hctx(struct blk_mq_hw_ctx *hctx)
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 2983ace812667..faffc64fe4ce8 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1794,7 +1794,7 @@ static int blk_mq_dispatch_wake(wait_queue_entry_t *wait, unsigned mode,
+ static bool blk_mq_mark_tag_wait(struct blk_mq_hw_ctx *hctx,
+ 				 struct request *rq)
  {
+-	struct sbitmap_queue *sbq = &hctx->tags->bitmap_tags;
++	struct sbitmap_queue *sbq;
+ 	struct wait_queue_head *wq;
+ 	wait_queue_entry_t *wait;
+ 	bool ret;
+@@ -1817,6 +1817,10 @@ static bool blk_mq_mark_tag_wait(struct blk_mq_hw_ctx *hctx,
+ 	if (!list_empty_careful(&wait->entry))
+ 		return false;
+ 
++	if (blk_mq_tag_is_reserved(rq->mq_hctx->sched_tags, rq->internal_tag))
++		sbq = &hctx->tags->breserved_tags;
++	else
++		sbq = &hctx->tags->bitmap_tags;
+ 	wq = &bt_wait_ptr(sbq, hctx)->wait;
+ 
+ 	spin_lock_irq(&wq->lock);
 -- 
 2.39.2
 
