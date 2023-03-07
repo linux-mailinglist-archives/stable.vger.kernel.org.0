@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0B446AEC7B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D15A26AF180
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:45:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230466AbjCGRzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52324 "EHLO
+        id S230165AbjCGSpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:45:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232381AbjCGRzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:55:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821E5AB8B8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:56 -0800 (PST)
+        with ESMTP id S233162AbjCGSod (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:44:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E176A9DF5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 126A56150C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D09C433EF;
-        Tue,  7 Mar 2023 17:49:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AB55B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B30C433EF;
+        Tue,  7 Mar 2023 18:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211395;
-        bh=NhHFIaADgd7fgNQEZYy/GBvu5bD+BjYn9akLOa/HyXo=;
+        s=korg; t=1678213998;
+        bh=EqPvwCpfLxqn8WfVFVduOkeI7AUGN58iR0FX4sEGzJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKK/AvhqbXIzDBWPGy4JCJJY6RyA2V0TfW3VC1iu62VtpnhovBta9/2WiscOw/A1/
-         ubfZWDTfc2rXwTjqmoGajjLjM8kzm4Ob4ZKnFdRDACF5qc0BfGOPPcPwY1+/lz+pvI
-         s3dqa5FNZLGZR9OtRVpch2yh4AIJbtFjx7GinPHo=
+        b=jbY7ctZdjiDODlqQ/m3NXF6oIOlhlN01kLGljI00ZNjaAhbAFKKiP6xgPFCUH5cRQ
+         Cd2gPHjclH3O89ET0Njzli33rjRrpn/TFVIqQECCvKwYn9nmhzBJ5ae9ltnNF07tCa
+         kPLZTQAky8c0rbqmaygLHE+whgtZfEB/hHDNvgng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.2 0848/1001] brd: mark as nowait compatible
-Date:   Tue,  7 Mar 2023 18:00:20 +0100
-Message-Id: <20230307170058.621178860@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 6.1 687/885] ARM: dts: exynos: correct HDMI phy compatible in Exynos4
+Date:   Tue,  7 Mar 2023 18:00:21 +0100
+Message-Id: <20230307170031.968738803@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 67205f80be9910207481406c47f7d85e703fb2e9 upstream.
+commit af1c89ddb74f170eccd5a57001d7317560b638ea upstream.
 
-By default, non-mq drivers do not support nowait. This causes io_uring
-to use a slower path as the driver cannot be trust not to block. brd
-can safely set the nowait flag, as worst case all it does is a NOIO
-allocation.
+The HDMI phy compatible was missing vendor prefix.
 
-For io_uring, this makes a substantial difference. Before:
-
-submitter=0, tid=453, file=/dev/ram0, node=-1
-polled=0, fixedbufs=1/0, register_files=1, buffered=0, QD=128
-Engine=io_uring, sq_ring=128, cq_ring=128
-IOPS=440.03K, BW=1718MiB/s, IOS/call=32/31
-IOPS=428.96K, BW=1675MiB/s, IOS/call=32/32
-IOPS=442.59K, BW=1728MiB/s, IOS/call=32/31
-IOPS=419.65K, BW=1639MiB/s, IOS/call=32/32
-IOPS=426.82K, BW=1667MiB/s, IOS/call=32/31
-
-and after:
-
-submitter=0, tid=354, file=/dev/ram0, node=-1
-polled=0, fixedbufs=1/0, register_files=1, buffered=0, QD=128
-Engine=io_uring, sq_ring=128, cq_ring=128
-IOPS=3.37M, BW=13.15GiB/s, IOS/call=32/31
-IOPS=3.45M, BW=13.46GiB/s, IOS/call=32/31
-IOPS=3.43M, BW=13.42GiB/s, IOS/call=32/32
-IOPS=3.43M, BW=13.39GiB/s, IOS/call=32/31
-IOPS=3.43M, BW=13.38GiB/s, IOS/call=32/31
-
-or about an 8x in difference. Now that brd is prepared to deal with
-REQ_NOWAIT reads/writes, mark it as supporting that.
-
-Cc: stable@vger.kernel.org # 5.10+
-Link: https://lore.kernel.org/linux-block/20230203103005.31290-1-p.raghav@samsung.com/
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ed80d4cab772 ("ARM: dts: add hdmi related nodes for exynos4 SoCs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230125094513.155063-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/brd.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos4.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -412,6 +412,7 @@ static int brd_alloc(int i)
- 	/* Tell the block layer that this is not a rotational device */
- 	blk_queue_flag_set(QUEUE_FLAG_NONROT, disk->queue);
- 	blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, disk->queue);
-+	blk_queue_flag_set(QUEUE_FLAG_NOWAIT, disk->queue);
- 	err = add_disk(disk);
- 	if (err)
- 		goto out_cleanup_disk;
+--- a/arch/arm/boot/dts/exynos4.dtsi
++++ b/arch/arm/boot/dts/exynos4.dtsi
+@@ -605,7 +605,7 @@
+ 			status = "disabled";
+ 
+ 			hdmi_i2c_phy: hdmiphy@38 {
+-				compatible = "exynos4210-hdmiphy";
++				compatible = "samsung,exynos4210-hdmiphy";
+ 				reg = <0x38>;
+ 			};
+ 		};
 
 
