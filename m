@@ -2,48 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4336AEC32
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0356AF107
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229899AbjCGRxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42398 "EHLO
+        id S233008AbjCGSi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:38:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230494AbjCGRwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5CEA6BC1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:15 -0800 (PST)
+        with ESMTP id S231300AbjCGSiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C94B3737
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:29:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EEBE61501
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 753CEC433D2;
-        Tue,  7 Mar 2023 17:47:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2807B819D3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBBEBC43444;
+        Tue,  7 Mar 2023 18:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211234;
-        bh=gb6m6q7eJ7vrIpStGuM1hl7wRfb5hqwy+aLdckHBeXA=;
+        s=korg; t=1678213711;
+        bh=GmoqgQjS8GrD7H/UaNkiPlOwZIiDMOQSslpLAim/nmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kAMAjWW/cL2F1hd6ddVpkv3HfP2WMduCYPNtgPo+SzRQMfrq0lzcbwawYCeHpZXXx
-         8x4zK/ivMwt76iC+5qS2ZL/b0CWsanBGDhc7bhagsfSX7v0A6z5v20plS7Frz9RxaZ
-         0Y0E/DU6HrUT3UebO1IsJb+hdE7Pd1BirrnhAjhw=
+        b=ORtXeGZ34ML//h4pV3ox6a1ouHk8O7CUhz6aRNVHUl3dgk+biTLkxi3TuOeubpzCX
+         Bbp3gPL0syxE1zhr5923e9EPfK+xN9CHePFtF1yNWo/thlDU/mGm5BlSMqZjF0Ex8J
+         XBXPI2es235HB9sNVJF0+OZvFP2co2qYG2WpPdgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.2 0756/1001] io_uring: handle TIF_NOTIFY_RESUME when checking for task_work
+        patches@lists.linux.dev, Jun Lei <Jun.Lei@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 594/885] drm/amd/display: Reduce expected sdp bandwidth for dcn321
 Date:   Tue,  7 Mar 2023 17:58:48 +0100
-Message-Id: <20230307170054.526787657@linuxfoundation.org>
+Message-Id: <20230307170028.172705372@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,46 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Dillon Varone <Dillon.Varone@amd.com>
 
-commit b5d3ae202fbfe055aa2a8ae8524531ee1dcab717 upstream.
+[ Upstream commit 6b81090d6d4cc0fd818c9ec9dbb6906f921ad396 ]
 
-If TIF_NOTIFY_RESUME is set, then we need to call resume_user_mode_work()
-for PF_IO_WORKER threads. They never return to usermode, hence never get
-a chance to process any items that are marked by this flag. Most notably
-this includes the final put of files, but also any throttling markers set
-by block cgroups.
+[Description]
+Modify soc BB to reduce expected sdp bandwidth and align with measurements to
+fix underflow issues.
 
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.h |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/io_uring/io_uring.h
-+++ b/io_uring/io_uring.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/errno.h>
- #include <linux/lockdep.h>
-+#include <linux/resume_user_mode.h>
- #include <linux/io_uring_types.h>
- #include <uapi/linux/eventpoll.h>
- #include "io-wq.h"
-@@ -270,6 +271,13 @@ static inline int io_run_task_work(void)
- 	 */
- 	if (test_thread_flag(TIF_NOTIFY_SIGNAL))
- 		clear_notify_signal();
-+	/*
-+	 * PF_IO_WORKER never returns to userspace, so check here if we have
-+	 * notify work that needs processing.
-+	 */
-+	if (current->flags & PF_IO_WORKER &&
-+	    test_thread_flag(TIF_NOTIFY_RESUME))
-+		resume_user_mode_work(NULL);
- 	if (task_work_pending(current)) {
- 		__set_current_state(TASK_RUNNING);
- 		task_work_run();
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+index f4b176599be7a..0ea406145c1d7 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+@@ -136,7 +136,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn3_21_soc = {
+ 	.urgent_out_of_order_return_per_channel_pixel_only_bytes = 4096,
+ 	.urgent_out_of_order_return_per_channel_pixel_and_vm_bytes = 4096,
+ 	.urgent_out_of_order_return_per_channel_vm_only_bytes = 4096,
+-	.pct_ideal_sdp_bw_after_urgent = 100.0,
++	.pct_ideal_sdp_bw_after_urgent = 90.0,
+ 	.pct_ideal_fabric_bw_after_urgent = 67.0,
+ 	.pct_ideal_dram_sdp_bw_after_urgent_pixel_only = 20.0,
+ 	.pct_ideal_dram_sdp_bw_after_urgent_pixel_and_vm = 60.0, // N/A, for now keep as is until DML implemented
+-- 
+2.39.2
+
 
 
