@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C706AED21
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7379B6AF233
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:51:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230056AbjCGSB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:01:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55552 "EHLO
+        id S230257AbjCGSvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:51:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229869AbjCGSBG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:01:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC63A90B68
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:00 -0800 (PST)
+        with ESMTP id S233240AbjCGSur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B7B5BE5FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:39:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B8976150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:55:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B20C433EF;
-        Tue,  7 Mar 2023 17:54:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DDE3B819D5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:38:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3ECAC433EF;
+        Tue,  7 Mar 2023 18:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211699;
-        bh=poKDQ1Ll1fYF1E3NJ66RWLYdWhMJz9GW8Ms+/3MrkBY=;
+        s=korg; t=1678214327;
+        bh=q/kZsIyEMl1G4CQEfDTiH8LKnls49Zlzd8pzp2wMfe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFK6tCoKWmlEQga+IO3TShOzcqNDwY82Mux18J9Hpr+/PjFZvsIV0+bb1Fhak5vki
-         DZ7OdkVJrwaOI4s5TT8khCS2QrV+YHZqhAQf6gzS3rCLyJuVX3WOl6Pbkuc3TuEky7
-         5+sennY7B3qPOAt6lvVQuqDOGC7wquEm4/jfoPBw=
+        b=g0rxni0/UnNQBDZ6hxomXpAAJ6fq9InSghEs5JX3w/BhhqXmRb8OHrGtHsKzBtG6M
+         v3xcjHlPhhHzWCcbNfKrB2zrRys3/DgJjtp5NmMjoGM0SZqGVCsGJIWAvhcPaLSWfG
+         A7cbwV9t2KTnkJ40SqoWGRzEL1K27eG3LmWlpRJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 6.2 0947/1001] ktest.pl: Give back console on Ctrt^C on monitor
-Date:   Tue,  7 Mar 2023 18:01:59 +0100
-Message-Id: <20230307170103.229983058@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com,
+        stable@kernel.org, Jun Nie <jun.nie@linaro.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.1 786/885] ext4: optimize ea_inode block expansion
+Date:   Tue,  7 Mar 2023 18:02:00 +0100
+Message-Id: <20230307170036.063379796@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Jun Nie <jun.nie@linaro.org>
 
-commit 83d29d439cd3ef23041570d55841f814af2ecac0 upstream.
+commit 1e9d62d252812575ded7c620d8fc67c32ff06c16 upstream.
 
-When monitoring the console output, the stdout is being redirected to do
-so. If Ctrl^C is hit during this mode, the stdout is not back to the
-console, the user does not see anything they type (no echo).
+Copy ea data from inode entry when expanding ea block if possible.
+Then remove the ea entry if expansion success. Thus memcpy to a
+temporary buffer may be avoided.
 
-Add "end_monitor" to the SIGINT interrupt handler to give back the console
-on Ctrl^C.
+If the expansion fails, we do not need to recovery the removed ea
+entry neither in this way.
 
-Cc: stable@vger.kernel.org
-Fixes: 9f2cdcbbb90e7 ("ktest: Give console process a dedicated tty")
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
+Link: https://lore.kernel.org/r/20230103014517.495275-2-jun.nie@linaro.org
+Cc: stable@kernel.org
+Signed-off-by: Jun Nie <jun.nie@linaro.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/ktest/ktest.pl |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/xattr.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -4200,6 +4200,9 @@ sub send_email {
- }
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2550,9 +2550,8 @@ static int ext4_xattr_move_to_block(hand
  
- sub cancel_test {
-+    if ($monitor_cnt) {
-+	end_monitor;
-+    }
-     if ($email_when_canceled) {
- 	my $name = get_test_name;
- 	send_email("KTEST: Your [$name] test was cancelled",
+ 	is = kzalloc(sizeof(struct ext4_xattr_ibody_find), GFP_NOFS);
+ 	bs = kzalloc(sizeof(struct ext4_xattr_block_find), GFP_NOFS);
+-	buffer = kvmalloc(value_size, GFP_NOFS);
+ 	b_entry_name = kmalloc(entry->e_name_len + 1, GFP_NOFS);
+-	if (!is || !bs || !buffer || !b_entry_name) {
++	if (!is || !bs || !b_entry_name) {
+ 		error = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -2564,12 +2563,18 @@ static int ext4_xattr_move_to_block(hand
+ 
+ 	/* Save the entry name and the entry value */
+ 	if (entry->e_value_inum) {
++		buffer = kvmalloc(value_size, GFP_NOFS);
++		if (!buffer) {
++			error = -ENOMEM;
++			goto out;
++		}
++
+ 		error = ext4_xattr_inode_get(inode, entry, buffer, value_size);
+ 		if (error)
+ 			goto out;
+ 	} else {
+ 		size_t value_offs = le16_to_cpu(entry->e_value_offs);
+-		memcpy(buffer, (void *)IFIRST(header) + value_offs, value_size);
++		buffer = (void *)IFIRST(header) + value_offs;
+ 	}
+ 
+ 	memcpy(b_entry_name, entry->e_name, entry->e_name_len);
+@@ -2584,25 +2589,26 @@ static int ext4_xattr_move_to_block(hand
+ 	if (error)
+ 		goto out;
+ 
+-	/* Remove the chosen entry from the inode */
+-	error = ext4_xattr_ibody_set(handle, inode, &i, is);
+-	if (error)
+-		goto out;
+-
+ 	i.value = buffer;
+ 	i.value_len = value_size;
+ 	error = ext4_xattr_block_find(inode, &i, bs);
+ 	if (error)
+ 		goto out;
+ 
+-	/* Add entry which was removed from the inode into the block */
++	/* Move ea entry from the inode into the block */
+ 	error = ext4_xattr_block_set(handle, inode, &i, bs);
+ 	if (error)
+ 		goto out;
+-	error = 0;
++
++	/* Remove the chosen entry from the inode */
++	i.value = NULL;
++	i.value_len = 0;
++	error = ext4_xattr_ibody_set(handle, inode, &i, is);
++
+ out:
+ 	kfree(b_entry_name);
+-	kvfree(buffer);
++	if (entry->e_value_inum && buffer)
++		kvfree(buffer);
+ 	if (is)
+ 		brelse(is->iloc.bh);
+ 	if (bs)
 
 
