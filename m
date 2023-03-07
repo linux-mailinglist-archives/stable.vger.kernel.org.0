@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 766806AEF31
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:21:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BAC06AEAAB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:36:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbjCGSVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:21:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38592 "EHLO
+        id S231768AbjCGRgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:36:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232555AbjCGSVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:21:09 -0500
+        with ESMTP id S231757AbjCGRfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A74B0495
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:15:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5BC69DE3D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E7E561522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304B5C433EF;
-        Tue,  7 Mar 2023 18:15:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CAFE6151A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74338C433D2;
+        Tue,  7 Mar 2023 17:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212905;
-        bh=jE/JI9lgxjdBkgNm44QfHwcZb023OZpMbdroPUhorKM=;
+        s=korg; t=1678210300;
+        bh=UjSbeJDJAnMBq4dQKZ4o0LcO4wJFbQckHcVsdbcXxSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M94AKG+Pq4ylzlwagYwNWgNPsCPPGvCSbs6Ysi4aZKi8WnughHuvWGM5U1KJYWVDZ
-         ZYVZLEpP1209cfouiD+iCyqvmDGs5nOUfSkf058UhBLJqj7XTF58qGXagdTiwHPxjP
-         qT0d3K+NIB7vwly6vQfzWigPueljBfWssWTgukGM=
+        b=A4vqqcqvfDcEi7qHlm+X3LNvz64uNLI1+QB9wyVlfU6MCDO4PskdmbhbtOMeVh6Qs
+         gDUNpEADAs/F9hcgk8STxAddKdjLerRl6dVVq0XpTsNc8HOZ0W1R/1/1dbwzpfAdWF
+         8d6+1RYMDinXAe//T5QSjJpjfoEACH5gW3BmtgsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 335/885] ASoC: mchp-spdifrx: fix controls that works with completion mechanism
-Date:   Tue,  7 Mar 2023 17:54:29 +0100
-Message-Id: <20230307170016.745553609@linuxfoundation.org>
+Subject: [PATCH 6.2 0498/1001] media: uvcvideo: Check for INACTIVE in uvc_ctrl_is_accessible()
+Date:   Tue,  7 Mar 2023 17:54:30 +0100
+Message-Id: <20230307170042.998768048@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,280 +56,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit d3681df44e856aab523a6eb7ba15b5e41efcbb1c ]
+[ Upstream commit 9f582f0418ed1c18f92c9e4628075d6ec9a7d9fb ]
 
-Channel status get and channel subcode get controls relies on data
-returned by controls when certain IRQs are raised. To achieve that
-completions are used b/w controls and interrupt service routine. The
-concurrent accesses to these controls are protected by
-struct snd_card::controls_rwsem.
+Check for inactive controls in uvc_ctrl_is_accessible().
 
-Issues identified:
-- reinit_completion() may be called while waiting for completion
-  which should be avoided
-- in case of multiple threads waiting, the complete() call in interrupt
-  will signal only one waiting thread per interrupt which may lead to
-  timeout for the others
-- in case of channel status get as the CSC interrupt is not refcounted
-  ISR may disable interrupt for threads that were just enabled it.
+Use the new value for the master_id controls if present, otherwise
+use the existing value to determine if it is OK to set the control.
+Doing this here avoids attempting to set an inactive control, which
+will return an error from the USB device, which returns an invalid
+errorcode.
 
-To solve these the access to controls were protected by a mutex. Along
-with this there is no need for spinlock to protect the software cache
-reads/updates b/w controls and ISR as the update is happening only when
-requested from control, and only one reader can reach the control.
+This fixes:
+  warn: v4l2-test-controls.cpp(483): s_ctrl returned EIO
+  warn: v4l2-test-controls.cpp(483): s_ctrl returned EIO
+test VIDIOC_G/S_CTRL: OK
+  warn: v4l2-test-controls.cpp(739): s_ext_ctrls returned EIO
+  warn: v4l2-test-controls.cpp(739): s_ext_ctrls returned EIO
+  warn: v4l2-test-controls.cpp(816): s_ext_ctrls returned EIO
+test VIDIOC_G/S/TRY_EXT_CTRLS: OK
 
-Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230130120647.638049-4-claudiu.beznea@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested with:
+v4l2-ctl -c auto_exposure=1
+OK
+v4l2-ctl -c exposure_time_absolute=251
+OK
+v4l2-ctl -c auto_exposure=3
+OK
+v4l2-ctl -c exposure_time_absolute=251
+VIDIOC_S_EXT_CTRLS: failed: Input/output error
+exposure_time_absolute: Input/output error
+ERROR
+v4l2-ctl -c auto_exposure=3,exposure_time_absolute=251,auto_exposure=1
+v4l2-ctl -C auto_exposure,exposure_time_absolute  
+auto_exposure: 1
+exposure_time_absolute: 251
+
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-spdifrx.c | 143 ++++++++++++++++++---------------
- 1 file changed, 77 insertions(+), 66 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c | 42 +++++++++++++++++++++++++++++++-
+ drivers/media/usb/uvc/uvc_v4l2.c |  3 +--
+ drivers/media/usb/uvc/uvcvideo.h |  3 ++-
+ 3 files changed, 44 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
-index 7f359371b31bf..31ffaaf46dec0 100644
---- a/sound/soc/atmel/mchp-spdifrx.c
-+++ b/sound/soc/atmel/mchp-spdifrx.c
-@@ -217,7 +217,6 @@ struct mchp_spdifrx_ch_stat {
- struct mchp_spdifrx_user_data {
- 	unsigned char data[SPDIFRX_UD_BITS / 8];
- 	struct completion done;
--	spinlock_t lock;	/* protect access to user data */
- };
- 
- struct mchp_spdifrx_mixer_control {
-@@ -231,8 +230,6 @@ struct mchp_spdifrx_mixer_control {
- struct mchp_spdifrx_dev {
- 	struct snd_dmaengine_dai_dma_data	capture;
- 	struct mchp_spdifrx_mixer_control	control;
--	spinlock_t				blockend_lock;	/* protect access to blockend_refcount */
--	int					blockend_refcount;
- 	struct mutex				mlock;
- 	struct device				*dev;
- 	struct regmap				*regmap;
-@@ -277,37 +274,11 @@ static void mchp_spdifrx_channel_user_data_read(struct mchp_spdifrx_dev *dev,
- 	}
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index c95a2229f4fa9..6f5aaaf09ee01 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -1085,11 +1085,28 @@ static int uvc_query_v4l2_class(struct uvc_video_chain *chain, u32 req_id,
+ 	return 0;
  }
  
--/* called from non-atomic context only */
--static void mchp_spdifrx_isr_blockend_en(struct mchp_spdifrx_dev *dev)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&dev->blockend_lock, flags);
--	dev->blockend_refcount++;
--	/* don't enable BLOCKEND interrupt if it's already enabled */
--	if (dev->blockend_refcount == 1)
--		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_BLOCKEND);
--	spin_unlock_irqrestore(&dev->blockend_lock, flags);
--}
--
--/* called from atomic/non-atomic context */
--static void mchp_spdifrx_isr_blockend_dis(struct mchp_spdifrx_dev *dev)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&dev->blockend_lock, flags);
--	dev->blockend_refcount--;
--	/* don't enable BLOCKEND interrupt if it's already enabled */
--	if (dev->blockend_refcount == 0)
--		regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_BLOCKEND);
--	spin_unlock_irqrestore(&dev->blockend_lock, flags);
--}
--
- static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
++/*
++ * Check if control @v4l2_id can be accessed by the given control @ioctl
++ * (VIDIOC_G_EXT_CTRLS, VIDIOC_TRY_EXT_CTRLS or VIDIOC_S_EXT_CTRLS).
++ *
++ * For set operations on slave controls, check if the master's value is set to
++ * manual, either in the others controls set in the same ioctl call, or from
++ * the master's current value. This catches VIDIOC_S_EXT_CTRLS calls that set
++ * both the master and slave control, such as for instance setting
++ * auto_exposure=1, exposure_time_absolute=251.
++ */
+ int uvc_ctrl_is_accessible(struct uvc_video_chain *chain, u32 v4l2_id,
+-			   bool read)
++			   const struct v4l2_ext_controls *ctrls,
++			   unsigned long ioctl)
  {
- 	struct mchp_spdifrx_dev *dev = dev_id;
- 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
--	u32 sr, imr, pending, idr = 0;
-+	u32 sr, imr, pending;
- 	irqreturn_t ret = IRQ_NONE;
- 	int ch;
++	struct uvc_control_mapping *master_map = NULL;
++	struct uvc_control *master_ctrl = NULL;
+ 	struct uvc_control_mapping *mapping;
+ 	struct uvc_control *ctrl;
++	bool read = ioctl == VIDIOC_G_EXT_CTRLS;
++	s32 val;
++	int ret;
++	int i;
  
-@@ -322,13 +293,10 @@ static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
+ 	if (__uvc_query_v4l2_class(chain, v4l2_id, 0) >= 0)
+ 		return -EACCES;
+@@ -1104,6 +1121,29 @@ int uvc_ctrl_is_accessible(struct uvc_video_chain *chain, u32 v4l2_id,
+ 	if (!(ctrl->info.flags & UVC_CTRL_FLAG_SET_CUR) && !read)
+ 		return -EACCES;
  
- 	if (pending & SPDIFRX_IR_BLOCKEND) {
- 		for (ch = 0; ch < SPDIFRX_CHANNELS; ch++) {
--			spin_lock(&ctrl->user_data[ch].lock);
- 			mchp_spdifrx_channel_user_data_read(dev, ch);
--			spin_unlock(&ctrl->user_data[ch].lock);
--
- 			complete(&ctrl->user_data[ch].done);
- 		}
--		mchp_spdifrx_isr_blockend_dis(dev);
-+		regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_BLOCKEND);
- 		ret = IRQ_HANDLED;
- 	}
- 
-@@ -336,7 +304,7 @@ static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
- 		if (pending & SPDIFRX_IR_CSC(ch)) {
- 			mchp_spdifrx_channel_status_read(dev, ch);
- 			complete(&ctrl->ch_stat[ch].done);
--			idr |= SPDIFRX_IR_CSC(ch);
-+			regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_CSC(ch));
- 			ret = IRQ_HANDLED;
- 		}
- 	}
-@@ -346,8 +314,6 @@ static irqreturn_t mchp_spdif_interrupt(int irq, void *dev_id)
- 		ret = IRQ_HANDLED;
- 	}
- 
--	regmap_write(dev->regmap, SPDIFRX_IDR, idr);
--
- 	return ret;
- }
- 
-@@ -517,23 +483,51 @@ static int mchp_spdifrx_cs_get(struct mchp_spdifrx_dev *dev,
- {
- 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
- 	struct mchp_spdifrx_ch_stat *ch_stat = &ctrl->ch_stat[channel];
--	int ret;
-+	int ret = 0;
-+
-+	mutex_lock(&dev->mlock);
- 
--	regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_CSC(channel));
--	/* check for new data available */
--	ret = wait_for_completion_interruptible_timeout(&ch_stat->done,
--							msecs_to_jiffies(100));
--	/* IP might not be started or valid stream might not be present */
--	if (ret <= 0) {
--		dev_dbg(dev->dev, "channel status for channel %d timeout\n",
--			channel);
--		return ret ? : -ETIMEDOUT;
-+	/*
-+	 * We may reach this point with both clocks enabled but the receiver
-+	 * still disabled. To void waiting for completion and return with
-+	 * timeout check the dev->trigger_enabled.
-+	 *
-+	 * To retrieve data:
-+	 * - if the receiver is enabled CSC IRQ will update the data in software
-+	 *   caches (ch_stat->data)
-+	 * - otherwise we just update it here the software caches with latest
-+	 *   available information and return it; in this case we don't need
-+	 *   spin locking as the IRQ is disabled and will not be raised from
-+	 *   anywhere else.
-+	 */
-+
-+	if (dev->trigger_enabled) {
-+		reinit_completion(&ch_stat->done);
-+		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_CSC(channel));
-+		/* Check for new data available */
-+		ret = wait_for_completion_interruptible_timeout(&ch_stat->done,
-+								msecs_to_jiffies(100));
-+		/* Valid stream might not be present */
-+		if (ret <= 0) {
-+			dev_dbg(dev->dev, "channel status for channel %d timeout\n",
-+				channel);
-+			regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_CSC(channel));
-+			ret = ret ? : -ETIMEDOUT;
-+			goto unlock;
-+		} else {
-+			ret = 0;
-+		}
-+	} else {
-+		/* Update software cache with latest channel status. */
-+		mchp_spdifrx_channel_status_read(dev, channel);
- 	}
- 
- 	memcpy(uvalue->value.iec958.status, ch_stat->data,
- 	       sizeof(ch_stat->data));
- 
--	return 0;
-+unlock:
-+	mutex_unlock(&dev->mlock);
-+	return ret;
- }
- 
- static int mchp_spdifrx_cs1_get(struct snd_kcontrol *kcontrol,
-@@ -567,29 +561,49 @@ static int mchp_spdifrx_subcode_ch_get(struct mchp_spdifrx_dev *dev,
- 				       int channel,
- 				       struct snd_ctl_elem_value *uvalue)
- {
--	unsigned long flags;
- 	struct mchp_spdifrx_mixer_control *ctrl = &dev->control;
- 	struct mchp_spdifrx_user_data *user_data = &ctrl->user_data[channel];
--	int ret;
-+	int ret = 0;
-+
-+	mutex_lock(&dev->mlock);
++	if (ioctl != VIDIOC_S_EXT_CTRLS || !mapping->master_id)
++		return 0;
 +
 +	/*
-+	 * We may reach this point with both clocks enabled but the receiver
-+	 * still disabled. To void waiting for completion to just timeout we
-+	 * check here the dev->trigger_enabled flag.
-+	 *
-+	 * To retrieve data:
-+	 * - if the receiver is enabled we need to wait for blockend IRQ to read
-+	 *   data to and update it for us in software caches
-+	 * - otherwise reading the SPDIFRX_CHUD() registers is enough.
++	 * Iterate backwards in cases where the master control is accessed
++	 * multiple times in the same ioctl. We want the last value.
 +	 */
- 
--	reinit_completion(&user_data->done);
--	mchp_spdifrx_isr_blockend_en(dev);
--	ret = wait_for_completion_interruptible_timeout(&user_data->done,
--							msecs_to_jiffies(100));
--	/* IP might not be started or valid stream might not be present */
--	if (ret <= 0) {
--		dev_dbg(dev->dev, "user data for channel %d timeout\n",
--			channel);
--		mchp_spdifrx_isr_blockend_dis(dev);
--		return ret ? : -ETIMEDOUT;
-+	if (dev->trigger_enabled) {
-+		reinit_completion(&user_data->done);
-+		regmap_write(dev->regmap, SPDIFRX_IER, SPDIFRX_IR_BLOCKEND);
-+		ret = wait_for_completion_interruptible_timeout(&user_data->done,
-+								msecs_to_jiffies(100));
-+		/* Valid stream might not be present. */
-+		if (ret <= 0) {
-+			dev_dbg(dev->dev, "user data for channel %d timeout\n",
-+				channel);
-+			regmap_write(dev->regmap, SPDIFRX_IDR, SPDIFRX_IR_BLOCKEND);
-+			ret = ret ? : -ETIMEDOUT;
-+			goto unlock;
-+		} else {
-+			ret = 0;
-+		}
-+	} else {
-+		/* Update software cache with last available data. */
-+		mchp_spdifrx_channel_user_data_read(dev, channel);
- 	}
- 
--	spin_lock_irqsave(&user_data->lock, flags);
- 	memcpy(uvalue->value.iec958.subcode, user_data->data,
- 	       sizeof(user_data->data));
--	spin_unlock_irqrestore(&user_data->lock, flags);
- 
--	return 0;
-+unlock:
-+	mutex_unlock(&dev->mlock);
-+	return ret;
++	for (i = ctrls->count - 1; i >= 0; i--) {
++		if (ctrls->controls[i].id == mapping->master_id)
++			return ctrls->controls[i].value ==
++					mapping->master_manual ? 0 : -EACCES;
++	}
++
++	__uvc_find_control(ctrl->entity, mapping->master_id, &master_map,
++			   &master_ctrl, 0);
++
++	if (!master_ctrl || !(master_ctrl->info.flags & UVC_CTRL_FLAG_GET_CUR))
++		return 0;
++
++	ret = __uvc_ctrl_get(chain, master_ctrl, master_map, &val);
++	if (ret >= 0 && val != mapping->master_manual)
++		return -EACCES;
++
+ 	return 0;
  }
  
- static int mchp_spdifrx_subcode_ch1_get(struct snd_kcontrol *kcontrol,
-@@ -890,11 +904,9 @@ static int mchp_spdifrx_dai_probe(struct snd_soc_dai *dai)
- 		     SPDIFRX_MR_AUTORST_NOACTION |
- 		     SPDIFRX_MR_PACK_DISABLED);
+diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
+index f4d4c33b6dfbd..3edb54c086b24 100644
+--- a/drivers/media/usb/uvc/uvc_v4l2.c
++++ b/drivers/media/usb/uvc/uvc_v4l2.c
+@@ -1020,8 +1020,7 @@ static int uvc_ctrl_check_access(struct uvc_video_chain *chain,
+ 	int ret = 0;
  
--	dev->blockend_refcount = 0;
- 	for (ch = 0; ch < SPDIFRX_CHANNELS; ch++) {
- 		init_completion(&ctrl->ch_stat[ch].done);
- 		init_completion(&ctrl->user_data[ch].done);
--		spin_lock_init(&ctrl->user_data[ch].lock);
+ 	for (i = 0; i < ctrls->count; ++ctrl, ++i) {
+-		ret = uvc_ctrl_is_accessible(chain, ctrl->id,
+-					    ioctl == VIDIOC_G_EXT_CTRLS);
++		ret = uvc_ctrl_is_accessible(chain, ctrl->id, ctrls, ioctl);
+ 		if (ret)
+ 			break;
  	}
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index df93db259312e..a151f583cd156 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -761,7 +761,8 @@ static inline int uvc_ctrl_rollback(struct uvc_fh *handle)
+ int uvc_ctrl_get(struct uvc_video_chain *chain, struct v4l2_ext_control *xctrl);
+ int uvc_ctrl_set(struct uvc_fh *handle, struct v4l2_ext_control *xctrl);
+ int uvc_ctrl_is_accessible(struct uvc_video_chain *chain, u32 v4l2_id,
+-			   bool read);
++			   const struct v4l2_ext_controls *ctrls,
++			   unsigned long ioctl);
  
- 	/* Add controls */
-@@ -1005,7 +1017,6 @@ static int mchp_spdifrx_probe(struct platform_device *pdev)
- 	 */
- 	clk_set_min_rate(dev->gclk, 48000 * SPDIFRX_GCLK_RATIO_MIN + 1);
- 
--	spin_lock_init(&dev->blockend_lock);
- 	mutex_init(&dev->mlock);
- 
- 	dev->dev = &pdev->dev;
+ int uvc_xu_ctrl_query(struct uvc_video_chain *chain,
+ 		      struct uvc_xu_control_query *xqry);
 -- 
 2.39.2
 
