@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 942436AEEAB
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:14:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19E356AEA4B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232535AbjCGSOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:14:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57076 "EHLO
+        id S231697AbjCGRcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:32:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232537AbjCGSNz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC414A1022
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:09:41 -0800 (PST)
+        with ESMTP id S231654AbjCGRcM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6923295BF6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 104396152F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04E62C433D2;
-        Tue,  7 Mar 2023 18:09:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D825B819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C02C433EF;
+        Tue,  7 Mar 2023 17:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212580;
-        bh=NkhGTQjfEg3PCOniQyzM+GV8UTZR8oOJLCu/M5uuEjM=;
+        s=korg; t=1678210059;
+        bh=iuBnDX04y2ZbW1Y3ZZan0C7qmHGUT/JTlMlSYQdxTHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLQ1I3aZ3A62Zq9Ll0Clzjk1CW0j/fynfuTczmoTBUa8IAcXjwVsm3aL08PTj+YS2
-         s+hZOy7h074jwTgoWVnrsiyBSsSRZVHyjCxtWHqkgUNso7at+pG9ZtCqZQgDBzmCiA
-         S4spNs50nK3KWuTSg46bv+3elGOXCQgEGUrZHVy0=
+        b=xXPxhSw8LuBhXqrvkTHxecXqnIDhOZYd5gY2VJWRElESf2IBCSv2DsoAMdXwQg4dD
+         SqQ+Lyb7LWKv5MlZ9ZjzfaH5eObbDaGM1fojbwFdLnedHpJ4U2yG3JOTFkLFqAv8ls
+         5qahKkIQMFBsp9FBK1msrrK9vwknnUv1odEQogtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 229/885] wifi: mwifiex: fix loop iterator in mwifiex_update_ampdu_txwinsize()
-Date:   Tue,  7 Mar 2023 17:52:43 +0100
-Message-Id: <20230307170011.968243187@linuxfoundation.org>
+        patches@lists.linux.dev, Gustavo Sousa <gustavo.sousa@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0392/1001] drm/i915/xehp: Annotate a couple more workaround registers as MCR
+Date:   Tue,  7 Mar 2023 17:52:44 +0100
+Message-Id: <20230307170038.362178535@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-[ Upstream commit 3cfb7df24cee0f5fdc4cc5d3176cab9aadfcb430 ]
+[ Upstream commit 7649a5d1f263b8cc5c2827ef0443ead9bee9ae0e ]
 
-This code re-uses "i" to be the iterator for both the inside and outside
-loops.  It means the outside loop will exit earlier than intended.
+GAMSTLB_CTRL and GAMCNTRL_CTRL became multicast/replicated registers on
+Xe_HP.  They should be defined accordingly and use MCR-aware operations.
 
-Fixes: d219b7eb3792 ("mwifiex: handle BT coex event to adjust Rx BA window size")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/Y+ERnaDaZD7RtLvX@kili
+These registers have only been used for some dg2/xehpsdv workarounds, so
+this fix is mostly just for consistency/future-proofing; even lacking
+the MCR annotation, workarounds will always be properly applied in a
+multicast manner on these platforms.
+
+Cc: Gustavo Sousa <gustavo.sousa@intel.com>
+Fixes: 58bc2453ab8a ("drm/i915: Define multicast registers as a new type")
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Reviewed-by: Gustavo Sousa <gustavo.sousa@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230125234159.3015385-3-matthew.d.roper@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/11n.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_gt_regs.h     |  4 ++--
+ drivers/gpu/drm/i915/gt/intel_workarounds.c | 16 ++++++++--------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/11n.c b/drivers/net/wireless/marvell/mwifiex/11n.c
-index 4af57e6d43932..90e4011008981 100644
---- a/drivers/net/wireless/marvell/mwifiex/11n.c
-+++ b/drivers/net/wireless/marvell/mwifiex/11n.c
-@@ -878,7 +878,7 @@ mwifiex_send_delba_txbastream_tbl(struct mwifiex_private *priv, u8 tid)
-  */
- void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
- {
--	u8 i;
-+	u8 i, j;
- 	u32 tx_win_size;
- 	struct mwifiex_private *priv;
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_regs.h b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
+index c525fc07a9bcb..0c7e7972cc1c4 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_regs.h
++++ b/drivers/gpu/drm/i915/gt/intel_gt_regs.h
+@@ -1093,12 +1093,12 @@
+ #define VEBX_MOD_CTRL				MCR_REG(0xcf38)
+ #define   FORCE_MISS_FTLB			REG_BIT(3)
  
-@@ -909,8 +909,8 @@ void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
- 		if (tx_win_size != priv->add_ba_param.tx_win_size) {
- 			if (!priv->media_connected)
- 				continue;
--			for (i = 0; i < MAX_NUM_TID; i++)
--				mwifiex_send_delba_txbastream_tbl(priv, i);
-+			for (j = 0; j < MAX_NUM_TID; j++)
-+				mwifiex_send_delba_txbastream_tbl(priv, j);
- 		}
- 	}
+-#define GEN12_GAMSTLB_CTRL			_MMIO(0xcf4c)
++#define XEHP_GAMSTLB_CTRL			MCR_REG(0xcf4c)
+ #define   CONTROL_BLOCK_CLKGATE_DIS		REG_BIT(12)
+ #define   EGRESS_BLOCK_CLKGATE_DIS		REG_BIT(11)
+ #define   TAG_BLOCK_CLKGATE_DIS			REG_BIT(7)
+ 
+-#define GEN12_GAMCNTRL_CTRL			_MMIO(0xcf54)
++#define XEHP_GAMCNTRL_CTRL			MCR_REG(0xcf54)
+ #define   INVALIDATION_BROADCAST_MODE_DIS	REG_BIT(12)
+ #define   GLOBAL_INVALIDATION_MODE		REG_BIT(2)
+ 
+diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+index 9932d748b9d7b..dcc694b8bc8c7 100644
+--- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+@@ -1555,8 +1555,8 @@ xehpsdv_gt_workarounds_init(struct intel_gt *gt, struct i915_wa_list *wal)
+ 	wa_mcr_write_or(wal, XEHP_MERT_MOD_CTRL, FORCE_MISS_FTLB);
+ 
+ 	/* Wa_14014368820:xehpsdv */
+-	wa_write_or(wal, GEN12_GAMCNTRL_CTRL,
+-		    INVALIDATION_BROADCAST_MODE_DIS | GLOBAL_INVALIDATION_MODE);
++	wa_mcr_write_or(wal, XEHP_GAMCNTRL_CTRL,
++			INVALIDATION_BROADCAST_MODE_DIS | GLOBAL_INVALIDATION_MODE);
  }
+ 
+ static void
+@@ -1650,10 +1650,10 @@ dg2_gt_workarounds_init(struct intel_gt *gt, struct i915_wa_list *wal)
+ 		wa_mcr_write_or(wal, SSMCGCTL9530, RTFUNIT_CLKGATE_DIS);
+ 
+ 		/* Wa_14010680813:dg2_g10 */
+-		wa_write_or(wal, GEN12_GAMSTLB_CTRL,
+-			    CONTROL_BLOCK_CLKGATE_DIS |
+-			    EGRESS_BLOCK_CLKGATE_DIS |
+-			    TAG_BLOCK_CLKGATE_DIS);
++		wa_mcr_write_or(wal, XEHP_GAMSTLB_CTRL,
++				CONTROL_BLOCK_CLKGATE_DIS |
++				EGRESS_BLOCK_CLKGATE_DIS |
++				TAG_BLOCK_CLKGATE_DIS);
+ 	}
+ 
+ 	/* Wa_14014830051:dg2 */
+@@ -1676,8 +1676,8 @@ dg2_gt_workarounds_init(struct intel_gt *gt, struct i915_wa_list *wal)
+ 	wa_mcr_write_or(wal, VEBX_MOD_CTRL, FORCE_MISS_FTLB);
+ 
+ 	/* Wa_1509235366:dg2 */
+-	wa_write_or(wal, GEN12_GAMCNTRL_CTRL,
+-		    INVALIDATION_BROADCAST_MODE_DIS | GLOBAL_INVALIDATION_MODE);
++	wa_mcr_write_or(wal, XEHP_GAMCNTRL_CTRL,
++			INVALIDATION_BROADCAST_MODE_DIS | GLOBAL_INVALIDATION_MODE);
+ }
+ 
+ static void
 -- 
 2.39.2
 
