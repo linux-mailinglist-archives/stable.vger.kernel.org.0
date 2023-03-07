@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B03C16AEB32
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 666646AEFF6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbjCGRlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:41:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50358 "EHLO
+        id S233067AbjCGS2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:28:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231922AbjCGRko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E172A141
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:37:00 -0800 (PST)
+        with ESMTP id S232943AbjCGS0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:26:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317E5B06DE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8C416150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:36:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6392C433EF;
-        Tue,  7 Mar 2023 17:36:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 69831CE1C81
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 513DDC433D2;
+        Tue,  7 Mar 2023 18:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210619;
-        bh=osvqvJl3EuapPeRyT/HOJSC2KHyUg42XHbjo8mS2a0A=;
+        s=korg; t=1678213245;
+        bh=kuDlEyKFMm3hkU0qV64QqInuOViRoocDeoJjbnYDs1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/OJkfro2ZHYosKQ7N9dX/EHL34vikBdr4xyQ4WgFT2xn5K2SLO4DmcNfuU/3Won7
-         L4J5qjpNTrBZJV1uueBDafDlsRzO88jDmtAVyYHjaXR72nl1+MR0M7+JGVh953lWhC
-         OCdwleTdr0+0P0LznM9VfuAnMyTjRkQDVoKm12UQ=
+        b=rQ85bdEHlY8d0Cvd2ORLC84/34I9Cpxag9dNiSZgkYNC8HLpJj+ZSwgzfRZgpuTar
+         5dOtY9VkBYuq3vEu+krVh2PauDXuN1Q9pVJGkccr0zCwDy7a3G5lz3Kl9+FLZRVEYw
+         bNJBN1N1cX3SFOcznPROZJWLYZGeHaJd1wQYEsg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jai Luthra <j-luthra@ti.com>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0600/1001] media: i2c: imx219: Fix binning for RAW8 capture
+        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Vishnu Dasa <vdasa@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 438/885] VMCI: check context->notify_page after call to get_user_pages_fast() to avoid GPF
 Date:   Tue,  7 Mar 2023 17:56:12 +0100
-Message-Id: <20230307170047.539784384@linuxfoundation.org>
+Message-Id: <20230307170021.444916469@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,178 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jai Luthra <j-luthra@ti.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit ef86447e775fb1f2ced00d4c7fff2c0a1c63f165 ]
+[ Upstream commit 1a726cb47fd204109c767409fa9ca15a96328f14 ]
 
-2x2 binning works fine for RAW10 capture, but for RAW8 1232p mode it
-leads to corrupted frames [1][2].
+The call to get_user_pages_fast() in vmci_host_setup_notify() can return
+NULL context->notify_page causing a GPF. To avoid GPF check if
+context->notify_page == NULL and return error if so.
 
-Using the special 2x2 analog binning mode fixes the issue, but causes
-artefacts for RAW10 1232p capture. So here we choose the binning mode
-depending upon the frame format selected.
+general protection fault, probably for non-canonical address
+    0xe0009d1000000060: 0000 [#1] PREEMPT SMP KASAN NOPTI
+KASAN: maybe wild-memory-access in range [0x0005088000000300-
+    0x0005088000000307]
+CPU: 2 PID: 26180 Comm: repro_34802241 Not tainted 6.1.0-rc4 #1
+Hardware name: Red Hat KVM, BIOS 1.15.0-2.module+el8.6.0 04/01/2014
+RIP: 0010:vmci_ctx_check_signal_notify+0x91/0xe0
+Call Trace:
+ <TASK>
+ vmci_host_unlocked_ioctl+0x362/0x1f40
+ __x64_sys_ioctl+0x1a1/0x230
+ do_syscall_64+0x3a/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-As both binning modes work fine for 480p RAW8 and RAW10 capture, it can
-share the same code path as 1232p for selecting binning mode.
-
-[1] https://forums.raspberrypi.com/viewtopic.php?t=332103
-[2] https://github.com/raspberrypi/libcamera-apps/issues/281
-
-Fixes: 22da1d56e982 ("media: i2c: imx219: Add support for RAW8 bit bayer format")
-Signed-off-by: Jai Luthra <j-luthra@ti.com>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: a1d88436d53a ("VMCI: Fix two UVA mapping bugs")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Link: https://lore.kernel.org/r/1669666705-24012-1-git-send-email-george.kennedy@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx219.c | 57 ++++++++++++++++++++++++++++++++------
- 1 file changed, 49 insertions(+), 8 deletions(-)
+ drivers/misc/vmw_vmci/vmci_host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
-index 7f44d62047b67..7a14688f8c228 100644
---- a/drivers/media/i2c/imx219.c
-+++ b/drivers/media/i2c/imx219.c
-@@ -89,6 +89,12 @@
- 
- #define IMX219_REG_ORIENTATION		0x0172
- 
-+/* Binning  Mode */
-+#define IMX219_REG_BINNING_MODE		0x0174
-+#define IMX219_BINNING_NONE		0x0000
-+#define IMX219_BINNING_2X2		0x0101
-+#define IMX219_BINNING_2X2_ANALOG	0x0303
-+
- /* Test Pattern Control */
- #define IMX219_REG_TEST_PATTERN		0x0600
- #define IMX219_TEST_PATTERN_DISABLE	0
-@@ -143,6 +149,9 @@ struct imx219_mode {
- 
- 	/* Default register values */
- 	struct imx219_reg_list reg_list;
-+
-+	/* 2x2 binning is used */
-+	bool binning;
- };
- 
- static const struct imx219_reg imx219_common_regs[] = {
-@@ -212,8 +221,6 @@ static const struct imx219_reg mode_3280x2464_regs[] = {
- 	{0x016d, 0xd0},
- 	{0x016e, 0x09},
- 	{0x016f, 0xa0},
--	{0x0174, 0x00},	/* No-Binning */
--	{0x0175, 0x00},
- 	{0x0624, 0x0c},
- 	{0x0625, 0xd0},
- 	{0x0626, 0x09},
-@@ -233,8 +240,6 @@ static const struct imx219_reg mode_1920_1080_regs[] = {
- 	{0x016d, 0x80},
- 	{0x016e, 0x04},
- 	{0x016f, 0x38},
--	{0x0174, 0x00},	/* No-Binning */
--	{0x0175, 0x00},
- 	{0x0624, 0x07},
- 	{0x0625, 0x80},
- 	{0x0626, 0x04},
-@@ -254,8 +259,6 @@ static const struct imx219_reg mode_1640_1232_regs[] = {
- 	{0x016d, 0x68},
- 	{0x016e, 0x04},
- 	{0x016f, 0xd0},
--	{0x0174, 0x01},	/* x2-Binning */
--	{0x0175, 0x01},
- 	{0x0624, 0x06},
- 	{0x0625, 0x68},
- 	{0x0626, 0x04},
-@@ -275,8 +278,6 @@ static const struct imx219_reg mode_640_480_regs[] = {
- 	{0x016d, 0x80},
- 	{0x016e, 0x01},
- 	{0x016f, 0xe0},
--	{0x0174, 0x03},	/* x2-analog binning */
--	{0x0175, 0x03},
- 	{0x0624, 0x06},
- 	{0x0625, 0x68},
- 	{0x0626, 0x04},
-@@ -390,6 +391,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_3280x2464_regs),
- 			.regs = mode_3280x2464_regs,
- 		},
-+		.binning = false,
- 	},
- 	{
- 		/* 1080P 30fps cropped */
-@@ -406,6 +408,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_1920_1080_regs),
- 			.regs = mode_1920_1080_regs,
- 		},
-+		.binning = false,
- 	},
- 	{
- 		/* 2x2 binned 30fps mode */
-@@ -422,6 +425,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_1640_1232_regs),
- 			.regs = mode_1640_1232_regs,
- 		},
-+		.binning = true,
- 	},
- 	{
- 		/* 640x480 30fps mode */
-@@ -438,6 +442,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_640_480_regs),
- 			.regs = mode_640_480_regs,
- 		},
-+		.binning = true,
- 	},
- };
- 
-@@ -884,6 +889,35 @@ static int imx219_set_framefmt(struct imx219 *imx219)
- 	return -EINVAL;
- }
- 
-+static int imx219_set_binning(struct imx219 *imx219)
-+{
-+	if (!imx219->mode->binning) {
-+		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
-+					IMX219_REG_VALUE_16BIT,
-+					IMX219_BINNING_NONE);
-+	}
-+
-+	switch (imx219->fmt.code) {
-+	case MEDIA_BUS_FMT_SRGGB8_1X8:
-+	case MEDIA_BUS_FMT_SGRBG8_1X8:
-+	case MEDIA_BUS_FMT_SGBRG8_1X8:
-+	case MEDIA_BUS_FMT_SBGGR8_1X8:
-+		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
-+					IMX219_REG_VALUE_16BIT,
-+					IMX219_BINNING_2X2_ANALOG);
-+
-+	case MEDIA_BUS_FMT_SRGGB10_1X10:
-+	case MEDIA_BUS_FMT_SGRBG10_1X10:
-+	case MEDIA_BUS_FMT_SGBRG10_1X10:
-+	case MEDIA_BUS_FMT_SBGGR10_1X10:
-+		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
-+					IMX219_REG_VALUE_16BIT,
-+					IMX219_BINNING_2X2);
-+	}
-+
-+	return -EINVAL;
-+}
-+
- static const struct v4l2_rect *
- __imx219_get_pad_crop(struct imx219 *imx219,
- 		      struct v4l2_subdev_state *sd_state,
-@@ -968,6 +1002,13 @@ static int imx219_start_streaming(struct imx219 *imx219)
- 		goto err_rpm_put;
+diff --git a/drivers/misc/vmw_vmci/vmci_host.c b/drivers/misc/vmw_vmci/vmci_host.c
+index da1e2a773823e..857b9851402a6 100644
+--- a/drivers/misc/vmw_vmci/vmci_host.c
++++ b/drivers/misc/vmw_vmci/vmci_host.c
+@@ -242,6 +242,8 @@ static int vmci_host_setup_notify(struct vmci_ctx *context,
+ 		context->notify_page = NULL;
+ 		return VMCI_ERROR_GENERIC;
  	}
++	if (context->notify_page == NULL)
++		return VMCI_ERROR_UNAVAILABLE;
  
-+	ret = imx219_set_binning(imx219);
-+	if (ret) {
-+		dev_err(&client->dev, "%s failed to set binning: %d\n",
-+			__func__, ret);
-+		goto err_rpm_put;
-+	}
-+
- 	/* Apply customized values from user */
- 	ret =  __v4l2_ctrl_handler_setup(imx219->sd.ctrl_handler);
- 	if (ret)
+ 	/*
+ 	 * Map the locked page and set up notify pointer.
 -- 
 2.39.2
 
