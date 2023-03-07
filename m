@@ -2,56 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E572D6AEC2E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA5A6AF064
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232273AbjCGRxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44364 "EHLO
+        id S233055AbjCGSa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbjCGRwl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:41 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13496A5931
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:05 -0800 (PST)
+        with ESMTP id S233167AbjCGS3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4C7636FC7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 21205CE1BF8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C86C433EF;
-        Tue,  7 Mar 2023 17:41:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F018B819D3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B9DC433A7;
+        Tue,  7 Mar 2023 18:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210920;
-        bh=N1EcWGLLe8wG22u64eetkzqI3wxz8TjIp8uhLlWEs9o=;
+        s=korg; t=1678213397;
+        bh=v5rJVvDbHQR54MKFa57MwrziVRiIGWiZn0XDocf0irs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WfTFP0a7QlNzvh6mWq7JwMMExF/C3/EcRIuJvHWq+cH+8A1vjpnzNyYEUBRen44KO
-         LUoZPyfnr1SbzLK4t+JGwOP5n1UWEoB7fwOmSCnLC0U00GL0PfJg0iv2tQYPn+mRef
-         d+G1NdXjcazG+OAG8b/0f7a5h/yVYsn8YI2C6j+o=
+        b=ivMSquzqanHBxk9SXtrivZcqZpns/SgTRe7MCkPxIIiC2F0lUp23qjPEjcvh+h1KY
+         aA4M7DPQRr09Ib0bwDBwoKVFMMRCkwfmLOMrcGOr12OJzdTpFc0aS+FSTENJN8vTv6
+         FquQFZugJYPRVKrCmA19Xzz5wD4eDhaW5dD3qnQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Florent Revest <revest@chromium.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Will Deacon <will@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        patches@lists.linux.dev,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sibi Sankar <quic_sibis@quicinc.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0655/1001] Compiler attributes: GCC cold function alignment workarounds
+Subject: [PATCH 6.1 493/885] Revert "remoteproc: qcom_q6v5_mss: map/unmap metadata region before/after use"
 Date:   Tue,  7 Mar 2023 17:57:07 +0100
-Message-Id: <20230307170050.026752639@linuxfoundation.org>
+Message-Id: <20230307170023.881416813@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -60,170 +57,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit c27cd083cfb9d392f304657ed00fcde1136704e7 ]
+[ Upstream commit a899d542b687c9b04ccbd9eefabc829ba5fef791 ]
 
-Contemporary versions of GCC (e.g. GCC 12.2.0) drop the alignment
-specified by '-falign-functions=N' for functions marked with the
-__cold__ attribute, and potentially for callees of __cold__ functions as
-these may be implicitly marked as __cold__ by the compiler. LLVM appears
-to respect '-falign-functions=N' in such cases.
+This reverts commit fc156629b23a21181e473e60341e3a78af25a1d4.
 
-This has been reported to GCC in bug 88345:
+This commit manages to do three API violations at once:
 
-  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
+ - dereference the return value of dma_alloc_attrs with the
+   DMA_ATTR_NO_KERNEL_MAPPING mapping, which is clearly forbidden and
+   will do the wrong thing on various dma mapping implementations.  The
+   fact that dma-direct uses a struct page as a cookie is an undocumented
+   implementation detail
+ - include dma-map-ops.h and use pgprot_dmacoherent despite a clear
+   comment documenting that this is not acceptable
+ - use of the VM_DMA_COHERENT for something that is not the dma-mapping
+   code
+ - use of VM_FLUSH_RESET_PERMS for vmap, while it is only supported for
+   vmalloc
 
-... which also covers alignment being dropped when '-Os' is used, which
-will be addressed in a separate patch.
-
-Currently, use of '-falign-functions=N' is limited to
-CONFIG_FUNCTION_ALIGNMENT, which is largely used for performance and/or
-analysis reasons (e.g. with CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B), but
-isn't necessary for correct functionality. However, this dropped
-alignment isn't great for the performance and/or analysis cases.
-
-Subsequent patches will use CONFIG_FUNCTION_ALIGNMENT as part of arm64's
-ftrace implementation, which will require all instrumented functions to
-be aligned to at least 8-bytes.
-
-This patch works around the dropped alignment by avoiding the use of the
-__cold__ attribute when CONFIG_FUNCTION_ALIGNMENT is non-zero, and by
-specifically aligning abort(), which GCC implicitly marks as __cold__.
-As the __cold macro is now dependent upon config options (which is
-against the policy described at the top of compiler_attributes.h), it is
-moved into compiler_types.h.
-
-I've tested this by building and booting a kernel configured with
-defconfig + CONFIG_EXPERT=y + CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
-and looking for misaligned text symbols in /proc/kallsyms:
-
-* arm64:
-
-  Before:
-    # uname -rm
-    6.2.0-rc3 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    5009
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    919
-
-* x86_64:
-
-  Before:
-    # uname -rm
-    6.2.0-rc3 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    11537
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    2805
-
-There's clearly a substantial reduction in the number of misaligned
-symbols. From manual inspection, the remaining unaligned text labels are
-a combination of ACPICA functions (due to the use of '-Os'), static call
-trampolines, and non-function labels in assembly, which will be dealt
-with in subsequent patches.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Florent Revest <revest@chromium.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Miguel Ojeda <ojeda@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20230123134603.1064407-3-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230117085840.32356-6-quic_sibis@quicinc.com
+Stable-dep-of: 57f72170a2b2 ("remoteproc: qcom_q6v5_mss: Use a carveout to authenticate modem headers")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compiler_attributes.h |  6 ------
- include/linux/compiler_types.h      | 27 +++++++++++++++++++++++++++
- kernel/exit.c                       |  9 ++++++++-
- 3 files changed, 35 insertions(+), 7 deletions(-)
+ drivers/remoteproc/qcom_q6v5_mss.c | 38 +++++-------------------------
+ 1 file changed, 6 insertions(+), 32 deletions(-)
 
-diff --git a/include/linux/compiler_attributes.h b/include/linux/compiler_attributes.h
-index 898b3458b24a0..b83126452c651 100644
---- a/include/linux/compiler_attributes.h
-+++ b/include/linux/compiler_attributes.h
-@@ -75,12 +75,6 @@
- # define __assume_aligned(a, ...)
- #endif
- 
--/*
-- *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-cold-function-attribute
-- *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Label-Attributes.html#index-cold-label-attribute
-- */
--#define __cold                          __attribute__((__cold__))
--
- /*
-  * Note the long name.
-  *
-diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-index 7c1afe0f4129c..aab34e30128e9 100644
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -79,6 +79,33 @@ static inline void __chk_io_ptr(const volatile void __iomem *ptr) { }
- /* Attributes */
- #include <linux/compiler_attributes.h>
- 
-+#if CONFIG_FUNCTION_ALIGNMENT > 0
-+#define __function_aligned		__aligned(CONFIG_FUNCTION_ALIGNMENT)
-+#else
-+#define __function_aligned
-+#endif
-+
-+/*
-+ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-cold-function-attribute
-+ *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Label-Attributes.html#index-cold-label-attribute
-+ *
-+ * When -falign-functions=N is in use, we must avoid the cold attribute as
-+ * contemporary versions of GCC drop the alignment for cold functions. Worse,
-+ * GCC can implicitly mark callees of cold functions as cold themselves, so
-+ * it's not sufficient to add __function_aligned here as that will not ensure
-+ * that callees are correctly aligned.
-+ *
-+ * See:
-+ *
-+ *   https://lore.kernel.org/lkml/Y77%2FqVgvaJidFpYt@FVFF77S0Q05N
-+ *   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345#c9
-+ */
-+#if !defined(CONFIG_CC_IS_GCC) || (CONFIG_FUNCTION_ALIGNMENT == 0)
-+#define __cold				__attribute__((__cold__))
-+#else
-+#define __cold
-+#endif
-+
- /* Builtins */
- 
- /*
-diff --git a/kernel/exit.c b/kernel/exit.c
-index bccfa4218356e..f2afdb0add7c5 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -1905,7 +1905,14 @@ bool thread_group_exited(struct pid *pid)
- }
- EXPORT_SYMBOL(thread_group_exited);
- 
--__weak void abort(void)
-+/*
-+ * This needs to be __function_aligned as GCC implicitly makes any
-+ * implementation of abort() cold and drops alignment specified by
-+ * -falign-functions=N.
-+ *
-+ * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345#c11
-+ */
-+__weak __function_aligned void abort(void)
+diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
+index fddb63cffee07..a8b141db4de63 100644
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -10,7 +10,6 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/devcoredump.h>
+-#include <linux/dma-map-ops.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+@@ -933,52 +932,27 @@ static void q6v5proc_halt_axi_port(struct q6v5 *qproc,
+ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw,
+ 				const char *fw_name)
  {
- 	BUG();
+-	unsigned long dma_attrs = DMA_ATTR_FORCE_CONTIGUOUS | DMA_ATTR_NO_KERNEL_MAPPING;
+-	unsigned long flags = VM_DMA_COHERENT | VM_FLUSH_RESET_PERMS;
+-	struct page **pages;
+-	struct page *page;
++	unsigned long dma_attrs = DMA_ATTR_FORCE_CONTIGUOUS;
+ 	dma_addr_t phys;
+ 	void *metadata;
+ 	int mdata_perm;
+ 	int xferop_ret;
+ 	size_t size;
+-	void *vaddr;
+-	int count;
++	void *ptr;
+ 	int ret;
+-	int i;
  
+ 	metadata = qcom_mdt_read_metadata(fw, &size, fw_name, qproc->dev);
+ 	if (IS_ERR(metadata))
+ 		return PTR_ERR(metadata);
+ 
+-	page = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
+-	if (!page) {
++	ptr = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
++	if (!ptr) {
+ 		kfree(metadata);
+ 		dev_err(qproc->dev, "failed to allocate mdt buffer\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	count = PAGE_ALIGN(size) >> PAGE_SHIFT;
+-	pages = kmalloc_array(count, sizeof(struct page *), GFP_KERNEL);
+-	if (!pages) {
+-		ret = -ENOMEM;
+-		goto free_dma_attrs;
+-	}
+-
+-	for (i = 0; i < count; i++)
+-		pages[i] = nth_page(page, i);
+-
+-	vaddr = vmap(pages, count, flags, pgprot_dmacoherent(PAGE_KERNEL));
+-	kfree(pages);
+-	if (!vaddr) {
+-		dev_err(qproc->dev, "unable to map memory region: %pa+%zx\n", &phys, size);
+-		ret = -EBUSY;
+-		goto free_dma_attrs;
+-	}
+-
+-	memcpy(vaddr, metadata, size);
+-
+-	vunmap(vaddr);
++	memcpy(ptr, metadata, size);
+ 
+ 	/* Hypervisor mapping to access metadata by modem */
+ 	mdata_perm = BIT(QCOM_SCM_VMID_HLOS);
+@@ -1008,7 +982,7 @@ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw,
+ 			 "mdt buffer not reclaimed system may become unstable\n");
+ 
+ free_dma_attrs:
+-	dma_free_attrs(qproc->dev, size, page, phys, dma_attrs);
++	dma_free_attrs(qproc->dev, size, ptr, phys, dma_attrs);
+ 	kfree(metadata);
+ 
+ 	return ret < 0 ? ret : 0;
 -- 
 2.39.2
 
