@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC5D66AECBF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:57:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8D006AF1A6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229732AbjCGR5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:57:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57704 "EHLO
+        id S229978AbjCGSqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:46:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230172AbjCGR5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:57:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E823FACB88
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:51:52 -0800 (PST)
+        with ESMTP id S233209AbjCGSpg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12377B7DAA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B24261522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:51:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 728E6C433EF;
-        Tue,  7 Mar 2023 17:51:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 997AB61539
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E0DFC433D2;
+        Tue,  7 Mar 2023 18:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211511;
-        bh=X/CIFZYkuHnBJPTugB2XmSb3qLkHNEpW2+l8VV1/jnU=;
+        s=korg; t=1678214110;
+        bh=wbVGx9dzIEXbddzBECrJ2gdg4iBjQINl7FW4jRWKGPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2qRfH2xRpSL7W/Lc8yvCU6OWWasORtfRy73ygPP/SPz9n6gc7VuQKwKaVFmI2pWA
-         c3VJpeDrEcVhBq6a08ZNfRS3YohYV6yUK7i6P1sYzHHqccYNC39NO2wjYW/JOP+8c5
-         URqcm1OnbXqzcoO+TMNRmM7vwjFqnbfeQ/CCnnEA=
+        b=zpTDZOlvxpsJ5udLfObjLBIN7O1pBINQjdg0cCyIkCvMkrAIIqaRk35FkMPiS4ZHi
+         msr5kSKm23ZzzWDnsliehLqkbOVnG/+DOIU/7TlVQ/EsoYgztft9OGZWG4++r64Cn+
+         FlHbJL1sQeiVydHkNO8YZm0EaW486bBtLMEAhEFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 6.2 0886/1001] irqdomain: Fix domain registration race
+        patches@lists.linux.dev,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 6.1 724/885] KVM: SVM: Dont put/load AVIC when setting virtual APIC mode
 Date:   Tue,  7 Mar 2023 18:00:58 +0100
-Message-Id: <20230307170100.400585843@linuxfoundation.org>
+Message-Id: <20230307170033.468163527@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,129 +56,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 8932c32c3053accd50702b36e944ac2016cd103c upstream.
+commit e0bead97e7590da888148feb9e9133bc278c534b upstream.
 
-Hierarchical domains created using irq_domain_create_hierarchy() are
-currently added to the domain list before having been fully initialised.
+Move the VMCB updates from avic_refresh_apicv_exec_ctrl() into
+avic_set_virtual_apic_mode() and invert the dependency being said
+functions to avoid calling avic_vcpu_{load,put}() and
+avic_set_pi_irte_mode() when "only" setting the virtual APIC mode.
 
-This specifically means that a racing allocation request might fail to
-allocate irq data for the inner domains of a hierarchy in case the
-parent domain pointer has not yet been set up.
+avic_set_virtual_apic_mode() is invoked from common x86 with preemption
+enabled, which makes avic_vcpu_{load,put}() unhappy.  Luckily, calling
+those and updating IRTE stuff is unnecessary as the only reason
+avic_set_virtual_apic_mode() is called is to handle transitions between
+xAPIC and x2APIC that don't also toggle APICv activation.  And if
+activation doesn't change, there's no need to fiddle with the physical
+APIC ID table or update IRTE.
 
-Note that this is not really any issue for irqchip drivers that are
-registered early (e.g. via IRQCHIP_DECLARE() or IRQCHIP_ACPI_DECLARE())
-but could potentially cause trouble with drivers that are registered
-later (e.g. modular drivers using IRQCHIP_PLATFORM_DRIVER_BEGIN(),
-gpiochip drivers, etc.).
+The "full" refresh is guaranteed to be called if activation changes in
+this case as the only call to the "set" path is:
 
-Fixes: afb7da83b9f4 ("irqdomain: Introduce helper function irq_domain_add_hierarchy()")
-Cc: stable@vger.kernel.org      # 3.19
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-[ johan: add commit message ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-8-johan+linaro@kernel.org
+	kvm_vcpu_update_apicv(vcpu);
+	static_call_cond(kvm_x86_set_virtual_apic_mode)(vcpu);
+
+and kvm_vcpu_update_apicv() invokes the refresh if activation changes:
+
+	if (apic->apicv_active == activate)
+		goto out;
+
+	apic->apicv_active = activate;
+	kvm_apic_update_apicv(vcpu);
+	static_call(kvm_x86_refresh_apicv_exec_ctrl)(vcpu);
+
+Rename the helper to reflect that it is also called during "refresh".
+
+  WARNING: CPU: 183 PID: 49186 at arch/x86/kvm/svm/avic.c:1081 avic_vcpu_put+0xde/0xf0 [kvm_amd]
+  CPU: 183 PID: 49186 Comm: stable Tainted: G           O       6.0.0-smp--fcddbca45f0a-sink #34
+  Hardware name: Google, Inc. Arcadia_IT_80/Arcadia_IT_80, BIOS 10.48.0 01/27/2022
+  RIP: 0010:avic_vcpu_put+0xde/0xf0 [kvm_amd]
+   avic_refresh_apicv_exec_ctrl+0x142/0x1c0 [kvm_amd]
+   avic_set_virtual_apic_mode+0x5a/0x70 [kvm_amd]
+   kvm_lapic_set_base+0x149/0x1a0 [kvm]
+   kvm_set_apic_base+0x8f/0xd0 [kvm]
+   kvm_set_msr_common+0xa3a/0xdc0 [kvm]
+   svm_set_msr+0x364/0x6b0 [kvm_amd]
+   __kvm_set_msr+0xb8/0x1c0 [kvm]
+   kvm_emulate_wrmsr+0x58/0x1d0 [kvm]
+   msr_interception+0x1c/0x30 [kvm_amd]
+   svm_invoke_exit_handler+0x31/0x100 [kvm_amd]
+   svm_handle_exit+0xfc/0x160 [kvm_amd]
+   vcpu_enter_guest+0x21bb/0x23e0 [kvm]
+   vcpu_run+0x92/0x450 [kvm]
+   kvm_arch_vcpu_ioctl_run+0x43e/0x6e0 [kvm]
+   kvm_vcpu_ioctl+0x559/0x620 [kvm]
+
+Fixes: 05c4fe8c1bd9 ("KVM: SVM: Refresh AVIC configuration when changing APIC mode")
+Cc: stable@vger.kernel.org
+Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20230106011306.85230-8-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |   62 +++++++++++++++++++++++++++++++++----------------
- 1 file changed, 43 insertions(+), 19 deletions(-)
+ arch/x86/kvm/svm/avic.c |   31 +++++++++++++++----------------
+ arch/x86/kvm/svm/svm.c  |    2 +-
+ arch/x86/kvm/svm/svm.h  |    2 +-
+ 3 files changed, 17 insertions(+), 18 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -126,23 +126,12 @@ void irq_domain_free_fwnode(struct fwnod
+--- a/arch/x86/kvm/svm/avic.c
++++ b/arch/x86/kvm/svm/avic.c
+@@ -747,18 +747,6 @@ void avic_apicv_post_state_restore(struc
+ 	avic_handle_ldr_update(vcpu);
  }
- EXPORT_SYMBOL_GPL(irq_domain_free_fwnode);
  
--/**
-- * __irq_domain_add() - Allocate a new irq_domain data structure
-- * @fwnode: firmware node for the interrupt controller
-- * @size: Size of linear map; 0 for radix mapping only
-- * @hwirq_max: Maximum number of interrupts supported by controller
-- * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
-- *              direct mapping
-- * @ops: domain callbacks
-- * @host_data: Controller private data pointer
-- *
-- * Allocates and initializes an irq_domain structure.
-- * Returns pointer to IRQ domain, or NULL on failure.
-- */
--struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
--				    irq_hw_number_t hwirq_max, int direct_max,
--				    const struct irq_domain_ops *ops,
--				    void *host_data)
-+static struct irq_domain *__irq_domain_create(struct fwnode_handle *fwnode,
-+					      unsigned int size,
-+					      irq_hw_number_t hwirq_max,
-+					      int direct_max,
-+					      const struct irq_domain_ops *ops,
-+					      void *host_data)
+-void avic_set_virtual_apic_mode(struct kvm_vcpu *vcpu)
+-{
+-	if (!lapic_in_kernel(vcpu) || avic_mode == AVIC_MODE_NONE)
+-		return;
+-
+-	if (kvm_get_apic_mode(vcpu) == LAPIC_MODE_INVALID) {
+-		WARN_ONCE(true, "Invalid local APIC state (vcpu_id=%d)", vcpu->vcpu_id);
+-		return;
+-	}
+-	avic_refresh_apicv_exec_ctrl(vcpu);
+-}
+-
+ static int avic_set_pi_irte_mode(struct kvm_vcpu *vcpu, bool activate)
  {
- 	struct irqchip_fwid *fwid;
- 	struct irq_domain *domain;
-@@ -230,12 +219,44 @@ struct irq_domain *__irq_domain_add(stru
- 
- 	irq_domain_check_hierarchy(domain);
- 
-+	return domain;
-+}
-+
-+static void __irq_domain_publish(struct irq_domain *domain)
-+{
- 	mutex_lock(&irq_domain_mutex);
- 	debugfs_add_domain_dir(domain);
- 	list_add(&domain->link, &irq_domain_list);
- 	mutex_unlock(&irq_domain_mutex);
- 
- 	pr_debug("Added domain %s\n", domain->name);
-+}
-+
-+/**
-+ * __irq_domain_add() - Allocate a new irq_domain data structure
-+ * @fwnode: firmware node for the interrupt controller
-+ * @size: Size of linear map; 0 for radix mapping only
-+ * @hwirq_max: Maximum number of interrupts supported by controller
-+ * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
-+ *              direct mapping
-+ * @ops: domain callbacks
-+ * @host_data: Controller private data pointer
-+ *
-+ * Allocates and initializes an irq_domain structure.
-+ * Returns pointer to IRQ domain, or NULL on failure.
-+ */
-+struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
-+				    irq_hw_number_t hwirq_max, int direct_max,
-+				    const struct irq_domain_ops *ops,
-+				    void *host_data)
-+{
-+	struct irq_domain *domain;
-+
-+	domain = __irq_domain_create(fwnode, size, hwirq_max, direct_max,
-+				     ops, host_data);
-+	if (domain)
-+		__irq_domain_publish(domain);
-+
- 	return domain;
+ 	int ret = 0;
+@@ -1100,17 +1088,18 @@ void avic_vcpu_put(struct kvm_vcpu *vcpu
+ 	WRITE_ONCE(*(svm->avic_physical_id_cache), entry);
  }
- EXPORT_SYMBOL_GPL(__irq_domain_add);
-@@ -1138,12 +1159,15 @@ struct irq_domain *irq_domain_create_hie
- 	struct irq_domain *domain;
  
- 	if (size)
--		domain = irq_domain_create_linear(fwnode, size, ops, host_data);
-+		domain = __irq_domain_create(fwnode, size, size, 0, ops, host_data);
- 	else
--		domain = irq_domain_create_tree(fwnode, ops, host_data);
-+		domain = __irq_domain_create(fwnode, 0, ~0, 0, ops, host_data);
+-
+-void avic_refresh_apicv_exec_ctrl(struct kvm_vcpu *vcpu)
++void avic_refresh_virtual_apic_mode(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+ 	struct vmcb *vmcb = svm->vmcb01.ptr;
+-	bool activated = kvm_vcpu_apicv_active(vcpu);
 +
- 	if (domain) {
- 		domain->parent = parent;
- 		domain->flags |= flags;
-+
-+		__irq_domain_publish(domain);
++	if (!lapic_in_kernel(vcpu) || avic_mode == AVIC_MODE_NONE)
++		return;
+ 
+ 	if (!enable_apicv)
+ 		return;
+ 
+-	if (activated) {
++	if (kvm_vcpu_apicv_active(vcpu)) {
+ 		/**
+ 		 * During AVIC temporary deactivation, guest could update
+ 		 * APIC ID, DFR and LDR registers, which would not be trapped
+@@ -1124,6 +1113,16 @@ void avic_refresh_apicv_exec_ctrl(struct
+ 		avic_deactivate_vmcb(svm);
  	}
+ 	vmcb_mark_dirty(vmcb, VMCB_AVIC);
++}
++
++void avic_refresh_apicv_exec_ctrl(struct kvm_vcpu *vcpu)
++{
++	bool activated = kvm_vcpu_apicv_active(vcpu);
++
++	if (!enable_apicv)
++		return;
++
++	avic_refresh_virtual_apic_mode(vcpu);
  
- 	return domain;
+ 	if (activated)
+ 		avic_vcpu_load(vcpu, vcpu->cpu);
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4757,7 +4757,7 @@ static struct kvm_x86_ops svm_x86_ops __
+ 	.enable_nmi_window = svm_enable_nmi_window,
+ 	.enable_irq_window = svm_enable_irq_window,
+ 	.update_cr8_intercept = svm_update_cr8_intercept,
+-	.set_virtual_apic_mode = avic_set_virtual_apic_mode,
++	.set_virtual_apic_mode = avic_refresh_virtual_apic_mode,
+ 	.refresh_apicv_exec_ctrl = avic_refresh_apicv_exec_ctrl,
+ 	.check_apicv_inhibit_reasons = avic_check_apicv_inhibit_reasons,
+ 	.apicv_post_state_restore = avic_apicv_post_state_restore,
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -645,7 +645,7 @@ void avic_vcpu_blocking(struct kvm_vcpu
+ void avic_vcpu_unblocking(struct kvm_vcpu *vcpu);
+ void avic_ring_doorbell(struct kvm_vcpu *vcpu);
+ unsigned long avic_vcpu_get_apicv_inhibit_reasons(struct kvm_vcpu *vcpu);
+-void avic_set_virtual_apic_mode(struct kvm_vcpu *vcpu);
++void avic_refresh_virtual_apic_mode(struct kvm_vcpu *vcpu);
+ 
+ 
+ /* sev.c */
 
 
