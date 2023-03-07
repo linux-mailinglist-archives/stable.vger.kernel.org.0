@@ -2,112 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C863B6AED00
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 260166AED18
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:01:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230109AbjCGSAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:00:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52882 "EHLO
+        id S231146AbjCGSBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:01:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231168AbjCGR7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:59:31 -0500
-Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1132AA6BC4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:53:57 -0800 (PST)
-Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-536cb25982eso258138577b3.13
-        for <stable@vger.kernel.org>; Tue, 07 Mar 2023 09:53:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678211637;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=vy6L+eQJroBciwKL8scsNnpdjChAQfq3YHv0JMCXPSo=;
-        b=e5jG2hZtedpCOzEhX3MKhD2DImjqtaX15SiOuwdCp9uhYmlrOC0ZWMmPQPK68zJvoR
-         XAj79c72bwCV4qcDZN4rxzSoygjodATifVd6Mk9QlbhHnyrmLohklKUhfg2DZWAly8wV
-         6ifUxWO7zlteysiu8qU8w3Z/5p67GRMwD32FqGakfwE1ynRAeOcrN7NtuK/A57l6/VnZ
-         JA5CdR256HdyzLj5lvV9ndzOcBthtH44FOfiBa0hqfLztygvBVoP7+VtuCBM2la3+Gum
-         8cK2z7glwwN8l9FX080OVnwFSMwEuM2YXUKzFIZ0VA/zUP/6fj+dNkEoc823vHWgyBHR
-         x0Bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678211637;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=vy6L+eQJroBciwKL8scsNnpdjChAQfq3YHv0JMCXPSo=;
-        b=YP/SGrHe+YFEXpoojtEprDfHWsrpartu41R04aDwQCmsu8aKvrTVvQQdqtDdZvDyde
-         ngxCy0dcyrgnwqvHJ19Creii152/lursHaX0JPwU6wPr30IjyfNLjNxgJb06vXkZRmqR
-         eR1gV096KhJECohHRByFauNkVph4MevlGOgijmfgdWsXaApCSFIu3iAecP+/UAOtoE6j
-         cumS85vXWjetu+n6NuX69fsFc15+AKEWIF2dY8ATCyQCgOMyxQPnVxo6dx9aE3vLctkF
-         /3B9fhNmL3hYWom/X2Zv1UNdanyJQezF1tATsAA6XyUnm/BfU5QbK8rlu/tGUk9MIyyk
-         wc0Q==
-X-Gm-Message-State: AO0yUKX97aL3C4RQ45ZK5L8ADqLb/utJ4PT+1+X+bLATmRT9Bk5edSS6
-        ymTbj09CredMohyPWYPtHK8qQFFJ5vcFQ+1JTSenWHWXpWouDlYr
-X-Google-Smtp-Source: AK7set9FjQy7hM69scJN/x0IXxD69J1rqAnvHqJd628maJ126bk1Sb0clpk6+IRyjQ2IH0NlkuU6hicsP0uUb0Jre6E=
-X-Received: by 2002:a81:ac59:0:b0:52e:bb3e:15aa with SMTP id
- z25-20020a81ac59000000b0052ebb3e15aamr9163642ywj.7.1678211637049; Tue, 07 Mar
- 2023 09:53:57 -0800 (PST)
+        with ESMTP id S230432AbjCGSAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:52 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72FF97B63;
+        Tue,  7 Mar 2023 09:54:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1678211687; i=rwarsow@gmx.de;
+        bh=90HTZV+RtwF9fQHVah21a+vc8glIy8xmQXfZiTteEg0=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=XoRw6Qv2GvOb8C98XTCbezN+W/HdfaL7FKWZwYwwjzVSpj7UC0m/TT8fQtapLm+wn
+         LmxWrSf0ojY1SBZ4cIzI9H6uvODoiLLlWYSYTm1lF8+D9oZD06zj/u1gV7gRRPpBxn
+         b5Uq/ov0wXQTsGG58Ul7eULghENm5wzljJTecOA1rVXuc/lAyZf7ez0mgczHHkJByl
+         ObI5SpNm6aGBCVQxp//MNZ4AZ8knl6q2R0UZ8ZiDwWIear+H2Ez2Puxj925JfMpv9c
+         JwKeWuENBjRai4UxU+i0F/sPp+bV/RSDJy3qGJX6GZJaOSujd1mnV1e0WSuO3IKi43
+         ArJWVnCtIVh6g==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.100.20] ([46.142.32.9]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MPog5-1pugse0mN1-00Mw57; Tue, 07
+ Mar 2023 18:54:47 +0100
+Message-ID: <3a188a43-690b-04a9-3687-6e35217f0a32@gmx.de>
+Date:   Tue, 7 Mar 2023 18:54:46 +0100
 MIME-Version: 1.0
-References: <20230307170022.094103862@linuxfoundation.org> <20230307170043.650684610@linuxfoundation.org>
-In-Reply-To: <20230307170043.650684610@linuxfoundation.org>
-From:   Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Date:   Tue, 7 Mar 2023 18:53:46 +0100
-Message-ID: <CACMJSetcAiz6nwCdAuZekwOavZji8HfHOU4hv6d9xp9pE_zf+g@mail.gmail.com>
-Subject: Re: [PATCH 6.2 0512/1001] tty: serial: qcom-geni-serial: stop
- operations in progress at shutdown
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Srini Kandagatla <srinivas.kandagatla@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Subject: Re: [PATCH 6.2 0000/1001] 6.2.3-rc1 review
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:5eBCHcEFADI3qghgv9MZhDGVG7IP4mlSksLfrqywiFJx7ohp0xC
+ xR/b2YFFp/ptYuqHrg2C+aq+9bQ+51J15ENNFCjNYknENs88Ye0puTHOHL+2hLzkeTo4Xh3
+ HSZ80yaIR5KGMwYFOnUu4TVmkzxibvWnTOAS09zetxqbp3pZGDgpcccCmaCKUhQfZLpqdXe
+ lrdhrWhLr8U0PYPpto00w==
+UI-OutboundReport: notjunk:1;M01:P0:fLyYuzUeDcA=;LKVc33uedYCJTAlNvyArkiqpsBe
+ GIGO3Xwvu3Q8eaT/WTwnAm142QW/6htWt/1QvexOGzQQgqMXWB0fs90k2KESgyNy092W7pafD
+ CPH7/RJSFQ9MtoqqGkAQHH3RkmA5ffZHw5l4OyEtm7oD+38vwU5FEsu1t0PEnTBOq14nX47yi
+ rOzoLxj5kZEygIBq8jvglvgIw2Vuli+s+BZHXJHyoP4KFubQrfNzH1j3wZaSzzvelsFJEuVaE
+ G6iVe1XRqQebhLSlhcs5QXHPsBa36vIsIPJ5Z6lrDqz9VDRdPaIBWuUxwOfUaOaSyBbDlRRY0
+ RRs8bMOP6T+rZgypEmsrYg2dNMkHtaOQdil4TILifnKIO/UvMdFdptZoZO1lBk0Ic85VyjkKV
+ DEVG737qzpaqwljWs+5BJiony1t2CprozCRuwCo8hi3QkDNRq6i0giM18dmcKFr+PTkpnv8Eb
+ DyAy6WhOUv7m8xfid9omtakVTc7/AikU6jIUXZb2zXi5ERPa1fLBLs3jwM95rZ2vDrIlqNWRz
+ jIYm2byXPQ3hxGfgdQgJJD+sMKCRSmv1EGjoMY3GgJgqcdfHZKkdLsUhEFE9+r50s3m4KFCo1
+ V89o992xNiWZHGS5R6tD33AfX0p+MLrV1kEWUbI7dfGujsuBOTpIfz4MRdXDvYjvrwN6XdaYU
+ ClD1qeJXj2FTNnEDGMGg7UKPeecV99FS2Ty3uxY6yfRoI5A7fqMBbM29PZk6u+V2M6v2wXYuA
+ ljrNu+KqI/grLvT+G57sjpWDD73mtXAoODW/T2eKTeP946zTxuF+5bL3GbTf64u+eg4roaqYu
+ LiwEA04To1IQ6TyQdOTeMJyEcWVVV0xLCyLdBHfsc3Br+603gJZAhNZduCMapbKOa8sNHD5NZ
+ tkrvyA+2iYVboIPEqMOcOThXxoEUwXlx6ORJ4Hj52dyjRDAuEagEkEfyMJXwujDA63ZmI2JoJ
+ eX5/tw==
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 Mar 2023 at 18:32, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
->
-> [ Upstream commit d8aca2f96813d51df574a811eda9a2cbed00f261 ]
->
-> We don't stop transmissions in progress at shutdown. This is fine with
-> FIFO SE mode but with DMA (support for which we'll introduce later) it
-> causes trouble so fix it now.
->
-> Fixes: e83766334f96 ("tty: serial: qcom_geni_serial: No need to stop tx/rx on UART shutdown")
-> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-> Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-> Link: https://lore.kernel.org/r/20221229155030.418800-2-brgl@bgdev.pl
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/tty/serial/qcom_geni_serial.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
-> index 57f04f8bf5043..851a5d2133aa2 100644
-> --- a/drivers/tty/serial/qcom_geni_serial.c
-> +++ b/drivers/tty/serial/qcom_geni_serial.c
-> @@ -891,6 +891,8 @@ static int setup_fifos(struct qcom_geni_serial_port *port)
->  static void qcom_geni_serial_shutdown(struct uart_port *uport)
->  {
->         disable_irq(uport->irq);
-> +       qcom_geni_serial_stop_tx(uport);
-> +       qcom_geni_serial_stop_rx(uport);
->  }
->
+Hi Greg
 
-Greg,
+6.2.3-rc1
 
-Please drop this patch from all stable branches as it has caused a
-problem in current master and - once fixed - is only relevant for new
-(DMA) code.
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 37)
 
-Bartosz
+Thanks
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+
