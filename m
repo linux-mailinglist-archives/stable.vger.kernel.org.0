@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FFDB6AF2F8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:58:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DABBF6AEB0E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233475AbjCGS6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:58:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34266 "EHLO
+        id S231945AbjCGRjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:39:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233534AbjCGS5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B0B7B79C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:13 -0800 (PST)
+        with ESMTP id S231962AbjCGRjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:39:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8767A18AF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC63EB819D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F566C433D2;
-        Tue,  7 Mar 2023 18:45:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46D55B8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9061BC433EF;
+        Tue,  7 Mar 2023 17:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214708;
-        bh=wKOlSjh1wFyENgVf+uYJKpRF4m7Bf0Mczegi9duKtGQ=;
+        s=korg; t=1678210532;
+        bh=eVfluyw/+O1n4/6olepKV+q6B2a9vWX51paPMGJm/sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/X6w3ar8whFWCYlxh1CddNQkvgyLQEPaLmRt999KqJG2dKsTlE61uwY39DVAcJOL
-         SKWl747hUPkog4dXJr3cbM+TRBhHbNokAPo9oxerpswPOPuKilxWY1saCDKKiSAQ0M
-         MwXcrd1wb4L89ez492ENHOCy0UdFOK1XqIt71hMk=
+        b=Hs8qAds1XO7uBz0H8vQkyx/rvgYXyezPotggAgzCk9FomsvID9Eugei4uzaGg63dX
+         P+tULzuB89MvOeGnV3wTLLDExjny5K1mJ9kNMBtXWurjleTsF0sqmkZ1xwpy5v7nS+
+         J1KXUcfuXQutLKun0iUsvSr6/hERKnNF4pkXc370=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Martin Botka <martin.botka@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Bob Pearson <rpearsonhpe@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 008/567] arm64: dts: qcom: sm6125: Reorder HSUSB PHY clocks to match bindings
+Subject: [PATCH 6.2 0572/1001] RDMA-rxe: Isolate mr code from atomic_reply()
 Date:   Tue,  7 Mar 2023 17:55:44 +0100
-Message-Id: <20230307165906.186362259@linuxfoundation.org>
+Message-Id: <20230307170046.307992084@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,46 +54,326 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 8416262b0ea46d84767141b074748f4d4f37736a ]
+[ Upstream commit f04d5b3d916c61752ac2c2adea5dfe78f8e12f78 ]
 
-Reorder the clocks and corresponding names to match the QUSB2 phy
-schema, fixing the following CHECK_DTBS errors:
+Isolate mr specific code from atomic_reply() in rxe_resp.c into
+a subroutine rxe_mr_do_atomic_op() in rxe_mr.c.
+Minor cleanups to rxe_check_range() and iova_to_vaddr().
+Move enum resp_state to rxe.h
 
-    arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dtb: phy@1613000: clock-names:0: 'cfg_ahb' was expected
-            From schema: /newdata/aosp-r/kernel/mainline/kernel/Documentation/devicetree/bindings/phy/qcom,qusb2-phy.yaml
-    arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dtb: phy@1613000: clock-names:1: 'ref' was expected
-            From schema: /newdata/aosp-r/kernel/mainline/kernel/Documentation/devicetree/bindings/phy/qcom,qusb2-phy.yaml
-
-Fixes: cff4bbaf2a2d ("arm64: dts: qcom: Add support for SM6125")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Martin Botka <martin.botka@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221216213343.1140143-1-marijn.suijten@somainline.org
+Link: https://lore.kernel.org/r/20230119235936.19728-4-rpearsonhpe@gmail.com
+Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Stable-dep-of: 5ff31dfcd6d2 ("Subject: RDMA/rxe: Handle zero length rdma")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm6125.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/sw/rxe/rxe.h      | 38 +++++++++++++
+ drivers/infiniband/sw/rxe/rxe_loc.h  |  2 +
+ drivers/infiniband/sw/rxe/rxe_mr.c   | 83 ++++++++++++++++++----------
+ drivers/infiniband/sw/rxe/rxe_resp.c | 82 ++++-----------------------
+ 4 files changed, 105 insertions(+), 100 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6125.dtsi b/arch/arm64/boot/dts/qcom/sm6125.dtsi
-index dc3bddc54eb62..2e4fe2bc1e0a8 100644
---- a/arch/arm64/boot/dts/qcom/sm6125.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm6125.dtsi
-@@ -392,9 +392,9 @@ hsusb_phy1: phy@1613000 {
- 			reg = <0x01613000 0x180>;
- 			#phy-cells = <0>;
+diff --git a/drivers/infiniband/sw/rxe/rxe.h b/drivers/infiniband/sw/rxe/rxe.h
+index ab334900fcc3d..2415f3704f576 100644
+--- a/drivers/infiniband/sw/rxe/rxe.h
++++ b/drivers/infiniband/sw/rxe/rxe.h
+@@ -57,6 +57,44 @@
+ #define rxe_dbg_mw(mw, fmt, ...) ibdev_dbg((mw)->ibmw.device,		\
+ 		"mw#%d %s:  " fmt, (mw)->elem.index, __func__, ##__VA_ARGS__)
  
--			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>,
--				 <&gcc GCC_AHB2PHY_USB_CLK>;
--			clock-names = "ref", "cfg_ahb";
-+			clocks = <&gcc GCC_AHB2PHY_USB_CLK>,
-+				 <&rpmcc RPM_SMD_XO_CLK_SRC>;
-+			clock-names = "cfg_ahb", "ref";
++/* responder states */
++enum resp_states {
++	RESPST_NONE,
++	RESPST_GET_REQ,
++	RESPST_CHK_PSN,
++	RESPST_CHK_OP_SEQ,
++	RESPST_CHK_OP_VALID,
++	RESPST_CHK_RESOURCE,
++	RESPST_CHK_LENGTH,
++	RESPST_CHK_RKEY,
++	RESPST_EXECUTE,
++	RESPST_READ_REPLY,
++	RESPST_ATOMIC_REPLY,
++	RESPST_ATOMIC_WRITE_REPLY,
++	RESPST_PROCESS_FLUSH,
++	RESPST_COMPLETE,
++	RESPST_ACKNOWLEDGE,
++	RESPST_CLEANUP,
++	RESPST_DUPLICATE_REQUEST,
++	RESPST_ERR_MALFORMED_WQE,
++	RESPST_ERR_UNSUPPORTED_OPCODE,
++	RESPST_ERR_MISALIGNED_ATOMIC,
++	RESPST_ERR_PSN_OUT_OF_SEQ,
++	RESPST_ERR_MISSING_OPCODE_FIRST,
++	RESPST_ERR_MISSING_OPCODE_LAST_C,
++	RESPST_ERR_MISSING_OPCODE_LAST_D1E,
++	RESPST_ERR_TOO_MANY_RDMA_ATM_REQ,
++	RESPST_ERR_RNR,
++	RESPST_ERR_RKEY_VIOLATION,
++	RESPST_ERR_INVALIDATE_RKEY,
++	RESPST_ERR_LENGTH,
++	RESPST_ERR_CQ_OVERFLOW,
++	RESPST_ERROR,
++	RESPST_RESET,
++	RESPST_DONE,
++	RESPST_EXIT,
++};
++
+ void rxe_set_mtu(struct rxe_dev *rxe, unsigned int dev_mtu);
  
- 			resets = <&gcc GCC_QUSB2PHY_PRIM_BCR>;
- 			status = "disabled";
+ int rxe_add(struct rxe_dev *rxe, unsigned int mtu, const char *ibdev_name);
+diff --git a/drivers/infiniband/sw/rxe/rxe_loc.h b/drivers/infiniband/sw/rxe/rxe_loc.h
+index 29b6c21430453..bcb1bbcf50dff 100644
+--- a/drivers/infiniband/sw/rxe/rxe_loc.h
++++ b/drivers/infiniband/sw/rxe/rxe_loc.h
+@@ -72,6 +72,8 @@ int copy_data(struct rxe_pd *pd, int access, struct rxe_dma_info *dma,
+ int rxe_map_mr_sg(struct ib_mr *ibmr, struct scatterlist *sg,
+ 		  int sg_nents, unsigned int *sg_offset);
+ void *iova_to_vaddr(struct rxe_mr *mr, u64 iova, int length);
++int rxe_mr_do_atomic_op(struct rxe_mr *mr, u64 iova, int opcode,
++			u64 compare, u64 swap_add, u64 *orig_val);
+ struct rxe_mr *lookup_mr(struct rxe_pd *pd, int access, u32 key,
+ 			 enum rxe_mr_lookup_type type);
+ int mr_check_range(struct rxe_mr *mr, u64 iova, size_t length);
+diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
+index 229c7259644cf..df9741474f1f0 100644
+--- a/drivers/infiniband/sw/rxe/rxe_mr.c
++++ b/drivers/infiniband/sw/rxe/rxe_mr.c
+@@ -32,13 +32,15 @@ int mr_check_range(struct rxe_mr *mr, u64 iova, size_t length)
+ 
+ 	case IB_MR_TYPE_USER:
+ 	case IB_MR_TYPE_MEM_REG:
+-		if (iova < mr->ibmr.iova || length > mr->ibmr.length ||
+-		    iova > mr->ibmr.iova + mr->ibmr.length - length)
+-			return -EFAULT;
++		if (iova < mr->ibmr.iova ||
++		    iova + length > mr->ibmr.iova + mr->ibmr.length) {
++			rxe_dbg_mr(mr, "iova/length out of range");
++			return -EINVAL;
++		}
+ 		return 0;
+ 
+ 	default:
+-		rxe_dbg_mr(mr, "type (%d) not supported\n", mr->ibmr.type);
++		rxe_dbg_mr(mr, "mr type not supported\n");
+ 		return -EINVAL;
+ 	}
+ }
+@@ -299,37 +301,22 @@ void *iova_to_vaddr(struct rxe_mr *mr, u64 iova, int length)
+ {
+ 	size_t offset;
+ 	int m, n;
+-	void *addr;
+ 
+-	if (mr->state != RXE_MR_STATE_VALID) {
+-		rxe_dbg_mr(mr, "Not in valid state\n");
+-		addr = NULL;
+-		goto out;
+-	}
++	if (mr->state != RXE_MR_STATE_VALID)
++		return NULL;
+ 
+-	if (!mr->map) {
+-		addr = (void *)(uintptr_t)iova;
+-		goto out;
+-	}
++	if (mr->ibmr.type == IB_MR_TYPE_DMA)
++		return (void *)(uintptr_t)iova;
+ 
+-	if (mr_check_range(mr, iova, length)) {
+-		rxe_dbg_mr(mr, "Range violation\n");
+-		addr = NULL;
+-		goto out;
+-	}
++	if (mr_check_range(mr, iova, length))
++		return NULL;
+ 
+ 	lookup_iova(mr, iova, &m, &n, &offset);
+ 
+-	if (offset + length > mr->map[m]->buf[n].size) {
+-		rxe_dbg_mr(mr, "Crosses page boundary\n");
+-		addr = NULL;
+-		goto out;
+-	}
+-
+-	addr = (void *)(uintptr_t)mr->map[m]->buf[n].addr + offset;
++	if (offset + length > mr->map[m]->buf[n].size)
++		return NULL;
+ 
+-out:
+-	return addr;
++	return (void *)(uintptr_t)mr->map[m]->buf[n].addr + offset;
+ }
+ 
+ int rxe_flush_pmem_iova(struct rxe_mr *mr, u64 iova, int length)
+@@ -538,6 +525,46 @@ int copy_data(
+ 	return err;
+ }
+ 
++/* Guarantee atomicity of atomic operations at the machine level. */
++static DEFINE_SPINLOCK(atomic_ops_lock);
++
++int rxe_mr_do_atomic_op(struct rxe_mr *mr, u64 iova, int opcode,
++			u64 compare, u64 swap_add, u64 *orig_val)
++{
++	u64 *va;
++	u64 value;
++
++	if (mr->state != RXE_MR_STATE_VALID) {
++		rxe_dbg_mr(mr, "mr not in valid state");
++		return RESPST_ERR_RKEY_VIOLATION;
++	}
++
++	va = iova_to_vaddr(mr, iova, sizeof(u64));
++	if (!va) {
++		rxe_dbg_mr(mr, "iova out of range");
++		return RESPST_ERR_RKEY_VIOLATION;
++	}
++
++	if ((uintptr_t)va & 0x7) {
++		rxe_dbg_mr(mr, "iova not aligned");
++		return RESPST_ERR_MISALIGNED_ATOMIC;
++	}
++
++	spin_lock_bh(&atomic_ops_lock);
++	value = *orig_val = *va;
++
++	if (opcode == IB_OPCODE_RC_COMPARE_SWAP) {
++		if (value == compare)
++			*va = swap_add;
++	} else {
++		value += swap_add;
++		*va = value;
++	}
++	spin_unlock_bh(&atomic_ops_lock);
++
++	return 0;
++}
++
+ int advance_dma_data(struct rxe_dma_info *dma, unsigned int length)
+ {
+ 	struct rxe_sge		*sge	= &dma->sge[dma->cur_sge];
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index c74972244f08f..9d4b4e9b42fc9 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -10,43 +10,6 @@
+ #include "rxe_loc.h"
+ #include "rxe_queue.h"
+ 
+-enum resp_states {
+-	RESPST_NONE,
+-	RESPST_GET_REQ,
+-	RESPST_CHK_PSN,
+-	RESPST_CHK_OP_SEQ,
+-	RESPST_CHK_OP_VALID,
+-	RESPST_CHK_RESOURCE,
+-	RESPST_CHK_LENGTH,
+-	RESPST_CHK_RKEY,
+-	RESPST_EXECUTE,
+-	RESPST_READ_REPLY,
+-	RESPST_ATOMIC_REPLY,
+-	RESPST_ATOMIC_WRITE_REPLY,
+-	RESPST_PROCESS_FLUSH,
+-	RESPST_COMPLETE,
+-	RESPST_ACKNOWLEDGE,
+-	RESPST_CLEANUP,
+-	RESPST_DUPLICATE_REQUEST,
+-	RESPST_ERR_MALFORMED_WQE,
+-	RESPST_ERR_UNSUPPORTED_OPCODE,
+-	RESPST_ERR_MISALIGNED_ATOMIC,
+-	RESPST_ERR_PSN_OUT_OF_SEQ,
+-	RESPST_ERR_MISSING_OPCODE_FIRST,
+-	RESPST_ERR_MISSING_OPCODE_LAST_C,
+-	RESPST_ERR_MISSING_OPCODE_LAST_D1E,
+-	RESPST_ERR_TOO_MANY_RDMA_ATM_REQ,
+-	RESPST_ERR_RNR,
+-	RESPST_ERR_RKEY_VIOLATION,
+-	RESPST_ERR_INVALIDATE_RKEY,
+-	RESPST_ERR_LENGTH,
+-	RESPST_ERR_CQ_OVERFLOW,
+-	RESPST_ERROR,
+-	RESPST_RESET,
+-	RESPST_DONE,
+-	RESPST_EXIT,
+-};
+-
+ static char *resp_state_name[] = {
+ 	[RESPST_NONE]				= "NONE",
+ 	[RESPST_GET_REQ]			= "GET_REQ",
+@@ -725,17 +688,12 @@ static enum resp_states process_flush(struct rxe_qp *qp,
+ 	return RESPST_ACKNOWLEDGE;
+ }
+ 
+-/* Guarantee atomicity of atomic operations at the machine level. */
+-static DEFINE_SPINLOCK(atomic_ops_lock);
+-
+ static enum resp_states atomic_reply(struct rxe_qp *qp,
+-					 struct rxe_pkt_info *pkt)
++				     struct rxe_pkt_info *pkt)
+ {
+-	u64 *vaddr;
+-	enum resp_states ret;
+ 	struct rxe_mr *mr = qp->resp.mr;
+ 	struct resp_res *res = qp->resp.res;
+-	u64 value;
++	int err;
+ 
+ 	if (!res) {
+ 		res = rxe_prepare_res(qp, pkt, RXE_ATOMIC_MASK);
+@@ -743,32 +701,14 @@ static enum resp_states atomic_reply(struct rxe_qp *qp,
+ 	}
+ 
+ 	if (!res->replay) {
+-		if (mr->state != RXE_MR_STATE_VALID) {
+-			ret = RESPST_ERR_RKEY_VIOLATION;
+-			goto out;
+-		}
+-
+-		vaddr = iova_to_vaddr(mr, qp->resp.va + qp->resp.offset,
+-					sizeof(u64));
+-
+-		/* check vaddr is 8 bytes aligned. */
+-		if (!vaddr || (uintptr_t)vaddr & 7) {
+-			ret = RESPST_ERR_MISALIGNED_ATOMIC;
+-			goto out;
+-		}
+-
+-		spin_lock_bh(&atomic_ops_lock);
+-		res->atomic.orig_val = value = *vaddr;
+-
+-		if (pkt->opcode == IB_OPCODE_RC_COMPARE_SWAP) {
+-			if (value == atmeth_comp(pkt))
+-				value = atmeth_swap_add(pkt);
+-		} else {
+-			value += atmeth_swap_add(pkt);
+-		}
++		u64 iova = qp->resp.va + qp->resp.offset;
+ 
+-		*vaddr = value;
+-		spin_unlock_bh(&atomic_ops_lock);
++		err = rxe_mr_do_atomic_op(mr, iova, pkt->opcode,
++					  atmeth_comp(pkt),
++					  atmeth_swap_add(pkt),
++					  &res->atomic.orig_val);
++		if (err)
++			return err;
+ 
+ 		qp->resp.msn++;
+ 
+@@ -780,9 +720,7 @@ static enum resp_states atomic_reply(struct rxe_qp *qp,
+ 		qp->resp.status = IB_WC_SUCCESS;
+ 	}
+ 
+-	ret = RESPST_ACKNOWLEDGE;
+-out:
+-	return ret;
++	return RESPST_ACKNOWLEDGE;
+ }
+ 
+ #ifdef CONFIG_64BIT
 -- 
 2.39.2
 
