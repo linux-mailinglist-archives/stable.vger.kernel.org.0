@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 998216AECC3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:57:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 406B36AF1A9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbjCGR5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:57:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57764 "EHLO
+        id S232852AbjCGSqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:46:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230051AbjCGR5V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:57:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80079F042
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:52:00 -0800 (PST)
+        with ESMTP id S233216AbjCGSpq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94961B8607
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 860B6B819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:51:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF166C433EF;
-        Tue,  7 Mar 2023 17:51:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7929B61564
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E183C433EF;
+        Tue,  7 Mar 2023 18:35:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211518;
-        bh=kAkpV4BHT0ZUmoGf3+Kp3ELCap5J8MQpgYU234/o4r4=;
+        s=korg; t=1678214112;
+        bh=bBjjq0SmBxSSIZUiQzFJmaeYDdxmF6vncQeJHdCxfyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cV6VL3HLFyydi4UJaOZKq02K3JrtdBJRAdHUYqDoqt9rsCKQTh9dfv/+t54E3ZFNy
-         J+mt8r3yRgQCafGp9+XQqk2WusNMAoTLVvXTBOJ3QegckhiQsmmejZR5dQS7XO34Bd
-         ae8e2gRJLJoJe+8fZhGgLVxNvhq56K0darpfrXpM=
+        b=LmBgNv7+DygJKC8P990LVXTnJoCCs7nb6Cc+EnW3Y/7CifypGi6UPLBW+MNwcseGf
+         bAPBHxll65VcTf2gd/T3q/bKrIZG+kr/SsKSMXIQjhNmFKTsENSds11uFNRXDOwHjo
+         63rlezV48e9ELSeildhn+EMAYCcSbVOvIdQl/zKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladis Dronov <vdronov@redhat.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 6.2 0887/1001] crypto: qat - fix out-of-bounds read
+        patches@lists.linux.dev, Marc Orr <marcorr@google.com>,
+        Ben Gardon <bgardon@google.com>,
+        Venkatesh Srinivas <venkateshs@chromium.org>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>
+Subject: [PATCH 6.1 725/885] KVM: x86: Inject #GP if WRMSR sets reserved bits in APIC Self-IPI
 Date:   Tue,  7 Mar 2023 18:00:59 +0100
-Message-Id: <20230307170100.441673678@linuxfoundation.org>
+Message-Id: <20230307170033.507441786@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit f6044cc3030e139f60c281386f28bda6e3049d66 upstream.
+commit ba5838abb05334e4abfdff1490585c7f365e0424 upstream.
 
-When preparing an AER-CTR request, the driver copies the key provided by
-the user into a data structure that is accessible by the firmware.
-If the target device is QAT GEN4, the key size is rounded up by 16 since
-a rounded up size is expected by the device.
-If the key size is rounded up before the copy, the size used for copying
-the key might be bigger than the size of the region containing the key,
-causing an out-of-bounds read.
+Inject a #GP if the guest attempts to set reserved bits in the x2APIC-only
+Self-IPI register.  Bits 7:0 hold the vector, all other bits are reserved.
 
-Fix by doing the copy first and then update the keylen.
-
-This is to fix the following warning reported by KASAN:
-
-	[  138.150574] BUG: KASAN: global-out-of-bounds in qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
-	[  138.150641] Read of size 32 at addr ffffffff88c402c0 by task cryptomgr_test/2340
-
-	[  138.150651] CPU: 15 PID: 2340 Comm: cryptomgr_test Not tainted 6.2.0-rc1+ #45
-	[  138.150659] Hardware name: Intel Corporation ArcherCity/ArcherCity, BIOS EGSDCRB1.86B.0087.D13.2208261706 08/26/2022
-	[  138.150663] Call Trace:
-	[  138.150668]  <TASK>
-	[  138.150922]  kasan_check_range+0x13a/0x1c0
-	[  138.150931]  memcpy+0x1f/0x60
-	[  138.150940]  qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
-	[  138.151006]  qat_alg_skcipher_init_sessions+0xc1/0x240 [intel_qat]
-	[  138.151073]  crypto_skcipher_setkey+0x82/0x160
-	[  138.151085]  ? prepare_keybuf+0xa2/0xd0
-	[  138.151095]  test_skcipher_vec_cfg+0x2b8/0x800
-
-Fixes: 67916c951689 ("crypto: qat - add AES-CTR support for QAT GEN4 devices")
-Cc: <stable@vger.kernel.org>
-Reported-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Reviewed-by: Vladis Dronov <vdronov@redhat.com>
-Tested-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-by: Marc Orr <marcorr@google.com>
+Cc: Ben Gardon <bgardon@google.com>
+Cc: Venkatesh Srinivas <venkateshs@chromium.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20230107011025.565472-2-seanjc@google.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_common/qat_algs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/lapic.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/crypto/qat/qat_common/qat_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs.c
-@@ -435,8 +435,8 @@ static void qat_alg_skcipher_init_com(st
- 	} else if (aes_v2_capable && mode == ICP_QAT_HW_CIPHER_CTR_MODE) {
- 		ICP_QAT_FW_LA_SLICE_TYPE_SET(header->serv_specif_flags,
- 					     ICP_QAT_FW_LA_USE_UCS_SLICE_TYPE);
--		keylen = round_up(keylen, 16);
- 		memcpy(cd->ucs_aes.key, key, keylen);
-+		keylen = round_up(keylen, 16);
- 	} else {
- 		memcpy(cd->aes.key, key, keylen);
- 	}
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2227,10 +2227,14 @@ static int kvm_lapic_reg_write(struct kv
+ 		break;
+ 
+ 	case APIC_SELF_IPI:
+-		if (apic_x2apic_mode(apic))
+-			kvm_apic_send_ipi(apic, APIC_DEST_SELF | (val & APIC_VECTOR_MASK), 0);
+-		else
++		/*
++		 * Self-IPI exists only when x2APIC is enabled.  Bits 7:0 hold
++		 * the vector, everything else is reserved.
++		 */
++		if (!apic_x2apic_mode(apic) || (val & ~APIC_VECTOR_MASK))
+ 			ret = 1;
++		else
++			kvm_apic_send_ipi(apic, APIC_DEST_SELF | val, 0);
+ 		break;
+ 	default:
+ 		ret = 1;
 
 
