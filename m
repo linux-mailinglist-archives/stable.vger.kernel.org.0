@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6614A6AF1B3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B30A6AECE3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:59:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbjCGSql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:46:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37530 "EHLO
+        id S229564AbjCGR7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:59:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231440AbjCGSqR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:46:17 -0500
+        with ESMTP id S229812AbjCGR6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:58:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD04AF75C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4881F485
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:53:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E03B96152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1074C433D2;
-        Tue,  7 Mar 2023 18:35:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 285716150B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:53:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E3E4C433EF;
+        Tue,  7 Mar 2023 17:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214131;
-        bh=IfDYN/tlD4Jj6qsCG1YAcmJZMOVDCCtob5mcwAGINgo=;
+        s=korg; t=1678211582;
+        bh=Slb1EbNJeRZfPyJ2hMNbgXRGYunRv4GUgNpaDaevwM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioSdAUL7cWbrRpt+sWw8o6UW5LXkEzAE2cTS59c2O0sTcGPPI+rtHqipY49raMIGV
-         zG3QVkhJRqcTvV+pMye7kEsCM9oBGvaCLKP96irPCkC2A7T/ehI9D9A91RgmNhvDZY
-         QHGKDTgNNBIaesutmsK4Yc5jQbF16NCBsA192QTs=
+        b=GcQNtuGMhFZdUvc945/mxhcD1ptLTb3lpxMHGyHmqgs43Kxs/VL7DLhi7izmMklyA
+         V8tx07EMWfOBXlu1GRLF3fqaFbau1VEn6VSAllbgISCL2sL6QoCs1aKXoxqhWDwBmG
+         o9UPha+i/v0oZ7SRjDr3fk3s8NHMBHLt3a5ysC6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <Andrew.Cooper3@citrix.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 6.1 730/885] x86/virt: Force GIF=1 prior to disabling SVM (for reboot flows)
+        patches@lists.linux.dev,
+        syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com,
+        stable@kernel.org, Jun Nie <jun.nie@linaro.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.2 0892/1001] ext4: optimize ea_inode block expansion
 Date:   Tue,  7 Mar 2023 18:01:04 +0100
-Message-Id: <20230307170033.700213106@linuxfoundation.org>
+Message-Id: <20230307170100.667970785@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jun Nie <jun.nie@linaro.org>
 
-commit 6a3236580b0b1accc3976345e723104f74f6f8e6 upstream.
+commit 1e9d62d252812575ded7c620d8fc67c32ff06c16 upstream.
 
-Set GIF=1 prior to disabling SVM to ensure that INIT is recognized if the
-kernel is disabling SVM in an emergency, e.g. if the kernel is about to
-jump into a crash kernel or may reboot without doing a full CPU RESET.
-If GIF is left cleared, the new kernel (or firmware) will be unabled to
-awaken APs.  Eat faults on STGI (due to EFER.SVME=0) as it's possible
-that SVM could be disabled via NMI shootdown between reading EFER.SVME
-and executing STGI.
+Copy ea data from inode entry when expanding ea block if possible.
+Then remove the ea entry if expansion success. Thus memcpy to a
+temporary buffer may be avoided.
 
-Link: https://lore.kernel.org/all/cbcb6f35-e5d7-c1c9-4db9-fe5cc4de579a@amd.com
-Cc: stable@vger.kernel.org
-Cc: Andrew Cooper <Andrew.Cooper3@citrix.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221130233650.1404148-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+If the expansion fails, we do not need to recovery the removed ea
+entry neither in this way.
+
+Reported-by: syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
+Link: https://lore.kernel.org/r/20230103014517.495275-2-jun.nie@linaro.org
+Cc: stable@kernel.org
+Signed-off-by: Jun Nie <jun.nie@linaro.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/virtext.h |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/ext4/xattr.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/arch/x86/include/asm/virtext.h
-+++ b/arch/x86/include/asm/virtext.h
-@@ -126,7 +126,21 @@ static inline void cpu_svm_disable(void)
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2567,9 +2567,8 @@ static int ext4_xattr_move_to_block(hand
  
- 	wrmsrl(MSR_VM_HSAVE_PA, 0);
- 	rdmsrl(MSR_EFER, efer);
--	wrmsrl(MSR_EFER, efer & ~EFER_SVME);
-+	if (efer & EFER_SVME) {
-+		/*
-+		 * Force GIF=1 prior to disabling SVM to ensure INIT and NMI
-+		 * aren't blocked, e.g. if a fatal error occurred between CLGI
-+		 * and STGI.  Note, STGI may #UD if SVM is disabled from NMI
-+		 * context between reading EFER and executing STGI.  In that
-+		 * case, GIF must already be set, otherwise the NMI would have
-+		 * been blocked, so just eat the fault.
-+		 */
-+		asm_volatile_goto("1: stgi\n\t"
-+				  _ASM_EXTABLE(1b, %l[fault])
-+				  ::: "memory" : fault);
-+fault:
-+		wrmsrl(MSR_EFER, efer & ~EFER_SVME);
-+	}
- }
+ 	is = kzalloc(sizeof(struct ext4_xattr_ibody_find), GFP_NOFS);
+ 	bs = kzalloc(sizeof(struct ext4_xattr_block_find), GFP_NOFS);
+-	buffer = kvmalloc(value_size, GFP_NOFS);
+ 	b_entry_name = kmalloc(entry->e_name_len + 1, GFP_NOFS);
+-	if (!is || !bs || !buffer || !b_entry_name) {
++	if (!is || !bs || !b_entry_name) {
+ 		error = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -2581,12 +2580,18 @@ static int ext4_xattr_move_to_block(hand
  
- /** Makes sure SVM is disabled, if it is supported on the CPU
+ 	/* Save the entry name and the entry value */
+ 	if (entry->e_value_inum) {
++		buffer = kvmalloc(value_size, GFP_NOFS);
++		if (!buffer) {
++			error = -ENOMEM;
++			goto out;
++		}
++
+ 		error = ext4_xattr_inode_get(inode, entry, buffer, value_size);
+ 		if (error)
+ 			goto out;
+ 	} else {
+ 		size_t value_offs = le16_to_cpu(entry->e_value_offs);
+-		memcpy(buffer, (void *)IFIRST(header) + value_offs, value_size);
++		buffer = (void *)IFIRST(header) + value_offs;
+ 	}
+ 
+ 	memcpy(b_entry_name, entry->e_name, entry->e_name_len);
+@@ -2601,25 +2606,26 @@ static int ext4_xattr_move_to_block(hand
+ 	if (error)
+ 		goto out;
+ 
+-	/* Remove the chosen entry from the inode */
+-	error = ext4_xattr_ibody_set(handle, inode, &i, is);
+-	if (error)
+-		goto out;
+-
+ 	i.value = buffer;
+ 	i.value_len = value_size;
+ 	error = ext4_xattr_block_find(inode, &i, bs);
+ 	if (error)
+ 		goto out;
+ 
+-	/* Add entry which was removed from the inode into the block */
++	/* Move ea entry from the inode into the block */
+ 	error = ext4_xattr_block_set(handle, inode, &i, bs);
+ 	if (error)
+ 		goto out;
+-	error = 0;
++
++	/* Remove the chosen entry from the inode */
++	i.value = NULL;
++	i.value_len = 0;
++	error = ext4_xattr_ibody_set(handle, inode, &i, is);
++
+ out:
+ 	kfree(b_entry_name);
+-	kvfree(buffer);
++	if (entry->e_value_inum && buffer)
++		kvfree(buffer);
+ 	if (is)
+ 		brelse(is->iloc.bh);
+ 	if (bs)
 
 
