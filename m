@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B55076AF199
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D22B96AECBA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbjCGSps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:45:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40486 "EHLO
+        id S230288AbjCGR5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:57:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232981AbjCGSpP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FF7B78A5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:02 -0800 (PST)
+        with ESMTP id S229636AbjCGR4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:56:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B32BA42ED
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:51:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83D04614E8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:34:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B304C433D2;
-        Tue,  7 Mar 2023 18:34:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5FD4B819B4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:51:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22382C433D2;
+        Tue,  7 Mar 2023 17:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214098;
-        bh=rCZT13204XvcPLPk4GzSS/0ET62ntobqNzn48L4mZ+Y=;
+        s=korg; t=1678211499;
+        bh=Yb4KOOaeUasvjjAxR5OmJBqzmUwcYCO78lISU59jhCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHQjW4vBZf4EmtRNsYnozil9kwPJ2L36aw6n8toPSUwTx86XNtsra7LUwcApfpaYn
-         Iq9rmWOv0CxiAPnYtMJ9RyA/sbssAyq2ZdLImohgFWrLISALLtCiIWIrX3B5VGHaG1
-         Ufgin0hDUWmebRp0zGcRbqNyiqWZEWzOt1YQF/8c=
+        b=c6jfogcqAv/JCcm3fgwZHoumCdTinrI1c5Z+6k6KsbYpNCmmhPYVztqrWsy5NFeM3
+         Sy0h0F38Igjk5GEFY6QOb+p8JXSBfw8+P4TJREsgeh46x1mDm9UnTRXMIoNIZqWwZt
+         ms6PYSFTBamorWw6ZSeCWpfjRZhcsHzNYlbER/Dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.1 720/885] KVM: x86: Dont inhibit APICv/AVIC on xAPIC ID "change" if APIC is disabled
+        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 6.2 0882/1001] irqdomain: Look for existing mapping only once
 Date:   Tue,  7 Mar 2023 18:00:54 +0100
-Message-Id: <20230307170033.288986795@linuxfoundation.org>
+Message-Id: <20230307170100.201682646@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit a58a66afc464d6d2ec294cd3102f36f3652e7ce4 upstream.
+commit 6e6f75c9c98d2d246d90411ff2b6f0cd271f4cba upstream.
 
-Don't inhibit APICv/AVIC due to an xAPIC ID mismatch if the APIC is
-hardware disabled.  The ID cannot be consumed while the APIC is disabled,
-and the ID is guaranteed to be set back to the vcpu_id when the APIC is
-hardware enabled (architectural behavior correctly emulated by KVM).
+Avoid looking for an existing mapping twice when creating a new mapping
+using irq_create_fwspec_mapping() by factoring out the actual allocation
+which is shared with irq_create_mapping_affinity().
 
-Fixes: 3743c2f02517 ("KVM: x86: inhibit APICv/AVIC on changes to APIC ID or APIC base")
-Cc: stable@vger.kernel.org
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20230106011306.85230-6-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+The new helper function will also be used to fix a shared-interrupt
+mapping race, hence the Fixes tag.
+
+Fixes: b62b2cf5759b ("irqdomain: Fix handling of type settings for existing mappings")
+Cc: stable@vger.kernel.org      # 4.8
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-5-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/irq/irqdomain.c |   60 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 33 insertions(+), 27 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2072,6 +2072,9 @@ static void kvm_lapic_xapic_id_updated(s
- {
- 	struct kvm *kvm = apic->vcpu->kvm;
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -682,6 +682,34 @@ unsigned int irq_create_direct_mapping(s
+ EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
+ #endif
  
-+	if (!kvm_apic_hw_enabled(apic))
-+		return;
++static unsigned int __irq_create_mapping_affinity(struct irq_domain *domain,
++						  irq_hw_number_t hwirq,
++						  const struct irq_affinity_desc *affinity)
++{
++	struct device_node *of_node = irq_domain_get_of_node(domain);
++	int virq;
 +
- 	if (KVM_BUG_ON(apic_x2apic_mode(apic), kvm))
- 		return;
++	pr_debug("irq_create_mapping(0x%p, 0x%lx)\n", domain, hwirq);
++
++	/* Allocate a virtual interrupt number */
++	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
++				      affinity);
++	if (virq <= 0) {
++		pr_debug("-> virq allocation failed\n");
++		return 0;
++	}
++
++	if (irq_domain_associate(domain, virq, hwirq)) {
++		irq_free_desc(virq);
++		return 0;
++	}
++
++	pr_debug("irq %lu on domain %s mapped to virtual irq %u\n",
++		hwirq, of_node_full_name(of_node), virq);
++
++	return virq;
++}
++
+ /**
+  * irq_create_mapping_affinity() - Map a hardware interrupt into linux irq space
+  * @domain: domain owning this hardware interrupt or NULL for default domain
+@@ -694,14 +722,11 @@ EXPORT_SYMBOL_GPL(irq_create_direct_mapp
+  * on the number returned from that call.
+  */
+ unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
+-				       irq_hw_number_t hwirq,
+-				       const struct irq_affinity_desc *affinity)
++					 irq_hw_number_t hwirq,
++					 const struct irq_affinity_desc *affinity)
+ {
+-	struct device_node *of_node;
+ 	int virq;
  
+-	pr_debug("irq_create_mapping(0x%p, 0x%lx)\n", domain, hwirq);
+-
+ 	/* Look for default domain if necessary */
+ 	if (domain == NULL)
+ 		domain = irq_default_domain;
+@@ -709,34 +734,15 @@ unsigned int irq_create_mapping_affinity
+ 		WARN(1, "%s(, %lx) called with NULL domain\n", __func__, hwirq);
+ 		return 0;
+ 	}
+-	pr_debug("-> using domain @%p\n", domain);
+-
+-	of_node = irq_domain_get_of_node(domain);
+ 
+ 	/* Check if mapping already exists */
+ 	virq = irq_find_mapping(domain, hwirq);
+ 	if (virq) {
+-		pr_debug("-> existing mapping on virq %d\n", virq);
++		pr_debug("existing mapping on virq %d\n", virq);
+ 		return virq;
+ 	}
+ 
+-	/* Allocate a virtual interrupt number */
+-	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
+-				      affinity);
+-	if (virq <= 0) {
+-		pr_debug("-> virq allocation failed\n");
+-		return 0;
+-	}
+-
+-	if (irq_domain_associate(domain, virq, hwirq)) {
+-		irq_free_desc(virq);
+-		return 0;
+-	}
+-
+-	pr_debug("irq %lu on domain %s mapped to virtual irq %u\n",
+-		hwirq, of_node_full_name(of_node), virq);
+-
+-	return virq;
++	return __irq_create_mapping_affinity(domain, hwirq, affinity);
+ }
+ EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
+ 
+@@ -841,7 +847,7 @@ unsigned int irq_create_fwspec_mapping(s
+ 			return 0;
+ 	} else {
+ 		/* Create mapping */
+-		virq = irq_create_mapping(domain, hwirq);
++		virq = __irq_create_mapping_affinity(domain, hwirq, NULL);
+ 		if (!virq)
+ 			return virq;
+ 	}
 
 
