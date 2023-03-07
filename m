@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 197D46AF34F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:03:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D45166AEB71
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:44:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbjCGTD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:03:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        id S232050AbjCGRoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:44:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231423AbjCGTDD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:03:03 -0500
+        with ESMTP id S232052AbjCGRoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4952D00B8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:49:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8113E95E02
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 160956153C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:48:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D1B5C433EF;
-        Tue,  7 Mar 2023 18:48:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F24086150C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16A41C433D2;
+        Tue,  7 Mar 2023 17:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214910;
-        bh=ZI321T/O+sxdjzEadFf1xLAryCIEYIk4k2mszzHSmSs=;
+        s=korg; t=1678210749;
+        bh=pYmPZuIatWJIy9TjbQpRfMHAueHd4doPOek4LgFFMPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9ECjcvT86Za66/IkXJswzW3IcNi4gOvf0U0oPkI58z+bmRR4C5y6TXVy3vA0e6h/
-         bOj/NRSgzEb68I3ebc5W5js+tF3kd8dcW9xGXB0UxixqorEF9J1OaCZDRJX98/Hcxw
-         V0lKeMxL1PHVDvkDv16+2E4NUR8lypyXS9h1dylo=
+        b=K3UQRsZ7dNAfpJPCwSFlwG6uYsUOVHm/ZREhpacQQUipSgO8CYC8TnBd61RG7evED
+         AE+mJwxmdho05K4MAKxjYHtS2mqRonJMxJ9oJgzrxsn8RXjETvnK+m0QGo4zlhDvFr
+         qqX7XqiTgpe+LdZh8HKqsoXI8OW2/H7yp4VKiSjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/567] sched/deadline,rt: Remove unused parameter from pick_next_[rt|dl]_entity()
-Date:   Tue,  7 Mar 2023 17:56:35 +0100
-Message-Id: <20230307165908.461732663@linuxfoundation.org>
+Subject: [PATCH 6.2 0624/1001] fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
+Date:   Tue,  7 Mar 2023 17:56:36 +0100
+Message-Id: <20230307170048.642209949@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 821aecd09e5ad2f8d4c3d8195333d272b392f7d3 ]
+[ Upstream commit 47d586913f2abec4d240bae33417f537fda987ec ]
 
-The `struct rq *rq` parameter isn't used. Remove it.
+Currently, filp_close() and generic_shutdown_super() use printk() to log
+messages when bugs are detected. This is problematic because infrastructure
+like syzkaller has no idea that this message indicates a bug.
+In addition, some people explicitly want their kernels to BUG() when kernel
+data corruption has been detected (CONFIG_BUG_ON_DATA_CORRUPTION).
+And finally, when generic_shutdown_super() detects remaining inodes on a
+system without CONFIG_BUG_ON_DATA_CORRUPTION, it would be nice if later
+accesses to a busy inode would at least crash somewhat cleanly rather than
+walking through freed memory.
 
-Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Juri Lelli <juri.lelli@redhat.com>
-Link: https://lore.kernel.org/r/20220302183433.333029-7-dietmar.eggemann@arm.com
-Stable-dep-of: 7c4a5b89a0b5 ("sched/rt: pick_next_rt_entity(): check list_entry")
+To address all three, use CHECK_DATA_CORRUPTION() when kernel bugs are
+detected.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/deadline.c | 5 ++---
- kernel/sched/rt.c       | 5 ++---
- 2 files changed, 4 insertions(+), 6 deletions(-)
+ fs/open.c              |  5 +++--
+ fs/super.c             | 21 +++++++++++++++++----
+ include/linux/poison.h |  3 +++
+ 3 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
-index 2a2f32eaffccd..226c814368d1b 100644
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -1846,8 +1846,7 @@ static void set_next_task_dl(struct rq *rq, struct task_struct *p, bool first)
- 	deadline_queue_push_tasks(rq);
- }
- 
--static struct sched_dl_entity *pick_next_dl_entity(struct rq *rq,
--						   struct dl_rq *dl_rq)
-+static struct sched_dl_entity *pick_next_dl_entity(struct dl_rq *dl_rq)
+diff --git a/fs/open.c b/fs/open.c
+index 82c1a28b33089..ceb88ac0ca3b2 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -1411,8 +1411,9 @@ int filp_close(struct file *filp, fl_owner_t id)
  {
- 	struct rb_node *left = rb_first_cached(&dl_rq->root);
+ 	int retval = 0;
  
-@@ -1866,7 +1865,7 @@ static struct task_struct *pick_task_dl(struct rq *rq)
- 	if (!sched_dl_runnable(rq))
- 		return NULL;
+-	if (!file_count(filp)) {
+-		printk(KERN_ERR "VFS: Close: file count is 0\n");
++	if (CHECK_DATA_CORRUPTION(file_count(filp) == 0,
++			"VFS: Close: file count is 0 (f_op=%ps)",
++			filp->f_op)) {
+ 		return 0;
+ 	}
  
--	dl_se = pick_next_dl_entity(rq, dl_rq);
-+	dl_se = pick_next_dl_entity(dl_rq);
- 	BUG_ON(!dl_se);
- 	p = dl_task_of(dl_se);
+diff --git a/fs/super.c b/fs/super.c
+index 12c08cb20405d..cf737ec2bd05c 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -491,10 +491,23 @@ void generic_shutdown_super(struct super_block *sb)
+ 		if (sop->put_super)
+ 			sop->put_super(sb);
  
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index add67f811e004..b374ea9f58ab2 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -1614,8 +1614,7 @@ static inline void set_next_task_rt(struct rq *rq, struct task_struct *p, bool f
- 	rt_queue_push_tasks(rq);
- }
+-		if (!list_empty(&sb->s_inodes)) {
+-			printk("VFS: Busy inodes after unmount of %s. "
+-			   "Self-destruct in 5 seconds.  Have a nice day...\n",
+-			   sb->s_id);
++		if (CHECK_DATA_CORRUPTION(!list_empty(&sb->s_inodes),
++				"VFS: Busy inodes after unmount of %s (%s)",
++				sb->s_id, sb->s_type->name)) {
++			/*
++			 * Adding a proper bailout path here would be hard, but
++			 * we can at least make it more likely that a later
++			 * iput_final() or such crashes cleanly.
++			 */
++			struct inode *inode;
++
++			spin_lock(&sb->s_inode_list_lock);
++			list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
++				inode->i_op = VFS_PTR_POISON;
++				inode->i_sb = VFS_PTR_POISON;
++				inode->i_mapping = VFS_PTR_POISON;
++			}
++			spin_unlock(&sb->s_inode_list_lock);
+ 		}
+ 	}
+ 	spin_lock(&sb_lock);
+diff --git a/include/linux/poison.h b/include/linux/poison.h
+index 2d3249eb0e62d..0e8a1f2ceb2f1 100644
+--- a/include/linux/poison.h
++++ b/include/linux/poison.h
+@@ -84,4 +84,7 @@
+ /********** kernel/bpf/ **********/
+ #define BPF_PTR_POISON ((void *)(0xeB9FUL + POISON_POINTER_DELTA))
  
--static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
--						   struct rt_rq *rt_rq)
-+static struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
- {
- 	struct rt_prio_array *array = &rt_rq->active;
- 	struct sched_rt_entity *next = NULL;
-@@ -1637,7 +1636,7 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
- 	struct rt_rq *rt_rq  = &rq->rt;
- 
- 	do {
--		rt_se = pick_next_rt_entity(rq, rt_rq);
-+		rt_se = pick_next_rt_entity(rt_rq);
- 		BUG_ON(!rt_se);
- 		rt_rq = group_rt_rq(rt_se);
- 	} while (rt_rq);
++/********** VFS **********/
++#define VFS_PTR_POISON ((void *)(0xF5 + POISON_POINTER_DELTA))
++
+ #endif
 -- 
 2.39.2
 
