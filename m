@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E56136AF49F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:18:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB9C16AF4A0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbjCGTSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:18:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39442 "EHLO
+        id S233929AbjCGTSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:18:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231637AbjCGTRj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD4B52938
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:30 -0800 (PST)
+        with ESMTP id S233946AbjCGTRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:17:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB51585B17
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:01:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EB4A61518
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A171EC433D2;
-        Tue,  7 Mar 2023 19:01:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79F0BB819D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:01:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD1C2C433EF;
+        Tue,  7 Mar 2023 19:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215689;
-        bh=lwtDCNOB1P1C3uDyD3rizenKAw16yquVBJUkXGwWKKA=;
+        s=korg; t=1678215692;
+        bh=XNm56nZBjZP9ks9IAJr+TsetW0U+qmtHaeN6Ps8hgcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RfoXPxYOMEmxlHwNPUhaQTQZ5kz7+Jq4EModMZn8XwsKWLSq8eeBccYzb98TxqhGk
-         oLEKT+txt8K3Ss9SMFvmi8jhLJzETllqyUVbZ3bu4oKYgFH4MTiveOxVi7dDAzU4Ww
-         05xwpZ4ubU2ql93Pkbcy3ceHOZSDaSS715w5DrG0=
+        b=fW7/uxneJ36JimRWFM5C1AXTvbQE3h5YV0jndP5K8wiyvmL9dvnXBBP5YxA+p55Ef
+         jolXvmoZY+c2dXj51HS7JANZZwxhfKlrptkZnaNFlNdqGh5ShIecJ2XpthsuoVeIDZ
+         5ws2qY2hONfMbLiGHIGsCftrfYiYSRWJfiOSdwgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Brendan Cunningham <bcunningham@cornelisnetworks.com>,
-        Patrick Kelsey <pat.kelsey@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 343/567] IB/hfi1: Fix sdma.h tx->num_descs off-by-one errors
-Date:   Tue,  7 Mar 2023 18:01:19 +0100
-Message-Id: <20230307165920.745463833@linuxfoundation.org>
+        patches@lists.linux.dev, Sibi Sankar <quic_sibis@quicinc.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Amit Pundir <amit.pundir@linaro.org>
+Subject: [PATCH 5.15 344/567] remoteproc: qcom_q6v5_mss: Use a carveout to authenticate modem headers
+Date:   Tue,  7 Mar 2023 18:01:20 +0100
+Message-Id: <20230307165920.779598498@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -57,106 +56,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
+From: Sibi Sankar <quic_sibis@quicinc.com>
 
-[ Upstream commit fd8958efe8779d3db19c9124fce593ce681ac709 ]
+[ Upstream commit 57f72170a2b2a362c35bb9407fc844eac5afdec1 ]
 
-Fix three sources of error involving struct sdma_txreq.num_descs.
+Any access to the dynamically allocated metadata region by the application
+processor after assigning it to the remote Q6 will result in a XPU
+violation. Fix this by replacing the dynamically allocated memory region
+with a no-map carveout and unmap the modem metadata memory region before
+passing control to the remote Q6.
 
-When _extend_sdma_tx_descs() extends the descriptor array, it uses the
-value of tx->num_descs to determine how many existing entries from the
-tx's original, internal descriptor array to copy to the newly allocated
-one.  As this value was incremented before the call, the copy loop will
-access one entry past the internal descriptor array, copying its contents
-into the corresponding slot in the new array.
-
-If the call to _extend_sdma_tx_descs() fails, _pad_smda_tx_descs() then
-invokes __sdma_tx_clean() which uses the value of tx->num_desc to drive a
-loop that unmaps all descriptor entries in use.  As this value was
-incremented before the call, the unmap loop will invoke sdma_unmap_desc()
-on a descriptor entry whose contents consist of whatever random data was
-copied into it during (1), leading to cascading further calls into the
-kernel and driver using arbitrary data.
-
-_sdma_close_tx() was using tx->num_descs instead of tx->num_descs - 1.
-
-Fix all of the above by:
-- Only increment .num_descs after .descp is extended.
-- Use .num_descs - 1 instead of .num_descs for last .descp entry.
-
-Fixes: f4d26d81ad7f ("staging/rdma/hfi1: Add coalescing support for SDMA TX descriptors")
-Link: https://lore.kernel.org/r/167656658879.2223096.10026561343022570690.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Brendan Cunningham <bcunningham@cornelisnetworks.com>
-Signed-off-by: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-and-tested-by: Amit Pundir <amit.pundir@linaro.org>
+Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
+Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230117085840.32356-7-quic_sibis@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c |  4 ++--
- drivers/infiniband/hw/hfi1/sdma.h | 15 +++++++--------
- 2 files changed, 9 insertions(+), 10 deletions(-)
+ drivers/remoteproc/qcom_q6v5_mss.c | 59 +++++++++++++++++++++++++++---
+ 1 file changed, 53 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index a95b654f52540..8ed20392e9f0d 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -3160,8 +3160,7 @@ int _pad_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- {
- 	int rval = 0;
+diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
+index ca1c7387776b5..93eefefd514c7 100644
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -17,6 +17,7 @@
+ #include <linux/module.h>
+ #include <linux/of_address.h>
+ #include <linux/of_device.h>
++#include <linux/of_reserved_mem.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_domain.h>
+ #include <linux/pm_runtime.h>
+@@ -192,6 +193,9 @@ struct q6v5 {
+ 	size_t mba_size;
+ 	size_t dp_size;
  
--	tx->num_desc++;
--	if ((unlikely(tx->num_desc == tx->desc_limit))) {
-+	if ((unlikely(tx->num_desc + 1 == tx->desc_limit))) {
- 		rval = _extend_sdma_tx_descs(dd, tx);
- 		if (rval) {
- 			__sdma_txclean(dd, tx);
-@@ -3174,6 +3173,7 @@ int _pad_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- 		SDMA_MAP_NONE,
- 		dd->sdma_pad_phys,
- 		sizeof(u32) - (tx->packet_len & (sizeof(u32) - 1)));
-+	tx->num_desc++;
- 	_sdma_close_tx(dd, tx);
- 	return rval;
- }
-diff --git a/drivers/infiniband/hw/hfi1/sdma.h b/drivers/infiniband/hw/hfi1/sdma.h
-index d8170fcbfbdd5..b023fc461bd51 100644
---- a/drivers/infiniband/hw/hfi1/sdma.h
-+++ b/drivers/infiniband/hw/hfi1/sdma.h
-@@ -631,14 +631,13 @@ static inline void sdma_txclean(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- static inline void _sdma_close_tx(struct hfi1_devdata *dd,
- 				  struct sdma_txreq *tx)
- {
--	tx->descp[tx->num_desc].qw[0] |=
--		SDMA_DESC0_LAST_DESC_FLAG;
--	tx->descp[tx->num_desc].qw[1] |=
--		dd->default_desc1;
-+	u16 last_desc = tx->num_desc - 1;
++	phys_addr_t mdata_phys;
++	size_t mdata_size;
 +
-+	tx->descp[last_desc].qw[0] |= SDMA_DESC0_LAST_DESC_FLAG;
-+	tx->descp[last_desc].qw[1] |= dd->default_desc1;
- 	if (tx->flags & SDMA_TXREQ_F_URGENT)
--		tx->descp[tx->num_desc].qw[1] |=
--			(SDMA_DESC1_HEAD_TO_HOST_FLAG |
--			 SDMA_DESC1_INT_REQ_FLAG);
-+		tx->descp[last_desc].qw[1] |= (SDMA_DESC1_HEAD_TO_HOST_FLAG |
-+					       SDMA_DESC1_INT_REQ_FLAG);
- }
+ 	phys_addr_t mpss_phys;
+ 	phys_addr_t mpss_reloc;
+ 	size_t mpss_size;
+@@ -832,15 +836,35 @@ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw)
+ 	if (IS_ERR(metadata))
+ 		return PTR_ERR(metadata);
  
- static inline int _sdma_txadd_daddr(
-@@ -655,6 +654,7 @@ static inline int _sdma_txadd_daddr(
- 		type,
- 		addr, len);
- 	WARN_ON(len > tx->tlen);
-+	tx->num_desc++;
- 	tx->tlen -= len;
- 	/* special cases for last */
- 	if (!tx->tlen) {
-@@ -666,7 +666,6 @@ static inline int _sdma_txadd_daddr(
- 			_sdma_close_tx(dd, tx);
- 		}
+-	ptr = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
+-	if (!ptr) {
+-		kfree(metadata);
+-		dev_err(qproc->dev, "failed to allocate mdt buffer\n");
+-		return -ENOMEM;
++	if (qproc->mdata_phys) {
++		if (size > qproc->mdata_size) {
++			ret = -EINVAL;
++			dev_err(qproc->dev, "metadata size outside memory range\n");
++			goto free_metadata;
++		}
++
++		phys = qproc->mdata_phys;
++		ptr = memremap(qproc->mdata_phys, size, MEMREMAP_WC);
++		if (!ptr) {
++			ret = -EBUSY;
++			dev_err(qproc->dev, "unable to map memory region: %pa+%zx\n",
++				&qproc->mdata_phys, size);
++			goto free_metadata;
++		}
++	} else {
++		ptr = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
++		if (!ptr) {
++			ret = -ENOMEM;
++			dev_err(qproc->dev, "failed to allocate mdt buffer\n");
++			goto free_metadata;
++		}
  	}
--	tx->num_desc++;
- 	return rval;
+ 
+ 	memcpy(ptr, metadata, size);
+ 
++	if (qproc->mdata_phys)
++		memunmap(ptr);
++
+ 	/* Hypervisor mapping to access metadata by modem */
+ 	mdata_perm = BIT(QCOM_SCM_VMID_HLOS);
+ 	ret = q6v5_xfer_mem_ownership(qproc, &mdata_perm, false, true,
+@@ -869,7 +893,9 @@ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw)
+ 			 "mdt buffer not reclaimed system may become unstable\n");
+ 
+ free_dma_attrs:
+-	dma_free_attrs(qproc->dev, size, ptr, phys, dma_attrs);
++	if (!qproc->mdata_phys)
++		dma_free_attrs(qproc->dev, size, ptr, phys, dma_attrs);
++free_metadata:
+ 	kfree(metadata);
+ 
+ 	return ret < 0 ? ret : 0;
+@@ -1615,6 +1641,7 @@ static int q6v5_init_reset(struct q6v5 *qproc)
+ static int q6v5_alloc_memory_region(struct q6v5 *qproc)
+ {
+ 	struct device_node *child;
++	struct reserved_mem *rmem;
+ 	struct device_node *node;
+ 	struct resource r;
+ 	int ret;
+@@ -1661,6 +1688,26 @@ static int q6v5_alloc_memory_region(struct q6v5 *qproc)
+ 	qproc->mpss_phys = qproc->mpss_reloc = r.start;
+ 	qproc->mpss_size = resource_size(&r);
+ 
++	if (!child) {
++		node = of_parse_phandle(qproc->dev->of_node, "memory-region", 2);
++	} else {
++		child = of_get_child_by_name(qproc->dev->of_node, "metadata");
++		node = of_parse_phandle(child, "memory-region", 0);
++		of_node_put(child);
++	}
++
++	if (!node)
++		return 0;
++
++	rmem = of_reserved_mem_lookup(node);
++	if (!rmem) {
++		dev_err(qproc->dev, "unable to resolve metadata region\n");
++		return -EINVAL;
++	}
++
++	qproc->mdata_phys = rmem->base;
++	qproc->mdata_size = rmem->size;
++
+ 	return 0;
  }
  
 -- 
