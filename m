@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DBF36AF346
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E4B6AF030
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233614AbjCGTDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:03:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44618 "EHLO
+        id S233101AbjCGS3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:29:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233452AbjCGTCe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:02:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27E5BC791
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:34 -0800 (PST)
+        with ESMTP id S232971AbjCGS2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:28:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A857ADC34
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2544061520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D70EC4339B;
-        Tue,  7 Mar 2023 18:48:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03954B819D3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A288C433EF;
+        Tue,  7 Mar 2023 18:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214913;
-        bh=5/pZxIYAb8rVFXon30XZ/QanXXb9QKVo2s6IgHd6Nw4=;
+        s=korg; t=1678213297;
+        bh=NuieW/v4bv9NRwaR+QVw32Gntlai0UJKZaL/Upa7UU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4yHOF1Ov1Ja00miIWYPaCZsbR5JvGILFkkSj+/WklPPDu0W0H4B03nYoYZanvlYS
-         zekeRRO0+Td1Essi2R3FvBI0bJrT8MbnOkRYN0JaU3ZFSrxzUHz2MDfCVSemuz0zsh
-         xRdiQUhU+U1m0cjIANa0HTQCczjJtCajLQXNcNcI=
+        b=ZmcWbphirC5jsGdCV6zhsImiiY4bs1Ai9tr6UI8yra7mHyIvalsGyGEEMCYTbQ+F2
+         eRNAMO1YACrYn66l2U55Hr+4kQ+YsFcycclL96kgXuGLGGPZVcQeznpV5lQcdGOPyl
+         Qr8wcsZ0jHqnehd5bpnsS09TXVHu+gxf1/v5tR1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Phil Auld <pauld@redhat.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        patches@lists.linux.dev, Andreas Kemnade <andreas@kemnade.info>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/567] sched/rt: pick_next_rt_entity(): check list_entry
+Subject: [PATCH 6.1 462/885] power: supply: remove faulty cooling logic
 Date:   Tue,  7 Mar 2023 17:56:36 +0100
-Message-Id: <20230307165908.501064049@linuxfoundation.org>
+Message-Id: <20230307170022.579701593@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,53 +54,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-[ Upstream commit 7c4a5b89a0b5a57a64b601775b296abf77a9fe97 ]
+[ Upstream commit c85c191694cb1cf290b11059b3d2de8a2732ffd0 ]
 
-Commit 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
-removed any path which could make pick_next_rt_entity() return NULL.
-However, BUG_ON(!rt_se) in _pick_next_task_rt() (the only caller of
-pick_next_rt_entity()) still checks the error condition, which can
-never happen, since list_entry() never returns NULL.
-Remove the BUG_ON check, and instead emit a warning in the only
-possible error condition here: the queue being empty which should
-never happen.
+The rn5t618 power driver fails to register
+a cooling device because POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT_MAX
+is missing but availability is not checked before registering
+cooling device. After improved error checking in the thermal
+code, the registration of the power supply fails entirely.
 
-Fixes: 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/r/20230128-list-entry-null-check-sched-v3-1-b1a71bd1ac6b@diag.uniroma1.it
+Checking for availability of _MAX before registering cooling device
+fixes the rn5t618 problem. But the whole logic feels questionable.
+
+First, the logic is inverted here:
+the code tells: max_current = max_cooling but
+0 = max_cooling, so there needs to be some inversion
+in the code which cannot be found. Comparing with other
+cooling devices, it can be found that value for fan speed is not
+inverted, value for cpufreq cooling is inverted (similar situation
+as here lowest frequency = max cooling)
+
+Second, analyzing usage of _MAX: it is seems that maximum capabilities
+of charging controller are specified and not of the battery. Probably
+there is not too much mismatch in the drivers actually implementing
+that. So nothing has exploded yet.  So there is no easy and safe way
+to specifify a max cooling value now.
+
+Conclusion for now (as a regression fix) just remove the cooling device
+registration and do it properly later on.
+
+Fixes: e49a1e1ee078 ("thermal/core: fix error code in __thermal_cooling_device_register()")
+Fixes: 952aeeb3ee28 ("power_supply: Register power supply for thermal cooling device")
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/power/supply/power_supply_core.c | 93 ------------------------
+ 1 file changed, 93 deletions(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index b374ea9f58ab2..08af6076c8097 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -1625,6 +1625,8 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
- 	BUG_ON(idx >= MAX_RT_PRIO);
+diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
+index 01d1ac79d982e..8382be867d274 100644
+--- a/drivers/power/supply/power_supply_core.c
++++ b/drivers/power/supply/power_supply_core.c
+@@ -1187,83 +1187,6 @@ static void psy_unregister_thermal(struct power_supply *psy)
+ 	thermal_zone_device_unregister(psy->tzd);
+ }
  
- 	queue = array->queue + idx;
-+	if (SCHED_WARN_ON(list_empty(queue)))
-+		return NULL;
- 	next = list_entry(queue->next, struct sched_rt_entity, run_list);
+-/* thermal cooling device callbacks */
+-static int ps_get_max_charge_cntl_limit(struct thermal_cooling_device *tcd,
+-					unsigned long *state)
+-{
+-	struct power_supply *psy;
+-	union power_supply_propval val;
+-	int ret;
+-
+-	psy = tcd->devdata;
+-	ret = power_supply_get_property(psy,
+-			POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT_MAX, &val);
+-	if (ret)
+-		return ret;
+-
+-	*state = val.intval;
+-
+-	return ret;
+-}
+-
+-static int ps_get_cur_charge_cntl_limit(struct thermal_cooling_device *tcd,
+-					unsigned long *state)
+-{
+-	struct power_supply *psy;
+-	union power_supply_propval val;
+-	int ret;
+-
+-	psy = tcd->devdata;
+-	ret = power_supply_get_property(psy,
+-			POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT, &val);
+-	if (ret)
+-		return ret;
+-
+-	*state = val.intval;
+-
+-	return ret;
+-}
+-
+-static int ps_set_cur_charge_cntl_limit(struct thermal_cooling_device *tcd,
+-					unsigned long state)
+-{
+-	struct power_supply *psy;
+-	union power_supply_propval val;
+-	int ret;
+-
+-	psy = tcd->devdata;
+-	val.intval = state;
+-	ret = psy->desc->set_property(psy,
+-		POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT, &val);
+-
+-	return ret;
+-}
+-
+-static const struct thermal_cooling_device_ops psy_tcd_ops = {
+-	.get_max_state = ps_get_max_charge_cntl_limit,
+-	.get_cur_state = ps_get_cur_charge_cntl_limit,
+-	.set_cur_state = ps_set_cur_charge_cntl_limit,
+-};
+-
+-static int psy_register_cooler(struct power_supply *psy)
+-{
+-	/* Register for cooling device if psy can control charging */
+-	if (psy_has_property(psy->desc, POWER_SUPPLY_PROP_CHARGE_CONTROL_LIMIT)) {
+-		psy->tcd = thermal_cooling_device_register(
+-			(char *)psy->desc->name,
+-			psy, &psy_tcd_ops);
+-		return PTR_ERR_OR_ZERO(psy->tcd);
+-	}
+-
+-	return 0;
+-}
+-
+-static void psy_unregister_cooler(struct power_supply *psy)
+-{
+-	if (IS_ERR_OR_NULL(psy->tcd))
+-		return;
+-	thermal_cooling_device_unregister(psy->tcd);
+-}
+ #else
+ static int psy_register_thermal(struct power_supply *psy)
+ {
+@@ -1273,15 +1196,6 @@ static int psy_register_thermal(struct power_supply *psy)
+ static void psy_unregister_thermal(struct power_supply *psy)
+ {
+ }
+-
+-static int psy_register_cooler(struct power_supply *psy)
+-{
+-	return 0;
+-}
+-
+-static void psy_unregister_cooler(struct power_supply *psy)
+-{
+-}
+ #endif
  
- 	return next;
-@@ -1637,7 +1639,8 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
+ static struct power_supply *__must_check
+@@ -1355,10 +1269,6 @@ __power_supply_register(struct device *parent,
+ 	if (rc)
+ 		goto register_thermal_failed;
  
- 	do {
- 		rt_se = pick_next_rt_entity(rt_rq);
--		BUG_ON(!rt_se);
-+		if (unlikely(!rt_se))
-+			return NULL;
- 		rt_rq = group_rt_rq(rt_se);
- 	} while (rt_rq);
- 
+-	rc = psy_register_cooler(psy);
+-	if (rc)
+-		goto register_cooler_failed;
+-
+ 	rc = power_supply_create_triggers(psy);
+ 	if (rc)
+ 		goto create_triggers_failed;
+@@ -1388,8 +1298,6 @@ __power_supply_register(struct device *parent,
+ add_hwmon_sysfs_failed:
+ 	power_supply_remove_triggers(psy);
+ create_triggers_failed:
+-	psy_unregister_cooler(psy);
+-register_cooler_failed:
+ 	psy_unregister_thermal(psy);
+ register_thermal_failed:
+ wakeup_init_failed:
+@@ -1541,7 +1449,6 @@ void power_supply_unregister(struct power_supply *psy)
+ 	sysfs_remove_link(&psy->dev.kobj, "powers");
+ 	power_supply_remove_hwmon_sysfs(psy);
+ 	power_supply_remove_triggers(psy);
+-	psy_unregister_cooler(psy);
+ 	psy_unregister_thermal(psy);
+ 	device_init_wakeup(&psy->dev, false);
+ 	device_unregister(&psy->dev);
 -- 
 2.39.2
 
