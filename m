@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F3A6AF10F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:39:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C69636AEBF6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232821AbjCGSi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:38:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51788 "EHLO
+        id S232252AbjCGRum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:50:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232893AbjCGSij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:39 -0500
+        with ESMTP id S232257AbjCGRuR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 327FC5B95
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:30:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E7A9E510
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2023B819F0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2980C4339B;
-        Tue,  7 Mar 2023 18:28:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 398E5B819BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B06C433EF;
+        Tue,  7 Mar 2023 17:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213708;
-        bh=s5xNDgT8kC3ed3qLOqVYpAxprENKIvqZW96oK1Jgzes=;
+        s=korg; t=1678211110;
+        bh=DNw91WgBpcZMsqJL4CBUdfiawTgNfe1yjnEpxebHFZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwACguGoQgXW2sFfEZJB987fTb9MxadJsoyRPg4tNeSS9amo0NPF4+tzN6TBqlVgR
-         4KLHaw8XHUA4T1q7QhdxnB5MehlwWld3qqKK38lW5A+4OOkt/poSwmn6HW8dL+z7L8
-         cIERHJ30+SkqnMC4yqeMLYXm5bPWFT+Uam6jaOwA=
+        b=S1bMCbRI5BaTrCXJ2xY+YfTgSMSgJZ/h6dkzYcv7QDH2IXBYu0qsgt+64O0/uNHK4
+         BCwG8cazz/+fb6kLwHF/T8tJXwuqpV5RFrDnK9Lk3e7+HMLK0i0pINscWsRzMFgR+y
+         nHu3mnwDydxd7kDJbWkFor2OK1KXlvqDJHJclbC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Allen Ballway <ballway@chromium.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 593/885] drm: panel-orientation-quirks: Add quirk for DynaBook K50
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.2 0755/1001] io_uring: use user visible tail in io_uring_poll()
 Date:   Tue,  7 Mar 2023 17:58:47 +0100
-Message-Id: <20230307170028.129502547@linuxfoundation.org>
+Message-Id: <20230307170054.476984756@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen Ballway <ballway@chromium.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit a3caf7ea0c3d5872ed0f2c51f5476aee0c47a73a ]
+commit c10bb64684813a326174c3eebcafb3ee5af52ca3 upstream.
 
-Like the ASUS T100HAN for which there is already a quirk,
-the DynaBook K50 has a 800x1280 portrait screen mounted
-in the tablet part of a landscape oriented 2-in-1.
-Update the quirk to be more generic and apply to this device.
+We return POLLIN from io_uring_poll() depending on whether there are
+CQEs for the userspace, and so we should use the user visible tail
+pointer instead of a transient cached value.
 
-Signed-off-by: Allen Ballway <ballway@chromium.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221130170811.1.Iee9a494547541dade9eeee9521cc8b811e76a8a0@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/228ffcbf30ba98856f66ffdb9a6a60ead1dd96c0.1674484266.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../gpu/drm/drm_panel_orientation_quirks.c    | 20 ++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ io_uring/io_uring.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 23d63a4d42d9c..b409fe256fd0a 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -30,12 +30,6 @@ struct drm_dmi_panel_orientation_data {
- 	int orientation;
- };
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2790,7 +2790,7 @@ static __poll_t io_uring_poll(struct fil
+ 	 * pushes them to do the flush.
+ 	 */
  
--static const struct drm_dmi_panel_orientation_data asus_t100ha = {
--	.width = 800,
--	.height = 1280,
--	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
--};
--
- static const struct drm_dmi_panel_orientation_data gpd_micropc = {
- 	.width = 720,
- 	.height = 1280,
-@@ -97,6 +91,12 @@ static const struct drm_dmi_panel_orientation_data lcd720x1280_rightside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
- };
+-	if (io_cqring_events(ctx) || io_has_work(ctx))
++	if (__io_cqring_events_user(ctx) || io_has_work(ctx))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
  
-+static const struct drm_dmi_panel_orientation_data lcd800x1280_leftside_up = {
-+	.width = 800,
-+	.height = 1280,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
-+};
-+
- static const struct drm_dmi_panel_orientation_data lcd800x1280_rightside_up = {
- 	.width = 800,
- 	.height = 1280,
-@@ -157,7 +157,7 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100HAN"),
- 		},
--		.driver_data = (void *)&asus_t100ha,
-+		.driver_data = (void *)&lcd800x1280_leftside_up,
- 	}, {	/* Asus T101HA */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-@@ -202,6 +202,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Hi10 pro tablet"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* Dynabook K50 */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dynabook Inc."),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "dynabook K50/FR"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_leftside_up,
- 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
--- 
-2.39.2
-
+ 	return mask;
 
 
