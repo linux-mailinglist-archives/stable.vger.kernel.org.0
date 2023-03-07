@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ACAB6AF50C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:21:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0D746AF536
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233992AbjCGTVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:21:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52788 "EHLO
+        id S229846AbjCGTXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:23:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229708AbjCGTV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:21:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4852B0BA6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:06:08 -0800 (PST)
+        with ESMTP id S234001AbjCGTWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8DC90B46
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 592D6CE1C5D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:06:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 604FBC433D2;
-        Tue,  7 Mar 2023 19:06:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 902AF61520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85D37C433D2;
+        Tue,  7 Mar 2023 19:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215965;
-        bh=2lVNwVA++hPTgB3aV3/5OAp8PmxpRvv+MjQHlaCaQsQ=;
+        s=korg; t=1678216092;
+        bh=RHUy4B4vQ0PoXxZpg2RQcAls5hVdGjFUXWY8DAE5pOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxvrVpeUKjK+SGsugrE4isEKmsqh0hvFeDWKe9WQHbAJ0P7tFQ5w8Dj7EDj/fWtLE
-         3a3YzuixVDoazqwVeWN+q/azcKR9hi/23bWc1r1PvnoelBupzlma3xyDCv5COIsITQ
-         SpJLqUpwT1ev/8OB9Lve5DC5+Al3aZ8k67GkiKYw=
+        b=vtL06XPyYN8VYnSArl4f+73Nuq5IKatuEOy/SnyWn7gkHH4lV/7JuTITZ9DunIRBW
+         tJWZwQ7ViS1Bc0tx4I09HxMiXMrHpXPUclZ52Sm+81gbxdjpG2o44z/tGeQ6Yd46IC
+         JlMO6tTmC+K5uPsdAlh/kx7V+RwQcQoCVy2QRyhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Michael Kelley <mikelley@microsoft.com>
-Subject: [PATCH 5.15 430/567] block: dont allow multiple bios for IOCB_NOWAIT issue
-Date:   Tue,  7 Mar 2023 18:02:46 +0100
-Message-Id: <20230307165924.537411932@linuxfoundation.org>
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        David Collins <quic_collinsd@quicinc.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.15 431/567] rtc: pm8xxx: fix set-alarm race
+Date:   Tue,  7 Mar 2023 18:02:47 +0100
+Message-Id: <20230307165924.575499073@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -53,70 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 67d59247d4b52c917e373f05a807027756ab216f upstream.
+commit c88db0eff9722fc2b6c4d172a50471d20e08ecc6 upstream.
 
-If we're doing a large IO request which needs to be split into multiple
-bios for issue, then we can run into the same situation as the below
-marked commit fixes - parts will complete just fine, one or more parts
-will fail to allocate a request. This will result in a partially
-completed read or write request, where the caller gets EAGAIN even though
-parts of the IO completed just fine.
+Make sure to disable the alarm before updating the four alarm time
+registers to avoid spurious alarms during the update.
 
-Do the same for large bios as we do for splits - fail a NOWAIT request
-with EAGAIN. This isn't technically fixing an issue in the below marked
-patch, but for stable purposes, we should have either none of them or
-both.
+Note that the disable needs to be done outside of the ctrl_reg_lock
+section to prevent a racing alarm interrupt from disabling the newly set
+alarm when the lock is released.
 
-This depends on: 613b14884b85 ("block: handle bio_split_to_limits() NULL return")
-
-Cc: stable@vger.kernel.org # 5.15+
-Fixes: 9cea62b2cbab ("block: don't allow splitting of a REQ_NOWAIT bio")
-Link: https://github.com/axboe/liburing/issues/766
-Reported-and-tested-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
+Cc: stable@vger.kernel.org      # 3.1
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: David Collins <quic_collinsd@quicinc.com>
+Link: https://lore.kernel.org/r/20230202155448.6715-2-johan+linaro@kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/fops.c |   21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c |   24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
---- a/block/fops.c
-+++ b/block/fops.c
-@@ -243,6 +243,24 @@ static ssize_t __blkdev_direct_IO(struct
- 			bio_endio(bio);
- 			break;
- 		}
-+		if (iocb->ki_flags & IOCB_NOWAIT) {
-+			/*
-+			 * This is nonblocking IO, and we need to allocate
-+			 * another bio if we have data left to map. As we
-+			 * cannot guarantee that one of the sub bios will not
-+			 * fail getting issued FOR NOWAIT and as error results
-+			 * are coalesced across all of them, be safe and ask for
-+			 * a retry of this from blocking context.
-+			 */
-+			if (unlikely(iov_iter_count(iter))) {
-+				bio_release_pages(bio, false);
-+				bio_clear_flag(bio, BIO_REFFED);
-+				bio_put(bio);
-+				blk_finish_plug(&plug);
-+				return -EAGAIN;
-+			}
-+			bio->bi_opf |= REQ_NOWAIT;
-+		}
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -220,7 +220,6 @@ static int pm8xxx_rtc_set_alarm(struct d
+ {
+ 	int rc, i;
+ 	u8 value[NUM_8_BIT_RTC_REGS];
+-	unsigned int ctrl_reg;
+ 	unsigned long secs, irq_flags;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+@@ -232,6 +231,11 @@ static int pm8xxx_rtc_set_alarm(struct d
+ 		secs >>= 8;
+ 	}
  
- 		if (is_read) {
- 			bio->bi_opf = REQ_OP_READ;
-@@ -252,9 +270,6 @@ static ssize_t __blkdev_direct_IO(struct
- 			bio->bi_opf = dio_bio_write_op(iocb);
- 			task_io_account_write(bio->bi_iter.bi_size);
- 		}
--		if (iocb->ki_flags & IOCB_NOWAIT)
--			bio->bi_opf |= REQ_NOWAIT;
++	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
++				regs->alarm_en, 0);
++	if (rc)
++		return rc;
++
+ 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+ 
+ 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
+@@ -241,19 +245,11 @@ static int pm8xxx_rtc_set_alarm(struct d
+ 		goto rtc_rw_fail;
+ 	}
+ 
+-	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
+-	if (rc)
+-		goto rtc_rw_fail;
 -
- 		dio->size += bio->bi_iter.bi_size;
- 		pos += bio->bi_iter.bi_size;
+-	if (alarm->enabled)
+-		ctrl_reg |= regs->alarm_en;
+-	else
+-		ctrl_reg &= ~regs->alarm_en;
+-
+-	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
+-	if (rc) {
+-		dev_err(dev, "Write to RTC alarm control register failed\n");
+-		goto rtc_rw_fail;
++	if (alarm->enabled) {
++		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
++					regs->alarm_en, regs->alarm_en);
++		if (rc)
++			goto rtc_rw_fail;
+ 	}
  
+ 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
 
 
