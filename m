@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEB896AE9AA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B24A36AEE02
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbjCGR0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:26:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50946 "EHLO
+        id S230405AbjCGSJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:09:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231571AbjCGR02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5EE99E64D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:09 -0800 (PST)
+        with ESMTP id S232359AbjCGSIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19082422C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52DE7B819A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95484C433EF;
-        Tue,  7 Mar 2023 17:21:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC8666150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2CEAC433D2;
+        Tue,  7 Mar 2023 18:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209667;
-        bh=X2nMGih5WkK6wKg3VvnJU4I4t0Soc0rVQmG4ecRSmUQ=;
+        s=korg; t=1678212173;
+        bh=TKM6FCAr+7nW99OUQlS4n8LCpwZNCCVXdw9F1hULveA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oc7pck1u/pzDeLu5rFBWVdJLzdBYk7c9GRIsST5SnS1kbwG1Ddu3NwvA2Rya1RoDc
-         WFv+OqPgi0PBn29kw1Qzsivk9jz0OxJpAEKedQ/6vKWT7ZO7zc6CuKUpuaZPVpERJz
-         vF2CsVkLuaXptt+tdbUm4u3PH4IHgQADvYGsodxo=
+        b=wEVKdTXKX0Rw8U/CvcaLLaPZG5coocOvpFtAkm09SQnxov8qaZMpLNIMz93f9UyBl
+         gVntvct0N/frHkjZZZtOlmOQVypkbYSSeMqEI6nBBvm6joWZ1vRNnp2xVkNB/IOije
+         zSM+aBbozXSN3WcPRRsPDYbtF50yRQDcykorrQpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0261/1001] s390/boot: cleanup decompressor header files
-Date:   Tue,  7 Mar 2023 17:50:33 +0100
-Message-Id: <20230307170033.062836456@linuxfoundation.org>
+Subject: [PATCH 6.1 100/885] perf/x86/intel/ds: Fix the conversion from TSC to perf time
+Date:   Tue,  7 Mar 2023 17:50:34 +0100
+Message-Id: <20230307170006.191981646@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,132 +55,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 9c3205b2b062420c26b33924b910880889acf832 ]
+[ Upstream commit 89e97eb8cec0f1af5ebf2380308913256ca7915a ]
 
-Move declarations to appropriate header files. Instead of cryptic
-casting directly assign struct vmlinux_info type to _vmlinux_info
-linker script variable - wich it actually is.
+The time order is incorrect when the TSC in a PEBS record is used.
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Stable-dep-of: 22476f47b6b7 ("s390/boot: fix mem_detect extended area allocation")
+ $perf record -e cycles:upp dd if=/dev/zero of=/dev/null
+  count=10000
+ $ perf script --show-task-events
+       perf-exec     0     0.000000: PERF_RECORD_COMM: perf-exec:915/915
+              dd   915   106.479872: PERF_RECORD_COMM exec: dd:915/915
+              dd   915   106.483270: PERF_RECORD_EXIT(915:915):(914:914)
+              dd   915   106.512429:          1 cycles:upp:
+ ffffffff96c011b7 [unknown] ([unknown])
+ ... ...
+
+The perf time is from sched_clock_cpu(). The current PEBS code
+unconditionally convert the TSC to native_sched_clock(). There is a
+shift between the two clocks. If the TSC is stable, the shift is
+consistent, __sched_clock_offset. If the TSC is unstable, the shift has
+to be calculated at runtime.
+
+This patch doesn't support the conversion when the TSC is unstable. The
+TSC unstable case is a corner case and very unlikely to happen. If it
+happens, the TSC in a PEBS record will be dropped and fall back to
+perf_event_clock().
+
+Fixes: 47a3aeb39e8d ("perf/x86/intel/pebs: Fix PEBS timestamps overwritten")
+Reported-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/all/CAM9d7cgWDVAq8-11RbJ2uGfwkKD6fA-OMwOKDrNUrU_=8MgEjg@mail.gmail.com/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/boot.h         | 24 ++++++++++++++++++++++--
- arch/s390/boot/decompressor.c |  1 +
- arch/s390/boot/decompressor.h | 26 --------------------------
- 3 files changed, 23 insertions(+), 28 deletions(-)
+ arch/x86/events/intel/ds.c | 35 ++++++++++++++++++++++++++---------
+ 1 file changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/boot/boot.h b/arch/s390/boot/boot.h
-index 70418389414d3..f6e82cf7851e2 100644
---- a/arch/s390/boot/boot.h
-+++ b/arch/s390/boot/boot.h
-@@ -8,10 +8,26 @@
+diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
+index 446d2833efa76..3ff38e7409e3d 100644
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -2,12 +2,14 @@
+ #include <linux/bitops.h>
+ #include <linux/types.h>
+ #include <linux/slab.h>
++#include <linux/sched/clock.h>
  
- #ifndef __ASSEMBLY__
+ #include <asm/cpu_entry_area.h>
+ #include <asm/perf_event.h>
+ #include <asm/tlbflush.h>
+ #include <asm/insn.h>
+ #include <asm/io.h>
++#include <asm/timer.h>
  
-+struct vmlinux_info {
-+	unsigned long default_lma;
-+	void (*entry)(void);
-+	unsigned long image_size;	/* does not include .bss */
-+	unsigned long bss_size;		/* uncompressed image .bss size */
-+	unsigned long bootdata_off;
-+	unsigned long bootdata_size;
-+	unsigned long bootdata_preserved_off;
-+	unsigned long bootdata_preserved_size;
-+	unsigned long dynsym_start;
-+	unsigned long rela_dyn_start;
-+	unsigned long rela_dyn_end;
-+	unsigned long amode31_size;
-+};
+ #include "../perf_event.h"
+ 
+@@ -1519,6 +1521,27 @@ static u64 get_data_src(struct perf_event *event, u64 aux)
+ 	return val;
+ }
+ 
++static void setup_pebs_time(struct perf_event *event,
++			    struct perf_sample_data *data,
++			    u64 tsc)
++{
++	/* Converting to a user-defined clock is not supported yet. */
++	if (event->attr.use_clockid != 0)
++		return;
 +
- void startup_kernel(void);
- unsigned long detect_memory(void);
- bool is_ipl_block_dump(void);
- void store_ipl_parmblock(void);
-+unsigned long read_ipl_report(unsigned long safe_offset);
- void setup_boot_command_line(void);
- void parse_boot_command_line(void);
- void verify_facilities(void);
-@@ -20,6 +36,7 @@ void sclp_early_setup_buffer(void);
- void print_pgm_check_info(void);
- unsigned long get_random_base(unsigned long safe_addr);
- void __printf(1, 2) decompressor_printk(const char *fmt, ...);
-+void error(char *m);
++	/*
++	 * Doesn't support the conversion when the TSC is unstable.
++	 * The TSC unstable case is a corner case and very unlikely to
++	 * happen. If it happens, the TSC in a PEBS record will be
++	 * dropped and fall back to perf_event_clock().
++	 */
++	if (!using_native_sched_clock() || !sched_clock_stable())
++		return;
++
++	data->time = native_sched_clock_from_tsc(tsc) + __sched_clock_offset;
++	data->sample_flags |= PERF_SAMPLE_TIME;
++}
++
+ #define PERF_SAMPLE_ADDR_TYPE	(PERF_SAMPLE_ADDR |		\
+ 				 PERF_SAMPLE_PHYS_ADDR |	\
+ 				 PERF_SAMPLE_DATA_PAGE_SIZE)
+@@ -1668,11 +1691,8 @@ static void setup_pebs_fixed_sample_data(struct perf_event *event,
+ 	 *
+ 	 * We can only do this for the default trace clock.
+ 	 */
+-	if (x86_pmu.intel_cap.pebs_format >= 3 &&
+-		event->attr.use_clockid == 0) {
+-		data->time = native_sched_clock_from_tsc(pebs->tsc);
+-		data->sample_flags |= PERF_SAMPLE_TIME;
+-	}
++	if (x86_pmu.intel_cap.pebs_format >= 3)
++		setup_pebs_time(event, data, pebs->tsc);
  
- /* Symbols defined by linker scripts */
- extern const char kernel_version[];
-@@ -31,8 +48,11 @@ extern char __boot_data_start[], __boot_data_end[];
- extern char __boot_data_preserved_start[], __boot_data_preserved_end[];
- extern char _decompressor_syms_start[], _decompressor_syms_end[];
- extern char _stack_start[], _stack_end[];
--
--unsigned long read_ipl_report(unsigned long safe_offset);
-+extern char _end[];
-+extern unsigned char _compressed_start[];
-+extern unsigned char _compressed_end[];
-+extern struct vmlinux_info _vmlinux_info;
-+#define vmlinux _vmlinux_info
+ 	if (has_branch_stack(event)) {
+ 		data->br_stack = &cpuc->lbr_stack;
+@@ -1735,10 +1755,7 @@ static void setup_pebs_adaptive_sample_data(struct perf_event *event,
+ 	perf_sample_data_init(data, 0, event->hw.last_period);
+ 	data->period = event->hw.last_period;
  
- #endif /* __ASSEMBLY__ */
- #endif /* BOOT_BOOT_H */
-diff --git a/arch/s390/boot/decompressor.c b/arch/s390/boot/decompressor.c
-index b519a1f045d8f..d762733a07530 100644
---- a/arch/s390/boot/decompressor.c
-+++ b/arch/s390/boot/decompressor.c
-@@ -11,6 +11,7 @@
- #include <linux/string.h>
- #include <asm/page.h>
- #include "decompressor.h"
-+#include "boot.h"
+-	if (event->attr.use_clockid == 0) {
+-		data->time = native_sched_clock_from_tsc(basic->tsc);
+-		data->sample_flags |= PERF_SAMPLE_TIME;
+-	}
++	setup_pebs_time(event, data, basic->tsc);
  
- /*
-  * gzip declarations
-diff --git a/arch/s390/boot/decompressor.h b/arch/s390/boot/decompressor.h
-index f75cc31a77dd9..92b81d2ea35d6 100644
---- a/arch/s390/boot/decompressor.h
-+++ b/arch/s390/boot/decompressor.h
-@@ -2,37 +2,11 @@
- #ifndef BOOT_COMPRESSED_DECOMPRESSOR_H
- #define BOOT_COMPRESSED_DECOMPRESSOR_H
- 
--#include <linux/stddef.h>
--
- #ifdef CONFIG_KERNEL_UNCOMPRESSED
- static inline void *decompress_kernel(void) { return NULL; }
- #else
- void *decompress_kernel(void);
- #endif
- unsigned long mem_safe_offset(void);
--void error(char *m);
--
--struct vmlinux_info {
--	unsigned long default_lma;
--	void (*entry)(void);
--	unsigned long image_size;	/* does not include .bss */
--	unsigned long bss_size;		/* uncompressed image .bss size */
--	unsigned long bootdata_off;
--	unsigned long bootdata_size;
--	unsigned long bootdata_preserved_off;
--	unsigned long bootdata_preserved_size;
--	unsigned long dynsym_start;
--	unsigned long rela_dyn_start;
--	unsigned long rela_dyn_end;
--	unsigned long amode31_size;
--};
--
--/* Symbols defined by linker scripts */
--extern char _end[];
--extern unsigned char _compressed_start[];
--extern unsigned char _compressed_end[];
--extern char _vmlinux_info[];
--
--#define vmlinux (*(struct vmlinux_info *)_vmlinux_info)
- 
- #endif /* BOOT_COMPRESSED_DECOMPRESSOR_H */
+ 	/*
+ 	 * We must however always use iregs for the unwinder to stay sane; the
 -- 
 2.39.2
 
