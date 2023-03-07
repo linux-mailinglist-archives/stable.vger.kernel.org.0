@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB15B6AED8F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB1D6AE8E2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:19:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232242AbjCGSFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:05:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37812 "EHLO
+        id S230405AbjCGRTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:19:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232443AbjCGSFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABCC55056
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:11 -0800 (PST)
+        with ESMTP id S231266AbjCGRSx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:18:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B55457DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFEA461527
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6748C433EF;
-        Tue,  7 Mar 2023 17:58:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7DB8B819A9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0365C433D2;
+        Tue,  7 Mar 2023 17:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211890;
-        bh=QuEI/jPWvODry9fqYjg4qhqLTchsEg42O1nQRYOdlmo=;
+        s=korg; t=1678209266;
+        bh=FLaoKP3mvUlsIyfzu8KuoroxST0CDW8UaBwZn1x7mjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mIfgkTJ0GyiiDvk7HZB46AY801hPFlnIAxQADK77mSDppCAZ1rVfg1XecEXeV23fg
-         b6CqA5uFGnlAJKIbaZcacVz6G5c/7XDcPos5RU5/ZAxBqNEI9IKAksByPyuIo9/L3n
-         CEEI/FdfDHXU/VBA40kIVCdo2fXIVQQrjfAgrWgo=
+        b=ybcePFANIGzQ+r8xgqp+vOTFo0mAc53PxE2b9D8sQNuPLl3+B8KIQigbZx2ecfrdm
+         d59azFb6jiu8ht5H1zNeJTiQ89gCZJtEA40iMqKl8Ebnfmi1SNaZz7NrMazZVZcUu6
+         /DhSoygCPVY9unIALb4ldQ5SxaFRrgRpZrWjdQBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 6.1 001/885] HID: asus: use spinlock to protect concurrent accesses
-Date:   Tue,  7 Mar 2023 17:48:55 +0100
-Message-Id: <20230307170001.683397773@linuxfoundation.org>
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0164/1001] wifi: wilc1000: fix potential memory leak in wilc_mac_xmit()
+Date:   Tue,  7 Mar 2023 17:48:56 +0100
+Message-Id: <20230307170029.138936430@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,98 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 315c537068a13f0b5681d33dd045a912f4bece6f upstream.
+[ Upstream commit deb962ec9e1c9a81babd3d37542ad4bd6ac3396e ]
 
-asus driver has a worker that may access data concurrently.
-Proct the accesses using a spinlock.
+The wilc_mac_xmit() returns NETDEV_TX_OK without freeing skb, add
+dev_kfree_skb() to fix it. Compile tested only.
 
-Fixes: af22a610bc38 ("HID: asus: support backlight on USB keyboards")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-4-7860c5763c38@diag.uniroma1.it
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c5c77ba18ea6 ("staging: wilc1000: Add SDIO/SPI 802.11 driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1668684964-48622-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/net/wireless/microchip/wilc1000/netdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -98,6 +98,7 @@ struct asus_kbd_leds {
- 	struct hid_device *hdev;
- 	struct work_struct work;
- 	unsigned int brightness;
-+	spinlock_t lock;
- 	bool removed;
- };
+diff --git a/drivers/net/wireless/microchip/wilc1000/netdev.c b/drivers/net/wireless/microchip/wilc1000/netdev.c
+index 9b319a455b96d..6f3ae0dff77ce 100644
+--- a/drivers/net/wireless/microchip/wilc1000/netdev.c
++++ b/drivers/net/wireless/microchip/wilc1000/netdev.c
+@@ -730,6 +730,7 @@ netdev_tx_t wilc_mac_xmit(struct sk_buff *skb, struct net_device *ndev)
  
-@@ -495,7 +496,12 @@ static void asus_kbd_backlight_set(struc
- {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&led->lock, flags);
- 	led->brightness = brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
-+
- 	schedule_work(&led->work);
- }
- 
-@@ -503,8 +509,14 @@ static enum led_brightness asus_kbd_back
- {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
-+	enum led_brightness brightness;
-+	unsigned long flags;
- 
--	return led->brightness;
-+	spin_lock_irqsave(&led->lock, flags);
-+	brightness = led->brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
-+
-+	return brightness;
- }
- 
- static void asus_kbd_backlight_work(struct work_struct *work)
-@@ -512,11 +524,14 @@ static void asus_kbd_backlight_work(stru
- 	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
- 	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
- 	int ret;
-+	unsigned long flags;
- 
- 	if (led->removed)
- 		return;
- 
-+	spin_lock_irqsave(&led->lock, flags);
- 	buf[4] = led->brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
- 
- 	ret = asus_kbd_set_report(led->hdev, buf, sizeof(buf));
- 	if (ret < 0)
-@@ -584,6 +599,7 @@ static int asus_kbd_register_leds(struct
- 	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
- 	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
- 	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
-+	spin_lock_init(&drvdata->kbd_backlight->lock);
- 
- 	ret = devm_led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
- 	if (ret < 0) {
-@@ -1119,9 +1135,13 @@ err_stop_hw:
- static void asus_remove(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	unsigned long flags;
- 
- 	if (drvdata->kbd_backlight) {
-+		spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
- 		drvdata->kbd_backlight->removed = true;
-+		spin_unlock_irqrestore(&drvdata->kbd_backlight->lock, flags);
-+
- 		cancel_work_sync(&drvdata->kbd_backlight->work);
+ 	if (skb->dev != ndev) {
+ 		netdev_err(ndev, "Packet not destined to this device\n");
++		dev_kfree_skb(skb);
+ 		return NETDEV_TX_OK;
  	}
  
+-- 
+2.39.2
+
 
 
