@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F35C6AEAA7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 748396AEEFF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:19:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231779AbjCGRfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:35:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33334 "EHLO
+        id S232588AbjCGSTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:19:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231782AbjCGRfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:35:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D51C9DE12
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:29 -0800 (PST)
+        with ESMTP id S232628AbjCGSTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:19:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0386F9AFFB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:13:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5E8461517
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0A6AC433EF;
-        Tue,  7 Mar 2023 17:31:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2710CB81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:13:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E860C433D2;
+        Tue,  7 Mar 2023 18:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210288;
-        bh=/A9/zjeFXgxBwSBXH7SjEL0UTW3/o7r19KzxqbI9GWc=;
+        s=korg; t=1678212804;
+        bh=XLzNsua3hjyE/PKcyajqCqiz3RsP5bTYDcbK0mHfkMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1KuX59YJ1vACRdH5K3+FmTbwDAxPv31mzwaVTtu8byt9bVdDOmGBoLEpz9fV2HRk
-         d8poysSmtPaZz3/WUA5bt+631Gnax+hynhcYu2CQC9rTJHBjTCj06qBvt6A5BvXGwm
-         B5nIpl+JE2X2/ripVGaTB/SsjI0tIqZJedvKeueY=
+        b=UMVnXvjfODTAFS8IK40QA01gdqDMtaLTWdzFrlz8+MasNe6qR5mTh0EE8Pij9uObA
+         opqi3ilTTEFzsnUMvh4sBth8gCw+IpsiJTPtXVEyTyDrX8p2WppQbiMon04X1FCRgE
+         rm2Vb+BYo6xkXQXu0UyL59b4jmcA3TQclXgRkYkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Henning Schild <henning.schild@siemens.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0464/1001] leds: simatic-ipc-leds-gpio: Make sure we have the GPIO providing driver
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 302/885] drm/bridge: lt9611: fix clock calculation
 Date:   Tue,  7 Mar 2023 17:53:56 +0100
-Message-Id: <20230307170041.530476358@linuxfoundation.org>
+Message-Id: <20230307170015.209623621@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henning Schild <henning.schild@siemens.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit c64964ebee2a415384385205950ee7a05f78451e ]
+[ Upstream commit 2576eb26494eb0509dd9ceb0cd27771a7a5e3674 ]
 
-If we register a "leds-gpio" platform device for GPIO pins that do not
-exist we get a -EPROBE_DEFER and the probe will be tried again later.
-If there is no driver to provide that pin we will poll forever and also
-create a lot of log messages.
+Instead of having several fixed values for the pcr register, calculate
+it before programming. This allows the bridge to support most of the
+display modes.
 
-So check if that GPIO driver is configured, if so it will come up
-eventually. If not, we exit our probe function early and do not even
-bother registering the "leds-gpio". This method was chosen over "Kconfig
-depends" since this way we can add support for more devices and GPIO
-backends more easily without "depends":ing on all GPIO backends.
-
-Fixes: a6c80bec3c93 ("leds: simatic-ipc-leds-gpio: Add GPIO version of Siemens driver")
-Signed-off-by: Henning Schild <henning.schild@siemens.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20221007153323.1326-1-henning.schild@siemens.com
+Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-6-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/simple/simatic-ipc-leds-gpio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 32 +++++++++++--------------
+ 1 file changed, 14 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/leds/simple/simatic-ipc-leds-gpio.c b/drivers/leds/simple/simatic-ipc-leds-gpio.c
-index 07f0d79d604d4..e8d329b5a68c3 100644
---- a/drivers/leds/simple/simatic-ipc-leds-gpio.c
-+++ b/drivers/leds/simple/simatic-ipc-leds-gpio.c
-@@ -77,6 +77,8 @@ static int simatic_ipc_leds_gpio_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
+index f377052a45a44..e2799a0df8f8b 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -192,8 +192,9 @@ static void lt9611_mipi_video_setup(struct lt9611 *lt9611,
+ 	regmap_write(lt9611->regmap, 0x831b, (u8)(hsync_porch % 256));
+ }
  
- 	switch (plat->devmode) {
- 	case SIMATIC_IPC_DEVICE_127E:
-+		if (!IS_ENABLED(CONFIG_PINCTRL_BROXTON))
-+			return -ENODEV;
- 		simatic_ipc_led_gpio_table = &simatic_ipc_led_gpio_table_127e;
- 		break;
- 	case SIMATIC_IPC_DEVICE_227G:
+-static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode)
++static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode, unsigned int postdiv)
+ {
++	unsigned int pcr_m = mode->clock * 5 * postdiv / 27000;
+ 	const struct reg_sequence reg_cfg[] = {
+ 		{ 0x830b, 0x01 },
+ 		{ 0x830c, 0x10 },
+@@ -236,24 +237,14 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
+ 	else
+ 		regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+ 
+-	switch (mode->hdisplay) {
+-	case 640:
+-		regmap_write(lt9611->regmap, 0x8326, 0x14);
+-		break;
+-	case 1920:
+-		regmap_write(lt9611->regmap, 0x8326, 0x37);
+-		break;
+-	case 3840:
+-		regmap_write(lt9611->regmap, 0x8326, 0x37);
+-		break;
+-	}
++	regmap_write(lt9611->regmap, 0x8326, pcr_m);
+ 
+ 	/* pcr rst */
+ 	regmap_write(lt9611->regmap, 0x8011, 0x5a);
+ 	regmap_write(lt9611->regmap, 0x8011, 0xfa);
+ }
+ 
+-static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode)
++static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode *mode, unsigned int *postdiv)
+ {
+ 	unsigned int pclk = mode->clock;
+ 	const struct reg_sequence reg_cfg[] = {
+@@ -271,12 +262,16 @@ static int lt9611_pll_setup(struct lt9611 *lt9611, const struct drm_display_mode
+ 
+ 	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
+ 
+-	if (pclk > 150000)
++	if (pclk > 150000) {
+ 		regmap_write(lt9611->regmap, 0x812d, 0x88);
+-	else if (pclk > 70000)
++		*postdiv = 1;
++	} else if (pclk > 70000) {
+ 		regmap_write(lt9611->regmap, 0x812d, 0x99);
+-	else
++		*postdiv = 2;
++	} else {
+ 		regmap_write(lt9611->regmap, 0x812d, 0xaa);
++		*postdiv = 4;
++	}
+ 
+ 	/*
+ 	 * first divide pclk by 2 first
+@@ -895,14 +890,15 @@ static void lt9611_bridge_mode_set(struct drm_bridge *bridge,
+ {
+ 	struct lt9611 *lt9611 = bridge_to_lt9611(bridge);
+ 	struct hdmi_avi_infoframe avi_frame;
++	unsigned int postdiv;
+ 	int ret;
+ 
+ 	lt9611_bridge_pre_enable(bridge);
+ 
+ 	lt9611_mipi_input_digital(lt9611, mode);
+-	lt9611_pll_setup(lt9611, mode);
++	lt9611_pll_setup(lt9611, mode, &postdiv);
+ 	lt9611_mipi_video_setup(lt9611, mode);
+-	lt9611_pcr_setup(lt9611, mode);
++	lt9611_pcr_setup(lt9611, mode, postdiv);
+ 
+ 	ret = drm_hdmi_avi_infoframe_from_display_mode(&avi_frame,
+ 						       &lt9611->connector,
 -- 
 2.39.2
 
