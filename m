@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7EC26AF53F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B81A6AF53E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234065AbjCGTXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:23:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53850 "EHLO
+        id S229708AbjCGTXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:23:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233985AbjCGTXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:23:16 -0500
+        with ESMTP id S234065AbjCGTXR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:23:17 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72161AFBBF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF067FD4F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 94121CE1C82
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 956DFC433D2;
-        Tue,  7 Mar 2023 19:08:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9E283CE1C5D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A80B3C433A4;
+        Tue,  7 Mar 2023 19:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216116;
-        bh=k5HQyqm0VGAfss/paDeflC6MNEUDpsDoCIgnT97MHH0=;
+        s=korg; t=1678216119;
+        bh=YLdiUgVhBv3bV48AniyjMASGnPGb+33LGqHi0IVj/YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzakeMKLb89DfYsX+DKzWFBwzNwGG9PapgFrXWPaG+qPX6KNi5UwlRiGWiZ6CueNZ
-         TwrOTON3IK4AS2fOewDwVMw6f4OUt81iCaAo6u9p3vcEaAJLQR1rmUasEr38Xmp5i+
-         WtF9jQTwBDehUn9iVq8Wd2AE1TaGl4KltleSAxTs=
+        b=OOwA4ND9eoiD1xvcflvnQvfVS3pPmf5x+vtHQETWu/qIousv9WTKQPJs90xW6vbfG
+         NBy6/cmSgVLy0OKnlqkPKzoE4ep5dSUZWtb8FNztq0Z78F+2xQPKDPK5Quv2+l+wdC
+         4O4k5AKvVxll3/WsEfWGfmx2kQKsM+SxTq9CMTOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, KP Singh <kpsingh@kernel.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 5.15 481/567] Documentation/hw-vuln: Document the interaction between IBRS and STIBP
-Date:   Tue,  7 Mar 2023 18:03:37 +0100
-Message-Id: <20230307165926.754502847@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 482/567] brd: return 0/-error from brd_insert_page()
+Date:   Tue,  7 Mar 2023 18:03:38 +0100
+Message-Id: <20230307165926.801038709@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -53,58 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KP Singh <kpsingh@kernel.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit e02b50ca442e88122e1302d4dbc1b71a4808c13f upstream.
+commit db0ccc44a20b4bb3039c0f6885a1f9c3323c7673 upstream.
 
-Explain why STIBP is needed with legacy IBRS as currently implemented
-(KERNEL_IBRS) and why STIBP is not needed when enhanced IBRS is enabled.
+It currently returns a page, but callers just check for NULL/page to
+gauge success. Clean this up and return the appropriate error directly
+instead.
 
-Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
-Signed-off-by: KP Singh <kpsingh@kernel.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230227060541.1939092-2-kpsingh@kernel.org
+Cc: stable@vger.kernel.org # 5.10+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/spectre.rst |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/block/brd.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/Documentation/admin-guide/hw-vuln/spectre.rst
-+++ b/Documentation/admin-guide/hw-vuln/spectre.rst
-@@ -479,8 +479,16 @@ Spectre variant 2
-    On Intel Skylake-era systems the mitigation covers most, but not all,
-    cases. See :ref:`[3] <spec_ref3>` for more details.
+--- a/drivers/block/brd.c
++++ b/drivers/block/brd.c
+@@ -78,11 +78,9 @@ static struct page *brd_lookup_page(stru
+ }
  
--   On CPUs with hardware mitigation for Spectre variant 2 (e.g. Enhanced
--   IBRS on x86), retpoline is automatically disabled at run time.
-+   On CPUs with hardware mitigation for Spectre variant 2 (e.g. IBRS
-+   or enhanced IBRS on x86), retpoline is automatically disabled at run time.
-+
-+   Systems which support enhanced IBRS (eIBRS) enable IBRS protection once at
-+   boot, by setting the IBRS bit, and they're automatically protected against
-+   Spectre v2 variant attacks, including cross-thread branch target injections
-+   on SMT systems (STIBP). In other words, eIBRS enables STIBP too.
-+
-+   Legacy IBRS systems clear the IBRS bit on exit to userspace and
-+   therefore explicitly enable STIBP for that
+ /*
+- * Look up and return a brd's page for a given sector.
+- * If one does not exist, allocate an empty page, and insert that. Then
+- * return it.
++ * Insert a new page for a given sector, if one does not already exist.
+  */
+-static struct page *brd_insert_page(struct brd_device *brd, sector_t sector)
++static int brd_insert_page(struct brd_device *brd, sector_t sector)
+ {
+ 	pgoff_t idx;
+ 	struct page *page;
+@@ -90,7 +88,7 @@ static struct page *brd_insert_page(stru
  
-    The retpoline mitigation is turned on by default on vulnerable
-    CPUs. It can be forced on or off by the administrator
-@@ -504,9 +512,12 @@ Spectre variant 2
-    For Spectre variant 2 mitigation, individual user programs
-    can be compiled with return trampolines for indirect branches.
-    This protects them from consuming poisoned entries in the branch
--   target buffer left by malicious software.  Alternatively, the
--   programs can disable their indirect branch speculation via prctl()
--   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
-+   target buffer left by malicious software.
-+
-+   On legacy IBRS systems, at return to userspace, implicit STIBP is disabled
-+   because the kernel clears the IBRS bit. In this case, the userspace programs
-+   can disable indirect branch speculation via prctl() (See
-+   :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
-    On x86, this will turn on STIBP to guard against attacks from the
-    sibling thread when the user program is running, and use IBPB to
-    flush the branch target buffer when switching to/from the program.
+ 	page = brd_lookup_page(brd, sector);
+ 	if (page)
+-		return page;
++		return 0;
+ 
+ 	/*
+ 	 * Must use NOIO because we don't want to recurse back into the
+@@ -99,11 +97,11 @@ static struct page *brd_insert_page(stru
+ 	gfp_flags = GFP_NOIO | __GFP_ZERO | __GFP_HIGHMEM;
+ 	page = alloc_page(gfp_flags);
+ 	if (!page)
+-		return NULL;
++		return -ENOMEM;
+ 
+ 	if (radix_tree_preload(GFP_NOIO)) {
+ 		__free_page(page);
+-		return NULL;
++		return -ENOMEM;
+ 	}
+ 
+ 	spin_lock(&brd->brd_lock);
+@@ -120,8 +118,7 @@ static struct page *brd_insert_page(stru
+ 	spin_unlock(&brd->brd_lock);
+ 
+ 	radix_tree_preload_end();
+-
+-	return page;
++	return 0;
+ }
+ 
+ /*
+@@ -174,16 +171,17 @@ static int copy_to_brd_setup(struct brd_
+ {
+ 	unsigned int offset = (sector & (PAGE_SECTORS-1)) << SECTOR_SHIFT;
+ 	size_t copy;
++	int ret;
+ 
+ 	copy = min_t(size_t, n, PAGE_SIZE - offset);
+-	if (!brd_insert_page(brd, sector))
+-		return -ENOSPC;
++	ret = brd_insert_page(brd, sector);
++	if (ret)
++		return ret;
+ 	if (copy < n) {
+ 		sector += copy >> SECTOR_SHIFT;
+-		if (!brd_insert_page(brd, sector))
+-			return -ENOSPC;
++		ret = brd_insert_page(brd, sector);
+ 	}
+-	return 0;
++	return ret;
+ }
+ 
+ /*
 
 
