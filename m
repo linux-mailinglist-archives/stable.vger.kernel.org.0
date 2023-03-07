@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1DB6AEFFA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 779266AF009
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:28:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233064AbjCGS2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:28:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46922 "EHLO
+        id S232574AbjCGS2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:28:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232953AbjCGS04 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:26:56 -0500
+        with ESMTP id S232741AbjCGS1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:27:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3227DB06E0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F31BB06E7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 823AB6154C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D098C433EF;
-        Tue,  7 Mar 2023 18:20:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62137614E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78E33C433EF;
+        Tue,  7 Mar 2023 18:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213249;
-        bh=8s75OmVGTZavgNQo7TWBzY8LkqSfeKNMON46rc+X5sE=;
+        s=korg; t=1678213251;
+        bh=9m15ma9Ry7fVbi0COTk9hlqb6TcyuDNFbdcgq6uTU6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVFaqRnp+pxtL4XLwSy+ryyA6PgCcIMygGVtfIfxX6lfc5QpnUpJQ9dMRknZeYaJp
-         erWpbG4hziovSPfHUficttxqQv6UZIqG4uOFno1gPuuYRjZAGuCKOAfDsaH9Ntv3k7
-         X/kzcH1hntfcvzayg/sPHDJlkH4IS3cEA/fY0nOQ=
+        b=QydatI8IDw3v1eiAx4u1MF7NRV5/6z1jkZgKLRkvzltRbiaDPKp+b62gNeuhdYLZU
+         Z9Rp7RFEM1YBuYQGz6UCzOZftkQD3fuFF4q5/rtskfiBOLy+jpMbmLws1ypbOBnwFZ
+         dPM4/LPTOZ4MklkNd3BuYZ6SzFxpWjf0LApPjoqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fabian Vogt <fabian@ritter-vogt.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 447/885] fotg210-udc: Add missing completion handler
-Date:   Tue,  7 Mar 2023 17:56:21 +0100
-Message-Id: <20230307170021.890426824@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 448/885] dmaengine: dw-edma: Fix missing src/dst address of interleaved xfers
+Date:   Tue,  7 Mar 2023 17:56:22 +0100
+Message-Id: <20230307170021.942640730@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -54,57 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fabian@ritter-vogt.de>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit e55f67391fa986f7357edba0ca59e668d99c3a5f ]
+[ Upstream commit 13b6299cf66165a442089fa895a7f70250703584 ]
 
-This is used when responding to GET_STATUS requests. Without this, it
-crashes on completion.
+Interleaved DMA transfer support was added by 85e7518f42c8 ("dmaengine:
+dw-edma: Add device_prep_interleave_dma() support"), but depending on the
+selected channel, either source or destination address are left
+uninitialized which was obviously wrong.
 
-Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
-Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20230123073508.2350402-2-linus.walleij@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Initialize the destination address of the eDMA burst descriptors for
+DEV_TO_MEM interleaved operations and the source address for MEM_TO_DEV
+operations.
+
+Link: https://lore.kernel.org/r/20230113171409.30470-5-Sergey.Semin@baikalelectronics.ru
+Fixes: 85e7518f42c8 ("dmaengine: dw-edma: Add device_prep_interleave_dma() support")
+Tested-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Acked-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/dma/dw-edma/dw-edma-core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index 693c73e5f61e8..3350b7776086a 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -706,6 +706,20 @@ static int fotg210_is_epnstall(struct fotg210_ep *ep)
- 	return value & INOUTEPMPSR_STL_EP ? 1 : 0;
- }
+diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
+index c54b24ff5206a..52bdf04aff511 100644
+--- a/drivers/dma/dw-edma/dw-edma-core.c
++++ b/drivers/dma/dw-edma/dw-edma-core.c
+@@ -455,6 +455,8 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
+ 				 * and destination addresses are increased
+ 				 * by the same portion (data length)
+ 				 */
++			} else if (xfer->type == EDMA_XFER_INTERLEAVED) {
++				burst->dar = dst_addr;
+ 			}
+ 		} else {
+ 			burst->dar = dst_addr;
+@@ -470,6 +472,8 @@ dw_edma_device_transfer(struct dw_edma_transfer *xfer)
+ 				 * and destination addresses are increased
+ 				 * by the same portion (data length)
+ 				 */
++			}  else if (xfer->type == EDMA_XFER_INTERLEAVED) {
++				burst->sar = src_addr;
+ 			}
+ 		}
  
-+/* For EP0 requests triggered by this driver (currently GET_STATUS response) */
-+static void fotg210_ep0_complete(struct usb_ep *_ep, struct usb_request *req)
-+{
-+	struct fotg210_ep *ep;
-+	struct fotg210_udc *fotg210;
-+
-+	ep = container_of(_ep, struct fotg210_ep, ep);
-+	fotg210 = ep->fotg210;
-+
-+	if (req->status || req->actual != req->length) {
-+		dev_warn(&fotg210->gadget.dev, "EP0 request failed: %d\n", req->status);
-+	}
-+}
-+
- static void fotg210_get_status(struct fotg210_udc *fotg210,
- 				struct usb_ctrlrequest *ctrl)
- {
-@@ -1171,6 +1185,8 @@ static int fotg210_udc_probe(struct platform_device *pdev)
- 	if (fotg210->ep0_req == NULL)
- 		goto err_map;
- 
-+	fotg210->ep0_req->complete = fotg210_ep0_complete;
-+
- 	fotg210_init(fotg210);
- 
- 	fotg210_disable_unplug(fotg210);
 -- 
 2.39.2
 
