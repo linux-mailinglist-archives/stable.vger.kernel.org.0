@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 580DB6AF204
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:49:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC49E6AEC22
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233329AbjCGStd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:49:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41898 "EHLO
+        id S229634AbjCGRwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:52:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233296AbjCGStL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6134DA102E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:37:40 -0800 (PST)
+        with ESMTP id S230460AbjCGRwP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B0BA54C6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:46:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69BD06152F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F603C4339B;
-        Tue,  7 Mar 2023 18:29:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A5AFB819BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74008C433EF;
+        Tue,  7 Mar 2023 17:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213798;
-        bh=jKZlzn2zgAqVSSQzYMdPXgrQ+56PWN+KQo7GH48Xnks=;
+        s=korg; t=1678211198;
+        bh=T64YGB/WbSmo844IPhN5Qg5+GnKYfnMKflw+A6LaWMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyOwG7IKDmcLNICnEBx6fIDxBvmTW+fKPdmBAp+mIkB78koQnUL++rZFrWy+Hn9VK
-         RA8VcSkHlwoyeDcFwcRe6QpwHyWJiGFeNLRHOM6ha7BuYo0uQcSVC+vqzz6tirK2Xm
-         5ILCm4RLF+2x3X3IswegKvezCqYtthoEt1wcklvA=
+        b=P2llJX3+NgT17GMcJKEbeV38daURWDAsY38vluprn+zUi8Rqu0lMpT/dZ8SQxNf9Z
+         P3AzJM1QkIflJtGdpcyQeYIHRUkOpp19HXzeYGsT2s1lllfgJ4aOMvZieIE3Btcnjk
+         8Dssv8XpgLU53eVg3/+d/H+1l6uk4dwgpZJKcF0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shinhyung Kang <s47.kang@samsung.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 622/885] ASoC: soc-compress: Reposition and add pcm_mutex
+        patches@lists.linux.dev, Waiman Long <longman@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Mukesh Ojha <quic_mojha@quicinc.com>
+Subject: [PATCH 6.2 0784/1001] locking/rwsem: Prevent non-first waiter from spinning in down_write() slowpath
 Date:   Tue,  7 Mar 2023 17:59:16 +0100
-Message-Id: <20230307170029.282355243@linuxfoundation.org>
+Message-Id: <20230307170055.764799066@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,133 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 강신형 <s47.kang@samsung.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit aa9ff6a4955fdba02b54fbc4386db876603703b7 ]
+commit b613c7f31476c44316bfac1af7cac714b7d6bef9 upstream.
 
-If panic_on_warn is set and compress stream(DPCM) is started,
-then kernel panic occurred because card->pcm_mutex isn't held appropriately.
-In the following functions, warning were issued at this line
-"snd_soc_dpcm_mutex_assert_held".
+A non-first waiter can potentially spin in the for loop of
+rwsem_down_write_slowpath() without sleeping but fail to acquire the
+lock even if the rwsem is free if the following sequence happens:
 
-static int dpcm_be_connect(struct snd_soc_pcm_runtime *fe,
-		struct snd_soc_pcm_runtime *be, int stream)
-{
-	...
-	snd_soc_dpcm_mutex_assert_held(fe);
-	...
-}
+  Non-first RT waiter    First waiter      Lock holder
+  -------------------    ------------      -----------
+  Acquire wait_lock
+  rwsem_try_write_lock():
+    Set handoff bit if RT or
+      wait too long
+    Set waiter->handoff_set
+  Release wait_lock
+                         Acquire wait_lock
+                         Inherit waiter->handoff_set
+                         Release wait_lock
+					   Clear owner
+                                           Release lock
+  if (waiter.handoff_set) {
+    rwsem_spin_on_owner(();
+    if (OWNER_NULL)
+      goto trylock_again;
+  }
+  trylock_again:
+  Acquire wait_lock
+  rwsem_try_write_lock():
+     if (first->handoff_set && (waiter != first))
+	return false;
+  Release wait_lock
 
-void dpcm_be_disconnect(struct snd_soc_pcm_runtime *fe, int stream)
-{
-	...
-	snd_soc_dpcm_mutex_assert_held(fe);
-	...
-}
+A non-first waiter cannot really acquire the rwsem even if it mistakenly
+believes that it can spin on OWNER_NULL value. If that waiter happens
+to be an RT task running on the same CPU as the first waiter, it can
+block the first waiter from acquiring the rwsem leading to live lock.
+Fix this problem by making sure that a non-first waiter cannot spin in
+the slowpath loop without sleeping.
 
-void snd_soc_runtime_action(struct snd_soc_pcm_runtime *rtd,
-			    int stream, int action)
-{
-	...
-	snd_soc_dpcm_mutex_assert_held(rtd);
-	...
-}
-
-int dpcm_dapm_stream_event(struct snd_soc_pcm_runtime *fe, int dir,
-	int event)
-{
-	...
-	snd_soc_dpcm_mutex_assert_held(fe);
-	...
-}
-
-These functions are called by soc_compr_set_params_fe, soc_compr_open_fe
-and soc_compr_free_fe
-without pcm_mutex locking. And this is call stack.
-
-[  414.527841][ T2179] pc : dpcm_process_paths+0x5a4/0x750
-[  414.527848][ T2179] lr : dpcm_process_paths+0x37c/0x750
-[  414.527945][ T2179] Call trace:
-[  414.527949][ T2179]  dpcm_process_paths+0x5a4/0x750
-[  414.527955][ T2179]  soc_compr_open_fe+0xb0/0x2cc
-[  414.527972][ T2179]  snd_compr_open+0x180/0x248
-[  414.527981][ T2179]  snd_open+0x15c/0x194
-[  414.528003][ T2179]  chrdev_open+0x1b0/0x220
-[  414.528023][ T2179]  do_dentry_open+0x30c/0x594
-[  414.528045][ T2179]  vfs_open+0x34/0x44
-[  414.528053][ T2179]  path_openat+0x914/0xb08
-[  414.528062][ T2179]  do_filp_open+0xc0/0x170
-[  414.528068][ T2179]  do_sys_openat2+0x94/0x18c
-[  414.528076][ T2179]  __arm64_sys_openat+0x78/0xa4
-[  414.528084][ T2179]  invoke_syscall+0x48/0x10c
-[  414.528094][ T2179]  el0_svc_common+0xbc/0x104
-[  414.528099][ T2179]  do_el0_svc+0x34/0xd8
-[  414.528103][ T2179]  el0_svc+0x34/0xc4
-[  414.528125][ T2179]  el0t_64_sync_handler+0x8c/0xfc
-[  414.528133][ T2179]  el0t_64_sync+0x1a0/0x1a4
-[  414.528142][ T2179] Kernel panic - not syncing: panic_on_warn set ...
-
-So, I reposition and add pcm_mutex to resolve lockdep error.
-
-Signed-off-by: Shinhyung Kang <s47.kang@samsung.com>
-Link: https://lore.kernel.org/r/016401d90ac4$7b6848c0$7238da40$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Reviewed-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230126003628.365092-2-longman@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-compress.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/locking/rwsem.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
-index cb0ed2fea893a..e7aa6f360cabe 100644
---- a/sound/soc/soc-compress.c
-+++ b/sound/soc/soc-compress.c
-@@ -149,6 +149,8 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
- 	if (ret < 0)
- 		goto be_err;
- 
-+	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
-+
- 	/* calculate valid and active FE <-> BE dpcms */
- 	dpcm_process_paths(fe, stream, &list, 1);
- 	fe->dpcm[stream].runtime = fe_substream->runtime;
-@@ -184,7 +186,6 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
- 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_OPEN;
- 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_NO;
- 
--	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
- 	snd_soc_runtime_activate(fe, stream);
- 	mutex_unlock(&fe->card->pcm_mutex);
- 
-@@ -215,7 +216,6 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
- 
- 	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
- 	snd_soc_runtime_deactivate(fe, stream);
--	mutex_unlock(&fe->card->pcm_mutex);
- 
- 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_FE;
- 
-@@ -234,6 +234,8 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
- 
- 	dpcm_be_disconnect(fe, stream);
- 
-+	mutex_unlock(&fe->card->pcm_mutex);
-+
- 	fe->dpcm[stream].runtime = NULL;
- 
- 	snd_soc_link_compr_shutdown(cstream, 0);
-@@ -409,8 +411,9 @@ static int soc_compr_set_params_fe(struct snd_compr_stream *cstream,
- 	ret = snd_soc_link_compr_set_params(cstream);
- 	if (ret < 0)
- 		goto out;
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -624,18 +624,16 @@ static inline bool rwsem_try_write_lock(
+ 			 */
+ 			if (first->handoff_set && (waiter != first))
+ 				return false;
 -
-+	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
- 	dpcm_dapm_stream_event(fe, stream, SND_SOC_DAPM_STREAM_START);
-+	mutex_unlock(&fe->card->pcm_mutex);
- 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_PREPARE;
+-			/*
+-			 * First waiter can inherit a previously set handoff
+-			 * bit and spin on rwsem if lock acquisition fails.
+-			 */
+-			if (waiter == first)
+-				waiter->handoff_set = true;
+ 		}
  
- out:
--- 
-2.39.2
-
+ 		new = count;
+ 
+ 		if (count & RWSEM_LOCK_MASK) {
++			/*
++			 * A waiter (first or not) can set the handoff bit
++			 * if it is an RT task or wait in the wait queue
++			 * for too long.
++			 */
+ 			if (has_handoff || (!rt_task(waiter->task) &&
+ 					    !time_after(jiffies, waiter->timeout)))
+ 				return false;
+@@ -651,11 +649,12 @@ static inline bool rwsem_try_write_lock(
+ 	} while (!atomic_long_try_cmpxchg_acquire(&sem->count, &count, new));
+ 
+ 	/*
+-	 * We have either acquired the lock with handoff bit cleared or
+-	 * set the handoff bit.
++	 * We have either acquired the lock with handoff bit cleared or set
++	 * the handoff bit. Only the first waiter can have its handoff_set
++	 * set here to enable optimistic spinning in slowpath loop.
+ 	 */
+ 	if (new & RWSEM_FLAG_HANDOFF) {
+-		waiter->handoff_set = true;
++		first->handoff_set = true;
+ 		lockevent_inc(rwsem_wlock_handoff);
+ 		return false;
+ 	}
 
 
