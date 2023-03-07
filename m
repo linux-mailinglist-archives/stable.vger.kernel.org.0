@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF1F6AEC85
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:56:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 626416AF19B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229927AbjCGR4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:56:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51020 "EHLO
+        id S232981AbjCGSpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:45:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231326AbjCGRzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:55:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF18B94F76
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:50:23 -0800 (PST)
+        with ESMTP id S233088AbjCGSpR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C813AAD033
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81073B819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:50:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B7FCC433EF;
-        Tue,  7 Mar 2023 17:50:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BA766152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43FFFC433D2;
+        Tue,  7 Mar 2023 18:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211421;
-        bh=ijq5We4/PB4bteZ2uucxvpZBxvcVw2TUrtmpsUKbHTc=;
+        s=korg; t=1678214015;
+        bh=gfRlo4YFg8bSFzFPjhGJLXLES0gbHRs/xxajiyVKsVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUtKxLK+K2i2nZ6vR2C8AsBADG9kr3HDIASrNuUjuhVNIHJJlfJEtxcFajR7u1me/
-         jDyb7CgCbrhiBjE54dmTyPM+U8va/M5/p9NAmb18Wr6ig2F54+E3MnDHQ+losSTmNi
-         as53Zu5FKirswwh7l6LbKg3Bgga2EGwYWihagvsM=
+        b=KDCJ8oY/HQnQmtf1gWMN3nNXd0r3ZlyI3hki6QACJ1yHTbtk3Tlqkagjbb5+xdjYL
+         v3/wM0GRHs+Zoit+GPRHm7nGqPjSipZ1eMrIYlXXVpWmpbQ7hCSkjcG2FRQukJ6TCO
+         KtxWdC9Awm/YNy2i7GFsntTaSpL13cuo8VDZyy0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 6.2 0855/1001] selftests/ftrace: Fix eprobe syntax test case to check filter support
+        patches@lists.linux.dev, Yuezhang Mo <Yuezhang.Mo@sony.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 6.1 693/885] exfat: redefine DIR_DELETED as the bad cluster number
 Date:   Tue,  7 Mar 2023 18:00:27 +0100
-Message-Id: <20230307170058.941403953@linuxfoundation.org>
+Message-Id: <20230307170032.210318922@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,38 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Sungjong Seo <sj1557.seo@samsung.com>
 
-commit a457e944df92789ab31aaf35fae9db064e3c51c4 upstream.
+commit bdaadfd343e3cba49ad0b009ff4b148dad0fa404 upstream.
 
-Fix eprobe syntax test case to check whether the kernel supports the filter
-on eprobe for filter syntax test command. Without this fix, this test case
-will fail if the kernel supports eprobe but doesn't support the filter on
-eprobe.
+When a file or a directory is deleted, the hint for the cluster of
+its parent directory in its in-memory inode is set as DIR_DELETED.
+Therefore, DIR_DELETED must be one of invalid cluster numbers. According
+to the exFAT specification, a volume can have at most 2^32-11 clusters.
+However, DIR_DELETED is wrongly defined as 0xFFFF0321, which could be
+a valid cluster number. To fix it, let's redefine DIR_DELETED as
+0xFFFFFFF7, the bad cluster number.
 
-Link: https://lore.kernel.org/all/167309834742.640500.379128668288448035.stgit@devnote3/
-
-Fixes: 9e14bae7d049 ("selftests/ftrace: Add eprobe syntax error testcase")
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 1acf1a564b60 ("exfat: add in-memory and on-disk structures and headers")
+Cc: stable@vger.kernel.org # v5.7+
+Reported-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+Signed-off-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/exfat/exfat_fs.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc
-+++ b/tools/testing/selftests/ftrace/test.d/dynevent/eprobes_syntax_errors.tc
-@@ -22,6 +22,8 @@ check_error 'e:foo/^bar.1 syscalls/sys_e
- check_error 'e:foo/bar syscalls/sys_enter_openat arg=^dfd'	# BAD_FETCH_ARG
- check_error 'e:foo/bar syscalls/sys_enter_openat ^arg=$foo'	# BAD_ATTACH_ARG
+--- a/fs/exfat/exfat_fs.h
++++ b/fs/exfat/exfat_fs.h
+@@ -41,7 +41,7 @@ enum {
+ #define ES_2_ENTRIES		2
+ #define ES_ALL_ENTRIES		0
  
--check_error 'e:foo/bar syscalls/sys_enter_openat if ^'	# NO_EP_FILTER
-+if grep -q '<attached-group>\.<attached-event>.*\[if <filter>\]' README; then
-+  check_error 'e:foo/bar syscalls/sys_enter_openat if ^'	# NO_EP_FILTER
-+fi
+-#define DIR_DELETED		0xFFFF0321
++#define DIR_DELETED		0xFFFFFFF7
  
- exit 0
+ /* type values */
+ #define TYPE_UNUSED		0x0000
 
 
