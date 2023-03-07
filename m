@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A776AF31D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:00:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C40816AF01F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:29:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233406AbjCGTAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:00:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35470 "EHLO
+        id S233084AbjCGS3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:29:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233397AbjCGTAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:00:15 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A93A8B1B2B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:47:06 -0800 (PST)
+        with ESMTP id S232995AbjCGS1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:27:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE27B1EE2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:21:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0016BCE1C55
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0119FC433EF;
-        Tue,  7 Mar 2023 18:46:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2537161501
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:21:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A6F3C433EF;
+        Tue,  7 Mar 2023 18:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214793;
-        bh=TEtGGJyD+sgkrwBT7xRT02gKTQTle+tRilfgydWV8us=;
+        s=korg; t=1678213263;
+        bh=wf9SYX8NJ5Dn7mHRvEWx2FKJIXqZv/kXobggqN2tlH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZiuyVuiq4FVMJnWhsy4plh4VT4fPvHrcEoORgcZPazdYqmudiLTCyxoSAZmkfzw3
-         /3U3rZvpdyJNmt5jRwwpb+4RYwJd/DEJs8/iKkZsKR7NJWv85UVljhpqFod2Wi2j9j
-         GeILtqdVXxo8RJAk92UE3lXhEugI2N9WdSHMyu1w=
+        b=AIj8mrNAQbqL7qGfc/lOIT4zYAPmv/PbEj4RdduLea319tq7W7wTBc+X/wHTQTSa7
+         Ur/o7isXG0PZVJ+rqo5ebtJiD6dabHsE6/Zw/xoeEPLZHyPzAaJPVC04yItzM7Hovh
+         UhWoZeteJ5j4c0kqtlygv9NTEyaJCJ28yFZMfJt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andre Przywara <andre.przywara@arm.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
+        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/567] ARM: dts: sun8i: nanopi-duo2: Fix regulator GPIO reference
+Subject: [PATCH 6.1 452/885] tty: serial: fsl_lpuart: Fix the wrong RXWATER setting for rx dma case
 Date:   Tue,  7 Mar 2023 17:56:26 +0100
-Message-Id: <20230307165908.082043501@linuxfoundation.org>
+Message-Id: <20230307170022.131521118@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 2177d4ae971f79b4a9a3c411f2fb8ae6113d1430 ]
+[ Upstream commit 9ad9df8447547febe9dd09b040f4528a09e495f0 ]
 
-The property named in the schema is 'enable-gpios', not 'enable-gpio'.
-This makes no difference at runtime, because the regulator is marked as
-always-on, but it breaks validation.
+The RXWATER value must be greater than 0 according to the LPUART
+reference manual. And when the number of datawords in the receive
+FIFO is greater than RXWATER, an interrupt or a DMA request is
+generated, so no need to set the different value for lpuart interrupt
+case and dma case. Here delete the wrong RXWATER setting for dma case
+directly.
 
-Fixes: 4701fc6e5dd9 ("ARM: dts: sun8i: add FriendlyARM NanoPi Duo2")
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Link: https://lore.kernel.org/r/20221231225854.16320-2-samuel@sholland.org
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Fixes: 42b68768e51b ("serial: fsl_lpuart: DMA support for 32-bit variant")
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20230130064449.9564-4-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-h3-nanopi-duo2.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/fsl_lpuart.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-h3-nanopi-duo2.dts b/arch/arm/boot/dts/sun8i-h3-nanopi-duo2.dts
-index 8e7dfcffe1fbe..355f7844fd55e 100644
---- a/arch/arm/boot/dts/sun8i-h3-nanopi-duo2.dts
-+++ b/arch/arm/boot/dts/sun8i-h3-nanopi-duo2.dts
-@@ -57,7 +57,7 @@ reg_vdd_cpux: vdd-cpux-regulator {
- 		regulator-ramp-delay = <50>; /* 4ms */
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 110c8720af47a..f6ac46879dc7b 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1684,12 +1684,6 @@ static void lpuart32_configure(struct lpuart_port *sport)
+ {
+ 	unsigned long temp;
  
- 		enable-active-high;
--		enable-gpio = <&r_pio 0 8 GPIO_ACTIVE_HIGH>; /* PL8 */
-+		enable-gpios = <&r_pio 0 8 GPIO_ACTIVE_HIGH>; /* PL8 */
- 		gpios = <&r_pio 0 6 GPIO_ACTIVE_HIGH>; /* PL6 */
- 		gpios-states = <0x1>;
- 		states = <1100000 0>, <1300000 1>;
+-	if (sport->lpuart_dma_rx_use) {
+-		/* RXWATER must be 0 */
+-		temp = lpuart32_read(&sport->port, UARTWATER);
+-		temp &= ~(UARTWATER_WATER_MASK << UARTWATER_RXWATER_OFF);
+-		lpuart32_write(&sport->port, temp, UARTWATER);
+-	}
+ 	temp = lpuart32_read(&sport->port, UARTCTRL);
+ 	if (!sport->lpuart_dma_rx_use)
+ 		temp |= UARTCTRL_RIE;
 -- 
 2.39.2
 
