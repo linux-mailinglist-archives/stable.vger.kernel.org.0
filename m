@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4936AEE05
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 576D76AEE1A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232333AbjCGSJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:09:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46108 "EHLO
+        id S232418AbjCGSJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:09:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232336AbjCGSIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:52 -0500
+        with ESMTP id S232366AbjCGSJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BA02006A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF48185A5E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F403B8169C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65449C433EF;
-        Tue,  7 Mar 2023 17:58:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B33EB819B4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7662CC433D2;
+        Tue,  7 Mar 2023 17:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211880;
-        bh=0BzkmUft8iufBUKtLa/f7f4XjsDWAQBZK7+jeUisngg=;
+        s=korg; t=1678211884;
+        bh=NlbxwG6eUCX4juJ50RjoPsRPj/g18EsVLrVnO1RNEic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0BlU+6Dq7FXKqaCH+3/ZmbY/ZEgKsa8yXTPFn2rhmTNacnqNL+0BVQqp5p4/WFR/7
-         eEl66wqwCF4QNd8woltPbGxAZdtNWnVUWccKBL5X4UzCAfwqPhyIe5BDm3OL7I2JE9
-         7ejHRA+PFAsp1DUndD9sxDpOQpiA8mJ3C0TdSO9Q=
+        b=KbEYZdHIOtHOv3gCvo2VAZYeZGanyJSOh2b32JoKjpkzOo09wUef/ivtx/UF2HTn4
+         LOtzg/CQ7l7rWUf2RXbtqigbIC1gzsucIkbZ6nWEny90TCVKm2BJBPfK+Xgi7a++1I
+         Et1c1nZqvzVjjLbeU3HWa1IFP66aGoY70YMswyQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, William Tseng <william.tseng@intel.com>,
+        patches@lists.linux.dev,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
         <ville.syrjala@linux.intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.2 1000/1001] drm/edid: fix AVI infoframe aspect ratio handling
-Date:   Tue,  7 Mar 2023 18:02:52 +0100
-Message-Id: <20230307170105.715485661@linuxfoundation.org>
+Subject: [PATCH 6.2 1001/1001] drm/edid: fix parsing of 3D modes from HDMI VSDB
+Date:   Tue,  7 Mar 2023 18:02:53 +0100
+Message-Id: <20230307170105.748347529@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -57,77 +57,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jani Nikula <jani.nikula@intel.com>
 
-commit 1cbc1f0d324ba6c4d1b10ac6362b5e0b029f63d5 upstream.
+commit 72794d16bd535a984e6653a18f5862405b49b5f9 upstream.
 
-We try to avoid sending VICs defined in the later specs in AVI
-infoframes to sinks that conform to the earlier specs, to not upset
-them, and use 0 for the VIC instead. However, we do this detection and
-conversion to 0 too early, as we'll need the actual VIC to figure out
-the aspect ratio.
+Commit 537d9ed2f6c1 ("drm/edid: convert add_cea_modes() to use cea db
+iter") inadvertently moved the do_hdmi_vsdb_modes() call within the db
+iteration loop, always passing NULL as the CTA VDB to
+do_hdmi_vsdb_modes(), skipping a lot of stereo modes.
 
-In particular, for a mode with 64:27 aspect ratio, 0 for VIC fails the
-AVI infoframe generation altogether with -EINVAL.
+Move the call back outside of the loop.
 
-Separate the VIC lookup from the "filtering", and postpone the
-filtering, to use the proper VIC for aspect ratio handling, and the 0
-VIC for the infoframe video code as needed.
+This does mean only one CTA VDB and HDMI VSDB combination will be
+handled, but it's an unlikely scenario to have more than one of either
+block, and it was not accounted for before the regression either.
 
-Reported-by: William Tseng <william.tseng@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6153
-Cc: <stable@vger.kernel.org>
+Fixes: 537d9ed2f6c1 ("drm/edid: convert add_cea_modes() to use cea db iter")
+Cc: <stable@vger.kernel.org> # v6.0+
 Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/c3e78cc6d01ed237f71ad0038826b08d83d75eef.1672826282.git.jani.nikula@intel.com
+Link: https://patchwork.freedesktop.org/patch/msgid/cf159b8816191ed595a3cb954acaf189c4528cc7.1672826282.git.jani.nikula@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_edid.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/drm_edid.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
 --- a/drivers/gpu/drm/drm_edid.c
 +++ b/drivers/gpu/drm/drm_edid.c
-@@ -6885,8 +6885,6 @@ static u8 drm_mode_hdmi_vic(const struct
- static u8 drm_mode_cea_vic(const struct drm_connector *connector,
- 			   const struct drm_display_mode *mode)
+@@ -5249,13 +5249,12 @@ static int add_cea_modes(struct drm_conn
  {
--	u8 vic;
+ 	const struct cea_db *db;
+ 	struct cea_db_iter iter;
++	const u8 *hdmi = NULL, *video = NULL;
++	u8 hdmi_len = 0, video_len = 0;
+ 	int modes = 0;
+ 
+ 	cea_db_iter_edid_begin(drm_edid, &iter);
+ 	cea_db_iter_for_each(db, &iter) {
+-		const u8 *hdmi = NULL, *video = NULL;
+-		u8 hdmi_len = 0, video_len = 0;
 -
- 	/*
- 	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
- 	 * we should send its VIC in vendor infoframes, else send the
-@@ -6896,13 +6894,18 @@ static u8 drm_mode_cea_vic(const struct
- 	if (drm_mode_hdmi_vic(connector, mode))
- 		return 0;
- 
--	vic = drm_match_cea_mode(mode);
-+	return drm_match_cea_mode(mode);
-+}
- 
--	/*
--	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
--	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
--	 * have to make sure we dont break HDMI 1.4 sinks.
--	 */
-+/*
-+ * Avoid sending VICs defined in HDMI 2.0 in AVI infoframes to sinks that
-+ * conform to HDMI 1.4.
-+ *
-+ * HDMI 1.4 (CTA-861-D) VIC range: [1..64]
-+ * HDMI 2.0 (CTA-861-F) VIC range: [1..107]
-+ */
-+static u8 vic_for_avi_infoframe(const struct drm_connector *connector, u8 vic)
-+{
- 	if (!is_hdmi2_sink(connector) && vic > 64)
- 		return 0;
- 
-@@ -6978,7 +6981,7 @@ drm_hdmi_avi_infoframe_from_display_mode
- 		picture_aspect = HDMI_PICTURE_ASPECT_NONE;
+ 		if (cea_db_tag(db) == CTA_DB_VIDEO) {
+ 			video = cea_db_data(db);
+ 			video_len = cea_db_payload_len(db);
+@@ -5271,18 +5270,17 @@ static int add_cea_modes(struct drm_conn
+ 			modes += do_y420vdb_modes(connector, vdb420,
+ 						  cea_db_payload_len(db) - 1);
+ 		}
+-
+-		/*
+-		 * We parse the HDMI VSDB after having added the cea modes as we
+-		 * will be patching their flags when the sink supports stereo
+-		 * 3D.
+-		 */
+-		if (hdmi)
+-			modes += do_hdmi_vsdb_modes(connector, hdmi, hdmi_len,
+-						    video, video_len);
  	}
+ 	cea_db_iter_end(&iter);
  
--	frame->video_code = vic;
-+	frame->video_code = vic_for_avi_infoframe(connector, vic);
- 	frame->picture_aspect = picture_aspect;
- 	frame->active_aspect = HDMI_ACTIVE_ASPECT_PICTURE;
- 	frame->scan_mode = HDMI_SCAN_MODE_UNDERSCAN;
++	/*
++	 * We parse the HDMI VSDB after having added the cea modes as we will be
++	 * patching their flags when the sink supports stereo 3D.
++	 */
++	if (hdmi)
++		modes += do_hdmi_vsdb_modes(connector, hdmi, hdmi_len,
++					    video, video_len);
++
+ 	return modes;
+ }
+ 
 
 
