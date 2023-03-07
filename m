@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D75F6AE9BA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 605416AEE4C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbjCGR1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:27:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50116 "EHLO
+        id S229787AbjCGSLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:11:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230268AbjCGR0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3118D9E672
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:48 -0800 (PST)
+        with ESMTP id S232261AbjCGSKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE172D14B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C19D9614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B85ADC433A1;
-        Tue,  7 Mar 2023 17:21:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FEA7B81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA441C433A1;
+        Tue,  7 Mar 2023 18:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209707;
-        bh=tpWQ3pQ0YRv95/CN5dI+MV41MpEypJwHkvMGlvUE/e8=;
+        s=korg; t=1678212332;
+        bh=FOu70jAGzI1lAzqTxLOg7F2OGehloLP0dQguDprPLjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TbHl42dPouo+BMrAwQNON8oYA9Y6EJCTBARRmsS64Q4YnnhsU/ZM+ArKenGgGGe+l
-         YC3gu6HOaT/bQ/PmaRzhNmvzavRGxCDth674O1DeZ2VM0ehUdhs137dx543NCgbW1y
-         XZQgy1VyJ2xPNIPQPSqlpLcFAj8h454psLQV8RsI=
+        b=TK7mNgaBrjFqWm6lw9H7EGizRtfyW3jkBaB2QkSamd1Srw5tFbYg7HpI4Pd8TipGn
+         CT6mERD/FSTkM8BlxfOXrVg6Z4Swlgh8aExlFHOaYOmDN2C4vGIDEUjXzFo+uk3FSu
+         +TU51k211fV2rBrQQjqIhpQQMu+RE8IguxsAiOco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexei Starovoitov <ast@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Boqun Feng <boqun.feng@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0306/1001] selftests/bpf: Fix map_kptr test.
+Subject: [PATCH 6.1 144/885] rcu-tasks: Remove preemption disablement around srcu_read_[un]lock() calls
 Date:   Tue,  7 Mar 2023 17:51:18 +0100
-Message-Id: <20230307170034.846205028@linuxfoundation.org>
+Message-Id: <20230307170008.129576397@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,76 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit 62d101d5f422cde39b269f7eb4cbbe2f1e26f9d4 ]
+[ Upstream commit 44757092958bdd749775022f915b7ac974384c2a ]
 
-The compiler is optimizing out majority of unref_ptr read/writes, so the test
-wasn't testing much. For example, one could delete '__kptr' tag from
-'struct prog_test_ref_kfunc __kptr *unref_ptr;' and the test would still "pass".
+Ever since the following commit:
 
-Convert it to volatile stores. Confirmed by comparing bpf asm before/after.
+	5a41344a3d83 ("srcu: Simplify __srcu_read_unlock() via this_cpu_dec()")
 
-Fixes: 2cbc469a6fc3 ("selftests/bpf: Add C tests for kptr")
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Stanislav Fomichev <sdf@google.com>
-Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/r/20230214235051.22938-1-alexei.starovoitov@gmail.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+SRCU doesn't rely anymore on preemption to be disabled in order to
+modify the per-CPU counter. And even then it used to be done from the API
+itself.
+
+Therefore and after checking further, it appears to be safe to remove
+the preemption disablement around __srcu_read_[un]lock() in
+exit_tasks_rcu_start() and exit_tasks_rcu_finish()
+
+Suggested-by: Boqun Feng <boqun.feng@gmail.com>
+Suggested-by: Paul E. McKenney <paulmck@kernel.org>
+Suggested-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Stable-dep-of: 28319d6dc5e2 ("rcu-tasks: Fix synchronize_rcu_tasks() VS zap_pid_ns_processes()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/map_kptr.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ kernel/rcu/tasks.h | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/map_kptr.c b/tools/testing/selftests/bpf/progs/map_kptr.c
-index eb82178034934..228ec45365a8d 100644
---- a/tools/testing/selftests/bpf/progs/map_kptr.c
-+++ b/tools/testing/selftests/bpf/progs/map_kptr.c
-@@ -62,21 +62,23 @@ extern struct prog_test_ref_kfunc *
- bpf_kfunc_call_test_kptr_get(struct prog_test_ref_kfunc **p, int a, int b) __ksym;
- extern void bpf_kfunc_call_test_release(struct prog_test_ref_kfunc *p) __ksym;
- 
-+#define WRITE_ONCE(x, val) ((*(volatile typeof(x) *) &(x)) = (val))
-+
- static void test_kptr_unref(struct map_value *v)
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index 688c461036f57..80e75e7926cc6 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -1008,9 +1008,7 @@ EXPORT_SYMBOL_GPL(show_rcu_tasks_classic_gp_kthread);
+  */
+ void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
  {
- 	struct prog_test_ref_kfunc *p;
- 
- 	p = v->unref_ptr;
- 	/* store untrusted_ptr_or_null_ */
--	v->unref_ptr = p;
-+	WRITE_ONCE(v->unref_ptr, p);
- 	if (!p)
- 		return;
- 	if (p->a + p->b > 100)
- 		return;
- 	/* store untrusted_ptr_ */
--	v->unref_ptr = p;
-+	WRITE_ONCE(v->unref_ptr, p);
- 	/* store NULL */
--	v->unref_ptr = NULL;
-+	WRITE_ONCE(v->unref_ptr, NULL);
+-	preempt_disable();
+ 	current->rcu_tasks_idx = __srcu_read_lock(&tasks_rcu_exit_srcu);
+-	preempt_enable();
  }
  
- static void test_kptr_ref(struct map_value *v)
-@@ -85,7 +87,7 @@ static void test_kptr_ref(struct map_value *v)
+ /*
+@@ -1022,9 +1020,7 @@ void exit_tasks_rcu_finish(void) __releases(&tasks_rcu_exit_srcu)
+ {
+ 	struct task_struct *t = current;
  
- 	p = v->ref_ptr;
- 	/* store ptr_or_null_ */
--	v->unref_ptr = p;
-+	WRITE_ONCE(v->unref_ptr, p);
- 	if (!p)
- 		return;
- 	if (p->a + p->b > 100)
-@@ -99,7 +101,7 @@ static void test_kptr_ref(struct map_value *v)
- 		return;
- 	}
- 	/* store ptr_ */
--	v->unref_ptr = p;
-+	WRITE_ONCE(v->unref_ptr, p);
- 	bpf_kfunc_call_test_release(p);
+-	preempt_disable();
+ 	__srcu_read_unlock(&tasks_rcu_exit_srcu, t->rcu_tasks_idx);
+-	preempt_enable();
+ 	exit_tasks_rcu_finish_trace(t);
+ }
  
- 	p = bpf_kfunc_call_test_acquire(&(unsigned long){0});
 -- 
 2.39.2
 
