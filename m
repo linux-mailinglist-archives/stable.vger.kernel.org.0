@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A12536AED0A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C39DC6AF2B6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230309AbjCGSAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:00:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56348 "EHLO
+        id S233499AbjCGSzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:55:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232334AbjCGSAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:10 -0500
+        with ESMTP id S233591AbjCGSzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:55:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9437B4A6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5F8F227BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC40CB819C1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B40BC433EF;
-        Tue,  7 Mar 2023 17:54:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAF7EB819D2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C38AC433D2;
+        Tue,  7 Mar 2023 18:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211659;
-        bh=XiBngLPm0sTkZGrpgalvbiWmOGeMLl/W4nCs4fI+Cz0=;
+        s=korg; t=1678214260;
+        bh=8iqDb8A50Fit+bU6TpV6GHH/ef8lYltVMLVwrAyQhpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGVIdN1lb6JdlANLjLCKN80M+aYCeIK5Gl2dAmHhRCy4WVcVfI6yevb+3/UM0odgR
-         NcjP1lyvFhV1hJ4dnK5R2uoP0mRu8yARtlZq32RbrLcxpH96OD4bam7zQBvAlA3Ynw
-         yRawkeiRKUN6O3RChW/pVH5EmpJE1u34k9xAFub8=
+        b=FunJblDmiRMNeZEHGedHC27NktA7gJ77QClZsN5uOBJw97XaKKvOSbq3s9yYNFH2i
+         isMbA6cyMKFXzyhT1pi7jEb6WDkNxG9YyFrotwEPvsl2363z4dBgVHYJLLEYRryZx4
+         ZfNVe/6D7AC7Mn2PaVySqLhXZAy4/Zg0c17eou5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 6.2 0935/1001] genirq/msi, platform-msi: Ensure that MSI descriptors are unreferenced
-Date:   Tue,  7 Mar 2023 18:01:47 +0100
-Message-Id: <20230307170102.674982114@linuxfoundation.org>
+        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 6.1 774/885] irqdomain: Fix association race
+Date:   Tue,  7 Mar 2023 18:01:48 +0100
+Message-Id: <20230307170035.581890033@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 0fb7fb713461e44b12e72c292bf90ee300f40710 upstream.
+commit b06730a571a9ff1ba5bd6b20bf9e50e5a12f1ec6 upstream.
 
-Miquel reported a warning in the MSI core which is triggered when
-interrupts are freed via platform_msi_device_domain_free().
+The sanity check for an already mapped virq is done outside of the
+irq_domain_mutex-protected section which means that an (unlikely) racing
+association may not be detected.
 
-This code got reworked to use core functions for freeing the MSI
-descriptors, but nothing took care to clear the msi_desc->irq entry, which
-then triggers the warning in msi_free_msi_desc() which uses desc->irq to
-validate that the descriptor has been torn down. The same issue exists in
-msi_domain_populate_irqs().
+Fix this by factoring out the association implementation, which will
+also be used in a follow-on change to fix a shared-interrupt mapping
+race.
 
-Up to the point that msi_free_msi_descs() grew a warning for this case,
-this went un-noticed.
-
-Provide the counterpart of msi_domain_populate_irqs() and invoke it in
-platform_msi_device_domain_free() before freeing the interrupts and MSI
-descriptors and also in the error path of msi_domain_populate_irqs().
-
-Fixes: 2f2940d16823 ("genirq/msi: Remove filter from msi_free_descs_free_range()")
-Reported-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87mt4wkwnv.ffs@tglx
+Fixes: ddaf144c61da ("irqdomain: Refactor irq_domain_associate_many()")
+Cc: stable@vger.kernel.org      # 3.11
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-2-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/platform-msi.c |  1 +
- include/linux/msi.h         |  2 ++
- kernel/irq/msi.c            | 23 ++++++++++++++++++++++-
- 3 files changed, 25 insertions(+), 1 deletion(-)
+ kernel/irq/irqdomain.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/base/platform-msi.c b/drivers/base/platform-msi.c
-index 5883e7634a2b..f37ad34c80ec 100644
---- a/drivers/base/platform-msi.c
-+++ b/drivers/base/platform-msi.c
-@@ -324,6 +324,7 @@ void platform_msi_device_domain_free(struct irq_domain *domain, unsigned int vir
- 	struct platform_msi_priv_data *data = domain->host_data;
- 
- 	msi_lock_descs(data->dev);
-+	msi_domain_depopulate_descs(data->dev, virq, nr_irqs);
- 	irq_domain_free_irqs_common(domain, virq, nr_irqs);
- 	msi_free_msi_descs_range(data->dev, virq, virq + nr_irqs - 1);
- 	msi_unlock_descs(data->dev);
-diff --git a/include/linux/msi.h b/include/linux/msi.h
-index a112b913fff9..15dd71817996 100644
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -631,6 +631,8 @@ int msi_domain_prepare_irqs(struct irq_domain *domain, struct device *dev,
- 			    int nvec, msi_alloc_info_t *args);
- int msi_domain_populate_irqs(struct irq_domain *domain, struct device *dev,
- 			     int virq, int nvec, msi_alloc_info_t *args);
-+void msi_domain_depopulate_descs(struct device *dev, int virq, int nvec);
-+
- struct irq_domain *
- __platform_msi_create_device_domain(struct device *dev,
- 				    unsigned int nvec,
-diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
-index efd21b79bf32..d169ee0c1799 100644
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -1109,14 +1109,35 @@ int msi_domain_populate_irqs(struct irq_domain *domain, struct device *dev,
- 	return 0;
- 
- fail:
--	for (--virq; virq >= virq_base; virq--)
-+	for (--virq; virq >= virq_base; virq--) {
-+		msi_domain_depopulate_descs(dev, virq, 1);
- 		irq_domain_free_irqs_common(domain, virq, 1);
-+	}
- 	msi_domain_free_descs(dev, &ctrl);
- unlock:
- 	msi_unlock_descs(dev);
- 	return ret;
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -559,8 +559,8 @@ static void irq_domain_disassociate(stru
+ 	irq_domain_clear_mapping(domain, hwirq);
  }
  
-+void msi_domain_depopulate_descs(struct device *dev, int virq_base, int nvec)
+-int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
+-			 irq_hw_number_t hwirq)
++static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
++				       irq_hw_number_t hwirq)
+ {
+ 	struct irq_data *irq_data = irq_get_irq_data(virq);
+ 	int ret;
+@@ -573,7 +573,6 @@ int irq_domain_associate(struct irq_doma
+ 	if (WARN(irq_data->domain, "error: virq%i is already associated", virq))
+ 		return -EINVAL;
+ 
+-	mutex_lock(&irq_domain_mutex);
+ 	irq_data->hwirq = hwirq;
+ 	irq_data->domain = domain;
+ 	if (domain->ops->map) {
+@@ -590,7 +589,6 @@ int irq_domain_associate(struct irq_doma
+ 			}
+ 			irq_data->domain = NULL;
+ 			irq_data->hwirq = 0;
+-			mutex_unlock(&irq_domain_mutex);
+ 			return ret;
+ 		}
+ 
+@@ -601,12 +599,23 @@ int irq_domain_associate(struct irq_doma
+ 
+ 	domain->mapcount++;
+ 	irq_domain_set_mapping(domain, hwirq, irq_data);
+-	mutex_unlock(&irq_domain_mutex);
+ 
+ 	irq_clear_status_flags(virq, IRQ_NOREQUEST);
+ 
+ 	return 0;
+ }
++
++int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
++			 irq_hw_number_t hwirq)
 +{
-+	struct msi_ctrl ctrl = {
-+		.domid	= MSI_DEFAULT_DOMAIN,
-+		.first  = virq_base,
-+		.last	= virq_base + nvec - 1,
-+	};
-+	struct msi_desc *desc;
-+	struct xarray *xa;
-+	unsigned long idx;
++	int ret;
 +
-+	if (!msi_ctrl_valid(dev, &ctrl))
-+		return;
++	mutex_lock(&irq_domain_mutex);
++	ret = irq_domain_associate_locked(domain, virq, hwirq);
++	mutex_unlock(&irq_domain_mutex);
 +
-+	xa = &dev->msi.data->__domains[ctrl.domid].store;
-+	xa_for_each_range(xa, idx, desc, ctrl.first, ctrl.last)
-+		desc->irq = 0;
++	return ret;
 +}
-+
- /*
-  * Carefully check whether the device can use reservation mode. If
-  * reservation mode is enabled then the early activation will assign a
--- 
-2.39.2
-
+ EXPORT_SYMBOL_GPL(irq_domain_associate);
+ 
+ void irq_domain_associate_many(struct irq_domain *domain, unsigned int irq_base,
 
 
