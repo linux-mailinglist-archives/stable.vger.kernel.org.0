@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 815CB6AF207
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0BF6AED0D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233250AbjCGStn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:49:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50088 "EHLO
+        id S230521AbjCGSAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:00:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233074AbjCGStP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE3CBE5F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:37:46 -0800 (PST)
+        with ESMTP id S232385AbjCGSA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C3792BEB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAA6161543
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD622C433A1;
-        Tue,  7 Mar 2023 18:37:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED91EB818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234EAC433D2;
+        Tue,  7 Mar 2023 17:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214263;
-        bh=1b7Xbko/eaTU0zfMqauWPRbnCbOCwdsCn3Xuc6RVE0I=;
+        s=korg; t=1678211668;
+        bh=gq02DswUiICYcpZAVT4by6ofriE+TCB6Gbc1Uux5ID4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGVzDjMmZlIqGNY30/GAAOIEcGHav8xAxD/+dtX0knHUZ5LgU4s7rMEnlxdb5QRaI
-         T8uPpL9Ls1FvOfczBQ6Qv+dAKjWUWzeA5gzoDLSkSK16HmeWvAW6DUM60Im+3XWmNx
-         x8pyKNe7ioMvocCcEMEBeVgzrvhPPRDE+WSdJwZ0=
+        b=YFp5LesgVcViSEleL3FuthnJJUbPuQ0P2mIY9rhFJk8/5veaGGCj4ITo9nla/nlE2
+         rsohCxu4vNvs4uXPKx6Eg3q/zPNCBIoHQ6co31Ib3C8wDUwxRVr4W6SGjsGPlUNeeH
+         VayXwAC1paxkBRhf6fUH5qVLF48YUs0rECNfoIKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 6.1 775/885] irqdomain: Fix disassociation race
-Date:   Tue,  7 Mar 2023 18:01:49 +0100
-Message-Id: <20230307170035.613800463@linuxfoundation.org>
+        patches@lists.linux.dev, Richard Henderson <rth@twiddle.net>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 6.2 0938/1001] alpha: fix FEN fault handling
+Date:   Tue,  7 Mar 2023 18:01:50 +0100
+Message-Id: <20230307170102.816454533@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 3f883c38f5628f46b30bccf090faec054088e262 upstream.
+commit 977a3009547dad4a5bc95d91be4a58c9f7eedac0 upstream.
 
-The global irq_domain_mutex is held when mapping interrupts from
-non-hierarchical domains but currently not when disposing them.
+Type 3 instruction fault (FPU insn with FPU disabled) is handled
+by quietly enabling FPU and returning.  Which is fine, except that
+we need to do that both for fault in userland and in the kernel;
+the latter *can* legitimately happen - all it takes is this:
 
-This specifically means that updates of the domain mapcount is racy
-(currently only used for statistics in debugfs).
+.global _start
+_start:
+        call_pal 0xae
+	lda $0, 0
+	ldq $0, 0($0)
 
-Make sure to hold the global irq_domain_mutex also when disposing
-mappings from non-hierarchical domains.
+- call_pal CLRFEN to clear "FPU enabled" flag and arrange for
+a signal delivery (SIGSEGV in this case).
 
-Fixes: 9dc6be3d4193 ("genirq/irqdomain: Add map counter")
-Cc: stable@vger.kernel.org      # 4.13
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-3-johan+linaro@kernel.org
+Fixed by moving the handling of type 3 into the common part of
+do_entIF(), before we check for kernel vs. user mode.
+
+Incidentally, the check for kernel mode is unidiomatic; the normal
+way to do that is !user_mode(regs).  The difference is that
+the open-coded variant treats any of bits 63..3 of regs->ps being
+set as "it's user mode" while the normal approach is to check just
+the bit 3.  PS is a 4-bit register and regs->ps always will have
+bits 63..4 clear, so the open-coded variant here is actually equivalent
+to !user_mode(regs).  Harder to follow, though...
+
+Cc: stable@vger.kernel.org
+Reviewed-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/alpha/kernel/traps.c |   30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -538,6 +538,9 @@ static void irq_domain_disassociate(stru
- 		return;
+--- a/arch/alpha/kernel/traps.c
++++ b/arch/alpha/kernel/traps.c
+@@ -233,7 +233,21 @@ do_entIF(unsigned long type, struct pt_r
+ {
+ 	int signo, code;
  
- 	hwirq = irq_data->hwirq;
+-	if ((regs->ps & ~IPL_MAX) == 0) {
++	if (type == 3) { /* FEN fault */
++		/* Irritating users can call PAL_clrfen to disable the
++		   FPU for the process.  The kernel will then trap in
++		   do_switch_stack and undo_switch_stack when we try
++		   to save and restore the FP registers.
 +
-+	mutex_lock(&irq_domain_mutex);
-+
- 	irq_set_status_flags(irq, IRQ_NOREQUEST);
++		   Given that GCC by default generates code that uses the
++		   FP registers, PAL_clrfen is not useful except for DoS
++		   attacks.  So turn the bleeding FPU back on and be done
++		   with it.  */
++		current_thread_info()->pcb.flags |= 1;
++		__reload_thread(&current_thread_info()->pcb);
++		return;
++	}
++	if (!user_mode(regs)) {
+ 		if (type == 1) {
+ 			const unsigned int *data
+ 			  = (const unsigned int *) regs->pc;
+@@ -366,20 +380,6 @@ do_entIF(unsigned long type, struct pt_r
+ 		}
+ 		break;
  
- 	/* remove chip and handler */
-@@ -557,6 +560,8 @@ static void irq_domain_disassociate(stru
- 
- 	/* Clear reverse map for this hwirq */
- 	irq_domain_clear_mapping(domain, hwirq);
-+
-+	mutex_unlock(&irq_domain_mutex);
- }
- 
- static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
+-	      case 3: /* FEN fault */
+-		/* Irritating users can call PAL_clrfen to disable the
+-		   FPU for the process.  The kernel will then trap in
+-		   do_switch_stack and undo_switch_stack when we try
+-		   to save and restore the FP registers.
+-
+-		   Given that GCC by default generates code that uses the
+-		   FP registers, PAL_clrfen is not useful except for DoS
+-		   attacks.  So turn the bleeding FPU back on and be done
+-		   with it.  */
+-		current_thread_info()->pcb.flags |= 1;
+-		__reload_thread(&current_thread_info()->pcb);
+-		return;
+-
+ 	      case 5: /* illoc */
+ 	      default: /* unexpected instruction-fault type */
+ 		      ;
 
 
