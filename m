@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B1AD6AF0A8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01806AEBCA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230062AbjCGSd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:33:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42046 "EHLO
+        id S232270AbjCGRs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:48:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231406AbjCGSc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:32:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7410BB1A72
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:25:15 -0800 (PST)
+        with ESMTP id S232221AbjCGRsh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9ED94767
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84BA4614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5756CC4339B;
-        Tue,  7 Mar 2023 18:25:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4A1E614B2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3314C433D2;
+        Tue,  7 Mar 2023 17:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213514;
-        bh=HnCjmypvKMF6e+p3h62DCRZRNvQl4nTWa8tOYy7k1yM=;
+        s=korg; t=1678211007;
+        bh=cc7E2/3fupkE9Jtief+WV2cpnbPcHLZQ59sTyPpWYcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DivdqGLfWNjkisxKKy0R4/MG/p4lYzxDZFdXYMDGZjSNSx0+HsdPxVcI+p8zhA6R9
-         KfN7fZwvXKCpqvplaqdDOSoExuDHVP+ZlWy8i9phoL4+WqX4S2YBtwug85pzz8C1nH
-         8Hya5MBykVckYGgwYQyK9BhJAZ1twdrfG5megFDM=
+        b=rcIoTSlGBjNGptXXOVqbBfC6+4vmdb3qHIkdE01n9Di0FkHDEKjscjZF3R+fMEyDk
+         cFyvm3M35t+3425Tg5NxF3bugEf8nNjFtfygNOwIQ3LyDsU3IRKnmD5QhysGDm9jgN
+         UtUTanVQuvbusXefVfuVYrQ/xxjoRE+xkINoG+vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 530/885] context_tracking: Fix noinstr vs KASAN
-Date:   Tue,  7 Mar 2023 17:57:44 +0100
-Message-Id: <20230307170025.505823648@linuxfoundation.org>
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Carlo Caione <ccaione@baylibre.com>,
+        Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0693/1001] drm/tiny: ili9486: Do not assume 8-bit only SPI controllers
+Date:   Tue,  7 Mar 2023 17:57:45 +0100
+Message-Id: <20230307170051.697355940@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,81 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Carlo Caione <ccaione@baylibre.com>
 
-[ Upstream commit 0e26e1de0032779e43929174339429c16307a299 ]
+[ Upstream commit 77772e607522daa61f3af74df018559db75c43d6 ]
 
-Low level noinstr context-tracking code is calling out to instrumented
-code on KASAN:
+The pixel data for the ILI9486 is always 16-bits wide and it must be
+sent over the SPI bus. When the controller is only able to deal with
+8-bit transfers, this 16-bits data needs to be swapped before the
+sending to account for the big endian bus, this is on the contrary not
+needed when the SPI controller already supports 16-bits transfers.
 
-  vmlinux.o: warning: objtool: __ct_user_enter+0x72: call to __kasan_check_write() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: __ct_user_exit+0x47: call to __kasan_check_write() leaves .noinstr.text section
+The decision about swapping the pixel data or not is taken in the MIPI
+DBI code by probing the controller capabilities: if the controller only
+suppors 8-bit transfers the data is swapped, otherwise it is not.
 
-Use even lower level atomic methods to avoid the instrumentation.
+This swapping/non-swapping is relying on the assumption that when the
+controller does support 16-bit transactions then the data is sent
+unswapped in 16-bits-per-word over SPI.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230112195542.458034262@infradead.org
+The problem with the ILI9486 driver is that it is forcing 8-bit
+transactions also for controllers supporting 16-bits, violating the
+assumption and corrupting the pixel data.
+
+Align the driver to what is done in the MIPI DBI code by adjusting the
+transfer size to the maximum allowed by the SPI controller.
+
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Carlo Caione <ccaione@baylibre.com>
+Reviewed-by: Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221116-s905x_spi_ili9486-v4-2-f86b4463b9e4@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/context_tracking.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/tiny/ili9486.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/context_tracking.c b/kernel/context_tracking.c
-index 77978e3723771..a09f1c19336ae 100644
---- a/kernel/context_tracking.c
-+++ b/kernel/context_tracking.c
-@@ -510,7 +510,7 @@ void noinstr __ct_user_enter(enum ctx_state state)
- 			 * In this we case we don't care about any concurrency/ordering.
- 			 */
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE))
--				atomic_set(&ct->state, state);
-+				arch_atomic_set(&ct->state, state);
- 		} else {
- 			/*
- 			 * Even if context tracking is disabled on this CPU, because it's outside
-@@ -527,7 +527,7 @@ void noinstr __ct_user_enter(enum ctx_state state)
- 			 */
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE)) {
- 				/* Tracking for vtime only, no concurrent RCU EQS accounting */
--				atomic_set(&ct->state, state);
-+				arch_atomic_set(&ct->state, state);
- 			} else {
- 				/*
- 				 * Tracking for vtime and RCU EQS. Make sure we don't race
-@@ -535,7 +535,7 @@ void noinstr __ct_user_enter(enum ctx_state state)
- 				 * RCU only requires RCU_DYNTICKS_IDX increments to be fully
- 				 * ordered.
- 				 */
--				atomic_add(state, &ct->state);
-+				arch_atomic_add(state, &ct->state);
- 			}
- 		}
+diff --git a/drivers/gpu/drm/tiny/ili9486.c b/drivers/gpu/drm/tiny/ili9486.c
+index 1bb847466b107..a63b15817f112 100644
+--- a/drivers/gpu/drm/tiny/ili9486.c
++++ b/drivers/gpu/drm/tiny/ili9486.c
+@@ -43,6 +43,7 @@ static int waveshare_command(struct mipi_dbi *mipi, u8 *cmd, u8 *par,
+ 			     size_t num)
+ {
+ 	struct spi_device *spi = mipi->spi;
++	unsigned int bpw = 8;
+ 	void *data = par;
+ 	u32 speed_hz;
+ 	int i, ret;
+@@ -56,8 +57,6 @@ static int waveshare_command(struct mipi_dbi *mipi, u8 *cmd, u8 *par,
+ 	 * The displays are Raspberry Pi HATs and connected to the 8-bit only
+ 	 * SPI controller, so 16-bit command and parameters need byte swapping
+ 	 * before being transferred as 8-bit on the big endian SPI bus.
+-	 * Pixel data bytes have already been swapped before this function is
+-	 * called.
+ 	 */
+ 	buf[0] = cpu_to_be16(*cmd);
+ 	gpiod_set_value_cansleep(mipi->dc, 0);
+@@ -71,12 +70,18 @@ static int waveshare_command(struct mipi_dbi *mipi, u8 *cmd, u8 *par,
+ 		for (i = 0; i < num; i++)
+ 			buf[i] = cpu_to_be16(par[i]);
+ 		num *= 2;
+-		speed_hz = mipi_dbi_spi_cmd_max_speed(spi, num);
+ 		data = buf;
  	}
-@@ -630,12 +630,12 @@ void noinstr __ct_user_exit(enum ctx_state state)
- 			 * In this we case we don't care about any concurrency/ordering.
- 			 */
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE))
--				atomic_set(&ct->state, CONTEXT_KERNEL);
-+				arch_atomic_set(&ct->state, CONTEXT_KERNEL);
  
- 		} else {
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE)) {
- 				/* Tracking for vtime only, no concurrent RCU EQS accounting */
--				atomic_set(&ct->state, CONTEXT_KERNEL);
-+				arch_atomic_set(&ct->state, CONTEXT_KERNEL);
- 			} else {
- 				/*
- 				 * Tracking for vtime and RCU EQS. Make sure we don't race
-@@ -643,7 +643,7 @@ void noinstr __ct_user_exit(enum ctx_state state)
- 				 * RCU only requires RCU_DYNTICKS_IDX increments to be fully
- 				 * ordered.
- 				 */
--				atomic_sub(state, &ct->state);
-+				arch_atomic_sub(state, &ct->state);
- 			}
- 		}
- 	}
++	/*
++	 * Check whether pixel data bytes needs to be swapped or not
++	 */
++	if (*cmd == MIPI_DCS_WRITE_MEMORY_START && !mipi->swap_bytes)
++		bpw = 16;
++
+ 	gpiod_set_value_cansleep(mipi->dc, 1);
+-	ret = mipi_dbi_spi_transfer(spi, speed_hz, 8, data, num);
++	speed_hz = mipi_dbi_spi_cmd_max_speed(spi, num);
++	ret = mipi_dbi_spi_transfer(spi, speed_hz, bpw, data, num);
+  free:
+ 	kfree(buf);
+ 
 -- 
 2.39.2
 
