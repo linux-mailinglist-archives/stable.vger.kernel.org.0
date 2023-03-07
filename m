@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8BF86AEC49
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D006AF144
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbjCGRxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46176 "EHLO
+        id S233156AbjCGSl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:41:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231509AbjCGRxe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CB739CE6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:11 -0800 (PST)
+        with ESMTP id S232852AbjCGSlh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76CF2B3713
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6A8F61501
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:48:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC288C433EF;
-        Tue,  7 Mar 2023 17:48:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9404CB819EF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:31:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0A7C433A0;
+        Tue,  7 Mar 2023 18:31:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211290;
-        bh=sCja9kFKxvazSSIFNujiaQJCWOT4abt5tKVj4rRGjiw=;
+        s=korg; t=1678213890;
+        bh=UZXcM+DU0EZiMxR8XqOLJAoXUQTAuTRtLTTM2Z4WNXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8MSlq8aS23LnlEj/0tnIOdWaxADg8J9d0iF0yZMnj2djLmtAQPNm5eBmBNF89m8b
-         6Q08luXBC57GoXTu4WyvBvynGaNfV/0Zg+SHq5zYvXKHR4b2TUHw5p6JgVfeaTqiJG
-         HvrjzMTxtq90jEKkT1MhMrT9FjnZMwdQYpkyDLyw=
+        b=SSavXTDHW6ri9HwbOvkmtaMLh+qW3DoTARV4vop7Bpl4VYW63vhLQa5fuPuSgwnPv
+         8V76Jtl9jZDR0Su3JKpgDADrCofqCN4ynVXzx0KJ7alD4obLMH2F2RrUvr42WJ3VD4
+         3wg6I+uhC+PCMJWUcdzg0Q7vJQ2d0yh+JsamX5+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 6.2 0814/1001] udf: Truncate added extents on failed expansion
+        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Wei Zhang <wzhang@meta.com>
+Subject: [PATCH 6.1 652/885] block: be a bit more careful in checking for NULL bdev while polling
 Date:   Tue,  7 Mar 2023 17:59:46 +0100
-Message-Id: <20230307170057.069851469@linuxfoundation.org>
+Message-Id: <20230307170030.477340923@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,65 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 70bfb3a8d661d4fdc742afc061b88a7f3fc9f500 upstream.
+commit 310726c33ad76cebdee312dbfafc12c1b44bf977 upstream.
 
-When a file expansion failed because we didn't have enough space for
-indirect extents make sure we truncate extents created so far so that we
-don't leave extents beyond EOF.
+Wei reports a crash with an application using polled IO:
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+PGD 14265e067 P4D 14265e067 PUD 47ec50067 PMD 0
+Oops: 0000 [#1] SMP
+CPU: 0 PID: 21915 Comm: iocore_0 Kdump: loaded Tainted: G S                5.12.0-0_fbk12_clang_7346_g1bb6f2e7058f #1
+Hardware name: Wiwynn Delta Lake MP T8/Delta Lake-Class2, BIOS Y3DLM08 04/10/2022
+RIP: 0010:bio_poll+0x25/0x200
+Code: 0f 1f 44 00 00 0f 1f 44 00 00 55 41 57 41 56 41 55 41 54 53 48 83 ec 28 65 48 8b 04 25 28 00 00 00 48 89 44 24 20 48 8b 47 08 <48> 8b 80 70 02 00 00 4c 8b 70 50 8b 6f 34 31 db 83 fd ff 75 25 65
+RSP: 0018:ffffc90005fafdf8 EFLAGS: 00010292
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 74b43cd65dd66600
+RDX: 0000000000000003 RSI: ffffc90005fafe78 RDI: ffff8884b614e140
+RBP: ffff88849964df78 R08: 0000000000000000 R09: 0000000000000008
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff88849964df00
+R13: ffffc90005fafe78 R14: ffff888137d3c378 R15: 0000000000000001
+FS:  00007fd195000640(0000) GS:ffff88903f400000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000270 CR3: 0000000466121001 CR4: 00000000007706f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ iocb_bio_iopoll+0x1d/0x30
+ io_do_iopoll+0xac/0x250
+ __se_sys_io_uring_enter+0x3c5/0x5a0
+ ? __x64_sys_write+0x89/0xd0
+ do_syscall_64+0x2d/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x94f225d
+Code: 24 cc 00 00 00 41 8b 84 24 d0 00 00 00 c1 e0 04 83 e0 10 41 09 c2 8b 33 8b 53 04 4c 8b 43 18 4c 63 4b 0c b8 aa 01 00 00 0f 05 <85> c0 0f 88 85 00 00 00 29 03 45 84 f6 0f 84 88 00 00 00 41 f6 c7
+RSP: 002b:00007fd194ffcd88 EFLAGS: 00000202 ORIG_RAX: 00000000000001aa
+RAX: ffffffffffffffda RBX: 00007fd194ffcdc0 RCX: 00000000094f225d
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000007
+RBP: 00007fd194ffcdb0 R08: 0000000000000000 R09: 0000000000000008
+R10: 0000000000000001 R11: 0000000000000202 R12: 00007fd269d68030
+R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000000
+
+which is due to bio->bi_bdev being NULL. This can happen if we have two
+tasks doing polled IO, and task B ends up completing IO from task A if
+they are sharing a poll queue. If task B completes the IO and puts the
+bio into our cache, then it can allocate that bio again before task A
+is done polling for it. As that would necessitate a preempt between the
+two tasks, it's enough to just be a bit more careful in checking for
+whether or not bio->bi_bdev is NULL.
+
+Reported-and-tested-by: Wei Zhang <wzhang@meta.com>
+Cc: stable@vger.kernel.org
+Fixes: be4d234d7aeb ("bio: add allocation cache abstraction")
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ block/blk-core.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -521,8 +521,10 @@ static int udf_do_extend_file(struct ino
- 	}
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -842,10 +842,16 @@ EXPORT_SYMBOL(submit_bio);
+  */
+ int bio_poll(struct bio *bio, struct io_comp_batch *iob, unsigned int flags)
+ {
+-	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
+ 	blk_qc_t cookie = READ_ONCE(bio->bi_cookie);
++	struct block_device *bdev;
++	struct request_queue *q;
+ 	int ret = 0;
  
- 	if (fake) {
--		udf_add_aext(inode, last_pos, &last_ext->extLocation,
--			     last_ext->extLength, 1);
-+		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
-+				   last_ext->extLength, 1);
-+		if (err < 0)
-+			goto out_err;
- 		count++;
- 	} else {
- 		struct kernel_lb_addr tmploc;
-@@ -556,7 +558,7 @@ static int udf_do_extend_file(struct ino
- 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
- 				   last_ext->extLength, 1);
- 		if (err)
--			return err;
-+			goto out_err;
- 		count++;
- 	}
- 	if (new_block_bytes) {
-@@ -565,7 +567,7 @@ static int udf_do_extend_file(struct ino
- 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
- 				   last_ext->extLength, 1);
- 		if (err)
--			return err;
-+			goto out_err;
- 		count++;
- 	}
++	bdev = READ_ONCE(bio->bi_bdev);
++	if (!bdev)
++		return 0;
++
++	q = bdev_get_queue(bdev);
+ 	if (cookie == BLK_QC_T_NONE ||
+ 	    !test_bit(QUEUE_FLAG_POLL, &q->queue_flags))
+ 		return 0;
+@@ -905,7 +911,7 @@ int iocb_bio_iopoll(struct kiocb *kiocb,
+ 	 */
+ 	rcu_read_lock();
+ 	bio = READ_ONCE(kiocb->private);
+-	if (bio && bio->bi_bdev)
++	if (bio)
+ 		ret = bio_poll(bio, iob, flags);
+ 	rcu_read_unlock();
  
-@@ -579,6 +581,11 @@ out:
- 		return -EIO;
- 
- 	return count;
-+out_err:
-+	/* Remove extents we've created so far */
-+	udf_clear_extent_cache(inode);
-+	udf_truncate_extents(inode);
-+	return err;
- }
- 
- /* Extend the final block of the file to final_block_len bytes */
 
 
