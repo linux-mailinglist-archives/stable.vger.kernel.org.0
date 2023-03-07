@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B606AF14D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:42:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FDA26AF12D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:40:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229850AbjCGSmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:42:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
+        id S233076AbjCGSkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:40:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229544AbjCGSlq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAC4699669
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:32:24 -0800 (PST)
+        with ESMTP id S233110AbjCGSkF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:40:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02DE528D11
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:31:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD3636153B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1402C433D2;
-        Tue,  7 Mar 2023 18:30:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CD28B819F0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095EBC433A1;
+        Tue,  7 Mar 2023 18:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213836;
-        bh=8JL3bT9i44hJKKcT8evIpzAZ9F3lTIfuymCR/s290UE=;
+        s=korg; t=1678213839;
+        bh=VWUA6089KicX3g4n2fMMBNcBw71J3oA/4zbv6JceSIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vMAkO9MBHggcbMeCOO9N65iDjmv1fm5YlJhlHbMNgDh4us/ske2XjQTeaPebNbBc
-         ogI55TzsynqYg9ARdu6mVXZWDJKIkyHeBbIQQGpa57CnLz4AXsjyx9ghSk1yXOx48A
-         HEZTHtMARUe1YEGCxpC/c+j0Y3bJDUCeBjGJ6N1A=
+        b=x810zNRHATyd7e51tvu4e2wEvG8aGpmRkjUSmW38KekBeCqKZ6lrCRH1t5dgufy00
+         Y1YslZzP9FjCeJkU2TrXe5i54zydSw5X7p9GKAmZJGoQEA3FI1/PGQxBLLljqov714
+         YDgSYBrQKnH5XRRH9mbuWkjFnC/bkvAxFsMm+Yjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Zimmermann <tzimmermann@suse.de>,
-        Javier Martinez Canillas <javierm@redhat.com>,
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 605/885] Revert "fbcon: dont lose the console font across generic->chip driver switch"
-Date:   Tue,  7 Mar 2023 17:58:59 +0100
-Message-Id: <20230307170028.639026702@linuxfoundation.org>
+Subject: [PATCH 6.1 606/885] drm/amd: Avoid ASSERT for some message failures
+Date:   Tue,  7 Mar 2023 17:59:00 +0100
+Message-Id: <20230307170028.679267071@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -54,110 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 12d5796d55f9fd9e4b621003127c99e176665064 ]
+[ Upstream commit 3e5019ee67760cd61b2a5fd605e1289c2f92d983 ]
 
-This reverts commit ae1287865f5361fa138d4d3b1b6277908b54eac9.
+On DCN314 when resuming from s0i3 an ASSERT is shown indicating that
+`VBIOSSMC_MSG_SetHardMinDcfclkByFreq` returned `VBIOSSMC_Result_Failed`.
 
-Always free the console font when deinitializing the framebuffer
-console. Subsequent framebuffer consoles will then use the default
-font. Rely on userspace to load any user-configured font for these
-consoles.
+This isn't a driver bug; it's a BIOS/configuration bug. To make this
+easier to triage, add an explicit warning when this issue happens.
 
-Commit ae1287865f53 ("fbcon: don't lose the console font across
-generic->chip driver switch") was introduced to work around losing
-the font during graphics-device handover. [1][2] It kept a dangling
-pointer with the font data between loading the two consoles, which is
-fairly adventurous hack. It also never covered cases when the other
-consoles, such as VGA text mode, where involved.
+This matches the behavior utilized for failures with
+`VBIOSSMC_MSG_TransferTableDram2Smu` configuration.
 
-The problem has meanwhile been solved in userspace. Systemd comes
-with a udev rule that re-installs the configured font when a console
-comes up. [3] So the kernel workaround can be removed.
-
-This also removes one of the two special cases triggered by setting
-FBINFO_MISC_FIRMWARE in an fbdev driver.
-
-Tested during device handover from efifb and simpledrm to radeon. Udev
-reloads the configured console font for the new driver's terminal.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=892340 # 1
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1074624 # 2
-Link: https://cgit.freedesktop.org/systemd/systemd/tree/src/vconsole/90-vconsole.rules.in?h=v222 # 3
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221219160516.23436-3-tzimmermann@suse.de
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 1b14c21af2b74..2bc8baa90c0f2 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -958,7 +958,7 @@ static const char *fbcon_startup(void)
- 	set_blitting_type(vc, info);
- 
- 	/* Setup default font */
--	if (!p->fontdata && !vc->vc_font.data) {
-+	if (!p->fontdata) {
- 		if (!fontname[0] || !(font = find_font(fontname)))
- 			font = get_default_font(info->var.xres,
- 						info->var.yres,
-@@ -968,8 +968,6 @@ static const char *fbcon_startup(void)
- 		vc->vc_font.height = font->height;
- 		vc->vc_font.data = (void *)(p->fontdata = font->data);
- 		vc->vc_font.charcount = font->charcount;
--	} else {
--		p->fontdata = vc->vc_font.data;
- 	}
- 
- 	cols = FBCON_SWAP(ops->rotate, info->var.xres, info->var.yres);
-@@ -1135,9 +1133,9 @@ static void fbcon_init(struct vc_data *vc, int init)
- 	ops->p = &fb_display[fg_console];
- }
- 
--static void fbcon_free_font(struct fbcon_display *p, bool freefont)
-+static void fbcon_free_font(struct fbcon_display *p)
- {
--	if (freefont && p->userfont && p->fontdata && (--REFCOUNT(p->fontdata) == 0))
-+	if (p->userfont && p->fontdata && (--REFCOUNT(p->fontdata) == 0))
- 		kfree(p->fontdata - FONT_EXTRA_WORDS * sizeof(int));
- 	p->fontdata = NULL;
- 	p->userfont = 0;
-@@ -1172,8 +1170,8 @@ static void fbcon_deinit(struct vc_data *vc)
- 	struct fb_info *info;
- 	struct fbcon_ops *ops;
- 	int idx;
--	bool free_font = true;
- 
-+	fbcon_free_font(p);
- 	idx = con2fb_map[vc->vc_num];
- 
- 	if (idx == -1)
-@@ -1184,8 +1182,6 @@ static void fbcon_deinit(struct vc_data *vc)
- 	if (!info)
- 		goto finished;
- 
--	if (info->flags & FBINFO_MISC_FIRMWARE)
--		free_font = false;
- 	ops = info->fbcon_par;
- 
- 	if (!ops)
-@@ -1197,9 +1193,8 @@ static void fbcon_deinit(struct vc_data *vc)
- 	ops->initialized = false;
- finished:
- 
--	fbcon_free_font(p, free_font);
--	if (free_font)
--		vc->vc_font.data = NULL;
-+	fbcon_free_font(p);
-+	vc->vc_font.data = NULL;
- 
- 	if (vc->vc_hi_font_mask && vc->vc_screenbuf)
- 		set_vc_hi_font(vc, false);
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
+index 2db595672a469..aa264c600408d 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn314/dcn314_smu.c
+@@ -146,6 +146,9 @@ static int dcn314_smu_send_msg_with_param(struct clk_mgr_internal *clk_mgr,
+ 		if (msg_id == VBIOSSMC_MSG_TransferTableDram2Smu &&
+ 		    param == TABLE_WATERMARKS)
+ 			DC_LOG_WARNING("Watermarks table not configured properly by SMU");
++		else if (msg_id == VBIOSSMC_MSG_SetHardMinDcfclkByFreq ||
++			 msg_id == VBIOSSMC_MSG_SetMinDeepSleepDcfclk)
++			DC_LOG_WARNING("DCFCLK_DPM is not enabled by BIOS");
+ 		else
+ 			ASSERT(0);
+ 		REG_WRITE(MP1_SMN_C2PMSG_91, VBIOSSMC_Result_OK);
 -- 
 2.39.2
 
