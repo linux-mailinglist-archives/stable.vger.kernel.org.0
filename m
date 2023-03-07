@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7852B6AEE4E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 758C46AE9C7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232387AbjCGSLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
+        id S231625AbjCGR1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232386AbjCGSKs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF1662057B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:38 -0800 (PST)
+        with ESMTP id S231435AbjCGR1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2461996605
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:22:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BAD361523
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8295FC433D2;
-        Tue,  7 Mar 2023 18:05:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1991B818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0640EC433EF;
+        Tue,  7 Mar 2023 17:22:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212338;
-        bh=03EQTWxR0qI+54e7iONSRt49fVN2k0TjCoLcc0zCwxQ=;
+        s=korg; t=1678209744;
+        bh=qhn9Mz5Xf0sM/28BzNMo9OYqjwBhnKFBO9plANfz3mY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJC6XG8LbK4z+xSUC2jbIeoJms90cO3aIdFGBo7IL0Gti59I6oPA/+Z8VWjKG2aot
-         v+qWurN4vP4jZ+ttBGb1PM1Z93bYBs2WeOL7iiQ4iVc/4OcO5EluJVXyQCV6cAdAmX
-         NNmbA0vUY6oQU+BtOpO7wrdlgxs7GmgSGsoBucLA=
+        b=AG8k5niuaAVQhNUXXvmcpD94UeC+D40NMK8iK1tAy+EHOmMODs/jfzATrAW1tjGF6
+         l9Cuw7NPB4BgpZiTOB3XHavizAc0oS/QsbZD6usIxYbSdtc/P2cCuT9psAssUSBgd6
+         l7ACDPLitjip79BFINfdV+RA8564mZuJC3+iM8bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Valentin Schneider <vschneid@redhat.com>,
-        Lai Jiangshan <jiangshan.ljs@antgroup.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 154/885] workqueue: Protects wq_unbound_cpumask with wq_pool_attach_mutex
-Date:   Tue,  7 Mar 2023 17:51:28 +0100
-Message-Id: <20230307170008.602794038@linuxfoundation.org>
+        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Larysa Zaremba <larysa.zaremba@intel.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0317/1001] net/smc: fix potential panic dues to unprotected smc_llc_srv_add_link()
+Date:   Tue,  7 Mar 2023 17:51:29 +0100
+Message-Id: <20230307170035.308375114@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,140 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <jiangshan.ljs@antgroup.com>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-[ Upstream commit 99c621ef243bda726fb8d982a274ded96570b410 ]
+[ Upstream commit e40b801b3603a8f90b46acbacdea3505c27f01c0 ]
 
-When unbind_workers() reads wq_unbound_cpumask to set the affinity of
-freshly-unbound kworkers, it only holds wq_pool_attach_mutex. This isn't
-sufficient as wq_unbound_cpumask is only protected by wq_pool_mutex.
+There is a certain chance to trigger the following panic:
 
-Make wq_unbound_cpumask protected with wq_pool_attach_mutex and also
-remove the need of temporary saved_cpumask.
+PID: 5900   TASK: ffff88c1c8af4100  CPU: 1   COMMAND: "kworker/1:48"
+ #0 [ffff9456c1cc79a0] machine_kexec at ffffffff870665b7
+ #1 [ffff9456c1cc79f0] __crash_kexec at ffffffff871b4c7a
+ #2 [ffff9456c1cc7ab0] crash_kexec at ffffffff871b5b60
+ #3 [ffff9456c1cc7ac0] oops_end at ffffffff87026ce7
+ #4 [ffff9456c1cc7ae0] page_fault_oops at ffffffff87075715
+ #5 [ffff9456c1cc7b58] exc_page_fault at ffffffff87ad0654
+ #6 [ffff9456c1cc7b80] asm_exc_page_fault at ffffffff87c00b62
+    [exception RIP: ib_alloc_mr+19]
+    RIP: ffffffffc0c9cce3  RSP: ffff9456c1cc7c38  RFLAGS: 00010202
+    RAX: 0000000000000000  RBX: 0000000000000002  RCX: 0000000000000004
+    RDX: 0000000000000010  RSI: 0000000000000000  RDI: 0000000000000000
+    RBP: ffff88c1ea281d00   R8: 000000020a34ffff   R9: ffff88c1350bbb20
+    R10: 0000000000000000  R11: 0000000000000001  R12: 0000000000000000
+    R13: 0000000000000010  R14: ffff88c1ab040a50  R15: ffff88c1ea281d00
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffff9456c1cc7c60] smc_ib_get_memory_region at ffffffffc0aff6df [smc]
+ #8 [ffff9456c1cc7c88] smcr_buf_map_link at ffffffffc0b0278c [smc]
+ #9 [ffff9456c1cc7ce0] __smc_buf_create at ffffffffc0b03586 [smc]
 
-Fixes: 10a5a651e3af ("workqueue: Restrict kworker in the offline CPU pool running on housekeeping CPUs")
-Reported-by: Valentin Schneider <vschneid@redhat.com>
-Signed-off-by: Lai Jiangshan <jiangshan.ljs@antgroup.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+The reason here is that when the server tries to create a second link,
+smc_llc_srv_add_link() has no protection and may add a new link to
+link group. This breaks the security environment protected by
+llc_conf_mutex.
+
+Fixes: 2d2209f20189 ("net/smc: first part of add link processing as SMC server")
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
+Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 41 ++++++++++++++++-------------------------
- 1 file changed, 16 insertions(+), 25 deletions(-)
+ net/smc/af_smc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 7cd5f5e7e0a1b..8e21c352c1558 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -326,7 +326,7 @@ static struct rcuwait manager_wait = __RCUWAIT_INITIALIZER(manager_wait);
- static LIST_HEAD(workqueues);		/* PR: list of all workqueues */
- static bool workqueue_freezing;		/* PL: have wqs started freezing? */
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e12d4fa5aece6..d9413d43b1045 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1826,8 +1826,10 @@ static int smcr_serv_conf_first_link(struct smc_sock *smc)
+ 	smc_llc_link_active(link);
+ 	smcr_lgr_set_type(link->lgr, SMC_LGR_SINGLE);
  
--/* PL: allowable cpus for unbound wqs and work items */
-+/* PL&A: allowable cpus for unbound wqs and work items */
- static cpumask_var_t wq_unbound_cpumask;
- 
- /* CPU where unbound work was last round robin scheduled from this CPU */
-@@ -3952,7 +3952,8 @@ static void apply_wqattrs_cleanup(struct apply_wqattrs_ctx *ctx)
- /* allocate the attrs and pwqs for later installation */
- static struct apply_wqattrs_ctx *
- apply_wqattrs_prepare(struct workqueue_struct *wq,
--		      const struct workqueue_attrs *attrs)
-+		      const struct workqueue_attrs *attrs,
-+		      const cpumask_var_t unbound_cpumask)
- {
- 	struct apply_wqattrs_ctx *ctx;
- 	struct workqueue_attrs *new_attrs, *tmp_attrs;
-@@ -3968,14 +3969,15 @@ apply_wqattrs_prepare(struct workqueue_struct *wq,
- 		goto out_free;
- 
- 	/*
--	 * Calculate the attrs of the default pwq.
-+	 * Calculate the attrs of the default pwq with unbound_cpumask
-+	 * which is wq_unbound_cpumask or to set to wq_unbound_cpumask.
- 	 * If the user configured cpumask doesn't overlap with the
- 	 * wq_unbound_cpumask, we fallback to the wq_unbound_cpumask.
- 	 */
- 	copy_workqueue_attrs(new_attrs, attrs);
--	cpumask_and(new_attrs->cpumask, new_attrs->cpumask, wq_unbound_cpumask);
-+	cpumask_and(new_attrs->cpumask, new_attrs->cpumask, unbound_cpumask);
- 	if (unlikely(cpumask_empty(new_attrs->cpumask)))
--		cpumask_copy(new_attrs->cpumask, wq_unbound_cpumask);
-+		cpumask_copy(new_attrs->cpumask, unbound_cpumask);
- 
- 	/*
- 	 * We may create multiple pwqs with differing cpumasks.  Make a
-@@ -4072,7 +4074,7 @@ static int apply_workqueue_attrs_locked(struct workqueue_struct *wq,
- 		wq->flags &= ~__WQ_ORDERED;
- 	}
- 
--	ctx = apply_wqattrs_prepare(wq, attrs);
-+	ctx = apply_wqattrs_prepare(wq, attrs, wq_unbound_cpumask);
- 	if (!ctx)
- 		return -ENOMEM;
- 
-@@ -5334,7 +5336,7 @@ void thaw_workqueues(void)
- }
- #endif /* CONFIG_FREEZER */
- 
--static int workqueue_apply_unbound_cpumask(void)
-+static int workqueue_apply_unbound_cpumask(const cpumask_var_t unbound_cpumask)
- {
- 	LIST_HEAD(ctxs);
- 	int ret = 0;
-@@ -5350,7 +5352,7 @@ static int workqueue_apply_unbound_cpumask(void)
- 		if (wq->flags & __WQ_ORDERED)
- 			continue;
- 
--		ctx = apply_wqattrs_prepare(wq, wq->unbound_attrs);
-+		ctx = apply_wqattrs_prepare(wq, wq->unbound_attrs, unbound_cpumask);
- 		if (!ctx) {
- 			ret = -ENOMEM;
- 			break;
-@@ -5365,6 +5367,11 @@ static int workqueue_apply_unbound_cpumask(void)
- 		apply_wqattrs_cleanup(ctx);
- 	}
- 
-+	if (!ret) {
-+		mutex_lock(&wq_pool_attach_mutex);
-+		cpumask_copy(wq_unbound_cpumask, unbound_cpumask);
-+		mutex_unlock(&wq_pool_attach_mutex);
-+	}
- 	return ret;
++	mutex_lock(&link->lgr->llc_conf_mutex);
+ 	/* initial contact - try to establish second link */
+ 	smc_llc_srv_add_link(link, NULL);
++	mutex_unlock(&link->lgr->llc_conf_mutex);
+ 	return 0;
  }
  
-@@ -5383,7 +5390,6 @@ static int workqueue_apply_unbound_cpumask(void)
- int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- {
- 	int ret = -EINVAL;
--	cpumask_var_t saved_cpumask;
- 
- 	/*
- 	 * Not excluding isolated cpus on purpose.
-@@ -5397,23 +5403,8 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- 			goto out_unlock;
- 		}
- 
--		if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL)) {
--			ret = -ENOMEM;
--			goto out_unlock;
--		}
--
--		/* save the old wq_unbound_cpumask. */
--		cpumask_copy(saved_cpumask, wq_unbound_cpumask);
--
--		/* update wq_unbound_cpumask at first and apply it to wqs. */
--		cpumask_copy(wq_unbound_cpumask, cpumask);
--		ret = workqueue_apply_unbound_cpumask();
--
--		/* restore the wq_unbound_cpumask when failed. */
--		if (ret < 0)
--			cpumask_copy(wq_unbound_cpumask, saved_cpumask);
-+		ret = workqueue_apply_unbound_cpumask(cpumask);
- 
--		free_cpumask_var(saved_cpumask);
- out_unlock:
- 		apply_wqattrs_unlock();
- 	}
 -- 
 2.39.2
 
