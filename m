@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5DD76AEC72
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01436AF193
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:45:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229716AbjCGRzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:55:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46134 "EHLO
+        id S233089AbjCGSp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:45:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229922AbjCGRyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:54:37 -0500
+        with ESMTP id S233176AbjCGSpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B7756505
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:49:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D55B9E07D;
+        Tue,  7 Mar 2023 10:35:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADF156150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B8AC433EF;
-        Tue,  7 Mar 2023 17:49:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BF4261552;
+        Tue,  7 Mar 2023 18:34:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B7DCC433EF;
+        Tue,  7 Mar 2023 18:34:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211358;
-        bh=FmbJgTqrnsbqZkPopFSSY+q5DKC9h0kbwwT/rog53Tw=;
+        s=korg; t=1678214052;
+        bh=9aSMdrE6eO87rmSUfXuG5Ak7lUktr+u5yI/oZLiPlTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pl1yRyTAN+gfmeEkkmsnacuWCyFZBFw/v8pilQZdaGAoVdUCR/4rUeqdvlTebd5Bg
-         maA9O56YMqAjifUoBnVEvoocbBJuPukKT4ax+FpDT5xKhQHOqIOofL+Dx7XSnICvA4
-         OEFmmFcnORK2M0RK8nH/mlRFBTDR2PMBU56lYdjQ=
+        b=fvVryd5nhFo4QQ3cOk0gMkFDprZ7dVxxAUztT6BB+5S+pVye8xjUsgi9qY2oQf0+J
+         KP1elV1Llp79ZhJ99LKNRc4DfTtD2oBdtSqv1sYVD6pjb4xcRNh5lY6bsj1ne/ZuNY
+         /oa/1gBx1WDsjVTvlaJsccY57NTIQ3B1estFgPII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 6.2 0837/1001] x86/crash: Disable virt in core NMI crash handler to avoid double shootdown
+        patches@lists.linux.dev, Stefan Metzmacher <metze@samba.org>,
+        Steve French <smfrench@gmail.com>, Tom Talpey <tom@talpey.com>,
+        Long Li <longli@microsoft.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        David Howells <dhowells@redhat.com>,
+        linux-cifs@vger.kernel.org, Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 675/885] cifs: dont try to use rdma offload on encrypted connections
 Date:   Tue,  7 Mar 2023 18:00:09 +0100
-Message-Id: <20230307170058.125145285@linuxfoundation.org>
+Message-Id: <20230307170031.469276199@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,243 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Stefan Metzmacher <metze@samba.org>
 
-commit 26044aff37a5455b19a91785086914fd33053ef4 upstream.
+commit 3891f6c7655a39065e44980f51ba46bb32be3133 upstream.
 
-Disable virtualization in crash_nmi_callback() and rework the
-emergency_vmx_disable_all() path to do an NMI shootdown if and only if a
-shootdown has not already occurred.   NMI crash shootdown fundamentally
-can't support multiple invocations as responding CPUs are deliberately
-put into halt state without unblocking NMIs.  But, the emergency reboot
-path doesn't have any work of its own, it simply cares about disabling
-virtualization, i.e. so long as a shootdown occurred, emergency reboot
-doesn't care who initiated the shootdown, or when.
+The aim of using encryption on a connection is to keep
+the data confidential, so we must not use plaintext rdma offload
+for that data!
 
-If "crash_kexec_post_notifiers" is specified on the kernel command line,
-panic() will invoke crash_smp_send_stop() and result in a second call to
-nmi_shootdown_cpus() during native_machine_emergency_restart().
+It seems that current windows servers and ksmbd would allow
+this, but that's no reason to expose the users data in plaintext!
+And servers hopefully reject this in future.
 
-Invoke the callback _before_ disabling virtualization, as the current
-VMCS needs to be cleared before doing VMXOFF.  Note, this results in a
-subtle change in ordering between disabling virtualization and stopping
-Intel PT on the responding CPUs.  While VMX and Intel PT do interact,
-VMXOFF and writes to MSR_IA32_RTIT_CTL do not induce faults between one
-another, which is all that matters when panicking.
+Note modern windows servers support signed or encrypted offload,
+see MS-SMB2 2.2.3.1.6 SMB2_RDMA_TRANSFORM_CAPABILITIES, but we don't
+support that yet.
 
-Harden nmi_shootdown_cpus() against multiple invocations to try and
-capture any such kernel bugs via a WARN instead of hanging the system
-during a crash/dump, e.g. prior to the recent hardening of
-register_nmi_handler(), re-registering the NMI handler would trigger a
-double list_add() and hang the system if CONFIG_BUG_ON_DATA_CORRUPTION=y.
-
- list_add double add: new=ffffffff82220800, prev=ffffffff8221cfe8, next=ffffffff82220800.
- WARNING: CPU: 2 PID: 1319 at lib/list_debug.c:29 __list_add_valid+0x67/0x70
- Call Trace:
-  __register_nmi_handler+0xcf/0x130
-  nmi_shootdown_cpus+0x39/0x90
-  native_machine_emergency_restart+0x1c9/0x1d0
-  panic+0x237/0x29b
-
-Extract the disabling logic to a common helper to deduplicate code, and
-to prepare for doing the shootdown in the emergency reboot path if SVM
-is supported.
-
-Note, prior to commit ed72736183c4 ("x86/reboot: Force all cpus to exit
-VMX root if VMX is supported"), nmi_shootdown_cpus() was subtly protected
-against a second invocation by a cpu_vmx_enabled() check as the kdump
-handler would disable VMX if it ran first.
-
-Fixes: ed72736183c4 ("x86/reboot: Force all cpus to exit VMX root if VMX is supported")
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+Cc: Steve French <smfrench@gmail.com>
+Cc: Tom Talpey <tom@talpey.com>
+Cc: Long Li <longli@microsoft.com>
+Cc: Namjae Jeon <linkinjeon@kernel.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: linux-cifs@vger.kernel.org
 Cc: stable@vger.kernel.org
-Reported-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Link: https://lore.kernel.org/all/20220427224924.592546-2-gpiccoli@igalia.com
-Tested-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221130233650.1404148-2-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/reboot.h |    2 +
- arch/x86/kernel/crash.c       |   17 ----------
- arch/x86/kernel/reboot.c      |   65 ++++++++++++++++++++++++++++++++++--------
- 3 files changed, 56 insertions(+), 28 deletions(-)
+ fs/cifs/smb2pdu.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/include/asm/reboot.h
-+++ b/arch/x86/include/asm/reboot.h
-@@ -25,6 +25,8 @@ void __noreturn machine_real_restart(uns
- #define MRR_BIOS	0
- #define MRR_APM		1
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -4081,6 +4081,10 @@ static inline bool smb3_use_rdma_offload
+ 	if (server->sign)
+ 		return false;
  
-+void cpu_emergency_disable_virtualization(void);
++	/* we don't support encrypted offload yet */
++	if (smb3_encryption_required(tcon))
++		return false;
 +
- typedef void (*nmi_shootdown_cb)(int, struct pt_regs*);
- void nmi_panic_self_stop(struct pt_regs *regs);
- void nmi_shootdown_cpus(nmi_shootdown_cb callback);
---- a/arch/x86/kernel/crash.c
-+++ b/arch/x86/kernel/crash.c
-@@ -37,7 +37,6 @@
- #include <linux/kdebug.h>
- #include <asm/cpu.h>
- #include <asm/reboot.h>
--#include <asm/virtext.h>
- #include <asm/intel_pt.h>
- #include <asm/crash.h>
- #include <asm/cmdline.h>
-@@ -81,15 +80,6 @@ static void kdump_nmi_callback(int cpu,
- 	 */
- 	cpu_crash_vmclear_loaded_vmcss();
- 
--	/* Disable VMX or SVM if needed.
--	 *
--	 * We need to disable virtualization on all CPUs.
--	 * Having VMX or SVM enabled on any CPU may break rebooting
--	 * after the kdump kernel has finished its task.
--	 */
--	cpu_emergency_vmxoff();
--	cpu_emergency_svm_disable();
--
- 	/*
- 	 * Disable Intel PT to stop its logging
- 	 */
-@@ -148,12 +138,7 @@ void native_machine_crash_shutdown(struc
- 	 */
- 	cpu_crash_vmclear_loaded_vmcss();
- 
--	/* Booting kdump kernel with VMX or SVM enabled won't work,
--	 * because (among other limitations) we can't disable paging
--	 * with the virt flags.
--	 */
--	cpu_emergency_vmxoff();
--	cpu_emergency_svm_disable();
-+	cpu_emergency_disable_virtualization();
- 
- 	/*
- 	 * Disable Intel PT to stop its logging
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -528,10 +528,7 @@ static inline void kb_wait(void)
- 	}
- }
- 
--static void vmxoff_nmi(int cpu, struct pt_regs *regs)
--{
--	cpu_emergency_vmxoff();
--}
-+static inline void nmi_shootdown_cpus_on_restart(void);
- 
- /* Use NMIs as IPIs to tell all CPUs to disable virtualization */
- static void emergency_vmx_disable_all(void)
-@@ -554,7 +551,7 @@ static void emergency_vmx_disable_all(vo
- 		__cpu_emergency_vmxoff();
- 
- 		/* Halt and exit VMX root operation on the other CPUs. */
--		nmi_shootdown_cpus(vmxoff_nmi);
-+		nmi_shootdown_cpus_on_restart();
- 	}
- }
- 
-@@ -795,6 +792,17 @@ void machine_crash_shutdown(struct pt_re
- /* This is the CPU performing the emergency shutdown work. */
- int crashing_cpu = -1;
- 
-+/*
-+ * Disable virtualization, i.e. VMX or SVM, to ensure INIT is recognized during
-+ * reboot.  VMX blocks INIT if the CPU is post-VMXON, and SVM blocks INIT if
-+ * GIF=0, i.e. if the crash occurred between CLGI and STGI.
-+ */
-+void cpu_emergency_disable_virtualization(void)
-+{
-+	cpu_emergency_vmxoff();
-+	cpu_emergency_svm_disable();
-+}
-+
- #if defined(CONFIG_SMP)
- 
- static nmi_shootdown_cb shootdown_callback;
-@@ -817,7 +825,14 @@ static int crash_nmi_callback(unsigned i
- 		return NMI_HANDLED;
- 	local_irq_disable();
- 
--	shootdown_callback(cpu, regs);
-+	if (shootdown_callback)
-+		shootdown_callback(cpu, regs);
-+
-+	/*
-+	 * Prepare the CPU for reboot _after_ invoking the callback so that the
-+	 * callback can safely use virtualization instructions, e.g. VMCLEAR.
-+	 */
-+	cpu_emergency_disable_virtualization();
- 
- 	atomic_dec(&waiting_for_crash_ipi);
- 	/* Assume hlt works */
-@@ -828,18 +843,32 @@ static int crash_nmi_callback(unsigned i
- 	return NMI_HANDLED;
- }
- 
--/*
-- * Halt all other CPUs, calling the specified function on each of them
-+/**
-+ * nmi_shootdown_cpus - Stop other CPUs via NMI
-+ * @callback:	Optional callback to be invoked from the NMI handler
-+ *
-+ * The NMI handler on the remote CPUs invokes @callback, if not
-+ * NULL, first and then disables virtualization to ensure that
-+ * INIT is recognized during reboot.
-  *
-- * This function can be used to halt all other CPUs on crash
-- * or emergency reboot time. The function passed as parameter
-- * will be called inside a NMI handler on all CPUs.
-+ * nmi_shootdown_cpus() can only be invoked once. After the first
-+ * invocation all other CPUs are stuck in crash_nmi_callback() and
-+ * cannot respond to a second NMI.
-  */
- void nmi_shootdown_cpus(nmi_shootdown_cb callback)
- {
- 	unsigned long msecs;
-+
- 	local_irq_disable();
- 
-+	/*
-+	 * Avoid certain doom if a shootdown already occurred; re-registering
-+	 * the NMI handler will cause list corruption, modifying the callback
-+	 * will do who knows what, etc...
-+	 */
-+	if (WARN_ON_ONCE(crash_ipi_issued))
-+		return;
-+
- 	/* Make a note of crashing cpu. Will be used in NMI callback. */
- 	crashing_cpu = safe_smp_processor_id();
- 
-@@ -867,7 +896,17 @@ void nmi_shootdown_cpus(nmi_shootdown_cb
- 		msecs--;
- 	}
- 
--	/* Leave the nmi callback set */
-+	/*
-+	 * Leave the nmi callback set, shootdown is a one-time thing.  Clearing
-+	 * the callback could result in a NULL pointer dereference if a CPU
-+	 * (finally) responds after the timeout expires.
-+	 */
-+}
-+
-+static inline void nmi_shootdown_cpus_on_restart(void)
-+{
-+	if (!crash_ipi_issued)
-+		nmi_shootdown_cpus(NULL);
- }
- 
- /*
-@@ -897,6 +936,8 @@ void nmi_shootdown_cpus(nmi_shootdown_cb
- 	/* No other CPUs to shoot down */
- }
- 
-+static inline void nmi_shootdown_cpus_on_restart(void) { }
-+
- void run_crash_ipi_callback(struct pt_regs *regs)
- {
- }
+ 	/* offload also has its overhead, so only do it if desired */
+ 	if (io_parms->length < server->smbd_conn->rdma_readwrite_threshold)
+ 		return false;
 
 
