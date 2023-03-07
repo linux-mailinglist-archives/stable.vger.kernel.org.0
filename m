@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC6D36AF580
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:26:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A136AF58B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:27:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234094AbjCGT0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:26:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60494 "EHLO
+        id S234162AbjCGT1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:27:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234066AbjCGTZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:25:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BED8E30ED
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:11:53 -0800 (PST)
+        with ESMTP id S234178AbjCGT03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:26:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76FCEA8800
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:12:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 245E9B817C2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:11:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5767BC4339B;
-        Tue,  7 Mar 2023 19:11:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB48961535
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:12:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2CF8C4339B;
+        Tue,  7 Mar 2023 19:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216309;
-        bh=DshPpn0L1dGRWBX6EZiMPn9Szb6FJuV/ILsVqSgJDmU=;
+        s=korg; t=1678216344;
+        bh=EPMERrixdBrnKSWagJKOcvS+p4sUBJftRFypVPgG1KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydPkQUUvUqRWNQg784WiNNAsJyJvAjynm+HH2JyZeIJ82mhJ1PsMGruNX2KIPWsSa
-         BsiTA8hJRjbYda5h4vkewSEwVd8e69UBR1Gd6PdXvMHJVM3fNt4h/+lE6yBPQ5eacz
-         6gCYojSL5SQDpD+q4tieUBrHTkhovc8DLB0f1i/E=
+        b=PnDHqARzh97L0UvuVw5zTdjXmkNm0VJtczDXkHZlVAOrhEFNQUd6//OcoYrfeMKnB
+         IYYZWXRmdjBUQyed0uxdl2zF3/X2wFKh5aVdSl58ChrUsDertCmldLq/3+MdNlJq9f
+         a1WdUi5gAv9qXBWdJQQu8XyDsN5YP5+0O7vjLAtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.15 535/567] ktest.pl: Add RUN_TIMEOUT option with default unlimited
-Date:   Tue,  7 Mar 2023 18:04:31 +0100
-Message-Id: <20230307165929.139490582@linuxfoundation.org>
+        patches@lists.linux.dev, mhiramat@kernel.org,
+        Zheng Yejian <zhengyejian1@huawei.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 536/567] ring-buffer: Handle race between rb_move_tail and rb_check_pages
+Date:   Tue,  7 Mar 2023 18:04:32 +0100
+Message-Id: <20230307165929.171207305@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -52,108 +55,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Mukesh Ojha <quic_mojha@quicinc.com>
 
-commit 4e7d2a8f0b52abf23b1dc13b3d88bc0923383cd5 upstream.
+commit 8843e06f67b14f71c044bf6267b2387784c7e198 upstream.
 
-There is a disconnect between the run_command function and the
-wait_for_input. The wait_for_input has a default timeout of 2 minutes. But
-if that happens, the run_command loop will exit out to the waitpid() of
-the executing command. This fails in that it no longer monitors the
-command, and also, the ssh to the test box can hang when its finished, as
-it's waiting for the pipe it's writing to to flush, but the loop that
-reads that pipe has already exited, leaving the command stuck, and the
-test hangs.
+It seems a data race between ring_buffer writing and integrity check.
+That is, RB_FLAG of head_page is been updating, while at same time
+RB_FLAG was cleared when doing integrity check rb_check_pages():
 
-Instead, make the default "wait_for_input" of the run_command infinite,
-and allow the user to override it if they want with a default timeout
-option "RUN_TIMEOUT".
+  rb_check_pages()            rb_handle_head_page():
+  --------                    --------
+  rb_head_page_deactivate()
+                              rb_head_page_set_normal()
+  rb_head_page_activate()
 
-But this fixes the hang that happens when the pipe is full and the ssh
-session never exits.
+We do intergrity test of the list to check if the list is corrupted and
+it is still worth doing it. So, let's refactor rb_check_pages() such that
+we no longer clear and set flag during the list sanity checking.
 
+[1] and [2] are the test to reproduce and the crash report respectively.
+
+1:
+``` read_trace.sh
+  while true;
+  do
+    # the "trace" file is closed after read
+    head -1 /sys/kernel/tracing/trace > /dev/null
+  done
+```
+``` repro.sh
+  sysctl -w kernel.panic_on_warn=1
+  # function tracer will writing enough data into ring_buffer
+  echo function > /sys/kernel/tracing/current_tracer
+  ./read_trace.sh &
+  ./read_trace.sh &
+  ./read_trace.sh &
+  ./read_trace.sh &
+  ./read_trace.sh &
+  ./read_trace.sh &
+  ./read_trace.sh &
+  ./read_trace.sh &
+```
+
+2:
+------------[ cut here ]------------
+WARNING: CPU: 9 PID: 62 at kernel/trace/ring_buffer.c:2653
+rb_move_tail+0x450/0x470
+Modules linked in:
+CPU: 9 PID: 62 Comm: ksoftirqd/9 Tainted: G        W          6.2.0-rc6+
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+RIP: 0010:rb_move_tail+0x450/0x470
+Code: ff ff 4c 89 c8 f0 4d 0f b1 02 48 89 c2 48 83 e2 fc 49 39 d0 75 24
+83 e0 03 83 f8 02 0f 84 e1 fb ff ff 48 8b 57 10 f0 ff 42 08 <0f> 0b 83
+f8 02 0f 84 ce fb ff ff e9 db
+RSP: 0018:ffffb5564089bd00 EFLAGS: 00000203
+RAX: 0000000000000000 RBX: ffff9db385a2bf81 RCX: ffffb5564089bd18
+RDX: ffff9db281110100 RSI: 0000000000000fe4 RDI: ffff9db380145400
+RBP: ffff9db385a2bf80 R08: ffff9db385a2bfc0 R09: ffff9db385a2bfc2
+R10: ffff9db385a6c000 R11: ffff9db385a2bf80 R12: 0000000000000000
+R13: 00000000000003e8 R14: ffff9db281110100 R15: ffffffffbb006108
+FS:  0000000000000000(0000) GS:ffff9db3bdcc0000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00005602323024c8 CR3: 0000000022e0c000 CR4: 00000000000006e0
+Call Trace:
+ <TASK>
+ ring_buffer_lock_reserve+0x136/0x360
+ ? __do_softirq+0x287/0x2df
+ ? __pfx_rcu_softirq_qs+0x10/0x10
+ trace_function+0x21/0x110
+ ? __pfx_rcu_softirq_qs+0x10/0x10
+ ? __do_softirq+0x287/0x2df
+ function_trace_call+0xf6/0x120
+ 0xffffffffc038f097
+ ? rcu_softirq_qs+0x5/0x140
+ rcu_softirq_qs+0x5/0x140
+ __do_softirq+0x287/0x2df
+ run_ksoftirqd+0x2a/0x30
+ smpboot_thread_fn+0x188/0x220
+ ? __pfx_smpboot_thread_fn+0x10/0x10
+ kthread+0xe7/0x110
+ ? __pfx_kthread+0x10/0x10
+ ret_from_fork+0x2c/0x50
+ </TASK>
+---[ end trace 0000000000000000 ]---
+
+[ crash report and test reproducer credit goes to Zheng Yejian]
+
+Link: https://lore.kernel.org/linux-trace-kernel/1676376403-16462-1-git-send-email-quic_mojha@quicinc.com
+
+Cc: <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 6e98d1b4415fe ("ktest: Add timeout to ssh command")
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Fixes: 1039221cc278 ("ring-buffer: Do not disable recording when there is an iterator")
+Reported-by: Zheng Yejian <zhengyejian1@huawei.com>
+Signed-off-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/ktest/ktest.pl    |   20 ++++++++++++++++----
- tools/testing/ktest/sample.conf |    5 +++++
- 2 files changed, 21 insertions(+), 4 deletions(-)
+ kernel/trace/ring_buffer.c |   42 ++++++++++--------------------------------
+ 1 file changed, 10 insertions(+), 32 deletions(-)
 
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -178,6 +178,7 @@ my $store_failures;
- my $store_successes;
- my $test_name;
- my $timeout;
-+my $run_timeout;
- my $connect_timeout;
- my $config_bisect_exec;
- my $booted_timeout;
-@@ -340,6 +341,7 @@ my %option_map = (
-     "STORE_SUCCESSES"		=> \$store_successes,
-     "TEST_NAME"			=> \$test_name,
-     "TIMEOUT"			=> \$timeout,
-+    "RUN_TIMEOUT"		=> \$run_timeout,
-     "CONNECT_TIMEOUT"		=> \$connect_timeout,
-     "CONFIG_BISECT_EXEC"	=> \$config_bisect_exec,
-     "BOOTED_TIMEOUT"		=> \$booted_timeout,
-@@ -1851,6 +1853,14 @@ sub run_command {
-     $command =~ s/\$SSH_USER/$ssh_user/g;
-     $command =~ s/\$MACHINE/$machine/g;
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -1545,19 +1545,6 @@ static int rb_check_bpage(struct ring_bu
+ }
  
-+    if (!defined($timeout)) {
-+	$timeout = $run_timeout;
-+    }
+ /**
+- * rb_check_list - make sure a pointer to a list has the last bits zero
+- */
+-static int rb_check_list(struct ring_buffer_per_cpu *cpu_buffer,
+-			 struct list_head *list)
+-{
+-	if (RB_WARN_ON(cpu_buffer, rb_list_head(list->prev) != list->prev))
+-		return 1;
+-	if (RB_WARN_ON(cpu_buffer, rb_list_head(list->next) != list->next))
+-		return 1;
+-	return 0;
+-}
+-
+-/**
+  * rb_check_pages - integrity check of buffer pages
+  * @cpu_buffer: CPU buffer with pages to test
+  *
+@@ -1566,36 +1553,27 @@ static int rb_check_list(struct ring_buf
+  */
+ static int rb_check_pages(struct ring_buffer_per_cpu *cpu_buffer)
+ {
+-	struct list_head *head = cpu_buffer->pages;
+-	struct buffer_page *bpage, *tmp;
++	struct list_head *head = rb_list_head(cpu_buffer->pages);
++	struct list_head *tmp;
+ 
+-	/* Reset the head page if it exists */
+-	if (cpu_buffer->head_page)
+-		rb_set_head_page(cpu_buffer);
+-
+-	rb_head_page_deactivate(cpu_buffer);
+-
+-	if (RB_WARN_ON(cpu_buffer, head->next->prev != head))
+-		return -1;
+-	if (RB_WARN_ON(cpu_buffer, head->prev->next != head))
++	if (RB_WARN_ON(cpu_buffer,
++			rb_list_head(rb_list_head(head->next)->prev) != head))
+ 		return -1;
+ 
+-	if (rb_check_list(cpu_buffer, head))
++	if (RB_WARN_ON(cpu_buffer,
++			rb_list_head(rb_list_head(head->prev)->next) != head))
+ 		return -1;
+ 
+-	list_for_each_entry_safe(bpage, tmp, head, list) {
++	for (tmp = rb_list_head(head->next); tmp != head; tmp = rb_list_head(tmp->next)) {
+ 		if (RB_WARN_ON(cpu_buffer,
+-			       bpage->list.next->prev != &bpage->list))
++				rb_list_head(rb_list_head(tmp->next)->prev) != tmp))
+ 			return -1;
 +
-+    if (!defined($timeout)) {
-+	$timeout = -1; # tell wait_for_input to wait indefinitely
-+    }
-+
-     doprint("$command ... ");
-     $start_time = time;
+ 		if (RB_WARN_ON(cpu_buffer,
+-			       bpage->list.prev->next != &bpage->list))
+-			return -1;
+-		if (rb_check_list(cpu_buffer, &bpage->list))
++				rb_list_head(rb_list_head(tmp->prev)->next) != tmp))
+ 			return -1;
+ 	}
  
-@@ -1877,13 +1887,10 @@ sub run_command {
+-	rb_head_page_activate(cpu_buffer);
+-
+ 	return 0;
+ }
  
-     while (1) {
- 	my $fp = \*CMD;
--	if (defined($timeout)) {
--	    doprint "timeout = $timeout\n";
--	}
- 	my $line = wait_for_input($fp, $timeout);
- 	if (!defined($line)) {
- 	    my $now = time;
--	    if (defined($timeout) && (($now - $start_time) >= $timeout)) {
-+	    if ($timeout >= 0 && (($now - $start_time) >= $timeout)) {
- 		doprint "Hit timeout of $timeout, killing process\n";
- 		$hit_timeout = 1;
- 		kill 9, $pid;
-@@ -2055,6 +2062,11 @@ sub wait_for_input {
- 	$time = $timeout;
-     }
- 
-+    if ($time < 0) {
-+	# Negative number means wait indefinitely
-+	undef $time;
-+    }
-+
-     $rin = '';
-     vec($rin, fileno($fp), 1) = 1;
-     vec($rin, fileno(\*STDIN), 1) = 1;
---- a/tools/testing/ktest/sample.conf
-+++ b/tools/testing/ktest/sample.conf
-@@ -809,6 +809,11 @@
- # is issued instead of a reboot.
- # CONNECT_TIMEOUT = 25
- 
-+# The timeout in seconds for how long to wait for any running command
-+# to timeout. If not defined, it will let it go indefinitely.
-+# (default undefined)
-+#RUN_TIMEOUT = 600
-+
- # In between tests, a reboot of the box may occur, and this
- # is the time to wait for the console after it stops producing
- # output. Some machines may not produce a large lag on reboot
 
 
