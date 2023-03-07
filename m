@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC9F6AEBC5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 262EA6AF0ED
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232051AbjCGRs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36328 "EHLO
+        id S232676AbjCGShM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:37:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232191AbjCGRsf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2143E51FB3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:26 -0800 (PST)
+        with ESMTP id S233274AbjCGSfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B08DBBB0F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B270B819BE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E6AC433D2;
-        Tue,  7 Mar 2023 17:43:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1335661552
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13FF6C4339B;
+        Tue,  7 Mar 2023 18:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211004;
-        bh=DGCUR3TLQj8A7OnMuZuoCPX3cCaFxsO9s232lwSJgic=;
+        s=korg; t=1678213602;
+        bh=+XWxjXLf6uWZr+1j+JmUluCI3Aby34AookrF0T9YXi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCIPHXqXsDZs7+meFF235ScLR9Z7QwVhm2f20dPPFEp3O6dAIy5f94fpKq/NhMCf1
-         oyhKouAMqGJ2gPfsYyYCM21Lcan4VQzM/ch94k6jHDs0WryjfT+zMMpX2Bg6VBMYRD
-         GZ7GBSanLCNCWzSQGoDlNmk/aEFSmVaQ2kWjmzXk=
+        b=j3FvkGICVCfkuIK5HBqs+8yZvruACZulF84sGTjEFSgTE55xpI2e7tPuvoTHaQKeB
+         v2G5l9DOFFRmoHGFXJov67PerTI0/Mu3WbolDgefFRJCfInZUq6o7N/038j40DFUqQ
+         yCGtflPOZzNhA+2/rf6FhJnEd4AuEz316IxGJWSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vitaly Prosyak <vitaly.prosyak@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0721/1001] Revert "drm/amdgpu: TA unload messages are not actually sent to psp when amdgpu is uninstalled"
+        patches@lists.linux.dev, Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 559/885] wifi: mt7601u: fix an integer underflow
 Date:   Tue,  7 Mar 2023 17:58:13 +0100
-Message-Id: <20230307170052.972476359@linuxfoundation.org>
+Message-Id: <20230307170026.740651915@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Prosyak <vitaly.prosyak@amd.com>
+From: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
 
-[ Upstream commit 39934d3ed5725c5e3570ed1b67f612f1ea60ce03 ]
+[ Upstream commit 803f3176c5df3b5582c27ea690f204abb60b19b9 ]
 
-This reverts commit fac53471d0ea9693d314aa2df08d62b2e7e3a0f8.
-The following change: move the drm_dev_unplug call after
-amdgpu_driver_unload_kms in amdgpu_pci_remove. The reason is
-the following: amdgpu_pci_remove calls drm_dev_unregister
-and it should be called first to ensure userspace can't access the
-device instance anymore. If we call drm_dev_unplug after
-amdgpu_driver_unload_kms then we observe IGT PCI software unplug
-test failure (kernel hung) for all ASICs. This is how this
-regression was found.
+Fix an integer underflow that leads to a null pointer dereference in
+'mt7601u_rx_skb_from_seg()'. The variable 'dma_len' in the URB packet
+could be manipulated, which could trigger an integer underflow of
+'seg_len' in 'mt7601u_rx_process_seg()'. This underflow subsequently
+causes the 'bad_frame' checks in 'mt7601u_rx_skb_from_seg()' to be
+bypassed, eventually leading to a dereference of the pointer 'p', which
+is a null pointer.
 
-After this revert, the following commands do work not, but it would
-be fixed in the next commit:
- - sudo modprobe -r amdgpu
- - sudo modprobe amdgpu
+Ensure that 'dma_len' is greater than 'min_seg_len'.
 
-Signed-off-by: Vitaly Prosyak <vitaly.prosyak@amd.com>
-Reviewed-by Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Found by a modified version of syzkaller.
+
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G        W  O      5.14.0+
+#139
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+RIP: 0010:skb_add_rx_frag+0x143/0x370
+Code: e2 07 83 c2 03 38 ca 7c 08 84 c9 0f 85 86 01 00 00 4c 8d 7d 08 44
+89 68 08 48 b8 00 00 00 00 00 fc ff df 4c 89 fa 48 c1 ea 03 <80> 3c 02
+00 0f 85 cd 01 00 00 48 8b 45 08 a8 01 0f 85 3d 01 00 00
+RSP: 0018:ffffc900000cfc90 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff888115520dc0 RCX: 0000000000000000
+RDX: 0000000000000001 RSI: ffff8881118430c0 RDI: ffff8881118430f8
+RBP: 0000000000000000 R08: 0000000000000e09 R09: 0000000000000010
+R10: ffff888111843017 R11: ffffed1022308602 R12: 0000000000000000
+R13: 0000000000000e09 R14: 0000000000000010 R15: 0000000000000008
+FS:  0000000000000000(0000) GS:ffff88811a800000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000004035af40 CR3: 00000001157f2000 CR4: 0000000000750ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ mt7601u_rx_tasklet+0xc73/0x1270
+ ? mt7601u_submit_rx_buf.isra.0+0x510/0x510
+ ? tasklet_action_common.isra.0+0x79/0x2f0
+ tasklet_action_common.isra.0+0x206/0x2f0
+ __do_softirq+0x1b5/0x880
+ ? tasklet_unlock+0x30/0x30
+ run_ksoftirqd+0x26/0x50
+ smpboot_thread_fn+0x34f/0x7d0
+ ? smpboot_register_percpu_thread+0x370/0x370
+ kthread+0x3a1/0x480
+ ? set_kthread_struct+0x120/0x120
+ ret_from_fork+0x1f/0x30
+Modules linked in: 88XXau(O) 88x2bu(O)
+---[ end trace 57f34f93b4da0f9b ]---
+RIP: 0010:skb_add_rx_frag+0x143/0x370
+Code: e2 07 83 c2 03 38 ca 7c 08 84 c9 0f 85 86 01 00 00 4c 8d 7d 08 44
+89 68 08 48 b8 00 00 00 00 00 fc ff df 4c 89 fa 48 c1 ea 03 <80> 3c 02
+00 0f 85 cd 01 00 00 48 8b 45 08 a8 01 0f 85 3d 01 00 00
+RSP: 0018:ffffc900000cfc90 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff888115520dc0 RCX: 0000000000000000
+RDX: 0000000000000001 RSI: ffff8881118430c0 RDI: ffff8881118430f8
+RBP: 0000000000000000 R08: 0000000000000e09 R09: 0000000000000010
+R10: ffff888111843017 R11: ffffed1022308602 R12: 0000000000000000
+R13: 0000000000000e09 R14: 0000000000000010 R15: 0000000000000008
+FS:  0000000000000000(0000) GS:ffff88811a800000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000004035af40 CR3: 00000001157f2000 CR4: 0000000000750ef0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+
+Signed-off-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Acked-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221229092906.2328282-1-jisoo.jang@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 3 ++-
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    | 4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt7601u/dma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index fbf2f24169eb5..d8e79de839d65 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -4022,7 +4022,8 @@ void amdgpu_device_fini_hw(struct amdgpu_device *adev)
+diff --git a/drivers/net/wireless/mediatek/mt7601u/dma.c b/drivers/net/wireless/mediatek/mt7601u/dma.c
+index 457147394edc4..773a1cc2f8520 100644
+--- a/drivers/net/wireless/mediatek/mt7601u/dma.c
++++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
+@@ -123,7 +123,8 @@ static u16 mt7601u_rx_next_seg_len(u8 *data, u32 data_len)
+ 	if (data_len < min_seg_len ||
+ 	    WARN_ON_ONCE(!dma_len) ||
+ 	    WARN_ON_ONCE(dma_len + MT_DMA_HDRS > data_len) ||
+-	    WARN_ON_ONCE(dma_len & 0x3))
++	    WARN_ON_ONCE(dma_len & 0x3) ||
++	    WARN_ON_ONCE(dma_len < min_seg_len))
+ 		return 0;
  
- 	amdgpu_gart_dummy_page_fini(adev);
- 
--	amdgpu_device_unmap_mmio(adev);
-+	if (drm_dev_is_unplugged(adev_to_drm(adev)))
-+		amdgpu_device_unmap_mmio(adev);
- 
- }
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index 3fe277bc233f4..7f598977d6942 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -2236,6 +2236,8 @@ amdgpu_pci_remove(struct pci_dev *pdev)
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 	struct amdgpu_device *adev = drm_to_adev(dev);
- 
-+	drm_dev_unplug(dev);
-+
- 	if (adev->pm.rpm_mode != AMDGPU_RUNPM_NONE) {
- 		pm_runtime_get_sync(dev->dev);
- 		pm_runtime_forbid(dev->dev);
-@@ -2275,8 +2277,6 @@ amdgpu_pci_remove(struct pci_dev *pdev)
- 
- 	amdgpu_driver_unload_kms(dev);
- 
--	drm_dev_unplug(dev);
--
- 	/*
- 	 * Flush any in flight DMA operations from device.
- 	 * Clear the Bus Master Enable bit and then wait on the PCIe Device
+ 	return MT_DMA_HDRS + dma_len;
 -- 
 2.39.2
 
