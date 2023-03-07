@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2226B6AE5D8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC3C56AE5DC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:05:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230051AbjCGQEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:04:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52358 "EHLO
+        id S230166AbjCGQF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:05:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231416AbjCGQEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:04:15 -0500
+        with ESMTP id S231857AbjCGQFO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:05:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA4D984CF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:02:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CE17F021
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:03:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE09F61493
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:02:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D442BC433EF;
-        Tue,  7 Mar 2023 16:02:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8DD861489
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78A0FC433D2;
+        Tue,  7 Mar 2023 16:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678204926;
-        bh=LEo79Wn70TgWOCyjYPCfVbVFV21a7ybymAVAuCkwJ34=;
+        s=korg; t=1678205011;
+        bh=zpriu6NSCvVAezcKCtYGgyKMuW2VZ9BvwbeyE39DKVY=;
         h=Subject:To:Cc:From:Date:From;
-        b=KJiiuBJY85fOCUwgM065fKp6VG8nrgnfG5Bg8d1qUVXjCW0T/7pMaZ6M330JpHLeQ
-         kzYp2cDl4aD/Y9WXS7iqxHHT+RKKB5CFuEaO81/ZYTlIp+XoScnuNBJbCbqJtf+Bof
-         1EVmOmWqBekZ0bQMGcym0pbrM6eRbevYLupIitew=
-Subject: FAILED: patch "[PATCH] PCI: Unify delay handling for reset and resume" failed to apply to 4.19-stable tree
-To:     lukas@wunner.de, bhelgaas@google.com,
-        mika.westerberg@linux.intel.com,
-        ravi.kishore.koppuravuri@intel.com,
-        sathyanarayanan.kuppuswamy@linux.intel.com,
-        windy.bi.enflame@gmail.com
+        b=rMc8lEPh5oC91HD0PpNHl88CRLrbvtAES87Mt4A0iSzltrn55yx5UyyHCako9cZX8
+         7qlFvzEiJ/DVDN+J6uj4NdMsUcomp37mcxMnC9Ilrogx4wfG1yjwGs6DNVh4+HtK+i
+         v90UIo6xiphFsYu9Wgm6mnU+1y9eNh0HN76uPRWE=
+Subject: FAILED: patch "[PATCH] bus: mhi: ep: Change state_lock to mutex" failed to apply to 6.2-stable tree
+To:     mani@kernel.org, error27@gmail.com,
+        manivannan.sadhasivam@linaro.org, quic_jhugo@quicinc.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:01:53 +0100
-Message-ID: <167820491313734@kroah.com>
+Date:   Tue, 07 Mar 2023 17:03:28 +0100
+Message-ID: <167820500825397@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,27 +50,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 6.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
 git checkout FETCH_HEAD
-git cherry-pick -x ac91e6980563ed53afadd925fa6585ffd2bc4a2c
+git cherry-pick -x 1ddc7618294084fff8d673217a9479550990ee84
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820491313734@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820500825397@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
 
 Possible dependencies:
 
-ac91e6980563 ("PCI: Unify delay handling for reset and resume")
-8ef0217227b4 ("PCI/PM: Observe reset delay irrespective of bridge_d3")
-730643d33e2d ("PCI/PM: Resume subordinate bus in bus type callbacks")
-18a94192e20d ("PCI/PM: Define pci_restore_standard_config() only for CONFIG_PM_SLEEP")
-0c5c62ddf88c ("Merge tag 'pci-v5.16-changes' of git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci")
+1ddc76182940 ("bus: mhi: ep: Change state_lock to mutex")
+47a1dcaea073 ("bus: mhi: ep: Power up/down MHI stack during MHI RESET")
 
 thanks,
 
@@ -80,249 +75,201 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ac91e6980563ed53afadd925fa6585ffd2bc4a2c Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Sun, 15 Jan 2023 09:20:32 +0100
-Subject: [PATCH] PCI: Unify delay handling for reset and resume
+From 1ddc7618294084fff8d673217a9479550990ee84 Mon Sep 17 00:00:00 2001
+From: Manivannan Sadhasivam <mani@kernel.org>
+Date: Mon, 23 Jan 2023 12:59:45 +0530
+Subject: [PATCH] bus: mhi: ep: Change state_lock to mutex
 
-Sheng Bi reports that pci_bridge_secondary_bus_reset() may fail to wait
-for devices on the secondary bus to become accessible after reset:
+state_lock, the spinlock type is meant to protect race against concurrent
+MHI state transitions. In mhi_ep_set_m0_state(), while the state_lock is
+being held, the channels are resumed in mhi_ep_resume_channels() if the
+previous state was M3. This causes sleeping in atomic bug, since
+mhi_ep_resume_channels() use mutex internally.
 
-Although it does call pci_dev_wait(), it erroneously passes the bridge's
-pci_dev rather than that of a child.  The bridge of course is always
-accessible while its secondary bus is reset, so pci_dev_wait() returns
-immediately.
+Since the state_lock is supposed to be held throughout the state change,
+it is not ideal to drop the lock before calling mhi_ep_resume_channels().
+So to fix this issue, let's change the type of state_lock to mutex. This
+would also allow holding the lock throughout all state transitions thereby
+avoiding any potential race.
 
-Sheng Bi proposes introducing a new pci_bridge_secondary_bus_wait()
-function which is called from pci_bridge_secondary_bus_reset():
+Cc: <stable@vger.kernel.org> # 5.19
+Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
+Reported-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-https://lore.kernel.org/linux-pci/20220523171517.32407-1-windy.bi.enflame@gmail.com/
-
-However we already have pci_bridge_wait_for_secondary_bus() which does
-almost exactly what we need.  So far it's only called on resume from
-D3cold (which implies a Fundamental Reset per PCIe r6.0 sec 5.8).
-Re-using it for Secondary Bus Resets is a leaner and more rational
-approach than introducing a new function.
-
-That only requires a few minor tweaks:
-
-- Amend pci_bridge_wait_for_secondary_bus() to await accessibility of
-  the first device on the secondary bus by calling pci_dev_wait() after
-  performing the prescribed delays.  pci_dev_wait() needs two parameters,
-  a reset reason and a timeout, which callers must now pass to
-  pci_bridge_wait_for_secondary_bus().  The timeout is 1 sec for resume
-  (PCIe r6.0 sec 6.6.1) and 60 sec for reset (commit 821cdad5c46c ("PCI:
-  Wait up to 60 seconds for device to become ready after FLR")).
-  Introduce a PCI_RESET_WAIT macro for the 1 sec timeout.
-
-- Amend pci_bridge_wait_for_secondary_bus() to return 0 on success or
-  -ENOTTY on error for consumption by pci_bridge_secondary_bus_reset().
-
-- Drop an unnecessary 1 sec delay from pci_reset_secondary_bus() which
-  is now performed by pci_bridge_wait_for_secondary_bus().  A static
-  delay this long is only necessary for Conventional PCI, so modern
-  PCIe systems benefit from shorter reset times as a side effect.
-
-Fixes: 6b2f1351af56 ("PCI: Wait for device to become ready after secondary bus reset")
-Link: https://lore.kernel.org/r/da77c92796b99ec568bd070cbe4725074a117038.1673769517.git.lukas@wunner.de
-Reported-by: Sheng Bi <windy.bi.enflame@gmail.com>
-Tested-by: Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.17+
-
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index a2ceeacc33eb..7a19f11daca3 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -572,7 +572,7 @@ static void pci_pm_default_resume_early(struct pci_dev *pci_dev)
+diff --git a/drivers/bus/mhi/ep/main.c b/drivers/bus/mhi/ep/main.c
+index bcaaba97ef63..528c00b232bf 100644
+--- a/drivers/bus/mhi/ep/main.c
++++ b/drivers/bus/mhi/ep/main.c
+@@ -1001,11 +1001,11 @@ static void mhi_ep_reset_worker(struct work_struct *work)
  
- static void pci_pm_bridge_power_up_actions(struct pci_dev *pci_dev)
- {
--	pci_bridge_wait_for_secondary_bus(pci_dev);
-+	pci_bridge_wait_for_secondary_bus(pci_dev, "resume", PCI_RESET_WAIT);
- 	/*
- 	 * When powering on a bridge from D3cold, the whole hierarchy may be
- 	 * powered on into D0uninitialized state, resume them to give them a
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index f43f3e84f634..509f6b5c9e14 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1174,7 +1174,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
- 			return -ENOTTY;
- 		}
+ 	mhi_ep_power_down(mhi_cntrl);
  
--		if (delay > 1000)
-+		if (delay > PCI_RESET_WAIT)
- 			pci_info(dev, "not ready %dms after %s; waiting\n",
- 				 delay - 1, reset_type);
- 
-@@ -1183,7 +1183,7 @@ static int pci_dev_wait(struct pci_dev *dev, char *reset_type, int timeout)
- 		pci_read_config_dword(dev, PCI_COMMAND, &id);
- 	}
- 
--	if (delay > 1000)
-+	if (delay > PCI_RESET_WAIT)
- 		pci_info(dev, "ready %dms after %s\n", delay - 1,
- 			 reset_type);
- 
-@@ -4948,24 +4948,31 @@ static int pci_bus_max_d3cold_delay(const struct pci_bus *bus)
- /**
-  * pci_bridge_wait_for_secondary_bus - Wait for secondary bus to be accessible
-  * @dev: PCI bridge
-+ * @reset_type: reset type in human-readable form
-+ * @timeout: maximum time to wait for devices on secondary bus (milliseconds)
-  *
-  * Handle necessary delays before access to the devices on the secondary
-- * side of the bridge are permitted after D3cold to D0 transition.
-+ * side of the bridge are permitted after D3cold to D0 transition
-+ * or Conventional Reset.
-  *
-  * For PCIe this means the delays in PCIe 5.0 section 6.6.1. For
-  * conventional PCI it means Tpvrh + Trhfa specified in PCI 3.0 section
-  * 4.3.2.
-+ *
-+ * Return 0 on success or -ENOTTY if the first device on the secondary bus
-+ * failed to become accessible.
-  */
--void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
-+int pci_bridge_wait_for_secondary_bus(struct pci_dev *dev, char *reset_type,
-+				      int timeout)
- {
- 	struct pci_dev *child;
- 	int delay;
- 
- 	if (pci_dev_is_disconnected(dev))
--		return;
-+		return 0;
- 
- 	if (!pci_is_bridge(dev))
--		return;
-+		return 0;
- 
- 	down_read(&pci_bus_sem);
- 
-@@ -4977,14 +4984,14 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 	 */
- 	if (!dev->subordinate || list_empty(&dev->subordinate->devices)) {
- 		up_read(&pci_bus_sem);
--		return;
-+		return 0;
- 	}
- 
- 	/* Take d3cold_delay requirements into account */
- 	delay = pci_bus_max_d3cold_delay(dev->subordinate);
- 	if (!delay) {
- 		up_read(&pci_bus_sem);
--		return;
-+		return 0;
- 	}
- 
- 	child = list_first_entry(&dev->subordinate->devices, struct pci_dev,
-@@ -4993,14 +5000,12 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 
- 	/*
- 	 * Conventional PCI and PCI-X we need to wait Tpvrh + Trhfa before
--	 * accessing the device after reset (that is 1000 ms + 100 ms). In
--	 * practice this should not be needed because we don't do power
--	 * management for them (see pci_bridge_d3_possible()).
-+	 * accessing the device after reset (that is 1000 ms + 100 ms).
- 	 */
- 	if (!pci_is_pcie(dev)) {
- 		pci_dbg(dev, "waiting %d ms for secondary bus\n", 1000 + delay);
- 		msleep(1000 + delay);
--		return;
-+		return 0;
- 	}
- 
- 	/*
-@@ -5017,11 +5022,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 	 * configuration requests if we only wait for 100 ms (see
- 	 * https://bugzilla.kernel.org/show_bug.cgi?id=203885).
- 	 *
--	 * Therefore we wait for 100 ms and check for the device presence.
--	 * If it is still not present give it an additional 100 ms.
-+	 * Therefore we wait for 100 ms and check for the device presence
-+	 * until the timeout expires.
- 	 */
- 	if (!pcie_downstream_port(dev))
--		return;
-+		return 0;
- 
- 	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
- 		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
-@@ -5032,14 +5037,11 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 		if (!pcie_wait_for_link_delay(dev, true, delay)) {
- 			/* Did not train, no need to wait any further */
- 			pci_info(dev, "Data Link Layer Link Active not set in 1000 msec\n");
--			return;
-+			return -ENOTTY;
- 		}
- 	}
- 
--	if (!pci_device_is_present(child)) {
--		pci_dbg(child, "waiting additional %d ms to become accessible\n", delay);
--		msleep(delay);
--	}
-+	return pci_dev_wait(child, reset_type, timeout - delay);
- }
- 
- void pci_reset_secondary_bus(struct pci_dev *dev)
-@@ -5058,15 +5060,6 @@ void pci_reset_secondary_bus(struct pci_dev *dev)
- 
- 	ctrl &= ~PCI_BRIDGE_CTL_BUS_RESET;
- 	pci_write_config_word(dev, PCI_BRIDGE_CONTROL, ctrl);
--
--	/*
--	 * Trhfa for conventional PCI is 2^25 clock cycles.
--	 * Assuming a minimum 33MHz clock this results in a 1s
--	 * delay before we can consider subordinate devices to
--	 * be re-initialized.  PCIe has some ways to shorten this,
--	 * but we don't make use of them yet.
--	 */
--	ssleep(1);
- }
- 
- void __weak pcibios_reset_secondary_bus(struct pci_dev *dev)
-@@ -5085,7 +5078,8 @@ int pci_bridge_secondary_bus_reset(struct pci_dev *dev)
- {
- 	pcibios_reset_secondary_bus(dev);
- 
--	return pci_dev_wait(dev, "bus reset", PCIE_RESET_READY_POLL_MS);
-+	return pci_bridge_wait_for_secondary_bus(dev, "bus reset",
-+						 PCIE_RESET_READY_POLL_MS);
- }
- EXPORT_SYMBOL_GPL(pci_bridge_secondary_bus_reset);
- 
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index 9ed3b5550043..ce1fc3a90b3f 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -64,6 +64,13 @@ struct pci_cap_saved_state *pci_find_saved_ext_cap(struct pci_dev *dev,
- #define PCI_PM_D3HOT_WAIT       10	/* msec */
- #define PCI_PM_D3COLD_WAIT      100	/* msec */
- 
-+/*
-+ * Following exit from Conventional Reset, devices must be ready within 1 sec
-+ * (PCIe r6.0 sec 6.6.1).  A D3cold to D0 transition implies a Conventional
-+ * Reset (PCIe r6.0 sec 5.8).
-+ */
-+#define PCI_RESET_WAIT		1000	/* msec */
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
 +
- void pci_update_current_state(struct pci_dev *dev, pci_power_t state);
- void pci_refresh_power_state(struct pci_dev *dev);
- int pci_power_up(struct pci_dev *dev);
-@@ -86,8 +93,9 @@ void pci_msi_init(struct pci_dev *dev);
- void pci_msix_init(struct pci_dev *dev);
- bool pci_bridge_d3_possible(struct pci_dev *dev);
- void pci_bridge_d3_update(struct pci_dev *dev);
--void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev);
- void pci_bridge_reconfigure_ltr(struct pci_dev *dev);
-+int pci_bridge_wait_for_secondary_bus(struct pci_dev *dev, char *reset_type,
-+				      int timeout);
+ 	/* Reset MMIO to signal host that the MHI_RESET is completed in endpoint */
+ 	mhi_ep_mmio_reset(mhi_cntrl);
+ 	cur_state = mhi_cntrl->mhi_state;
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
  
- static inline void pci_wakeup_event(struct pci_dev *dev)
- {
+ 	/*
+ 	 * Only proceed further if the reset is due to SYS_ERR. The host will
+@@ -1014,6 +1014,8 @@ static void mhi_ep_reset_worker(struct work_struct *work)
+ 	 */
+ 	if (cur_state == MHI_STATE_SYS_ERR)
+ 		mhi_ep_power_up(mhi_cntrl);
++
++	mutex_unlock(&mhi_cntrl->state_lock);
+ }
+ 
+ /*
+@@ -1386,8 +1388,8 @@ int mhi_ep_register_controller(struct mhi_ep_cntrl *mhi_cntrl,
+ 
+ 	INIT_LIST_HEAD(&mhi_cntrl->st_transition_list);
+ 	INIT_LIST_HEAD(&mhi_cntrl->ch_db_list);
+-	spin_lock_init(&mhi_cntrl->state_lock);
+ 	spin_lock_init(&mhi_cntrl->list_lock);
++	mutex_init(&mhi_cntrl->state_lock);
+ 	mutex_init(&mhi_cntrl->event_lock);
+ 
+ 	/* Set MHI version and AMSS EE before enumeration */
+diff --git a/drivers/bus/mhi/ep/sm.c b/drivers/bus/mhi/ep/sm.c
+index 3655c19e23c7..fd200b2ac0bb 100644
+--- a/drivers/bus/mhi/ep/sm.c
++++ b/drivers/bus/mhi/ep/sm.c
+@@ -63,24 +63,23 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	int ret;
+ 
+ 	/* If MHI is in M3, resume suspended channels */
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	old_state = mhi_cntrl->mhi_state;
+ 	if (old_state == MHI_STATE_M3)
+ 		mhi_ep_resume_channels(mhi_cntrl);
+ 
+ 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M0);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+-
+ 	if (ret) {
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	/* Signal host that the device moved to M0 */
+ 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M0);
+ 	if (ret) {
+ 		dev_err(dev, "Failed sending M0 state change event\n");
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	if (old_state == MHI_STATE_READY) {
+@@ -88,11 +87,14 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 		ret = mhi_ep_send_ee_event(mhi_cntrl, MHI_EE_AMSS);
+ 		if (ret) {
+ 			dev_err(dev, "Failed sending AMSS EE event\n");
+-			return ret;
++			goto err_unlock;
+ 		}
+ 	}
+ 
+-	return 0;
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
++	return ret;
+ }
+ 
+ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+@@ -100,13 +102,12 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+ 	int ret;
+ 
+-	spin_lock_bh(&mhi_cntrl->state_lock);
+-	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
+ 
++	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
+ 	if (ret) {
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	mhi_ep_suspend_channels(mhi_cntrl);
+@@ -115,10 +116,13 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M3);
+ 	if (ret) {
+ 		dev_err(dev, "Failed sending M3 state change event\n");
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+-	return 0;
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
++	return ret;
+ }
+ 
+ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
+@@ -127,22 +131,24 @@ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	enum mhi_state mhi_state;
+ 	int ret, is_ready;
+ 
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	/* Ensure that the MHISTATUS is set to RESET by host */
+ 	mhi_state = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_MHISTATE_MASK);
+ 	is_ready = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_READY_MASK);
+ 
+ 	if (mhi_state != MHI_STATE_RESET || is_ready) {
+ 		dev_err(dev, "READY state transition failed. MHI host not in RESET state\n");
+-		spin_unlock_bh(&mhi_cntrl->state_lock);
+-		return -EIO;
++		ret = -EIO;
++		goto err_unlock;
+ 	}
+ 
+ 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_READY);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+-
+ 	if (ret)
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+ 
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
+ 	return ret;
+ }
+diff --git a/include/linux/mhi_ep.h b/include/linux/mhi_ep.h
+index 478aece17046..f198a8ac7ee7 100644
+--- a/include/linux/mhi_ep.h
++++ b/include/linux/mhi_ep.h
+@@ -70,8 +70,8 @@ struct mhi_ep_db_info {
+  * @cmd_ctx_cache_phys: Physical address of the host command context cache
+  * @chdb: Array of channel doorbell interrupt info
+  * @event_lock: Lock for protecting event rings
+- * @list_lock: Lock for protecting state transition and channel doorbell lists
+  * @state_lock: Lock for protecting state transitions
++ * @list_lock: Lock for protecting state transition and channel doorbell lists
+  * @st_transition_list: List of state transitions
+  * @ch_db_list: List of queued channel doorbells
+  * @wq: Dedicated workqueue for handling rings and state changes
+@@ -117,8 +117,8 @@ struct mhi_ep_cntrl {
+ 
+ 	struct mhi_ep_db_info chdb[4];
+ 	struct mutex event_lock;
++	struct mutex state_lock;
+ 	spinlock_t list_lock;
+-	spinlock_t state_lock;
+ 
+ 	struct list_head st_transition_list;
+ 	struct list_head ch_db_list;
 
