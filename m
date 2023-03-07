@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 537766AEAC1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5906A6AEAC4
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231875AbjCGRhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:37:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
+        id S231887AbjCGRhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:37:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231839AbjCGRgr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B390515CB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:47 -0800 (PST)
+        with ESMTP id S231860AbjCGRgw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF81F25976
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD976B817AE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 169E3C433D2;
-        Tue,  7 Mar 2023 17:32:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DD8661517
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A54C433D2;
+        Tue,  7 Mar 2023 17:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210364;
-        bh=SM1GI1EP0XdNredmYV8rw9i5Ps7Z/TjaBcz2Bxa1uAs=;
+        s=korg; t=1678210370;
+        bh=hSHw0+w3LFQi4ksALU05R/0a2ukRR5E/U/EYVxDLyQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcpFOaVS77i8BCIrmmMrLFqOvXxfgu8Yp3CKJHItoJB1fvXnsb7ny1PmjLXp19YpM
-         pSqqeSSkAZqSeQb3z8WBDRUUSF6lp0nXdqpbpK2ZM2Y0k4HurtDu7ZGrV4lgJ8HUJu
-         8ke/InqpTPzClckMg/t9OVlbYNjlphWKCANmuqr4=
+        b=v9j+1+bS1Npd4njQCl0JD4Jda3TPeByYwtFOW7uNyI9P28mW08AfvJZ7LtF0F5G9F
+         HPTX7ZHIcHZ74AtMD3lnrAD/OcOxGh1vFexDWhNRH4iAHy4m3FX1rZWuEgv4a292w+
+         IlMviKxNXbjTLxkAebA6Kz1okVwCLhAqS0ldPkyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0517/1001] firmware: stratix10-svc: add missing gen_pool_destroy() in stratix10_svc_drv_probe()
-Date:   Tue,  7 Mar 2023 17:54:49 +0100
-Message-Id: <20230307170043.871938943@linuxfoundation.org>
+Subject: [PATCH 6.2 0518/1001] firmware: stratix10-svc: fix error handle while alloc/add device failed
+Date:   Tue,  7 Mar 2023 17:54:50 +0100
+Message-Id: <20230307170043.921825951@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,65 +56,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9175ee1a99d57ec07d66ff572e1d5a724477ab37 ]
+[ Upstream commit d66a4c20ae55ac88136b4a3befd944c093ffa677 ]
 
-In error path in stratix10_svc_drv_probe(), gen_pool_destroy() should be called
-to destroy the memory pool that created by svc_create_memory_pool().
+If add device "stratix10-rsu" failed in stratix10_svc_drv_probe(),
+the 'svc_fifo' and 'genpool' need be freed in the error path.
 
-Fixes: 7ca5ce896524 ("firmware: add Intel Stratix10 service layer driver")
+If allocate or add device "intel-fcs" failed in stratix10_svc_drv_probe(),
+the device "stratix10-rsu" need be unregistered in the error path.
+
+Fixes: e6281c26674e ("firmware: stratix10-svc: Add support for FCS")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20221129163602.462369-1-dinguyen@kernel.org
+Link: https://lore.kernel.org/r/20221129163602.462369-2-dinguyen@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/stratix10-svc.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/firmware/stratix10-svc.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index b4081f4d88a37..1a5640b3ab422 100644
+index 1a5640b3ab422..bde1f543f5298 100644
 --- a/drivers/firmware/stratix10-svc.c
 +++ b/drivers/firmware/stratix10-svc.c
-@@ -1138,13 +1138,17 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 
- 	/* allocate service controller and supporting channel */
- 	controller = devm_kzalloc(dev, sizeof(*controller), GFP_KERNEL);
--	if (!controller)
--		return -ENOMEM;
-+	if (!controller) {
-+		ret = -ENOMEM;
-+		goto err_destroy_pool;
-+	}
- 
- 	chans = devm_kmalloc_array(dev, SVC_NUM_CHANNEL,
- 				   sizeof(*chans), GFP_KERNEL | __GFP_ZERO);
--	if (!chans)
--		return -ENOMEM;
-+	if (!chans) {
-+		ret = -ENOMEM;
-+		goto err_destroy_pool;
-+	}
- 
- 	controller->dev = dev;
- 	controller->num_chans = SVC_NUM_CHANNEL;
-@@ -1159,7 +1163,7 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 	ret = kfifo_alloc(&controller->svc_fifo, fifo_size, GFP_KERNEL);
+@@ -1202,19 +1202,20 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+ 	ret = platform_device_add(svc->stratix10_svc_rsu);
  	if (ret) {
- 		dev_err(dev, "failed to allocate FIFO\n");
+ 		platform_device_put(svc->stratix10_svc_rsu);
 -		return ret;
-+		goto err_destroy_pool;
++		goto err_free_kfifo;
  	}
- 	spin_lock_init(&controller->svc_fifo_lock);
  
-@@ -1221,6 +1225,8 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+ 	svc->intel_svc_fcs = platform_device_alloc(INTEL_FCS, 1);
+ 	if (!svc->intel_svc_fcs) {
+ 		dev_err(dev, "failed to allocate %s device\n", INTEL_FCS);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto err_unregister_dev;
+ 	}
  
+ 	ret = platform_device_add(svc->intel_svc_fcs);
+ 	if (ret) {
+ 		platform_device_put(svc->intel_svc_fcs);
+-		return ret;
++		goto err_unregister_dev;
+ 	}
+ 
+ 	dev_set_drvdata(dev, svc);
+@@ -1223,6 +1224,8 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++err_unregister_dev:
++	platform_device_unregister(svc->stratix10_svc_rsu);
  err_free_kfifo:
  	kfifo_free(&controller->svc_fifo);
-+err_destroy_pool:
-+	gen_pool_destroy(genpool);
- 	return ret;
- }
- 
+ err_destroy_pool:
 -- 
 2.39.2
 
