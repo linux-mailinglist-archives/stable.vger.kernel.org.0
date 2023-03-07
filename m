@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F45C6AEA08
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 925D56AEE94
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231487AbjCGRaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57828 "EHLO
+        id S231167AbjCGSN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:13:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231654AbjCGR3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA18B88EDD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:25:01 -0800 (PST)
+        with ESMTP id S232446AbjCGSNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF3B98E84
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4043BB819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EAD9C433D2;
-        Tue,  7 Mar 2023 17:24:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A27861523
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5192CC4339B;
+        Tue,  7 Mar 2023 18:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209898;
-        bh=zFAorT+IOu+4gFGbK5U/9e2NMRt9kL8BcwcCqVzl6v8=;
+        s=korg; t=1678212512;
+        bh=GiCPWMe4xXupYTgTSSO/0RLhn1eGPKQB16OF+yg0fkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1GJAmZ9Cu7q84vfscqbHx4HMkQfP64xnYvPeCElZth3qJGyapEroApq2qTP9wHUp
-         G16ZIj7GLyCDRRQNYVGd0vVR/UqJvJKlf8OxBpOsPLx2WISnEazYf8qGbpGDPODizm
-         rItbuv66zzH3uWBZ6w1pVpTUjEvyBdzvMPWYDO2I=
+        b=dT3RNTBf4WDlK/LW/dpipB3qO4/eGohgwjqEJneEDsiFL41vWsy2pHw2HsR2nrZA9
+         waT8MTulHSNHy+nwzw48SAWp1jzxsrOLU3P6idba8NyFwZ3RUCkFRomN2/ghO3JVOZ
+         Cr3PFeAYQ3fAgeIoEd+K9QQZsiOGvsdgbTJnJnww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0368/1001] drm/bridge: lt9611: fix polarity programming
+Subject: [PATCH 6.1 206/885] s390/mem_detect: rely on diag260() if sclp_early_get_memsize() fails
 Date:   Tue,  7 Mar 2023 17:52:20 +0100
-Message-Id: <20230307170037.347476056@linuxfoundation.org>
+Message-Id: <20230307170011.008037866@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 0b157efa384ea417304b1da284ee2f603c607fc3 ]
+[ Upstream commit eb33f9eb304a4c18beb5ba6362eaa5c4beaf40d8 ]
 
-Fix programming of hsync and vsync polarities
+In case sclp_early_get_memsize() fails but diag260() succeeds make sure
+some sane value is returned. This error scenario is highly unlikely,
+but this change makes system able to boot in such case.
 
-Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-4-dmitry.baryshkov@linaro.org
+Suggested-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Stable-dep-of: 22476f47b6b7 ("s390/boot: fix mem_detect extended area allocation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/lontium-lt9611.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ arch/s390/boot/mem_detect.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
-index 58f39b2792179..deb503ca956af 100644
---- a/drivers/gpu/drm/bridge/lontium-lt9611.c
-+++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
-@@ -207,7 +207,6 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
+diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
+index 0a5821ef4f1fd..41792a3a5e364 100644
+--- a/arch/s390/boot/mem_detect.c
++++ b/arch/s390/boot/mem_detect.c
+@@ -176,7 +176,7 @@ unsigned long detect_memory(void)
  
- 		/* stage 2 */
- 		{ 0x834a, 0x40 },
--		{ 0x831d, 0x10 },
- 
- 		/* MK limit */
- 		{ 0x832d, 0x38 },
-@@ -222,11 +221,19 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
- 		{ 0x8325, 0x00 },
- 		{ 0x832a, 0x01 },
- 		{ 0x834a, 0x10 },
--		{ 0x831d, 0x10 },
--		{ 0x8326, 0x37 },
- 	};
-+	u8 pol = 0x10;
- 
--	regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
-+	if (mode->flags & DRM_MODE_FLAG_NHSYNC)
-+		pol |= 0x2;
-+	if (mode->flags & DRM_MODE_FLAG_NVSYNC)
-+		pol |= 0x1;
-+	regmap_write(lt9611->regmap, 0x831d, pol);
-+
-+	if (mode->hdisplay == 3840)
-+		regmap_multi_reg_write(lt9611->regmap, reg_cfg2, ARRAY_SIZE(reg_cfg2));
-+	else
-+		regmap_multi_reg_write(lt9611->regmap, reg_cfg, ARRAY_SIZE(reg_cfg));
- 
- 	switch (mode->hdisplay) {
- 	case 640:
-@@ -236,7 +243,7 @@ static void lt9611_pcr_setup(struct lt9611 *lt9611, const struct drm_display_mod
- 		regmap_write(lt9611->regmap, 0x8326, 0x37);
- 		break;
- 	case 3840:
--		regmap_multi_reg_write(lt9611->regmap, reg_cfg2, ARRAY_SIZE(reg_cfg2));
-+		regmap_write(lt9611->regmap, 0x8326, 0x37);
- 		break;
+ 	if (!diag260()) {
+ 		mem_detect.info_source = MEM_DETECT_DIAG260;
+-		return max_physmem_end;
++		return max_physmem_end ?: get_mem_detect_end();
  	}
  
+ 	if (max_physmem_end) {
 -- 
 2.39.2
 
