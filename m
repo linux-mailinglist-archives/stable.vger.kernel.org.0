@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C6F6AE9BC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF546AEE31
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231614AbjCGR1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:27:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50938 "EHLO
+        id S232445AbjCGSKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:10:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231363AbjCGR0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5473F9B2C7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:54 -0800 (PST)
+        with ESMTP id S232459AbjCGSJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCA01A3B5B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:04:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E76D9614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAE8FC433EF;
-        Tue,  7 Mar 2023 17:21:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E26FB819BA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:04:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5344CC433D2;
+        Tue,  7 Mar 2023 18:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209713;
-        bh=NkhGTQjfEg3PCOniQyzM+GV8UTZR8oOJLCu/M5uuEjM=;
+        s=korg; t=1678212257;
+        bh=gAl9f3qGBB6MxxCo81LKveN9QbKiUYR7mzzr5e1bgyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2vmy96Nj4RRXJ2XXiQ1GSB2GgVdGXhp21TS9vsBozUEclYyx9mnzzHAn/2dbKmo2
-         Widmx/LwkWmtwi8JdVzowu1w9fHn9ALidcQ4Zqq1EXSy+ZSrwedjNUzk3Cuvh5+dIS
-         2H54oC9g8ZV8k1MULeTsqmLzIxgCApqKjpO6JnX8=
+        b=WDfrvSnjs8wYoLr+t4LPmUbIc6FCz3cLvgNAxmg3mIoCygvnFbaivk2UBQ0s+HRuI
+         ae7GhTte8kD70OwiQgYo8z2+b7yb6gds0IVJmNhmsujD5Yc/AP9NaZ21OvKSrCQyvx
+         4ofNmJGFkERDOl8f2QFh6jD0T9khLr65Zq5KrH74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0290/1001] wifi: mwifiex: fix loop iterator in mwifiex_update_ampdu_txwinsize()
+Subject: [PATCH 6.1 128/885] wifi: ipw2x00: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Tue,  7 Mar 2023 17:51:02 +0100
-Message-Id: <20230307170034.215735634@linuxfoundation.org>
+Message-Id: <20230307170007.404843455@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,46 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3cfb7df24cee0f5fdc4cc5d3176cab9aadfcb430 ]
+[ Upstream commit 45fc6d7461f18df2f238caf0cbc5acc4163203d1 ]
 
-This code re-uses "i" to be the iterator for both the inside and outside
-loops.  It means the outside loop will exit earlier than intended.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: d219b7eb3792 ("mwifiex: handle BT coex event to adjust Rx BA window size")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+In this case, dev_kfree_skb() is called to free and drop the SKB when
+it's reset, so replace it with dev_kfree_skb_irq(). Compile tested
+only.
+
+Fixes: 43f66a6ce8da ("Add ipw2200 wireless driver.")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/Y+ERnaDaZD7RtLvX@kili
+Link: https://lore.kernel.org/r/20221208143826.2385218-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/11n.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/ipw2x00/ipw2200.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/11n.c b/drivers/net/wireless/marvell/mwifiex/11n.c
-index 4af57e6d43932..90e4011008981 100644
---- a/drivers/net/wireless/marvell/mwifiex/11n.c
-+++ b/drivers/net/wireless/marvell/mwifiex/11n.c
-@@ -878,7 +878,7 @@ mwifiex_send_delba_txbastream_tbl(struct mwifiex_private *priv, u8 tid)
-  */
- void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
- {
--	u8 i;
-+	u8 i, j;
- 	u32 tx_win_size;
- 	struct mwifiex_private *priv;
- 
-@@ -909,8 +909,8 @@ void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
- 		if (tx_win_size != priv->add_ba_param.tx_win_size) {
- 			if (!priv->media_connected)
- 				continue;
--			for (i = 0; i < MAX_NUM_TID; i++)
--				mwifiex_send_delba_txbastream_tbl(priv, i);
-+			for (j = 0; j < MAX_NUM_TID; j++)
-+				mwifiex_send_delba_txbastream_tbl(priv, j);
+diff --git a/drivers/net/wireless/intel/ipw2x00/ipw2200.c b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
+index 5b483de18c81f..1d088f9b1b443 100644
+--- a/drivers/net/wireless/intel/ipw2x00/ipw2200.c
++++ b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
+@@ -3441,7 +3441,7 @@ static void ipw_rx_queue_reset(struct ipw_priv *priv,
+ 			dma_unmap_single(&priv->pci_dev->dev,
+ 					 rxq->pool[i].dma_addr,
+ 					 IPW_RX_BUF_SIZE, DMA_FROM_DEVICE);
+-			dev_kfree_skb(rxq->pool[i].skb);
++			dev_kfree_skb_irq(rxq->pool[i].skb);
+ 			rxq->pool[i].skb = NULL;
  		}
- 	}
- }
+ 		list_add_tail(&rxq->pool[i].list, &rxq->rx_used);
 -- 
 2.39.2
 
