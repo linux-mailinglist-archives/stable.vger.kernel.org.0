@@ -2,129 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B20056AF2DA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9DFF6AE9A6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233341AbjCGS5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:57:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59490 "EHLO
+        id S231552AbjCGR0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:26:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbjCGS4q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDBCA90B8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BB8BB8184E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77ECCC433D2;
-        Tue,  7 Mar 2023 18:43:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214634;
-        bh=eYaI7uWS1gDJCfrsDmrQ6l7VxR6J/JRvcLm4Kt33C9Y=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wi/nXZ88bu4VTxB1do4DJQ8Sq4XBT6okSOVM/j3PkNGsw5mrLEELpGMQRuOYsR0c1
-         8rA8tGTnAchMAYOH9I9dbKhuwAmLtZs0LadPUzJTFnYAytvFxovQ0R3TBwvULWvX3p
-         bD4FgnnetzO1M81s6oHgdwRS4KoPvfpitWtt+RMs=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S231496AbjCGR0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:16 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A21A2F39
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678209659; x=1709745659;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=w2zeTP4xl3bSCtAabhsnB+0S/hflOBI1G67WjdqZFGY=;
+  b=OgWkRa0T+OCgtqUzxaeVicb7OOvJ3RVVUezA70M1bOBL79KwaykoDHlh
+   9IDWEgzKmaUkBkrGdoQY76V2mVcmACkkYTCFqVcGTOwv9ure3yyXmZYNj
+   aWesFsjKSygXKIAuLj4R4JWXKg0VkcRq/fipwEJhpYYv2nUabOhzWm1tT
+   6/O0HZ0ETz2xzPB1KiqEts6gqLM8J9PNs1DebjeUPELpJLO+KPqr40RRB
+   eqy9KGpaQtXJ0iVpMqSoQCp1hWKqPYaYxotyUI9VgNuQSliIlIyKUsOs0
+   Kbdn71ZDPjPFUBu2g9tDi+a2uClRMGekjsYRX1i5CuvwoXbXK3KjLYi9P
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10642"; a="315570282"
+X-IronPort-AV: E=Sophos;i="5.98,241,1673942400"; 
+   d="scan'208";a="315570282"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2023 09:19:38 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10642"; a="800456848"
+X-IronPort-AV: E=Sophos;i="5.98,241,1673942400"; 
+   d="scan'208";a="800456848"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.8])
+  by orsmga004.jf.intel.com with ESMTP; 07 Mar 2023 09:19:38 -0800
+From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.1 885/885] drm/edid: fix parsing of 3D modes from HDMI VSDB
-Date:   Tue,  7 Mar 2023 18:03:39 +0100
-Message-Id: <20230307170040.225438702@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
-User-Agent: quilt/0.67
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.19.y] thermal: intel: powerclamp: Fix cur_state for multi package system
+Date:   Tue,  7 Mar 2023 09:19:27 -0800
+Message-Id: <20230307171927.1447692-1-srinivas.pandruvada@linux.intel.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <16781926219650@kroah.com>
+References: <16781926219650@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+The powerclamp cooling device cur_state shows actual idle observed by
+package C-state idle counters. But the implementation is not sufficient
+for multi package or multi die system. The cur_state value is incorrect.
+On these systems, these counters must be read from each package/die and
+somehow aggregate them. But there is no good method for aggregation.
 
-commit 72794d16bd535a984e6653a18f5862405b49b5f9 upstream.
+It was not a problem when explicit CPU model addition was required to
+enable intel powerclamp. In this way certain CPU models could have
+been avoided. But with the removal of CPU model check with the
+availability of Package C-state counters, the driver is loaded on most
+of the recent systems.
 
-Commit 537d9ed2f6c1 ("drm/edid: convert add_cea_modes() to use cea db
-iter") inadvertently moved the do_hdmi_vsdb_modes() call within the db
-iteration loop, always passing NULL as the CTA VDB to
-do_hdmi_vsdb_modes(), skipping a lot of stereo modes.
+For multi package/die systems, just show the actual target idle state,
+the system is trying to achieve. In powerclamp this is the user set
+state minus one.
 
-Move the call back outside of the loop.
+Also there is no use of starting a worker thread for polling package
+C-state counters and applying any compensation for multiple package
+or multiple die systems.
 
-This does mean only one CTA VDB and HDMI VSDB combination will be
-handled, but it's an unlikely scenario to have more than one of either
-block, and it was not accounted for before the regression either.
-
-Fixes: 537d9ed2f6c1 ("drm/edid: convert add_cea_modes() to use cea db iter")
-Cc: <stable@vger.kernel.org> # v6.0+
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/cf159b8816191ed595a3cb954acaf189c4528cc7.1672826282.git.jani.nikula@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b721ca0d1927 ("thermal/powerclamp: remove cpu whitelist")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+(cherry picked from commit 8e47363588377e1bdb65e2b020b409cfb44dd260)
 ---
- drivers/gpu/drm/drm_edid.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/thermal/intel_powerclamp.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -5093,13 +5093,12 @@ static int add_cea_modes(struct drm_conn
+diff --git a/drivers/thermal/intel_powerclamp.c b/drivers/thermal/intel_powerclamp.c
+index dffefcde0628..351fa43c1ee3 100644
+--- a/drivers/thermal/intel_powerclamp.c
++++ b/drivers/thermal/intel_powerclamp.c
+@@ -72,6 +72,7 @@
+ 
+ static unsigned int target_mwait;
+ static struct dentry *debug_dir;
++static bool poll_pkg_cstate_enable;
+ 
+ /* user selected target */
+ static unsigned int set_target_ratio;
+@@ -280,6 +281,9 @@ static unsigned int get_compensation(int ratio)
  {
- 	const struct cea_db *db;
- 	struct cea_db_iter iter;
-+	const u8 *hdmi = NULL, *video = NULL;
-+	u8 hdmi_len = 0, video_len = 0;
- 	int modes = 0;
+ 	unsigned int comp = 0;
  
- 	cea_db_iter_edid_begin(drm_edid, &iter);
- 	cea_db_iter_for_each(db, &iter) {
--		const u8 *hdmi = NULL, *video = NULL;
--		u8 hdmi_len = 0, video_len = 0;
--
- 		if (cea_db_tag(db) == CTA_DB_VIDEO) {
- 			video = cea_db_data(db);
- 			video_len = cea_db_payload_len(db);
-@@ -5115,18 +5114,17 @@ static int add_cea_modes(struct drm_conn
- 			modes += do_y420vdb_modes(connector, vdb420,
- 						  cea_db_payload_len(db) - 1);
- 		}
--
--		/*
--		 * We parse the HDMI VSDB after having added the cea modes as we
--		 * will be patching their flags when the sink supports stereo
--		 * 3D.
--		 */
--		if (hdmi)
--			modes += do_hdmi_vsdb_modes(connector, hdmi, hdmi_len,
--						    video, video_len);
- 	}
- 	cea_db_iter_end(&iter);
- 
-+	/*
-+	 * We parse the HDMI VSDB after having added the cea modes as we will be
-+	 * patching their flags when the sink supports stereo 3D.
-+	 */
-+	if (hdmi)
-+		modes += do_hdmi_vsdb_modes(connector, hdmi, hdmi_len,
-+					    video, video_len);
++	if (!poll_pkg_cstate_enable)
++		return 0;
 +
- 	return modes;
- }
+ 	/* we only use compensation if all adjacent ones are good */
+ 	if (ratio == 1 &&
+ 		cal_data[ratio].confidence >= CONFIDENCE_OK &&
+@@ -552,7 +556,8 @@ static int start_power_clamp(void)
+ 	control_cpu = cpumask_first(cpu_online_mask);
  
-
+ 	clamping = true;
+-	schedule_delayed_work(&poll_pkg_cstate_work, 0);
++	if (poll_pkg_cstate_enable)
++		schedule_delayed_work(&poll_pkg_cstate_work, 0);
+ 
+ 	/* start one kthread worker per online cpu */
+ 	for_each_online_cpu(cpu) {
+@@ -621,11 +626,15 @@ static int powerclamp_get_max_state(struct thermal_cooling_device *cdev,
+ static int powerclamp_get_cur_state(struct thermal_cooling_device *cdev,
+ 				 unsigned long *state)
+ {
+-	if (true == clamping)
+-		*state = pkg_cstate_ratio_cur;
+-	else
++	if (clamping) {
++		if (poll_pkg_cstate_enable)
++			*state = pkg_cstate_ratio_cur;
++		else
++			*state = set_target_ratio;
++	} else {
+ 		/* to save power, do not poll idle ratio while not clamping */
+ 		*state = -1; /* indicates invalid state */
++	}
+ 
+ 	return 0;
+ }
+@@ -770,6 +779,9 @@ static int __init powerclamp_init(void)
+ 		goto exit_unregister;
+ 	}
+ 
++	if (topology_max_packages() == 1)
++		poll_pkg_cstate_enable = true;
++
+ 	cooling_dev = thermal_cooling_device_register("intel_powerclamp", NULL,
+ 						&powerclamp_cooling_ops);
+ 	if (IS_ERR(cooling_dev)) {
+-- 
+2.39.1
 
