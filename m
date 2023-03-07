@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A9D66AF2D6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E28F6AF2C8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbjCGS4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:56:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34266 "EHLO
+        id S233506AbjCGS41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:56:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229717AbjCGS4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCDCCB656
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:04 -0800 (PST)
+        with ESMTP id S233438AbjCGS4K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D63A0F0A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B034DB819CB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02D56C433D2;
-        Tue,  7 Mar 2023 18:43:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FB466152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2758AC433D2;
+        Tue,  7 Mar 2023 18:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214610;
-        bh=UfHIndz2cS4jkv2lRnJmh+Q7YlgidVpoB6juTD78jg4=;
+        s=korg; t=1678214613;
+        bh=VtLbXyz5ye/mIhclWvS1u5cS2uo4WQHPs0l3+oy6/Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8Cxe7FzVdvLTMCF7XV3rk7ArRS4+CnZYpGo4VM9LgoZIExyqHGMLsXxZpHN8z0BY
-         4rRdJ+6QygOiL7NGTdexiYv5UbJ99LIsnkeAWSdHh6ryV3yksek1ZsnLRS0bc71RXC
-         fKsAlZSW2P+NJWj9mTen2MTxqcvM2e9f1IBiEOjw=
+        b=eIT+r1ififmxN8nZ6N+tjgCIrT2bv1CFTiIbMFG74fIwSF968acWmEe4Pv2s+kBIJ
+         KvFEcGGShiwJ1wQvo95f5XGx2btPkzm7/YoXTrD76coffo23LbzRJvfP88KcB8Bpyq
+         BBKvnaZxsoshFZ/x+OChgKdShmAiyjHurhpzoZuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Richard Gong <richard.gong@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 878/885] drm/amd: Fix initialization for nbio 7.5.1
-Date:   Tue,  7 Mar 2023 18:03:32 +0100
-Message-Id: <20230307170039.930248221@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mavroudis Chatzilaridis <mavchatz@protonmail.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 6.1 879/885] drm/i915/quirks: Add inverted backlight quirk for HP 14-r206nv
+Date:   Tue,  7 Mar 2023 18:03:33 +0100
+Message-Id: <20230307170039.979333232@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -54,43 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Mavroudis Chatzilaridis <mavchatz@protonmail.com>
 
-commit 65a24000808f70ac69bd2a96381fa0c7341f20c0 upstream.
+commit 5e438bf7f9a1705ebcae5fa89cdbfbc6932a7871 upstream.
 
-A mistake has been made in the BIOS for some ASICs with NBIO 7.5.1
-where some NBIO registers aren't properly setup.
+This laptop uses inverted backlight PWM. Thus, without this quirk,
+backlight brightness decreases as the brightness value increases and
+vice versa.
 
-Ensure that they're set during initialization.
-
-Tested-by: Richard Gong <richard.gong@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.1.x
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8013
+Cc: stable@vger.kernel.org
+Signed-off-by: Mavroudis Chatzilaridis <mavchatz@protonmail.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230201184947.8835-1-mavchatz@protonmail.com
+(cherry picked from commit 83e7d6fd330d413cb2064e680ffea91b0512a520)
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/i915/display/intel_quirks.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-index 31776b12e4c4..4b0d563c6522 100644
---- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-@@ -382,6 +382,11 @@ static void nbio_v7_2_init_registers(struct amdgpu_device *adev)
- 		if (def != data)
- 			WREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regBIF1_PCIE_MST_CTRL_3), data);
- 		break;
-+	case IP_VERSION(7, 5, 1):
-+		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
-+		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
-+		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
-+		fallthrough;
- 	default:
- 		def = data = RREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regPCIE_CONFIG_CNTL));
- 		data = REG_SET_FIELD(data, PCIE_CONFIG_CNTL,
--- 
-2.39.2
-
+--- a/drivers/gpu/drm/i915/display/intel_quirks.c
++++ b/drivers/gpu/drm/i915/display/intel_quirks.c
+@@ -199,6 +199,8 @@ static struct intel_quirk intel_quirks[]
+ 	/* ECS Liva Q2 */
+ 	{ 0x3185, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
+ 	{ 0x3184, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
++	/* HP Notebook - 14-r206nv */
++	{ 0x0f31, 0x103c, 0x220f, quirk_invert_brightness },
+ };
+ 
+ void intel_init_quirks(struct drm_i915_private *i915)
 
 
