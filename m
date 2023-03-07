@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA8276AEA05
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B986AEE91
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230154AbjCGRaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51350 "EHLO
+        id S229570AbjCGSNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:13:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231549AbjCGR3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:45 -0500
+        with ESMTP id S232430AbjCGSNB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7B2A17E5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:24:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 444EE94393
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 110A0614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:24:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CE2C433EF;
-        Tue,  7 Mar 2023 17:24:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B602E61527
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5B72C433D2;
+        Tue,  7 Mar 2023 18:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209889;
-        bh=4Zl7Vjb+b9Zc+NV8+EPuCobD8YlGBNB5G9VogX4vN8g=;
+        s=korg; t=1678212503;
+        bh=JK+yND/OhzW78yd2PRvX1T4mP0GhccggqgYqc6wfeb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILC8x4Kc6ZxVDqpVLY8hHSZaBQWAFvIKm0n6TrC0AFiMoiXhLBQ6pV8NxeTbCP7M5
-         Cc/rNmUbY4hSWzzKAZ9jbc8wwl4Ej76bSq5UpXrK3kWzDMgP25+eLh488wFRYgo+Ls
-         qpUxsogZ63ybAURBjQK5nFKa95i29P5HGIk30OhU=
+        b=FM9sKRN3te1hxed71S1HbS1AyN2jx3f77arGzSTCLqqd62YLbqSsDE9NT+wkCOW0V
+         MQi9JK4tPwyCL63T4ui+YYoNhLRqspCMLNYySz0NiatY4GfJZkdkMPCklQy1V6fZUe
+         yYi8QjoLDXB39dg8MKC+2Juw0uZPbT/TCu3OJjPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0365/1001] drm/msm/dpu: Disallow unallocated resources to be returned
-Date:   Tue,  7 Mar 2023 17:52:17 +0100
-Message-Id: <20230307170037.224866791@linuxfoundation.org>
+Subject: [PATCH 6.1 204/885] s390/vmem: fix empty page tables cleanup under KASAN
+Date:   Tue,  7 Mar 2023 17:52:18 +0100
+Message-Id: <20230307170010.909119705@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit abc40122d9a69f56c04efb5a7485795f5ac799d1 ]
+[ Upstream commit 108303b0a2d27cb14eed565e33e64ad9eefe5d7e ]
 
-In the event that the topology requests resources that have not been
-created by the system (because they are typically not represented in
-dpu_mdss_cfg ^1), the resource(s) in global_state (in this case DSC
-blocks, until their allocation/assignment is being sanity-checked in
-"drm/msm/dpu: Reject topologies for which no DSC blocks are available")
-remain NULL but will still be returned out of
-dpu_rm_get_assigned_resources, where the caller expects to get an array
-containing num_blks valid pointers (but instead gets these NULLs).
+Commit b9ff81003cf1 ("s390/vmem: cleanup empty page tables") introduced
+empty page tables cleanup in vmem code, but when the kernel is built
+with KASAN enabled the code has no effect due to wrong KASAN shadow
+memory intersection condition, which effectively ignores any memory
+range below KASAN shadow. Fix intersection condition to make code
+work as anticipated.
 
-To prevent this from happening, where null-pointer dereferences
-typically result in a hard-to-debug platform lockup, num_blks shouldn't
-increase past NULL blocks and will print an error and break instead.
-After all, max_blks represents the static size of the maximum number of
-blocks whereas the actual amount varies per platform.
-
-^1: which can happen after a git rebase ended up moving additions to
-_dpu_cfg to a different struct which has the same patch context.
-
-Fixes: bb00a452d6f7 ("drm/msm/dpu: Refactor resource manager")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/517636/
-Link: https://lore.kernel.org/r/20230109231556.344977-1-marijn.suijten@somainline.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: b9ff81003cf1 ("s390/vmem: cleanup empty page tables")
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/s390/mm/vmem.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-index 73b3442e74679..7ada957adbbb8 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_rm.c
-@@ -660,6 +660,11 @@ int dpu_rm_get_assigned_resources(struct dpu_rm *rm,
- 				  blks_size, enc_id);
- 			break;
- 		}
-+		if (!hw_blks[i]) {
-+			DPU_ERROR("Allocated resource %d unavailable to assign to enc %d\n",
-+				  type, enc_id);
-+			break;
-+		}
- 		blks[num_blks++] = hw_blks[i];
- 	}
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index ee1a97078527b..9a0ce5315f36d 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -297,7 +297,7 @@ static void try_free_pmd_table(pud_t *pud, unsigned long start)
+ 	if (end > VMALLOC_START)
+ 		return;
+ #ifdef CONFIG_KASAN
+-	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++	if (start < KASAN_SHADOW_END && end > KASAN_SHADOW_START)
+ 		return;
+ #endif
+ 	pmd = pmd_offset(pud, start);
+@@ -372,7 +372,7 @@ static void try_free_pud_table(p4d_t *p4d, unsigned long start)
+ 	if (end > VMALLOC_START)
+ 		return;
+ #ifdef CONFIG_KASAN
+-	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++	if (start < KASAN_SHADOW_END && end > KASAN_SHADOW_START)
+ 		return;
+ #endif
+ 
+@@ -426,7 +426,7 @@ static void try_free_p4d_table(pgd_t *pgd, unsigned long start)
+ 	if (end > VMALLOC_START)
+ 		return;
+ #ifdef CONFIG_KASAN
+-	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++	if (start < KASAN_SHADOW_END && end > KASAN_SHADOW_START)
+ 		return;
+ #endif
  
 -- 
 2.39.2
