@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D9C6ADB26
+	by mail.lfdr.de (Postfix) with ESMTP id C8DE06ADB27
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:56:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230509AbjCGJ4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:56:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56152 "EHLO
+        id S230526AbjCGJ4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:56:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230510AbjCGJzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:55:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1809C509BC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:55:25 -0800 (PST)
+        with ESMTP id S231135AbjCGJzt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:55:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342D45DEC3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:55:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 643D3B816B3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAADEC433D2;
-        Tue,  7 Mar 2023 09:55:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4E47612BC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51D3C433EF;
+        Tue,  7 Mar 2023 09:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182923;
-        bh=+uSPYjFzagS76J0nyc6BcL9AGp2FsgmA3DVjQezm7Fc=;
+        s=korg; t=1678182926;
+        bh=pGQNTzUV5mmFzPNTWOf5Vc5j0MBQaWwozbNLdGS+8yY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Jy1A3OrOBBS5abFr0IM4W2Uox/anr4RwmcGZkSHlsrRy77pKr2SxxWHZJCE/d6fkn
-         O3WCavj4tRfXLnaq6iVeo5XHP+ODIag59SsWIwIycxvM7+X+sN63r4FMTFaFdjsjEb
-         uurTXiCYX3OH/D1Wg6HQrZ0qQNLlPAHON+ysX+g4=
-Subject: FAILED: patch "[PATCH] iommu/amd: Add a length limitation for the ivrs_acpihid" failed to apply to 5.4-stable tree
+        b=vlnJuuXQvLoHF8+TRpz2rngynrA+LoYDJ0fvPstJu31Wh0320TNx53Qd5a4n1H0ra
+         JSC+sDxLHcp4hWhvIX4ifvF2MVTyJI/n4hIZ1Y1h9wCFHV9tGDasoLwu2DUYUKtmCh
+         h5BU1vkNhSIi1LwBXUU0WmfjHK98NDJxDuDtSVTw=
+Subject: FAILED: patch "[PATCH] iommu/amd: Add a length limitation for the ivrs_acpihid" failed to apply to 4.14-stable tree
 To:     Ilia.Gavrilov@infotecs.ru, jroedel@suse.de, kim.phillips@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:55:10 +0100
-Message-ID: <167818291020229@kroah.com>
+Date:   Tue, 07 Mar 2023 10:55:11 +0100
+Message-ID: <1678182911197225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
 git checkout FETCH_HEAD
 git cherry-pick -x b6b26d86c61c441144c72f842f7469bb686e1211
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167818291020229@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182911197225@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
 
 Possible dependencies:
 
@@ -68,6 +68,7 @@ b6b26d86c61c ("iommu/amd: Add a length limitation for the ivrs_acpihid command-l
 1198d2316dc4 ("iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options")
 bbe3a106580c ("iommu/amd: Add PCI segment support for ivrs_[ioapic/hpet/acpihid] commands")
 42bb5aa04338 ("iommu/amd: Increase timeout waiting for GA log enablement")
+03ebe48e235f ("Merge branches 'iommu/fixes', 'arm/renesas', 'arm/mediatek', 'arm/tegra', 'arm/omap', 'arm/smmu', 'x86/vt-d', 'x86/amd' and 'core' into next")
 
 thanks,
 
