@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CA36AF1A2
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5D66AECBF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:57:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbjCGSqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:46:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38834 "EHLO
+        id S229732AbjCGR5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:57:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233194AbjCGSpc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:45:32 -0500
+        with ESMTP id S230172AbjCGR5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:57:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38E29A92C4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E823FACB88
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:51:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F09C61563
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF41EC433EF;
-        Tue,  7 Mar 2023 18:35:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B24261522
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:51:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 728E6C433EF;
+        Tue,  7 Mar 2023 17:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214107;
-        bh=ne7neqkItqvg0XeQ3WwHfJQN1eY4Yiq+9c39Y0Y3f6U=;
+        s=korg; t=1678211511;
+        bh=X/CIFZYkuHnBJPTugB2XmSb3qLkHNEpW2+l8VV1/jnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6dvzWotN5aFA9RzD2Dl+HKsRW5sO2i8WZ9GvzrmFiOhRWKIN+65DpBYHL0wRtRaT
-         w13Q0RvFgyy4oLvJOxPbSSendKxn338Uyna3mPJodfUmd0q5jlNZMj3NGy3xyWlUtQ
-         JmWGa+txWfUogopyYalmWN8aXl1p+TPihaldU5iU=
+        b=d2qRfH2xRpSL7W/Lc8yvCU6OWWasORtfRy73ygPP/SPz9n6gc7VuQKwKaVFmI2pWA
+         c3VJpeDrEcVhBq6a08ZNfRS3YohYV6yUK7i6P1sYzHHqccYNC39NO2wjYW/JOP+8c5
+         URqcm1OnbXqzcoO+TMNRmM7vwjFqnbfeQ/CCnnEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Bonzini <pbonzini@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 6.1 723/885] KVM: SVM: Process ICR on AVIC IPI delivery failure due to invalid target
-Date:   Tue,  7 Mar 2023 18:00:57 +0100
-Message-Id: <20230307170033.426572431@linuxfoundation.org>
+        patches@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+        Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 6.2 0886/1001] irqdomain: Fix domain registration race
+Date:   Tue,  7 Mar 2023 18:00:58 +0100
+Message-Id: <20230307170100.400585843@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +53,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 5aede752a839904059c2b5d68be0dc4501c6c15f upstream.
+commit 8932c32c3053accd50702b36e944ac2016cd103c upstream.
 
-Emulate ICR writes on AVIC IPI failures due to invalid targets using the
-same logic as failures due to invalid types.  AVIC acceleration fails if
-_any_ of the targets are invalid, and crucially VM-Exits before sending
-IPIs to targets that _are_ valid.  In logical mode, the destination is a
-bitmap, i.e. a single IPI can target multiple logical IDs.  Doing nothing
-causes KVM to drop IPIs if at least one target is valid and at least one
-target is invalid.
+Hierarchical domains created using irq_domain_create_hierarchy() are
+currently added to the domain list before having been fully initialised.
 
-Fixes: 18f40c53e10f ("svm: Add VMEXIT handlers for AVIC")
-Cc: stable@vger.kernel.org
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20230106011306.85230-5-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This specifically means that a racing allocation request might fail to
+allocate irq data for the inner domains of a hierarchy in case the
+parent domain pointer has not yet been set up.
+
+Note that this is not really any issue for irqchip drivers that are
+registered early (e.g. via IRQCHIP_DECLARE() or IRQCHIP_ACPI_DECLARE())
+but could potentially cause trouble with drivers that are registered
+later (e.g. modular drivers using IRQCHIP_PLATFORM_DRIVER_BEGIN(),
+gpiochip drivers, etc.).
+
+Fixes: afb7da83b9f4 ("irqdomain: Introduce helper function irq_domain_add_hierarchy()")
+Cc: stable@vger.kernel.org      # 3.19
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+[ johan: add commit message ]
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-8-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/avic.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ kernel/irq/irqdomain.c |   62 +++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 43 insertions(+), 19 deletions(-)
 
---- a/arch/x86/kvm/svm/avic.c
-+++ b/arch/x86/kvm/svm/avic.c
-@@ -502,14 +502,18 @@ int avic_incomplete_ipi_interception(str
- 	trace_kvm_avic_incomplete_ipi(vcpu->vcpu_id, icrh, icrl, id, index);
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -126,23 +126,12 @@ void irq_domain_free_fwnode(struct fwnod
+ }
+ EXPORT_SYMBOL_GPL(irq_domain_free_fwnode);
  
- 	switch (id) {
-+	case AVIC_IPI_FAILURE_INVALID_TARGET:
- 	case AVIC_IPI_FAILURE_INVALID_INT_TYPE:
- 		/*
- 		 * Emulate IPIs that are not handled by AVIC hardware, which
--		 * only virtualizes Fixed, Edge-Triggered INTRs.  The exit is
--		 * a trap, e.g. ICR holds the correct value and RIP has been
--		 * advanced, KVM is responsible only for emulating the IPI.
--		 * Sadly, hardware may sometimes leave the BUSY flag set, in
--		 * which case KVM needs to emulate the ICR write as well in
-+		 * only virtualizes Fixed, Edge-Triggered INTRs, and falls over
-+		 * if _any_ targets are invalid, e.g. if the logical mode mask
-+		 * is a superset of running vCPUs.
-+		 *
-+		 * The exit is a trap, e.g. ICR holds the correct value and RIP
-+		 * has been advanced, KVM is responsible only for emulating the
-+		 * IPI.  Sadly, hardware may sometimes leave the BUSY flag set,
-+		 * in which case KVM needs to emulate the ICR write as well in
- 		 * order to clear the BUSY flag.
- 		 */
- 		if (icrl & APIC_ICR_BUSY)
-@@ -525,8 +529,6 @@ int avic_incomplete_ipi_interception(str
- 		 */
- 		avic_kick_target_vcpus(vcpu->kvm, apic, icrl, icrh, index);
- 		break;
--	case AVIC_IPI_FAILURE_INVALID_TARGET:
--		break;
- 	case AVIC_IPI_FAILURE_INVALID_BACKING_PAGE:
- 		WARN_ONCE(1, "Invalid backing page\n");
- 		break;
+-/**
+- * __irq_domain_add() - Allocate a new irq_domain data structure
+- * @fwnode: firmware node for the interrupt controller
+- * @size: Size of linear map; 0 for radix mapping only
+- * @hwirq_max: Maximum number of interrupts supported by controller
+- * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
+- *              direct mapping
+- * @ops: domain callbacks
+- * @host_data: Controller private data pointer
+- *
+- * Allocates and initializes an irq_domain structure.
+- * Returns pointer to IRQ domain, or NULL on failure.
+- */
+-struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
+-				    irq_hw_number_t hwirq_max, int direct_max,
+-				    const struct irq_domain_ops *ops,
+-				    void *host_data)
++static struct irq_domain *__irq_domain_create(struct fwnode_handle *fwnode,
++					      unsigned int size,
++					      irq_hw_number_t hwirq_max,
++					      int direct_max,
++					      const struct irq_domain_ops *ops,
++					      void *host_data)
+ {
+ 	struct irqchip_fwid *fwid;
+ 	struct irq_domain *domain;
+@@ -230,12 +219,44 @@ struct irq_domain *__irq_domain_add(stru
+ 
+ 	irq_domain_check_hierarchy(domain);
+ 
++	return domain;
++}
++
++static void __irq_domain_publish(struct irq_domain *domain)
++{
+ 	mutex_lock(&irq_domain_mutex);
+ 	debugfs_add_domain_dir(domain);
+ 	list_add(&domain->link, &irq_domain_list);
+ 	mutex_unlock(&irq_domain_mutex);
+ 
+ 	pr_debug("Added domain %s\n", domain->name);
++}
++
++/**
++ * __irq_domain_add() - Allocate a new irq_domain data structure
++ * @fwnode: firmware node for the interrupt controller
++ * @size: Size of linear map; 0 for radix mapping only
++ * @hwirq_max: Maximum number of interrupts supported by controller
++ * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
++ *              direct mapping
++ * @ops: domain callbacks
++ * @host_data: Controller private data pointer
++ *
++ * Allocates and initializes an irq_domain structure.
++ * Returns pointer to IRQ domain, or NULL on failure.
++ */
++struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
++				    irq_hw_number_t hwirq_max, int direct_max,
++				    const struct irq_domain_ops *ops,
++				    void *host_data)
++{
++	struct irq_domain *domain;
++
++	domain = __irq_domain_create(fwnode, size, hwirq_max, direct_max,
++				     ops, host_data);
++	if (domain)
++		__irq_domain_publish(domain);
++
+ 	return domain;
+ }
+ EXPORT_SYMBOL_GPL(__irq_domain_add);
+@@ -1138,12 +1159,15 @@ struct irq_domain *irq_domain_create_hie
+ 	struct irq_domain *domain;
+ 
+ 	if (size)
+-		domain = irq_domain_create_linear(fwnode, size, ops, host_data);
++		domain = __irq_domain_create(fwnode, size, size, 0, ops, host_data);
+ 	else
+-		domain = irq_domain_create_tree(fwnode, ops, host_data);
++		domain = __irq_domain_create(fwnode, 0, ~0, 0, ops, host_data);
++
+ 	if (domain) {
+ 		domain->parent = parent;
+ 		domain->flags |= flags;
++
++		__irq_domain_publish(domain);
+ 	}
+ 
+ 	return domain;
 
 
