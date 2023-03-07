@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D516AEF56
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E556AEAB1
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232564AbjCGSXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:23:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
+        id S231810AbjCGRgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:36:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232560AbjCGSWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863D6A2F33
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:51 -0800 (PST)
+        with ESMTP id S231265AbjCGRgQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C62994A74
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21E6261522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28AD2C433EF;
-        Tue,  7 Mar 2023 18:16:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF6A6B819AD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02370C4339B;
+        Tue,  7 Mar 2023 17:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213010;
-        bh=hNvETghRVz4SEq0n1aQcQLBjG7OwrPLlrJwjTSqg3J4=;
+        s=korg; t=1678210321;
+        bh=S0IHoom/Ez/Qg5GDkNcK+ovHZifsOmMXa5mxuheiAU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sEYHo5mvfmiCIH+NY0suiuCbyX/VCXTRh6v4El4EnHDF6SVvDxdK8kUX+sFHgdOrx
-         GYYydSBoymjLEWvuWERjOO8sdaeYHhmM83Mk3GkqocVbVVjnZKoi+Khn4x6Xx+tH4H
-         /eN5BKNhe6apWHW/Efjuw7e2UWhZsYBzkOAviLUE=
+        b=OVFGZSJ8UKYkkWt0ziVb1MH7TotibZkCZlIDmWZDsUfH4x4X0mPF3TDz/pQndsECs
+         t2DPw5d+KEPqW0Tx561lOTMVynyZMcK5lNx5LqYI0CAc/Cjv8FPgZrsNsplsVGNisg
+         Cyi214yjLIiUwlfzM1cf0Mi9sIvnlh7mLorRg2Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jerome Neanne <jneanne@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Mao Jinlong <quic_jinlmao@quicinc.com>,
+        James Clark <james.clark@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 342/885] regulator: tps65219: use generic set_bypass()
+Subject: [PATCH 6.2 0504/1001] coresight: cti: Add PM runtime call in enable_store
 Date:   Tue,  7 Mar 2023 17:54:36 +0100
-Message-Id: <20230307170017.079788528@linuxfoundation.org>
+Message-Id: <20230307170043.274653082@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Neanne <jneanne@baylibre.com>
+From: Mao Jinlong <quic_jinlmao@quicinc.com>
 
-[ Upstream commit 0365df81145a4cfaae5f4da896160de512256e6d ]
+[ Upstream commit eff674a9b86a6ffdd10c3af3863545acf7f1ce4f ]
 
-Due to wrong interpretation of the specification,
-custom implementation was used instead of standard regmap helper.
-LINK: https://lore.kernel.org/all/c2014039-f1e8-6976-33d6-52e2dd4e7b66@baylibre.com/
+In commit 6746eae4bbad ("coresight: cti: Fix hang in cti_disable_hw()")
+PM runtime calls are removed from cti_enable_hw/cti_disable_hw. When
+enabling CTI by writing enable sysfs node, clock for accessing CTI
+register won't be enabled. Device will crash due to register access
+issue. Add PM runtime call in enable_store to fix this issue.
 
-Fixes: c12ac5fc3e0a ("regulator: drivers: Add TI TPS65219 PMIC regulators support")
-
-Regulator does NOT require to be off to be switched to bypass mode.
-
-Signed-off-by: Jerome Neanne <jneanne@baylibre.com>
-Link: https://lore.kernel.org/r/20230203140119.13029-1-jneanne@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 6746eae4bbad ("coresight: cti: Fix hang in cti_disable_hw()")
+Signed-off-by: Mao Jinlong <quic_jinlmao@quicinc.com>
+[Change to only call pm_runtime_put if a disable happened]
+Tested-by: Jinlong Mao <quic_jinlmao@quicinc.com>
+Signed-off-by: James Clark <james.clark@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20230110110736.2709917-3-james.clark@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/tps65219-regulator.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+ drivers/hwtracing/coresight/coresight-cti-sysfs.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/tps65219-regulator.c b/drivers/regulator/tps65219-regulator.c
-index 070159cb5f094..58f6541b6417b 100644
---- a/drivers/regulator/tps65219-regulator.c
-+++ b/drivers/regulator/tps65219-regulator.c
-@@ -173,24 +173,6 @@ static unsigned int tps65219_get_mode(struct regulator_dev *dev)
- 		return REGULATOR_MODE_NORMAL;
- }
+diff --git a/drivers/hwtracing/coresight/coresight-cti-sysfs.c b/drivers/hwtracing/coresight/coresight-cti-sysfs.c
+index 6d59c815ecf5e..71e7a8266bb32 100644
+--- a/drivers/hwtracing/coresight/coresight-cti-sysfs.c
++++ b/drivers/hwtracing/coresight/coresight-cti-sysfs.c
+@@ -108,10 +108,19 @@ static ssize_t enable_store(struct device *dev,
+ 	if (ret)
+ 		return ret;
  
--/*
-- * generic regulator_set_bypass_regmap does not fully match requirements
-- * TPS65219 Requires explicitly that regulator is disabled before switch
-- */
--static int tps65219_set_bypass(struct regulator_dev *dev, bool enable)
--{
--	struct tps65219 *tps = rdev_get_drvdata(dev);
--	unsigned int rid = rdev_get_id(dev);
--
--	if (dev->desc->ops->is_enabled(dev)) {
--		dev_err(tps->dev,
--			"%s LDO%d enabled, must be shut down to set bypass ",
--			__func__, rid);
--		return -EBUSY;
--	}
--	return regulator_set_bypass_regmap(dev, enable);
--}
--
- /* Operations permitted on BUCK1/2/3 */
- static const struct regulator_ops tps65219_bucks_ops = {
- 	.is_enabled		= regulator_is_enabled_regmap,
-@@ -217,7 +199,7 @@ static const struct regulator_ops tps65219_ldos_1_2_ops = {
- 	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
- 	.list_voltage		= regulator_list_voltage_linear_range,
- 	.map_voltage		= regulator_map_voltage_linear_range,
--	.set_bypass		= tps65219_set_bypass,
-+	.set_bypass		= regulator_set_bypass_regmap,
- 	.get_bypass		= regulator_get_bypass_regmap,
- };
- 
+-	if (val)
++	if (val) {
++		ret = pm_runtime_resume_and_get(dev->parent);
++		if (ret)
++			return ret;
+ 		ret = cti_enable(drvdata->csdev);
+-	else
++		if (ret)
++			pm_runtime_put(dev->parent);
++	} else {
+ 		ret = cti_disable(drvdata->csdev);
++		if (!ret)
++			pm_runtime_put(dev->parent);
++	}
++
+ 	if (ret)
+ 		return ret;
+ 	return size;
 -- 
 2.39.2
 
