@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3246AEF49
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD2646AEAC7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbjCGSWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:22:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46872 "EHLO
+        id S231848AbjCGRhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:37:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232560AbjCGSWR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1F2A8EBE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:13 -0800 (PST)
+        with ESMTP id S231847AbjCGRgz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F4A198B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30309B8199A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60ECDC433D2;
-        Tue,  7 Mar 2023 18:16:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 808E26151E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8730DC433D2;
+        Tue,  7 Mar 2023 17:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212970;
-        bh=87tqBirv6wu16zT8oj1UBP8Bxh7d8Ck+gqxhsIHgjNA=;
+        s=korg; t=1678210373;
+        bh=kuDlEyKFMm3hkU0qV64QqInuOViRoocDeoJjbnYDs1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4z79mIixkCQ3MXGrxTM3eJilph8cwT5OsNJcE4Y2evd+UAnKTHJZm1TPtMgLjhSW
-         1S3TfPrDVv1iVq+SRXsjRBkyeuUQtHieTRXD8OA2UDa12g6nMNFGz+3GV2CJI36nGZ
-         Xvl55bTmaUHXIC2W9IQg4//X4dlh+zAIB3xNRQxA=
+        b=nWvKF80BEB9csXPVZNNH+0GaAGN9VL3MaZ5i0VFixYXQzX0r+yfF+rMX6xcBP8BPR
+         U0csmS0ITtE8/QvgNMWnGHRvYO2cxn5KxUw+Fwbx12XWEz9LtzINp5RpyyjV+8zlTp
+         P28UOA18IJUj0tYAEsnXzPyVKTfhJyUrDLfyvkJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 357/885] drm/amd/display: dont call dc_interrupt_set() for disabled crtcs
+        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Vishnu Dasa <vdasa@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0519/1001] VMCI: check context->notify_page after call to get_user_pages_fast() to avoid GPF
 Date:   Tue,  7 Mar 2023 17:54:51 +0100
-Message-Id: <20230307170017.784490933@linuxfoundation.org>
+Message-Id: <20230307170043.962056425@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamza Mahfooz <hamza.mahfooz@amd.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 4936458bf989d168f5a89015dd81067c4c2bdc64 ]
+[ Upstream commit 1a726cb47fd204109c767409fa9ca15a96328f14 ]
 
-As made mention of in commit 4ea7fc09539b ("drm/amd/display: Do not
-program interrupt status on disabled crtc"), we shouldn't program
-disabled crtcs. So, filter out disabled crtcs in dm_set_vupdate_irq()
-and dm_set_vblank().
+The call to get_user_pages_fast() in vmci_host_setup_notify() can return
+NULL context->notify_page causing a GPF. To avoid GPF check if
+context->notify_page == NULL and return error if so.
 
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Fixes: 589d2739332d ("drm/amd/display: Use crtc enable/disable_vblank hooks")
-Fixes: d2574c33bb71 ("drm/amd/display: In VRR mode, do DRM core vblank handling at end of vblank. (v2)")
-Signed-off-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+general protection fault, probably for non-canonical address
+    0xe0009d1000000060: 0000 [#1] PREEMPT SMP KASAN NOPTI
+KASAN: maybe wild-memory-access in range [0x0005088000000300-
+    0x0005088000000307]
+CPU: 2 PID: 26180 Comm: repro_34802241 Not tainted 6.1.0-rc4 #1
+Hardware name: Red Hat KVM, BIOS 1.15.0-2.module+el8.6.0 04/01/2014
+RIP: 0010:vmci_ctx_check_signal_notify+0x91/0xe0
+Call Trace:
+ <TASK>
+ vmci_host_unlocked_ioctl+0x362/0x1f40
+ __x64_sys_ioctl+0x1a1/0x230
+ do_syscall_64+0x3a/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: a1d88436d53a ("VMCI: Fix two UVA mapping bugs")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Link: https://lore.kernel.org/r/1669666705-24012-1-git-send-email-george.kennedy@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/misc/vmw_vmci/vmci_host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c
-index 64dd029702926..b87f50e8fa615 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crtc.c
-@@ -77,6 +77,9 @@ int dm_set_vupdate_irq(struct drm_crtc *crtc, bool enable)
- 	struct amdgpu_device *adev = drm_to_adev(crtc->dev);
- 	int rc;
+diff --git a/drivers/misc/vmw_vmci/vmci_host.c b/drivers/misc/vmw_vmci/vmci_host.c
+index da1e2a773823e..857b9851402a6 100644
+--- a/drivers/misc/vmw_vmci/vmci_host.c
++++ b/drivers/misc/vmw_vmci/vmci_host.c
+@@ -242,6 +242,8 @@ static int vmci_host_setup_notify(struct vmci_ctx *context,
+ 		context->notify_page = NULL;
+ 		return VMCI_ERROR_GENERIC;
+ 	}
++	if (context->notify_page == NULL)
++		return VMCI_ERROR_UNAVAILABLE;
  
-+	if (acrtc->otg_inst == -1)
-+		return 0;
-+
- 	irq_source = IRQ_TYPE_VUPDATE + acrtc->otg_inst;
- 
- 	rc = dc_interrupt_set(adev->dm.dc, irq_source, enable) ? 0 : -EBUSY;
-@@ -149,6 +152,9 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
- 	struct vblank_control_work *work;
- 	int rc = 0;
- 
-+	if (acrtc->otg_inst == -1)
-+		goto skip;
-+
- 	if (enable) {
- 		/* vblank irq on -> Only need vupdate irq in vrr mode */
- 		if (amdgpu_dm_vrr_active(acrtc_state))
-@@ -166,6 +172,7 @@ static inline int dm_set_vblank(struct drm_crtc *crtc, bool enable)
- 	if (!dc_interrupt_set(adev->dm.dc, irq_source, enable))
- 		return -EBUSY;
- 
-+skip:
- 	if (amdgpu_in_reset(adev))
- 		return 0;
- 
+ 	/*
+ 	 * Map the locked page and set up notify pointer.
 -- 
 2.39.2
 
