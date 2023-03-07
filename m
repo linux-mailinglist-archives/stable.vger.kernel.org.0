@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAD66AF2B3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCCF6AF2B7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233444AbjCGSzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:55:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59412 "EHLO
+        id S231854AbjCGSzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:55:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233550AbjCGSy6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:58 -0500
+        with ESMTP id S229907AbjCGSzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:55:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8420AF2BC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6CEAF2BD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E9236153C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C15BC433EF;
-        Tue,  7 Mar 2023 18:42:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DF1361526
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55BE1C433D2;
+        Tue,  7 Mar 2023 18:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214561;
-        bh=CXlDenawu3Itgf4btIX3b9grnyUPTMgCmQcYJWbGoOg=;
+        s=korg; t=1678214564;
+        bh=voI6a9986FzORnmDyWvB195TsofQKYj/+HwWrXED/yY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUXkcV0olWyLb9JFGVw/tO/qXb0SAVLGRF2m5kebV1EC619NMYKrmRDoIvXRwY60l
-         0tuENE5lsKSn99Wi62e8SLJS8st9187W0WiLfBWXSODTzjaXoXWC0EyM3VBOP8aM7T
-         ZTJ3MVHKaqE1L1iCRbMRKDadVFz5EulEJHb+CN4w=
+        b=yvxt7Xo2WWb66022G1ydHw2uyREx3L5rfuacpRi85k5fVydtYLo8zG1dweYF66GIY
+         qX4mnqjCLrSe2D5ivmDheqiU+GJNHew+qgxvOLpsXKt1jyqsFTsaEWSTbv3dIsLS8b
+         U7qnzae2f8dkxKWW4j6na2kG+XFStTlkURPkVXbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
+        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.1 860/885] riscv, mm: Perform BPF exhandler fixup on page fault
-Date:   Tue,  7 Mar 2023 18:03:14 +0100
-Message-Id: <20230307170039.110504994@linuxfoundation.org>
+Subject: [PATCH 6.1 861/885] riscv: ftrace: Remove wasted nops for !RISCV_ISA_C
+Date:   Tue,  7 Mar 2023 18:03:15 +0100
+Message-Id: <20230307170039.151329318@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -54,51 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@rivosinc.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 416721ff05fddc58ca531b6f069de250301de6e5 upstream.
+commit 409c8fb20c66df7150e592747412438c04aeb11f upstream.
 
-Commit 21855cac82d3 ("riscv/mm: Prevent kernel module to access user
-memory without uaccess routines") added early exits/deaths for page
-faults stemming from accesses to user-space without using proper
-uaccess routines (where sstatus.SUM is set).
+When CONFIG_RISCV_ISA_C=n, -fpatchable-function-entry=8 would generate
+more nops than we expect. Because it treat nop opcode as 0x00000013
+instead of 0x0001.
 
-Unfortunatly, this is too strict for some BPF programs, which relies
-on BPF exhandler fixups. These BPF programs loads "BTF pointers". A
-BTF pointers could either be a valid kernel pointer or NULL, but not a
-userspace address.
+Dump of assembler code for function dw_pcie_free_msi:
+   0xffffffff806fce94 <+0>:     sd      ra,-8(sp)
+   0xffffffff806fce98 <+4>:     auipc   ra,0xff90f
+   0xffffffff806fce9c <+8>:     jalr    -684(ra) # 0xffffffff8000bbec
+<ftrace_caller>
+   0xffffffff806fcea0 <+12>:    ld      ra,-8(sp)
+   0xffffffff806fcea4 <+16>:    nop /* wasted */
+   0xffffffff806fcea8 <+20>:    nop /* wasted */
+   0xffffffff806fceac <+24>:    nop /* wasted */
+   0xffffffff806fceb0 <+28>:    nop /* wasted */
+   0xffffffff806fceb4 <+0>:     addi    sp,sp,-48
+   0xffffffff806fceb8 <+4>:     sd      s0,32(sp)
+   0xffffffff806fcebc <+8>:     sd      s1,24(sp)
+   0xffffffff806fcec0 <+12>:    sd      s2,16(sp)
+   0xffffffff806fcec4 <+16>:    sd      s3,8(sp)
+   0xffffffff806fcec8 <+20>:    sd      ra,40(sp)
+   0xffffffff806fcecc <+24>:    addi    s0,sp,48
 
-Resolve the problem by calling the fixup handler in the early exit
-path.
-
-Fixes: 21855cac82d3 ("riscv/mm: Prevent kernel module to access user memory without uaccess routines")
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
-Link: https://lore.kernel.org/r/20230214162515.184827-1-bjorn@kernel.org
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20230112090603.1295340-3-guoren@kernel.org
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/mm/fault.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/riscv/Makefile |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -267,10 +267,12 @@ asmlinkage void do_page_fault(struct pt_
- 	if (user_mode(regs))
- 		flags |= FAULT_FLAG_USER;
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -11,7 +11,11 @@ LDFLAGS_vmlinux :=
+ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
+ 	LDFLAGS_vmlinux := --no-relax
+ 	KBUILD_CPPFLAGS += -DCC_USING_PATCHABLE_FUNCTION_ENTRY
++ifeq ($(CONFIG_RISCV_ISA_C),y)
+ 	CC_FLAGS_FTRACE := -fpatchable-function-entry=8
++else
++	CC_FLAGS_FTRACE := -fpatchable-function-entry=4
++endif
+ endif
  
--	if (!user_mode(regs) && addr < TASK_SIZE &&
--			unlikely(!(regs->status & SR_SUM)))
--		die_kernel_fault("access to user memory without uaccess routines",
--				addr, regs);
-+	if (!user_mode(regs) && addr < TASK_SIZE && unlikely(!(regs->status & SR_SUM))) {
-+		if (fixup_exception(regs))
-+			return;
-+
-+		die_kernel_fault("access to user memory without uaccess routines", addr, regs);
-+	}
- 
- 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
- 
+ ifeq ($(CONFIG_CMODEL_MEDLOW),y)
 
 
