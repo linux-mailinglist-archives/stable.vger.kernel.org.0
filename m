@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 674206AEB8A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:45:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1724D6AF0AA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232099AbjCGRps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:45:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54180 "EHLO
+        id S231574AbjCGSdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:33:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232269AbjCGRpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:45:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FAE897496
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:40:53 -0800 (PST)
+        with ESMTP id S229955AbjCGSdM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:33:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ECC1B256A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:25:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2E7161528
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA537C4339E;
-        Tue,  7 Mar 2023 17:40:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 078DB6154C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F10A6C433D2;
+        Tue,  7 Mar 2023 18:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210827;
-        bh=6GU7YqwBGP6km5FP8YQtlRBF9Ucct22hhgFPrY1uTIM=;
+        s=korg; t=1678213530;
+        bh=uw2nkjhNQx5+erk0stxMqkev2lIwAdl32LZRI5YipLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H15my9LcYvChhyA32gYY4/a7oZIHieCadE0CNHjOCS5jj0yqVQhOIXFnsvWSHYOtR
-         kVmj1gO0s9CpsceMPPqeOf0arFoZMly4h8XkoxsiO31Ur55l1tmOyrx6m7VOzkW2X9
-         M6De2uWDLDxZgP78DuiSui54dLdFvD0FD4pkMBVk=
+        b=p9KoJiWWLRAK5oxd9ap31KrjpLSCHVlzrl4C2vPHdSsljedJ7ic08n3G5f95gEyhT
+         IXqfxTyfHeQy+YpT35pT7i3YmuMXJR4CcFAvMy1Op5Tw3ySp8c0TtkW9HUVOmksvVk
+         hBbU5wfIf0oVDzDM+5MFHpb+Xb5FpKCsgAzVRq8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Rui <rui.zhang@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0667/1001] tools/power/x86/intel-speed-select: Add Emerald Rapid quirk
-Date:   Tue,  7 Mar 2023 17:57:19 +0100
-Message-Id: <20230307170050.551717363@linuxfoundation.org>
+Subject: [PATCH 6.1 506/885] media: mc: Get media_device directly from pad
+Date:   Tue,  7 Mar 2023 17:57:20 +0100
+Message-Id: <20230307170024.443201745@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,35 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 61f9fdcdcd01f9a996b6db4e7092fcdfe8414ad5 ]
+[ Upstream commit a967a3a788028f541e4db54beabcebc3648997db ]
 
-Need memory frequency quirk as Sapphire Rapids in Emerald Rapids.
-So add Emerald Rapids CPU model check in is_spr_platform().
+Various functions access the media_device from a pad by going through
+the entity the pad belongs to. Remove the level of indirection and get
+the media_device from the pad directly.
 
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-[srinivas.pandruvada@linux.intel.com: Subject, changelog and code edits]
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 9e3576a1ae2b ("media: mc: convert pipeline funcs to take media_pad")
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/intel-speed-select/isst-config.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/mc/mc-entity.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
-index a160bad291eb7..be3668d37d654 100644
---- a/tools/power/x86/intel-speed-select/isst-config.c
-+++ b/tools/power/x86/intel-speed-select/isst-config.c
-@@ -110,7 +110,7 @@ int is_skx_based_platform(void)
- 
- int is_spr_platform(void)
+diff --git a/drivers/media/mc/mc-entity.c b/drivers/media/mc/mc-entity.c
+index b8bcbc734eaf4..f268cf66053e1 100644
+--- a/drivers/media/mc/mc-entity.c
++++ b/drivers/media/mc/mc-entity.c
+@@ -703,7 +703,7 @@ static int media_pipeline_populate(struct media_pipeline *pipe,
+ __must_check int __media_pipeline_start(struct media_pad *pad,
+ 					struct media_pipeline *pipe)
  {
--	if (cpu_model == 0x8F)
-+	if (cpu_model == 0x8F || cpu_model == 0xCF)
- 		return 1;
+-	struct media_device *mdev = pad->entity->graph_obj.mdev;
++	struct media_device *mdev = pad->graph_obj.mdev;
+ 	struct media_pipeline_pad *err_ppad;
+ 	struct media_pipeline_pad *ppad;
+ 	int ret;
+@@ -851,7 +851,7 @@ EXPORT_SYMBOL_GPL(__media_pipeline_start);
+ __must_check int media_pipeline_start(struct media_pad *pad,
+ 				      struct media_pipeline *pipe)
+ {
+-	struct media_device *mdev = pad->entity->graph_obj.mdev;
++	struct media_device *mdev = pad->graph_obj.mdev;
+ 	int ret;
  
- 	return 0;
+ 	mutex_lock(&mdev->graph_mutex);
+@@ -888,7 +888,7 @@ EXPORT_SYMBOL_GPL(__media_pipeline_stop);
+ 
+ void media_pipeline_stop(struct media_pad *pad)
+ {
+-	struct media_device *mdev = pad->entity->graph_obj.mdev;
++	struct media_device *mdev = pad->graph_obj.mdev;
+ 
+ 	mutex_lock(&mdev->graph_mutex);
+ 	__media_pipeline_stop(pad);
+@@ -898,7 +898,7 @@ EXPORT_SYMBOL_GPL(media_pipeline_stop);
+ 
+ __must_check int media_pipeline_alloc_start(struct media_pad *pad)
+ {
+-	struct media_device *mdev = pad->entity->graph_obj.mdev;
++	struct media_device *mdev = pad->graph_obj.mdev;
+ 	struct media_pipeline *new_pipe = NULL;
+ 	struct media_pipeline *pipe;
+ 	int ret;
 -- 
 2.39.2
 
