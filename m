@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4846A6AF2AF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0D066AF2A8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233216AbjCGSzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:55:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34130 "EHLO
+        id S230371AbjCGSys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:54:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233396AbjCGSys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1255BAF29F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:33 -0800 (PST)
+        with ESMTP id S233472AbjCGSyN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2409E99669
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FB406152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:42:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9720AC433D2;
-        Tue,  7 Mar 2023 18:42:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9715661540
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:42:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74518C4339E;
+        Tue,  7 Mar 2023 18:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214527;
-        bh=v5ljIiQWZBHCGZvt3PnAC5FrftRBxOoDU6VDJZi+kH0=;
+        s=korg; t=1678214533;
+        bh=u8BGxXeNeMfTLDftDVe1tr5HTuXiSx3ka5bkHanXLEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eYlTbyveFn5f3mgILOHvARZlE4yguHEvaSykCu58u9PqXctYuSSUJfYa/j7dYZ1Ws
-         8J52fLxaDA2X0+ZkMo1QePE82uPC/FPee8A/ySYz4rOT7xIKpJA/E07eWBFuwH7n27
-         AJxGty0W+H9XbLYxRaeNDJGofOt4Mzx85b3sMM9g=
+        b=Sk+1kdNwHjYNLxXjM47ZvHs4Ydr2VdWwJcfykDmPABV/hnyFh/PJERFFsOiZpARZD
+         og2MKxS/sB1N/wfjRpT1nTrR98PXARNLRYI/MSuiMF3kZ6ZDqzAdUowlzjsgoCiL4a
+         SG2ty2T1p18d8y0aU1G+w7kE2CKVzrpbAjZMKZjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ding Hui <dinghui@sangfor.com.cn>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.1 851/885] scsi: ses: Dont attach if enclosure has no components
-Date:   Tue,  7 Mar 2023 18:03:05 +0100
-Message-Id: <20230307170038.762634983@linuxfoundation.org>
+Subject: [PATCH 6.1 852/885] scsi: ses: Fix slab-out-of-bounds in ses_enclosure_data_process()
+Date:   Tue,  7 Mar 2023 18:03:06 +0100
+Message-Id: <20230307170038.806764783@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -44,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,41 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <jejb@linux.ibm.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-commit 3fe97ff3d94934649abb0652028dd7296170c8d0 upstream.
+commit 9b4f5028e493cb353a5c8f5c45073eeea0303abd upstream.
 
-An enclosure with no components can't usefully be operated by the driver
-(since effectively it has nothing to manage), so report the problem and
-don't attach. Not attaching also fixes an oops which could occur if the
-driver tries to manage a zero component enclosure.
+A fix for:
 
-[mkp: Switched to KERN_WARNING since this scenario is common]
+BUG: KASAN: slab-out-of-bounds in ses_enclosure_data_process+0x949/0xe30 [ses]
+Read of size 1 at addr ffff88a1b043a451 by task systemd-udevd/3271
 
-Link: https://lore.kernel.org/r/c5deac044ac409e32d9ad9968ce0dcbc996bfc7a.camel@linux.ibm.com
+Checking after (and before in next loop) addl_desc_ptr[1] is sufficient, we
+expect the size to be sanitized before first access to addl_desc_ptr[1].
+Make sure we don't walk beyond end of page.
+
+Link: https://lore.kernel.org/r/20230202162451.15346-2-thenzl@redhat.com
 Cc: stable@vger.kernel.org
-Reported-by: Ding Hui <dinghui@sangfor.com.cn>
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ses.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/ses.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 --- a/drivers/scsi/ses.c
 +++ b/drivers/scsi/ses.c
-@@ -704,6 +704,12 @@ static int ses_intf_add(struct device *c
- 		    type_ptr[0] == ENCLOSURE_COMPONENT_ARRAY_DEVICE)
- 			components += type_ptr[1];
+@@ -603,9 +603,11 @@ static void ses_enclosure_data_process(s
+ 			     /* these elements are optional */
+ 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_TARGET_PORT ||
+ 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_INITIATOR_PORT ||
+-			     type_ptr[0] == ENCLOSURE_COMPONENT_CONTROLLER_ELECTRONICS))
++			     type_ptr[0] == ENCLOSURE_COMPONENT_CONTROLLER_ELECTRONICS)) {
+ 				addl_desc_ptr += addl_desc_ptr[1] + 2;
+-
++				if (addl_desc_ptr + 1 >= ses_dev->page10 + ses_dev->page10_len)
++					addl_desc_ptr = NULL;
++			}
+ 		}
  	}
-+
-+	if (components == 0) {
-+		sdev_printk(KERN_WARNING, sdev, "enclosure has no enumerated components\n");
-+		goto err_free;
-+	}
-+
- 	ses_dev->page1 = buf;
- 	ses_dev->page1_len = len;
- 	buf = NULL;
+ 	kfree(buf);
 
 
