@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5631F6AF073
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FD716AEBA9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:47:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbjCGSah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:30:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55912 "EHLO
+        id S232182AbjCGRrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:47:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232973AbjCGSaD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:30:03 -0500
+        with ESMTP id S232088AbjCGRqz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:46:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62531D301
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 972A5A6BF2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:41:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19B26B819D1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50AB8C433EF;
-        Tue,  7 Mar 2023 18:23:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB692B819BF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:41:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6418FC433D2;
+        Tue,  7 Mar 2023 17:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213416;
-        bh=YDH6YSNZw/uNjIOSTAm6SWhQX/bt1qskzo9zZHhwXX4=;
+        s=korg; t=1678210906;
+        bh=edgwJzKDhNOuCl+1p1IZthxpkz3hMw0dRrar0CsuIZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0lbwbvWTGhKF7MoGKnO0YEJAXg+wasxtInSHUjTjh3inL3E4I0ZmOFconi1OfD7oD
-         zpBnQUSy0knuZWJfj0trDMT5/iZuXIUT5NgX6z/w3pNxlEc990foxZcTlQbfAMIl8s
-         fHEg5ZtBmGf6jM1x6g0jrI7CjBwBxg4bDQ3UiNVo=
+        b=1rq2Ozbjaqvvq3GBGlAc2C9Xd2La7skBsngLIqFeEJKDohTMc6MysUn1QSJVRR343
+         r2DNJJNJekpt5Vn2DviH2kyLBrvBFHkqr4zLudZYZ4kf4HCXtU+Zoslif0AJXb93Td
+         DYTcpqxjFlv5o+qqAx3iupmlvPgDo8Lmgg8pThI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 499/885] s390/vdso: Drop -shared from KBUILD_CFLAGS_64
+Subject: [PATCH 6.2 0661/1001] net: bcmgenet: Add a check for oversized packets
 Date:   Tue,  7 Mar 2023 17:57:13 +0100
-Message-Id: <20230307170024.140485026@linuxfoundation.org>
+Message-Id: <20230307170050.292563950@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,43 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit fd8589dce8107e2ce62e92f76089654462dd67b4 ]
+[ Upstream commit 5c0862c2c962052ed5055220a00ac1cefb92fbcd ]
 
-When clang's -Qunused-arguments is dropped from KBUILD_CPPFLAGS, it
-points out that there is a linking phase flag added to CFLAGS, which
-will only be used for compiling
+Occasionnaly we may get oversized packets from the hardware which
+exceed the nomimal 2KiB buffer size we allocate SKBs with. Add an early
+check which drops the packet to avoid invoking skb_over_panic() and move
+on to processing the next packet.
 
-  clang-16: error: argument unused during compilation: '-shared' [-Werror,-Wunused-command-line-argument]
-
-'-shared' is already present in ldflags-y so it can just be dropped.
-
-Fixes: 2b2a25845d53 ("s390/vdso: Use $(LD) instead of $(CC) to link vDSO")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vdso64/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index 9e2b95a222a98..1605ba45ac4c0 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -25,7 +25,7 @@ KBUILD_AFLAGS_64 := $(filter-out -m64,$(KBUILD_AFLAGS))
- KBUILD_AFLAGS_64 += -m64 -s
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 21973046b12b4..d937daa8ee883 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -2316,6 +2316,14 @@ static unsigned int bcmgenet_desc_rx(struct bcmgenet_rx_ring *ring,
+ 			  __func__, p_index, ring->c_index,
+ 			  ring->read_ptr, dma_length_status);
  
- KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
--KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
-+KBUILD_CFLAGS_64 += -m64 -fPIC -fno-common -fno-builtin
- ldflags-y := -fPIC -shared -soname=linux-vdso64.so.1 \
- 	     --hash-style=both --build-id=sha1 -T
- 
++		if (unlikely(len > RX_BUF_LENGTH)) {
++			netif_err(priv, rx_status, dev, "oversized packet\n");
++			dev->stats.rx_length_errors++;
++			dev->stats.rx_errors++;
++			dev_kfree_skb_any(skb);
++			goto next;
++		}
++
+ 		if (unlikely(!(dma_flag & DMA_EOP) || !(dma_flag & DMA_SOP))) {
+ 			netif_err(priv, rx_status, dev,
+ 				  "dropping fragmented packet!\n");
 -- 
 2.39.2
 
