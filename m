@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5AA6AEEC8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C24A6AEA48
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232579AbjCGSQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:16:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58126 "EHLO
+        id S231652AbjCGRc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:32:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232593AbjCGSPy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:15:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D86AB8B2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:10:55 -0800 (PST)
+        with ESMTP id S231453AbjCGRcI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:32:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0398E900BA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:27:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97B3AB819C2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:10:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F8FC433D2;
-        Tue,  7 Mar 2023 18:10:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE653B8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00615C4339B;
+        Tue,  7 Mar 2023 17:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212653;
-        bh=qhn9Mz5Xf0sM/28BzNMo9OYqjwBhnKFBO9plANfz3mY=;
+        s=korg; t=1678210050;
+        bh=cDv81CRFHIsoqIGkZy7byR7wvu4GaiIgPSCBNHJh2BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLMMPStZkTSa57fCuQu0TSLYJb/xY1+adAQowPNQYHIalEUqM9tlhmHn7zQHFAwFs
-         SlGiufrsxMP4FLIC91D2o7apoi+iPdQArBW3kLZ6BLPdeLaKL8db1Si7Ft9Z799ewf
-         miIbSO3pccqr2pCVlWitQ6tma7aFQp3WLetGVsME=
+        b=IDwXVUohu0yEG1a1Hjb8bihDS9jI7z9qoaI6TCTkb4dcywYR407xo1HPEdYq6p08J
+         mE5/maFZX4xk+xYFXCWCLDc9lj/HoOoKxsj9oCzKxkUCttzccZESq40WwGwPtRcW1f
+         Ls8fuHnlnjxTChjcDfuOsR9SdPZO+fcBY5/NzxcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "D. Wythe" <alibuda@linux.alibaba.com>,
-        Larysa Zaremba <larysa.zaremba@intel.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Eugene Shalygin <eugene.shalygin@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 254/885] net/smc: fix potential panic dues to unprotected smc_llc_srv_add_link()
+Subject: [PATCH 6.2 0416/1001] hwmon: (asus-ec-sensors) add missing mutex path
 Date:   Tue,  7 Mar 2023 17:53:08 +0100
-Message-Id: <20230307170013.026076898@linuxfoundation.org>
+Message-Id: <20230307170039.385924749@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,61 +55,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Eugene Shalygin <eugene.shalygin@gmail.com>
 
-[ Upstream commit e40b801b3603a8f90b46acbacdea3505c27f01c0 ]
+[ Upstream commit e2de0e6abd91b05411cb1f0953115dbbbe9b11ce ]
 
-There is a certain chance to trigger the following panic:
+Add missing mutex path for ProArt X570-CREATOR WIFI.
 
-PID: 5900   TASK: ffff88c1c8af4100  CPU: 1   COMMAND: "kworker/1:48"
- #0 [ffff9456c1cc79a0] machine_kexec at ffffffff870665b7
- #1 [ffff9456c1cc79f0] __crash_kexec at ffffffff871b4c7a
- #2 [ffff9456c1cc7ab0] crash_kexec at ffffffff871b5b60
- #3 [ffff9456c1cc7ac0] oops_end at ffffffff87026ce7
- #4 [ffff9456c1cc7ae0] page_fault_oops at ffffffff87075715
- #5 [ffff9456c1cc7b58] exc_page_fault at ffffffff87ad0654
- #6 [ffff9456c1cc7b80] asm_exc_page_fault at ffffffff87c00b62
-    [exception RIP: ib_alloc_mr+19]
-    RIP: ffffffffc0c9cce3  RSP: ffff9456c1cc7c38  RFLAGS: 00010202
-    RAX: 0000000000000000  RBX: 0000000000000002  RCX: 0000000000000004
-    RDX: 0000000000000010  RSI: 0000000000000000  RDI: 0000000000000000
-    RBP: ffff88c1ea281d00   R8: 000000020a34ffff   R9: ffff88c1350bbb20
-    R10: 0000000000000000  R11: 0000000000000001  R12: 0000000000000000
-    R13: 0000000000000010  R14: ffff88c1ab040a50  R15: ffff88c1ea281d00
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffff9456c1cc7c60] smc_ib_get_memory_region at ffffffffc0aff6df [smc]
- #8 [ffff9456c1cc7c88] smcr_buf_map_link at ffffffffc0b0278c [smc]
- #9 [ffff9456c1cc7ce0] __smc_buf_create at ffffffffc0b03586 [smc]
-
-The reason here is that when the server tries to create a second link,
-smc_llc_srv_add_link() has no protection and may add a new link to
-link group. This breaks the security environment protected by
-llc_conf_mutex.
-
-Fixes: 2d2209f20189 ("net/smc: first part of add link processing as SMC server")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: de8fbac5e59e (hwmon: (asus-ec-sensors) implement locking via the ACPI global lock)
+Signed-off-by: Eugene Shalygin <eugene.shalygin@gmail.com>
+Link: https://lore.kernel.org/r/20230121111728.168514-2-eugene.shalygin@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/asus-ec-sensors.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e12d4fa5aece6..d9413d43b1045 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1826,8 +1826,10 @@ static int smcr_serv_conf_first_link(struct smc_sock *smc)
- 	smc_llc_link_active(link);
- 	smcr_lgr_set_type(link->lgr, SMC_LGR_SINGLE);
- 
-+	mutex_lock(&link->lgr->llc_conf_mutex);
- 	/* initial contact - try to establish second link */
- 	smc_llc_srv_add_link(link, NULL);
-+	mutex_unlock(&link->lgr->llc_conf_mutex);
- 	return 0;
- }
+diff --git a/drivers/hwmon/asus-ec-sensors.c b/drivers/hwmon/asus-ec-sensors.c
+index a901e4e33d81d..b4d65916b3c00 100644
+--- a/drivers/hwmon/asus-ec-sensors.c
++++ b/drivers/hwmon/asus-ec-sensors.c
+@@ -299,6 +299,7 @@ static const struct ec_board_info board_info_pro_art_x570_creator_wifi = {
+ 	.sensors = SENSOR_SET_TEMP_CHIPSET_CPU_MB | SENSOR_TEMP_VRM |
+ 		SENSOR_TEMP_T_SENSOR | SENSOR_FAN_CPU_OPT |
+ 		SENSOR_CURR_CPU | SENSOR_IN_CPU_CORE,
++	.mutex_path = ASUS_HW_ACCESS_MUTEX_ASMX,
+ 	.family = family_amd_500_series,
+ };
  
 -- 
 2.39.2
