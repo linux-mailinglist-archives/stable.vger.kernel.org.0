@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACA386AEE61
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED686AEE63
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232487AbjCGSLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46076 "EHLO
+        id S232492AbjCGSLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:11:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232398AbjCGSK5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:57 -0500
+        with ESMTP id S232399AbjCGSK6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 426375B80
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390BD1F915
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5BD36150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB069C433D2;
-        Tue,  7 Mar 2023 18:05:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC356614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4C59C433D2;
+        Tue,  7 Mar 2023 18:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212359;
-        bh=fO7/lgjjghii3T68CVoI6cy7l8u0idyM6lQ8ig5in+Q=;
+        s=korg; t=1678212362;
+        bh=h/INin/ag10OW4uhSKg4KQHV+iAyBhKa8ikwEI21Cq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txn5dJN6S5SHaylHIcV5RswqlncLW+0Djkhs+BBMO1lPPxlKUsJTSrFjgvl+hhCx+
-         ZSyKingertsPLaOVLLMucttlhUKs2jKKrCC9LZ8lKRZaxdm40Z56uj0TaiUIyZ4Wee
-         pcwkxpMwoQ9qVFw97j9iJYkZDTAIByR9hc+BEULA=
+        b=ykq+kEE13hbBz6KY1jkfUH181BedkRnHcBuxisGTht9nplkIn95Ym17i7AXUu0mcD
+         JPzayFOxs9usNJXw3awdGVzSDhH0NfKyZUj+h1uRCH59RB2m/9IR6me0aSwwxXcLI4
+         aqWpnk+oGwRWmevk3MBAt4/C74NPTW8ld1VlQurU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Shawn Guo <shawn.guo@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 161/885] thermal/drivers/tsens: limit num_sensors to 9 for msm8939
-Date:   Tue,  7 Mar 2023 17:51:35 +0100
-Message-Id: <20230307170008.919315120@linuxfoundation.org>
+        patches@lists.linux.dev, Zong-Zhe Yang <kevin_yang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 162/885] wifi: rtw89: fix potential leak in rtw89_append_probe_req_ie()
+Date:   Tue,  7 Mar 2023 17:51:36 +0100
+Message-Id: <20230307170008.962548633@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -57,94 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Zong-Zhe Yang <kevin_yang@realtek.com>
 
-[ Upstream commit 903238a33c116edf5f64f7a3fd246e6169cccfa6 ]
+[ Upstream commit 4a0e218cc9c42d1903ade8b5a371dcf48cf918c5 ]
 
-On msm8939 last (hwid=10) sensor was added in the hw revision 3.0.
-Calibration data for it was placed outside of the main calibration data
-blob, so it is not accessible by the current blob-parsing code.
+Do `kfree_skb(new)` before `goto out` to prevent potential leak.
 
-Moreover data for the sensor's p2 is not contiguous in the fuses. This
-makes it hard to use nvmem_cell API to parse calibration data in a
-generic way.
-
-Since the sensor doesn't seem to be actually used by the existing
-hardware, disable the sensor for now.
-
-Fixes: 332bc8ebab2c ("thermal: qcom: tsens-v0_1: Add support for MSM8939")
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc: Shawn Guo <shawn.guo@linaro.org>
-Acked-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Link: https://lore.kernel.org/r/20230101194034.831222-9-dmitry.baryshkov@linaro.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: 895907779752 ("rtw89: 8852a: add ieee80211_ops::hw_scan")
+Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230103141054.17372-1-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens-v0_1.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/net/wireless/realtek/rtw89/fw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
-index f6d55e6d85dde..8d036727b99fe 100644
---- a/drivers/thermal/qcom/tsens-v0_1.c
-+++ b/drivers/thermal/qcom/tsens-v0_1.c
-@@ -285,7 +285,7 @@ static int calibrate_8939(struct tsens_priv *priv)
- 	u32 p1[10], p2[10];
- 	int mode = 0;
- 	u32 *qfprom_cdata;
--	u32 cdata[6];
-+	u32 cdata[4];
+diff --git a/drivers/net/wireless/realtek/rtw89/fw.c b/drivers/net/wireless/realtek/rtw89/fw.c
+index d57e3610fb88e..1d57a8c5e97df 100644
+--- a/drivers/net/wireless/realtek/rtw89/fw.c
++++ b/drivers/net/wireless/realtek/rtw89/fw.c
+@@ -2525,8 +2525,10 @@ static int rtw89_append_probe_req_ie(struct rtw89_dev *rtwdev,
  
- 	qfprom_cdata = (u32 *)qfprom_read(priv->dev, "calib");
- 	if (IS_ERR(qfprom_cdata))
-@@ -296,8 +296,6 @@ static int calibrate_8939(struct tsens_priv *priv)
- 	cdata[1] = qfprom_cdata[13];
- 	cdata[2] = qfprom_cdata[0];
- 	cdata[3] = qfprom_cdata[1];
--	cdata[4] = qfprom_cdata[22];
--	cdata[5] = qfprom_cdata[21];
+ 		list_add_tail(&info->list, &scan_info->pkt_list[band]);
+ 		ret = rtw89_fw_h2c_add_pkt_offload(rtwdev, &info->id, new);
+-		if (ret)
++		if (ret) {
++			kfree_skb(new);
+ 			goto out;
++		}
  
- 	mode = (cdata[0] & MSM8939_CAL_SEL_MASK) >> MSM8939_CAL_SEL_SHIFT;
- 	dev_dbg(priv->dev, "calibration mode is %d\n", mode);
-@@ -314,8 +312,6 @@ static int calibrate_8939(struct tsens_priv *priv)
- 		p2[6] = (cdata[2] & MSM8939_S6_P2_MASK) >> MSM8939_S6_P2_SHIFT;
- 		p2[7] = (cdata[3] & MSM8939_S7_P2_MASK) >> MSM8939_S7_P2_SHIFT;
- 		p2[8] = (cdata[3] & MSM8939_S8_P2_MASK) >> MSM8939_S8_P2_SHIFT;
--		p2[9] = (cdata[4] & MSM8939_S9_P2_MASK_0_4) >> MSM8939_S9_P2_SHIFT_0_4;
--		p2[9] |= ((cdata[5] & MSM8939_S9_P2_MASK_5) >> MSM8939_S9_P2_SHIFT_5) << 5;
- 		for (i = 0; i < priv->num_sensors; i++)
- 			p2[i] = (base1 + p2[i]) << 2;
- 		fallthrough;
-@@ -331,7 +327,6 @@ static int calibrate_8939(struct tsens_priv *priv)
- 		p1[6] = (cdata[2] & MSM8939_S6_P1_MASK) >> MSM8939_S6_P1_SHIFT;
- 		p1[7] = (cdata[3] & MSM8939_S7_P1_MASK) >> MSM8939_S7_P1_SHIFT;
- 		p1[8] = (cdata[3] & MSM8939_S8_P1_MASK) >> MSM8939_S8_P1_SHIFT;
--		p1[9] = (cdata[4] & MSM8939_S9_P1_MASK) >> MSM8939_S9_P1_SHIFT;
- 		for (i = 0; i < priv->num_sensors; i++)
- 			p1[i] = ((base0) + p1[i]) << 2;
- 		break;
-@@ -544,7 +539,7 @@ static int __init init_8939(struct tsens_priv *priv) {
- 	priv->sensor[6].slope = 2833;
- 	priv->sensor[7].slope = 2838;
- 	priv->sensor[8].slope = 2840;
--	priv->sensor[9].slope = 2852;
-+	/* priv->sensor[9].slope = 2852; */
- 
- 	return init_common(priv);
- }
-@@ -617,9 +612,9 @@ static const struct tsens_ops ops_8939 = {
- };
- 
- struct tsens_plat_data data_8939 = {
--	.num_sensors	= 10,
-+	.num_sensors	= 9,
- 	.ops		= &ops_8939,
--	.hw_ids		= (unsigned int []){ 0, 1, 2, 3, 5, 6, 7, 8, 9, 10 },
-+	.hw_ids		= (unsigned int []){ 0, 1, 2, 3, 5, 6, 7, 8, 9, /* 10 */ },
- 
- 	.feat		= &tsens_v0_1_feat,
- 	.fields	= tsens_v0_1_regfields,
+ 		kfree_skb(new);
+ 	}
 -- 
 2.39.2
 
