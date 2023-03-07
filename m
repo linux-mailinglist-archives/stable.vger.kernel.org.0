@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 937706AEDDA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:07:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADEC36AE971
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:24:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232265AbjCGSHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:07:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47986 "EHLO
+        id S231500AbjCGRYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:24:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232296AbjCGSHf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053BF95447
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:02 -0800 (PST)
+        with ESMTP id S231484AbjCGRXv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:23:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC4FD9B994
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA14161509
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E1D3C433EF;
-        Tue,  7 Mar 2023 18:01:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87BDBB819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB900C433D2;
+        Tue,  7 Mar 2023 17:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212061;
-        bh=qLiiu76Zk9G3EoJefkKVTcr2rDyDR3hPVfxdCqXIdSc=;
+        s=korg; t=1678209558;
+        bh=YuYhB/dKHorjUyZL4Inu0z7kFjwTLil0DAr9I6YhTa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yokvDMODyCwiqxR5ieu0EI5+ZgrhmR6PPuPqyWxXEDvLmat0rwTv73AvEeFCOpE7c
-         OYPwVBJbA3UmJiliGiNJ7FP5Czed5lATnT8bgzzIduPHhsp48z2dCxsTr0PZc27M4x
-         IW0gWOpK3ojkQvyxHgV29oydPAHnDo2dKzxRR/Xk=
+        b=rLDaVpLj+/9XS19rUn3PEP0TyOLXHz4b+G8g3gCBJ/fN4qXFxi74wbreFP8O19/3I
+         WpODy9PXVOcAXpGVGsJPZXEoAJsH85UVEp+BjO9UXyDNWjWhu/uB+PArN8Mcr81IaJ
+         l0a60d3eOLtiCGqzYNeMOyFBSceXRQxx/hu52oDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 064/885] arm64: dts: amlogic: meson-gxbb-kii-pro: fix led node name
+Subject: [PATCH 6.2 0226/1001] crypto: xts - Handle EBUSY correctly
 Date:   Tue,  7 Mar 2023 17:49:58 +0100
-Message-Id: <20230307170004.560953642@linuxfoundation.org>
+Message-Id: <20230307170031.688873742@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,33 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <neil.armstrong@linaro.org>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit afdef3b188c934f79ad4b0a7bd8c692742f9b5af ]
+[ Upstream commit 51c082514c2dedf2711c99d93c196cc4eedceb40 ]
 
-Fixes:
-leds: status: {...} is not of type 'array'
+As it is xts only handles the special return value of EINPROGRESS,
+which means that in all other cases it will free data related to the
+request.
 
-Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-13-44351528957e@linaro.org
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+However, as the caller of xts may specify MAY_BACKLOG, we also need
+to expect EBUSY and treat it in the same way.  Otherwise backlogged
+requests will trigger a use-after-free.
+
+Fixes: 8083b1bf8163 ("crypto: xts - add support for ciphertext stealing")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/xts.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-index 6d8cc00fedc7f..5f2d4317ecfbf 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-@@ -16,7 +16,7 @@ / {
+diff --git a/crypto/xts.c b/crypto/xts.c
+index 63c85b9e64e08..de6cbcf69bbd6 100644
+--- a/crypto/xts.c
++++ b/crypto/xts.c
+@@ -203,12 +203,12 @@ static void xts_encrypt_done(struct crypto_async_request *areq, int err)
+ 	if (!err) {
+ 		struct xts_request_ctx *rctx = skcipher_request_ctx(req);
  
- 	leds {
- 		compatible = "gpio-leds";
--		status {
-+		led {
- 			gpios = <&gpio_ao GPIOAO_13 GPIO_ACTIVE_LOW>;
- 			default-state = "off";
- 			color = <LED_COLOR_ID_RED>;
+-		rctx->subreq.base.flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
++		rctx->subreq.base.flags &= CRYPTO_TFM_REQ_MAY_BACKLOG;
+ 		err = xts_xor_tweak_post(req, true);
+ 
+ 		if (!err && unlikely(req->cryptlen % XTS_BLOCK_SIZE)) {
+ 			err = xts_cts_final(req, crypto_skcipher_encrypt);
+-			if (err == -EINPROGRESS)
++			if (err == -EINPROGRESS || err == -EBUSY)
+ 				return;
+ 		}
+ 	}
+@@ -223,12 +223,12 @@ static void xts_decrypt_done(struct crypto_async_request *areq, int err)
+ 	if (!err) {
+ 		struct xts_request_ctx *rctx = skcipher_request_ctx(req);
+ 
+-		rctx->subreq.base.flags &= ~CRYPTO_TFM_REQ_MAY_SLEEP;
++		rctx->subreq.base.flags &= CRYPTO_TFM_REQ_MAY_BACKLOG;
+ 		err = xts_xor_tweak_post(req, false);
+ 
+ 		if (!err && unlikely(req->cryptlen % XTS_BLOCK_SIZE)) {
+ 			err = xts_cts_final(req, crypto_skcipher_decrypt);
+-			if (err == -EINPROGRESS)
++			if (err == -EINPROGRESS || err == -EBUSY)
+ 				return;
+ 		}
+ 	}
 -- 
 2.39.2
 
