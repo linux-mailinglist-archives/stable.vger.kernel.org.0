@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56ADA6AF10C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97CBF6AEBFF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233004AbjCGSix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:38:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53036 "EHLO
+        id S232043AbjCGRuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:50:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231480AbjCGSic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:38:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C286322034
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:30:05 -0800 (PST)
+        with ESMTP id S232095AbjCGRua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9E497482
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:45:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D770661514
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE0B2C433EF;
-        Tue,  7 Mar 2023 18:28:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F8C7B819B4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:45:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E74C433EF;
+        Tue,  7 Mar 2023 17:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213686;
-        bh=o1mbBWOICduY/K2bLxsvWMhD/MK/iWmEUzzvf4AsKrU=;
+        s=korg; t=1678211129;
+        bh=9OWi7NA5eMncjP13xlNe+5vhe34NkMWh01NIgNVOiOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r85xDzhbm9GNloXenS3b5mfgYPjwFlFjftfNrfeH8DtUBaz3BOAOC86KaznFMUbKK
-         evW3VGpZx2Le8ZmzTwtji0oomWoIiPJt4SGnECbz8lF6LfxXrDoGs/hIL+7t22p/0A
-         jBNO902VmAev8e0kFzLbOcVjv0eeYaKWgpWEv9No=
+        b=LuKN5n5y0/N9l3QIihe5rvuIpld8xvPLGQzx0HmTSS3BgWSB+RBNDypYfH0owccTk
+         fjtSpkjpGHrvEE2/GDVuNnajIUgU2zdLeKNgK0n6cz9BTeU2WhNGiUtIVGHcIhc/Po
+         pALvEWhwo6LBjNfrmWqUNhZTHAoZ8Tc/yvHIGK14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Schmitz <schmitzmic@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Bastien Nocera <hadess@hadess.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 569/885] m68k: Check syscall_trace_enter() return code
+Subject: [PATCH 6.2 0731/1001] HID: logitech-hidpp: Dont restart communication if not necessary
 Date:   Tue,  7 Mar 2023 17:58:23 +0100
-Message-Id: <20230307170027.154152662@linuxfoundation.org>
+Message-Id: <20230307170053.416260141@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
 
-[ Upstream commit 2ca8a1de4437f21562e57f9ac123914747a8e7a1 ]
+[ Upstream commit 498ba20690357691103de0f766960355247c78be ]
 
-Check return code of syscall_trace_enter(), and skip syscall
-if -1. Return code will be left at what had been set by
-ptrace or seccomp (in regs->d0).
+Don't stop and restart communication with the device unless we need to
+modify the connect flags used because of a device quirk.
 
-No regression seen in testing with strace on ARAnyM.
-
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230112035529.13521-2-schmitzmic@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Link: https://lore.kernel.org/r/20230125121723.3122-1-hadess@hadess.net
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/68000/entry.S    | 2 ++
- arch/m68k/coldfire/entry.S | 2 ++
- arch/m68k/kernel/entry.S   | 3 +++
- 3 files changed, 7 insertions(+)
+ drivers/hid/hid-logitech-hidpp.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/arch/m68k/68000/entry.S b/arch/m68k/68000/entry.S
-index 997b549330156..7d63e2f1555a0 100644
---- a/arch/m68k/68000/entry.S
-+++ b/arch/m68k/68000/entry.S
-@@ -45,6 +45,8 @@ do_trace:
- 	jbsr	syscall_trace_enter
- 	RESTORE_SWITCH_STACK
- 	addql	#4,%sp
-+	addql	#1,%d0
-+	jeq	ret_from_exception
- 	movel	%sp@(PT_OFF_ORIG_D0),%d1
- 	movel	#-ENOSYS,%d0
- 	cmpl	#NR_syscalls,%d1
-diff --git a/arch/m68k/coldfire/entry.S b/arch/m68k/coldfire/entry.S
-index 9f337c70243a3..35104c5417ff4 100644
---- a/arch/m68k/coldfire/entry.S
-+++ b/arch/m68k/coldfire/entry.S
-@@ -90,6 +90,8 @@ ENTRY(system_call)
- 	jbsr	syscall_trace_enter
- 	RESTORE_SWITCH_STACK
- 	addql	#4,%sp
-+	addql	#1,%d0
-+	jeq	ret_from_exception
- 	movel	%d3,%a0
- 	jbsr	%a0@
- 	movel	%d0,%sp@(PT_OFF_D0)		/* save the return value */
-diff --git a/arch/m68k/kernel/entry.S b/arch/m68k/kernel/entry.S
-index 18f278bdbd218..42879e6eb651d 100644
---- a/arch/m68k/kernel/entry.S
-+++ b/arch/m68k/kernel/entry.S
-@@ -184,9 +184,12 @@ do_trace_entry:
- 	jbsr	syscall_trace_enter
- 	RESTORE_SWITCH_STACK
- 	addql	#4,%sp
-+	addql	#1,%d0			| optimization for cmpil #-1,%d0
-+	jeq	ret_from_syscall
- 	movel	%sp@(PT_OFF_ORIG_D0),%d0
- 	cmpl	#NR_syscalls,%d0
- 	jcs	syscall
-+	jra	ret_from_syscall
- badsys:
- 	movel	#-ENOSYS,%sp@(PT_OFF_D0)
- 	jra	ret_from_syscall
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 0c024ec1452cd..5efc591a02a03 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4102,6 +4102,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	bool connected;
+ 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+ 	struct hidpp_ff_private_data data;
++	bool will_restart = false;
+ 
+ 	/* report_fixup needs drvdata to be set before we call hid_parse */
+ 	hidpp = devm_kzalloc(&hdev->dev, sizeof(*hidpp), GFP_KERNEL);
+@@ -4157,6 +4158,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			return ret;
+ 	}
+ 
++	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT ||
++	    hidpp->quirks & HIDPP_QUIRK_UNIFYING)
++		will_restart = true;
++
+ 	INIT_WORK(&hidpp->work, delayed_work_cb);
+ 	mutex_init(&hidpp->send_mutex);
+ 	init_waitqueue_head(&hidpp->wait);
+@@ -4171,7 +4176,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 * Plain USB connections need to actually call start and open
+ 	 * on the transport driver to allow incoming data.
+ 	 */
+-	ret = hid_hw_start(hdev, 0);
++	ret = hid_hw_start(hdev, will_restart ? 0 : connect_mask);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+ 		goto hid_hw_start_fail;
+@@ -4208,6 +4213,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			hidpp->wireless_feature_index = 0;
+ 		else if (ret)
+ 			goto hid_hw_init_fail;
++		ret = 0;
+ 	}
+ 
+ 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
+@@ -4222,19 +4228,21 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	hidpp_connect_event(hidpp);
+ 
+-	/* Reset the HID node state */
+-	hid_device_io_stop(hdev);
+-	hid_hw_close(hdev);
+-	hid_hw_stop(hdev);
++	if (will_restart) {
++		/* Reset the HID node state */
++		hid_device_io_stop(hdev);
++		hid_hw_close(hdev);
++		hid_hw_stop(hdev);
+ 
+-	if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
+-		connect_mask &= ~HID_CONNECT_HIDINPUT;
++		if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
++			connect_mask &= ~HID_CONNECT_HIDINPUT;
+ 
+-	/* Now export the actual inputs and hidraw nodes to the world */
+-	ret = hid_hw_start(hdev, connect_mask);
+-	if (ret) {
+-		hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
+-		goto hid_hw_start_fail;
++		/* Now export the actual inputs and hidraw nodes to the world */
++		ret = hid_hw_start(hdev, connect_mask);
++		if (ret) {
++			hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
++			goto hid_hw_start_fail;
++		}
+ 	}
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
 -- 
 2.39.2
 
