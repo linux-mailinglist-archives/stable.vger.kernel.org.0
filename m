@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A4256AED93
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF8D26AF286
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230273AbjCGSFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:05:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
+        id S233226AbjCGSxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:53:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230398AbjCGSFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8F694A73
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:13 -0800 (PST)
+        with ESMTP id S233240AbjCGSx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:53:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66C4AF0C9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:41:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D445614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B743C433EF;
-        Tue,  7 Mar 2023 17:57:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 921F561539
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:41:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94A1C433EF;
+        Tue,  7 Mar 2023 18:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211859;
-        bh=tXeg5/dxj+YI6JBqpG3Z6J2/hg9i6L80Dzb3gRlYmgs=;
+        s=korg; t=1678214483;
+        bh=ke+HZuEGMBAjXnXiKlnse7V0pADQOuKZuCJ/tLEz0Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fyi8gAApEoqjXc5Po6EAWU0AsnVHh/WT2QmiPNKjGbJ4YxcYH+epDGhHAwULGcFXm
-         EeI3UOoy81K0664OmO32E0X+XUrAWn525c5KMDGfvpX26jagK9x0N7J35sTC1eRBZE
-         pLQkwjT+TwQrfxQs4GnZYH1jnrFYw5eLUwIZg5m4=
+        b=cSehEV3uIXiuKQfzblQHg88TZuvP7G7uMulbT2MwES8hCZMa2zFUNLscegFi08DIs
+         Y+A04nTNbp5BjK5JXl7v1CCHvJJ7pDrXcyPJC3d3SY/51pLUs5oGrSHMUaNRiWWXAV
+         o31jZiVuN/KscVM49u2jhuRt4Vx6iIaktECurOqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shreyas Deodhar <sdeodhar@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.2 0959/1001] scsi: qla2xxx: Check if port is online before sending ELS
+        patches@lists.linux.dev,
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 6.1 797/885] wifi: rtl8xxxu: Use a longer retry limit of 48
 Date:   Tue,  7 Mar 2023 18:02:11 +0100
-Message-Id: <20230307170103.797309358@linuxfoundation.org>
+Message-Id: <20230307170036.522906655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,63 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyas Deodhar <sdeodhar@marvell.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-commit 0c227dc22ca18856055983f27594feb2e0149965 upstream.
+commit 2a86aa9a1892d60ef2e3f310f5b42b8b05546d65 upstream.
 
-CT Ping and ELS cmds fail for NVMe targets.  Check if port is online before
-sending ELS instead of sending login.
+The Realtek rate control algorithm goes back and forth a lot between
+the highest and the lowest rate it's allowed to use. This is due to
+a lot of frames being dropped because the retry limits set by
+IEEE80211_CONF_CHANGE_RETRY_LIMITS are too low. (Experimentally, they
+are 4 for long frames and 7 for short frames.)
+
+The vendor drivers hardcode the value 48 for both retry limits (for
+station mode), which makes dropped frames very rare and thus the rate
+control is more stable.
+
+Because most Realtek chips handle the rate control in the firmware,
+which can't be modified, ignore the limits set by
+IEEE80211_CONF_CHANGE_RETRY_LIMITS and use the value 48 (set during
+chip initialisation), same as the vendor drivers.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Shreyas Deodhar <sdeodhar@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/477d745b-6bac-111d-403c-487fc19aa30d@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -278,8 +278,8 @@ qla2x00_process_els(struct bsg_job *bsg_
- 	const char *type;
- 	int req_sg_cnt, rsp_sg_cnt;
- 	int rval =  (DID_ERROR << 16);
--	uint16_t nextlid = 0;
- 	uint32_t els_cmd = 0;
-+	int qla_port_allocated = 0;
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -5966,7 +5966,6 @@ static int rtl8xxxu_config(struct ieee80
+ {
+ 	struct rtl8xxxu_priv *priv = hw->priv;
+ 	struct device *dev = &priv->udev->dev;
+-	u16 val16;
+ 	int ret = 0, channel;
+ 	bool ht40;
  
- 	if (bsg_request->msgcode == FC_BSG_RPT_ELS) {
- 		rport = fc_bsg_to_rport(bsg_job);
-@@ -329,9 +329,9 @@ qla2x00_process_els(struct bsg_job *bsg_
- 		/* make sure the rport is logged in,
- 		 * if not perform fabric login
- 		 */
--		if (qla2x00_fabric_login(vha, fcport, &nextlid)) {
-+		if (atomic_read(&fcport->state) != FCS_ONLINE) {
- 			ql_dbg(ql_dbg_user, vha, 0x7003,
--			    "Failed to login port %06X for ELS passthru.\n",
-+			    "Port %06X is not online for ELS passthru.\n",
- 			    fcport->d_id.b24);
- 			rval = -EIO;
- 			goto done;
-@@ -348,6 +348,7 @@ qla2x00_process_els(struct bsg_job *bsg_
- 			goto done;
- 		}
+@@ -5976,14 +5975,6 @@ static int rtl8xxxu_config(struct ieee80
+ 			 __func__, hw->conf.chandef.chan->hw_value,
+ 			 changed, hw->conf.chandef.width);
  
-+		qla_port_allocated = 1;
- 		/* Initialize all required  fields of fcport */
- 		fcport->vha = vha;
- 		fcport->d_id.b.al_pa =
-@@ -432,7 +433,7 @@ done_unmap_sg:
- 	goto done_free_fcport;
- 
- done_free_fcport:
--	if (bsg_request->msgcode != FC_BSG_RPT_ELS)
-+	if (qla_port_allocated)
- 		qla2x00_free_fcport(fcport);
- done:
- 	return rval;
+-	if (changed & IEEE80211_CONF_CHANGE_RETRY_LIMITS) {
+-		val16 = ((hw->conf.long_frame_max_tx_count <<
+-			  RETRY_LIMIT_LONG_SHIFT) & RETRY_LIMIT_LONG_MASK) |
+-			((hw->conf.short_frame_max_tx_count <<
+-			  RETRY_LIMIT_SHORT_SHIFT) & RETRY_LIMIT_SHORT_MASK);
+-		rtl8xxxu_write16(priv, REG_RETRY_LIMIT, val16);
+-	}
+-
+ 	if (changed & IEEE80211_CONF_CHANGE_CHANNEL) {
+ 		switch (hw->conf.chandef.width) {
+ 		case NL80211_CHAN_WIDTH_20_NOHT:
 
 
