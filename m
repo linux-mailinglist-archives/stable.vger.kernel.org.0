@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 234846AED5E
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE706AF24A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229758AbjCGSDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:03:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37314 "EHLO
+        id S233379AbjCGSwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:52:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232018AbjCGSDI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:03:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE489EF69
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:21 -0800 (PST)
+        with ESMTP id S232489AbjCGSv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:51:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9219FA769E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B97161526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31B32C4339C;
-        Tue,  7 Mar 2023 17:56:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03C1DB819CB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A0CAC4339C;
+        Tue,  7 Mar 2023 18:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211780;
-        bh=voI6a9986FzORnmDyWvB195TsofQKYj/+HwWrXED/yY=;
+        s=korg; t=1678214410;
+        bh=Lr/k4R5Dqp1IQhSV4OfB8ht77k2DDGyB/TM5qz+sgMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEUGEMzCLCxcFIcE1ZoIFbtvu/YpkWNDAFgxCECX2XBiuALaLxMlVKiP9jRe06bqO
-         Su/2SNDzDyelqkp+oe+Nwft2imByb7urjP+mnv6FGp/KWemqspE+tB+WWb8WQf6Uaj
-         F5Pag9fp5gViOAjVB0KKWHgN92SvCbBCwhJD9Pmk=
+        b=CzLD4uqqC5R/HeTXqBVrPyR0PCm/WJcRR+QWumFJ6RteE5xAZ5EK9+mHJNjbteyG8
+         6On0cjx0OOZROz32nd0XE8BGiGMwL1b4icZmdY3eHjV01YZNu7hg+0FluUB6GCIUQy
+         FEjleKvIe1gYXaogzx98o8NEbxrT2EFrEPh27fM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.2 0975/1001] riscv: ftrace: Remove wasted nops for !RISCV_ISA_C
-Date:   Tue,  7 Mar 2023 18:02:27 +0100
-Message-Id: <20230307170104.526654292@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 6.1 814/885] ARM: dts: exynos: correct TMU phandle in Odroid XU3 family
+Date:   Tue,  7 Mar 2023 18:02:28 +0100
+Message-Id: <20230307170037.233276208@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 409c8fb20c66df7150e592747412438c04aeb11f upstream.
+commit a3583e92d188ec6c58c7f603ac5e72dd8a11c21a upstream.
 
-When CONFIG_RISCV_ISA_C=n, -fpatchable-function-entry=8 would generate
-more nops than we expect. Because it treat nop opcode as 0x00000013
-instead of 0x0001.
+TMU node uses 0 as thermal-sensor-cells, thus thermal zone referencing
+it must not have an argument to phandle.  This was not critical before,
+but since rework of thermal Devicetree initialization in the
+commit 3fd6d6e2b4e8 ("thermal/of: Rework the thermal device tree
+initialization"), this leads to errors registering thermal zones other
+than first one:
 
-Dump of assembler code for function dw_pcie_free_msi:
-   0xffffffff806fce94 <+0>:     sd      ra,-8(sp)
-   0xffffffff806fce98 <+4>:     auipc   ra,0xff90f
-   0xffffffff806fce9c <+8>:     jalr    -684(ra) # 0xffffffff8000bbec
-<ftrace_caller>
-   0xffffffff806fcea0 <+12>:    ld      ra,-8(sp)
-   0xffffffff806fcea4 <+16>:    nop /* wasted */
-   0xffffffff806fcea8 <+20>:    nop /* wasted */
-   0xffffffff806fceac <+24>:    nop /* wasted */
-   0xffffffff806fceb0 <+28>:    nop /* wasted */
-   0xffffffff806fceb4 <+0>:     addi    sp,sp,-48
-   0xffffffff806fceb8 <+4>:     sd      s0,32(sp)
-   0xffffffff806fcebc <+8>:     sd      s1,24(sp)
-   0xffffffff806fcec0 <+12>:    sd      s2,16(sp)
-   0xffffffff806fcec4 <+16>:    sd      s3,8(sp)
-   0xffffffff806fcec8 <+20>:    sd      ra,40(sp)
-   0xffffffff806fcecc <+24>:    addi    s0,sp,48
+  thermal_sys: cpu0-thermal: Failed to read thermal-sensors cells: -2
+  thermal_sys: Failed to find thermal zone for tmu id=0
+  exynos-tmu 10064000.tmu: Failed to register sensor: -2
+  exynos-tmu: probe of 10064000.tmu failed with error -2
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20230112090603.1295340-3-guoren@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: f1722d7dd8b8 ("ARM: dts: Define default thermal-zones for exynos5422")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230209105841.779596-6-krzysztof.kozlowski@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/Makefile |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -11,7 +11,11 @@ LDFLAGS_vmlinux :=
- ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
- 	LDFLAGS_vmlinux := --no-relax
- 	KBUILD_CPPFLAGS += -DCC_USING_PATCHABLE_FUNCTION_ENTRY
-+ifeq ($(CONFIG_RISCV_ISA_C),y)
- 	CC_FLAGS_FTRACE := -fpatchable-function-entry=8
-+else
-+	CC_FLAGS_FTRACE := -fpatchable-function-entry=4
-+endif
- endif
+--- a/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
++++ b/arch/arm/boot/dts/exynos5422-odroidxu3-common.dtsi
+@@ -50,7 +50,7 @@
  
- ifeq ($(CONFIG_CMODEL_MEDLOW),y)
+ 	thermal-zones {
+ 		cpu0_thermal: cpu0-thermal {
+-			thermal-sensors = <&tmu_cpu0 0>;
++			thermal-sensors = <&tmu_cpu0>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -139,7 +139,7 @@
+ 			};
+ 		};
+ 		cpu1_thermal: cpu1-thermal {
+-			thermal-sensors = <&tmu_cpu1 0>;
++			thermal-sensors = <&tmu_cpu1>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -212,7 +212,7 @@
+ 			};
+ 		};
+ 		cpu2_thermal: cpu2-thermal {
+-			thermal-sensors = <&tmu_cpu2 0>;
++			thermal-sensors = <&tmu_cpu2>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -285,7 +285,7 @@
+ 			};
+ 		};
+ 		cpu3_thermal: cpu3-thermal {
+-			thermal-sensors = <&tmu_cpu3 0>;
++			thermal-sensors = <&tmu_cpu3>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
+@@ -358,7 +358,7 @@
+ 			};
+ 		};
+ 		gpu_thermal: gpu-thermal {
+-			thermal-sensors = <&tmu_gpu 0>;
++			thermal-sensors = <&tmu_gpu>;
+ 			polling-delay-passive = <250>;
+ 			polling-delay = <0>;
+ 			trips {
 
 
