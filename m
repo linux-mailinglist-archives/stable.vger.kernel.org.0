@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C45E66AF3F8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95D6F6AF3F7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:12:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233750AbjCGTMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:12:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34026 "EHLO
+        id S231228AbjCGTMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:12:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233744AbjCGTL7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:11:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D130C59D6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:55:52 -0800 (PST)
+        with ESMTP id S233594AbjCGTLv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:11:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F2CC28D2F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:55:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9B82B819D5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:55:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 428A1C433EF;
-        Tue,  7 Mar 2023 18:55:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FDE261520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:55:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56B57C433D2;
+        Tue,  7 Mar 2023 18:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215346;
-        bh=0n9czdKISxurp1VKl89g+IVHi5zZ4EEr7nbD/+gto8w=;
+        s=korg; t=1678215349;
+        bh=NT5Bnc1VaDpFGOrTZM1mA03QqJgEc3yGNA9i2YFbNK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oICkaDLQnI4kTznXOsJIAWWbCTLmKKIzgjaD4/fDaddGWVHB3OfGtVVHXsJGGf+bC
-         tZ8Vh7KK0Ido+WvVA9KMkvr9Pzl3X+ngP+yjiw5EFUM+pdPP2kZxhEPw0KnzMuL0Dr
-         VWZLilHmH3IrxjZlI/fT1KPWeA6vLdgX9DqGKF8s=
+        b=Xj4kBfEkOK8rFJSE7gesdWezGEpL24Vom1nglvZcuvdK8D/AdLXxMpDh+xtzRA0x7
+         enHQvUEZlkR602SwiMzFazuQfOlfdRxhet7JQXZ4F1xAlRhQ0X3dwGm03epQdlradq
+         aWGMnwphv++pAEKYC0jPUITp2QXSfkLvIk9AJnaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Allen Ballway <ballway@chromium.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 232/567] HID: multitouch: Add quirks for flipped axes
-Date:   Tue,  7 Mar 2023 17:59:28 +0100
-Message-Id: <20230307165915.980014661@linuxfoundation.org>
+        patches@lists.linux.dev, Guenter Roeck <groeck@chromium.org>,
+        Allen Ballway <ballway@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Alistair Francis <alistair@alistair23.me>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 233/567] HID: retain initial quirks set up when creating HID devices
+Date:   Tue,  7 Mar 2023 17:59:29 +0100
+Message-Id: <20230307165916.023499551@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -43,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,226 +57,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen Ballway <ballway@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit a2f416bf062a38bb76cccd526d2d286b8e4db4d9 ]
+[ Upstream commit 03a86105556e23650e4470c09f91cf7c360d5e28 ]
 
-Certain touchscreen devices, such as the ELAN9034, are oriented
-incorrectly and report touches on opposite points on the X and Y axes.
-For example, a 100x200 screen touched at (10,20) would report (90, 180)
-and vice versa.
+In certain circumstances, such as when creating I2C-connected HID
+devices, we want to pass and retain some quirks (axis inversion, etc).
+The source of such quirks may be device tree, or DMI data, or something
+else not readily available to the HID core itself and therefore cannot
+be reconstructed easily. To allow this, introduce "initial_quirks" field
+in hid_device structure and use it when determining the final set of
+quirks.
 
-This is fixed by adding device quirks to transform the touch points
-into the correct spaces, from X -> MAX(X) - X, and Y -> MAX(Y) - Y.
+This fixes the problem with i2c-hid setting up device-tree sourced
+quirks too late and losing them on device rebind, and also allows to
+sever the tie between hid-code and i2c-hid when applying DMI-based
+quirks.
 
-Signed-off-by: Allen Ballway <ballway@chromium.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Stable-dep-of: 03a86105556e ("HID: retain initial quirks set up when creating HID devices")
+Fixes: b60d3c803d76 ("HID: i2c-hid-of: Expose the touchscreen-inverted properties")
+Fixes: a2f416bf062a ("HID: multitouch: Add quirks for flipped axes")
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Tested-by: Allen Ballway <ballway@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Alistair Francis <alistair@alistair23.me>
+Link: https://lore.kernel.org/r/Y+LYwu3Zs13hdVDy@google.com
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-multitouch.c             | 39 ++++++++++++++++++---
- drivers/hid/hid-quirks.c                 |  6 ++++
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 43 ++++++++++++++++++++++++
- drivers/hid/i2c-hid/i2c-hid.h            |  3 ++
- 4 files changed, 87 insertions(+), 4 deletions(-)
+ drivers/hid/hid-quirks.c                 | 8 +-------
+ drivers/hid/i2c-hid/i2c-hid-core.c       | 6 ++++--
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 1 -
+ include/linux/hid.h                      | 1 +
+ 4 files changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6b86d368d5e74..592ffdd546fb4 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -71,6 +71,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
- #define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
- #define MT_QUIRK_DISABLE_WAKEUP		BIT(21)
-+#define MT_QUIRK_ORIENTATION_INVERT	BIT(22)
- 
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -1009,6 +1010,7 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 			    struct mt_usages *slot)
- {
- 	struct input_mt *mt = input->mt;
-+	struct hid_device *hdev = td->hdev;
- 	__s32 quirks = app->quirks;
- 	bool valid = true;
- 	bool confidence_state = true;
-@@ -1086,6 +1088,10 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 		int orientation = wide;
- 		int max_azimuth;
- 		int azimuth;
-+		int x;
-+		int y;
-+		int cx;
-+		int cy;
- 
- 		if (slot->a != DEFAULT_ZERO) {
- 			/*
-@@ -1104,6 +1110,9 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 			if (azimuth > max_azimuth * 2)
- 				azimuth -= max_azimuth * 4;
- 			orientation = -azimuth;
-+			if (quirks & MT_QUIRK_ORIENTATION_INVERT)
-+				orientation = -orientation;
-+
- 		}
- 
- 		if (quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
-@@ -1115,10 +1124,23 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 			minor = minor >> 1;
- 		}
- 
--		input_event(input, EV_ABS, ABS_MT_POSITION_X, *slot->x);
--		input_event(input, EV_ABS, ABS_MT_POSITION_Y, *slot->y);
--		input_event(input, EV_ABS, ABS_MT_TOOL_X, *slot->cx);
--		input_event(input, EV_ABS, ABS_MT_TOOL_Y, *slot->cy);
-+		x = hdev->quirks & HID_QUIRK_X_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_X) - *slot->x :
-+			*slot->x;
-+		y = hdev->quirks & HID_QUIRK_Y_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_Y) - *slot->y :
-+			*slot->y;
-+		cx = hdev->quirks & HID_QUIRK_X_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_X) - *slot->cx :
-+			*slot->cx;
-+		cy = hdev->quirks & HID_QUIRK_Y_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_Y) - *slot->cy :
-+			*slot->cy;
-+
-+		input_event(input, EV_ABS, ABS_MT_POSITION_X, x);
-+		input_event(input, EV_ABS, ABS_MT_POSITION_Y, y);
-+		input_event(input, EV_ABS, ABS_MT_TOOL_X, cx);
-+		input_event(input, EV_ABS, ABS_MT_TOOL_Y, cy);
- 		input_event(input, EV_ABS, ABS_MT_DISTANCE, !*slot->tip_state);
- 		input_event(input, EV_ABS, ABS_MT_ORIENTATION, orientation);
- 		input_event(input, EV_ABS, ABS_MT_PRESSURE, *slot->p);
-@@ -1738,6 +1760,15 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
- 		td->serial_maybe = true;
- 
-+
-+	/* Orientation is inverted if the X or Y axes are
-+	 * flipped, but normalized if both are inverted.
-+	 */
-+	if (hdev->quirks & (HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT) &&
-+	    !((hdev->quirks & HID_QUIRK_X_INVERT)
-+	      && (hdev->quirks & HID_QUIRK_Y_INVERT)))
-+		td->mtclass.quirks = MT_QUIRK_ORIENTATION_INVERT;
-+
- 	/* This allows the driver to correctly support devices
- 	 * that emit events over several HID messages.
- 	 */
 diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 4a8c32148e58f..bad1c1e3adec4 100644
+index bad1c1e3adec4..c7c06aa958c4d 100644
 --- a/drivers/hid/hid-quirks.c
 +++ b/drivers/hid/hid-quirks.c
-@@ -19,6 +19,7 @@
+@@ -19,7 +19,6 @@
  #include <linux/input/elan-i2c-ids.h>
  
  #include "hid-ids.h"
-+#include "i2c-hid/i2c-hid.h"
+-#include "i2c-hid/i2c-hid.h"
  
  /*
   * Alphabetically sorted by vendor then product.
-@@ -1278,6 +1279,11 @@ unsigned long hid_lookup_quirk(const struct hid_device *hdev)
+@@ -1218,7 +1217,7 @@ EXPORT_SYMBOL_GPL(hid_quirks_exit);
+ static unsigned long hid_gets_squirk(const struct hid_device *hdev)
+ {
+ 	const struct hid_device_id *bl_entry;
+-	unsigned long quirks = 0;
++	unsigned long quirks = hdev->initial_quirks;
+ 
+ 	if (hid_match_id(hdev, hid_ignore_list))
+ 		quirks |= HID_QUIRK_IGNORE;
+@@ -1279,11 +1278,6 @@ unsigned long hid_lookup_quirk(const struct hid_device *hdev)
  		quirks = hid_gets_squirk(hdev);
  	mutex_unlock(&dquirks_lock);
  
-+	/* Get quirks specific to I2C devices */
-+	if (IS_ENABLED(CONFIG_I2C_DMI_CORE) && IS_ENABLED(CONFIG_DMI) &&
-+	    hdev->bus == BUS_I2C)
-+		quirks |= i2c_hid_get_dmi_quirks(hdev->vendor, hdev->product);
-+
+-	/* Get quirks specific to I2C devices */
+-	if (IS_ENABLED(CONFIG_I2C_DMI_CORE) && IS_ENABLED(CONFIG_DMI) &&
+-	    hdev->bus == BUS_I2C)
+-		quirks |= i2c_hid_get_dmi_quirks(hdev->vendor, hdev->product);
+-
  	return quirks;
  }
  EXPORT_SYMBOL_GPL(hid_lookup_quirk);
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 65c1f20ec420a..7c61bb9291e4e 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -1012,6 +1012,10 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+ 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+ 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+ 
++	hid->initial_quirks = quirks;
++	hid->initial_quirks |= i2c_hid_get_dmi_quirks(hid->vendor,
++						      hid->product);
++
+ 	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
+ 		 client->name, (u16)hid->vendor, (u16)hid->product);
+ 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+@@ -1025,8 +1029,6 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+ 		goto err_mem_free;
+ 	}
+ 
+-	hid->quirks |= quirks;
+-
+ 	return 0;
+ 
+ err_mem_free:
 diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index 8e0f67455c098..554a7dc285365 100644
+index 554a7dc285365..210f17c3a0be0 100644
 --- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
 +++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -10,8 +10,10 @@
- #include <linux/types.h>
- #include <linux/dmi.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/hid.h>
+@@ -492,4 +492,3 @@ u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product)
  
- #include "i2c-hid.h"
-+#include "../hid-ids.h"
- 
- 
- struct i2c_hid_desc_override {
-@@ -416,6 +418,28 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 	{ }	/* Terminate list */
- };
- 
-+static const struct hid_device_id i2c_hid_elan_flipped_quirks = {
-+	HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8, USB_VENDOR_ID_ELAN, 0x2dcd),
-+		HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT
-+};
-+
-+/*
-+ * This list contains devices which have specific issues based on the system
-+ * they're on and not just the device itself. The driver_data will have a
-+ * specific hid device to match against.
-+ */
-+static const struct dmi_system_id i2c_hid_dmi_quirk_table[] = {
-+	{
-+		.ident = "DynaBook K50/FR",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dynabook Inc."),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "dynabook K50/FR"),
-+		},
-+		.driver_data = (void *)&i2c_hid_elan_flipped_quirks,
-+	},
-+	{ }	/* Terminate list */
-+};
-+
- 
- struct i2c_hid_desc *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name)
- {
-@@ -450,3 +474,22 @@ char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
- 	*size = override->hid_report_desc_size;
- 	return override->hid_report_desc;
+ 	return quirks;
  }
-+
-+u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product)
-+{
-+	u32 quirks = 0;
-+	const struct dmi_system_id *system_id =
-+			dmi_first_match(i2c_hid_dmi_quirk_table);
-+
-+	if (system_id) {
-+		const struct hid_device_id *device_id =
-+				(struct hid_device_id *)(system_id->driver_data);
-+
-+		if (device_id && device_id->vendor == vendor &&
-+		    device_id->product == product)
-+			quirks = device_id->driver_data;
-+	}
-+
-+	return quirks;
-+}
-+EXPORT_SYMBOL_GPL(i2c_hid_get_dmi_quirks);
-diff --git a/drivers/hid/i2c-hid/i2c-hid.h b/drivers/hid/i2c-hid/i2c-hid.h
-index 236cc062d5ef8..7b93b6c21f126 100644
---- a/drivers/hid/i2c-hid/i2c-hid.h
-+++ b/drivers/hid/i2c-hid/i2c-hid.h
-@@ -9,6 +9,7 @@
- struct i2c_hid_desc *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name);
- char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
- 					       unsigned int *size);
-+u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product);
- #else
- static inline struct i2c_hid_desc
- 		   *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name)
-@@ -16,6 +17,8 @@ static inline struct i2c_hid_desc
- static inline char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
- 							     unsigned int *size)
- { return NULL; }
-+static inline u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product)
-+{ return 0; }
- #endif
+-EXPORT_SYMBOL_GPL(i2c_hid_get_dmi_quirks);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 26742ca14609a..3cfbffd94a058 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -599,6 +599,7 @@ struct hid_device {							/* device report descriptor */
+ 	unsigned long status;						/* see STAT flags above */
+ 	unsigned claimed;						/* Claimed by hidinput, hiddev? */
+ 	unsigned quirks;						/* Various quirks the device can pull on us */
++	unsigned initial_quirks;					/* Initial set of quirks supplied when creating device */
+ 	bool io_started;						/* If IO has started */
  
- /**
+ 	struct list_head inputs;					/* The list of inputs */
 -- 
 2.39.2
 
