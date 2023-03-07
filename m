@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 573B16AEDE8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B53276AE958
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229878AbjCGSIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:08:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
+        id S230493AbjCGRXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:23:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232320AbjCGSIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:01 -0500
+        with ESMTP id S231357AbjCGRWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:22:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA18A4B11
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB69E5DEE9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:18:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9294BB819C1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C73FEC433D2;
-        Tue,  7 Mar 2023 18:01:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64EFAB819A9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:18:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ECC0C433EF;
+        Tue,  7 Mar 2023 17:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212098;
-        bh=q3RXUNP5FkFm2/VEgf1shm780Z/pC1/G7n6K7mcj27E=;
+        s=korg; t=1678209491;
+        bh=Ub4gL2SWRUQxDIbDVcCFnTHE8wFSikK5JXtvra/GilI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtP4YUcIgEsK4Z4GOOtzA8ZCEEQDehk7Rn/5OHk8CWqycxAHwHm6j5wZtZPpSkT3H
-         rSwhIJCXuQmDh4d73VOcFgp292APwjNXItO0MNvPCQJBvd8x0TUsk5kYv9Tyg1SIKo
-         kYfxQm9RQNySo7A8EAvo2Pmy6BZGjYblFe/e8NOs=
+        b=LEVh4klC6waORVvrY15awRtNZYcQMnUOEPGBBNydo+rmgYmGxZELl91E7df8JQaZ8
+         gNhn1wKHpz7lXVGMBTtUscslF2ipiTEtA8rUeV/67ZGA+7SKh2vC/VEumF7bwjhPYy
+         BPoie9OSoMy/MDgwBoMkHaeXkFqhRrDosnW3vlxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hugh Dickins <hughd@google.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Liu Song <liusong@linux.alibaba.com>, Jan Kara <jack@suse.cz>,
-        Gabriel Krisman Bertazi <krisman@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 075/885] sbitmap: Use single per-bitmap counting to wake up queued tags
+        patches@lists.linux.dev,
+        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0237/1001] wifi: mt76: mt7921: fix deadlock in mt7921_abort_roc
 Date:   Tue,  7 Mar 2023 17:50:09 +0100
-Message-Id: <20230307170005.042845101@linuxfoundation.org>
+Message-Id: <20230307170032.125216943@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,308 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@suse.de>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 4f8126bb2308066b877859e4b5923ffb54143630 ]
+[ Upstream commit de19b9c83654e323d83f839a550ca4af37fea15b ]
 
-sbitmap suffers from code complexity, as demonstrated by recent fixes,
-and eventual lost wake ups on nested I/O completion.  The later happens,
-from what I understand, due to the non-atomic nature of the updates to
-wait_cnt, which needs to be subtracted and eventually reset when equal
-to zero.  This two step process can eventually miss an update when a
-nested completion happens to interrupt the CPU in between the wait_cnt
-updates.  This is very hard to fix, as shown by the recent changes to
-this code.
+When mt7921_abort_roc is called with dev->mutex held, it can deadlock while
+calling cancel_work_sync(&phy->roc_work), because the work function could
+be waiting to acquire the mutex.
 
-The code complexity arises mostly from the corner cases to avoid missed
-wakes in this scenario.  In addition, the handling of wake_batch
-recalculation plus the synchronization with sbq_queue_wake_up is
-non-trivial.
+Fix this by flushing the work before taking the mutex
 
-This patchset implements the idea originally proposed by Jan [1], which
-removes the need for the two-step updates of wait_cnt.  This is done by
-tracking the number of completions and wakeups in always increasing,
-per-bitmap counters.  Instead of having to reset the wait_cnt when it
-reaches zero, we simply keep counting, and attempt to wake up N threads
-in a single wait queue whenever there is enough space for a batch.
-Waking up less than batch_wake shouldn't be a problem, because we
-haven't changed the conditions for wake up, and the existing batch
-calculation guarantees at least enough remaining completions to wake up
-a batch for each queue at any time.
-
-Performance-wise, one should expect very similar performance to the
-original algorithm for the case where there is no queueing.  In both the
-old algorithm and this implementation, the first thing is to check
-ws_active, which bails out if there is no queueing to be managed. In the
-new code, we took care to avoid accounting completions and wakeups when
-there is no queueing, to not pay the cost of atomic operations
-unnecessarily, since it doesn't skew the numbers.
-
-For more interesting cases, where there is queueing, we need to take
-into account the cross-communication of the atomic operations.  I've
-been benchmarking by running parallel fio jobs against a single hctx
-nullb in different hardware queue depth scenarios, and verifying both
-IOPS and queueing.
-
-Each experiment was repeated 5 times on a 20-CPU box, with 20 parallel
-jobs. fio was issuing fixed-size randwrites with qd=64 against nullb,
-varying only the hardware queue length per test.
-
-queue size 2                 4                 8                 16                 32                 64
-6.1-rc2    1681.1K (1.6K)    2633.0K (12.7K)   6940.8K (16.3K)   8172.3K (617.5K)   8391.7K (367.1K)   8606.1K (351.2K)
-patched    1721.8K (15.1K)   3016.7K (3.8K)    7543.0K (89.4K)   8132.5K (303.4K)   8324.2K (230.6K)   8401.8K (284.7K)
-
-The following is a similar experiment, ran against a nullb with a single
-bitmap shared by 20 hctx spread across 2 NUMA nodes. This has 40
-parallel fio jobs operating on the same device
-
-queue size 2 	             4                 8              	16             	    32		       64
-6.1-rc2	   1081.0K (2.3K)    957.2K (1.5K)     1699.1K (5.7K) 	6178.2K (124.6K)    12227.9K (37.7K)   13286.6K (92.9K)
-patched	   1081.8K (2.8K)    1316.5K (5.4K)    2364.4K (1.8K) 	6151.4K  (20.0K)    11893.6K (17.5K)   12385.6K (18.4K)
-
-It has also survived blktests and a 12h-stress run against nullb. I also
-ran the code against nvme and a scsi SSD, and I didn't observe
-performance regression in those. If there are other tests you think I
-should run, please let me know and I will follow up with results.
-
-[1] https://lore.kernel.org/all/aef9de29-e9f5-259a-f8be-12d1b734e72@google.com/
-
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Keith Busch <kbusch@kernel.org>
-Cc: Liu Song <liusong@linux.alibaba.com>
-Suggested-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Gabriel Krisman Bertazi <krisman@suse.de>
-Link: https://lore.kernel.org/r/20221105231055.25953-1-krisman@suse.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: b5fcf7871acb ("sbitmap: correct wake_batch recalculation to avoid potential IO hung")
+Reported-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Fixes: 034ae28b56f1 ("wifi: mt76: mt7921: introduce remain_on_channel support")
+Fixes: 41ac53c899bd ("wifi: mt76: mt7921: introduce chanctx support")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sbitmap.h |  16 ++++--
- lib/sbitmap.c           | 122 +++++++++-------------------------------
- 2 files changed, 37 insertions(+), 101 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7921/main.c  | 22 ++++++-------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
-diff --git a/include/linux/sbitmap.h b/include/linux/sbitmap.h
-index 4d2d5205ab586..d662cf136021d 100644
---- a/include/linux/sbitmap.h
-+++ b/include/linux/sbitmap.h
-@@ -86,11 +86,6 @@ struct sbitmap {
-  * struct sbq_wait_state - Wait queue in a &struct sbitmap_queue.
-  */
- struct sbq_wait_state {
--	/**
--	 * @wait_cnt: Number of frees remaining before we wake up.
--	 */
--	atomic_t wait_cnt;
--
- 	/**
- 	 * @wait: Wait queue.
- 	 */
-@@ -138,6 +133,17 @@ struct sbitmap_queue {
- 	 * sbitmap_queue_get_shallow()
- 	 */
- 	unsigned int min_shallow_depth;
-+
-+	/**
-+	 * @completion_cnt: Number of bits cleared passed to the
-+	 * wakeup function.
-+	 */
-+	atomic_t completion_cnt;
-+
-+	/**
-+	 * @wakeup_cnt: Number of thread wake ups issued.
-+	 */
-+	atomic_t wakeup_cnt;
- };
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index 76ac5069638fe..722df8eea91f7 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -422,15 +422,15 @@ void mt7921_roc_timer(struct timer_list *timer)
  
- /**
-diff --git a/lib/sbitmap.c b/lib/sbitmap.c
-index ca099fbc6f3c9..a7c3dc3d2d174 100644
---- a/lib/sbitmap.c
-+++ b/lib/sbitmap.c
-@@ -434,6 +434,8 @@ int sbitmap_queue_init_node(struct sbitmap_queue *sbq, unsigned int depth,
- 	sbq->wake_batch = sbq_calc_wake_batch(sbq, depth);
- 	atomic_set(&sbq->wake_index, 0);
- 	atomic_set(&sbq->ws_active, 0);
-+	atomic_set(&sbq->completion_cnt, 0);
-+	atomic_set(&sbq->wakeup_cnt, 0);
- 
- 	sbq->ws = kzalloc_node(SBQ_WAIT_QUEUES * sizeof(*sbq->ws), flags, node);
- 	if (!sbq->ws) {
-@@ -441,40 +443,21 @@ int sbitmap_queue_init_node(struct sbitmap_queue *sbq, unsigned int depth,
- 		return -ENOMEM;
- 	}
- 
--	for (i = 0; i < SBQ_WAIT_QUEUES; i++) {
-+	for (i = 0; i < SBQ_WAIT_QUEUES; i++)
- 		init_waitqueue_head(&sbq->ws[i].wait);
--		atomic_set(&sbq->ws[i].wait_cnt, sbq->wake_batch);
--	}
- 
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(sbitmap_queue_init_node);
- 
--static inline void __sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
--					    unsigned int wake_batch)
--{
--	int i;
--
--	if (sbq->wake_batch != wake_batch) {
--		WRITE_ONCE(sbq->wake_batch, wake_batch);
--		/*
--		 * Pairs with the memory barrier in sbitmap_queue_wake_up()
--		 * to ensure that the batch size is updated before the wait
--		 * counts.
--		 */
--		smp_mb();
--		for (i = 0; i < SBQ_WAIT_QUEUES; i++)
--			atomic_set(&sbq->ws[i].wait_cnt, 1);
--	}
--}
--
- static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
- 					    unsigned int depth)
+ static int mt7921_abort_roc(struct mt7921_phy *phy, struct mt7921_vif *vif)
  {
- 	unsigned int wake_batch;
+-	int err;
+-
+-	if (!test_and_clear_bit(MT76_STATE_ROC, &phy->mt76->state))
+-		return 0;
++	int err = 0;
  
- 	wake_batch = sbq_calc_wake_batch(sbq, depth);
--	__sbitmap_queue_update_wake_batch(sbq, wake_batch);
-+	if (sbq->wake_batch != wake_batch)
-+		WRITE_ONCE(sbq->wake_batch, wake_batch);
- }
- 
- void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
-@@ -488,7 +471,8 @@ void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
- 
- 	wake_batch = clamp_val(depth / SBQ_WAIT_QUEUES,
- 			min_batch, SBQ_WAKE_BATCH);
--	__sbitmap_queue_update_wake_batch(sbq, wake_batch);
+ 	del_timer_sync(&phy->roc_timer);
+ 	cancel_work_sync(&phy->roc_work);
+-	err = mt7921_mcu_abort_roc(phy, vif, phy->roc_token_id);
+-	clear_bit(MT76_STATE_ROC, &phy->mt76->state);
 +
-+	WRITE_ONCE(sbq->wake_batch, wake_batch);
++	mt7921_mutex_acquire(phy->dev);
++	if (test_and_clear_bit(MT76_STATE_ROC, &phy->mt76->state))
++		err = mt7921_mcu_abort_roc(phy, vif, phy->roc_token_id);
++	mt7921_mutex_release(phy->dev);
+ 
+ 	return err;
  }
- EXPORT_SYMBOL_GPL(sbitmap_queue_recalculate_wake_batch);
- 
-@@ -585,7 +569,7 @@ static struct sbq_wait_state *sbq_wake_ptr(struct sbitmap_queue *sbq)
- 	for (i = 0; i < SBQ_WAIT_QUEUES; i++) {
- 		struct sbq_wait_state *ws = &sbq->ws[wake_index];
- 
--		if (waitqueue_active(&ws->wait) && atomic_read(&ws->wait_cnt)) {
-+		if (waitqueue_active(&ws->wait)) {
- 			if (wake_index != atomic_read(&sbq->wake_index))
- 				atomic_set(&sbq->wake_index, wake_index);
- 			return ws;
-@@ -597,83 +581,31 @@ static struct sbq_wait_state *sbq_wake_ptr(struct sbitmap_queue *sbq)
- 	return NULL;
- }
- 
--static bool __sbq_wake_up(struct sbitmap_queue *sbq, int *nr)
-+void sbitmap_queue_wake_up(struct sbitmap_queue *sbq, int nr)
+@@ -487,13 +487,8 @@ static int mt7921_cancel_remain_on_channel(struct ieee80211_hw *hw,
  {
--	struct sbq_wait_state *ws;
--	unsigned int wake_batch;
--	int wait_cnt, cur, sub;
--	bool ret;
-+	unsigned int wake_batch = READ_ONCE(sbq->wake_batch);
-+	struct sbq_wait_state *ws = NULL;
-+	unsigned int wakeups;
+ 	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
+ 	struct mt7921_phy *phy = mt7921_hw_phy(hw);
+-	int err;
  
--	if (*nr <= 0)
--		return false;
-+	if (!atomic_read(&sbq->ws_active))
-+		return;
- 
--	ws = sbq_wake_ptr(sbq);
--	if (!ws)
--		return false;
-+	atomic_add(nr, &sbq->completion_cnt);
-+	wakeups = atomic_read(&sbq->wakeup_cnt);
- 
--	cur = atomic_read(&ws->wait_cnt);
- 	do {
--		/*
--		 * For concurrent callers of this, callers should call this
--		 * function again to wakeup a new batch on a different 'ws'.
--		 */
--		if (cur == 0)
--			return true;
--		sub = min(*nr, cur);
--		wait_cnt = cur - sub;
--	} while (!atomic_try_cmpxchg(&ws->wait_cnt, &cur, wait_cnt));
+-	mt7921_mutex_acquire(phy->dev);
+-	err = mt7921_abort_roc(phy, mvif);
+-	mt7921_mutex_release(phy->dev);
 -
--	/*
--	 * If we decremented queue without waiters, retry to avoid lost
--	 * wakeups.
--	 */
--	if (wait_cnt > 0)
--		return !waitqueue_active(&ws->wait);
-+		if (atomic_read(&sbq->completion_cnt) - wakeups < wake_batch)
-+			return;
- 
--	*nr -= sub;
--
--	/*
--	 * When wait_cnt == 0, we have to be particularly careful as we are
--	 * responsible to reset wait_cnt regardless whether we've actually
--	 * woken up anybody. But in case we didn't wakeup anybody, we still
--	 * need to retry.
--	 */
--	ret = !waitqueue_active(&ws->wait);
--	wake_batch = READ_ONCE(sbq->wake_batch);
-+		if (!ws) {
-+			ws = sbq_wake_ptr(sbq);
-+			if (!ws)
-+				return;
-+		}
-+	} while (!atomic_try_cmpxchg(&sbq->wakeup_cnt,
-+				     &wakeups, wakeups + wake_batch));
- 
--	/*
--	 * Wake up first in case that concurrent callers decrease wait_cnt
--	 * while waitqueue is empty.
--	 */
- 	wake_up_nr(&ws->wait, wake_batch);
--
--	/*
--	 * Pairs with the memory barrier in sbitmap_queue_resize() to
--	 * ensure that we see the batch size update before the wait
--	 * count is reset.
--	 *
--	 * Also pairs with the implicit barrier between decrementing wait_cnt
--	 * and checking for waitqueue_active() to make sure waitqueue_active()
--	 * sees result of the wakeup if atomic_dec_return() has seen the result
--	 * of atomic_set().
--	 */
--	smp_mb__before_atomic();
--
--	/*
--	 * Increase wake_index before updating wait_cnt, otherwise concurrent
--	 * callers can see valid wait_cnt in old waitqueue, which can cause
--	 * invalid wakeup on the old waitqueue.
--	 */
--	sbq_index_atomic_inc(&sbq->wake_index);
--	atomic_set(&ws->wait_cnt, wake_batch);
--
--	return ret || *nr;
--}
--
--void sbitmap_queue_wake_up(struct sbitmap_queue *sbq, int nr)
--{
--	while (__sbq_wake_up(sbq, &nr))
--		;
+-	return err;
++	return mt7921_abort_roc(phy, mvif);
  }
- EXPORT_SYMBOL_GPL(sbitmap_queue_wake_up);
  
-@@ -790,9 +722,7 @@ void sbitmap_queue_show(struct sbitmap_queue *sbq, struct seq_file *m)
- 	seq_puts(m, "ws={\n");
- 	for (i = 0; i < SBQ_WAIT_QUEUES; i++) {
- 		struct sbq_wait_state *ws = &sbq->ws[i];
--
--		seq_printf(m, "\t{.wait_cnt=%d, .wait=%s},\n",
--			   atomic_read(&ws->wait_cnt),
-+		seq_printf(m, "\t{.wait=%s},\n",
- 			   waitqueue_active(&ws->wait) ? "active" : "inactive");
- 	}
- 	seq_puts(m, "}\n");
+ static int mt7921_set_channel(struct mt7921_phy *phy)
+@@ -1778,11 +1773,8 @@ static void mt7921_mgd_complete_tx(struct ieee80211_hw *hw,
+ 				   struct ieee80211_prep_tx_info *info)
+ {
+ 	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
+-	struct mt7921_dev *dev = mt7921_hw_dev(hw);
+ 
+-	mt7921_mutex_acquire(dev);
+ 	mt7921_abort_roc(mvif->phy, mvif);
+-	mt7921_mutex_release(dev);
+ }
+ 
+ const struct ieee80211_ops mt7921_ops = {
 -- 
 2.39.2
 
