@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1063A6AE99F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 517186AEDFA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbjCGR0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:26:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48328 "EHLO
+        id S230173AbjCGSIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbjCGRZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 597739CFF7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:44 -0800 (PST)
+        with ESMTP id S232346AbjCGSIa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647E0AFB97
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED652B819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 378FEC433EF;
-        Tue,  7 Mar 2023 17:20:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16A4F6151D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F337C433A0;
+        Tue,  7 Mar 2023 18:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209641;
-        bh=ls1ww7wUoZdGfmdpDQ/rsvnyM2uFK2RBvTwDXaamC4E=;
+        s=korg; t=1678212154;
+        bh=M7IfczXodcrT7t/Z05b9LHlutStZPQnkldW/g1OvM2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2SwHO/MN5j5VxVt1zJFBlDs1GhpzcDs4nCTgiIvdkSkIBoM5p9fZUq+PCi9ew5Bya
-         4SsmIaCtqjNgYmozSYQE1g1Wdisu5Iij3x4chmhLSCLvqX6rwApjUZMw9q3xwCtZXK
-         oPUhZKd6WLswXanQvo1lxsjim48IqQxtV1aHPL4k=
+        b=zKnGvouFAQHHMZo8PhxRIWl262xIXb/MJ9u6H86cQ22XZ7lKcRCRy+2iwmKD7MLOI
+         Pi6qB1+GiqbKBGH/p+sEb/QBtZ+DrcOBlNIRkptXqXlDzrFUs55WQoK38MzW+/CkRH
+         fLlj2D8RDA7m/c3hb9SRQ4HAZJ8R8b8o7PyF8e9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0257/1001] irqchip/irq-mvebu-gicp: Fix refcount leak in mvebu_gicp_probe
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Luca Weiss <luca@z3ntu.xyz>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 095/885] arm64: dts: qcom: msm8953: correct TLMM gpio-ranges
 Date:   Tue,  7 Mar 2023 17:50:29 +0100
-Message-Id: <20230307170032.883618024@linuxfoundation.org>
+Message-Id: <20230307170005.961454367@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 9419e700021a393f67be36abd0c4f3acc6139041 ]
+[ Upstream commit a4fb71497df23cb0d02d70fa2b8f8786328e325d ]
 
-of_irq_find_parent() returns a node pointer with refcount incremented,
-We should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+Correct the number of GPIOs in TLMM pin controller.
 
-Fixes: a68a63cb4dfc ("irqchip/irq-mvebu-gicp: Add new driver for Marvell GICP")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230102084208.3951758-1-linmq006@gmail.com
+Fixes: 9fb08c801923 ("arm64: dts: qcom: Add MSM8953 device tree")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Luca Weiss <luca@z3ntu.xyz>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230202104452.299048-10-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-mvebu-gicp.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/qcom/msm8953.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-mvebu-gicp.c b/drivers/irqchip/irq-mvebu-gicp.c
-index fe88a782173dd..c43a345061d53 100644
---- a/drivers/irqchip/irq-mvebu-gicp.c
-+++ b/drivers/irqchip/irq-mvebu-gicp.c
-@@ -221,6 +221,7 @@ static int mvebu_gicp_probe(struct platform_device *pdev)
- 	}
- 
- 	parent_domain = irq_find_host(irq_parent_dn);
-+	of_node_put(irq_parent_dn);
- 	if (!parent_domain) {
- 		dev_err(&pdev->dev, "failed to find parent IRQ domain\n");
- 		return -ENODEV;
+diff --git a/arch/arm64/boot/dts/qcom/msm8953.dtsi b/arch/arm64/boot/dts/qcom/msm8953.dtsi
+index 6b992a6d56c16..85a87d058f8ab 100644
+--- a/arch/arm64/boot/dts/qcom/msm8953.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8953.dtsi
+@@ -455,7 +455,7 @@ tlmm: pinctrl@1000000 {
+ 			reg = <0x1000000 0x300000>;
+ 			interrupts = <GIC_SPI 208 IRQ_TYPE_LEVEL_HIGH>;
+ 			gpio-controller;
+-			gpio-ranges = <&tlmm 0 0 155>;
++			gpio-ranges = <&tlmm 0 0 142>;
+ 			#gpio-cells = <2>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <2>;
 -- 
 2.39.2
 
