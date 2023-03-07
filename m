@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1257A6AF2E2
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8FF6AEFEB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:28:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233539AbjCGS5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:57:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36816 "EHLO
+        id S233015AbjCGS1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:27:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233434AbjCGS5F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:57:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01415B421D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:30 -0800 (PST)
+        with ESMTP id S232658AbjCGS0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:26:40 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774069FE57
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BAF8B819CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:44:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB3AAC433A7;
-        Tue,  7 Mar 2023 18:44:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DA1A2CE1C8B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1DBC433D2;
+        Tue,  7 Mar 2023 18:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214669;
-        bh=gFcAyf1PGl1n4dTWqiuPLEv/mL7kH3Gy4DziT3IvLmY=;
+        s=korg; t=1678213239;
+        bh=V5JZlLOhCSOG5H+xZRDw0QXOabOtSOhHsuxVANlYX6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHIRty64VQC9w/6Me2WWUe1yxaor+mLCbSd0E1ASzlGIWZHcOtEpSrSrRu1KQbM5t
-         dl3zilYoZHSjNBWszyRDNMYtyCVlnqg4KyXoMkYZtqHnZRhGaRS99ctejAmghqSA9/
-         /Emh8XuJDQWOajoDlwHuO23jKyGHpbW1jf7Ecpco=
+        b=r5yDPbS8Ae9SXsEBv5OrPlgXkB2CcY7RxQwDL9gwSm6zodAoD7DwzVyi/Mf3geV/Z
+         E3yWD2KllkXpgV2JI5bzWNJtJUqjg502L9TZy/lxL/opPHM5OcoRUkL8aqm8i84tuh
+         hZiOqAvBNgk2sehMs6zO254YyZ22r0s7laHguEZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, "Rafael J. Wysocki" <rafael@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 011/567] arm64: dts: mediatek: mt8183: Fix systimer 13 MHz clock description
+Subject: [PATCH 6.1 413/885] kobject: modify kobject_get_path() to take a const *
 Date:   Tue,  7 Mar 2023 17:55:47 +0100
-Message-Id: <20230307165906.330803725@linuxfoundation.org>
+Message-Id: <20230307170020.370274738@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
-References: <20230307165905.838066027@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,63 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit ce8a06b5bac75ccce99c0cf91b96b767d64f28a7 ]
+[ Upstream commit 33a0a1e3b3d17445832177981dc7a1c6a5b009f8 ]
 
-The systimer block derives its 13 MHz clock by dividing the main 26 MHz
-oscillator clock by 2 internally, not through the TOPCKGEN clock
-controller.
+kobject_get_path() does not modify the kobject passed to it, so make the
+pointer constant.
 
-On the MT8183 this divider is set either by power-on-reset or by the
-bootloader. The bootloader may then make the divider unconfigurable to,
-but can be read out by, the operating system.
-
-Making the systimer block take the 26 MHz clock directly requires
-changing the implementations. As an ABI compatible fix, change the
-input clock of the systimer block a fixed factor divide-by-2 clock
-that takes the 26 MHz oscillator as its input.
-
-Fixes: 5bc8e2875ffb ("arm64: dts: mt8183: add systimer0 device node")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221201084229.3464449-2-wenst@chromium.org
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Link: https://lore.kernel.org/r/20221001165315.2690141-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 3bb2a01caa81 ("kobject: Fix slab-out-of-bounds in fill_kobj_path()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8183.dtsi | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ include/linux/kobject.h |  2 +-
+ lib/kobject.c           | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8183.dtsi b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
-index f4e0bea8ddcb6..81fde34ffd52a 100644
---- a/arch/arm64/boot/dts/mediatek/mt8183.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
-@@ -299,6 +299,15 @@ psci {
- 		method          = "smc";
- 	};
+diff --git a/include/linux/kobject.h b/include/linux/kobject.h
+index 57fb972fea05b..592f9785b058a 100644
+--- a/include/linux/kobject.h
++++ b/include/linux/kobject.h
+@@ -115,7 +115,7 @@ extern void kobject_put(struct kobject *kobj);
+ extern const void *kobject_namespace(struct kobject *kobj);
+ extern void kobject_get_ownership(struct kobject *kobj,
+ 				  kuid_t *uid, kgid_t *gid);
+-extern char *kobject_get_path(struct kobject *kobj, gfp_t flag);
++extern char *kobject_get_path(const struct kobject *kobj, gfp_t flag);
  
-+	clk13m: fixed-factor-clock-13m {
-+		compatible = "fixed-factor-clock";
-+		#clock-cells = <0>;
-+		clocks = <&clk26m>;
-+		clock-div = <2>;
-+		clock-mult = <1>;
-+		clock-output-names = "clk13m";
-+	};
-+
- 	clk26m: oscillator {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
-@@ -610,8 +619,7 @@ systimer: timer@10017000 {
- 				     "mediatek,mt6765-timer";
- 			reg = <0 0x10017000 0 0x1000>;
- 			interrupts = <GIC_SPI 200 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&topckgen CLK_TOP_CLK13M>;
--			clock-names = "clk13m";
-+			clocks = <&clk13m>;
- 		};
+ struct kobj_type {
+ 	void (*release)(struct kobject *kobj);
+diff --git a/lib/kobject.c b/lib/kobject.c
+index a0b2dbfcfa233..0380ec889a6af 100644
+--- a/lib/kobject.c
++++ b/lib/kobject.c
+@@ -94,10 +94,10 @@ static int create_dir(struct kobject *kobj)
+ 	return 0;
+ }
  
- 		iommu: iommu@10205000 {
+-static int get_kobj_path_length(struct kobject *kobj)
++static int get_kobj_path_length(const struct kobject *kobj)
+ {
+ 	int length = 1;
+-	struct kobject *parent = kobj;
++	const struct kobject *parent = kobj;
+ 
+ 	/* walk up the ancestors until we hit the one pointing to the
+ 	 * root.
+@@ -112,9 +112,9 @@ static int get_kobj_path_length(struct kobject *kobj)
+ 	return length;
+ }
+ 
+-static void fill_kobj_path(struct kobject *kobj, char *path, int length)
++static void fill_kobj_path(const struct kobject *kobj, char *path, int length)
+ {
+-	struct kobject *parent;
++	const struct kobject *parent;
+ 
+ 	--length;
+ 	for (parent = kobj; parent; parent = parent->parent) {
+@@ -136,7 +136,7 @@ static void fill_kobj_path(struct kobject *kobj, char *path, int length)
+  *
+  * Return: The newly allocated memory, caller must free with kfree().
+  */
+-char *kobject_get_path(struct kobject *kobj, gfp_t gfp_mask)
++char *kobject_get_path(const struct kobject *kobj, gfp_t gfp_mask)
+ {
+ 	char *path;
+ 	int len;
 -- 
 2.39.2
 
