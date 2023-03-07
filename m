@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB396AF423
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 261406AF424
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:14:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233833AbjCGTN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:13:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60446 "EHLO
+        id S233752AbjCGTOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:14:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233617AbjCGTNi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E31FB1B20
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:21 -0800 (PST)
+        with ESMTP id S233801AbjCGTNj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45FB1B256A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2F3AB8117B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06B31C433EF;
-        Tue,  7 Mar 2023 18:57:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2153B61520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1794AC433EF;
+        Tue,  7 Mar 2023 18:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215438;
-        bh=VsuhOLH9lGhs+9G72g3cAwpfrAV9ZbH0a6stNRUwqHE=;
+        s=korg; t=1678215441;
+        bh=RfRBafV88LAm8cnhes9If/lm5TCj4oFthDRm/yYkuYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUkVtlLUz4Kd4BF2/L2PFyjktMW2W+ddanp4igPElclxbP+VqX3MjLGwNC4AYsqdB
-         Bde8pxUiNvMdBewgN0tXVEo6BXPGwrhNSp94GVwM6scqnXr5uQEYcAA29Wpf7bFiGq
-         WYrahTtVjNxeFUHmr8RbfxRNlNFOpczTh68k4TVg=
+        b=dodGkhBCYxkjHdxda+yF8R7ljjzzwqk7n0quS7a3SBQCLiF6ywS5P3Tgc1fDGj45j
+         zhIcPaqPzErrdcUoIMLgVWzZBG2SzuZdqx0yiIYsXpmLkmGTbPdyda0MXc9HGgphrC
+         CMaAUh+Erk57O7mJ8XoknEPKuIftTZ3Yxg9M3K20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 229/567] drm/amdgpu: fix enum odm_combine_mode mismatch
-Date:   Tue,  7 Mar 2023 17:59:25 +0100
-Message-Id: <20230307165915.842469475@linuxfoundation.org>
+Subject: [PATCH 5.15 230/567] scsi: mpt3sas: Fix a memory leak
+Date:   Tue,  7 Mar 2023 17:59:26 +0100
+Message-Id: <20230307165915.890173414@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,142 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit 087bad7eb1f6945f8232f132953ecc2bda8bd38d ]
+[ Upstream commit 54dd96015e8d7a2a07359e2dfebf05b529d1780c ]
 
-A conversion from 'bool' to 'enum odm_combine_mode' was incomplete,
-and gcc warns about this with many instances of
+Add a forgotten kfree().
 
-display/dc/dml/dcn20/display_mode_vba_20.c:3899:44: warning: implicit conversion from 'enum <anonymous>' to 'enum
-odm_combine_mode' [-Wenum-conversion]
- 3899 |     locals->ODMCombineEnablePerState[i][k] = false;
-
-Change the ones that we get a warning for, using the same numerical
-values to leave the behavior unchanged.
-
-Fixes: 5fc11598166d ("drm/amd/display: expand dml structs")
-Link: https://lore.kernel.org/all/20201026210039.3884312-3-arnd@kernel.org/
-Link: https://lore.kernel.org/all/20210927100659.1431744-1-arnd@kernel.org/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: dbec4c9040ed ("scsi: mpt3sas: lockless command submission")
+Link: https://lore.kernel.org/r/20230207152159.18627-1-thenzl@redhat.com
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/dc/dml/dcn20/display_mode_vba_20.c   |  8 ++++----
- .../amd/display/dc/dml/dcn20/display_mode_vba_20v2.c | 10 +++++-----
- .../amd/display/dc/dml/dcn21/display_mode_vba_21.c   | 12 ++++++------
- 3 files changed, 15 insertions(+), 15 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20.c
-index d3b5b6fedf042..6266b0788387e 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20.c
-@@ -3897,14 +3897,14 @@ void dml20_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 					mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine = mode_lib->vba.PixelClock[k] / 2
- 							* (1 + mode_lib->vba.DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
- 
--				locals->ODMCombineEnablePerState[i][k] = false;
-+				locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_disabled;
- 				mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithoutODMCombine;
- 				if (mode_lib->vba.ODMCapability) {
- 					if (locals->PlaneRequiredDISPCLKWithoutODMCombine > mode_lib->vba.MaxDispclkRoundedDownToDFSGranularity) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					} else if (locals->HActive[k] > DCN20_MAX_420_IMAGE_WIDTH && locals->OutputFormat[k] == dm_420) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					}
- 				}
-@@ -3957,7 +3957,7 @@ void dml20_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 				locals->RequiredDISPCLK[i][j] = 0.0;
- 				locals->DISPCLK_DPPCLK_Support[i][j] = true;
- 				for (k = 0; k <= mode_lib->vba.NumberOfActivePlanes - 1; k++) {
--					locals->ODMCombineEnablePerState[i][k] = false;
-+					locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_disabled;
- 					if (locals->SwathWidthYSingleDPP[k] <= locals->MaximumSwathWidth[k]) {
- 						locals->NoOfDPP[i][j][k] = 1;
- 						locals->RequiredDPPCLK[i][j][k] = locals->MinDPPCLKUsingSingleDPP[k]
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20v2.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20v2.c
-index 63bbdf8b8678b..0053a6d5178c9 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20v2.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_mode_vba_20v2.c
-@@ -4008,17 +4008,17 @@ void dml20v2_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode
- 					mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine = mode_lib->vba.PixelClock[k] / 2
- 							* (1 + mode_lib->vba.DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
- 
--				locals->ODMCombineEnablePerState[i][k] = false;
-+				locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_disabled;
- 				mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithoutODMCombine;
- 				if (mode_lib->vba.ODMCapability) {
- 					if (locals->PlaneRequiredDISPCLKWithoutODMCombine > MaxMaxDispclkRoundedDown) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					} else if (locals->DSCEnabled[k] && (locals->HActive[k] > DCN20_MAX_DSC_IMAGE_WIDTH)) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					} else if (locals->HActive[k] > DCN20_MAX_420_IMAGE_WIDTH && locals->OutputFormat[k] == dm_420) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					}
- 				}
-@@ -4071,7 +4071,7 @@ void dml20v2_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode
- 				locals->RequiredDISPCLK[i][j] = 0.0;
- 				locals->DISPCLK_DPPCLK_Support[i][j] = true;
- 				for (k = 0; k <= mode_lib->vba.NumberOfActivePlanes - 1; k++) {
--					locals->ODMCombineEnablePerState[i][k] = false;
-+					locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_disabled;
- 					if (locals->SwathWidthYSingleDPP[k] <= locals->MaximumSwathWidth[k]) {
- 						locals->NoOfDPP[i][j][k] = 1;
- 						locals->RequiredDPPCLK[i][j][k] = locals->MinDPPCLKUsingSingleDPP[k]
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c
-index 4136eb8256cb5..26f839ce710f5 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_mode_vba_21.c
-@@ -3979,17 +3979,17 @@ void dml21_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 					mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine = mode_lib->vba.PixelClock[k] / 2
- 							* (1 + mode_lib->vba.DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
- 
--				locals->ODMCombineEnablePerState[i][k] = false;
-+				locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_disabled;
- 				mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithoutODMCombine;
- 				if (mode_lib->vba.ODMCapability) {
- 					if (locals->PlaneRequiredDISPCLKWithoutODMCombine > MaxMaxDispclkRoundedDown) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					} else if (locals->DSCEnabled[k] && (locals->HActive[k] > DCN21_MAX_DSC_IMAGE_WIDTH)) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					} else if (locals->HActive[k] > DCN21_MAX_420_IMAGE_WIDTH && locals->OutputFormat[k] == dm_420) {
--						locals->ODMCombineEnablePerState[i][k] = true;
-+						locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_2to1;
- 						mode_lib->vba.PlaneRequiredDISPCLK = mode_lib->vba.PlaneRequiredDISPCLKWithODMCombine;
- 					}
- 				}
-@@ -4042,7 +4042,7 @@ void dml21_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 				locals->RequiredDISPCLK[i][j] = 0.0;
- 				locals->DISPCLK_DPPCLK_Support[i][j] = true;
- 				for (k = 0; k <= mode_lib->vba.NumberOfActivePlanes - 1; k++) {
--					locals->ODMCombineEnablePerState[i][k] = false;
-+					locals->ODMCombineEnablePerState[i][k] = dm_odm_combine_mode_disabled;
- 					if (locals->SwathWidthYSingleDPP[k] <= locals->MaximumSwathWidth[k]) {
- 						locals->NoOfDPP[i][j][k] = 1;
- 						locals->RequiredDPPCLK[i][j][k] = locals->MinDPPCLKUsingSingleDPP[k]
-@@ -5218,7 +5218,7 @@ void dml21_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
- 			mode_lib->vba.ODMCombineEnabled[k] =
- 					locals->ODMCombineEnablePerState[mode_lib->vba.VoltageLevel][k];
- 		} else {
--			mode_lib->vba.ODMCombineEnabled[k] = false;
-+			mode_lib->vba.ODMCombineEnabled[k] = dm_odm_combine_mode_disabled;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 766c3a59a900a..9e674b748e78a 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -5682,6 +5682,9 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
  		}
- 		mode_lib->vba.DSCEnabled[k] =
- 				locals->RequiresDSC[mode_lib->vba.VoltageLevel][k];
+ 		dma_pool_destroy(ioc->pcie_sgl_dma_pool);
+ 	}
++	kfree(ioc->pcie_sg_lookup);
++	ioc->pcie_sg_lookup = NULL;
++
+ 	if (ioc->config_page) {
+ 		dexitprintk(ioc,
+ 			    ioc_info(ioc, "config_page(0x%p): free\n",
 -- 
 2.39.2
 
