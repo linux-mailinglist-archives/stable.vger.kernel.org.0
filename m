@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CB896AEF99
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 704866AEB24
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:40:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbjCGSYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:24:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48770 "EHLO
+        id S231960AbjCGRkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:40:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232740AbjCGSYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:24:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 283069AFE5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:46 -0800 (PST)
+        with ESMTP id S232027AbjCGRkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA0099242
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:36:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE7ABB819C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F5DAC433EF;
-        Tue,  7 Mar 2023 18:19:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2610B8199E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:36:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF0B8C433D2;
+        Tue,  7 Mar 2023 17:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213183;
-        bh=fn9zZWHyjnilzJr7G0Xe71XAY6C7Ha1eyI6rzIIgOXg=;
+        s=korg; t=1678210585;
+        bh=YDH6YSNZw/uNjIOSTAm6SWhQX/bt1qskzo9zZHhwXX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viKF8j+dbc9/0fCWXelXLxPGpvncmfbJwBf5SxUaHihtDnqV2Omss9YB8cCQwLnTy
-         qLbPEgpVQ+tvvPvJF1JtPQAuGMvxhqUqZEa9qS/SbweGwvRz9bu20nUcjTMqBNKUEO
-         Na6aMqxVbQ41niXklN9dTw/zsBsEJHWBQ4u6igp4=
+        b=jmItJW+sb53Ci5HROKoUnEpwXO2JcIOiQBK6q9PyTorj45UshxmU8k+gpDOQb2oGl
+         UvAF00CHm+3E7mwPCGB1QBz7yIvc11s89AFc9+W+lD8rMI42dfI60jML2CsJbCnC6v
+         1fTFhANXdKdnJhYHoZPe/A66+MFqP9xSUyi+Ztkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 425/885] PCI: switchtec: Return -EFAULT for copy_to_user() errors
+Subject: [PATCH 6.2 0587/1001] s390/vdso: Drop -shared from KBUILD_CFLAGS_64
 Date:   Tue,  7 Mar 2023 17:55:59 +0100
-Message-Id: <20230307170020.876266010@linuxfoundation.org>
+Message-Id: <20230307170046.960808054@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,55 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit ddc10938e08cd7aac63d8385f7305f7889df5179 ]
+[ Upstream commit fd8589dce8107e2ce62e92f76089654462dd67b4 ]
 
-switchtec_dev_read() didn't handle copy_to_user() errors correctly: it
-assigned "rc = -EFAULT", but actually returned either "size", -ENXIO, or
--EBADMSG instead.
+When clang's -Qunused-arguments is dropped from KBUILD_CPPFLAGS, it
+points out that there is a linking phase flag added to CFLAGS, which
+will only be used for compiling
 
-Update the failure cases to unlock mrpc_mutex and return -EFAULT directly.
+  clang-16: error: argument unused during compilation: '-shared' [-Werror,-Wunused-command-line-argument]
 
-Link: https://lore.kernel.org/r/20221216162126.207863-3-helgaas@kernel.org
-Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+'-shared' is already present in ldflags-y so it can just be dropped.
+
+Fixes: 2b2a25845d53 ("s390/vdso: Use $(LD) instead of $(CC) to link vDSO")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/switch/switchtec.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/s390/kernel/vdso64/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index 75be4fe225090..0c1faa6c1973a 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -606,21 +606,20 @@ static ssize_t switchtec_dev_read(struct file *filp, char __user *data,
- 	rc = copy_to_user(data, &stuser->return_code,
- 			  sizeof(stuser->return_code));
- 	if (rc) {
--		rc = -EFAULT;
--		goto out;
-+		mutex_unlock(&stdev->mrpc_mutex);
-+		return -EFAULT;
- 	}
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 9e2b95a222a98..1605ba45ac4c0 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -25,7 +25,7 @@ KBUILD_AFLAGS_64 := $(filter-out -m64,$(KBUILD_AFLAGS))
+ KBUILD_AFLAGS_64 += -m64 -s
  
- 	data += sizeof(stuser->return_code);
- 	rc = copy_to_user(data, &stuser->data,
- 			  size - sizeof(stuser->return_code));
- 	if (rc) {
--		rc = -EFAULT;
--		goto out;
-+		mutex_unlock(&stdev->mrpc_mutex);
-+		return -EFAULT;
- 	}
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+-KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
++KBUILD_CFLAGS_64 += -m64 -fPIC -fno-common -fno-builtin
+ ldflags-y := -fPIC -shared -soname=linux-vdso64.so.1 \
+ 	     --hash-style=both --build-id=sha1 -T
  
- 	stuser_set_state(stuser, MRPC_IDLE);
- 
--out:
- 	mutex_unlock(&stdev->mrpc_mutex);
- 
- 	if (stuser->status == SWITCHTEC_MRPC_STATUS_DONE ||
 -- 
 2.39.2
 
