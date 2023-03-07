@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB056AEDA9
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A13D6AE8F5
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:19:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230432AbjCGSGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:06:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
+        id S231167AbjCGRTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:19:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230397AbjCGSGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:06:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21603433A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:59:08 -0800 (PST)
+        with ESMTP id S231219AbjCGRTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:19:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFA28C826
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 330F2B819BF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76145C4339B;
-        Tue,  7 Mar 2023 17:58:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3AEF614E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B1ACC433EF;
+        Tue,  7 Mar 2023 17:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211918;
-        bh=BvY+/T1nsD8ySAE+lIunsZ+RPtsqBPS+v+ljTNAb6/c=;
+        s=korg; t=1678209288;
+        bh=CLrIDpY1AvUvg/+7PZJhkmOq5FDpaiQ2Q31wMp+HxoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NP82z5Cz+KPdgua5jAl4j0apfXB1HIRVR42xN3jQ2x2drlEGiUbc4LkU01HbVrn/
-         mWMURMQXyXO1/tQl/CIolNaD0tjOfJPXpltuP/MFPicE7uSxZ5p3l0xvh/l5J9KY/K
-         uzebPfqFO4UZU01OHgUoOr80j4eC2xScVDnaDgb4=
+        b=aJ9qj7Qw2PJHqZVhq3idy4sb/dtU/5jKWje4Jsc3u0jcfux5F305MakncRE07drvi
+         wcpjGLTmICvv9aypjpp0HhpXK2dSU5TpcM0ZTCsg4r+7ZXi+Ro1oK2KxTVl6aK3NIu
+         1DnqtI1FFpNbGKQvUb5ol2JNqePJMYBK8f03sn6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 009/885] arm64: dts: qcom: sm6350: Fix up the ramoops node
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0171/1001] wifi: libertas: cmdresp: dont call kfree_skb() under spin_lock_irqsave()
 Date:   Tue,  7 Mar 2023 17:49:03 +0100
-Message-Id: <20230307170002.037659692@linuxfoundation.org>
+Message-Id: <20230307170029.377976959@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,49 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3b2ff50da499178cc418f4b319e279d1b52958ed ]
+[ Upstream commit 708a49a64237f19bd404852f297aaadbc9e7fee0 ]
 
-Fix up the ramoops node to make it match bindings and style:
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
+tested only.
 
-- remove "removed-dma-pool"
-- don't pad size to 8 hex digits
-- change cc-size to ecc-size so that it's used
-- increase ecc-size from to 16
-- remove the zeroed ftrace-size
-
-Fixes: 5f82b9cda61e ("arm64: dts: qcom: Add SM6350 device tree")
-Reported-by: Luca Weiss <luca.weiss@fairphone.com>
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221210102600.589028-1-konrad.dybcio@linaro.org
+Fixes: f52b041aed77 ("libertas: Add spinlock to avoid race condition")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207150008.111743-5-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm6350.dtsi | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/net/wireless/marvell/libertas/cmdresp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-index 7be5fc8dec671..35f621ef9da54 100644
---- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
-@@ -342,13 +342,12 @@ last_log_region: memory@ffbc0000 {
- 		};
+diff --git a/drivers/net/wireless/marvell/libertas/cmdresp.c b/drivers/net/wireless/marvell/libertas/cmdresp.c
+index cb515c5584c1f..74cb7551f4275 100644
+--- a/drivers/net/wireless/marvell/libertas/cmdresp.c
++++ b/drivers/net/wireless/marvell/libertas/cmdresp.c
+@@ -48,7 +48,7 @@ void lbs_mac_event_disconnected(struct lbs_private *priv,
  
- 		ramoops: ramoops@ffc00000 {
--			compatible = "removed-dma-pool", "ramoops";
--			reg = <0 0xffc00000 0 0x00100000>;
-+			compatible = "ramoops";
-+			reg = <0 0xffc00000 0 0x100000>;
- 			record-size = <0x1000>;
- 			console-size = <0x40000>;
--			ftrace-size = <0x0>;
- 			msg-size = <0x20000 0x20000>;
--			cc-size = <0x0>;
-+			ecc-size = <16>;
- 			no-map;
- 		};
- 
+ 	/* Free Tx and Rx packets */
+ 	spin_lock_irqsave(&priv->driver_lock, flags);
+-	kfree_skb(priv->currenttxskb);
++	dev_kfree_skb_irq(priv->currenttxskb);
+ 	priv->currenttxskb = NULL;
+ 	priv->tx_pending_len = 0;
+ 	spin_unlock_irqrestore(&priv->driver_lock, flags);
 -- 
 2.39.2
 
