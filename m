@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BA856AEF47
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 537766AEAC1
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232690AbjCGSWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:22:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
+        id S231875AbjCGRhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:37:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232691AbjCGSWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2714BB373E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:05 -0800 (PST)
+        with ESMTP id S231839AbjCGRgr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B390515CB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A21661522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9692BC433D2;
-        Tue,  7 Mar 2023 18:16:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD976B817AE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 169E3C433D2;
+        Tue,  7 Mar 2023 17:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212964;
-        bh=TTm321Qyl4OHJFxyADdqAN5rkoLAnp9ZvkT72RDbtHw=;
+        s=korg; t=1678210364;
+        bh=SM1GI1EP0XdNredmYV8rw9i5Ps7Z/TjaBcz2Bxa1uAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfGUJsWQw/ATs603nPzfoJ38Vuf4yxPkpw8EOzcDv3WDsLND+2ugOz8dA3ecBWfNv
-         EF/OdS7QClg31o+06Ozr6vJ00V8W8ibOkJAeSDaF6oq+QpMIEKUcR3dEvk/fKJtCVa
-         xt3I0nUii5+rJc9QJX0kp+HDmp4uIwoCIBT7NxLc=
+        b=RcpFOaVS77i8BCIrmmMrLFqOvXxfgu8Yp3CKJHItoJB1fvXnsb7ny1PmjLXp19YpM
+         pSqqeSSkAZqSeQb3z8WBDRUUSF6lp0nXdqpbpK2ZM2Y0k4HurtDu7ZGrV4lgJ8HUJu
+         8ke/InqpTPzClckMg/t9OVlbYNjlphWKCANmuqr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 355/885] ASoC: codecs: lpass: fix incorrect mclk rate
+Subject: [PATCH 6.2 0517/1001] firmware: stratix10-svc: add missing gen_pool_destroy() in stratix10_svc_drv_probe()
 Date:   Tue,  7 Mar 2023 17:54:49 +0100
-Message-Id: <20230307170017.688613456@linuxfoundation.org>
+Message-Id: <20230307170043.871938943@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e7621434378c40b62ef858c14ae6415fb6469a8e ]
+[ Upstream commit 9175ee1a99d57ec07d66ff572e1d5a724477ab37 ]
 
-For some reason we ended up with incorrect mclk rate which should be
-1920000 instead of 96000, So far we were getting lucky as the same clk
-is set to 192000 by wsa and va macro. This issue is discovered when there
-is no wsa macro active and only rx or tx path is tested.
-Fix this by setting correct rate.
+In error path in stratix10_svc_drv_probe(), gen_pool_destroy() should be called
+to destroy the memory pool that created by svc_create_memory_pool().
 
-Fixes: c39667ddcfc5 ("ASoC: codecs: lpass-tx-macro: add support for lpass tx macro")
-Fixes: af3d54b99764 ("ASoC: codecs: lpass-rx-macro: add support for lpass rx macro")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230209122806.18923-7-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 7ca5ce896524 ("firmware: add Intel Stratix10 service layer driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Link: https://lore.kernel.org/r/20221129163602.462369-1-dinguyen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/lpass-rx-macro.c | 4 ++--
- sound/soc/codecs/lpass-tx-macro.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/firmware/stratix10-svc.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
-index dd6970d5eb8d1..8621cfabcf5b6 100644
---- a/sound/soc/codecs/lpass-rx-macro.c
-+++ b/sound/soc/codecs/lpass-rx-macro.c
-@@ -366,7 +366,7 @@
- #define CDC_RX_DSD1_CFG2			(0x0F8C)
- #define RX_MAX_OFFSET				(0x0F8C)
+diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
+index b4081f4d88a37..1a5640b3ab422 100644
+--- a/drivers/firmware/stratix10-svc.c
++++ b/drivers/firmware/stratix10-svc.c
+@@ -1138,13 +1138,17 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
  
--#define MCLK_FREQ		9600000
-+#define MCLK_FREQ		19200000
+ 	/* allocate service controller and supporting channel */
+ 	controller = devm_kzalloc(dev, sizeof(*controller), GFP_KERNEL);
+-	if (!controller)
+-		return -ENOMEM;
++	if (!controller) {
++		ret = -ENOMEM;
++		goto err_destroy_pool;
++	}
  
- #define RX_MACRO_RATES (SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_16000 |\
- 			SNDRV_PCM_RATE_32000 | SNDRV_PCM_RATE_48000 |\
-@@ -3579,7 +3579,7 @@ static int rx_macro_probe(struct platform_device *pdev)
+ 	chans = devm_kmalloc_array(dev, SVC_NUM_CHANNEL,
+ 				   sizeof(*chans), GFP_KERNEL | __GFP_ZERO);
+-	if (!chans)
+-		return -ENOMEM;
++	if (!chans) {
++		ret = -ENOMEM;
++		goto err_destroy_pool;
++	}
  
- 	/* set MCLK and NPL rates */
- 	clk_set_rate(rx->mclk, MCLK_FREQ);
--	clk_set_rate(rx->npl, 2 * MCLK_FREQ);
-+	clk_set_rate(rx->npl, MCLK_FREQ);
+ 	controller->dev = dev;
+ 	controller->num_chans = SVC_NUM_CHANNEL;
+@@ -1159,7 +1163,7 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
+ 	ret = kfifo_alloc(&controller->svc_fifo, fifo_size, GFP_KERNEL);
+ 	if (ret) {
+ 		dev_err(dev, "failed to allocate FIFO\n");
+-		return ret;
++		goto err_destroy_pool;
+ 	}
+ 	spin_lock_init(&controller->svc_fifo_lock);
  
- 	ret = clk_prepare_enable(rx->macro);
- 	if (ret)
-diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
-index bc0a0c32ea5bf..5d1c58df081ac 100644
---- a/sound/soc/codecs/lpass-tx-macro.c
-+++ b/sound/soc/codecs/lpass-tx-macro.c
-@@ -202,7 +202,7 @@
- #define TX_MACRO_AMIC_UNMUTE_DELAY_MS	100
- #define TX_MACRO_DMIC_HPF_DELAY_MS	300
- #define TX_MACRO_AMIC_HPF_DELAY_MS	300
--#define MCLK_FREQ		9600000
-+#define MCLK_FREQ		19200000
+@@ -1221,6 +1225,8 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
  
- enum {
- 	TX_MACRO_AIF_INVALID = 0,
-@@ -1867,7 +1867,7 @@ static int tx_macro_probe(struct platform_device *pdev)
+ err_free_kfifo:
+ 	kfifo_free(&controller->svc_fifo);
++err_destroy_pool:
++	gen_pool_destroy(genpool);
+ 	return ret;
+ }
  
- 	/* set MCLK and NPL rates */
- 	clk_set_rate(tx->mclk, MCLK_FREQ);
--	clk_set_rate(tx->npl, 2 * MCLK_FREQ);
-+	clk_set_rate(tx->npl, MCLK_FREQ);
- 
- 	ret = clk_prepare_enable(tx->macro);
- 	if (ret)
 -- 
 2.39.2
 
