@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44C5A6AF13D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8B76AEC45
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232934AbjCGSlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:41:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54974 "EHLO
+        id S229794AbjCGRxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232999AbjCGSlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F91C2220
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:31:55 -0800 (PST)
+        with ESMTP id S230348AbjCGRx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F711F93E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53865B819F7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:31:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D1AFC4339E;
-        Tue,  7 Mar 2023 18:31:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8DF3B819B4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31D5EC433EF;
+        Tue,  7 Mar 2023 17:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213878;
-        bh=UJG2yLRgAPyWqdYK9/H3/GB16kLkik00kOREtcReAF8=;
+        s=korg; t=1678211280;
+        bh=677UT4I/CLXlegLuqMbLqsmZcPjmlOw8mlXK7LME8uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9yWq0+BtspQfQvGxBDi5k3qUZ/6tD2v9Gak//NRXBVAISwtFnGzT1m1xvQ+jmPqe
-         o4RRjV3NvjkY6nSBBIqc7qfA76HJXt610Fx3y0XfQYtM0aKlISZcUI/n+z9RWlaADb
-         G4viXxQJSGXdVp6QSj7DwPTTOCCQx/2e5BfQmGZI=
+        b=gNX9x/q39SMMaCeGfqqjv7RcVuTyFKydG6TRh6fb7u4+2B/02ZztjTEU9m1wX1hbM
+         vgLUo7yTkIORjalQ6WEhGbzaHnmCyTntBuaRhdKMssavqwdAVeMl+zi3UtEvf2Y4c+
+         LaT5f3QCk+eKpMrIAIkDCM8PgSwcj6SFsVjPNdCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alper Nebi Yasak <alpernebiyasak@gmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 6.1 649/885] firmware: coreboot: framebuffer: Ignore reserved pixel color bits
+        syzbot <syzbot+8ce7f8308d91e6b8bbe2@syzkaller.appspotmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.2 0811/1001] fs/cramfs/inode.c: initialize file_ra_state
 Date:   Tue,  7 Mar 2023 17:59:43 +0100
-Message-Id: <20230307170030.344777845@linuxfoundation.org>
+Message-Id: <20230307170056.939038073@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,52 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alper Nebi Yasak <alpernebiyasak@gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
 
-commit e6acaf25cba14661211bb72181c35dd13b24f5b3 upstream.
+commit 3e35102666f873a135d31a726ac1ec8af4905206 upstream.
 
-The coreboot framebuffer doesn't support transparency, its 'reserved'
-bit field is merely padding for byte/word alignment of pixel colors [1].
-When trying to match the framebuffer to a simplefb format, the kernel
-driver unnecessarily requires the format's transparency bit field to
-exactly match this padding, even if the former is zero-width.
+file_ra_state_init() assumes that the file_ra_state has been zeroed out.
+Fixes a KMSAN used-unintialized issue (at least).
 
-Due to a coreboot bug [2] (fixed upstream), some boards misreport the
-reserved field's size as equal to its position (0x18 for both on a
-'Lick' Chromebook), and the driver fails to probe where it would have
-otherwise worked fine with e.g. the a8r8g8b8 or x8r8g8b8 formats.
-
-Remove the transparency comparison with reserved bits. When the
-bits-per-pixel and other color components match, transparency will
-already be in a subset of the reserved field. Not forcing it to match
-reserved bits allows the driver to work on the boards which misreport
-the reserved field. It also enables using simplefb formats that don't
-have transparency bits, although this doesn't currently happen due to
-format support and ordering in linux/platform_data/simplefb.h.
-
-[1] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.19/src/commonlib/include/commonlib/coreboot_tables.h#255
-[2] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.13/src/drivers/intel/fsp2_0/graphics.c#82
-
-Signed-off-by: Alper Nebi Yasak <alpernebiyasak@gmail.com>
-Link: https://lore.kernel.org/r/20230122190433.195941-1-alpernebiyasak@gmail.com
-Cc: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: cf948cbc35e80 ("cramfs: read_mapping_page() is synchronous")
+Reported-by: syzbot <syzbot+8ce7f8308d91e6b8bbe2@syzkaller.appspotmail.com>
+  Link: https://lkml.kernel.org/r/0000000000008f74e905f56df987@google.com
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Nicolas Pitre <nico@fluxnic.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/google/framebuffer-coreboot.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/cramfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/google/framebuffer-coreboot.c
-+++ b/drivers/firmware/google/framebuffer-coreboot.c
-@@ -43,9 +43,7 @@ static int framebuffer_probe(struct core
- 		    fb->green_mask_pos     == formats[i].green.offset &&
- 		    fb->green_mask_size    == formats[i].green.length &&
- 		    fb->blue_mask_pos      == formats[i].blue.offset &&
--		    fb->blue_mask_size     == formats[i].blue.length &&
--		    fb->reserved_mask_pos  == formats[i].transp.offset &&
--		    fb->reserved_mask_size == formats[i].transp.length)
-+		    fb->blue_mask_size     == formats[i].blue.length)
- 			pdata.format = formats[i].name;
- 	}
- 	if (!pdata.format)
+--- a/fs/cramfs/inode.c
++++ b/fs/cramfs/inode.c
+@@ -183,7 +183,7 @@ static void *cramfs_blkdev_read(struct s
+ 				unsigned int len)
+ {
+ 	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
+-	struct file_ra_state ra;
++	struct file_ra_state ra = {};
+ 	struct page *pages[BLKS_PER_BUF];
+ 	unsigned i, blocknr, buffer;
+ 	unsigned long devsize;
 
 
