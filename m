@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E88DA6ADA75
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:35:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 003D36ADA77
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:35:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230189AbjCGJf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:35:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56678 "EHLO
+        id S230194AbjCGJfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:35:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbjCGJf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:35:28 -0500
+        with ESMTP id S229718AbjCGJfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:35:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C69EC311C1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:35:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E285F5372C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:35:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79C67B8117D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9E19C433D2;
-        Tue,  7 Mar 2023 09:35:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FC8DB816A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2CECC4339B;
+        Tue,  7 Mar 2023 09:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678181724;
-        bh=Eer101FRZNxrWuVZyO4fItdoWH8FONjvH8D9uqvS1aQ=;
+        s=korg; t=1678181730;
+        bh=/vvRSh+CIY/klx2AUB0TWgwZqF3JOS3G5C/vExNKocc=;
         h=Subject:To:Cc:From:Date:From;
-        b=2wfXaU+tNS4FXoONLJKARqBGudHRC3c9mBf9MnrloP3n3AJBaTPewN4OM/gXmBOTR
-         J5UdEframUH1RHLtCBw1GEQ3Ms+OTf7Dx+4rSoyvrB7GL0Ck4BqhHX8UqZUK+WqFsv
-         8yK9bniefHIahlQdovrMGo/52wOR0nwmqWCCCQIA=
-Subject: FAILED: patch "[PATCH] Input: exc3000 - properly stop timer on shutdown" failed to apply to 5.4-stable tree
+        b=nFObgmeIU/sr4IJTICiyyVobvAHW3iD2iTjYcg6TjkqHMNj9QGazsMLKf8E+2vP46
+         YCt0cG8XQ1e8U6m+j9Os47k18kyC9EZnKWm1cTuqYaaTJO83fR8mre5qZfRR77RzTT
+         Ha7/BgIJOMCsCjGMqnIaY129folBsBU8zR0jnrk0=
+Subject: FAILED: patch "[PATCH] Input: exc3000 - properly stop timer on shutdown" failed to apply to 4.19-stable tree
 To:     dmitry.torokhov@gmail.com, mstahl@moba.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:35:13 +0100
-Message-ID: <1678181713148144@kroah.com>
+Date:   Tue, 07 Mar 2023 10:35:14 +0100
+Message-ID: <16781817142619@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x 79c81d137d36f9635bbcbc3916c0cccb418a61dd
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678181713148144@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781817142619@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
