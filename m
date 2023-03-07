@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA31B6AF5A2
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:28:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3DF6AF597
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:27:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231538AbjCGT17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:27:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36616 "EHLO
+        id S234096AbjCGT1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:27:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234126AbjCGT1n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:27:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3B8BF8C6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:13:36 -0800 (PST)
+        with ESMTP id S234073AbjCGT1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:27:17 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D939EF43
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:13:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2A7061535
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:13:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8ADAC433D2;
-        Tue,  7 Mar 2023 19:13:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E284ECE1C79
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:13:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B98EC433EF;
+        Tue,  7 Mar 2023 19:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216385;
-        bh=Xg0X9O+oqwbhf1s+xLJNY0gJv2vvHl/xwF7HhHu8Eyc=;
+        s=korg; t=1678216388;
+        bh=cyEnrYpXsnZOy1MKketWp6wTLUm03WwqL6ud0l6wyT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nm4GkTUL/xfAjs/L1NUH+AZP3biMvzAt6tgUSYvxSrGeLRHyFsUTYYBRMWC/bhyz/
-         KfT6if/RxAPAYjMq2l9sx72+zsdJaDp3sJm1tMYs9hnkI/eIyWAuyJlkAS3poWzcoV
-         yUFHR0VwP376NyyttJiECCjd5Ye7iukiHdLMOgVM=
+        b=ZhNdJXX3Mk1UvVna57y//8sa2Eow9cDzoGeEjEIJXi3nHP0hR0rF2r5jPcO/1ihCH
+         YXGz6JIgbiIviaoRkjREBXIYRs3p3Xf96UEvBshLZOHQpAvY24M1bmF9Ni7+rrwLP9
+         5dP2pwMrECpBmJMKxBG292D2ZCJqFhyoQvSS6yzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Hawrylak <mark.hawrylak@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 565/567] drm/radeon: Fix eDP for single-display iMac11,2
-Date:   Tue,  7 Mar 2023 18:05:01 +0100
-Message-Id: <20230307165930.431150039@linuxfoundation.org>
+        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.15 566/567] drm/i915: Dont use BAR mappings for ring buffers with LLC
+Date:   Tue,  7 Mar 2023 18:05:02 +0100
+Message-Id: <20230307165930.480053867@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -53,46 +61,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Hawrylak <mark.hawrylak@gmail.com>
+From: John Harrison <John.C.Harrison@Intel.com>
 
-commit 05eacc198c68cbb35a7281ce4011f8899ee1cfb8 upstream.
+commit 85636167e3206c3fbd52254fc432991cc4e90194 upstream.
 
-Apple iMac11,2 (mid 2010) also with Radeon HD-4670 that has the same
-issue as iMac10,1 (late 2009) where the internal eDP panel stays dark on
-driver load.  This patch treats iMac11,2 the same as iMac10,1,
-so the eDP panel stays active.
+Direction from hardware is that ring buffers should never be mapped
+via the BAR on systems with LLC. There are too many caching pitfalls
+due to the way BAR accesses are routed. So it is safest to just not
+use it.
 
-Additional steps:
-Kernel boot parameter radeon.nomodeset=0 required to keep the eDP
-panel active.
-
-This patch is an extension of
-commit 564d8a2cf3ab ("drm/radeon: Fix eDP for single-display iMac10,1 (v2)")
-Link: https://lore.kernel.org/all/lsq.1507553064.833262317@decadent.org.uk/
-Signed-off-by: Mark Hawrylak <mark.hawrylak@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.9+
+Tested-by: Jouni Högander <jouni.hogander@intel.com>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
+(cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/atombios_encoders.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_ring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/radeon/atombios_encoders.c
-+++ b/drivers/gpu/drm/radeon/atombios_encoders.c
-@@ -2188,11 +2188,12 @@ int radeon_atom_pick_dig_encoder(struct
+--- a/drivers/gpu/drm/i915/gt/intel_ring.c
++++ b/drivers/gpu/drm/i915/gt/intel_ring.c
+@@ -51,7 +51,7 @@ int intel_ring_pin(struct intel_ring *ri
+ 	if (unlikely(ret))
+ 		goto err_unpin;
  
- 	/*
- 	 * On DCE32 any encoder can drive any block so usually just use crtc id,
--	 * but Apple thinks different at least on iMac10,1, so there use linkb,
-+	 * but Apple thinks different at least on iMac10,1 and iMac11,2, so there use linkb,
- 	 * otherwise the internal eDP panel will stay dark.
- 	 */
- 	if (ASIC_IS_DCE32(rdev)) {
--		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1"))
-+		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1") ||
-+		    dmi_match(DMI_PRODUCT_NAME, "iMac11,2"))
- 			enc_idx = (dig->linkb) ? 1 : 0;
- 		else
- 			enc_idx = radeon_crtc->crtc_id;
+-	if (i915_vma_is_map_and_fenceable(vma)) {
++	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915)) {
+ 		addr = (void __force *)i915_vma_pin_iomap(vma);
+ 	} else {
+ 		int type = i915_coherent_map_type(vma->vm->i915, vma->obj, false);
+@@ -96,7 +96,7 @@ void intel_ring_unpin(struct intel_ring
+ 		return;
+ 
+ 	i915_vma_unset_ggtt_write(vma);
+-	if (i915_vma_is_map_and_fenceable(vma))
++	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
+ 		i915_vma_unpin_iomap(vma);
+ 	else
+ 		i915_gem_object_unpin_map(vma->obj);
 
 
