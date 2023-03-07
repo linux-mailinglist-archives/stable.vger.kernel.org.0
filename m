@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB54F6AE5FF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:10:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF38D6AE600
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230191AbjCGQKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:10:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60818 "EHLO
+        id S230232AbjCGQK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:10:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229549AbjCGQKe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:10:34 -0500
+        with ESMTP id S230236AbjCGQKl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:10:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACE2011E86
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:09:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B621B2F3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:09:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45E6761338
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3834DC433D2;
-        Tue,  7 Mar 2023 16:09:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D038D61338
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:09:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE722C4339B;
+        Tue,  7 Mar 2023 16:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678205371;
-        bh=DyWwp2pgvujT0I61GcW+zIJ8IJu6nJOFXgTulpON4e4=;
+        s=korg; t=1678205380;
+        bh=PwOz+7/fHl8PKqjJdYQx5HszfCiD/rptP+WrYScn9Dw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Bcb2e1X/aXu48AnSkfMZE47hKLyfVFl6WnbaPDFvL952/TbSF39VRE2TTBzaHW/6y
-         YzxdcJkZcBUN0j53hAJyrRn92aaIPTz7B5Y9bbO4w3p4aDfkn1YQXZPr1j3Mu9+RBv
-         Pf5UCrWMP/uBhVOI/FP+V9mZ2eRddzwfHuz9OD+g=
-Subject: FAILED: patch "[PATCH] drm/i915: Don't use stolen memory for ring buffers with LLC" failed to apply to 5.15-stable tree
+        b=aX/3r52zQguHn4EHb/KJ6X2iHGnexzFWGUFfx5990GzqrKE5rs0d5OIqSTWm7SFOA
+         dynJeLxGJXl/AIHpsxTxAMl4sw8YO8McmtqPriFxi5IROxBEV0qB17nsThZVvkSJTF
+         ZAP5dihSrnu1B+jXMGLPHFUhb+1KfvsuxUjHQpJE=
+Subject: FAILED: patch "[PATCH] drm/i915: Don't use stolen memory for ring buffers with LLC" failed to apply to 5.10-stable tree
 To:     John.C.Harrison@Intel.com, chris@chris-wilson.co.uk,
         daniele.ceraolospurio@intel.com, jani.nikula@intel.com,
         jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
@@ -36,8 +36,8 @@ To:     John.C.Harrison@Intel.com, chris@chris-wilson.co.uk,
         stable@vger.kernel.org, tvrtko.ursulin@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 17:09:28 +0100
-Message-ID: <167820536819200@kroah.com>
+Date:   Tue, 07 Mar 2023 17:09:36 +0100
+Message-ID: <167820537619158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -52,19 +52,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 690e0ec8e63da9a29b39fedc6ed5da09c7c82651
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820536819200@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820537619158@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
@@ -74,6 +74,20 @@ c56ce9565374 ("drm/i915 Implement LMEM backup and restore for suspend / resume")
 0d9388635a22 ("drm/i915/ttm: Implement a function to copy the contents of two TTM-based objects")
 48b096126954 ("drm/i915: Move __i915_gem_free_object to ttm_bo_destroy")
 d8ac30fd479c ("drm/i915/ttm: Reorganize the ttm move code somewhat")
+32b7cf51a441 ("drm/i915/ttm: Use TTM for system memory")
+3c2b8f326e7f ("drm/i915/ttm: Adjust gem flags and caching settings after a move")
+0ff375759f64 ("drm/i915: Update object placement flags to be mutable")
+b07a6483839a ("drm/i915/ttm: Fix incorrect assumptions about ttm_bo_validate() semantics")
+50331a7b5074 ("drm/i915/ttm: accelerated move implementation")
+13c2ceb6addb ("drm/i915/ttm: restore min_page_size behaviour")
+d53ec322dc7d ("drm/i915/ttm: switch over to ttm_buddy_man")
+687c7d0fcf80 ("drm/i915/ttm: remove node usage in our naming")
+38f28c0695c0 ("drm/i915/ttm: Calculate the object placement at get_pages time")
+c865204e84a1 ("drm/i915/ttm: Fix memory leaks")
+cf3e3e86d779 ("drm/i915: Use ttm mmap handling for ttm bo's.")
+2e53d7c1147a ("drm/i915/lmem: Verify checks for lmem residency")
+213d50927763 ("drm/i915/ttm: Introduce a TTM i915 gem object backend")
+2a7005c8a398 ("Merge tag 'drm-intel-gt-next-2021-06-10' of git://anongit.freedesktop.org/drm/drm-intel into drm-next")
 
 thanks,
 
