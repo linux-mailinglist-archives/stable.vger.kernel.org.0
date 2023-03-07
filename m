@@ -2,50 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 140766AED8B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7735D6AF2B0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231331AbjCGSF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:05:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37314 "EHLO
+        id S233395AbjCGSz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:55:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232344AbjCGSFA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFFCAB8AF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:57:45 -0800 (PST)
+        with ESMTP id S233529AbjCGSy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:54:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E46B89F227
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:42:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0706661526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFA54C433EF;
-        Tue,  7 Mar 2023 17:57:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E2B4B819C8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:42:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81FE5C433A0;
+        Tue,  7 Mar 2023 18:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211862;
-        bh=e4nYHSM/bLybAIeHfhRheY9DeEE8aojF1rVUSoO3unQ=;
+        s=korg; t=1678214521;
+        bh=1jv+sM2PGkLXaq1wloA4i8ZyqKe7ifjQTBLBXk7Wlhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQSmgqRmpjhmK1f9EhE7up4GBCD+dYxA17tUdqAX9RfcFYQWT3Fekzt02LSkIe+h/
-         EMv4yVKIKZu9DmFIpg8e188SIlCxty+DsYYHYUk30dzB5c2z97oUOvL8chXYPDYVra
-         I3W0A1ZBv+J5oLcweaZSlsPzPuHtS0bUXKgmTgvs=
+        b=Vs6VlMOeBdDt/HOLoYYj+WdVsOERHLfK6gqynFH4ygYA4Z+iFVZ8pnQe7zR7VW0Qf
+         3eQYGsChvHYMubXghvrMSgFQspADKl7Aw+ZMnTbJLucbu7cygDRERdvJ7bNO+3hNGJ
+         qj7OehAwd5YpKTdziSPpzhMmwO8xdoFbLFLRZoIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Richard Gong <richard.gong@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.2 0994/1001] drm/amd: Fix initialization for nbio 7.5.1
+        patches@lists.linux.dev, Yin Fengwei <fengwei.yin@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Rik van Riel <riel@surriel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 832/885] mm/thp: check and bail out if page in deferred queue already
 Date:   Tue,  7 Mar 2023 18:02:46 +0100
-Message-Id: <20230307170105.428514158@linuxfoundation.org>
+Message-Id: <20230307170037.991007610@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,38 +61,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Yin Fengwei <fengwei.yin@intel.com>
 
-commit 65a24000808f70ac69bd2a96381fa0c7341f20c0 upstream.
+commit 81e506bec9be1eceaf5a2c654e28ba5176ef48d8 upstream.
 
-A mistake has been made in the BIOS for some ASICs with NBIO 7.5.1
-where some NBIO registers aren't properly setup.
+Kernel build regression with LLVM was reported here:
+https://lore.kernel.org/all/Y1GCYXGtEVZbcv%2F5@dev-arch.thelio-3990X/ with
+commit f35b5d7d676e ("mm: align larger anonymous mappings on THP
+boundaries").  And the commit f35b5d7d676e was reverted.
 
-Ensure that they're set during initialization.
+It turned out the regression is related with madvise(MADV_DONTNEED)
+was used by ld.lld. But with none PMD_SIZE aligned parameter len.
+trace-bpfcc captured:
+531607  531732  ld.lld          do_madvise.part.0 start: 0x7feca9000000, len: 0x7fb000, behavior: 0x4
+531607  531793  ld.lld          do_madvise.part.0 start: 0x7fec86a00000, len: 0x7fb000, behavior: 0x4
 
-Tested-by: Richard Gong <richard.gong@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.1.x
+If the underneath physical page is THP, the madvise(MADV_DONTNEED) can
+trigger split_queue_lock contention raised significantly. perf showed
+following data:
+    14.85%     0.00%  ld.lld           [kernel.kallsyms]           [k]
+       entry_SYSCALL_64_after_hwframe
+           11.52%
+                entry_SYSCALL_64_after_hwframe
+                do_syscall_64
+                __x64_sys_madvise
+                do_madvise.part.0
+                zap_page_range
+                unmap_single_vma
+                unmap_page_range
+                page_remove_rmap
+                deferred_split_huge_page
+                __lock_text_start
+                native_queued_spin_lock_slowpath
+
+If THP can't be removed from rmap as whole THP, partial THP will be
+removed from rmap by removing sub-pages from rmap.  Even the THP head page
+is added to deferred queue already, the split_queue_lock will be acquired
+and check whether the THP head page is in the queue already.  Thus, the
+contention of split_queue_lock is raised.
+
+Before acquire split_queue_lock, check and bail out early if the THP
+head page is in the queue already. The checking without holding
+split_queue_lock could race with deferred_split_scan, but it doesn't
+impact the correctness here.
+
+Test result of building kernel with ld.lld:
+commit 7b5a0b664ebe (parent commit of f35b5d7d676e):
+time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
+        6:07.99 real,   26367.77 user,  5063.35 sys
+
+commit f35b5d7d676e:
+time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
+        7:22.15 real,   26235.03 user,  12504.55 sys
+
+commit f35b5d7d676e with the fixing patch:
+time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
+        6:08.49 real,   26520.15 user,  5047.91 sys
+
+Link: https://lkml.kernel.org/r/20221223135207.2275317-1-fengwei.yin@intel.com
+Signed-off-by: Yin Fengwei <fengwei.yin@intel.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ mm/huge_memory.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nbio_v7_2.c
-@@ -382,6 +382,11 @@ static void nbio_v7_2_init_registers(str
- 		if (def != data)
- 			WREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regBIF1_PCIE_MST_CTRL_3), data);
- 		break;
-+	case IP_VERSION(7, 5, 1):
-+		data = RREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2);
-+		data &= ~RCC_DEV2_EPF0_STRAP2__STRAP_NO_SOFT_RESET_DEV2_F0_MASK;
-+		WREG32_SOC15(NBIO, 0, regRCC_DEV2_EPF0_STRAP2, data);
-+		fallthrough;
- 	default:
- 		def = data = RREG32_PCIE_PORT(SOC15_REG_OFFSET(NBIO, 0, regPCIE_CONFIG_CNTL));
- 		data = REG_SET_FIELD(data, PCIE_CONFIG_CNTL,
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2818,6 +2818,9 @@ void deferred_split_huge_page(struct pag
+ 	if (PageSwapCache(page))
+ 		return;
+ 
++	if (!list_empty(page_deferred_list(page)))
++		return;
++
+ 	spin_lock_irqsave(&ds_queue->split_queue_lock, flags);
+ 	if (list_empty(page_deferred_list(page))) {
+ 		count_vm_event(THP_DEFERRED_SPLIT_PAGE);
 
 
