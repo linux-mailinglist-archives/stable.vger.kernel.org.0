@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3236AEDDC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:07:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AADE6AE974
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230015AbjCGSH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:07:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48038 "EHLO
+        id S231489AbjCGRYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:24:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232308AbjCGSHi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:38 -0500
+        with ESMTP id S231429AbjCGRYA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:24:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E51C599BCD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F215D9B9BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A16ECB819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E81CEC433EF;
-        Tue,  7 Mar 2023 18:01:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E0A4B819B0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05CFC4339B;
+        Tue,  7 Mar 2023 17:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212067;
-        bh=9h6R7RBQpKzyBaLqKeRHPV03rq46PwuKgXF7ADSdT2o=;
+        s=korg; t=1678209564;
+        bh=4wcmjOK3au9c7YzgOC3bkT1t8nJpoFaFDjWP1hCHNd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f66L+PWFmqU/7Syn+VOeReV/rVTiJ6D3M9fJUR0iKncWVEAaHsGWYrfWZJOTP+7bl
-         gocq5hNXCqgVJGha5IW1a49WbVbzKQZThv2LE60UMFIb3CAESbUbW/vxD4mSv3mGja
-         uD0ONVkbs4dZpzMui0emsnyrxOD8m/jiouNxLIn4=
+        b=L47y4j+KYbU8LnYFNSp8v4rLx78dyGttBEaD57W94DuFBL7+WWOvHb25kWefqeL4m
+         GvJjw3MSMIfiOIEG0r4maEGEVVyq0kx5/m0NLS1u6vCdpUI/W9Lg/sD2jYu6jDjcOR
+         7thko4Y4lQRaip/R8MR7MwUKCkjt732Ss+WwH21g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mukesh Ojha <quic_mojha@quicinc.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 066/885] locking/rwsem: Disable preemption in all down_read*() and up_read() code paths
+        patches@lists.linux.dev,
+        coverity-bot <keescook+coverity-bot@chromium.org>,
+        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0228/1001] drm/nouveau/disp: Fix nvif_outp_acquire_dp() argument size
 Date:   Tue,  7 Mar 2023 17:50:00 +0100
-Message-Id: <20230307170004.644474928@linuxfoundation.org>
+Message-Id: <20230307170031.764563907@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,132 +62,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 3f5245538a1964ae186ab7e1636020a41aa63143 ]
+[ Upstream commit 4076ea2419cf15bc1e1580f8b24ddf675fbdb02c ]
 
-Commit:
+Both Coverity and GCC with -Wstringop-overflow noticed that
+nvif_outp_acquire_dp() accidentally defined its second argument with 1
+additional element:
 
-  91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
+drivers/gpu/drm/nouveau/dispnv50/disp.c: In function 'nv50_pior_atomic_enable':
+drivers/gpu/drm/nouveau/dispnv50/disp.c:1813:17: error: 'nvif_outp_acquire_dp' accessing 16 bytes in a region of size 15 [-Werror=stringop-overflow=]
+ 1813 |                 nvif_outp_acquire_dp(&nv_encoder->outp, nv_encoder->dp.dpcd, 0, 0, false, false);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/gpu/drm/nouveau/dispnv50/disp.c:1813:17: note: referencing argument 2 of type 'u8[16]' {aka 'unsigned char[16]'}
+drivers/gpu/drm/nouveau/include/nvif/outp.h:24:5: note: in a call to function 'nvif_outp_acquire_dp'
+   24 | int nvif_outp_acquire_dp(struct nvif_outp *, u8 dpcd[16],
+      |     ^~~~~~~~~~~~~~~~~~~~
 
-... assumes that when the owner field is changed to NULL, the lock will
-become free soon. But commit:
+Avoid these warnings by defining the argument size using the matching
+define (DP_RECEIVER_CAP_SIZE, 15) instead of having it be a literal
+(and incorrect) value (16).
 
-  48dfb5d2560d ("locking/rwsem: Disable preemption while trying for rwsem lock")
-
-... disabled preemption when acquiring rwsem for write.
-
-However, preemption has not yet been disabled when acquiring a read lock
-on a rwsem.  So a reader can add a RWSEM_READER_BIAS to count without
-setting owner to signal a reader, got preempted out by a RT task which
-then spins in the writer slowpath as owner remains NULL leading to live lock.
-
-One easy way to fix this problem is to disable preemption at all the
-down_read*() and up_read() code paths as implemented in this patch.
-
-Fixes: 91d2a812dfb9 ("locking/rwsem: Make handoff writer optimistically spin on owner")
-Reported-by: Mukesh Ojha <quic_mojha@quicinc.com>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230126003628.365092-3-longman@redhat.com
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Addresses-Coverity-ID: 1527269 ("Memory - corruptions")
+Addresses-Coverity-ID: 1527268 ("Memory - corruptions")
+Link: https://lore.kernel.org/lkml/202211100848.FFBA2432@keescook/
+Link: https://lore.kernel.org/lkml/202211100848.F4C2819BB@keescook/
+Fixes: 813443721331 ("drm/nouveau/disp: move DP link config into acquire")
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221127183036.never.139-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/rwsem.c | 30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/nouveau/include/nvif/outp.h | 3 ++-
+ drivers/gpu/drm/nouveau/nvif/outp.c         | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
-index 44873594de031..324fc370b6a68 100644
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -1092,7 +1092,7 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, unsigned int stat
- 			/* Ordered by sem->wait_lock against rwsem_mark_wake(). */
- 			break;
- 		}
--		schedule();
-+		schedule_preempt_disabled();
- 		lockevent_inc(rwsem_sleep_reader);
- 	}
+diff --git a/drivers/gpu/drm/nouveau/include/nvif/outp.h b/drivers/gpu/drm/nouveau/include/nvif/outp.h
+index 45daadec3c0c7..fa76a7b5e4b37 100644
+--- a/drivers/gpu/drm/nouveau/include/nvif/outp.h
++++ b/drivers/gpu/drm/nouveau/include/nvif/outp.h
+@@ -3,6 +3,7 @@
+ #define __NVIF_OUTP_H__
+ #include <nvif/object.h>
+ #include <nvif/if0012.h>
++#include <drm/display/drm_dp.h>
+ struct nvif_disp;
  
-@@ -1254,14 +1254,20 @@ static struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem)
-  */
- static inline int __down_read_common(struct rw_semaphore *sem, int state)
+ struct nvif_outp {
+@@ -21,7 +22,7 @@ int nvif_outp_acquire_rgb_crt(struct nvif_outp *);
+ int nvif_outp_acquire_tmds(struct nvif_outp *, int head,
+ 			   bool hdmi, u8 max_ac_packet, u8 rekey, u8 scdc, bool hda);
+ int nvif_outp_acquire_lvds(struct nvif_outp *, bool dual, bool bpc8);
+-int nvif_outp_acquire_dp(struct nvif_outp *, u8 dpcd[16],
++int nvif_outp_acquire_dp(struct nvif_outp *outp, u8 dpcd[DP_RECEIVER_CAP_SIZE],
+ 			 int link_nr, int link_bw, bool hda, bool mst);
+ void nvif_outp_release(struct nvif_outp *);
+ int nvif_outp_infoframe(struct nvif_outp *, u8 type, struct nvif_outp_infoframe_v0 *, u32 size);
+diff --git a/drivers/gpu/drm/nouveau/nvif/outp.c b/drivers/gpu/drm/nouveau/nvif/outp.c
+index 7da39f1eae9fb..c24bc5eae3ecf 100644
+--- a/drivers/gpu/drm/nouveau/nvif/outp.c
++++ b/drivers/gpu/drm/nouveau/nvif/outp.c
+@@ -127,7 +127,7 @@ nvif_outp_acquire(struct nvif_outp *outp, u8 proto, struct nvif_outp_acquire_v0
+ }
+ 
+ int
+-nvif_outp_acquire_dp(struct nvif_outp *outp, u8 dpcd[16],
++nvif_outp_acquire_dp(struct nvif_outp *outp, u8 dpcd[DP_RECEIVER_CAP_SIZE],
+ 		     int link_nr, int link_bw, bool hda, bool mst)
  {
-+	int ret = 0;
- 	long count;
- 
-+	preempt_disable();
- 	if (!rwsem_read_trylock(sem, &count)) {
--		if (IS_ERR(rwsem_down_read_slowpath(sem, count, state)))
--			return -EINTR;
-+		if (IS_ERR(rwsem_down_read_slowpath(sem, count, state))) {
-+			ret = -EINTR;
-+			goto out;
-+		}
- 		DEBUG_RWSEMS_WARN_ON(!is_rwsem_reader_owned(sem), sem);
- 	}
--	return 0;
-+out:
-+	preempt_enable();
-+	return ret;
- }
- 
- static inline void __down_read(struct rw_semaphore *sem)
-@@ -1281,19 +1287,23 @@ static inline int __down_read_killable(struct rw_semaphore *sem)
- 
- static inline int __down_read_trylock(struct rw_semaphore *sem)
- {
-+	int ret = 0;
- 	long tmp;
- 
- 	DEBUG_RWSEMS_WARN_ON(sem->magic != sem, sem);
- 
-+	preempt_disable();
- 	tmp = atomic_long_read(&sem->count);
- 	while (!(tmp & RWSEM_READ_FAILED_MASK)) {
- 		if (atomic_long_try_cmpxchg_acquire(&sem->count, &tmp,
- 						    tmp + RWSEM_READER_BIAS)) {
- 			rwsem_set_reader_owned(sem);
--			return 1;
-+			ret = 1;
-+			break;
- 		}
- 	}
--	return 0;
-+	preempt_enable();
-+	return ret;
- }
- 
- /*
-@@ -1335,6 +1345,7 @@ static inline void __up_read(struct rw_semaphore *sem)
- 	DEBUG_RWSEMS_WARN_ON(sem->magic != sem, sem);
- 	DEBUG_RWSEMS_WARN_ON(!is_rwsem_reader_owned(sem), sem);
- 
-+	preempt_disable();
- 	rwsem_clear_reader_owned(sem);
- 	tmp = atomic_long_add_return_release(-RWSEM_READER_BIAS, &sem->count);
- 	DEBUG_RWSEMS_WARN_ON(tmp < 0, sem);
-@@ -1343,6 +1354,7 @@ static inline void __up_read(struct rw_semaphore *sem)
- 		clear_nonspinnable(sem);
- 		rwsem_wake(sem);
- 	}
-+	preempt_enable();
- }
- 
- /*
-@@ -1662,6 +1674,12 @@ void down_read_non_owner(struct rw_semaphore *sem)
- {
- 	might_sleep();
- 	__down_read(sem);
-+	/*
-+	 * The owner value for a reader-owned lock is mostly for debugging
-+	 * purpose only and is not critical to the correct functioning of
-+	 * rwsem. So it is perfectly fine to set it in a preempt-enabled
-+	 * context here.
-+	 */
- 	__rwsem_set_reader_owned(sem, NULL);
- }
- EXPORT_SYMBOL(down_read_non_owner);
+ 	struct nvif_outp_acquire_v0 args;
 -- 
 2.39.2
 
