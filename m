@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FEB96AEECE
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:16:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D419E6AEA81
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232500AbjCGSQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:16:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60766 "EHLO
+        id S231781AbjCGRe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:34:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232575AbjCGSQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:16:17 -0500
+        with ESMTP id S231738AbjCGReO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A91B421D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:11:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3B89B9B1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:29:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FE1D6152F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 346A1C4339C;
-        Tue,  7 Mar 2023 18:11:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D1626150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:29:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32A64C433EF;
+        Tue,  7 Mar 2023 17:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212671;
-        bh=z40oeayFFrYnpsk6Fx60Of6CpMi+R6C2VJUsIl8Et2Q=;
+        s=korg; t=1678210195;
+        bh=AcDp9LQUBtZa3+moX70IIoOJD5ydcRRg+8BbioeOs3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbpkdWDWBTml+vbg8oe4mo4ykwXUPsJ/AVNDBNte/gEGjhMm97hZDS+h7gr3ar8tv
-         ACBCsVUkXa9t/CAUqqXGMt/1wOTfooOcYednawPahn02S2BAmwLz5do8ixmp3fItdr
-         Q1rSwq2DflHbBIlSIQIOnrZoKJu96Z1ROUVbRiWc=
+        b=1pVmgDsXC4sf1CRjP4obZMmUB+FF/TY7DQNDUD8RB19AZFkwf8zovxD9pn/rha8J9
+         49zwTc8ZayKmG4ra7MttYa1hr7zwQC71eFohgkEhE9cXfYkBLyTEE8I3SfmJha7dxr
+         PSMynvJbfwRonqNs0ycICyiH1S0EP8bmWwfaK8l8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Josef Oskera <joskera@redhat.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Kees Cook <keescook@chromium.org>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Guenter Roeck <groeck@chromium.org>,
+        Allen Ballway <ballway@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Alistair Francis <alistair@alistair23.me>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 260/885] net/mlx4_en: Introduce flexible array to silence overflow warning
-Date:   Tue,  7 Mar 2023 17:53:14 +0100
-Message-Id: <20230307170013.311892734@linuxfoundation.org>
+Subject: [PATCH 6.2 0423/1001] HID: retain initial quirks set up when creating HID devices
+Date:   Tue,  7 Mar 2023 17:53:15 +0100
+Message-Id: <20230307170039.704926195@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,117 +57,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit f8f185e39b4de91bc5235e5be0d829bea69d9b06 ]
+[ Upstream commit 03a86105556e23650e4470c09f91cf7c360d5e28 ]
 
-The call "skb_copy_from_linear_data(skb, inl + 1, spc)" triggers a FORTIFY
-memcpy() warning on ppc64 platform:
+In certain circumstances, such as when creating I2C-connected HID
+devices, we want to pass and retain some quirks (axis inversion, etc).
+The source of such quirks may be device tree, or DMI data, or something
+else not readily available to the HID core itself and therefore cannot
+be reconstructed easily. To allow this, introduce "initial_quirks" field
+in hid_device structure and use it when determining the final set of
+quirks.
 
-In function ‘fortify_memcpy_chk’,
-    inlined from ‘skb_copy_from_linear_data’ at ./include/linux/skbuff.h:4029:2,
-    inlined from ‘build_inline_wqe’ at drivers/net/ethernet/mellanox/mlx4/en_tx.c:722:4,
-    inlined from ‘mlx4_en_xmit’ at drivers/net/ethernet/mellanox/mlx4/en_tx.c:1066:3:
-./include/linux/fortify-string.h:513:25: error: call to ‘__write_overflow_field’ declared with
-attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()?
-[-Werror=attribute-warning]
-  513 |                         __write_overflow_field(p_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This fixes the problem with i2c-hid setting up device-tree sourced
+quirks too late and losing them on device rebind, and also allows to
+sever the tie between hid-code and i2c-hid when applying DMI-based
+quirks.
 
-Same behaviour on x86 you can get if you use "__always_inline" instead of
-"inline" for skb_copy_from_linear_data() in skbuff.h
-
-The call here copies data into inlined tx destricptor, which has 104
-bytes (MAX_INLINE) space for data payload. In this case "spc" is known
-in compile-time but the destination is used with hidden knowledge
-(real structure of destination is different from that the compiler
-can see). That cause the fortify warning because compiler can check
-bounds, but the real bounds are different.  "spc" can't be bigger than
-64 bytes (MLX4_INLINE_ALIGN), so the data can always fit into inlined
-tx descriptor. The fact that "inl" points into inlined tx descriptor is
-determined earlier in mlx4_en_xmit().
-
-Avoid confusing the compiler with "inl + 1" constructions to get to past
-the inl header by introducing a flexible array "data" to the struct so
-that the compiler can see that we are not dealing with an array of inl
-structs, but rather, arbitrary data following the structure. There are
-no changes to the structure layout reported by pahole, and the resulting
-machine code is actually smaller.
-
-Reported-by: Josef Oskera <joskera@redhat.com>
-Link: https://lore.kernel.org/lkml/20230217094541.2362873-1-joskera@redhat.com
-Fixes: f68f2ff91512 ("fortify: Detect struct member overflows in memcpy() at compile-time")
-Cc: Yishai Hadas <yishaih@nvidia.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20230218183842.never.954-kees@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b60d3c803d76 ("HID: i2c-hid-of: Expose the touchscreen-inverted properties")
+Fixes: a2f416bf062a ("HID: multitouch: Add quirks for flipped axes")
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Tested-by: Allen Ballway <ballway@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Alistair Francis <alistair@alistair23.me>
+Link: https://lore.kernel.org/r/Y+LYwu3Zs13hdVDy@google.com
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_tx.c | 22 +++++++++++-----------
- include/linux/mlx4/qp.h                    |  1 +
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ drivers/hid/hid-quirks.c                 | 8 +-------
+ drivers/hid/i2c-hid/i2c-hid-core.c       | 6 ++++--
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 1 -
+ include/linux/hid.h                      | 1 +
+ 4 files changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_tx.c b/drivers/net/ethernet/mellanox/mlx4/en_tx.c
-index 43a4102e9c091..7fccf1a79f09b 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_tx.c
-@@ -697,32 +697,32 @@ static void build_inline_wqe(struct mlx4_en_tx_desc *tx_desc,
- 			inl->byte_count = cpu_to_be32(1 << 31 | skb->len);
- 		} else {
- 			inl->byte_count = cpu_to_be32(1 << 31 | MIN_PKT_LEN);
--			memset(((void *)(inl + 1)) + skb->len, 0,
-+			memset(inl->data + skb->len, 0,
- 			       MIN_PKT_LEN - skb->len);
- 		}
--		skb_copy_from_linear_data(skb, inl + 1, hlen);
-+		skb_copy_from_linear_data(skb, inl->data, hlen);
- 		if (shinfo->nr_frags)
--			memcpy(((void *)(inl + 1)) + hlen, fragptr,
-+			memcpy(inl->data + hlen, fragptr,
- 			       skb_frag_size(&shinfo->frags[0]));
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 30e35f79def47..66e64350f1386 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -19,7 +19,6 @@
+ #include <linux/input/elan-i2c-ids.h>
  
- 	} else {
- 		inl->byte_count = cpu_to_be32(1 << 31 | spc);
- 		if (hlen <= spc) {
--			skb_copy_from_linear_data(skb, inl + 1, hlen);
-+			skb_copy_from_linear_data(skb, inl->data, hlen);
- 			if (hlen < spc) {
--				memcpy(((void *)(inl + 1)) + hlen,
-+				memcpy(inl->data + hlen,
- 				       fragptr, spc - hlen);
- 				fragptr +=  spc - hlen;
- 			}
--			inl = (void *) (inl + 1) + spc;
--			memcpy(((void *)(inl + 1)), fragptr, skb->len - spc);
-+			inl = (void *)inl->data + spc;
-+			memcpy(inl->data, fragptr, skb->len - spc);
- 		} else {
--			skb_copy_from_linear_data(skb, inl + 1, spc);
--			inl = (void *) (inl + 1) + spc;
--			skb_copy_from_linear_data_offset(skb, spc, inl + 1,
-+			skb_copy_from_linear_data(skb, inl->data, spc);
-+			inl = (void *)inl->data + spc;
-+			skb_copy_from_linear_data_offset(skb, spc, inl->data,
- 							 hlen - spc);
- 			if (shinfo->nr_frags)
--				memcpy(((void *)(inl + 1)) + hlen - spc,
-+				memcpy(inl->data + hlen - spc,
- 				       fragptr,
- 				       skb_frag_size(&shinfo->frags[0]));
- 		}
-diff --git a/include/linux/mlx4/qp.h b/include/linux/mlx4/qp.h
-index 9db93e487496a..b6b626157b03a 100644
---- a/include/linux/mlx4/qp.h
-+++ b/include/linux/mlx4/qp.h
-@@ -446,6 +446,7 @@ enum {
+ #include "hid-ids.h"
+-#include "i2c-hid/i2c-hid.h"
  
- struct mlx4_wqe_inline_seg {
- 	__be32			byte_count;
-+	__u8			data[];
- };
+ /*
+  * Alphabetically sorted by vendor then product.
+@@ -1238,7 +1237,7 @@ EXPORT_SYMBOL_GPL(hid_quirks_exit);
+ static unsigned long hid_gets_squirk(const struct hid_device *hdev)
+ {
+ 	const struct hid_device_id *bl_entry;
+-	unsigned long quirks = 0;
++	unsigned long quirks = hdev->initial_quirks;
  
- enum mlx4_update_qp_attr {
+ 	if (hid_match_id(hdev, hid_ignore_list))
+ 		quirks |= HID_QUIRK_IGNORE;
+@@ -1299,11 +1298,6 @@ unsigned long hid_lookup_quirk(const struct hid_device *hdev)
+ 		quirks = hid_gets_squirk(hdev);
+ 	mutex_unlock(&dquirks_lock);
+ 
+-	/* Get quirks specific to I2C devices */
+-	if (IS_ENABLED(CONFIG_I2C_DMI_CORE) && IS_ENABLED(CONFIG_DMI) &&
+-	    hdev->bus == BUS_I2C)
+-		quirks |= i2c_hid_get_dmi_quirks(hdev->vendor, hdev->product);
+-
+ 	return quirks;
+ }
+ EXPORT_SYMBOL_GPL(hid_lookup_quirk);
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index b86b62f971080..72f2c379812c7 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -1035,6 +1035,10 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+ 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+ 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+ 
++	hid->initial_quirks = quirks;
++	hid->initial_quirks |= i2c_hid_get_dmi_quirks(hid->vendor,
++						      hid->product);
++
+ 	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
+ 		 client->name, (u16)hid->vendor, (u16)hid->product);
+ 	strscpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+@@ -1048,8 +1052,6 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+ 		goto err_mem_free;
+ 	}
+ 
+-	hid->quirks |= quirks;
+-
+ 	return 0;
+ 
+ err_mem_free:
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 554a7dc285365..210f17c3a0be0 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -492,4 +492,3 @@ u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product)
+ 
+ 	return quirks;
+ }
+-EXPORT_SYMBOL_GPL(i2c_hid_get_dmi_quirks);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 8677ae38599e4..48563dc09e171 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -619,6 +619,7 @@ struct hid_device {							/* device report descriptor */
+ 	unsigned long status;						/* see STAT flags above */
+ 	unsigned claimed;						/* Claimed by hidinput, hiddev? */
+ 	unsigned quirks;						/* Various quirks the device can pull on us */
++	unsigned initial_quirks;					/* Initial set of quirks supplied when creating device */
+ 	bool io_started;						/* If IO has started */
+ 
+ 	struct list_head inputs;					/* The list of inputs */
 -- 
 2.39.2
 
