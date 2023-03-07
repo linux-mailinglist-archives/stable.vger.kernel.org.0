@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAEE6AECCC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 668A06AF17F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:45:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229947AbjCGR6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:58:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51474 "EHLO
+        id S233017AbjCGSop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:44:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230344AbjCGR5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:57:45 -0500
+        with ESMTP id S233129AbjCGSoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:44:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFFCA4B05;
-        Tue,  7 Mar 2023 09:52:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EDDBA2F36
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 395CDB8184E;
-        Tue,  7 Mar 2023 17:52:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F67C433EF;
-        Tue,  7 Mar 2023 17:52:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37B95B819D2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:34:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C1A9C433EF;
+        Tue,  7 Mar 2023 18:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211531;
-        bh=O3HI6ryrPz/9NtjXoIDP253cnk70kHJ4kKsXW93ORXs=;
+        s=korg; t=1678214058;
+        bh=sXSTSAa3i1CFU34arWHw2g6nEbnGz6/LAxVQSl4UU9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmGbTwpeD58LZb0odW2FdZLXww8IGP2y8RdbtlKQpyq4XXsJk8VCgTXReYL2Yiteq
-         HVVLAxcglrSFO1pnv7tjSEUOrcFk79Eyres9eMXHdiyxUn2XU4IIOKb5RPDVdQ5UmL
-         hDWeMZ3vFwtkE09K1KlM87P/Hcw67gjEm8M6JDlg=
+        b=DIqR8fs2D5OYxSamvJenbCyMNLwVzwMFwKrXqJbsQnjjDQVvrMgbRFXjCyoz95u/E
+         KngPGjqVr3tqizOAOQyiSJeh7TPEQHyinQcWIL0Nsx/j8jo4wc4QKW8TaQe6Q20Cmn
+         3wulAUJnPXsGkIfhhmCBRft4ODzb5Inx5Q/5WWhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 6.2 0862/1001] selftests: membarrier: Fix incorrect kernel headers search path
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Eric Biggers <ebiggers@google.com>, Tejun Heo <tj@kernel.org>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.1 700/885] f2fs: fix cgroup writeback accounting with fs-layer encryption
 Date:   Tue,  7 Mar 2023 18:00:34 +0100
-Message-Id: <20230307170059.247069508@linuxfoundation.org>
+Message-Id: <20230307170032.500408824@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,34 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 498bb027726371ba4a94686d251f9be1d437573e upstream.
+commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
 
-Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
-building against kernel headers from the build environment in scenarios
-where kernel headers are installed into a specific output directory
-(O=...).
+When writing a page from an encrypted file that is using
+filesystem-layer encryption (not inline encryption), f2fs encrypts the
+pagecache page into a bounce page, then writes the bounce page.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: <stable@vger.kernel.org>  # 5.18+
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+It also passes the bounce page to wbc_account_cgroup_owner().  That's
+incorrect, because the bounce page is a newly allocated temporary page
+that doesn't have the memory cgroup of the original pagecache page.
+This makes wbc_account_cgroup_owner() not account the I/O to the owner
+of the pagecache page as it should.
+
+Fix this by always passing the pagecache page to
+wbc_account_cgroup_owner().
+
+Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
+Cc: stable@vger.kernel.org
+Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/membarrier/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/data.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/membarrier/Makefile
-+++ b/tools/testing/selftests/membarrier/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
--CFLAGS += -g -I../../../../usr/include/
-+CFLAGS += -g $(KHDR_INCLUDES)
- LDLIBS += -lpthread
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -726,7 +726,7 @@ int f2fs_submit_page_bio(struct f2fs_io_
+ 	}
  
- TEST_GEN_PROGS := membarrier_test_single_thread \
+ 	if (fio->io_wbc && !is_read_io(fio->op))
+-		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	inc_page_count(fio->sbi, is_read_io(fio->op) ?
+ 			__read_io_type(page) : WB_DATA_TYPE(fio->page));
+@@ -933,7 +933,7 @@ alloc_new:
+ 	}
+ 
+ 	if (fio->io_wbc)
+-		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	inc_page_count(fio->sbi, WB_DATA_TYPE(page));
+ 
+@@ -1007,7 +1007,7 @@ alloc_new:
+ 	}
+ 
+ 	if (fio->io_wbc)
+-		wbc_account_cgroup_owner(fio->io_wbc, bio_page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	io->last_block_in_bio = fio->new_blkaddr;
+ 
 
 
