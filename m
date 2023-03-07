@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C7B6AF212
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0BC6AEBFA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233280AbjCGSuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:50:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50334 "EHLO
+        id S232284AbjCGRus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:50:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233169AbjCGStt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:49:49 -0500
+        with ESMTP id S231922AbjCGRuY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0087968EB;
-        Tue,  7 Mar 2023 10:38:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31808A0296;
+        Tue,  7 Mar 2023 09:45:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 459D561540;
-        Tue,  7 Mar 2023 18:29:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D158C4339C;
-        Tue,  7 Mar 2023 18:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2FC5614E8;
+        Tue,  7 Mar 2023 17:45:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75CEC433EF;
+        Tue,  7 Mar 2023 17:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213751;
-        bh=J3f4qv5kjF2i82DUy43TciALYCtsEwkz6/MXBKiSoLc=;
+        s=korg; t=1678211123;
+        bh=eZhh6BSFQ1k6BW1csQ0X36HHVeHgWxg0M5U+VtotJqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvVoKqVVEnm6AsOzAPG8YmBHys44NpR9Q5jojoYRrMIX/SuOp31suJthNE2mJGH1x
-         Etr26pX7tS7xPkF4vFYbA1xNCR1ALaHn2PQ3sJ1f51+WJ5NzsL14uHC99XnhF45yDl
-         bQDG1aPPxbvMa1MF7LUAR5MPNlsQFri6kGtNtIkE=
+        b=b1RXqCRggUynjMgz4L0pMspKQhydFmiEEDLdbxFZYVX+ACrpts+KdfanYIp4ZNDbW
+         QSWuoGibFBKLsS/A1r28uTbJlGkELrXpTa8Y7Ov+HjSxvL7vG+cSQ5Qh6OZCUgly25
+         X5MWPiSPs5TGjkS7iKwwRh3PIVCG14yDaD4hA7Ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Weili Qian <qianweili@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Karan Tilak Kumar <kartilak@cisco.com>,
+        Sesidhar Baddela <sebaddel@cisco.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 567/885] crypto: hisilicon: Wipe entire pool on error
+Subject: [PATCH 6.2 0729/1001] scsi: snic: Fix memory leak with using debugfs_lookup()
 Date:   Tue,  7 Mar 2023 17:58:21 +0100
-Message-Id: <20230307170027.064822655@linuxfoundation.org>
+Message-Id: <20230307170053.340405583@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,45 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit aa85923a954e7704bc9d3847dabeb8540aa98d13 ]
+[ Upstream commit ad0e4e2fab928477f74d742e6e77d79245d3d3e7 ]
 
-To work around a Clang __builtin_object_size bug that shows up under
-CONFIG_FORTIFY_SOURCE and UBSAN_BOUNDS, move the per-loop-iteration
-mem_block wipe into a single wipe of the entire pool structure after
-the loop.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic at
+once.
 
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1780
-Cc: Weili Qian <qianweili@huawei.com>
-Cc: Zhou Wang <wangzhou1@hisilicon.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
-Link: https://lore.kernel.org/r/20230106041945.never.831-kees@kernel.org
+Link: https://lore.kernel.org/r/20230202141009.2290380-1-gregkh@linuxfoundation.org
+Cc: Karan Tilak Kumar <kartilak@cisco.com>
+Cc: Sesidhar Baddela <sebaddel@cisco.com>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sgl.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/scsi/snic/snic_debugfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/sgl.c b/drivers/crypto/hisilicon/sgl.c
-index 2b6f2281cfd6c..0974b00414050 100644
---- a/drivers/crypto/hisilicon/sgl.c
-+++ b/drivers/crypto/hisilicon/sgl.c
-@@ -124,9 +124,8 @@ struct hisi_acc_sgl_pool *hisi_acc_create_sgl_pool(struct device *dev,
- 	for (j = 0; j < i; j++) {
- 		dma_free_coherent(dev, block_size, block[j].sgl,
- 				  block[j].sgl_dma);
--		memset(block + j, 0, sizeof(*block));
- 	}
--	kfree(pool);
-+	kfree_sensitive(pool);
- 	return ERR_PTR(-ENOMEM);
+diff --git a/drivers/scsi/snic/snic_debugfs.c b/drivers/scsi/snic/snic_debugfs.c
+index 57bdc3ba49d9c..9dd975b36b5bd 100644
+--- a/drivers/scsi/snic/snic_debugfs.c
++++ b/drivers/scsi/snic/snic_debugfs.c
+@@ -437,6 +437,6 @@ void snic_trc_debugfs_init(void)
+ void
+ snic_trc_debugfs_term(void)
+ {
+-	debugfs_remove(debugfs_lookup(TRC_FILE, snic_glob->trc_root));
+-	debugfs_remove(debugfs_lookup(TRC_ENABLE_FILE, snic_glob->trc_root));
++	debugfs_lookup_and_remove(TRC_FILE, snic_glob->trc_root);
++	debugfs_lookup_and_remove(TRC_ENABLE_FILE, snic_glob->trc_root);
  }
- EXPORT_SYMBOL_GPL(hisi_acc_create_sgl_pool);
 -- 
 2.39.2
 
