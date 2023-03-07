@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8DE06ADB27
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:56:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40BE36ADB29
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230526AbjCGJ4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:56:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
+        id S230505AbjCGJ4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 04:56:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbjCGJzt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:55:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 342D45DEC3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:55:27 -0800 (PST)
+        with ESMTP id S231197AbjCGJzx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:55:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495A7521C2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:55:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4E47612BC
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51D3C433EF;
-        Tue,  7 Mar 2023 09:55:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7A75612BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6209C433D2;
+        Tue,  7 Mar 2023 09:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182926;
-        bh=pGQNTzUV5mmFzPNTWOf5Vc5j0MBQaWwozbNLdGS+8yY=;
+        s=korg; t=1678182929;
+        bh=YvSBxxYoku/aLCABm73iZDtaweKs8WYaNFUlQcsd75Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=vlnJuuXQvLoHF8+TRpz2rngynrA+LoYDJ0fvPstJu31Wh0320TNx53Qd5a4n1H0ra
-         JSC+sDxLHcp4hWhvIX4ifvF2MVTyJI/n4hIZ1Y1h9wCFHV9tGDasoLwu2DUYUKtmCh
-         h5BU1vkNhSIi1LwBXUU0WmfjHK98NDJxDuDtSVTw=
-Subject: FAILED: patch "[PATCH] iommu/amd: Add a length limitation for the ivrs_acpihid" failed to apply to 4.14-stable tree
+        b=szKRXMBzWUM7ZDqGLetRMH7MyqeHNC4mr4co/raxMch21vSV+pVrclqAQuphfKSwn
+         VDtV1FlSkN0Ojdbrr2RKW9Qvrr6p3fqfHicup4TVF8suT0elPxnnbm50HvnUnv7Qb7
+         gXHyyo4Cfvt56ZbKMKN41kIxsc1aSwTq9E3TDZUw=
+Subject: FAILED: patch "[PATCH] iommu/amd: Add a length limitation for the ivrs_acpihid" failed to apply to 4.19-stable tree
 To:     Ilia.Gavrilov@infotecs.ru, jroedel@suse.de, kim.phillips@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 07 Mar 2023 10:55:11 +0100
-Message-ID: <1678182911197225@kroah.com>
+Message-ID: <1678182911148202@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -48,19 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x b6b26d86c61c441144c72f842f7469bb686e1211
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182911197225@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182911148202@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
