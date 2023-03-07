@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A059D6AF59B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:27:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6EB6AF5A3
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234193AbjCGT1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:27:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37192 "EHLO
+        id S234150AbjCGT2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:28:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234173AbjCGT1U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:27:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF4DA0F11
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:13:21 -0800 (PST)
+        with ESMTP id S234083AbjCGT1v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:27:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7464B4F56
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:13:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D029161560
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:13:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5814C433D2;
-        Tue,  7 Mar 2023 19:13:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05E3F6153D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F13D3C433EF;
+        Tue,  7 Mar 2023 19:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216397;
-        bh=T2VWfbaQOVqM7k7e/uKJU30/w3BZ90EZAVYxmJwI+YE=;
+        s=korg; t=1678216400;
+        bh=tXeg5/dxj+YI6JBqpG3Z6J2/hg9i6L80Dzb3gRlYmgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fH0xa6E7Xr8tLUAhul7jOi1TVg1SMiR7WcRw7WUkeOZ6DPVMud1Ynkk5UKkWar34e
-         cI/BbIVX3mKxnZqULVdvsDnnas4iaVDcOZIAoXwEZQ3BYS/3kCTa0vfjG/6A0Sv34f
-         IDAtm7anO7BJfDVDt9vwyIHlinuMbt/Ua73q4eb4=
+        b=DzJJvW7YitrPV3XktwLm93vcKsUAa1c/71UKujiZ6SHCe2+NMDqoXazL/cS0b/kZZ
+         k7aCM+pgA+HUmJb5HdxwzVjXMZoHXHzyd6r6uVSCZAOBjjCst2Dj3veVWTYpaHig7J
+         2ulSQAFU9qEFy7Ls4xOYVvUvLksIg2s6HRgYEHoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
+        patches@lists.linux.dev, Shreyas Deodhar <sdeodhar@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 539/567] scsi: qla2xxx: Fix link failure in NPIV environment
-Date:   Tue,  7 Mar 2023 18:04:35 +0100
-Message-Id: <20230307165929.311300026@linuxfoundation.org>
+Subject: [PATCH 5.15 540/567] scsi: qla2xxx: Check if port is online before sending ELS
+Date:   Tue,  7 Mar 2023 18:04:36 +0100
+Message-Id: <20230307165929.352381992@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,43 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Shreyas Deodhar <sdeodhar@marvell.com>
 
-commit b1ae65c082f74536ec292b15766f2846f0238373 upstream.
+commit 0c227dc22ca18856055983f27594feb2e0149965 upstream.
 
-User experienced symptoms of adapter failure in NPIV environment. NPIV
-hosts were allowed to trigger chip reset back to back due to NPIV link
-state being slow to come online.
+CT Ping and ELS cmds fail for NVMe targets.  Check if port is online before
+sending ELS instead of sending login.
 
-Fix link failure in NPIV environment by removing NPIV host from directly
-being able to perform chip reset.
-
- kernel: qla2xxx [0000:04:00.1]-6009:261: Loop down - aborting ISP.
- kernel: qla2xxx [0000:04:00.1]-6009:262: Loop down - aborting ISP.
- kernel: qla2xxx [0000:04:00.1]-6009:281: Loop down - aborting ISP.
- kernel: qla2xxx [0000:04:00.1]-6009:285: Loop down - aborting ISP
-
-Fixes: 0d6e61bc6a4f ("[SCSI] qla2xxx: Correct various NPIV issues.")
 Cc: stable@vger.kernel.org
-Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Shreyas Deodhar <sdeodhar@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_bsg.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -7422,7 +7422,7 @@ qla2x00_timer(struct timer_list *t)
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -278,8 +278,8 @@ qla2x00_process_els(struct bsg_job *bsg_
+ 	const char *type;
+ 	int req_sg_cnt, rsp_sg_cnt;
+ 	int rval =  (DID_ERROR << 16);
+-	uint16_t nextlid = 0;
+ 	uint32_t els_cmd = 0;
++	int qla_port_allocated = 0;
  
- 		/* if the loop has been down for 4 minutes, reinit adapter */
- 		if (atomic_dec_and_test(&vha->loop_down_timer) != 0) {
--			if (!(vha->device_flags & DFLG_NO_CABLE)) {
-+			if (!(vha->device_flags & DFLG_NO_CABLE) && !vha->vp_idx) {
- 				ql_log(ql_log_warn, vha, 0x6009,
- 				    "Loop down - aborting ISP.\n");
+ 	if (bsg_request->msgcode == FC_BSG_RPT_ELS) {
+ 		rport = fc_bsg_to_rport(bsg_job);
+@@ -329,9 +329,9 @@ qla2x00_process_els(struct bsg_job *bsg_
+ 		/* make sure the rport is logged in,
+ 		 * if not perform fabric login
+ 		 */
+-		if (qla2x00_fabric_login(vha, fcport, &nextlid)) {
++		if (atomic_read(&fcport->state) != FCS_ONLINE) {
+ 			ql_dbg(ql_dbg_user, vha, 0x7003,
+-			    "Failed to login port %06X for ELS passthru.\n",
++			    "Port %06X is not online for ELS passthru.\n",
+ 			    fcport->d_id.b24);
+ 			rval = -EIO;
+ 			goto done;
+@@ -348,6 +348,7 @@ qla2x00_process_els(struct bsg_job *bsg_
+ 			goto done;
+ 		}
  
++		qla_port_allocated = 1;
+ 		/* Initialize all required  fields of fcport */
+ 		fcport->vha = vha;
+ 		fcport->d_id.b.al_pa =
+@@ -432,7 +433,7 @@ done_unmap_sg:
+ 	goto done_free_fcport;
+ 
+ done_free_fcport:
+-	if (bsg_request->msgcode != FC_BSG_RPT_ELS)
++	if (qla_port_allocated)
+ 		qla2x00_free_fcport(fcport);
+ done:
+ 	return rval;
 
 
