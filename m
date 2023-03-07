@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2767E6AEC83
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:56:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAC86AF182
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230057AbjCGR4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:56:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53110 "EHLO
+        id S231362AbjCGSpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:45:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231217AbjCGRzm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:55:42 -0500
+        with ESMTP id S233169AbjCGSol (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:44:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1DAA9E51D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:50:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7408CAA248
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:34:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6475CB819B4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:50:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92235C433D2;
-        Tue,  7 Mar 2023 17:50:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F231B819D1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4704FC433D2;
+        Tue,  7 Mar 2023 18:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211418;
-        bh=AWoc/4xw+6X0y4pWdVbKPs0tp5lzvCX/NGbUuvJ/rP4=;
+        s=korg; t=1678214012;
+        bh=tW6PRi4Ld7Bh2v0f3icgnKsZmf+eVcix7iSwQY3kB1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6kJ1If++Pc92xpVCQCyNeWl7fgKmDSWbVR3VxhRo09jZp2ca+mNp41WDwztBTABy
-         w/0mzfQ1iwbyvVfeWfM83dsPLEFByNi3ZQIGFx/GvhvngtxF+Jh1mbcYhbFcuIFL2E
-         YOykh0NUre2Gv3k1Lf4hZhEd7EHVKOz7FF6ODOvs=
+        b=GBG9APr4Q9q8DDqwlpOXOhl+868yySSvNQ1BzdcWw2Rd1BfI5sGRwnxjQ4aiOnU3+
+         OrBhgA9p2sl7D72hJxlZ6HB7OYRpOPYXDw3AYSoOtosQiN4MoTmVEDurXJDX47kBhb
+         E36N+G31IzL8ek/g+59ywMZVefCkDqizf4YdfYtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 6.2 0854/1001] selftests/powerpc: Fix incorrect kernel headers search path
+        patches@lists.linux.dev, Wang Yugui <wangyugui@e16-tech.com>,
+        Yuezhang Mo <Yuezhang.Mo@sony.com>, Andy Wu <Andy.Wu@sony.com>,
+        Aoyama Wataru <wataru.aoyama@sony.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 6.1 692/885] exfat: fix unexpected EOF while reading dir
 Date:   Tue,  7 Mar 2023 18:00:26 +0100
-Message-Id: <20230307170058.888247919@linuxfoundation.org>
+Message-Id: <20230307170032.169258555@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Yuezhang Mo <Yuezhang.Mo@sony.com>
 
-commit 4f11410bf6da87defe8fd59b0413f0d9f71744da upstream.
+commit 6cb5d1a16a51d080fbc1649a5144cbc5ca7d6f88 upstream.
 
-Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
-building against kernel headers from the build environment in scenarios
-where kernel headers are installed into a specific output directory
-(O=...).
+If the position is not aligned with the dentry size, the return
+value of readdir() will be NULL and errno is 0, which means the
+end of the directory stream is reached.
 
-Cc: stable@vger.kernel.org # v5.18+
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230127135755.79929-22-mathieu.desnoyers@efficios.com
+If the position is aligned with dentry size, but there is no file
+or directory at the position, exfat_readdir() will continue to
+get dentry from the next dentry. So the dentry gotten by readdir()
+may not be at the position.
+
+After this commit, if the position is not aligned with the dentry
+size, round the position up to the dentry size and continue to get
+the dentry.
+
+Fixes: ca06197382bd ("exfat: add directory operations")
+Cc: stable@vger.kernel.org # v5.7+
+Reported-by: Wang Yugui <wangyugui@e16-tech.com>
+Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+Reviewed-by: Andy Wu <Andy.Wu@sony.com>
+Reviewed-by: Aoyama Wataru <wataru.aoyama@sony.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/powerpc/ptrace/Makefile   |    2 +-
- tools/testing/selftests/powerpc/security/Makefile |    2 +-
- tools/testing/selftests/powerpc/syscalls/Makefile |    2 +-
- tools/testing/selftests/powerpc/tm/Makefile       |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ fs/exfat/dir.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/tools/testing/selftests/powerpc/ptrace/Makefile
-+++ b/tools/testing/selftests/powerpc/ptrace/Makefile
-@@ -33,7 +33,7 @@ TESTS_64 := $(patsubst %,$(OUTPUT)/%,$(T
- $(TESTS_64): CFLAGS += -m64
- $(TM_TESTS): CFLAGS += -I../tm -mhtm
+--- a/fs/exfat/dir.c
++++ b/fs/exfat/dir.c
+@@ -236,10 +236,7 @@ static int exfat_iterate(struct file *fi
+ 		fake_offset = 1;
+ 	}
  
--CFLAGS += -I../../../../../usr/include -fno-pie
-+CFLAGS += $(KHDR_INCLUDES) -fno-pie
+-	if (cpos & (DENTRY_SIZE - 1)) {
+-		err = -ENOENT;
+-		goto unlock;
+-	}
++	cpos = round_up(cpos, DENTRY_SIZE);
  
- $(OUTPUT)/ptrace-gpr: ptrace-gpr.S
- $(OUTPUT)/ptrace-pkey $(OUTPUT)/core-pkey: LDLIBS += -pthread
---- a/tools/testing/selftests/powerpc/security/Makefile
-+++ b/tools/testing/selftests/powerpc/security/Makefile
-@@ -5,7 +5,7 @@ TEST_PROGS := mitigation-patching.sh
- 
- top_srcdir = ../../../../..
- 
--CFLAGS += -I../../../../../usr/include
-+CFLAGS += $(KHDR_INCLUDES)
- 
- include ../../lib.mk
- 
---- a/tools/testing/selftests/powerpc/syscalls/Makefile
-+++ b/tools/testing/selftests/powerpc/syscalls/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0-only
- TEST_GEN_PROGS := ipc_unmuxed rtas_filter
- 
--CFLAGS += -I../../../../../usr/include
-+CFLAGS += $(KHDR_INCLUDES)
- 
- top_srcdir = ../../../../..
- include ../../lib.mk
---- a/tools/testing/selftests/powerpc/tm/Makefile
-+++ b/tools/testing/selftests/powerpc/tm/Makefile
-@@ -17,7 +17,7 @@ $(TEST_GEN_PROGS): ../harness.c ../utils
- CFLAGS += -mhtm
- 
- $(OUTPUT)/tm-syscall: tm-syscall-asm.S
--$(OUTPUT)/tm-syscall: CFLAGS += -I../../../../../usr/include
-+$(OUTPUT)/tm-syscall: CFLAGS += $(KHDR_INCLUDES)
- $(OUTPUT)/tm-tmspr: CFLAGS += -pthread
- $(OUTPUT)/tm-vmx-unavail: CFLAGS += -pthread -m64
- $(OUTPUT)/tm-resched-dscr: ../pmu/lib.c
+ 	/* name buffer should be allocated before use */
+ 	err = exfat_alloc_namebuf(nb);
 
 
