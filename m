@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C146AEA93
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3AA6AEA94
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231682AbjCGRfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231695AbjCGRfM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Mar 2023 12:35:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60546 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231754AbjCGRep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983E69BA4E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:30:49 -0800 (PST)
+        with ESMTP id S231649AbjCGReq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 455A19BA5A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:30:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EC7961519
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C758C4339B;
-        Tue,  7 Mar 2023 17:30:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E35FFB819A3
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:30:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EFD4C433EF;
+        Tue,  7 Mar 2023 17:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210248;
-        bh=MvVceScu4q6SS3pK/6SlXLdEOdrWVgSC5DPWUqewPYI=;
+        s=korg; t=1678210251;
+        bh=G8Ypl3TrIQpvm4SS0kqlt73WoxE5mdo/N3H9iZVA1Qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tG9o1vkPQQdJuMp7KMlPbrRL+Rb9LjMMQQ3vto/orfhO+wU7imRmAbFBhu3vJx8It
-         0kPI3LdZgbPHYAH1y+8wgYazmKlO3rjf/KGwQf5BtLdqadfCcsb2MKJFFqw8ukkOb2
-         aBFR/x17YyAQpCGNNHm2mYabugtyIlwpla7F/pIE=
+        b=gX7wMAVeUkd5gAQtjiZd/MmV2SQkBBRfyw8A02mMEe7BptOKNehJBKr7fRxcQjcAE
+         OirQdVMP2nM1OgT7K6dqiwcPUD+EXgeex6lTqVls4mZcFmYNj009WO0SItxrTTnPW3
+         vjF4wl1W1dbR3atn6cc7e2fg92g4VoKsaot20hD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Marco Elver <elver@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>,
-        Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0480/1001] objtool: add UACCESS exceptions for __tsan_volatile_read/write
-Date:   Tue,  7 Mar 2023 17:54:12 +0100
-Message-Id: <20230307170042.235887613@linuxfoundation.org>
+Subject: [PATCH 6.2 0481/1001] selftests/ftrace: Fix probepoint testcase to ignore __pfx_* symbols
+Date:   Tue,  7 Mar 2023 17:54:13 +0100
+Message-Id: <20230307170042.281953847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -63,54 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit d5d469247264e56960705dc5ae7e1d014861fe40 ]
+[ Upstream commit 96cd93af794cf3ef83ae1ad7291160029d7b525e ]
 
-A lot of the tsan helpers are already excempt from the UACCESS warnings,
-but some more functions were added that need the same thing:
+Fix kprobe probepoint testcase to ignore __pfx_* prefix symbols. Those are
+introduced by commit b341b20d648b ("x86: Add prefix symbols for function
+padding") for identifying PADDING_BYTES of NOPs. Since kprobe events can
+not probe these prefix symbols, this testcase has to skip those symbols.
 
-kernel/kcsan/core.o: warning: objtool: __tsan_volatile_read16+0x0: call to __tsan_unaligned_read16() with UACCESS enabled
-kernel/kcsan/core.o: warning: objtool: __tsan_volatile_write16+0x0: call to __tsan_unaligned_write16() with UACCESS enabled
-vmlinux.o: warning: objtool: __tsan_unaligned_volatile_read16+0x4: call to __tsan_unaligned_read16() with UACCESS enabled
-vmlinux.o: warning: objtool: __tsan_unaligned_volatile_write16+0x4: call to __tsan_unaligned_write16() with UACCESS enabled
+Link: https://lore.kernel.org/all/167309835609.640500.9664678940260305746.stgit@devnote3/
 
-As Marco points out, these functions don't even call each other
-explicitly but instead gcc (but not clang) notices the functions
-being identical and turns one symbol into a direct branch to the
-other.
-
-Link: https://lkml.kernel.org/r/20230215130058.3836177-4-arnd@kernel.org
-Fixes: 75d75b7a4d54 ("kcsan: Support distinguishing volatile accesses")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Marco Elver <elver@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Josh Poimboeuf <jpoimboe@kernel.org>
-Cc: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: b341b20d648b ("x86: Add prefix symbols for function padding")
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/ftrace/test.d/kprobe/probepoint.tc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 4b7c8b33069e5..b1a5f658673f0 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -1186,6 +1186,8 @@ static const char *uaccess_safe_builtin[] = {
- 	"__tsan_atomic64_compare_exchange_val",
- 	"__tsan_atomic_thread_fence",
- 	"__tsan_atomic_signal_fence",
-+	"__tsan_unaligned_read16",
-+	"__tsan_unaligned_write16",
- 	/* KCOV */
- 	"write_comp_data",
- 	"check_kcov_mode",
+diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/probepoint.tc b/tools/testing/selftests/ftrace/test.d/kprobe/probepoint.tc
+index 624269c8d5343..68425987a5dd9 100644
+--- a/tools/testing/selftests/ftrace/test.d/kprobe/probepoint.tc
++++ b/tools/testing/selftests/ftrace/test.d/kprobe/probepoint.tc
+@@ -21,7 +21,7 @@ set_offs() { # prev target next
+ 
+ # We have to decode symbol addresses to get correct offsets.
+ # If the offset is not an instruction boundary, it cause -EILSEQ.
+-set_offs `grep -A1 -B1 ${TARGET_FUNC} /proc/kallsyms | cut -f 1 -d " " | xargs`
++set_offs `grep -v __pfx_ /proc/kallsyms | grep -A1 -B1 ${TARGET_FUNC} | cut -f 1 -d " " | xargs`
+ 
+ UINT_TEST=no
+ # printf "%x" -1 returns (unsigned long)-1.
 -- 
 2.39.2
 
