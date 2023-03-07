@@ -2,97 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4636AEE1F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D436AE961
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232350AbjCGSJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:09:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46044 "EHLO
+        id S231451AbjCGRXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:23:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232345AbjCGSJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C9FA1FE5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:32 -0800 (PST)
+        with ESMTP id S231455AbjCGRW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:22:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7818E92BF7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:18:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7086BB819C5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4D69C433EF;
-        Tue,  7 Mar 2023 18:03:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 069D0614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:18:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE163C433D2;
+        Tue,  7 Mar 2023 17:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212210;
-        bh=hBoVP1W2GMIwWk5T6bXZ7y17FxhaiGbcrGJDOJIw404=;
+        s=korg; t=1678209520;
+        bh=bnsJzPUpSXIZCzh0Rg9jQSjAKnyAM+T5QrW/clb2z5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LWXIltCRkWAvbtnL2SkyVbVYnATcxfA/9EFSlwgh8NymgA+LPTHxcP6sr+/+oRxBP
-         k/FmDe7jVelBtyEB3mBiV0/Vsp/bU3z22ms/UlVau+JfziUV2U+ZpGi62474C2AyAn
-         jLyVeZoC9h3TbTg/1OqneHDB2JlMkwadTwbRwueI=
+        b=AtkAhogZ5XPmp5bjmKW7vuZfe9u1wxgxHvOjBvU4c77S0EXaossB7A86Z8B99K9vB
+         li1d6ExKnkiXKFDMsAShP6nW6QptrWx0k1IsaktkB7zvuT85Xsohkt7qNWiEIDQqM2
+         mODk/PGUA/P3z/ws5M6mUnqTH8yhwLjF8M5DTnhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 082/885] arm64: dts: mediatek: mt8195: Fix watchdog compatible
-Date:   Tue,  7 Mar 2023 17:50:16 +0100
-Message-Id: <20230307170005.371228379@linuxfoundation.org>
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0245/1001] wifi: mt76: mt7921: fix invalid remain_on_channel duration
+Date:   Tue,  7 Mar 2023 17:50:17 +0100
+Message-Id: <20230307170032.431051121@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit 02938f460cde0d360dde48056c4d1c0a4bd49230 ]
+[ Upstream commit c36457a8f34d1e0fc55fbbd7b8b2d716af3f6289 ]
 
-MT8195's watchdog embeds a reset controller and needs only the
-mediatek,mt8195-wdt compatible string as the MT6589 one is there
-for watchdogs that don't have any reset controller capability.
+round_jiffies_up() may change the duration reported from chip. We should
+take the real timeout for current channel privilege.
 
-Fixes: 37f2582883be ("arm64: dts: Add mediatek SoC mt8195 and evaluation board")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Co-developed-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Link: https://lore.kernel.org/r/20221108033209.22751-3-allen-kh.cheng@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 034ae28b56f1 ("wifi: mt76: mt7921: introduce remain_on_channel support")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8195.dtsi | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8195.dtsi b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-index 774c2de1fd01e..2c2b946b614bf 100644
---- a/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8195.dtsi
-@@ -690,8 +690,7 @@ power-domain@MT8195_POWER_DOMAIN_AUDIO {
- 		};
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+index bd929b5f2504f..7253ce90234ef 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -174,7 +174,7 @@ mt7921_mcu_uni_roc_event(struct mt7921_dev *dev, struct sk_buff *skb)
+ 	wake_up(&dev->phy.roc_wait);
+ 	duration = le32_to_cpu(grant->max_interval);
+ 	mod_timer(&dev->phy.roc_timer,
+-		  round_jiffies_up(jiffies + msecs_to_jiffies(duration)));
++		  jiffies + msecs_to_jiffies(duration));
+ }
  
- 		watchdog: watchdog@10007000 {
--			compatible = "mediatek,mt8195-wdt",
--				     "mediatek,mt6589-wdt";
-+			compatible = "mediatek,mt8195-wdt";
- 			mediatek,disable-extrst;
- 			reg = <0 0x10007000 0 0x100>;
- 			#reset-cells = <1>;
+ static void
 -- 
 2.39.2
 
