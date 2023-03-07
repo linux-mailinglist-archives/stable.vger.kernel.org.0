@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F59D6AE5C1
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C518F6AE5CD
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:03:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231599AbjCGQCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:02:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50910 "EHLO
+        id S231678AbjCGQDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:03:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231601AbjCGQC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:02:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C0790798
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:00:12 -0800 (PST)
+        with ESMTP id S229847AbjCGQDO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:03:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 368018EA0C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:01:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5309D61490
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:00:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C73DC433D2;
-        Tue,  7 Mar 2023 15:59:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 180C1B81920
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:00:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47219C433D2;
+        Tue,  7 Mar 2023 16:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678204799;
-        bh=A7MsUSawLKnL/XjUKiOux1Qj6PHXWfPRqsxLJs4G6dY=;
+        s=korg; t=1678204803;
+        bh=Rnn3OHN6ijgWrK31hNRJfO5ZuuX+jaSTcBwemM5o2tg=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ig/xiGjgOOy4sIkSrtC4W7tF1INZvJCcIgYXsaVfgJura5FwCAMjtU7D9Txq7s2G5
-         CcqmFiKZn+HCalXctSAqHEly5wGdTO6MRoj7Z8J3rby9tBWgSaIA+LJQ5nXF42wiX3
-         LHs75GgxuWlM8Bsl3b/QPoMeXUxBEQ6xTx7hfI3o=
-Subject: FAILED: patch "[PATCH] riscv: ftrace: Reduce the detour code size to half" failed to apply to 4.19-stable tree
-To:     guoren@kernel.org, e.shatokhin@yadro.com, guoren@linux.alibaba.com,
-        palmer@rivosinc.com, suagrfillet@gmail.com
+        b=K33MyNdW4NE2wv5iC5/MH+12P1/y4Rrf3p8JjpCIGSty5hCnHYL3fXw8KjQUYmCHI
+         rnTIk3GjVyRjHpoKCZ+Pof4MFgtd1HnCaOml/YkUfADmKmvOVMe328jwu2KW6cPHsf
+         Z718Y7VvJNqi4F7OcXMkoMl5648VXNRqiXV/dGQE=
+Subject: FAILED: patch "[PATCH] riscv: Add header include guards to insn.h" failed to apply to 6.1-stable tree
+To:     liaochang1@huawei.com, ajones@ventanamicro.com,
+        conor.dooley@microchip.com, palmer@rivosinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 16:59:47 +0100
-Message-ID: <1678204787214241@kroah.com>
+Date:   Tue, 07 Mar 2023 17:00:00 +0100
+Message-ID: <16782048001545@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -49,26 +49,28 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x 6724a76cff85ee271bbbff42ac527e4643b2ec52
+git cherry-pick -x 8ac6e619d9d51b3eb5bae817db8aa94e780a0db4
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678204787214241@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16782048001545@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-6724a76cff85 ("riscv: ftrace: Reduce the detour code size to half")
-409c8fb20c66 ("riscv: ftrace: Remove wasted nops for !RISCV_ISA_C")
-afc76b8b8011 ("riscv: Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT")
-66d18dbda846 ("RISC-V: Take text_mutex in ftrace_init_nop()")
+8ac6e619d9d5 ("riscv: Add header include guards to insn.h")
+47f05757d3d8 ("RISC-V: add helpers for handling immediates in U-type and I-type pairs")
+c9c1af3f186a ("RISC-V: rename parse_asm.h to insn.h")
+ec5f90877516 ("RISC-V: Move riscv_insn_is_* macros into a common header")
+bf0cc402d7cd ("RISC-V: add prefix to all constants/macros in parse_asm.h")
+a3775634f6da ("RISC-V: fix funct4 definition for c.jalr in parse_asm.h")
 
 thanks,
 
@@ -76,437 +78,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6724a76cff85ee271bbbff42ac527e4643b2ec52 Mon Sep 17 00:00:00 2001
-From: Guo Ren <guoren@kernel.org>
-Date: Thu, 12 Jan 2023 04:05:59 -0500
-Subject: [PATCH] riscv: ftrace: Reduce the detour code size to half
+From 8ac6e619d9d51b3eb5bae817db8aa94e780a0db4 Mon Sep 17 00:00:00 2001
+From: Liao Chang <liaochang1@huawei.com>
+Date: Sun, 29 Jan 2023 17:42:42 +0800
+Subject: [PATCH] riscv: Add header include guards to insn.h
 
-Use a temporary register to reduce the size of detour code from 16 bytes to
-8 bytes. The previous implementation is from 'commit afc76b8b8011 ("riscv:
-Using PATCHABLE_FUNCTION_ENTRY instead of MCOUNT")'.
+Add header include guards to insn.h to prevent repeating declaration of
+any identifiers in insn.h.
 
-Before the patch:
-<func_prolog>:
- 0: REG_S  ra, -SZREG(sp)
- 4: auipc  ra, ?
- 8: jalr   ?(ra)
-12: REG_L  ra, -SZREG(sp)
- (func_boddy)
-
-After the patch:
-<func_prolog>:
- 0: auipc  t0, ?
- 4: jalr   t0, ?(t0)
- (func_boddy)
-
-This patch not just reduces the size of detour code, but also fixes an
-important issue:
-
-An Ftrace callback registered with FTRACE_OPS_FL_IPMODIFY flag can
-actually change the instruction pointer, e.g. to "replace" the given
-kernel function with a new one, which is needed for livepatching, etc.
-
-In this case, the trampoline (ftrace_regs_caller) would not return to
-<func_prolog+12> but would rather jump to the new function. So, "REG_L
-ra, -SZREG(sp)" would not run and the original return address would not
-be restored. The kernel is likely to hang or crash as a result.
-
-This can be easily demonstrated if one tries to "replace", say,
-cmdline_proc_show() with a new function with the same signature using
-instruction_pointer_set(&fregs->regs, new_func_addr) in the Ftrace
-callback.
-
-Link: https://lore.kernel.org/linux-riscv/20221122075440.1165172-1-suagrfillet@gmail.com/
-Link: https://lore.kernel.org/linux-riscv/d7d5730b-ebef-68e5-5046-e763e1ee6164@yadro.com/
-Co-developed-by: Song Shuai <suagrfillet@gmail.com>
-Signed-off-by: Song Shuai <suagrfillet@gmail.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Cc: Evgenii Shatokhin <e.shatokhin@yadro.com>
-Reviewed-by: Evgenii Shatokhin <e.shatokhin@yadro.com>
-Link: https://lore.kernel.org/r/20230112090603.1295340-4-guoren@kernel.org
+Fixes: edde5584c7ab ("riscv: Add SW single-step support for KDB")
+Signed-off-by: Liao Chang <liaochang1@huawei.com>
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Fixes: c9c1af3f186a ("RISC-V: rename parse_asm.h to insn.h")
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230129094242.282620-1-liaochang1@huawei.com
 Cc: stable@vger.kernel.org
-Fixes: 10626c32e382 ("riscv/ftrace: Add basic support")
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index e194916cb5a2..ab50724cc554 100644
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -12,9 +12,9 @@ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
- 	LDFLAGS_vmlinux := --no-relax
- 	KBUILD_CPPFLAGS += -DCC_USING_PATCHABLE_FUNCTION_ENTRY
- ifeq ($(CONFIG_RISCV_ISA_C),y)
--	CC_FLAGS_FTRACE := -fpatchable-function-entry=8
--else
- 	CC_FLAGS_FTRACE := -fpatchable-function-entry=4
-+else
-+	CC_FLAGS_FTRACE := -fpatchable-function-entry=2
- endif
- endif
- 
-diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
-index 04dad3380041..9e73922e1e2e 100644
---- a/arch/riscv/include/asm/ftrace.h
-+++ b/arch/riscv/include/asm/ftrace.h
-@@ -42,6 +42,14 @@ struct dyn_arch_ftrace {
-  * 2) jalr: setting low-12 offset to ra, jump to ra, and set ra to
-  *          return address (original pc + 4)
-  *
-+ *<ftrace enable>:
-+ * 0: auipc  t0/ra, 0x?
-+ * 4: jalr   t0/ra, ?(t0/ra)
-+ *
-+ *<ftrace disable>:
-+ * 0: nop
-+ * 4: nop
-+ *
-  * Dynamic ftrace generates probes to call sites, so we must deal with
-  * both auipc and jalr at the same time.
+diff --git a/arch/riscv/include/asm/insn.h b/arch/riscv/include/asm/insn.h
+index 6567cd5ed6ba..8d5c84f2d5ef 100644
+--- a/arch/riscv/include/asm/insn.h
++++ b/arch/riscv/include/asm/insn.h
+@@ -3,6 +3,9 @@
+  * Copyright (C) 2020 SiFive
   */
-@@ -52,25 +60,43 @@ struct dyn_arch_ftrace {
- #define AUIPC_OFFSET_MASK	(0xfffff000)
- #define AUIPC_PAD		(0x00001000)
- #define JALR_SHIFT		20
--#define JALR_BASIC		(0x000080e7)
--#define AUIPC_BASIC		(0x00000097)
-+#define JALR_RA			(0x000080e7)
-+#define AUIPC_RA		(0x00000097)
-+#define JALR_T0			(0x000282e7)
-+#define AUIPC_T0		(0x00000297)
- #define NOP4			(0x00000013)
  
--#define make_call(caller, callee, call)					\
-+#define to_jalr_t0(offset)						\
-+	(((offset & JALR_OFFSET_MASK) << JALR_SHIFT) | JALR_T0)
++#ifndef _ASM_RISCV_INSN_H
++#define _ASM_RISCV_INSN_H
 +
-+#define to_auipc_t0(offset)						\
-+	((offset & JALR_SIGN_MASK) ?					\
-+	(((offset & AUIPC_OFFSET_MASK) + AUIPC_PAD) | AUIPC_T0) :	\
-+	((offset & AUIPC_OFFSET_MASK) | AUIPC_T0))
-+
-+#define make_call_t0(caller, callee, call)				\
- do {									\
--	call[0] = to_auipc_insn((unsigned int)((unsigned long)callee -	\
--				(unsigned long)caller));		\
--	call[1] = to_jalr_insn((unsigned int)((unsigned long)callee -	\
--			       (unsigned long)caller));			\
-+	unsigned int offset =						\
-+		(unsigned long) callee - (unsigned long) caller;	\
-+	call[0] = to_auipc_t0(offset);					\
-+	call[1] = to_jalr_t0(offset);					\
- } while (0)
+ #include <linux/bits.h>
  
--#define to_jalr_insn(offset)						\
--	(((offset & JALR_OFFSET_MASK) << JALR_SHIFT) | JALR_BASIC)
-+#define to_jalr_ra(offset)						\
-+	(((offset & JALR_OFFSET_MASK) << JALR_SHIFT) | JALR_RA)
- 
--#define to_auipc_insn(offset)						\
-+#define to_auipc_ra(offset)						\
- 	((offset & JALR_SIGN_MASK) ?					\
--	(((offset & AUIPC_OFFSET_MASK) + AUIPC_PAD) | AUIPC_BASIC) :	\
--	((offset & AUIPC_OFFSET_MASK) | AUIPC_BASIC))
-+	(((offset & AUIPC_OFFSET_MASK) + AUIPC_PAD) | AUIPC_RA) :	\
-+	((offset & AUIPC_OFFSET_MASK) | AUIPC_RA))
-+
-+#define make_call_ra(caller, callee, call)				\
-+do {									\
-+	unsigned int offset =						\
-+		(unsigned long) callee - (unsigned long) caller;	\
-+	call[0] = to_auipc_ra(offset);					\
-+	call[1] = to_jalr_ra(offset);					\
-+} while (0)
- 
- /*
-  * Let auipc+jalr be the basic *mcount unit*, so we make it 8 bytes here.
-diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
-index 2086f6585773..5bff37af4770 100644
---- a/arch/riscv/kernel/ftrace.c
-+++ b/arch/riscv/kernel/ftrace.c
-@@ -55,12 +55,15 @@ static int ftrace_check_current_call(unsigned long hook_pos,
+ #define RV_INSN_FUNCT3_MASK	GENMASK(14, 12)
+@@ -375,3 +378,4 @@ static inline void riscv_insn_insert_utype_itype_imm(u32 *utype_insn, u32 *itype
+ 	*utype_insn |= (imm & RV_U_IMM_31_12_MASK) + ((imm & BIT(11)) << 1);
+ 	*itype_insn |= ((imm & RV_I_IMM_11_0_MASK) << RV_I_IMM_11_0_OPOFF);
  }
- 
- static int __ftrace_modify_call(unsigned long hook_pos, unsigned long target,
--				bool enable)
-+				bool enable, bool ra)
- {
- 	unsigned int call[2];
- 	unsigned int nops[2] = {NOP4, NOP4};
- 
--	make_call(hook_pos, target, call);
-+	if (ra)
-+		make_call_ra(hook_pos, target, call);
-+	else
-+		make_call_t0(hook_pos, target, call);
- 
- 	/* Replace the auipc-jalr pair at once. Return -EPERM on write error. */
- 	if (patch_text_nosync
-@@ -70,42 +73,13 @@ static int __ftrace_modify_call(unsigned long hook_pos, unsigned long target,
- 	return 0;
- }
- 
--/*
-- * Put 5 instructions with 16 bytes at the front of function within
-- * patchable function entry nops' area.
-- *
-- * 0: REG_S  ra, -SZREG(sp)
-- * 1: auipc  ra, 0x?
-- * 2: jalr   -?(ra)
-- * 3: REG_L  ra, -SZREG(sp)
-- *
-- * So the opcodes is:
-- * 0: 0xfe113c23 (sd)/0xfe112e23 (sw)
-- * 1: 0x???????? -> auipc
-- * 2: 0x???????? -> jalr
-- * 3: 0xff813083 (ld)/0xffc12083 (lw)
-- */
--#if __riscv_xlen == 64
--#define INSN0	0xfe113c23
--#define INSN3	0xff813083
--#elif __riscv_xlen == 32
--#define INSN0	0xfe112e23
--#define INSN3	0xffc12083
--#endif
--
--#define FUNC_ENTRY_SIZE	16
--#define FUNC_ENTRY_JMP	4
--
- int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- {
--	unsigned int call[4] = {INSN0, 0, 0, INSN3};
--	unsigned long target = addr;
--	unsigned long caller = rec->ip + FUNC_ENTRY_JMP;
-+	unsigned int call[2];
- 
--	call[1] = to_auipc_insn((unsigned int)(target - caller));
--	call[2] = to_jalr_insn((unsigned int)(target - caller));
-+	make_call_t0(rec->ip, addr, call);
- 
--	if (patch_text_nosync((void *)rec->ip, call, FUNC_ENTRY_SIZE))
-+	if (patch_text_nosync((void *)rec->ip, call, MCOUNT_INSN_SIZE))
- 		return -EPERM;
- 
- 	return 0;
-@@ -114,15 +88,14 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
- int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 		    unsigned long addr)
- {
--	unsigned int nops[4] = {NOP4, NOP4, NOP4, NOP4};
-+	unsigned int nops[2] = {NOP4, NOP4};
- 
--	if (patch_text_nosync((void *)rec->ip, nops, FUNC_ENTRY_SIZE))
-+	if (patch_text_nosync((void *)rec->ip, nops, MCOUNT_INSN_SIZE))
- 		return -EPERM;
- 
- 	return 0;
- }
- 
--
- /*
-  * This is called early on, and isn't wrapped by
-  * ftrace_arch_code_modify_{prepare,post_process}() and therefor doesn't hold
-@@ -144,10 +117,10 @@ int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
- int ftrace_update_ftrace_func(ftrace_func_t func)
- {
- 	int ret = __ftrace_modify_call((unsigned long)&ftrace_call,
--				       (unsigned long)func, true);
-+				       (unsigned long)func, true, true);
- 	if (!ret) {
- 		ret = __ftrace_modify_call((unsigned long)&ftrace_regs_call,
--					   (unsigned long)func, true);
-+					   (unsigned long)func, true, true);
- 	}
- 
- 	return ret;
-@@ -159,16 +132,16 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
- 		       unsigned long addr)
- {
- 	unsigned int call[2];
--	unsigned long caller = rec->ip + FUNC_ENTRY_JMP;
-+	unsigned long caller = rec->ip;
- 	int ret;
- 
--	make_call(caller, old_addr, call);
-+	make_call_t0(caller, old_addr, call);
- 	ret = ftrace_check_current_call(caller, call);
- 
- 	if (ret)
- 		return ret;
- 
--	return __ftrace_modify_call(caller, addr, true);
-+	return __ftrace_modify_call(caller, addr, true, false);
- }
- #endif
- 
-@@ -203,12 +176,12 @@ int ftrace_enable_ftrace_graph_caller(void)
- 	int ret;
- 
- 	ret = __ftrace_modify_call((unsigned long)&ftrace_graph_call,
--				    (unsigned long)&prepare_ftrace_return, true);
-+				    (unsigned long)&prepare_ftrace_return, true, true);
- 	if (ret)
- 		return ret;
- 
- 	return __ftrace_modify_call((unsigned long)&ftrace_graph_regs_call,
--				    (unsigned long)&prepare_ftrace_return, true);
-+				    (unsigned long)&prepare_ftrace_return, true, true);
- }
- 
- int ftrace_disable_ftrace_graph_caller(void)
-@@ -216,12 +189,12 @@ int ftrace_disable_ftrace_graph_caller(void)
- 	int ret;
- 
- 	ret = __ftrace_modify_call((unsigned long)&ftrace_graph_call,
--				    (unsigned long)&prepare_ftrace_return, false);
-+				    (unsigned long)&prepare_ftrace_return, false, true);
- 	if (ret)
- 		return ret;
- 
- 	return __ftrace_modify_call((unsigned long)&ftrace_graph_regs_call,
--				    (unsigned long)&prepare_ftrace_return, false);
-+				    (unsigned long)&prepare_ftrace_return, false, true);
- }
- #endif /* CONFIG_DYNAMIC_FTRACE */
- #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
-diff --git a/arch/riscv/kernel/mcount-dyn.S b/arch/riscv/kernel/mcount-dyn.S
-index d171eca623b6..125de818d1ba 100644
---- a/arch/riscv/kernel/mcount-dyn.S
-+++ b/arch/riscv/kernel/mcount-dyn.S
-@@ -13,8 +13,8 @@
- 
- 	.text
- 
--#define FENTRY_RA_OFFSET	12
--#define ABI_SIZE_ON_STACK	72
-+#define FENTRY_RA_OFFSET	8
-+#define ABI_SIZE_ON_STACK	80
- #define ABI_A0			0
- #define ABI_A1			8
- #define ABI_A2			16
-@@ -23,10 +23,10 @@
- #define ABI_A5			40
- #define ABI_A6			48
- #define ABI_A7			56
--#define ABI_RA			64
-+#define ABI_T0			64
-+#define ABI_RA			72
- 
- 	.macro SAVE_ABI
--	addi	sp, sp, -SZREG
- 	addi	sp, sp, -ABI_SIZE_ON_STACK
- 
- 	REG_S	a0, ABI_A0(sp)
-@@ -37,6 +37,7 @@
- 	REG_S	a5, ABI_A5(sp)
- 	REG_S	a6, ABI_A6(sp)
- 	REG_S	a7, ABI_A7(sp)
-+	REG_S	t0, ABI_T0(sp)
- 	REG_S	ra, ABI_RA(sp)
- 	.endm
- 
-@@ -49,24 +50,18 @@
- 	REG_L	a5, ABI_A5(sp)
- 	REG_L	a6, ABI_A6(sp)
- 	REG_L	a7, ABI_A7(sp)
-+	REG_L	t0, ABI_T0(sp)
- 	REG_L	ra, ABI_RA(sp)
- 
- 	addi	sp, sp, ABI_SIZE_ON_STACK
--	addi	sp, sp, SZREG
- 	.endm
- 
- #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
- 	.macro SAVE_ALL
--	addi	sp, sp, -SZREG
- 	addi	sp, sp, -PT_SIZE_ON_STACK
- 
--	REG_S x1,  PT_EPC(sp)
--	addi	sp, sp, PT_SIZE_ON_STACK
--	REG_L x1,  (sp)
--	addi	sp, sp, -PT_SIZE_ON_STACK
-+	REG_S t0,  PT_EPC(sp)
- 	REG_S x1,  PT_RA(sp)
--	REG_L x1,  PT_EPC(sp)
--
- 	REG_S x2,  PT_SP(sp)
- 	REG_S x3,  PT_GP(sp)
- 	REG_S x4,  PT_TP(sp)
-@@ -100,15 +95,11 @@
- 	.endm
- 
- 	.macro RESTORE_ALL
-+	REG_L t0,  PT_EPC(sp)
- 	REG_L x1,  PT_RA(sp)
--	addi	sp, sp, PT_SIZE_ON_STACK
--	REG_S x1,  (sp)
--	addi	sp, sp, -PT_SIZE_ON_STACK
--	REG_L x1,  PT_EPC(sp)
- 	REG_L x2,  PT_SP(sp)
- 	REG_L x3,  PT_GP(sp)
- 	REG_L x4,  PT_TP(sp)
--	REG_L x5,  PT_T0(sp)
- 	REG_L x6,  PT_T1(sp)
- 	REG_L x7,  PT_T2(sp)
- 	REG_L x8,  PT_S0(sp)
-@@ -137,17 +128,16 @@
- 	REG_L x31, PT_T6(sp)
- 
- 	addi	sp, sp, PT_SIZE_ON_STACK
--	addi	sp, sp, SZREG
- 	.endm
- #endif /* CONFIG_DYNAMIC_FTRACE_WITH_REGS */
- 
- ENTRY(ftrace_caller)
- 	SAVE_ABI
- 
--	addi	a0, ra, -FENTRY_RA_OFFSET
-+	addi	a0, t0, -FENTRY_RA_OFFSET
- 	la	a1, function_trace_op
- 	REG_L	a2, 0(a1)
--	REG_L	a1, ABI_SIZE_ON_STACK(sp)
-+	mv	a1, ra
- 	mv	a3, sp
- 
- ftrace_call:
-@@ -155,8 +145,8 @@ ftrace_call:
- 	call	ftrace_stub
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	addi	a0, sp, ABI_SIZE_ON_STACK
--	REG_L	a1, ABI_RA(sp)
-+	addi	a0, sp, ABI_RA
-+	REG_L	a1, ABI_T0(sp)
- 	addi	a1, a1, -FENTRY_RA_OFFSET
- #ifdef HAVE_FUNCTION_GRAPH_FP_TEST
- 	mv	a2, s0
-@@ -166,17 +156,17 @@ ftrace_graph_call:
- 	call	ftrace_stub
- #endif
- 	RESTORE_ABI
--	ret
-+	jr t0
- ENDPROC(ftrace_caller)
- 
- #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
- ENTRY(ftrace_regs_caller)
- 	SAVE_ALL
- 
--	addi	a0, ra, -FENTRY_RA_OFFSET
-+	addi	a0, t0, -FENTRY_RA_OFFSET
- 	la	a1, function_trace_op
- 	REG_L	a2, 0(a1)
--	REG_L	a1, PT_SIZE_ON_STACK(sp)
-+	mv	a1, ra
- 	mv	a3, sp
- 
- ftrace_regs_call:
-@@ -196,6 +186,6 @@ ftrace_graph_regs_call:
- #endif
- 
- 	RESTORE_ALL
--	ret
-+	jr t0
- ENDPROC(ftrace_regs_caller)
- #endif /* CONFIG_DYNAMIC_FTRACE_WITH_REGS */
++#endif /* _ASM_RISCV_INSN_H */
 
