@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC4E6AE9EB
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA94D6AE9EC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230290AbjCGR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:29:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57730 "EHLO
+        id S230272AbjCGR3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:29:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231641AbjCGR2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE08D96094
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:43 -0800 (PST)
+        with ESMTP id S231426AbjCGR2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B407366A9
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 901F9B819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA70AC433D2;
-        Tue,  7 Mar 2023 17:23:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C16761509
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1554FC433EF;
+        Tue,  7 Mar 2023 17:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209821;
-        bh=UKj/Yz1lvupNizeVrO4etaeCaHmugzEYepmlLeh6XJg=;
+        s=korg; t=1678209824;
+        bh=Ieevzb72Tp4clAm6jd3V2JofjiB9KvCO+j6nF8eOlM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAV1H73EkatjNnD3JGU1dpDgDQayDOka45A0qUuwUuFdsiw/KQLC65PGOqHjDbw43
-         Epf8hZTutZ2kU5XC0jw83nXW6M/9UMVfY2dj/D613ifUTQblR0TUh70l8NYu2OWZi9
-         /4y2b2hw2/7OIpmf1yOUG6LXsBH2QqOPHAMPt9pI=
+        b=aHYnlIPJQHGNLdGuXjtnXh5IcQraJahMPIYZsKQWYbMD/ueiJXjvfoMeKchwUtg+u
+         bW0G7MJD4in9FDbztfU4mX5oy9KnBmGa30Pr+5o3ATHICWG6vVinPSPaolhfhGZ3hy
+         I+rL55xsuADnBuc12fiez6xtLMAInJx1wqLAZoTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0342/1001] hwmon: (ftsteutates) Fix scaling of measurements
-Date:   Tue,  7 Mar 2023 17:51:54 +0100
-Message-Id: <20230307170036.308265264@linuxfoundation.org>
+Subject: [PATCH 6.2 0343/1001] drm/msm/dpu: check for null return of devm_kzalloc() in dpu_writeback_init()
+Date:   Tue,  7 Mar 2023 17:51:55 +0100
+Message-Id: <20230307170036.344386568@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -54,122 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit ca8fd8c16a8b77dfcf7f6ce52d2c863220693a78 ]
+[ Upstream commit 21e9a838f505178e109ccb3bf19d7808eb0326f4 ]
 
-A user complained that the ftsteutates driver was displaying
-bogus values since its introduction. This happens because the
-sensor measurements need to be scaled in order to produce
-meaningful results:
-- the fan speed needs to be multiplied by 60 since its in RPS
-- the temperature is in degrees celsius and needs an offset of 64
-- the voltage is in 1/256 of 3.3V
+Because of the possilble failure of devm_kzalloc(), dpu_wb_conn might
+be NULL and will cause null pointer dereference later.
 
-The offical datasheet says the voltage needs to be divided by 256,
-but this is likely an off-by-one-error, since even the BIOS
-devides by 255 (otherwise 3.3V could not be measured).
+Therefore, it might be better to check it and directly return -ENOMEM.
 
-The voltage channels additionally need a board-specific multiplier,
-however this can be done by the driver since its board-specific.
-
-The reason the missing scaling of measurements is the way Fujitsu
-used this driver when it was still out-of-tree. Back then, all
-scaling was done in userspace by libsensors, even the generic one.
-
-Tested on a Fujitsu DS3401-B1.
-
-Fixes: 08426eda58e0 ("hwmon: Add driver for FTS BMC chip "Teutates"")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20221224041855.83981-2-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 77b001acdcfe ("drm/msm/dpu: add the writeback connector layer")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/512277/
+Link: https://lore.kernel.org/r/20221119055518.179937-1-tanghui20@huawei.com
+[DB: fixed typo in commit message]
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/hwmon/ftsteutates.rst |  4 ++++
- drivers/hwmon/ftsteutates.c         | 19 +++++++++++++------
- 2 files changed, 17 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/hwmon/ftsteutates.rst b/Documentation/hwmon/ftsteutates.rst
-index 58a2483d8d0da..198fa8e2819da 100644
---- a/Documentation/hwmon/ftsteutates.rst
-+++ b/Documentation/hwmon/ftsteutates.rst
-@@ -22,6 +22,10 @@ enhancements. It can monitor up to 4 voltages, 16 temperatures and
- 8 fans. It also contains an integrated watchdog which is currently
- implemented in this driver.
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c
+index 088ec990a2f26..2a5a68366582b 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_writeback.c
+@@ -70,6 +70,8 @@ int dpu_writeback_init(struct drm_device *dev, struct drm_encoder *enc,
+ 	int rc = 0;
  
-+The 4 voltages require a board-specific multiplier, since the BMC can
-+only measure voltages up to 3.3V and thus relies on voltage dividers.
-+Consult your motherboard manual for details.
-+
- To clear a temperature or fan alarm, execute the following command with the
- correct path to the alarm file::
+ 	dpu_wb_conn = devm_kzalloc(dev->dev, sizeof(*dpu_wb_conn), GFP_KERNEL);
++	if (!dpu_wb_conn)
++		return -ENOMEM;
  
-diff --git a/drivers/hwmon/ftsteutates.c b/drivers/hwmon/ftsteutates.c
-index f5b8e724a8ca1..ffa0bb3648775 100644
---- a/drivers/hwmon/ftsteutates.c
-+++ b/drivers/hwmon/ftsteutates.c
-@@ -12,6 +12,7 @@
- #include <linux/i2c.h>
- #include <linux/init.h>
- #include <linux/jiffies.h>
-+#include <linux/math.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
- #include <linux/slab.h>
-@@ -347,13 +348,15 @@ static ssize_t in_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
+ 	drm_connector_helper_add(&dpu_wb_conn->base.base, &dpu_wb_conn_helper_funcs);
  
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->volt[index]);
-+	value = DIV_ROUND_CLOSEST(data->volt[index] * 3300, 255);
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t temp_value_show(struct device *dev,
-@@ -361,13 +364,15 @@ static ssize_t temp_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->temp_input[index]);
-+	value = (data->temp_input[index] - 64) * 1000;
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t temp_fault_show(struct device *dev,
-@@ -436,13 +441,15 @@ static ssize_t fan_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->fan_input[index]);
-+	value = data->fan_input[index] * 60;
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t fan_source_show(struct device *dev,
 -- 
 2.39.2
 
