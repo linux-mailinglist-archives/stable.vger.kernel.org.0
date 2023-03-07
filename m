@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC3C56AE5DC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9F1A6AE5DF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 17:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230166AbjCGQF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 11:05:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51922 "EHLO
+        id S231474AbjCGQGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 11:06:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231857AbjCGQFO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:05:14 -0500
+        with ESMTP id S231916AbjCGQFX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 11:05:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CE17F021
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:03:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC0B8C5B1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 08:03:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8DD861489
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:03:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78A0FC433D2;
-        Tue,  7 Mar 2023 16:03:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9276861460
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 16:03:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 902F4C433EF;
+        Tue,  7 Mar 2023 16:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678205011;
-        bh=zpriu6NSCvVAezcKCtYGgyKMuW2VZ9BvwbeyE39DKVY=;
+        s=korg; t=1678205020;
+        bh=Tj+e1JA419Sq5EOCD2LZcfqJgdvdhhtrgwFdFfFz96Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=rMc8lEPh5oC91HD0PpNHl88CRLrbvtAES87Mt4A0iSzltrn55yx5UyyHCako9cZX8
-         7qlFvzEiJ/DVDN+J6uj4NdMsUcomp37mcxMnC9Ilrogx4wfG1yjwGs6DNVh4+HtK+i
-         v90UIo6xiphFsYu9Wgm6mnU+1y9eNh0HN76uPRWE=
-Subject: FAILED: patch "[PATCH] bus: mhi: ep: Change state_lock to mutex" failed to apply to 6.2-stable tree
+        b=fDTg/82/ZUE9qH1uK7GrZnp4jb1hi+ZmpjFkb6stQGikXDFHoqi8hGyQWvYPssOj1
+         WiQKeLtcVlYR1IyVUpa2wGS4BZqXIuR+hnuVbi+LmS3KiuoutA7AOXIwAWIt75KcFi
+         Gs5FI2MS9gDpmyH04F2zyEXyw9Vxl1rqYDb+hfzs=
+Subject: FAILED: patch "[PATCH] bus: mhi: ep: Change state_lock to mutex" failed to apply to 6.1-stable tree
 To:     mani@kernel.org, error27@gmail.com,
         manivannan.sadhasivam@linaro.org, quic_jhugo@quicinc.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 07 Mar 2023 17:03:28 +0100
-Message-ID: <167820500825397@kroah.com>
+Message-ID: <167820500829207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,19 +50,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
 git cherry-pick -x 1ddc7618294084fff8d673217a9479550990ee84
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820500825397@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167820500829207@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
