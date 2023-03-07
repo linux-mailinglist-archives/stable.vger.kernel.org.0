@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B83BA6AEF64
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D68DA6AEAED
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232605AbjCGSX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:23:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
+        id S231934AbjCGRip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:38:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbjCGSXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED63018B27
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:32 -0800 (PST)
+        with ESMTP id S231941AbjCGRiX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F161E4BEA8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 659F9614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D38C433EF;
-        Tue,  7 Mar 2023 18:17:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0975B8191D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1385C433EF;
+        Tue,  7 Mar 2023 17:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213051;
-        bh=PDIVsOlCwFT1k3N3H3OIoDZhGVUi9IHilVno7x2T4ac=;
+        s=korg; t=1678210452;
+        bh=KbrNRuD8hH7gOnI1vOCWblkMpwXAwaBhdipgrDChGLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rmgfb8RE6SC9Onz7fXbMfWyH9SpFdE+Zpsv7sO2rdrlwpf9o/0jabYlHGIBq0wLx3
-         EsaIkOIdrEoakpFAim+LJBI3oDzimmLChGGz0FySvOHIrbJkIQWUQBxyOwp96yggO+
-         vpH/HCS9WJ5L+hcR6rhVqQb3C7NOtAwRF+9m/xp4=
+        b=rqcZZ9/KgN6nsB12iWACbs/5BKsJ5ZA8xRHtNCYiLVuVv+Kw7V4hgGRx8BrEFoZly
+         ulgJRGNECjCC6pd8AkLJ5xX7Dwx2eu94XMDUe61x90bE2uksUdSZn1UYrMOI5e+Hjt
+         JlkOV8Bkoa0xY0m39HtNQSJ2d7ZOC7YFFFEsXl68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev,
+        Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 383/885] cifs: use tcon allocation functions even for dummy tcon
+Subject: [PATCH 6.2 0545/1001] RDMA/cxgb4: Fix potential null-ptr-deref in pass_establish()
 Date:   Tue,  7 Mar 2023 17:55:17 +0100
-Message-Id: <20230307170018.986948497@linuxfoundation.org>
+Message-Id: <20230307170045.108618575@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,45 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
 
-[ Upstream commit df57109bd50b9ed6911f3c2aa914189fe4c1fe2c ]
+[ Upstream commit 283861a4c52c1ea4df3dd1b6fc75a50796ce3524 ]
 
-In smb2_reconnect_server, we allocate a dummy tcon for
-calling reconnect for just the session. This should be
-allocated using tconInfoAlloc, and not kmalloc.
+If get_ep_from_tid() fails to lookup non-NULL value for ep, ep is
+dereferenced later regardless of whether it is empty.
+This patch adds a simple sanity check to fix the issue.
 
-Fixes: 3663c9045f51 ("cifs: check reconnects for channels of active tcons too")
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 944661dd97f4 ("RDMA/iw_cxgb4: atomically lookup ep and get a reference")
+Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
+Link: https://lore.kernel.org/r/20230202184850.29882-1-n.zhandarovich@fintech.ru
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 2c9ffa921e6f6..3b93680a319e4 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -3898,7 +3898,7 @@ void smb2_reconnect_server(struct work_struct *work)
- 		goto done;
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index ea3ddf0d24114..ced615b5ea096 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -2676,6 +2676,9 @@ static int pass_establish(struct c4iw_dev *dev, struct sk_buff *skb)
+ 	u16 tcp_opt = ntohs(req->tcp_opt);
  
- 	/* allocate a dummy tcon struct used for reconnect */
--	tcon = kzalloc(sizeof(struct cifs_tcon), GFP_KERNEL);
-+	tcon = tconInfoAlloc();
- 	if (!tcon) {
- 		resched = true;
- 		list_for_each_entry_safe(ses, ses2, &tmp_ses_list, rlist) {
-@@ -3921,7 +3921,7 @@ void smb2_reconnect_server(struct work_struct *work)
- 		list_del_init(&ses->rlist);
- 		cifs_put_smb_ses(ses);
- 	}
--	kfree(tcon);
-+	tconInfoFree(tcon);
- 
- done:
- 	cifs_dbg(FYI, "Reconnecting tcons and channels finished\n");
+ 	ep = get_ep_from_tid(dev, tid);
++	if (!ep)
++		return 0;
++
+ 	pr_debug("ep %p tid %u\n", ep, ep->hwtid);
+ 	ep->snd_seq = be32_to_cpu(req->snd_isn);
+ 	ep->rcv_seq = be32_to_cpu(req->rcv_isn);
 -- 
 2.39.2
 
