@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A1D6AEE71
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C42316AE9DD
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbjCGSL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48076 "EHLO
+        id S230248AbjCGR2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:28:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232447AbjCGSLj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C044ACE04
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:50 -0800 (PST)
+        with ESMTP id S231453AbjCGR2L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 170757BA1B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AE6D61523
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60835C4339B;
-        Tue,  7 Mar 2023 18:06:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABF8EB819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E757FC4339B;
+        Tue,  7 Mar 2023 17:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212409;
-        bh=cegYx0cWUNTy3wCL6/RqqFojrJ0GVY2kK39OgrQ698U=;
+        s=korg; t=1678209796;
+        bh=ZT3QbQgbpXkXnak01gpPhoP+vcBfgriVrJHuHi4dsKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uG8mhPH20zGOxAzD8MMdCplQz/BVNErmpl+z7gJROxsOGXCsg2Y+Zig0lbPjQGB0J
-         iGPKZ6tyYTl/EG4v3r5fPFthP0i5D5lCX6S5ZQq7NcPKbYk8rLLjCdzHW+rqPpCdMf
-         3ThEujqnxgnd7yiiAzocTnXCAj7bOqUmSvY9fIXc=
+        b=mbLEtS2yCjDkubwA6SMFFwJtB9ru9cr6fLBFAxt5Tr8dgowAjCrwVjE2aJmQ+eCco
+         YIdYkuJaZ30NuHQS/WBG5O4jxSTkjAMOkZB7V/Vat/iePAz+X/RglQC2WmA78abevH
+         X2B8J865GxHZUqP16S+FdUiX6ed4qE4DBvocweaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        coverity-bot <keescook+coverity-bot@chromium.org>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 173/885] ACPI: battery: Fix missing NUL-termination with large strings
+Subject: [PATCH 6.2 0335/1001] drm/modes: Use strscpy() to copy command-line mode name
 Date:   Tue,  7 Mar 2023 17:51:47 +0100
-Message-Id: <20230307170009.475696627@linuxfoundation.org>
+Message-Id: <20230307170036.022001470@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,42 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit f2ac14b5f197e4a2dec51e5ceaa56682ff1592bc ]
+[ Upstream commit 0f9aa074c92dd9274b811c1c3fa93736814a4b0d ]
 
-When encountering a string bigger than the destination buffer (32 bytes),
-the string is not properly NUL-terminated, causing buffer overreads later.
+The mode name in struct drm_cmdline_mode can hold 32 characters at most,
+which can easily get overrun. Switch to strscpy() to prevent such a
+thing.
 
-This for example happens on the Inspiron 3505, where the battery
-model name is larger than 32 bytes, which leads to sysfs showing
-the model name together with the serial number string (which is
-NUL-terminated and thus prevents worse).
-
-Fix this by using strscpy() which ensures that the result is
-always NUL-terminated.
-
-Fixes: 106449e870b3 ("ACPI: Battery: Allow extract string from integer")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Addresses-Coverity-ID: 1527354 ("Security best practices violations")
+Fixes: a7ab155397dd ("drm/modes: Switch to named mode descriptors")
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://lore.kernel.org/r/20221128081938.742410-2-maxime@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/battery.c | 2 +-
+ drivers/gpu/drm/drm_modes.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 306513fec1e1f..084f156bdfbc4 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -440,7 +440,7 @@ static int extract_package(struct acpi_battery *battery,
+diff --git a/drivers/gpu/drm/drm_modes.c b/drivers/gpu/drm/drm_modes.c
+index 3c8034a8c27bd..951afe8279da8 100644
+--- a/drivers/gpu/drm/drm_modes.c
++++ b/drivers/gpu/drm/drm_modes.c
+@@ -1809,7 +1809,7 @@ static int drm_mode_parse_cmdline_named_mode(const char *name,
+ 		if (ret != name_end)
+ 			continue;
  
- 			if (element->type == ACPI_TYPE_STRING ||
- 			    element->type == ACPI_TYPE_BUFFER)
--				strncpy(ptr, element->string.pointer, 32);
-+				strscpy(ptr, element->string.pointer, 32);
- 			else if (element->type == ACPI_TYPE_INTEGER) {
- 				strncpy(ptr, (u8 *)&element->integer.value,
- 					sizeof(u64));
+-		strcpy(cmdline_mode->name, mode->name);
++		strscpy(cmdline_mode->name, mode->name, sizeof(cmdline_mode->name));
+ 		cmdline_mode->pixel_clock = mode->pixel_clock_khz;
+ 		cmdline_mode->xres = mode->xres;
+ 		cmdline_mode->yres = mode->yres;
 -- 
 2.39.2
 
