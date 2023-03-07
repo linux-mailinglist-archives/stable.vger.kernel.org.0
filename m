@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF8A6AEBD7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B445C6AF0DE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232170AbjCGRt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:49:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36342 "EHLO
+        id S231329AbjCGSgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:36:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232259AbjCGRs4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 936849C988
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:50 -0800 (PST)
+        with ESMTP id S232965AbjCGSfC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30BE0B95CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3453DB819BD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F320C4339B;
-        Tue,  7 Mar 2023 17:43:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5410961560
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 479DAC4339B;
+        Tue,  7 Mar 2023 18:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211028;
-        bh=jYizG4zbqJ/kGkwODP79PkWkgViEfkvvGGIaT63G1MU=;
+        s=korg; t=1678213611;
+        bh=DK72REUFYDwfSdx2BvqmMqv8vFgeCV7k36eZc41VOy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZBDZYPRqJ/1BjYB+uqgfWNy2BWn7sv+YY0PV2N8XmUW3Ui1bL9mChkf1sP7Bt8BB
-         4FOrl53uXx3Nf+BGCjrqBiOGpREFuxdJsd4h7cRDTSeT9qv+qiyDv/Clqz1FifLEZ+
-         AcazI/WLHNnlXlz9UDvxKvB2udwB6XGiMo1M5NPg=
+        b=iUMSRb0QFHPZPjQfpYipmsDWMQki9tKs0IZOI0HPuYEWRJWYi2pZRKYREvuBj7MSR
+         r/01iddLTle4AIiJMemv8Ik/IeuvN1eSsCDvgN3IJkDOUXP3ikqrTCeMghO8MQv2Ac
+         AlzpORU0e02wQ7fL0mkGFSWj3VwCrVbejMjxVkKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        syzbot+f51cb4b9afbd87ec06f2@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0723/1001] gfs2: Improve gfs2_make_fs_rw error handling
-Date:   Tue,  7 Mar 2023 17:58:15 +0100
-Message-Id: <20230307170053.072578404@linuxfoundation.org>
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 6.1 562/885] ice: add missing checks for PF vsi type
+Date:   Tue,  7 Mar 2023 17:58:16 +0100
+Message-Id: <20230307170026.866801838@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,52 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit b66f723bb552ad59c2acb5d45ea45c890f84498b ]
+[ Upstream commit 6a8d013e904ad9a66706fcc926ec9993bed7d190 ]
 
-In gfs2_make_fs_rw(), make sure to call gfs2_consist() to report an
-inconsistency and mark the filesystem as withdrawn when
-gfs2_find_jhead() fails.
+There were a few places we had missed checking the VSI type to make sure
+it was definitely a PF VSI, before calling setup functions intended only
+for the PF VSI.
 
-At the end of gfs2_make_fs_rw(), when we discover that the filesystem
-has been withdrawn, make sure we report an error.  This also replaces
-the gfs2_withdrawn() check after gfs2_find_jhead().
+This doesn't fix any explicit bugs but cleans up the code in a few
+places and removes one explicit != vsi->type check that can be
+superseded by this code (it's a super set)
 
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: syzbot+f51cb4b9afbd87ec06f2@syzkaller.appspotmail.com
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/super.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 999cc146d7083..a07cf31f58ec3 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -138,8 +138,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
- 		return -EIO;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 72f97bb50b09c..3c6bb3f9ac780 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -6159,15 +6159,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
+ {
+ 	int err;
  
- 	error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
--	if (error || gfs2_withdrawn(sdp))
-+	if (error) {
-+		gfs2_consist(sdp);
- 		return error;
-+	}
+-	if (vsi->netdev) {
++	if (vsi->netdev && vsi->type == ICE_VSI_PF) {
+ 		ice_set_rx_mode(vsi->netdev);
  
- 	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
- 		gfs2_consist(sdp);
-@@ -151,7 +153,9 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
- 	gfs2_log_pointers_init(sdp, head.lh_blkno);
+-		if (vsi->type != ICE_VSI_LB) {
+-			err = ice_vsi_vlan_setup(vsi);
+-
+-			if (err)
+-				return err;
+-		}
++		err = ice_vsi_vlan_setup(vsi);
++		if (err)
++			return err;
+ 	}
+ 	ice_vsi_cfg_dcb_rings(vsi);
  
- 	error = gfs2_quota_init(sdp);
--	if (!error && !gfs2_withdrawn(sdp))
-+	if (!error && gfs2_withdrawn(sdp))
-+		error = -EIO;
-+	if (!error)
- 		set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
- 	return error;
+@@ -6348,7 +6345,7 @@ static int ice_up_complete(struct ice_vsi *vsi)
+ 
+ 	if (vsi->port_info &&
+ 	    (vsi->port_info->phy.link_info.link_info & ICE_AQ_LINK_UP) &&
+-	    vsi->netdev) {
++	    vsi->netdev && vsi->type == ICE_VSI_PF) {
+ 		ice_print_link_msg(vsi, true);
+ 		netif_tx_start_all_queues(vsi->netdev);
+ 		netif_carrier_on(vsi->netdev);
+@@ -6360,7 +6357,9 @@ static int ice_up_complete(struct ice_vsi *vsi)
+ 	 * set the baseline so counters are ready when interface is up
+ 	 */
+ 	ice_update_eth_stats(vsi);
+-	ice_service_task_schedule(pf);
++
++	if (vsi->type == ICE_VSI_PF)
++		ice_service_task_schedule(pf);
+ 
+ 	return 0;
  }
 -- 
 2.39.2
