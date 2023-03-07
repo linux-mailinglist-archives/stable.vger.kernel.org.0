@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5CB66AF0E4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A497B6AEBCF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbjCGSgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:36:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42450 "EHLO
+        id S231830AbjCGRtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:49:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233129AbjCGSfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E263B1B05
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:19 -0800 (PST)
+        with ESMTP id S232156AbjCGRsd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30AD8F50A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 382176154F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B5F9C4339B;
-        Tue,  7 Mar 2023 18:26:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFCDEB819BD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33172C4339B;
+        Tue,  7 Mar 2023 17:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213590;
-        bh=EeunWjGsiz9MjtSyA2UnNOidt2ns6nEaHtnQBBQnWJg=;
+        s=korg; t=1678210987;
+        bh=jKZlzn2zgAqVSSQzYMdPXgrQ+56PWN+KQo7GH48Xnks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hiwb4g245KPZtXaZUy+JAJqh7XjJX+vTNceHGwGPOXR6jw1+eiVBp/vmOG3jzcl8F
-         gTBvHruaOhCc4qKtFWPTiBB2ImSxmli3sTtn5xS2Yus27rH41ClG1je/G9LsO4/U7y
-         3j+YAe/EMcmIVBZhjlPKgZF60xDpVIpOf7Q39IwM=
+        b=j+o7aC69jylho0SKAs05suFwYH5hGUMWRNWT+qrKc4onTEilTbpcNEWdEi+KjRfok
+         9Tfu+vwOOXYGXueJQ1n2/AbbgkCG2u8oFLTODfCufvNoG4HzxTuB8Ad/f8UFiXrpOI
+         8bjddG6eunIjgOg/yRvEON8i0HJJW1JOPHbPPxh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        patches@lists.linux.dev, Shinhyung Kang <s47.kang@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 555/885] timers: Prevent union confusion from unexpected restart_syscall()
+Subject: [PATCH 6.2 0717/1001] ASoC: soc-compress: Reposition and add pcm_mutex
 Date:   Tue,  7 Mar 2023 17:58:09 +0100
-Message-Id: <20230307170026.601827940@linuxfoundation.org>
+Message-Id: <20230307170052.779221226@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,106 +54,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: 강신형 <s47.kang@samsung.com>
 
-[ Upstream commit 9f76d59173d9d146e96c66886b671c1915a5c5e5 ]
+[ Upstream commit aa9ff6a4955fdba02b54fbc4386db876603703b7 ]
 
-The nanosleep syscalls use the restart_block mechanism, with a quirk:
-The `type` and `rmtp`/`compat_rmtp` fields are set up unconditionally on
-syscall entry, while the rest of the restart_block is only set up in the
-unlikely case that the syscall is actually interrupted by a signal (or
-pseudo-signal) that doesn't have a signal handler.
+If panic_on_warn is set and compress stream(DPCM) is started,
+then kernel panic occurred because card->pcm_mutex isn't held appropriately.
+In the following functions, warning were issued at this line
+"snd_soc_dpcm_mutex_assert_held".
 
-If the restart_block was set up by a previous syscall (futex(...,
-FUTEX_WAIT, ...) or poll()) and hasn't been invalidated somehow since then,
-this will clobber some of the union fields used by futex_wait_restart() and
-do_restart_poll().
+static int dpcm_be_connect(struct snd_soc_pcm_runtime *fe,
+		struct snd_soc_pcm_runtime *be, int stream)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-If userspace afterwards wrongly calls the restart_syscall syscall,
-futex_wait_restart()/do_restart_poll() will read struct fields that have
-been clobbered.
+void dpcm_be_disconnect(struct snd_soc_pcm_runtime *fe, int stream)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-This doesn't actually lead to anything particularly interesting because
-none of the union fields contain trusted kernel data, and
-futex(..., FUTEX_WAIT, ...) and poll() aren't syscalls where it makes much
-sense to apply seccomp filters to their arguments.
+void snd_soc_runtime_action(struct snd_soc_pcm_runtime *rtd,
+			    int stream, int action)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(rtd);
+	...
+}
 
-So the current consequences are just of the "if userspace does bad stuff,
-it can damage itself, and that's not a problem" flavor.
+int dpcm_dapm_stream_event(struct snd_soc_pcm_runtime *fe, int dir,
+	int event)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-But still, it seems like a hazard for future developers, so invalidate the
-restart_block when partly setting it up in the nanosleep syscalls.
+These functions are called by soc_compr_set_params_fe, soc_compr_open_fe
+and soc_compr_free_fe
+without pcm_mutex locking. And this is call stack.
 
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20230105134403.754986-1-jannh@google.com
+[  414.527841][ T2179] pc : dpcm_process_paths+0x5a4/0x750
+[  414.527848][ T2179] lr : dpcm_process_paths+0x37c/0x750
+[  414.527945][ T2179] Call trace:
+[  414.527949][ T2179]  dpcm_process_paths+0x5a4/0x750
+[  414.527955][ T2179]  soc_compr_open_fe+0xb0/0x2cc
+[  414.527972][ T2179]  snd_compr_open+0x180/0x248
+[  414.527981][ T2179]  snd_open+0x15c/0x194
+[  414.528003][ T2179]  chrdev_open+0x1b0/0x220
+[  414.528023][ T2179]  do_dentry_open+0x30c/0x594
+[  414.528045][ T2179]  vfs_open+0x34/0x44
+[  414.528053][ T2179]  path_openat+0x914/0xb08
+[  414.528062][ T2179]  do_filp_open+0xc0/0x170
+[  414.528068][ T2179]  do_sys_openat2+0x94/0x18c
+[  414.528076][ T2179]  __arm64_sys_openat+0x78/0xa4
+[  414.528084][ T2179]  invoke_syscall+0x48/0x10c
+[  414.528094][ T2179]  el0_svc_common+0xbc/0x104
+[  414.528099][ T2179]  do_el0_svc+0x34/0xd8
+[  414.528103][ T2179]  el0_svc+0x34/0xc4
+[  414.528125][ T2179]  el0t_64_sync_handler+0x8c/0xfc
+[  414.528133][ T2179]  el0t_64_sync+0x1a0/0x1a4
+[  414.528142][ T2179] Kernel panic - not syncing: panic_on_warn set ...
+
+So, I reposition and add pcm_mutex to resolve lockdep error.
+
+Signed-off-by: Shinhyung Kang <s47.kang@samsung.com>
+Link: https://lore.kernel.org/r/016401d90ac4$7b6848c0$7238da40$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/hrtimer.c      | 2 ++
- kernel/time/posix-stubs.c  | 2 ++
- kernel/time/posix-timers.c | 2 ++
- 3 files changed, 6 insertions(+)
+ sound/soc/soc-compress.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 3ae661ab62603..e4f0e3b0c4f4f 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -2126,6 +2126,7 @@ SYSCALL_DEFINE2(nanosleep, struct __kernel_timespec __user *, rqtp,
- 	if (!timespec64_valid(&tu))
- 		return -EINVAL;
+diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
+index cb0ed2fea893a..e7aa6f360cabe 100644
+--- a/sound/soc/soc-compress.c
++++ b/sound/soc/soc-compress.c
+@@ -149,6 +149,8 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
+ 	if (ret < 0)
+ 		goto be_err;
  
-+	current->restart_block.fn = do_no_restart_syscall;
- 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
- 	current->restart_block.nanosleep.rmtp = rmtp;
- 	return hrtimer_nanosleep(timespec64_to_ktime(tu), HRTIMER_MODE_REL,
-@@ -2147,6 +2148,7 @@ SYSCALL_DEFINE2(nanosleep_time32, struct old_timespec32 __user *, rqtp,
- 	if (!timespec64_valid(&tu))
- 		return -EINVAL;
++	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
++
+ 	/* calculate valid and active FE <-> BE dpcms */
+ 	dpcm_process_paths(fe, stream, &list, 1);
+ 	fe->dpcm[stream].runtime = fe_substream->runtime;
+@@ -184,7 +186,6 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
+ 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_OPEN;
+ 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_NO;
  
-+	current->restart_block.fn = do_no_restart_syscall;
- 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
- 	current->restart_block.nanosleep.compat_rmtp = rmtp;
- 	return hrtimer_nanosleep(timespec64_to_ktime(tu), HRTIMER_MODE_REL,
-diff --git a/kernel/time/posix-stubs.c b/kernel/time/posix-stubs.c
-index 90ea5f373e50e..828aeecbd1e8a 100644
---- a/kernel/time/posix-stubs.c
-+++ b/kernel/time/posix-stubs.c
-@@ -147,6 +147,7 @@ SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags,
- 		return -EINVAL;
- 	if (flags & TIMER_ABSTIME)
- 		rmtp = NULL;
-+	current->restart_block.fn = do_no_restart_syscall;
- 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
- 	current->restart_block.nanosleep.rmtp = rmtp;
- 	texp = timespec64_to_ktime(t);
-@@ -240,6 +241,7 @@ SYSCALL_DEFINE4(clock_nanosleep_time32, clockid_t, which_clock, int, flags,
- 		return -EINVAL;
- 	if (flags & TIMER_ABSTIME)
- 		rmtp = NULL;
-+	current->restart_block.fn = do_no_restart_syscall;
- 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
- 	current->restart_block.nanosleep.compat_rmtp = rmtp;
- 	texp = timespec64_to_ktime(t);
-diff --git a/kernel/time/posix-timers.c b/kernel/time/posix-timers.c
-index 5dead89308b74..0c8a87a11b39d 100644
---- a/kernel/time/posix-timers.c
-+++ b/kernel/time/posix-timers.c
-@@ -1270,6 +1270,7 @@ SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags,
- 		return -EINVAL;
- 	if (flags & TIMER_ABSTIME)
- 		rmtp = NULL;
-+	current->restart_block.fn = do_no_restart_syscall;
- 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
- 	current->restart_block.nanosleep.rmtp = rmtp;
+-	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	snd_soc_runtime_activate(fe, stream);
+ 	mutex_unlock(&fe->card->pcm_mutex);
  
-@@ -1297,6 +1298,7 @@ SYSCALL_DEFINE4(clock_nanosleep_time32, clockid_t, which_clock, int, flags,
- 		return -EINVAL;
- 	if (flags & TIMER_ABSTIME)
- 		rmtp = NULL;
-+	current->restart_block.fn = do_no_restart_syscall;
- 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
- 	current->restart_block.nanosleep.compat_rmtp = rmtp;
+@@ -215,7 +216,6 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
  
+ 	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	snd_soc_runtime_deactivate(fe, stream);
+-	mutex_unlock(&fe->card->pcm_mutex);
+ 
+ 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_FE;
+ 
+@@ -234,6 +234,8 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
+ 
+ 	dpcm_be_disconnect(fe, stream);
+ 
++	mutex_unlock(&fe->card->pcm_mutex);
++
+ 	fe->dpcm[stream].runtime = NULL;
+ 
+ 	snd_soc_link_compr_shutdown(cstream, 0);
+@@ -409,8 +411,9 @@ static int soc_compr_set_params_fe(struct snd_compr_stream *cstream,
+ 	ret = snd_soc_link_compr_set_params(cstream);
+ 	if (ret < 0)
+ 		goto out;
+-
++	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	dpcm_dapm_stream_event(fe, stream, SND_SOC_DAPM_STREAM_START);
++	mutex_unlock(&fe->card->pcm_mutex);
+ 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_PREPARE;
+ 
+ out:
 -- 
 2.39.2
 
