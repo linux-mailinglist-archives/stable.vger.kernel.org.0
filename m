@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DDAB6AEE30
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C6F6AE9BC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232438AbjCGSKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46864 "EHLO
+        id S231614AbjCGR1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232452AbjCGSJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABD1A3B75
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:04:15 -0800 (PST)
+        with ESMTP id S231363AbjCGR0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5473F9B2C7
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3873B8169C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:04:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F1D8C433D2;
-        Tue,  7 Mar 2023 18:04:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E76D9614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAE8FC433EF;
+        Tue,  7 Mar 2023 17:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212253;
-        bh=aJii3VJuHhHAP7L5O35QOrA4e99R+DV/Shl4VfRs9Co=;
+        s=korg; t=1678209713;
+        bh=NkhGTQjfEg3PCOniQyzM+GV8UTZR8oOJLCu/M5uuEjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=er+y9x5H+DTRcs2tVoiD4ZwUVz4IZRE2mIf1T+piGufiFQQ+ib3jftgDjRO4JYp0+
-         HZK949yaQU0ikkZnV0MChpiPEXqzClpL/usZc5EXxA89Nv6FHSeRpXdIIG0fibb9lV
-         HlHF/qNbNIYMjOEcCYyHYGYxYxFIvEAlivAJbKEI=
+        b=t2vmy96Nj4RRXJ2XXiQ1GSB2GgVdGXhp21TS9vsBozUEclYyx9mnzzHAn/2dbKmo2
+         Widmx/LwkWmtwi8JdVzowu1w9fHn9ALidcQ4Zqq1EXSy+ZSrwedjNUzk3Cuvh5+dIS
+         2H54oC9g8ZV8k1MULeTsqmLzIxgCApqKjpO6JnX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 127/885] libbpf: Fix btf__align_of() by taking into account field offsets
-Date:   Tue,  7 Mar 2023 17:51:01 +0100
-Message-Id: <20230307170007.361219660@linuxfoundation.org>
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0290/1001] wifi: mwifiex: fix loop iterator in mwifiex_update_ampdu_txwinsize()
+Date:   Tue,  7 Mar 2023 17:51:02 +0100
+Message-Id: <20230307170034.215735634@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,57 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 25a4481b4136af7794e1df2d6c90ed2f354d60ce ]
+[ Upstream commit 3cfb7df24cee0f5fdc4cc5d3176cab9aadfcb430 ]
 
-btf__align_of() is supposed to be return alignment requirement of
-a requested BTF type. For STRUCT/UNION it doesn't always return correct
-value, because it calculates alignment only based on field types. But
-for packed structs this is not enough, we need to also check field
-offsets and struct size. If field offset isn't aligned according to
-field type's natural alignment, then struct must be packed. Similarly,
-if struct size is not a multiple of struct's natural alignment, then
-struct must be packed as well.
+This code re-uses "i" to be the iterator for both the inside and outside
+loops.  It means the outside loop will exit earlier than intended.
 
-This patch fixes this issue precisely by additionally checking these
-conditions.
-
-Fixes: 3d208f4ca111 ("libbpf: Expose btf__align_of() API")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20221212211505.558851-5-andrii@kernel.org
+Fixes: d219b7eb3792 ("mwifiex: handle BT coex event to adjust Rx BA window size")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/Y+ERnaDaZD7RtLvX@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/wireless/marvell/mwifiex/11n.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index 675a0df5c840f..8224a797c2da5 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -688,8 +688,21 @@ int btf__align_of(const struct btf *btf, __u32 id)
- 			if (align <= 0)
- 				return libbpf_err(align);
- 			max_align = max(max_align, align);
-+
-+			/* if field offset isn't aligned according to field
-+			 * type's alignment, then struct must be packed
-+			 */
-+			if (btf_member_bitfield_size(t, i) == 0 &&
-+			    (m->offset % (8 * align)) != 0)
-+				return 1;
- 		}
+diff --git a/drivers/net/wireless/marvell/mwifiex/11n.c b/drivers/net/wireless/marvell/mwifiex/11n.c
+index 4af57e6d43932..90e4011008981 100644
+--- a/drivers/net/wireless/marvell/mwifiex/11n.c
++++ b/drivers/net/wireless/marvell/mwifiex/11n.c
+@@ -878,7 +878,7 @@ mwifiex_send_delba_txbastream_tbl(struct mwifiex_private *priv, u8 tid)
+  */
+ void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
+ {
+-	u8 i;
++	u8 i, j;
+ 	u32 tx_win_size;
+ 	struct mwifiex_private *priv;
  
-+		/* if struct/union size isn't a multiple of its alignment,
-+		 * then struct must be packed
-+		 */
-+		if ((t->size % max_align) != 0)
-+			return 1;
-+
- 		return max_align;
+@@ -909,8 +909,8 @@ void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
+ 		if (tx_win_size != priv->add_ba_param.tx_win_size) {
+ 			if (!priv->media_connected)
+ 				continue;
+-			for (i = 0; i < MAX_NUM_TID; i++)
+-				mwifiex_send_delba_txbastream_tbl(priv, i);
++			for (j = 0; j < MAX_NUM_TID; j++)
++				mwifiex_send_delba_txbastream_tbl(priv, j);
+ 		}
  	}
- 	default:
+ }
 -- 
 2.39.2
 
