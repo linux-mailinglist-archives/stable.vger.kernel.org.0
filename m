@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C16D46AE9AD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0556AEDF8
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231582AbjCGR07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:26:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51034 "EHLO
+        id S231195AbjCGSIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjCGR0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:32 -0500
+        with ESMTP id S232057AbjCGSIX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A959D9E64B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC03A8C7B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB7CC614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A76C4339C;
-        Tue,  7 Mar 2023 17:21:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B06F36151E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3E28C433A1;
+        Tue,  7 Mar 2023 18:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209676;
-        bh=TbyhC4xk6PT+sJMiZKaIGUTHX1jSdcDGg1cjA0fDZsE=;
+        s=korg; t=1678212147;
+        bh=PcZSRsWSHYg4FQQtNrTGlFRopGyPj9eX2UDEeyBmugo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKT7w82EX14BeYQ/a+AJTMKwAkujRBCNe69WqSAazA5bXxD2ee/kRS9uphYQw9qQs
-         3rPtIcMf4fF7g7YkQHfmczkbz0iFNIi6sf9z69sEpKt9fcijqSS5+SJHtBEA9nYffR
-         M7Q0MQp6UWflR2JE0uAoLmaxkECEL9+52oiFmIOA=
+        b=mqCWb63Rer4tA+7utUSy8pFPixAuUxT6dUBv3jECClNouwXZM0P30aVzwDgNFGNtg
+         4P0Y4gsSd5hc85oA3ey213ySnPqvZ/WLN90i6e0dn8BJP1pp4g+dGzUPPrJsxaYmgY
+         wKR9jJ4LTOkJX36oQUDQritOWL/id+KTWLehIV2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eran Ben Elisha <eranbe@nvidia.com>,
-        Majd Dibbiny <majd@nvidia.com>,
-        Jack Morgenstein <jackm@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0254/1001] net/mlx5: Enhance debug print in page allocation failure
-Date:   Tue,  7 Mar 2023 17:50:26 +0100
-Message-Id: <20230307170032.778193375@linuxfoundation.org>
+Subject: [PATCH 6.1 093/885] arm64: dts: qcom: sm8450: drop incorrect cells from serial
+Date:   Tue,  7 Mar 2023 17:50:27 +0100
+Message-Id: <20230307170005.872379749@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@nvidia.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 7eef93003e5d20e1a6a6e59e12d914b5431cbda2 ]
+[ Upstream commit 60d2da2c916956535cf37b7bf1ae8fefbf432e55 ]
 
-Provide more details to aid debugging.
+The serial/UART device node does not have children with unit addresses,
+so address/size cells are not correct.
 
-Fixes: bf0bf77f6519 ("mlx5: Support communicating arbitrary host page size to firmware")
-Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Majd Dibbiny <majd@nvidia.com>
-Signed-off-by: Jack Morgenstein <jackm@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: f5837418479a ("arm64: dts: qcom: sm8450: add uart20 node")
+Fixes: 5188049c9b36 ("arm64: dts: qcom: Add base SM8450 DTSI")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230124084951.38195-3-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm8450.dtsi | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-index 0eb50be175cc4..64d4e7125e9bb 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-@@ -219,7 +219,8 @@ static int alloc_4k(struct mlx5_core_dev *dev, u64 *addr, u32 function)
+diff --git a/arch/arm64/boot/dts/qcom/sm8450.dtsi b/arch/arm64/boot/dts/qcom/sm8450.dtsi
+index 32a37c878a34c..df0d888ffc008 100644
+--- a/arch/arm64/boot/dts/qcom/sm8450.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8450.dtsi
+@@ -991,8 +991,6 @@ uart20: serial@894000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&qup_uart20_default>;
+ 				interrupts = <GIC_SPI 587 IRQ_TYPE_LEVEL_HIGH>;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+ 				status = "disabled";
+ 			};
  
- 	n = find_first_bit(&fp->bitmask, 8 * sizeof(fp->bitmask));
- 	if (n >= MLX5_NUM_4K_IN_PAGE) {
--		mlx5_core_warn(dev, "alloc 4k bug\n");
-+		mlx5_core_warn(dev, "alloc 4k bug: fw page = 0x%llx, n = %u, bitmask: %lu, max num of 4K pages: %d\n",
-+			       fp->addr, n, fp->bitmask,  MLX5_NUM_4K_IN_PAGE);
- 		return -ENOENT;
- 	}
- 	clear_bit(n, &fp->bitmask);
+@@ -1387,8 +1385,6 @@ uart7: serial@99c000 {
+ 				pinctrl-names = "default";
+ 				pinctrl-0 = <&qup_uart7_tx>, <&qup_uart7_rx>;
+ 				interrupts = <GIC_SPI 608 IRQ_TYPE_LEVEL_HIGH>;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+ 				status = "disabled";
+ 			};
+ 		};
 -- 
 2.39.2
 
