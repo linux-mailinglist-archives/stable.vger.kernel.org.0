@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 517186AEDFA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC9D26AE9A5
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:26:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230173AbjCGSIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:08:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46906 "EHLO
+        id S231523AbjCGR0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232346AbjCGSIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:30 -0500
+        with ESMTP id S231538AbjCGR0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 647E0AFB97
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07433A101E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16A4F6151D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F337C433A0;
-        Tue,  7 Mar 2023 18:02:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A4A2614FF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6095CC433A0;
+        Tue,  7 Mar 2023 17:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212154;
-        bh=M7IfczXodcrT7t/Z05b9LHlutStZPQnkldW/g1OvM2U=;
+        s=korg; t=1678209657;
+        bh=mx/3ElLRUgkpbzx8APLXS+aNwjRF5FuzYkqql+gdVbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zKnGvouFAQHHMZo8PhxRIWl262xIXb/MJ9u6H86cQ22XZ7lKcRCRy+2iwmKD7MLOI
-         Pi6qB1+GiqbKBGH/p+sEb/QBtZ+DrcOBlNIRkptXqXlDzrFUs55WQoK38MzW+/CkRH
-         fLlj2D8RDA7m/c3hb9SRQ4HAZJ8R8b8o7PyF8e9I=
+        b=jlcLdzFgcdIE59JgtbHvGR6K4hQ6jtIslzLYvb/TmhlcfLGEV+t4irdnk4Yxr++6t
+         JtFR3OnIiqxeOQW6SFDWeHUx2anN5drAMuypE5K+r3a6nKaDrCSxZvChdxreYmX470
+         1+MpXNjuBT6jGyF8odWOqLpGe4eO36oAfLWENFFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Luca Weiss <luca@z3ntu.xyz>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 095/885] arm64: dts: qcom: msm8953: correct TLMM gpio-ranges
-Date:   Tue,  7 Mar 2023 17:50:29 +0100
-Message-Id: <20230307170005.961454367@linuxfoundation.org>
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0258/1001] irqchip/ti-sci: Fix refcount leak in ti_sci_intr_irq_domain_probe
+Date:   Tue,  7 Mar 2023 17:50:30 +0100
+Message-Id: <20230307170032.932716628@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit a4fb71497df23cb0d02d70fa2b8f8786328e325d ]
+[ Upstream commit 02298b7bae12936ca313975b02e7f98b06670d37 ]
 
-Correct the number of GPIOs in TLMM pin controller.
+of_irq_find_parent() returns a node pointer with refcount incremented,
+We should use of_node_put() on it when not needed anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 9fb08c801923 ("arm64: dts: qcom: Add MSM8953 device tree")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Luca Weiss <luca@z3ntu.xyz>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230202104452.299048-10-krzysztof.kozlowski@linaro.org
+Fixes: cd844b0715ce ("irqchip/ti-sci-intr: Add support for Interrupt Router driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230102085611.3955984-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8953.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-ti-sci-intr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8953.dtsi b/arch/arm64/boot/dts/qcom/msm8953.dtsi
-index 6b992a6d56c16..85a87d058f8ab 100644
---- a/arch/arm64/boot/dts/qcom/msm8953.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8953.dtsi
-@@ -455,7 +455,7 @@ tlmm: pinctrl@1000000 {
- 			reg = <0x1000000 0x300000>;
- 			interrupts = <GIC_SPI 208 IRQ_TYPE_LEVEL_HIGH>;
- 			gpio-controller;
--			gpio-ranges = <&tlmm 0 0 155>;
-+			gpio-ranges = <&tlmm 0 0 142>;
- 			#gpio-cells = <2>;
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
+diff --git a/drivers/irqchip/irq-ti-sci-intr.c b/drivers/irqchip/irq-ti-sci-intr.c
+index fe8fad22bcf96..020ddf29efb80 100644
+--- a/drivers/irqchip/irq-ti-sci-intr.c
++++ b/drivers/irqchip/irq-ti-sci-intr.c
+@@ -236,6 +236,7 @@ static int ti_sci_intr_irq_domain_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	parent_domain = irq_find_host(parent_node);
++	of_node_put(parent_node);
+ 	if (!parent_domain) {
+ 		dev_err(dev, "Failed to find IRQ parent domain\n");
+ 		return -ENODEV;
 -- 
 2.39.2
 
