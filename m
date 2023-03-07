@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E25FD6AED56
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA366AF252
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbjCGSD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:03:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38994 "EHLO
+        id S233131AbjCGSw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:52:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230417AbjCGSC6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC31A9E51D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:11 -0800 (PST)
+        with ESMTP id S232917AbjCGSwM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72556234EB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58E10B8169C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF06AC433EF;
-        Tue,  7 Mar 2023 17:56:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEAF16150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:39:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A34D4C4339B;
+        Tue,  7 Mar 2023 18:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211769;
-        bh=n9rxSjfbuf/Z753ruQhDdQIU9/lpj912o9rfLAwBbZ8=;
+        s=korg; t=1678214395;
+        bh=QLoHlVKf2vRK4Dcxxia3Mon4beBYDqM7U+AgMkz1IgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycl4Ls7QA1/h6ruiwwzO8VByUmk3wncW6of6eUt8+ejRz5OjTXlLbWZ9B1ZLR16na
-         6Yzi9U00GM+Td8Voq7t5XVrq3pRXBUdmYlif+lqEoiszp5csCp3S0VN+Dx3KW6aH79
-         hhWfeUZUhYuLj0rlSW2uhkneQLvHUyvaOjtH1qD4=
+        b=Akp081fKFhpMRw1+EaTYcmQCgLKyVA4V5PqjQEylTiIUz3Vrw4cAEag3er+pscp7m
+         xT7TPA71xJ1C5SrR9v2IM3NdT2N/bBjVj+ljhRS7Iz7SEQPGf4RFhr6D3ASbUW9rYf
+         N3wlQmvjqHsuojM8aWrSRESURAf8nMlFrh+Zny28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
-        Sergey Matyukevich <sergey.matyukevich@syntacore.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.2 0971/1001] riscv: mm: fix regression due to update_mmu_cache change
+        patches@lists.linux.dev, Zev Weiss <zev@bewilderbeest.net>,
+        Guenter Roeck <linux@roeck-us.net>, stable@kernel.org
+Subject: [PATCH 6.1 809/885] hwmon: (nct6775) Fix incorrect parenthesization in nct6775_write_fan_div()
 Date:   Tue,  7 Mar 2023 18:02:23 +0100
-Message-Id: <20230307170104.355076371@linuxfoundation.org>
+Message-Id: <20230307170037.032326368@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,46 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich@syntacore.com>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-commit b49f700668fff7565b945dce823def79bff59bb0 upstream.
+commit 2fbb848b65cde5b876cce52ebcb34de4aaa5a94a upstream.
 
-This is a partial revert of the commit 4bd1d80efb5a ("riscv: mm: notify
-remote harts about mmu cache updates"). Original commit included two
-loosely related changes serving the same purpose of fixing stale TLB
-entries causing user-space application crash:
-- introduce deferred per-ASID TLB flush for CPUs not running the task
-- switch to per-ASID TLB flush on all CPUs running the task in update_mmu_cache
+Commit 4ef2774511dc ("hwmon: (nct6775) Convert register access to
+regmap API") fumbled the shifting & masking of the fan_div values such
+that odd-numbered fan divisors would always be set to zero.  Fix it so
+that we actually OR in the bits we meant to.
 
-According to report and discussion in [1], the second part caused a
-regression on Renesas RZ/Five SoC. For now restore the old behavior
-of the update_mmu_cache.
-
-[1] https://lore.kernel.org/linux-riscv/20220829205219.283543-1-geomatsi@gmail.com/
-
-Fixes: 4bd1d80efb5a ("riscv: mm: notify remote harts about mmu cache updates")
-Reported-by: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich@syntacore.com>
-Link: trailer, so that it can be parsed with git's trailer functionality?
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20230129211818.686557-1-geomatsi@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Fixes: 4ef2774511dc ("hwmon: (nct6775) Convert register access to regmap API")
+Cc: stable@kernel.org # v5.19+
+Link: https://lore.kernel.org/r/20230102212857.5670-1-zev@bewilderbeest.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/pgtable.h |    2 +-
+ drivers/hwmon/nct6775-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -415,7 +415,7 @@ static inline void update_mmu_cache(stru
- 	 * Relying on flush_tlb_fix_spurious_fault would suffice, but
- 	 * the extra traps reduce performance.  So, eagerly SFENCE.VMA.
- 	 */
--	flush_tlb_page(vma, address);
-+	local_flush_tlb_page(address);
+diff --git a/drivers/hwmon/nct6775-core.c b/drivers/hwmon/nct6775-core.c
+index da9ec6983e13..c54233f0369b 100644
+--- a/drivers/hwmon/nct6775-core.c
++++ b/drivers/hwmon/nct6775-core.c
+@@ -1150,7 +1150,7 @@ static int nct6775_write_fan_div(struct nct6775_data *data, int nr)
+ 	if (err)
+ 		return err;
+ 	reg &= 0x70 >> oddshift;
+-	reg |= data->fan_div[nr] & (0x7 << oddshift);
++	reg |= (data->fan_div[nr] & 0x7) << oddshift;
+ 	return nct6775_write_value(data, fandiv_reg, reg);
  }
  
- #define __HAVE_ARCH_UPDATE_MMU_TLB
+-- 
+2.39.2
+
 
 
