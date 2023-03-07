@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4605B6AF262
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B20E6AED7C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:04:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233361AbjCGSwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:52:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55422 "EHLO
+        id S229886AbjCGSEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:04:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233360AbjCGSwT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7975D9BE38
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:51 -0800 (PST)
+        with ESMTP id S231713AbjCGSEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:04:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA05B1EDB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:57:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 966266152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91E5DC433EF;
-        Tue,  7 Mar 2023 18:40:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0150EB81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:57:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC84C433EF;
+        Tue,  7 Mar 2023 17:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214420;
-        bh=zCLwfwvv0/sZeNCTmjnsn7akWD9gPBca5Mym8bKwRjo=;
+        s=korg; t=1678211825;
+        bh=NHhv3g9+OSvN9hM9xG0k4ueiKgiEq4qG/nSu1rEjSLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtbA0ikY6RculuBBHpNuygnlBSkyyu0EtGHszEwm2qEef1PbL+DJP02qyxMvXHKRQ
-         UPdNmoOa1J38IVFgByjTS+hoERsW34Fe9L5inDziAwe2g7UgXZKJT5Ae+Qt/6/Yphx
-         9LMA5vdDR/rUnB1ur7tNrddHIgO6AansGgtwO5wY=
+        b=WDVjJp+UaxmhHt3cQyQLY1zZdwuCQhyzs/snQU0Y/ez90rPTY6Ri3WIO+ki8FJD/r
+         g0xZgt7apRWWPubK3Rez78Et6zOCwikTjwpJ4qyzYEhmurnbSJqF0rxtQZ0x/HUcUs
+         c4x1LL7TqWjSY5tNMZ6h76U//cWVAuH/R5PRP5pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Wetzel <alexander@wetzel-home.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 6.1 799/885] wifi: cfg80211: Fix use after free for wext
-Date:   Tue,  7 Mar 2023 18:02:13 +0100
-Message-Id: <20230307170036.614492300@linuxfoundation.org>
+        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 6.2 0962/1001] scsi: qla2xxx: Fix erroneous link down
+Date:   Tue,  7 Mar 2023 18:02:14 +0100
+Message-Id: <20230307170103.947444130@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Wetzel <alexander@wetzel-home.de>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 015b8cc5e7c4d7bb671f1984d7b7338c310b185b upstream.
+commit 3fbc74feb642deb688cc97f76d40b7287ddd4cb1 upstream.
 
-Key information in wext.connect is not reset on (re)connect and can hold
-data from a previous connection.
+If after an adapter reset the appearance of link is not recovered, the
+devices are not rediscovered.  This is result of a race condition between
+adapter reset (abort_isp) and the topology scan.  During adapter reset, the
+ABORT_ISP_ACTIVE flag is set.  Topology scan usually occurred after adapter
+reset.  In this case, the topology scan came earlier than usual where it
+ran into problem due to ABORT_ISP_ACTIVE flag was still set.
 
-Reset key data to avoid that drivers or mac80211 incorrectly detect a
-WEP connection request and access the freed or already reused memory.
+kernel: qla2xxx [0000:13:00.0]-1005:1: Cmd 0x6a aborted with timeout since ISP Abort is pending
+kernel: qla2xxx [0000:13:00.0]-28a0:1: MBX_GET_PORT_NAME failed, No FL Port.
+kernel: qla2xxx [0000:13:00.0]-286b:1: qla2x00_configure_loop: exiting normally. local port wwpn 51402ec0123d9a80 id 012300)
+kernel: qla2xxx [0000:13:00.0]-8017:1: ADAPTER RESET SUCCEEDED nexus=1:0:15.
 
-Additionally optimize cfg80211_sme_connect() and avoid an useless
-schedule of conn_work.
+Allow adapter reset to complete before any scan can start.
 
-Fixes: fffd0934b939 ("cfg80211: rework key operation")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230124141856.356646-1-alexander@wetzel-home.de
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/sme.c |   31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -285,6 +285,15 @@ void cfg80211_conn_work(struct work_stru
- 	wiphy_unlock(&rdev->wiphy);
- }
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -7094,9 +7094,12 @@ qla2x00_do_dpc(void *data)
+ 			}
+ 		}
+ loop_resync_check:
+-		if (test_and_clear_bit(LOOP_RESYNC_NEEDED,
++		if (!qla2x00_reset_active(base_vha) &&
++		    test_and_clear_bit(LOOP_RESYNC_NEEDED,
+ 		    &base_vha->dpc_flags)) {
+-
++			/*
++			 * Allow abort_isp to complete before moving on to scanning.
++			 */
+ 			ql_dbg(ql_dbg_dpc, base_vha, 0x400f,
+ 			    "Loop resync scheduled.\n");
  
-+static void cfg80211_step_auth_next(struct cfg80211_conn *conn,
-+				    struct cfg80211_bss *bss)
-+{
-+	memcpy(conn->bssid, bss->bssid, ETH_ALEN);
-+	conn->params.bssid = conn->bssid;
-+	conn->params.channel = bss->channel;
-+	conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+}
-+
- /* Returned bss is reference counted and must be cleaned up appropriately. */
- static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
- {
-@@ -302,10 +311,7 @@ static struct cfg80211_bss *cfg80211_get
- 	if (!bss)
- 		return NULL;
- 
--	memcpy(wdev->conn->bssid, bss->bssid, ETH_ALEN);
--	wdev->conn->params.bssid = wdev->conn->bssid;
--	wdev->conn->params.channel = bss->channel;
--	wdev->conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+	cfg80211_step_auth_next(wdev->conn, bss);
- 	schedule_work(&rdev->conn_work);
- 
- 	return bss;
-@@ -597,7 +603,12 @@ static int cfg80211_sme_connect(struct w
- 	wdev->conn->params.ssid_len = wdev->u.client.ssid_len;
- 
- 	/* see if we have the bss already */
--	bss = cfg80211_get_conn_bss(wdev);
-+	bss = cfg80211_get_bss(wdev->wiphy, wdev->conn->params.channel,
-+			       wdev->conn->params.bssid,
-+			       wdev->conn->params.ssid,
-+			       wdev->conn->params.ssid_len,
-+			       wdev->conn_bss_type,
-+			       IEEE80211_PRIVACY(wdev->conn->params.privacy));
- 
- 	if (prev_bssid) {
- 		memcpy(wdev->conn->prev_bssid, prev_bssid, ETH_ALEN);
-@@ -608,6 +619,7 @@ static int cfg80211_sme_connect(struct w
- 	if (bss) {
- 		enum nl80211_timeout_reason treason;
- 
-+		cfg80211_step_auth_next(wdev->conn, bss);
- 		err = cfg80211_conn_do_work(wdev, &treason);
- 		cfg80211_put_bss(wdev->wiphy, bss);
- 	} else {
-@@ -1450,6 +1462,15 @@ int cfg80211_connect(struct cfg80211_reg
- 	} else {
- 		if (WARN_ON(connkeys))
- 			return -EINVAL;
-+
-+		/* connect can point to wdev->wext.connect which
-+		 * can hold key data from a previous connection
-+		 */
-+		connect->key = NULL;
-+		connect->key_len = 0;
-+		connect->key_idx = 0;
-+		connect->crypto.cipher_group = 0;
-+		connect->crypto.n_ciphers_pairwise = 0;
- 	}
- 
- 	wdev->connect_keys = connkeys;
 
 
