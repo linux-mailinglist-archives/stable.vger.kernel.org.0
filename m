@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA346AEE97
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC4E6AE9EB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230183AbjCGSNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:13:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
+        id S230290AbjCGR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:29:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232501AbjCGSNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:13:12 -0500
+        with ESMTP id S231641AbjCGR2a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:28:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C19EB9AFE7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:08:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE08D96094
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 686B8B81851
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:08:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8632EC433D2;
-        Tue,  7 Mar 2023 18:08:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 901F9B819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA70AC433D2;
+        Tue,  7 Mar 2023 17:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212522;
-        bh=awsNsIErIoPI2JM7xhkuip8vkdgdGfSHx5k7v+5DwBM=;
+        s=korg; t=1678209821;
+        bh=UKj/Yz1lvupNizeVrO4etaeCaHmugzEYepmlLeh6XJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVbEh97EmbrVJZdKoavcueeRy0wEHHiIPyVWs6a+JTW1YS3SK6hXcaC2sY8DIKSSr
-         BmeNnCKWanPVMH+eOw+9fEufecSyZG7cafAseaV/zjcAFXUSXW3ltS42YsyMFYVfJU
-         9BP+MYyZ/UVzlQgsEPZxbFMmoGXoxfiRaoXxBJaE=
+        b=xAV1H73EkatjNnD3JGU1dpDgDQayDOka45A0qUuwUuFdsiw/KQLC65PGOqHjDbw43
+         Epf8hZTutZ2kU5XC0jw83nXW6M/9UMVfY2dj/D613ifUTQblR0TUh70l8NYu2OWZi9
+         /4y2b2hw2/7OIpmf1yOUG6LXsBH2QqOPHAMPt9pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ashok Raj <ashok.raj@intel.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 180/885] x86/microcode: Check CPU capabilities after late microcode update correctly
+Subject: [PATCH 6.2 0342/1001] hwmon: (ftsteutates) Fix scaling of measurements
 Date:   Tue,  7 Mar 2023 17:51:54 +0100
-Message-Id: <20230307170009.806086258@linuxfoundation.org>
+Message-Id: <20230307170036.308265264@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,148 +54,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ashok Raj <ashok.raj@intel.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit c0dd9245aa9e25a697181f6085692272c9ec61bc ]
+[ Upstream commit ca8fd8c16a8b77dfcf7f6ce52d2c863220693a78 ]
 
-The kernel caches each CPU's feature bits at boot in an x86_capability[]
-structure. However, the capabilities in the BSP's copy can be turned off
-as a result of certain command line parameters or configuration
-restrictions, for example the SGX bit. This can cause a mismatch when
-comparing the values before and after the microcode update.
+A user complained that the ftsteutates driver was displaying
+bogus values since its introduction. This happens because the
+sensor measurements need to be scaled in order to produce
+meaningful results:
+- the fan speed needs to be multiplied by 60 since its in RPS
+- the temperature is in degrees celsius and needs an offset of 64
+- the voltage is in 1/256 of 3.3V
 
-Another example is X86_FEATURE_SRBDS_CTRL which gets added only after
-microcode update:
+The offical datasheet says the voltage needs to be divided by 256,
+but this is likely an off-by-one-error, since even the BIOS
+devides by 255 (otherwise 3.3V could not be measured).
 
-#  --- cpuid.before	2023-01-21 14:54:15.652000747 +0100
-#  +++ cpuid.after	2023-01-21 14:54:26.632001024 +0100
-#  @@ -10,7 +10,7 @@ CPU:
-#      0x00000004 0x04: eax=0x00000000 ebx=0x00000000 ecx=0x00000000 edx=0x00000000
-#      0x00000005 0x00: eax=0x00000040 ebx=0x00000040 ecx=0x00000003 edx=0x11142120
-#      0x00000006 0x00: eax=0x000027f7 ebx=0x00000002 ecx=0x00000001 edx=0x00000000
-#  -   0x00000007 0x00: eax=0x00000000 ebx=0x029c6fbf ecx=0x40000000 edx=0xbc002400
-#  +   0x00000007 0x00: eax=0x00000000 ebx=0x029c6fbf ecx=0x40000000 edx=0xbc002e00
-  									     ^^^
+The voltage channels additionally need a board-specific multiplier,
+however this can be done by the driver since its board-specific.
 
-and which proves for a gazillionth time that late loading is a bad bad
-idea.
+The reason the missing scaling of measurements is the way Fujitsu
+used this driver when it was still out-of-tree. Back then, all
+scaling was done in userspace by libsensors, even the generic one.
 
-microcode_check() is called after an update to report any previously
-cached CPUID bits which might have changed due to the update.
+Tested on a Fujitsu DS3401-B1.
 
-Therefore, store the cached CPU caps before the update and compare them
-with the CPU caps after the microcode update has succeeded.
-
-Thus, the comparison is done between the CPUID *hardware* bits before
-and after the upgrade instead of using the cached, possibly runtime
-modified values in BSP's boot_cpu_data copy.
-
-As a result, false warnings about CPUID bits changes are avoided.
-
-  [ bp:
-  	- Massage.
-	- Add SRBDS_CTRL example.
-	- Add kernel-doc.
-	- Incorporate forgotten review feedback from dhansen.
-	]
-
-Fixes: 1008c52c09dc ("x86/CPU: Add a microcode loader callback")
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230109153555.4986-3-ashok.raj@intel.com
+Fixes: 08426eda58e0 ("hwmon: Add driver for FTS BMC chip "Teutates"")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Link: https://lore.kernel.org/r/20221224041855.83981-2-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/processor.h     |  1 +
- arch/x86/kernel/cpu/common.c         | 36 ++++++++++++++++++----------
- arch/x86/kernel/cpu/microcode/core.c |  6 +++++
- 3 files changed, 30 insertions(+), 13 deletions(-)
+ Documentation/hwmon/ftsteutates.rst |  4 ++++
+ drivers/hwmon/ftsteutates.c         | 19 +++++++++++++------
+ 2 files changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index 2288ef4ba17c5..d8277eec1bcd6 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -836,6 +836,7 @@ bool xen_set_default_idle(void);
+diff --git a/Documentation/hwmon/ftsteutates.rst b/Documentation/hwmon/ftsteutates.rst
+index 58a2483d8d0da..198fa8e2819da 100644
+--- a/Documentation/hwmon/ftsteutates.rst
++++ b/Documentation/hwmon/ftsteutates.rst
+@@ -22,6 +22,10 @@ enhancements. It can monitor up to 4 voltages, 16 temperatures and
+ 8 fans. It also contains an integrated watchdog which is currently
+ implemented in this driver.
  
- void __noreturn stop_this_cpu(void *dummy);
- void microcode_check(struct cpuinfo_x86 *prev_info);
-+void store_cpu_caps(struct cpuinfo_x86 *info);
++The 4 voltages require a board-specific multiplier, since the BMC can
++only measure voltages up to 3.3V and thus relies on voltage dividers.
++Consult your motherboard manual for details.
++
+ To clear a temperature or fan alarm, execute the following command with the
+ correct path to the alarm file::
  
- enum l1tf_mitigations {
- 	L1TF_MITIGATION_OFF,
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 3c08985ed70c9..c34bdba57993a 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -2311,6 +2311,25 @@ void cpu_init_secondary(void)
- #endif
- 
- #ifdef CONFIG_MICROCODE_LATE_LOADING
-+/**
-+ * store_cpu_caps() - Store a snapshot of CPU capabilities
-+ * @curr_info: Pointer where to store it
-+ *
-+ * Returns: None
-+ */
-+void store_cpu_caps(struct cpuinfo_x86 *curr_info)
-+{
-+	/* Reload CPUID max function as it might've changed. */
-+	curr_info->cpuid_level = cpuid_eax(0);
-+
-+	/* Copy all capability leafs and pick up the synthetic ones. */
-+	memcpy(&curr_info->x86_capability, &boot_cpu_data.x86_capability,
-+	       sizeof(curr_info->x86_capability));
-+
-+	/* Get the hardware CPUID leafs */
-+	get_cpu_cap(curr_info);
-+}
-+
- /**
-  * microcode_check() - Check if any CPU capabilities changed after an update.
-  * @prev_info:	CPU capabilities stored before an update.
-@@ -2323,22 +2342,13 @@ void cpu_init_secondary(void)
-  */
- void microcode_check(struct cpuinfo_x86 *prev_info)
+diff --git a/drivers/hwmon/ftsteutates.c b/drivers/hwmon/ftsteutates.c
+index f5b8e724a8ca1..ffa0bb3648775 100644
+--- a/drivers/hwmon/ftsteutates.c
++++ b/drivers/hwmon/ftsteutates.c
+@@ -12,6 +12,7 @@
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+ #include <linux/jiffies.h>
++#include <linux/math.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+ #include <linux/slab.h>
+@@ -347,13 +348,15 @@ static ssize_t in_value_show(struct device *dev,
  {
--	perf_check_microcode();
--
--	/* Reload CPUID max function as it might've changed. */
--	prev_info->cpuid_level = cpuid_eax(0);
-+	struct cpuinfo_x86 curr_info;
+ 	struct fts_data *data = dev_get_drvdata(dev);
+ 	int index = to_sensor_dev_attr(devattr)->index;
+-	int err;
++	int value, err;
  
--	/*
--	 * Copy all capability leafs to pick up the synthetic ones so that
--	 * memcmp() below doesn't fail on that. The ones coming from CPUID will
--	 * get overwritten in get_cpu_cap().
--	 */
--	memcpy(&prev_info->x86_capability, &boot_cpu_data.x86_capability,
--	       sizeof(prev_info->x86_capability));
-+	perf_check_microcode();
+ 	err = fts_update_device(data);
+ 	if (err < 0)
+ 		return err;
  
--	get_cpu_cap(prev_info);
-+	store_cpu_caps(&curr_info);
- 
--	if (!memcmp(&prev_info->x86_capability, &boot_cpu_data.x86_capability,
-+	if (!memcmp(&prev_info->x86_capability, &curr_info.x86_capability,
- 		    sizeof(prev_info->x86_capability)))
- 		return;
- 
-diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
-index 9d006ff58edc9..755aab64872c8 100644
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -500,6 +500,12 @@ static int microcode_reload_late(void)
- 	atomic_set(&late_cpus_in,  0);
- 	atomic_set(&late_cpus_out, 0);
- 
-+	/*
-+	 * Take a snapshot before the microcode update in order to compare and
-+	 * check whether any bits changed after an update.
-+	 */
-+	store_cpu_caps(&prev_info);
+-	return sprintf(buf, "%u\n", data->volt[index]);
++	value = DIV_ROUND_CLOSEST(data->volt[index] * 3300, 255);
 +
- 	ret = stop_machine_cpuslocked(__reload_late, NULL, cpu_online_mask);
- 	if (ret == 0)
- 		microcode_check(&prev_info);
++	return sprintf(buf, "%d\n", value);
+ }
+ 
+ static ssize_t temp_value_show(struct device *dev,
+@@ -361,13 +364,15 @@ static ssize_t temp_value_show(struct device *dev,
+ {
+ 	struct fts_data *data = dev_get_drvdata(dev);
+ 	int index = to_sensor_dev_attr(devattr)->index;
+-	int err;
++	int value, err;
+ 
+ 	err = fts_update_device(data);
+ 	if (err < 0)
+ 		return err;
+ 
+-	return sprintf(buf, "%u\n", data->temp_input[index]);
++	value = (data->temp_input[index] - 64) * 1000;
++
++	return sprintf(buf, "%d\n", value);
+ }
+ 
+ static ssize_t temp_fault_show(struct device *dev,
+@@ -436,13 +441,15 @@ static ssize_t fan_value_show(struct device *dev,
+ {
+ 	struct fts_data *data = dev_get_drvdata(dev);
+ 	int index = to_sensor_dev_attr(devattr)->index;
+-	int err;
++	int value, err;
+ 
+ 	err = fts_update_device(data);
+ 	if (err < 0)
+ 		return err;
+ 
+-	return sprintf(buf, "%u\n", data->fan_input[index]);
++	value = data->fan_input[index] * 60;
++
++	return sprintf(buf, "%d\n", value);
+ }
+ 
+ static ssize_t fan_source_show(struct device *dev,
 -- 
 2.39.2
 
