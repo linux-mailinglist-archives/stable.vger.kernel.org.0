@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D946AE9F6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:29:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D8726AEE7E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231315AbjCGR3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:29:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50990 "EHLO
+        id S232471AbjCGSMb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:12:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231426AbjCGR3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:10 -0500
+        with ESMTP id S232512AbjCGSMN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:13 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28254A0289
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:24:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591CBAB887
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 58323CE1C5D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E1EC433D2;
-        Tue,  7 Mar 2023 17:24:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CB88ACE1C6A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD1F4C433EF;
+        Tue,  7 Mar 2023 18:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209846;
-        bh=fYrUHkdw9yhnOmqN9DQmG9V0OSCmA5psQYNPMf+DzjY=;
+        s=korg; t=1678212449;
+        bh=rI6vaB/t77bBlrJKEngq0yjTSkcBHkpEMeeLk6ovIa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l186N4pfPWmB3Qx9xkNrpVMxp+VyCt1JdowvEaMpJdEX0KkZWICam0+Ca87MbHtm8
-         4I1QynRVWWmWZUisep2b1J03v7RhFY3t+BQicgsQUx23vp0OT72UPvURe3PCuso+Em
-         LusWOUI3scnuYjWTQUFhG1vrVr+AkYPKYf9hFKX4=
+        b=OWzTcxtqOG5bU6yuNr2RdMT9G202x3zWg7faiYqdBNHIWcyVii/2SuqXEGSK/ZGOW
+         XWWh2JPOiy+oKXTKC+BrthIkvaaYBQ1ndcWVxQnK2XcMmKQyBK5iRIlqqqtPgoAKAU
+         MTMxARkArzHuqgpl1+Dlo39D9UUDx2jKxCgl5vQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        patches@lists.linux.dev, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0350/1001] drm/vc4: hvs: SCALER_DISPBKGND_AUTOHS is only valid on HVS4
+Subject: [PATCH 6.1 188/885] kselftest/arm64: Fix enumeration of systems without 128 bit SME
 Date:   Tue,  7 Mar 2023 17:52:02 +0100
-Message-Id: <20230307170036.642750195@linuxfoundation.org>
+Message-Id: <20230307170010.171489541@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 982ee94486863a41c6af9f2ab3f6681f72bc5c48 ]
+[ Upstream commit 5f389238534ac8ca4ee3ab12eeb89d3984d303a1 ]
 
-The bit used for SCALER_DISPBKGND_AUTOHS in SCALER_DISPBKGNDX
-has been repurposed on HVS5 to configure whether a display can
-win back-to-back arbitration wins for the COB.
+The current signal handling tests for SME do not account for the fact that
+unlike SVE all SME vector lengths are optional so we can't guarantee that
+we will encounter the minimum possible VL, they will hang enumerating VLs
+on such systems. Abort enumeration when we find the lowest VL.
 
-This is not desirable, therefore only select this bit on HVS4,
-and explicitly clear it on HVS5.
-
-Fixes: c54619b0bfb3 ("drm/vc4: Add support for the BCM2711 HVS5")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://lore.kernel.org/r/20221207-rpi-hvs-crtc-misc-v1-3-1f8e0770798b@cerno.tech
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Fixes: 4963aeb35a9e ("kselftest/arm64: signal: Add SME signal handling tests")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20230131-arm64-kselftest-sig-sme-no-128-v1-1-d47c13dc8e1e@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hvs.c  | 10 ++++++----
- drivers/gpu/drm/vc4/vc4_regs.h |  1 +
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ tools/testing/selftests/arm64/signal/testcases/ssve_regs.c | 4 ++++
+ tools/testing/selftests/arm64/signal/testcases/za_regs.c   | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hvs.c b/drivers/gpu/drm/vc4/vc4_hvs.c
-index b335815eac6a5..57d99e7199ee5 100644
---- a/drivers/gpu/drm/vc4/vc4_hvs.c
-+++ b/drivers/gpu/drm/vc4/vc4_hvs.c
-@@ -370,28 +370,30 @@ static int vc4_hvs_init_channel(struct vc4_hvs *hvs, struct drm_crtc *crtc,
- 	 * mode.
- 	 */
- 	dispctrl = SCALER_DISPCTRLX_ENABLE;
-+	dispbkgndx = HVS_READ(SCALER_DISPBKGNDX(chan));
+diff --git a/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c b/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
+index d0a178945b1a8..c6b17c47cac4c 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
++++ b/tools/testing/selftests/arm64/signal/testcases/ssve_regs.c
+@@ -34,6 +34,10 @@ static bool sme_get_vls(struct tdescr *td)
  
--	if (!vc4->is_vc5)
-+	if (!vc4->is_vc5) {
- 		dispctrl |= VC4_SET_FIELD(mode->hdisplay,
- 					  SCALER_DISPCTRLX_WIDTH) |
- 			    VC4_SET_FIELD(mode->vdisplay,
- 					  SCALER_DISPCTRLX_HEIGHT) |
- 			    (oneshot ? SCALER_DISPCTRLX_ONESHOT : 0);
--	else
-+		dispbkgndx |= SCALER_DISPBKGND_AUTOHS;
-+	} else {
- 		dispctrl |= VC4_SET_FIELD(mode->hdisplay,
- 					  SCALER5_DISPCTRLX_WIDTH) |
- 			    VC4_SET_FIELD(mode->vdisplay,
- 					  SCALER5_DISPCTRLX_HEIGHT) |
- 			    (oneshot ? SCALER5_DISPCTRLX_ONESHOT : 0);
-+		dispbkgndx &= ~SCALER5_DISPBKGND_BCK2BCK;
-+	}
+ 		vl &= PR_SME_VL_LEN_MASK;
  
- 	HVS_WRITE(SCALER_DISPCTRLX(chan), dispctrl);
++		/* Did we find the lowest supported VL? */
++		if (vq < sve_vq_from_vl(vl))
++			break;
++
+ 		/* Skip missing VLs */
+ 		vq = sve_vq_from_vl(vl);
  
--	dispbkgndx = HVS_READ(SCALER_DISPBKGNDX(chan));
- 	dispbkgndx &= ~SCALER_DISPBKGND_GAMMA;
- 	dispbkgndx &= ~SCALER_DISPBKGND_INTERLACE;
+diff --git a/tools/testing/selftests/arm64/signal/testcases/za_regs.c b/tools/testing/selftests/arm64/signal/testcases/za_regs.c
+index ea45acb115d5b..174ad66566964 100644
+--- a/tools/testing/selftests/arm64/signal/testcases/za_regs.c
++++ b/tools/testing/selftests/arm64/signal/testcases/za_regs.c
+@@ -34,6 +34,10 @@ static bool sme_get_vls(struct tdescr *td)
  
- 	HVS_WRITE(SCALER_DISPBKGNDX(chan), dispbkgndx |
--		  SCALER_DISPBKGND_AUTOHS |
- 		  ((!vc4->is_vc5) ? SCALER_DISPBKGND_GAMMA : 0) |
- 		  (interlace ? SCALER_DISPBKGND_INTERLACE : 0));
+ 		vl &= PR_SME_VL_LEN_MASK;
  
-diff --git a/drivers/gpu/drm/vc4/vc4_regs.h b/drivers/gpu/drm/vc4/vc4_regs.h
-index f121905c404d1..95deacdc31e77 100644
---- a/drivers/gpu/drm/vc4/vc4_regs.h
-+++ b/drivers/gpu/drm/vc4/vc4_regs.h
-@@ -366,6 +366,7 @@
++		/* Did we find the lowest supported VL? */
++		if (vq < sve_vq_from_vl(vl))
++			break;
++
+ 		/* Skip missing VLs */
+ 		vq = sve_vq_from_vl(vl);
  
- #define SCALER_DISPBKGND0                       0x00000044
- # define SCALER_DISPBKGND_AUTOHS		BIT(31)
-+# define SCALER5_DISPBKGND_BCK2BCK		BIT(31)
- # define SCALER_DISPBKGND_INTERLACE		BIT(30)
- # define SCALER_DISPBKGND_GAMMA			BIT(29)
- # define SCALER_DISPBKGND_TESTMODE_MASK		VC4_MASK(28, 25)
 -- 
 2.39.2
 
