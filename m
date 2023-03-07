@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C786AEABF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88FFE6AEF46
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231735AbjCGRhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:37:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39646 "EHLO
+        id S231285AbjCGSW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:22:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231754AbjCGRgn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CEF69F07F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:44 -0800 (PST)
+        with ESMTP id S231340AbjCGSWG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9587BB3733
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEC4FB817AE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28473C433D2;
-        Tue,  7 Mar 2023 17:32:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4055BB8184E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A5F7C433EF;
+        Tue,  7 Mar 2023 18:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210361;
-        bh=aUnAOfxo3JOrzF6d20vc06FXxfgky9O1PgK+eGY4HNc=;
+        s=korg; t=1678212961;
+        bh=uV69gHXs1BRTAAy+cC7xtXcZwabmMaQc6tzRKL0whsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOKU/NRHkeFmYi7V4xmZ3IlrQdo8xreewkjDIynBKEqbxAcdsYiTAZ2IqhFd9vlw/
-         jfnrBBVzN8htaq0QQO4HEA48Wpcs8yEQ6Iz8FGNHSasaThgE3s+gcq17rFbvCveOwQ
-         wj9C+wmtSrXjArFsgNiv2rZaj6i9AHFRFvclYioQ=
+        b=Yw1h1FISN5eRfNGMpWtpoTuds/RrOFvYV851BH+AnFqefaMZvdqtFPxialLY4KkwV
+         WDXQwMKv+BSiYeVrrEGX/66T4zyHZrWA3D9AsT0zzu9C4rMtWgbG6Ukkezg36r7hWS
+         OnSoO5H3jg6+pkGdHWu3VPh1tMrOF0qFyeOjuyiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0516/1001] applicom: Fix PCI device refcount leak in applicom_init()
+Subject: [PATCH 6.1 354/885] ASoC: codecs: lpass: register mclk after runtime pm
 Date:   Tue,  7 Mar 2023 17:54:48 +0100
-Message-Id: <20230307170043.826243520@linuxfoundation.org>
+Message-Id: <20230307170017.639838763@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,51 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit ce4273d89c52167d6fe20572136c58117eae0657 ]
+[ Upstream commit 1dc3459009c33e335f0d62b84dd39a6bbd7fd5d2 ]
 
-As comment of pci_get_class() says, it returns a pci_device with its
-refcount increased and decreased the refcount for the input parameter
-@from if it is not NULL.
+move mclk out registration after runtime pm is enabled so that the
+clk framework can resume the codec if it requires to enable the mclk out.
 
-If we break the loop in applicom_init() with 'dev' not NULL, we need to
-call pci_dev_put() to decrease the refcount. Add the missing
-pci_dev_put() to avoid refcount leak.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221122114035.24194-1-wangxiongfeng2@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c96baa2949b2 ("ASoC: codecs: wsa-macro: add runtime pm support")
+Fixes: 72ad25eabda0 ("ASoC: codecs: va-macro: add runtime pm support")
+Fixes: 366ff79ed539 ("ASoC: codecs: rx-macro: add runtime pm support")
+Fixes: 1fb83bc5cf64 ("ASoC: codecs: tx-macro: add runtime pm support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230209122806.18923-6-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/applicom.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/codecs/lpass-rx-macro.c  |  8 ++++----
+ sound/soc/codecs/lpass-tx-macro.c  |  8 ++++----
+ sound/soc/codecs/lpass-va-macro.c  | 20 ++++++++++----------
+ sound/soc/codecs/lpass-wsa-macro.c |  9 ++++-----
+ 4 files changed, 22 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/char/applicom.c b/drivers/char/applicom.c
-index 36203d3fa6ea6..69314532f38cd 100644
---- a/drivers/char/applicom.c
-+++ b/drivers/char/applicom.c
-@@ -197,8 +197,10 @@ static int __init applicom_init(void)
- 		if (!pci_match_id(applicom_pci_tbl, dev))
- 			continue;
- 		
--		if (pci_enable_device(dev))
-+		if (pci_enable_device(dev)) {
-+			pci_dev_put(dev);
- 			return -EIO;
-+		}
+diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+index a9ef9d5ffcc5c..dd6970d5eb8d1 100644
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -3601,10 +3601,6 @@ static int rx_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_fsgen;
  
- 		RamIO = ioremap(pci_resource_start(dev, 0), LEN_RAM_IO);
+-	ret = rx_macro_register_mclk_output(rx);
+-	if (ret)
+-		goto err_clkout;
+-
+ 	ret = devm_snd_soc_register_component(dev, &rx_macro_component_drv,
+ 					      rx_macro_dai,
+ 					      ARRAY_SIZE(rx_macro_dai));
+@@ -3618,6 +3614,10 @@ static int rx_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
  
-@@ -207,6 +209,7 @@ static int __init applicom_init(void)
- 				"space at 0x%llx\n",
- 				(unsigned long long)pci_resource_start(dev, 0));
- 			pci_disable_device(dev);
-+			pci_dev_put(dev);
- 			return -EIO;
- 		}
++	ret = rx_macro_register_mclk_output(rx);
++	if (ret)
++		goto err_clkout;
++
+ 	return 0;
  
+ err_clkout:
+diff --git a/sound/soc/codecs/lpass-tx-macro.c b/sound/soc/codecs/lpass-tx-macro.c
+index ee15cf6b98bba..bc0a0c32ea5bf 100644
+--- a/sound/soc/codecs/lpass-tx-macro.c
++++ b/sound/soc/codecs/lpass-tx-macro.c
+@@ -1889,10 +1889,6 @@ static int tx_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_fsgen;
+ 
+-	ret = tx_macro_register_mclk_output(tx);
+-	if (ret)
+-		goto err_clkout;
+-
+ 	ret = devm_snd_soc_register_component(dev, &tx_macro_component_drv,
+ 					      tx_macro_dai,
+ 					      ARRAY_SIZE(tx_macro_dai));
+@@ -1905,6 +1901,10 @@ static int tx_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
++	ret = tx_macro_register_mclk_output(tx);
++	if (ret)
++		goto err_clkout;
++
+ 	return 0;
+ 
+ err_clkout:
+diff --git a/sound/soc/codecs/lpass-va-macro.c b/sound/soc/codecs/lpass-va-macro.c
+index b0b6cf29cba30..1623ba78ddb3d 100644
+--- a/sound/soc/codecs/lpass-va-macro.c
++++ b/sound/soc/codecs/lpass-va-macro.c
+@@ -1524,16 +1524,6 @@ static int va_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_mclk;
+ 
+-	ret = va_macro_register_fsgen_output(va);
+-	if (ret)
+-		goto err_clkout;
+-
+-	va->fsgen = clk_hw_get_clk(&va->hw, "fsgen");
+-	if (IS_ERR(va->fsgen)) {
+-		ret = PTR_ERR(va->fsgen);
+-		goto err_clkout;
+-	}
+-
+ 	if (va->has_swr_master) {
+ 		/* Set default CLK div to 1 */
+ 		regmap_update_bits(va->regmap, CDC_VA_TOP_CSR_SWR_MIC_CTL0,
+@@ -1560,6 +1550,16 @@ static int va_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
++	ret = va_macro_register_fsgen_output(va);
++	if (ret)
++		goto err_clkout;
++
++	va->fsgen = clk_hw_get_clk(&va->hw, "fsgen");
++	if (IS_ERR(va->fsgen)) {
++		ret = PTR_ERR(va->fsgen);
++		goto err_clkout;
++	}
++
+ 	return 0;
+ 
+ err_clkout:
+diff --git a/sound/soc/codecs/lpass-wsa-macro.c b/sound/soc/codecs/lpass-wsa-macro.c
+index 5e0abefe7cced..c012033fb69ed 100644
+--- a/sound/soc/codecs/lpass-wsa-macro.c
++++ b/sound/soc/codecs/lpass-wsa-macro.c
+@@ -2449,11 +2449,6 @@ static int wsa_macro_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_fsgen;
+ 
+-	ret = wsa_macro_register_mclk_output(wsa);
+-	if (ret)
+-		goto err_clkout;
+-
+-
+ 	ret = devm_snd_soc_register_component(dev, &wsa_macro_component_drv,
+ 					      wsa_macro_dai,
+ 					      ARRAY_SIZE(wsa_macro_dai));
+@@ -2466,6 +2461,10 @@ static int wsa_macro_probe(struct platform_device *pdev)
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
++	ret = wsa_macro_register_mclk_output(wsa);
++	if (ret)
++		goto err_clkout;
++
+ 	return 0;
+ 
+ err_clkout:
 -- 
 2.39.2
 
