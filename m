@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E28F6AF2C8
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E18556AF2C7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233506AbjCGS41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:56:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35472 "EHLO
+        id S233398AbjCGS4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:56:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233438AbjCGS4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D63A0F0A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:39 -0800 (PST)
+        with ESMTP id S231614AbjCGS4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8866262D9D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FB466152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2758AC433D2;
-        Tue,  7 Mar 2023 18:43:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0275BB819BF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25F68C433EF;
+        Tue,  7 Mar 2023 18:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214613;
-        bh=VtLbXyz5ye/mIhclWvS1u5cS2uo4WQHPs0l3+oy6/Ww=;
+        s=korg; t=1678214616;
+        bh=9lqFVp72P3qy6PTD6/0T9qxO/Z7XuPwaQc1AwYhUvSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIT+r1ififmxN8nZ6N+tjgCIrT2bv1CFTiIbMFG74fIwSF968acWmEe4Pv2s+kBIJ
-         KvFEcGGShiwJ1wQvo95f5XGx2btPkzm7/YoXTrD76coffo23LbzRJvfP88KcB8Bpyq
-         BBKvnaZxsoshFZ/x+OChgKdShmAiyjHurhpzoZuA=
+        b=BpZJSnqt+6/21DO90GDDmK3wt5HN3FTk3aZvorSqQBGXkAD7NfbVxjbefIE898Pum
+         Zl1E2Px83vKSlhr7IOASGW4GnF5RnHxCrF+86jpiKjM6HegVDlybBI/7bZIJ44YcoA
+         9rpA3CNwOpnL5ORAS7omAeoiZC5FvWkUh9z23wAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mavroudis Chatzilaridis <mavchatz@protonmail.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.1 879/885] drm/i915/quirks: Add inverted backlight quirk for HP 14-r206nv
-Date:   Tue,  7 Mar 2023 18:03:33 +0100
-Message-Id: <20230307170039.979333232@linuxfoundation.org>
+        patches@lists.linux.dev, Mark Hawrylak <mark.hawrylak@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 880/885] drm/radeon: Fix eDP for single-display iMac11,2
+Date:   Tue,  7 Mar 2023 18:03:34 +0100
+Message-Id: <20230307170040.027039644@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -54,36 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mavroudis Chatzilaridis <mavchatz@protonmail.com>
+From: Mark Hawrylak <mark.hawrylak@gmail.com>
 
-commit 5e438bf7f9a1705ebcae5fa89cdbfbc6932a7871 upstream.
+commit 05eacc198c68cbb35a7281ce4011f8899ee1cfb8 upstream.
 
-This laptop uses inverted backlight PWM. Thus, without this quirk,
-backlight brightness decreases as the brightness value increases and
-vice versa.
+Apple iMac11,2 (mid 2010) also with Radeon HD-4670 that has the same
+issue as iMac10,1 (late 2009) where the internal eDP panel stays dark on
+driver load.  This patch treats iMac11,2 the same as iMac10,1,
+so the eDP panel stays active.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8013
+Additional steps:
+Kernel boot parameter radeon.nomodeset=0 required to keep the eDP
+panel active.
+
+This patch is an extension of
+commit 564d8a2cf3ab ("drm/radeon: Fix eDP for single-display iMac10,1 (v2)")
+Link: https://lore.kernel.org/all/lsq.1507553064.833262317@decadent.org.uk/
+Signed-off-by: Mark Hawrylak <mark.hawrylak@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mavroudis Chatzilaridis <mavchatz@protonmail.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230201184947.8835-1-mavchatz@protonmail.com
-(cherry picked from commit 83e7d6fd330d413cb2064e680ffea91b0512a520)
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_quirks.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/radeon/atombios_encoders.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_quirks.c
-+++ b/drivers/gpu/drm/i915/display/intel_quirks.c
-@@ -199,6 +199,8 @@ static struct intel_quirk intel_quirks[]
- 	/* ECS Liva Q2 */
- 	{ 0x3185, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
- 	{ 0x3184, 0x1019, 0xa94d, quirk_increase_ddi_disabled_time },
-+	/* HP Notebook - 14-r206nv */
-+	{ 0x0f31, 0x103c, 0x220f, quirk_invert_brightness },
- };
+--- a/drivers/gpu/drm/radeon/atombios_encoders.c
++++ b/drivers/gpu/drm/radeon/atombios_encoders.c
+@@ -2122,11 +2122,12 @@ int radeon_atom_pick_dig_encoder(struct
  
- void intel_init_quirks(struct drm_i915_private *i915)
+ 	/*
+ 	 * On DCE32 any encoder can drive any block so usually just use crtc id,
+-	 * but Apple thinks different at least on iMac10,1, so there use linkb,
++	 * but Apple thinks different at least on iMac10,1 and iMac11,2, so there use linkb,
+ 	 * otherwise the internal eDP panel will stay dark.
+ 	 */
+ 	if (ASIC_IS_DCE32(rdev)) {
+-		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1"))
++		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1") ||
++		    dmi_match(DMI_PRODUCT_NAME, "iMac11,2"))
+ 			enc_idx = (dig->linkb) ? 1 : 0;
+ 		else
+ 			enc_idx = radeon_crtc->crtc_id;
 
 
