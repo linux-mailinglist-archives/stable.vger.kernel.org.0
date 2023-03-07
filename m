@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FAF86AEB55
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABC46AF342
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231717AbjCGRn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:43:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50212 "EHLO
+        id S231466AbjCGTCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:02:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232039AbjCGRnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:43:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CBAB9B980
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:04 -0800 (PST)
+        with ESMTP id S231458AbjCGTC2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:02:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411E9BAD3C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D67E561520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE468C433D2;
-        Tue,  7 Mar 2023 17:39:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 189FEB818EB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:47:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4682FC433D2;
+        Tue,  7 Mar 2023 18:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210743;
-        bh=nt8qevdm9MKP8Zuhidf146WHwAMz6rf41y0GSmmipy0=;
+        s=korg; t=1678214873;
+        bh=AC4xYdcmtLFqFTo1rNgoXDTX/M0IY0Qp9rbHrFaprss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrCbBLiD5szbFp6LzIVjkZRUF1XgYZsdSp4C3F48J2HAZfvvlFH3P5iqR9ccFSvQi
-         JYcAsb8Ui5sI8b7nLHcOfqOru+tTRLz8TPlwdVLX3H+9dpqgIwNz1Ke93o/5xFxBwp
-         Jcdbndu/IultEvMxurHgIMbCYMkmC+oVN/MkiUz0=
+        b=HQlWsGCTMEPuR/udHK5OJiacATC9FFIp44l12BjYOQpJ+gbqtRbIQa5m8KOoh2Lsm
+         dmujMVH5/CYwSZUU5Usr6eSP7O/nIk/Q26EdEgtWAXaGxv+vOlUfxBRT0KkgaSqXau
+         ovUb0rpSJ8miwMzWd8eidyZa0vUQbLAp9W7cG6uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0640/1001] rcu: Suppress smp_processor_id() complaint in synchronize_rcu_expedited_wait()
-Date:   Tue,  7 Mar 2023 17:56:52 +0100
-Message-Id: <20230307170049.369987155@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 077/567] wifi: wilc1000: fix potential memory leak in wilc_mac_xmit()
+Date:   Tue,  7 Mar 2023 17:56:53 +0100
+Message-Id: <20230307165909.238795474@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,40 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 2d7f00b2f01301d6e41fd4a28030dab0442265be ]
+[ Upstream commit deb962ec9e1c9a81babd3d37542ad4bd6ac3396e ]
 
-The normal grace period's RCU CPU stall warnings are invoked from the
-scheduling-clock interrupt handler, and can thus invoke smp_processor_id()
-with impunity, which allows them to directly invoke dump_cpu_task().
-In contrast, the expedited grace period's RCU CPU stall warnings are
-invoked from process context, which causes the dump_cpu_task() function's
-calls to smp_processor_id() to complain bitterly in debug kernels.
+The wilc_mac_xmit() returns NETDEV_TX_OK without freeing skb, add
+dev_kfree_skb() to fix it. Compile tested only.
 
-This commit therefore causes synchronize_rcu_expedited_wait() to disable
-preemption around its call to dump_cpu_task().
-
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: c5c77ba18ea6 ("staging: wilc1000: Add SDIO/SPI 802.11 driver")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1668684964-48622-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/microchip/wilc1000/netdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index ed6c3cce28f23..927abaf6c822e 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -667,7 +667,9 @@ static void synchronize_rcu_expedited_wait(void)
- 				mask = leaf_node_cpu_bit(rnp, cpu);
- 				if (!(READ_ONCE(rnp->expmask) & mask))
- 					continue;
-+				preempt_disable(); // For smp_processor_id() in dump_cpu_task().
- 				dump_cpu_task(cpu);
-+				preempt_enable();
- 			}
- 		}
- 		jiffies_stall = 3 * rcu_exp_jiffies_till_stall_check() + 3;
+diff --git a/drivers/net/wireless/microchip/wilc1000/netdev.c b/drivers/net/wireless/microchip/wilc1000/netdev.c
+index 9dfb1a285e6a4..5e3ec20e24dad 100644
+--- a/drivers/net/wireless/microchip/wilc1000/netdev.c
++++ b/drivers/net/wireless/microchip/wilc1000/netdev.c
+@@ -724,6 +724,7 @@ netdev_tx_t wilc_mac_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 
+ 	if (skb->dev != ndev) {
+ 		netdev_err(ndev, "Packet not destined to this device\n");
++		dev_kfree_skb(skb);
+ 		return NETDEV_TX_OK;
+ 	}
+ 
 -- 
 2.39.2
 
