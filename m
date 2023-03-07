@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C94BC6AE97D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:24:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 244516AEE0A
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbjCGRYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:24:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50072 "EHLO
+        id S232296AbjCGSJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:09:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231421AbjCGRYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:24:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D800A898C9
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:19:43 -0800 (PST)
+        with ESMTP id S232382AbjCGSI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:58 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDADF7A937
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:03:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C6DE61511
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:19:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B355C433EF;
-        Tue,  7 Mar 2023 17:19:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CB93BCE1C79
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:03:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A04C4339C;
+        Tue,  7 Mar 2023 18:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209582;
-        bh=Fz33OgIM+kjXSCtgvOTXkpyVaeUSm59C1AzKHfokX94=;
+        s=korg; t=1678212188;
+        bh=gtvOJfSLuEURTPpaOL10tOXmuupFAfBmKlnJSPqQlI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmuKRAsWAszz/CGhWZO/hI1KMVINf/iZR8EoZo0M9uEfKakTeYW+g/j+MAJDwiwHM
-         X7WF9rVVDoUkNDzfIeoxYD8kK1upTYrmp+d+hcG6I8c9IkMCDWFqvT3J0tmU/2YN+w
-         nrw8umWWwVb5zMhM8rO7xh2GBxXL7In/t81xSelY=
+        b=TCY6YUQoAJa35Co3FNJhhip6ag+ahfUvECzKNu/6/62dW25tqITJ+XS7sEGWWZEd1
+         S/mWYErOnZdXKDCDfgq9znn2NuZTcLeFuHbvZ/ps4joGupgQdyYmSe+JkZhwjDVXw2
+         +6Br6GLz3+sKXcdlV2zE4PScgsVVvjb3XhhY0yDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0266/1001] tap: tap_open(): correctly initialize socket uid
-Date:   Tue,  7 Mar 2023 17:50:38 +0100
-Message-Id: <20230307170033.279577529@linuxfoundation.org>
+Subject: [PATCH 6.1 105/885] arm64: dts: qcom: pmk8350: Use the correct PON compatible
+Date:   Tue,  7 Mar 2023 17:50:39 +0100
+Message-Id: <20230307170006.448548710@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,45 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 66b2c338adce580dfce2199591e65e2bab889cff ]
+[ Upstream commit c0ee8e0ba5cc17623e63349a168b41e407b1eef0 ]
 
-sock_init_data() assumes that the `struct socket` passed in input is
-contained in a `struct socket_alloc` allocated with sock_alloc().
-However, tap_open() passes a `struct socket` embedded in a `struct
-tap_queue` allocated with sk_alloc().
-This causes a type confusion when issuing a container_of() with
-SOCK_INODE() in sock_init_data() which results in assigning a wrong
-sk_uid to the `struct sock` in input.
-On default configuration, the type confused field overlaps with
-padding bytes between `int vnet_hdr_sz` and `struct tap_dev __rcu
-*tap` in `struct tap_queue`, which makes the uid of all tap sockets 0,
-i.e., the root one.
-Fix the assignment by using sock_init_data_uid().
+A special compatible was introduced for PMK8350 both in the driver and
+the bindings to facilitate for 2 base registers (PBS & HLOS). Use it.
 
-Fixes: 86741ec25462 ("net: core: Add a UID field to struct sock.")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b2de43136058 ("arm64: dts: qcom: pmk8350: Add peripherals for pmk8350")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230213212930.2115182-1-konrad.dybcio@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tap.c | 2 +-
+ arch/arm64/boot/dts/qcom/pmk8350.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index a2be1994b3894..8941aa199ea33 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -533,7 +533,7 @@ static int tap_open(struct inode *inode, struct file *file)
- 	q->sock.state = SS_CONNECTED;
- 	q->sock.file = file;
- 	q->sock.ops = &tap_socket_ops;
--	sock_init_data(&q->sock, &q->sk);
-+	sock_init_data_uid(&q->sock, &q->sk, inode->i_uid);
- 	q->sk.sk_write_space = tap_sock_write_space;
- 	q->sk.sk_destruct = tap_sock_destruct;
- 	q->flags = IFF_VNET_HDR | IFF_NO_PI | IFF_TAP;
+diff --git a/arch/arm64/boot/dts/qcom/pmk8350.dtsi b/arch/arm64/boot/dts/qcom/pmk8350.dtsi
+index ec002eecb19d9..f0d256d99e62e 100644
+--- a/arch/arm64/boot/dts/qcom/pmk8350.dtsi
++++ b/arch/arm64/boot/dts/qcom/pmk8350.dtsi
+@@ -16,7 +16,7 @@ pmk8350: pmic@0 {
+ 		#size-cells = <0>;
+ 
+ 		pmk8350_pon: pon@1300 {
+-			compatible = "qcom,pm8998-pon";
++			compatible = "qcom,pmk8350-pon";
+ 			reg = <0x1300>, <0x800>;
+ 			reg-names = "hlos", "pbs";
+ 
 -- 
 2.39.2
 
