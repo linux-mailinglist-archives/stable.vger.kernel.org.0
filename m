@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 615CF6AF2BD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4706AED0F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:01:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233355AbjCGS4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:56:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59120 "EHLO
+        id S230481AbjCGSA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:00:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233363AbjCGSzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:55:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6674457F4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:14 -0800 (PST)
+        with ESMTP id S229636AbjCGSAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B32099C2F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4409CB819D1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B20C433D2;
-        Tue,  7 Mar 2023 18:37:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B17A61528
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91028C433EF;
+        Tue,  7 Mar 2023 17:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214272;
-        bh=uIYNMFmncTTRgN2qlNAyef2CpIPhlvxozbQrLYKfnyA=;
+        s=korg; t=1678211675;
+        bh=vU9G4G+Llss0uSFhzJX5rkdwUweQyaXWZsSvTMpTHb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQxs0k15JlQRQfB6JZlw+jjuSqWrsmJ8w0gzEHuRYAxT0W3Q8aG/z2G3cvY/49tAb
-         /VdDpAAOMwyNEDhTefbdlLePW0giegV2h9WVqL34dPHVMR1mOhHEIwrIaxQGHNT7JG
-         mW/uYxlUKUijPu+RQf7pAKfpo/Sk9C7zWdv+tpw4=
+        b=qgBxVA+/TuduMC+gxaXyELNHzWZK+xfKDj9D4LepSgXAaTv+6OgBSLCBKr83FxtJB
+         VihA208cml3ELAmGQndjTp71xcAG+FmvMweThzrpYmhqwWz6yBVbkEdWEwUquuM1gY
+         7O++6DwEj76Na5TkrxQ+zoYkMSh2ma4dDA6u26lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 6.1 777/885] irqdomain: Drop bogus fwspec-mapping error handling
-Date:   Tue,  7 Mar 2023 18:01:51 +0100
-Message-Id: <20230307170035.697057192@linuxfoundation.org>
+        patches@lists.linux.dev, "Dmitry V. Levin" <ldv@strace.io>,
+        Elvira Khabirova <lineprinter0@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 6.2 0940/1001] mips: fix syscall_get_nr
+Date:   Tue,  7 Mar 2023 18:01:52 +0100
+Message-Id: <20230307170102.912982655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,46 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Elvira Khabirova <lineprinter0@gmail.com>
 
-commit e3b7ab025e931accdc2c12acf9b75c6197f1c062 upstream.
+commit 85cc91e2ba4262a602ec65e2b76c4391a9e60d3d upstream.
 
-In case a newly allocated IRQ ever ends up not having any associated
-struct irq_data it would not even be possible to dispose the mapping.
+The implementation of syscall_get_nr on mips used to ignore the task
+argument and return the syscall number of the calling thread instead of
+the target thread.
 
-Replace the bogus disposal with a WARN_ON().
+The bug was exposed to user space by commit 201766a20e30f ("ptrace: add
+PTRACE_GET_SYSCALL_INFO request") and detected by strace test suite.
 
-This will also be used to fix a shared-interrupt mapping race, hence the
-CC-stable tag.
-
-Fixes: 1e2a7d78499e ("irqdomain: Don't set type when mapping an IRQ")
-Cc: stable@vger.kernel.org      # 4.8
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-4-johan+linaro@kernel.org
+Link: https://github.com/strace/strace/issues/235
+Fixes: c2d9f1775731 ("MIPS: Fix syscall_get_nr for the syscall exit tracing.")
+Cc: <stable@vger.kernel.org> # v3.19+
+Co-developed-by: Dmitry V. Levin <ldv@strace.io>
+Signed-off-by: Dmitry V. Levin <ldv@strace.io>
+Signed-off-by: Elvira Khabirova <lineprinter0@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/mips/include/asm/syscall.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -853,13 +853,8 @@ unsigned int irq_create_fwspec_mapping(s
- 	}
+--- a/arch/mips/include/asm/syscall.h
++++ b/arch/mips/include/asm/syscall.h
+@@ -38,7 +38,7 @@ static inline bool mips_syscall_is_indir
+ static inline long syscall_get_nr(struct task_struct *task,
+ 				  struct pt_regs *regs)
+ {
+-	return current_thread_info()->syscall;
++	return task_thread_info(task)->syscall;
+ }
  
- 	irq_data = irq_get_irq_data(virq);
--	if (!irq_data) {
--		if (irq_domain_is_hierarchy(domain))
--			irq_domain_free_irqs(virq, 1);
--		else
--			irq_dispose_mapping(virq);
-+	if (WARN_ON(!irq_data))
- 		return 0;
--	}
- 
- 	/* Store trigger type */
- 	irqd_set_trigger_type(irq_data, type);
+ static inline void mips_syscall_update_nr(struct task_struct *task,
 
 
