@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA8B46AF0A7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:33:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B8B6AF0AD
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:33:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbjCGSdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:33:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60098 "EHLO
+        id S232810AbjCGSdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:33:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231578AbjCGScy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:32:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBC85A90A5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:25:11 -0800 (PST)
+        with ESMTP id S231329AbjCGSda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:33:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 965A2B2571
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:25:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CA79B819D3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB9FAC433D2;
-        Tue,  7 Mar 2023 18:25:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2C1E61560
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:25:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7662C433A0;
+        Tue,  7 Mar 2023 18:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213507;
-        bh=vvC37eYtey1frg/71k28DRfDY7sOqExWkwRqFW8oqZw=;
+        s=korg; t=1678213510;
+        bh=GD9fZiPmg8hvZaGBCbqBinxIG6NERqz58DxiMg3ekjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMtGQ0ueuTJAeW+Qyv+1O0ck6sXvogpwXxBm9svZEUgiJTaIgEhH5BaPYr6/QFAnY
-         IB+qe1d0qfUp/zsPv1DZK1Tm5WY+jNJb/hc0pCQQSHxZwErQfSM/M5DaoL0Cggmysn
-         dl04il+O2z2GeGAYfHC21iu2RtYNX69xr3RBTSQw=
+        b=K72XFhXD4wVspNpDAKVYmhGO45YxB32NoneJlk/2Gvv/DGUOI4WVXvGEjcTNGDoWL
+         QfC6k1CC/YmJfWy/X1HKLGOQJXUEHDHw/xIBBlKGGLq/t+VELqMjvwc5XfNNaWLney
+         vWwsZ9HzVEYLOAS4HAgae9VnSLZh3+3Rtb/83GrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 528/885] arm64: dts: qcom: msm8996: Add additional A2NoC clocks
-Date:   Tue,  7 Mar 2023 17:57:42 +0100
-Message-Id: <20230307170025.412426127@linuxfoundation.org>
+Subject: [PATCH 6.1 529/885] udf: Define EFSCORRUPTED error code
+Date:   Tue,  7 Mar 2023 17:57:43 +0100
+Message-Id: <20230307170025.453001757@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -45,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,44 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 67fb53745e0b38275fa0b422b6a3c6c1c028c9a2 ]
+[ Upstream commit 3d2d7e61553dbcc8ba45201d8ae4f383742c8202 ]
 
-On eMMC devices, the UFS clocks aren't started in the bootloader (or well,
-at least it should not be, as that would just leak power..), which results
-in platform reboots when trying to access the unclocked UFS hardware,
-which unfortunately happens on each and every boot, as interconnect calls
-sync_state and goes over each and every path.
+Similarly to other filesystems define EFSCORRUPTED error code for
+reporting internal filesystem corruption.
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org> #db820c
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221210200353.418391-6-konrad.dybcio@linaro.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8996.dtsi | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/udf/udf_sb.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-index 36af4fea38e73..c103034372fd7 100644
---- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
-@@ -829,9 +829,11 @@ a2noc: interconnect@583000 {
- 			compatible = "qcom,msm8996-a2noc";
- 			reg = <0x00583000 0x7000>;
- 			#interconnect-cells = <1>;
--			clock-names = "bus", "bus_a";
-+			clock-names = "bus", "bus_a", "aggre2_ufs_axi", "ufs_axi";
- 			clocks = <&rpmcc RPM_SMD_AGGR2_NOC_CLK>,
--				 <&rpmcc RPM_SMD_AGGR2_NOC_A_CLK>;
-+				 <&rpmcc RPM_SMD_AGGR2_NOC_A_CLK>,
-+				 <&gcc GCC_AGGRE2_UFS_AXI_CLK>,
-+				 <&gcc GCC_UFS_AXI_CLK>;
- 		};
+diff --git a/fs/udf/udf_sb.h b/fs/udf/udf_sb.h
+index 4fa620543d302..2205859731dc2 100644
+--- a/fs/udf/udf_sb.h
++++ b/fs/udf/udf_sb.h
+@@ -51,6 +51,8 @@
+ #define MF_DUPLICATE_MD		0x01
+ #define MF_MIRROR_FE_LOADED	0x02
  
- 		mnoc: interconnect@5a4000 {
++#define EFSCORRUPTED EUCLEAN
++
+ struct udf_meta_data {
+ 	__u32	s_meta_file_loc;
+ 	__u32	s_mirror_file_loc;
 -- 
 2.39.2
 
