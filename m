@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D47316AEE64
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72AE46AE9BB
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231629AbjCGSLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47798 "EHLO
+        id S231548AbjCGR1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232417AbjCGSLC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:02 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C7B3430D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:09 -0800 (PST)
+        with ESMTP id S230373AbjCGR0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8EDD9E674
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 66C07CE1C7D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 236FFC433D2;
-        Tue,  7 Mar 2023 18:06:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B49EB819A1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA08DC4339B;
+        Tue,  7 Mar 2023 17:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212365;
-        bh=Iyhf51g5a9I6KplE2RMvVJY5NM14P+x6dyI4q1VvT2c=;
+        s=korg; t=1678209710;
+        bh=8l+Q/HAeVvzEIoHoq1CkgyBOfxd017WjlpMgtezfedE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=az0ezARKm0lk27R0arbtDiMVj2uy+2baLO94DMJy4wVyaHi9rD3zNeO6+1Dl3f6t7
-         9yUT3Rzn2TORnilvzheBZtfIDRn535i9lOo4KvxlXreFsKtE3IyJ4/tdSHV7MycYPc
-         by1nvI0eWWU/YIIrBtVPfICNiedfbTsKAp32OUaM=
+        b=Js+j0KUYO+YB8mQNHjL6n69DJTEOFRZqy6jWX7DKzEibVzUebK+kz/bmi7W0NHDlI
+         ix7ndasTqQcvMUMNS2AEC7INmUWbT1yoRcZUVO4bUOmFCYtF2kQaGqU/zplYpxf3tY
+         dM6sss3rIEZ10D56/U2nz0i7q3GFvcCmY8ZTxYeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 145/885] rcu-tasks: Fix synchronize_rcu_tasks() VS zap_pid_ns_processes()
+Subject: [PATCH 6.2 0307/1001] wifi: mac80211: pass sta to ieee80211_rx_data_set_sta()
 Date:   Tue,  7 Mar 2023 17:51:19 +0100
-Message-Id: <20230307170008.179387463@linuxfoundation.org>
+Message-Id: <20230307170034.885977386@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,153 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 28319d6dc5e2ffefa452c2377dd0f71621b5bff0 ]
+[ Upstream commit 0d846bdc11101ac0ba4d89c2be359af08cb9379b ]
 
-RCU Tasks and PID-namespace unshare can interact in do_exit() in a
-complicated circular dependency:
+There's at least one case in ieee80211_rx_for_interface()
+where we might pass &((struct sta_info *)NULL)->sta to it
+only to then do container_of(), and then checking the
+result for NULL, but checking the result of container_of()
+for NULL looks really odd.
 
-1) TASK A calls unshare(CLONE_NEWPID), this creates a new PID namespace
-   that every subsequent child of TASK A will belong to. But TASK A
-   doesn't itself belong to that new PID namespace.
+Fix this by just passing the struct sta_info * instead.
 
-2) TASK A forks() and creates TASK B. TASK A stays attached to its PID
-   namespace (let's say PID_NS1) and TASK B is the first task belonging
-   to the new PID namespace created by unshare()  (let's call it PID_NS2).
-
-3) Since TASK B is the first task attached to PID_NS2, it becomes the
-   PID_NS2 child reaper.
-
-4) TASK A forks() again and creates TASK C which get attached to PID_NS2.
-   Note how TASK C has TASK A as a parent (belonging to PID_NS1) but has
-   TASK B (belonging to PID_NS2) as a pid_namespace child_reaper.
-
-5) TASK B exits and since it is the child reaper for PID_NS2, it has to
-   kill all other tasks attached to PID_NS2, and wait for all of them to
-   die before getting reaped itself (zap_pid_ns_process()).
-
-6) TASK A calls synchronize_rcu_tasks() which leads to
-   synchronize_srcu(&tasks_rcu_exit_srcu).
-
-7) TASK B is waiting for TASK C to get reaped. But TASK B is under a
-   tasks_rcu_exit_srcu SRCU critical section (exit_notify() is between
-   exit_tasks_rcu_start() and exit_tasks_rcu_finish()), blocking TASK A.
-
-8) TASK C exits and since TASK A is its parent, it waits for it to reap
-   TASK C, but it can't because TASK A waits for TASK B that waits for
-   TASK C.
-
-Pid_namespace semantics can hardly be changed at this point. But the
-coverage of tasks_rcu_exit_srcu can be reduced instead.
-
-The current task is assumed not to be concurrently reapable at this
-stage of exit_notify() and therefore tasks_rcu_exit_srcu can be
-temporarily relaxed without breaking its constraints, providing a way
-out of the deadlock scenario.
-
-[ paulmck: Fix build failure by adding additional declaration. ]
-
-Fixes: 3f95aa81d265 ("rcu: Make TASKS_RCU handle tasks that are almost done exiting")
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Suggested-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Suggested-by: Paul E. McKenney <paulmck@kernel.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Eric W . Biederman <ebiederm@xmission.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: e66b7920aa5a ("wifi: mac80211: fix initialization of rx->link and rx->link_sta")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rcupdate.h |  2 ++
- kernel/pid_namespace.c   | 17 +++++++++++++++++
- kernel/rcu/tasks.h       | 15 +++++++++++++--
- 3 files changed, 32 insertions(+), 2 deletions(-)
+ net/mac80211/rx.c | 26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
 
-diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index 08605ce7379d7..4a3fd3404ad0c 100644
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -229,6 +229,7 @@ void synchronize_rcu_tasks_rude(void);
- 
- #define rcu_note_voluntary_context_switch(t) rcu_tasks_qs(t, false)
- void exit_tasks_rcu_start(void);
-+void exit_tasks_rcu_stop(void);
- void exit_tasks_rcu_finish(void);
- #else /* #ifdef CONFIG_TASKS_RCU_GENERIC */
- #define rcu_tasks_classic_qs(t, preempt) do { } while (0)
-@@ -237,6 +238,7 @@ void exit_tasks_rcu_finish(void);
- #define call_rcu_tasks call_rcu
- #define synchronize_rcu_tasks synchronize_rcu
- static inline void exit_tasks_rcu_start(void) { }
-+static inline void exit_tasks_rcu_stop(void) { }
- static inline void exit_tasks_rcu_finish(void) { }
- #endif /* #else #ifdef CONFIG_TASKS_RCU_GENERIC */
- 
-diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
-index f4f8cb0435b45..fc21c5d5fd5de 100644
---- a/kernel/pid_namespace.c
-+++ b/kernel/pid_namespace.c
-@@ -244,7 +244,24 @@ void zap_pid_ns_processes(struct pid_namespace *pid_ns)
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		if (pid_ns->pid_allocated == init_pids)
- 			break;
-+		/*
-+		 * Release tasks_rcu_exit_srcu to avoid following deadlock:
-+		 *
-+		 * 1) TASK A unshare(CLONE_NEWPID)
-+		 * 2) TASK A fork() twice -> TASK B (child reaper for new ns)
-+		 *    and TASK C
-+		 * 3) TASK B exits, kills TASK C, waits for TASK A to reap it
-+		 * 4) TASK A calls synchronize_rcu_tasks()
-+		 *                   -> synchronize_srcu(tasks_rcu_exit_srcu)
-+		 * 5) *DEADLOCK*
-+		 *
-+		 * It is considered safe to release tasks_rcu_exit_srcu here
-+		 * because we assume the current task can not be concurrently
-+		 * reaped at this point.
-+		 */
-+		exit_tasks_rcu_stop();
- 		schedule();
-+		exit_tasks_rcu_start();
- 	}
- 	__set_current_state(TASK_RUNNING);
- 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 80e75e7926cc6..a701001e8b321 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -1016,16 +1016,27 @@ void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
-  * task is exiting and may be removed from the tasklist. See
-  * corresponding synchronize_srcu() for further details.
-  */
--void exit_tasks_rcu_finish(void) __releases(&tasks_rcu_exit_srcu)
-+void exit_tasks_rcu_stop(void) __releases(&tasks_rcu_exit_srcu)
- {
- 	struct task_struct *t = current;
- 
- 	__srcu_read_unlock(&tasks_rcu_exit_srcu, t->rcu_tasks_idx);
--	exit_tasks_rcu_finish_trace(t);
-+}
-+
-+/*
-+ * Contribute to protect against tasklist scan blind spot while the
-+ * task is exiting and may be removed from the tasklist. See
-+ * corresponding synchronize_srcu() for further details.
-+ */
-+void exit_tasks_rcu_finish(void)
-+{
-+	exit_tasks_rcu_stop();
-+	exit_tasks_rcu_finish_trace(current);
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index 870b8d042b799..1ed345d072b3f 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -4073,13 +4073,8 @@ static bool ieee80211_rx_data_set_link(struct ieee80211_rx_data *rx,
  }
  
- #else /* #ifdef CONFIG_TASKS_RCU */
- void exit_tasks_rcu_start(void) { }
-+void exit_tasks_rcu_stop(void) { }
- void exit_tasks_rcu_finish(void) { exit_tasks_rcu_finish_trace(current); }
- #endif /* #else #ifdef CONFIG_TASKS_RCU */
+ static bool ieee80211_rx_data_set_sta(struct ieee80211_rx_data *rx,
+-				      struct ieee80211_sta *pubsta,
+-				      int link_id)
++				      struct sta_info *sta, int link_id)
+ {
+-	struct sta_info *sta;
+-
+-	sta = container_of(pubsta, struct sta_info, sta);
+-
+ 	rx->link_id = link_id;
+ 	rx->sta = sta;
  
+@@ -4117,7 +4112,7 @@ void ieee80211_release_reorder_timeout(struct sta_info *sta, int tid)
+ 	if (sta->sta.valid_links)
+ 		link_id = ffs(sta->sta.valid_links) - 1;
+ 
+-	if (!ieee80211_rx_data_set_sta(&rx, &sta->sta, link_id))
++	if (!ieee80211_rx_data_set_sta(&rx, sta, link_id))
+ 		return;
+ 
+ 	tid_agg_rx = rcu_dereference(sta->ampdu_mlme.tid_rx[tid]);
+@@ -4163,7 +4158,7 @@ void ieee80211_mark_rx_ba_filtered_frames(struct ieee80211_sta *pubsta, u8 tid,
+ 
+ 	sta = container_of(pubsta, struct sta_info, sta);
+ 
+-	if (!ieee80211_rx_data_set_sta(&rx, pubsta, -1))
++	if (!ieee80211_rx_data_set_sta(&rx, sta, -1))
+ 		return;
+ 
+ 	rcu_read_lock();
+@@ -4871,6 +4866,7 @@ static void __ieee80211_rx_handle_8023(struct ieee80211_hw *hw,
+ 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
+ 	struct ieee80211_fast_rx *fast_rx;
+ 	struct ieee80211_rx_data rx;
++	struct sta_info *sta;
+ 	int link_id = -1;
+ 
+ 	memset(&rx, 0, sizeof(rx));
+@@ -4898,7 +4894,8 @@ static void __ieee80211_rx_handle_8023(struct ieee80211_hw *hw,
+ 	 * link_id is used only for stats purpose and updating the stats on
+ 	 * the deflink is fine?
+ 	 */
+-	if (!ieee80211_rx_data_set_sta(&rx, pubsta, link_id))
++	sta = container_of(pubsta, struct sta_info, sta);
++	if (!ieee80211_rx_data_set_sta(&rx, sta, link_id))
+ 		goto drop;
+ 
+ 	fast_rx = rcu_dereference(rx.sta->fast_rx);
+@@ -4938,7 +4935,7 @@ static bool ieee80211_rx_for_interface(struct ieee80211_rx_data *rx,
+ 			link_id = status->link_id;
+ 	}
+ 
+-	if (!ieee80211_rx_data_set_sta(rx, &sta->sta, link_id))
++	if (!ieee80211_rx_data_set_sta(rx, sta, link_id))
+ 		return false;
+ 
+ 	return ieee80211_prepare_and_rx_handle(rx, skb, consume);
+@@ -5005,7 +5002,8 @@ static void __ieee80211_rx_handle_packet(struct ieee80211_hw *hw,
+ 			link_id = status->link_id;
+ 
+ 		if (pubsta) {
+-			if (!ieee80211_rx_data_set_sta(&rx, pubsta, link_id))
++			sta = container_of(pubsta, struct sta_info, sta);
++			if (!ieee80211_rx_data_set_sta(&rx, sta, link_id))
+ 				goto out;
+ 
+ 			/*
+@@ -5042,8 +5040,7 @@ static void __ieee80211_rx_handle_packet(struct ieee80211_hw *hw,
+ 			}
+ 
+ 			rx.sdata = prev_sta->sdata;
+-			if (!ieee80211_rx_data_set_sta(&rx, &prev_sta->sta,
+-						       link_id))
++			if (!ieee80211_rx_data_set_sta(&rx, prev_sta, link_id))
+ 				goto out;
+ 
+ 			if (!status->link_valid && prev_sta->sta.mlo)
+@@ -5056,8 +5053,7 @@ static void __ieee80211_rx_handle_packet(struct ieee80211_hw *hw,
+ 
+ 		if (prev_sta) {
+ 			rx.sdata = prev_sta->sdata;
+-			if (!ieee80211_rx_data_set_sta(&rx, &prev_sta->sta,
+-						       link_id))
++			if (!ieee80211_rx_data_set_sta(&rx, prev_sta, link_id))
+ 				goto out;
+ 
+ 			if (!status->link_valid && prev_sta->sta.mlo)
 -- 
 2.39.2
 
