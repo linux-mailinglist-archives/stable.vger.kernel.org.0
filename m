@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F65E6AEAF3
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D210E6AEF69
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231747AbjCGRiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:38:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41986 "EHLO
+        id S232650AbjCGSXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231659AbjCGRi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:28 -0500
+        with ESMTP id S232636AbjCGSXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7BB97FDE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:34:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9E1960B0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:17:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B6EB6150E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:34:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01FF4C433D2;
-        Tue,  7 Mar 2023 17:34:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 123DB614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:17:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10D64C4339B;
+        Tue,  7 Mar 2023 18:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210464;
-        bh=W/SEP3ETdOjYwY4XxlH0QPLRI4tmSqaSZBBlHzyWz84=;
+        s=korg; t=1678213064;
+        bh=LdwjwUkqCg3VSslKLuyiKhIyndt7sTH9884XM14g574=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTqVUxMsaSoO+UfJGhkx4YlIY6KlrpqC2vtaHESyj5e9bDy0KB1XAIuunwECqfNja
-         T7SrhM3UxrQRUk25Ryi6d4ph4RVjbAHHuCW3lNvjYN/vSrZxDjWmmKlyN+nVUxJezQ
-         MLesB6BaBgEggyTJxMYuVXkafFXjyDCg8gzu9GiE=
+        b=fTGqNv4EjaPfj7CKCrpAYfCQUVvwv1+KZSwiKgy1F4x3IKF5YBYz6Z4x9tYjUQYml
+         PDy78xy9RDBsCOdXmP9Cgf6yYIA3x6zFMj4hVZi++RpUep5I2BAQgxq46BBJwRV+qP
+         Wm7vJzX6pcqQIJNU7rBLfilMNaxRI6slaAVARdRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Jason Liu <jason.hui.liu@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0549/1001] tty: serial: imx: disable Ageing Timer interrupt request irq
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vincent Knecht <vincent.knecht@mailoo.org>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 387/885] leds: is31fl319x: Wrap mutex_destroy() for devm_add_action_or_rest()
 Date:   Tue,  7 Mar 2023 17:55:21 +0100
-Message-Id: <20230307170045.292987497@linuxfoundation.org>
+Message-Id: <20230307170019.162892958@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit ef25e16ea9674b713a68c3bda821556ce9901254 ]
+[ Upstream commit a82c7cf803d98751cd3ddb35828faad925d71982 ]
 
-There maybe pending USR interrupt before requesting irq, however
-uart_add_one_port has not executed, so there will be kernel panic:
-[    0.795668] Unable to handle kernel NULL pointer dereference at virtual addre
-ss 0000000000000080
-[    0.802701] Mem abort info:
-[    0.805367]   ESR = 0x0000000096000004
-[    0.808950]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    0.814033]   SET = 0, FnV = 0
-[    0.816950]   EA = 0, S1PTW = 0
-[    0.819950]   FSC = 0x04: level 0 translation fault
-[    0.824617] Data abort info:
-[    0.827367]   ISV = 0, ISS = 0x00000004
-[    0.831033]   CM = 0, WnR = 0
-[    0.833866] [0000000000000080] user address but active_mm is swapper
-[    0.839951] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-[    0.845953] Modules linked in:
-[    0.848869] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.1.1+g56321e101aca #1
-[    0.855617] Hardware name: Freescale i.MX8MP EVK (DT)
-[    0.860452] pstate: 000000c5 (nzcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    0.867117] pc : __imx_uart_rxint.constprop.0+0x11c/0x2c0
-[    0.872283] lr : imx_uart_int+0xf8/0x1ec
+Clang complains that devm_add_action() takes a parameter with a wrong type:
 
-The issue only happends in the inmate linux when Jailhouse hypervisor
-enabled. The test procedure is:
-while true; do
-	jailhouse enable imx8mp.cell
-	jailhouse cell linux xxxx
-	sleep 10
-	jailhouse cell destroy 1
-	jailhouse disable
-	sleep 5
-done
+warning: cast from 'void (*)(struct mutex *)' to 'void (*)(void *)' converts to incompatible function type [-Wcast-function-type-strict]
+    err = devm_add_action(dev, (void (*)(void *))mutex_destroy, &is31->lock);
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    1 warning generated.
 
-And during the upper test, press keys to the 2nd linux console.
-When `jailhouse cell destroy 1`, the 2nd linux has no chance to put
-the uart to a quiese state, so USR1/2 may has pending interrupts. Then
-when `jailhosue cell linux xx` to start 2nd linux again, the issue
-trigger.
+It appears that the commit e1af5c815586 ("leds: is31fl319x: Fix devm vs.
+non-devm ordering") missed two things:
 
-In order to disable irqs before requesting them, both UCR1 and UCR2 irqs
-should be disabled, so here fix that, disable the Ageing Timer interrupt
-in UCR2 as UCR1 does.
+- whilst the commit mentions devm_add_action_or_reset() the actual change
+  utilised devm_add_action() call by mistake
+- strictly speaking the parameter is not compatible by type
 
-Fixes: 8a61f0c70ae6 ("serial: imx: Disable irqs before requesting them")
-Suggested-by: Sherry Sun <sherry.sun@nxp.com>
-Reviewed-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Acked-by: Jason Liu <jason.hui.liu@nxp.com>
-Link: https://lore.kernel.org/r/20230206013016.29352-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix both issues by switching to devm_add_action_or_reset() and adding a
+wrapper for mutex_destroy() call.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: e1af5c815586 ("leds: is31fl319x: Fix devm vs. non-devm ordering")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20221228093238.82713-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/leds/leds-is31fl319x.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 757825edb0cd9..5f35343f81309 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -2374,6 +2374,11 @@ static int imx_uart_probe(struct platform_device *pdev)
- 	ucr1 &= ~(UCR1_ADEN | UCR1_TRDYEN | UCR1_IDEN | UCR1_RRDYEN | UCR1_RTSDEN);
- 	imx_uart_writel(sport, ucr1, UCR1);
+diff --git a/drivers/leds/leds-is31fl319x.c b/drivers/leds/leds-is31fl319x.c
+index b2f4c4ec7c567..7c908414ac7e0 100644
+--- a/drivers/leds/leds-is31fl319x.c
++++ b/drivers/leds/leds-is31fl319x.c
+@@ -495,6 +495,11 @@ static inline int is31fl3196_db_to_gain(u32 dezibel)
+ 	return dezibel / IS31FL3196_AUDIO_GAIN_DB_STEP;
+ }
  
-+	/* Disable Ageing Timer interrupt */
-+	ucr2 = imx_uart_readl(sport, UCR2);
-+	ucr2 &= ~UCR2_ATEN;
-+	imx_uart_writel(sport, ucr2, UCR2);
++static void is31f1319x_mutex_destroy(void *lock)
++{
++	mutex_destroy(lock);
++}
 +
- 	/*
- 	 * In case RS485 is enabled without GPIO RTS control, the UART IP
- 	 * is used to control CTS signal. Keep both the UART and Receiver
+ static int is31fl319x_probe(struct i2c_client *client)
+ {
+ 	struct is31fl319x_chip *is31;
+@@ -511,7 +516,7 @@ static int is31fl319x_probe(struct i2c_client *client)
+ 		return -ENOMEM;
+ 
+ 	mutex_init(&is31->lock);
+-	err = devm_add_action(dev, (void (*)(void *))mutex_destroy, &is31->lock);
++	err = devm_add_action_or_reset(dev, is31f1319x_mutex_destroy, &is31->lock);
+ 	if (err)
+ 		return err;
+ 
 -- 
 2.39.2
 
