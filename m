@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F006AEB2B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:40:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DDBF6AEF79
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:23:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231980AbjCGRk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:40:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43344 "EHLO
+        id S232745AbjCGSXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:23:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232030AbjCGRkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:40:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14F79E663
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:36:46 -0800 (PST)
+        with ESMTP id S232628AbjCGSXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:23:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACA0D5580
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:18:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 223DDB8191D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:36:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C012C433EF;
-        Tue,  7 Mar 2023 17:36:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 414CA61520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:18:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05CBDC433D2;
+        Tue,  7 Mar 2023 18:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210603;
-        bh=5GRxdFP7K4j/5npEL3UGO9QDQLMqVf84ESLvR1yajaU=;
+        s=korg; t=1678213109;
+        bh=wGZfxjhGE9qBVjyg3PF/jqOVziJK7LJT+bAvv8mPIvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gg/6F3MTc7R2ubZd2docARk7+s1Q0tQQ4MWw/1mgrKr6/4iNOTT4QrHSWg6lTsMVz
-         Bsghg1Bz4xuwvKI5+JoS2RxTODgD7/v1oNTruGSEPyKtniUvy+J0Z6C8EKOq0noh+o
-         37xr14AuJDfoad3F0eaLUEfyK8CxpSDoV9gNPhmw=
+        b=s3SPxdOkbH/DU4wuhJflWWtZafF04CzoZLZ0sz0G2W4ev8RXEgBkqqb44aK0jAwC3
+         3+Gs/ZI/9eyjdxq7Ld4FNy+bgl+/BE+AtR0XJGQaZE+SYJGXq/7isC78TVPawAfcmr
+         OPZymAcTIrFlu6VnV2+u7D4g0PhbOaDNsbgAC3pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0563/1001] iommu: Fix error unwind in iommu_group_alloc()
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 401/885] objtool: add UACCESS exceptions for __tsan_volatile_read/write
 Date:   Tue,  7 Mar 2023 17:55:35 +0100
-Message-Id: <20230307170045.913689847@linuxfoundation.org>
+Message-Id: <20230307170019.827542195@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +63,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 4daa861174d56023c2068ddb03de0752f07fa199 ]
+[ Upstream commit d5d469247264e56960705dc5ae7e1d014861fe40 ]
 
-If either iommu_group_grate_file() fails then the
-iommu_group is leaked.
+A lot of the tsan helpers are already excempt from the UACCESS warnings,
+but some more functions were added that need the same thing:
 
-Destroy it on these error paths.
+kernel/kcsan/core.o: warning: objtool: __tsan_volatile_read16+0x0: call to __tsan_unaligned_read16() with UACCESS enabled
+kernel/kcsan/core.o: warning: objtool: __tsan_volatile_write16+0x0: call to __tsan_unaligned_write16() with UACCESS enabled
+vmlinux.o: warning: objtool: __tsan_unaligned_volatile_read16+0x4: call to __tsan_unaligned_read16() with UACCESS enabled
+vmlinux.o: warning: objtool: __tsan_unaligned_volatile_write16+0x4: call to __tsan_unaligned_write16() with UACCESS enabled
 
-Found by kselftest/iommu/iommufd_fail_nth
+As Marco points out, these functions don't even call each other
+explicitly but instead gcc (but not clang) notices the functions
+being identical and turns one symbol into a direct branch to the
+other.
 
-Fixes: bc7d12b91bd3 ("iommu: Implement reserved_regions iommu-group sysfs file")
-Fixes: c52c72d3dee8 ("iommu: Add sysfs attribyte for domain type")
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/0-v1-8f616bee028d+8b-iommu_group_alloc_leak_jgg@nvidia.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lkml.kernel.org/r/20230215130058.3836177-4-arnd@kernel.org
+Fixes: 75d75b7a4d54 ("kcsan: Support distinguishing volatile accesses")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Marco Elver <elver@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Josh Poimboeuf <jpoimboe@kernel.org>
+Cc: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ tools/objtool/check.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 9ff8cda2de7c6..50d858f36a81b 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -774,12 +774,16 @@ struct iommu_group *iommu_group_alloc(void)
- 
- 	ret = iommu_group_create_file(group,
- 				      &iommu_group_attr_reserved_regions);
--	if (ret)
-+	if (ret) {
-+		kobject_put(group->devices_kobj);
- 		return ERR_PTR(ret);
-+	}
- 
- 	ret = iommu_group_create_file(group, &iommu_group_attr_type);
--	if (ret)
-+	if (ret) {
-+		kobject_put(group->devices_kobj);
- 		return ERR_PTR(ret);
-+	}
- 
- 	pr_debug("Allocated group %d\n", group->id);
- 
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 51494c3002d91..0c1b6acad141f 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1059,6 +1059,8 @@ static const char *uaccess_safe_builtin[] = {
+ 	"__tsan_atomic64_compare_exchange_val",
+ 	"__tsan_atomic_thread_fence",
+ 	"__tsan_atomic_signal_fence",
++	"__tsan_unaligned_read16",
++	"__tsan_unaligned_write16",
+ 	/* KCOV */
+ 	"write_comp_data",
+ 	"check_kcov_mode",
 -- 
 2.39.2
 
