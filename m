@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D45166AEB71
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DBF36AF346
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232050AbjCGRoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:44:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54118 "EHLO
+        id S233614AbjCGTDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:03:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232052AbjCGRoP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8113E95E02
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:39:59 -0800 (PST)
+        with ESMTP id S233452AbjCGTCe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:02:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27E5BC791
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:48:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F24086150C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16A41C433D2;
-        Tue,  7 Mar 2023 17:39:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2544061520
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:48:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D70EC4339B;
+        Tue,  7 Mar 2023 18:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210749;
-        bh=pYmPZuIatWJIy9TjbQpRfMHAueHd4doPOek4LgFFMPE=;
+        s=korg; t=1678214913;
+        bh=5/pZxIYAb8rVFXon30XZ/QanXXb9QKVo2s6IgHd6Nw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3UQRsZ7dNAfpJPCwSFlwG6uYsUOVHm/ZREhpacQQUipSgO8CYC8TnBd61RG7evED
-         AE+mJwxmdho05K4MAKxjYHtS2mqRonJMxJ9oJgzrxsn8RXjETvnK+m0QGo4zlhDvFr
-         qqX7XqiTgpe+LdZh8HKqsoXI8OW2/H7yp4VKiSjE=
+        b=q4yHOF1Ov1Ja00miIWYPaCZsbR5JvGILFkkSj+/WklPPDu0W0H4B03nYoYZanvlYS
+         zekeRRO0+Td1Essi2R3FvBI0bJrT8MbnOkRYN0JaU3ZFSrxzUHz2MDfCVSemuz0zsh
+         xRdiQUhU+U1m0cjIANa0HTQCczjJtCajLQXNcNcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev,
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Phil Auld <pauld@redhat.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0624/1001] fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
+Subject: [PATCH 5.15 060/567] sched/rt: pick_next_rt_entity(): check list_entry
 Date:   Tue,  7 Mar 2023 17:56:36 +0100
-Message-Id: <20230307170048.642209949@linuxfoundation.org>
+Message-Id: <20230307165908.501064049@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,94 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 47d586913f2abec4d240bae33417f537fda987ec ]
+[ Upstream commit 7c4a5b89a0b5a57a64b601775b296abf77a9fe97 ]
 
-Currently, filp_close() and generic_shutdown_super() use printk() to log
-messages when bugs are detected. This is problematic because infrastructure
-like syzkaller has no idea that this message indicates a bug.
-In addition, some people explicitly want their kernels to BUG() when kernel
-data corruption has been detected (CONFIG_BUG_ON_DATA_CORRUPTION).
-And finally, when generic_shutdown_super() detects remaining inodes on a
-system without CONFIG_BUG_ON_DATA_CORRUPTION, it would be nice if later
-accesses to a busy inode would at least crash somewhat cleanly rather than
-walking through freed memory.
+Commit 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
+removed any path which could make pick_next_rt_entity() return NULL.
+However, BUG_ON(!rt_se) in _pick_next_task_rt() (the only caller of
+pick_next_rt_entity()) still checks the error condition, which can
+never happen, since list_entry() never returns NULL.
+Remove the BUG_ON check, and instead emit a warning in the only
+possible error condition here: the queue being empty which should
+never happen.
 
-To address all three, use CHECK_DATA_CORRUPTION() when kernel bugs are
-detected.
-
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Phil Auld <pauld@redhat.com>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/20230128-list-entry-null-check-sched-v3-1-b1a71bd1ac6b@diag.uniroma1.it
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/open.c              |  5 +++--
- fs/super.c             | 21 +++++++++++++++++----
- include/linux/poison.h |  3 +++
- 3 files changed, 23 insertions(+), 6 deletions(-)
+ kernel/sched/rt.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/open.c b/fs/open.c
-index 82c1a28b33089..ceb88ac0ca3b2 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -1411,8 +1411,9 @@ int filp_close(struct file *filp, fl_owner_t id)
- {
- 	int retval = 0;
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index b374ea9f58ab2..08af6076c8097 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -1625,6 +1625,8 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
+ 	BUG_ON(idx >= MAX_RT_PRIO);
  
--	if (!file_count(filp)) {
--		printk(KERN_ERR "VFS: Close: file count is 0\n");
-+	if (CHECK_DATA_CORRUPTION(file_count(filp) == 0,
-+			"VFS: Close: file count is 0 (f_op=%ps)",
-+			filp->f_op)) {
- 		return 0;
- 	}
+ 	queue = array->queue + idx;
++	if (SCHED_WARN_ON(list_empty(queue)))
++		return NULL;
+ 	next = list_entry(queue->next, struct sched_rt_entity, run_list);
  
-diff --git a/fs/super.c b/fs/super.c
-index 12c08cb20405d..cf737ec2bd05c 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -491,10 +491,23 @@ void generic_shutdown_super(struct super_block *sb)
- 		if (sop->put_super)
- 			sop->put_super(sb);
+ 	return next;
+@@ -1637,7 +1639,8 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
  
--		if (!list_empty(&sb->s_inodes)) {
--			printk("VFS: Busy inodes after unmount of %s. "
--			   "Self-destruct in 5 seconds.  Have a nice day...\n",
--			   sb->s_id);
-+		if (CHECK_DATA_CORRUPTION(!list_empty(&sb->s_inodes),
-+				"VFS: Busy inodes after unmount of %s (%s)",
-+				sb->s_id, sb->s_type->name)) {
-+			/*
-+			 * Adding a proper bailout path here would be hard, but
-+			 * we can at least make it more likely that a later
-+			 * iput_final() or such crashes cleanly.
-+			 */
-+			struct inode *inode;
-+
-+			spin_lock(&sb->s_inode_list_lock);
-+			list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+				inode->i_op = VFS_PTR_POISON;
-+				inode->i_sb = VFS_PTR_POISON;
-+				inode->i_mapping = VFS_PTR_POISON;
-+			}
-+			spin_unlock(&sb->s_inode_list_lock);
- 		}
- 	}
- 	spin_lock(&sb_lock);
-diff --git a/include/linux/poison.h b/include/linux/poison.h
-index 2d3249eb0e62d..0e8a1f2ceb2f1 100644
---- a/include/linux/poison.h
-+++ b/include/linux/poison.h
-@@ -84,4 +84,7 @@
- /********** kernel/bpf/ **********/
- #define BPF_PTR_POISON ((void *)(0xeB9FUL + POISON_POINTER_DELTA))
+ 	do {
+ 		rt_se = pick_next_rt_entity(rt_rq);
+-		BUG_ON(!rt_se);
++		if (unlikely(!rt_se))
++			return NULL;
+ 		rt_rq = group_rt_rq(rt_se);
+ 	} while (rt_rq);
  
-+/********** VFS **********/
-+#define VFS_PTR_POISON ((void *)(0xF5 + POISON_POINTER_DELTA))
-+
- #endif
 -- 
 2.39.2
 
