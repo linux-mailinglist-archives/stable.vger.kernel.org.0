@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C4A6AEBB7
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 858A96AF0B6
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232144AbjCGRsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:48:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
+        id S231986AbjCGSeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:34:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbjCGRro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:44 -0500
+        with ESMTP id S230400AbjCGSeP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:34:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1643F8FBF8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A915AD014
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:26:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D676F614B2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6EC8C433EF;
-        Tue,  7 Mar 2023 17:42:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A89061501
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100FAC4339B;
+        Tue,  7 Mar 2023 18:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210960;
-        bh=+6yOvgwhFE3OBRCBGisye5Z6hoN93WHURUERdVYLqCU=;
+        s=korg; t=1678213563;
+        bh=jSxtowIfUB3tYHK4MFz4+V4t5LxbijEZuctI4k3E+xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tC3XZykBaX5E4HyOhWQs0z7FHRN4S8BE+oEjqBwYZh0LVF0+0swHqy9AuBCn11Z5r
-         +4GjRalssfG5VPO3aQZCezAU8KCqHiWFPX1D/h15nNeSyYea4M1df4oTzWID+8lasR
-         QPm0U26c0I60ZImMl1nyTwcRDbVUBRS96RPBes40=
+        b=yXuUwixtHLYKTy13mMKo3fgAWIAG1QqGQtJuHunHLnIwHq8eUa7EtK8kWDEIAHvzP
+         91IaFTBQOn0d9omJzZlPIgO+pdisw1h6EPNHn9hd2vEZ6bIaWGKGVEtX+VpPyvL+3G
+         5e28doimjuqkVAUL+lpLumczWXsmL46vwmixjZhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0709/1001] drm: rcar-du: Fix setting a reserved bit in DPLLCR
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 547/885] wifi: brcmfmac: Fix potential stack-out-of-bounds in brcmf_c_preinit_dcmds()
 Date:   Tue,  7 Mar 2023 17:58:01 +0100
-Message-Id: <20230307170052.393325899@linuxfoundation.org>
+Message-Id: <20230307170026.262772653@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,134 +55,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
+From: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
 
-[ Upstream commit 5fbc2f3b91d27e12b614947048764099570cbb55 ]
+[ Upstream commit 0a06cadcc2a0044e4a117cc0e61436fc3a0dad69 ]
 
-On H3 ES1.x two bits in DPLLCR are used to select the DU input dot clock
-source. These are bits 20 and 21 for DU2, and bits 22 and 23 for DU1. On
-non-ES1.x, only the higher bits are used (bits 21 and 23), and the lower
-bits are reserved and should be set to 0.
+This patch fixes a stack-out-of-bounds read in brcmfmac that occurs
+when 'buf' that is not null-terminated is passed as an argument of
+strsep() in brcmf_c_preinit_dcmds(). This buffer is filled with a firmware
+version string by memcpy() in brcmf_fil_iovar_data_get().
+The patch ensures buf is null-terminated.
 
-The current code always sets the lower bits, even on non-ES1.x.
+Found by a modified version of syzkaller.
 
-For both DU1 and DU2, on all SoC versions, when writing zeroes to those
-bits the input clock is DCLKIN, and thus there's no difference between
-ES1.x and non-ES1.x.
+[   47.569679][ T1897] brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43236b for chip BCM43236/3
+[   47.582839][ T1897] brcmfmac: brcmf_c_process_clm_blob: no clm_blob available (err=-2), device may have limited channels available
+[   47.601565][ T1897] ==================================================================
+[   47.602574][ T1897] BUG: KASAN: stack-out-of-bounds in strsep+0x1b2/0x1f0
+[   47.603447][ T1897] Read of size 1 at addr ffffc90001f6f000 by task kworker/0:2/1897
+[   47.604336][ T1897]
+[   47.604621][ T1897] CPU: 0 PID: 1897 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #131
+[   47.605617][ T1897] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+[   47.606907][ T1897] Workqueue: usb_hub_wq hub_event
+[   47.607453][ T1897] Call Trace:
+[   47.607801][ T1897]  dump_stack_lvl+0x8e/0xd1
+[   47.608295][ T1897]  print_address_description.constprop.0.cold+0xf/0x334
+[   47.609009][ T1897]  ? strsep+0x1b2/0x1f0
+[   47.609434][ T1897]  ? strsep+0x1b2/0x1f0
+[   47.609863][ T1897]  kasan_report.cold+0x83/0xdf
+[   47.610366][ T1897]  ? strsep+0x1b2/0x1f0
+[   47.610882][ T1897]  strsep+0x1b2/0x1f0
+[   47.611300][ T1897]  ? brcmf_fil_iovar_data_get+0x3a/0xf0
+[   47.611883][ T1897]  brcmf_c_preinit_dcmds+0x995/0xc40
+[   47.612434][ T1897]  ? brcmf_c_set_joinpref_default+0x100/0x100
+[   47.613078][ T1897]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[   47.613662][ T1897]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[   47.614208][ T1897]  ? lock_acquire+0x19d/0x4e0
+[   47.614704][ T1897]  ? find_held_lock+0x2d/0x110
+[   47.615236][ T1897]  ? brcmf_usb_deq+0x1a7/0x260
+[   47.615741][ T1897]  ? brcmf_usb_rx_fill_all+0x5a/0xf0
+[   47.616288][ T1897]  brcmf_attach+0x246/0xd40
+[   47.616758][ T1897]  ? wiphy_new_nm+0x1703/0x1dd0
+[   47.617280][ T1897]  ? kmemdup+0x43/0x50
+[   47.617720][ T1897]  brcmf_usb_probe+0x12de/0x1690
+[   47.618244][ T1897]  ? brcmf_usbdev_qinit.constprop.0+0x470/0x470
+[   47.618901][ T1897]  usb_probe_interface+0x2aa/0x760
+[   47.619429][ T1897]  ? usb_probe_device+0x250/0x250
+[   47.619950][ T1897]  really_probe+0x205/0xb70
+[   47.620435][ T1897]  ? driver_allows_async_probing+0x130/0x130
+[   47.621048][ T1897]  __driver_probe_device+0x311/0x4b0
+[   47.621595][ T1897]  ? driver_allows_async_probing+0x130/0x130
+[   47.622209][ T1897]  driver_probe_device+0x4e/0x150
+[   47.622739][ T1897]  __device_attach_driver+0x1cc/0x2a0
+[   47.623287][ T1897]  bus_for_each_drv+0x156/0x1d0
+[   47.623796][ T1897]  ? bus_rescan_devices+0x30/0x30
+[   47.624309][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   47.624907][ T1897]  ? trace_hardirqs_on+0x46/0x160
+[   47.625437][ T1897]  __device_attach+0x23f/0x3a0
+[   47.625924][ T1897]  ? device_bind_driver+0xd0/0xd0
+[   47.626433][ T1897]  ? kobject_uevent_env+0x287/0x14b0
+[   47.627057][ T1897]  bus_probe_device+0x1da/0x290
+[   47.627557][ T1897]  device_add+0xb7b/0x1eb0
+[   47.628027][ T1897]  ? wait_for_completion+0x290/0x290
+[   47.628593][ T1897]  ? __fw_devlink_link_to_suppliers+0x5a0/0x5a0
+[   47.629249][ T1897]  usb_set_configuration+0xf59/0x16f0
+[   47.629829][ T1897]  usb_generic_driver_probe+0x82/0xa0
+[   47.630385][ T1897]  usb_probe_device+0xbb/0x250
+[   47.630927][ T1897]  ? usb_suspend+0x590/0x590
+[   47.631397][ T1897]  really_probe+0x205/0xb70
+[   47.631855][ T1897]  ? driver_allows_async_probing+0x130/0x130
+[   47.632469][ T1897]  __driver_probe_device+0x311/0x4b0
+[   47.633002][ T1897]  ? usb_generic_driver_match+0x75/0x90
+[   47.633573][ T1897]  ? driver_allows_async_probing+0x130/0x130
+[   47.634170][ T1897]  driver_probe_device+0x4e/0x150
+[   47.634703][ T1897]  __device_attach_driver+0x1cc/0x2a0
+[   47.635248][ T1897]  bus_for_each_drv+0x156/0x1d0
+[   47.635748][ T1897]  ? bus_rescan_devices+0x30/0x30
+[   47.636271][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   47.636881][ T1897]  ? trace_hardirqs_on+0x46/0x160
+[   47.637396][ T1897]  __device_attach+0x23f/0x3a0
+[   47.637904][ T1897]  ? device_bind_driver+0xd0/0xd0
+[   47.638426][ T1897]  ? kobject_uevent_env+0x287/0x14b0
+[   47.638985][ T1897]  bus_probe_device+0x1da/0x290
+[   47.639512][ T1897]  device_add+0xb7b/0x1eb0
+[   47.639977][ T1897]  ? __fw_devlink_link_to_suppliers+0x5a0/0x5a0
+[   47.640612][ T1897]  ? kfree+0x14a/0x6b0
+[   47.641055][ T1897]  ? __usb_get_extra_descriptor+0x116/0x160
+[   47.641679][ T1897]  usb_new_device.cold+0x49c/0x1029
+[   47.642245][ T1897]  ? hub_disconnect+0x450/0x450
+[   47.642756][ T1897]  ? rwlock_bug.part.0+0x90/0x90
+[   47.643273][ T1897]  ? _raw_spin_unlock_irq+0x24/0x30
+[   47.643822][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   47.644445][ T1897]  hub_event+0x1c98/0x3950
+[   47.644939][ T1897]  ? hub_port_debounce+0x2e0/0x2e0
+[   47.645467][ T1897]  ? check_irq_usage+0x861/0xf20
+[   47.645975][ T1897]  ? drain_workqueue+0x280/0x360
+[   47.646506][ T1897]  ? lock_release+0x640/0x640
+[   47.646994][ T1897]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[   47.647572][ T1897]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[   47.648111][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   47.648735][ T1897]  process_one_work+0x92b/0x1460
+[   47.649262][ T1897]  ? pwq_dec_nr_in_flight+0x330/0x330
+[   47.649816][ T1897]  ? rwlock_bug.part.0+0x90/0x90
+[   47.650336][ T1897]  worker_thread+0x95/0xe00
+[   47.650830][ T1897]  ? __kthread_parkme+0x115/0x1e0
+[   47.651361][ T1897]  ? process_one_work+0x1460/0x1460
+[   47.651904][ T1897]  kthread+0x3a1/0x480
+[   47.652329][ T1897]  ? set_kthread_struct+0x120/0x120
+[   47.652878][ T1897]  ret_from_fork+0x1f/0x30
+[   47.653370][ T1897]
+[   47.653608][ T1897]
+[   47.653848][ T1897] addr ffffc90001f6f000 is located in stack of task kworker/0:2/1897 at offset 512 in frame:
+[   47.654891][ T1897]  brcmf_c_preinit_dcmds+0x0/0xc40
+[   47.655442][ T1897]
+[   47.655690][ T1897] this frame has 4 objects:
+[   47.656151][ T1897]  [48, 56) 'ptr'
+[   47.656159][ T1897]  [80, 148) 'revinfo'
+[   47.656534][ T1897]  [192, 210) 'eventmask'
+[   47.656953][ T1897]  [256, 512) 'buf'
+[   47.657410][ T1897]
+[   47.658035][ T1897] Memory state around the buggy address:
+[   47.658743][ T1897]  ffffc90001f6ef00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   47.659577][ T1897]  ffffc90001f6ef80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   47.660394][ T1897] >ffffc90001f6f000: f3 f3 f3 f3 f3 f3 f3 f3 00 00 00 00 00 00 00 00
+[   47.661199][ T1897]                    ^
+[   47.661625][ T1897]  ffffc90001f6f080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   47.662455][ T1897]  ffffc90001f6f100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1
+[   47.663318][ T1897] ==================================================================
+[   47.664147][ T1897] Disabling lock debugging due to kernel taint
 
-For DU1, writing 0b10 to the bits (or only writing the higher bit)
-results in using PLL0 as the input clock, so in this case there's also
-no difference between ES1.x and non-ES1.x.
-
-However, for DU2, writing 0b10 to the bits results in using PLL0 as the
-input clock on ES1.x, whereas on non-ES1.x it results in using PLL1. On
-ES1.x you need to write 0b11 to select PLL1.
-
-The current code always writes 0b11 to PLCS0 field to select PLL1 on all
-SoC versions, which works but causes an illegal (in the sense of not
-allowed by the documentation) write to a reserved bit field.
-
-To remove the illegal bit write on PLSC0 we need to handle the input dot
-clock selection differently for ES1.x and non-ES1.x.
-
-Add a new quirk, RCAR_DU_QUIRK_H3_ES1_PLL, for this. This way we can
-always set the bit 21 on PLSC0 when choosing the PLL as the source
-clock, and additionally set the bit 20 when on ES1.x.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221115043458.37562-1-jisoo.jang@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 23 ++++++++++++++++++++---
- drivers/gpu/drm/rcar-du/rcar_du_drv.c  |  3 ++-
- drivers/gpu/drm/rcar-du/rcar_du_drv.h  |  1 +
- drivers/gpu/drm/rcar-du/rcar_du_regs.h |  8 ++------
- 4 files changed, 25 insertions(+), 10 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-index f2d3266509cc1..b7dd59fe119e6 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-@@ -245,13 +245,30 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- 		       | DPLLCR_N(dpll.n) | DPLLCR_M(dpll.m)
- 		       | DPLLCR_STBY;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+index 22344e68fd597..789930806d03a 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+@@ -298,6 +298,7 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
+ 			 err);
+ 		goto done;
+ 	}
++	buf[sizeof(buf) - 1] = '\0';
+ 	ptr = (char *)buf;
+ 	strsep(&ptr, "\n");
  
--		if (rcrtc->index == 1)
-+		if (rcrtc->index == 1) {
- 			dpllcr |= DPLLCR_PLCS1
- 			       |  DPLLCR_INCS_DOTCLKIN1;
--		else
--			dpllcr |= DPLLCR_PLCS0
-+		} else {
-+			dpllcr |= DPLLCR_PLCS0_PLL
- 			       |  DPLLCR_INCS_DOTCLKIN0;
- 
-+			/*
-+			 * On ES2.x we have a single mux controlled via bit 21,
-+			 * which selects between DCLKIN source (bit 21 = 0) and
-+			 * a PLL source (bit 21 = 1), where the PLL is always
-+			 * PLL1.
-+			 *
-+			 * On ES1.x we have an additional mux, controlled
-+			 * via bit 20, for choosing between PLL0 (bit 20 = 0)
-+			 * and PLL1 (bit 20 = 1). We always want to use PLL1,
-+			 * so on ES1.x, in addition to setting bit 21, we need
-+			 * to set the bit 20.
-+			 */
-+
-+			if (rcdu->info->quirks & RCAR_DU_QUIRK_H3_ES1_PLL)
-+				dpllcr |= DPLLCR_PLCS0_H3ES1X_PLL1;
-+		}
-+
- 		rcar_du_group_write(rcrtc->group, DPLLCR, dpllcr);
- 
- 		escr = ESCR_DCLKSEL_DCLKIN | div;
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index c479996f8e91e..53c9669a3851c 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -394,7 +394,8 @@ static const struct rcar_du_device_info rcar_du_r8a7795_es1_info = {
- 		  | RCAR_DU_FEATURE_VSP1_SOURCE
- 		  | RCAR_DU_FEATURE_INTERLACED
- 		  | RCAR_DU_FEATURE_TVM_SYNC,
--	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY,
-+	.quirks = RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY
-+		| RCAR_DU_QUIRK_H3_ES1_PLL,
- 	.channels_mask = BIT(3) | BIT(2) | BIT(1) | BIT(0),
- 	.routes = {
- 		/*
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-index df87ccab146f4..acc3673fefe18 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
-@@ -35,6 +35,7 @@ struct rcar_du_device;
- 
- #define RCAR_DU_QUIRK_ALIGN_128B	BIT(0)	/* Align pitches to 128 bytes */
- #define RCAR_DU_QUIRK_H3_ES1_PCLK_STABILITY BIT(1)	/* H3 ES1 has pclk stability issue */
-+#define RCAR_DU_QUIRK_H3_ES1_PLL	BIT(2)	/* H3 ES1 PLL setup differs from non-ES1 */
- 
- enum rcar_du_output {
- 	RCAR_DU_OUTPUT_DPAD0,
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_regs.h b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
-index c1bcb0e8b5b4e..789ae9285108e 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_regs.h
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_regs.h
-@@ -283,12 +283,8 @@
- #define DPLLCR			0x20044
- #define DPLLCR_CODE		(0x95 << 24)
- #define DPLLCR_PLCS1		(1 << 23)
--/*
-- * PLCS0 is bit 21, but H3 ES1.x requires bit 20 to be set as well. As bit 20
-- * isn't implemented by other SoC in the Gen3 family it can safely be set
-- * unconditionally.
-- */
--#define DPLLCR_PLCS0		(3 << 20)
-+#define DPLLCR_PLCS0_PLL	(1 << 21)
-+#define DPLLCR_PLCS0_H3ES1X_PLL1	(1 << 20)
- #define DPLLCR_CLKE		(1 << 18)
- #define DPLLCR_FDPLL(n)		((n) << 12)
- #define DPLLCR_N(n)		((n) << 5)
 -- 
 2.39.2
 
