@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E071E6AEB02
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F80F6AEF4D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231978AbjCGRjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:39:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
+        id S232619AbjCGSWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:22:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231962AbjCGRiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:38:50 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 241759B9B0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:35:08 -0800 (PST)
+        with ESMTP id S232628AbjCGSWX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62837AA26A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6CFBBCE1B30
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:35:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79039C433EF;
-        Tue,  7 Mar 2023 17:35:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEEB661522
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0314DC433EF;
+        Tue,  7 Mar 2023 18:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210504;
-        bh=3HTfAfun+urXFEuCvdtSvGr5dV7XxHyOnkWjNHaYtzA=;
+        s=korg; t=1678212982;
+        bh=FhsPD37uhCaYegaZVO0Wd6at01E0tB2o3+l5rgJBV+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qssg54OVBB3+bO3zl3N4pqKZaxL2780gG6gOZYGdstS6yfDe26k249WjDHn6pOxZN
-         C/E1KCjzkNEhfqtY2YzCHA54WC6dWZXMOEFIhDhn0E0TX5jPH00rvh+TmQVn94x0ve
-         JV8+CBWYlhB+nkFad++eh0wETK3RD8RtLG+k97qw=
+        b=dx+Uf2JmrP6QtNNhobvrRJ9Xfi9V+58j9M5PzUZdbQ8dzX5weSXJKOaQSysWvx1vF
+         cSMDvjyO5JCGn70x6bgpK6xEtuCEsyOcCLrnl1RBXyJdTGcioPwFZT3mSuBZUFpzjx
+         +cqFKTi7hdZe/DPfJEP47yXR+rAJdMaOrW2Veojs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        patches@lists.linux.dev, Vadim Pasternak <vadimp@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0522/1001] misc: fastrpc: Fix an error handling path in fastrpc_rpmsg_probe()
+Subject: [PATCH 6.1 360/885] hwmon: (mlxreg-fan) Return zero speed for broken fan
 Date:   Tue,  7 Mar 2023 17:54:54 +0100
-Message-Id: <20230307170044.096085582@linuxfoundation.org>
+Message-Id: <20230307170017.912679505@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,47 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-[ Upstream commit 11819ed2b70da94acc41fec34178a011c4d3d25d ]
+[ Upstream commit a1ffd3c46267ee5c807acd780e15df9bb692223f ]
 
-If of_platform_populate() fails, some resources need to be freed as already
-done in the other error handling paths.
+Currently for broken fan driver returns value calculated based on error
+code (0xFF) in related fan speed register.
+Thus, for such fan user gets fan{n}_fault to 1 and fan{n}_input with
+misleading value.
 
-Fixes: 278d56f970ae ("misc: fastrpc: Reference count channel context")
-Fixes: 3abe3ab3cdab ("misc: fastrpc: add secure domain support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/b909d2f3273b794ea0f1f78d14bc24affb08ea5f.1669398274.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add check for fan fault prior return speed value and return zero if
+fault is detected.
+
+Fixes: 65afb4c8e7e4 ("hwmon: (mlxreg-fan) Add support for Mellanox FAN driver")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20230212145730.24247-1-vadimp@nvidia.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/hwmon/mlxreg-fan.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index 5310606113fe5..7ccaca1b7cb8b 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -2315,7 +2315,18 @@ static int fastrpc_rpmsg_probe(struct rpmsg_device *rpdev)
- 	data->domain_id = domain_id;
- 	data->rpdev = rpdev;
+diff --git a/drivers/hwmon/mlxreg-fan.c b/drivers/hwmon/mlxreg-fan.c
+index b48bd7c961d66..96017cc8da7ec 100644
+--- a/drivers/hwmon/mlxreg-fan.c
++++ b/drivers/hwmon/mlxreg-fan.c
+@@ -155,6 +155,12 @@ mlxreg_fan_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+ 			if (err)
+ 				return err;
  
--	return of_platform_populate(rdev->of_node, NULL, NULL, rdev);
-+	err = of_platform_populate(rdev->of_node, NULL, NULL, rdev);
-+	if (err)
-+		goto populate_error;
++			if (MLXREG_FAN_GET_FAULT(regval, tacho->mask)) {
++				/* FAN is broken - return zero for FAN speed. */
++				*val = 0;
++				return 0;
++			}
 +
-+	return 0;
-+
-+populate_error:
-+	if (data->fdevice)
-+		misc_deregister(&data->fdevice->miscdev);
-+	if (data->secure_fdevice)
-+		misc_deregister(&data->secure_fdevice->miscdev);
-+
- fdev_error:
- 	kfree(data);
- 	return err;
+ 			*val = MLXREG_FAN_GET_RPM(regval, fan->divider,
+ 						  fan->samples);
+ 			break;
 -- 
 2.39.2
 
