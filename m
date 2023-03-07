@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8F86AED57
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:03:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1EF26AF264
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231284AbjCGSD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:03:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
+        id S233427AbjCGSws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:52:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230410AbjCGSC6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:02:58 -0500
+        with ESMTP id S230332AbjCGSwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA511A6BF7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9527C8081
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82C83614DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D745C433D2;
-        Tue,  7 Mar 2023 17:56:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F007B61535
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:39:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E51B2C433D2;
+        Tue,  7 Mar 2023 18:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211772;
-        bh=yPOuzc+md8jm8p0ca7Ypz54Wmw9F1jEj7lpVEvbTQV4=;
+        s=korg; t=1678214398;
+        bh=LqAdWR2y89ccwvbvog+zQTCT+ldMOg/ChmLfg3up5Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAWQodFgt0GXKSqJ2bFQH7/1wICu0mmRVST/x7bKBMxSavDyPJRvNvp+Lm9RuZ334
-         96lmo1iJYlpmiDqH8A6g47NHPswiNrvFHMOwRYAp66SqZ3ZrRXYlqFkZSv2lzoIDSe
-         GlTTv18XaIOtNPQ7ydzspBxCxWBz7jiFoV6omlhQ=
+        b=A0mTZsqdTIOIJl6l5x850pEPOnuTPqYx3lLxhyUVE7SONfp2vP0JXl66AB5LGmjHr
+         3vC7gzfSBpR9tknaOYdCSTaLclTOaU+WSjVVVJ9QvMUI9eSKAaYUId+Nk+awMkv/It
+         p1bO1tTGciMKnrO2j8CK3C2Ce7IRsOomoTonMlrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Greentime Hu <greentime.hu@sifive.com>,
-        Andy Chiu <andy.chiu@sifive.com>, Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.2 0972/1001] riscv: jump_label: Fixup unaligned arch_static_branch function
+        patches@lists.linux.dev,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 810/885] ARM: dts: qcom: sdx65: Add Qcom SMMU-500 as the fallback for IOMMU node
 Date:   Tue,  7 Mar 2023 18:02:24 +0100
-Message-Id: <20230307170104.402083564@linuxfoundation.org>
+Message-Id: <20230307170037.067159683@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chiu <andy.chiu@sifive.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit 9ddfc3cd806081ce1f6c9c2f988cbb031f35d28f upstream.
+commit 157178a7912e00a0aa0371dc9041952c1a21d112 upstream.
 
-Runtime code patching must be done at a naturally aligned address, or we
-may execute on a partial instruction.
+SDX65 uses the Qcom version of the SMMU-500 IP. So use "qcom,smmu-500"
+compatible as the fallback to the SoC specific compatible.
 
-We have encountered problems traced back to static jump functions during
-the test. We switched the tracer randomly for every 1~5 seconds on a
-dual-core QEMU setup and found the kernel sucking at a static branch
-where it jumps to itself.
-
-The reason is that the static branch was 2-byte but not 4-byte aligned.
-Then, the kernel would patch the instruction, either J or NOP, with two
-half-word stores if the machine does not have efficient unaligned
-accesses. Thus, moments exist where half of the NOP mixes with the other
-half of the J when transitioning the branch. In our particular case, on
-a little-endian machine, the upper half of the NOP was mixed with the
-lower part of the J when enabling the branch, resulting in a jump that
-jumped to itself. Conversely, it would result in a HINT instruction when
-disabling the branch, but it might not be observable.
-
-ARM64 does not have this problem since all instructions must be 4-byte
-aligned.
-
-Fixes: ebc00dde8a97 ("riscv: Add jump-label implementation")
-Link: https://lore.kernel.org/linux-riscv/20220913094252.3555240-6-andy.chiu@sifive.com/
-Reviewed-by: Greentime Hu <greentime.hu@sifive.com>
-Signed-off-by: Andy Chiu <andy.chiu@sifive.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20230206090440.1255001-1-guoren@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: <stable@vger.kernel.org> # 5.19
+Fixes: 98187f7b74bf ("ARM: dts: qcom: sdx65: Enable ARM SMMU")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230123131931.263024-4-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/jump_label.h |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/qcom-sdx65.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/include/asm/jump_label.h
-+++ b/arch/riscv/include/asm/jump_label.h
-@@ -18,6 +18,7 @@ static __always_inline bool arch_static_
- 					       const bool branch)
- {
- 	asm_volatile_goto(
-+		"	.align		2			\n\t"
- 		"	.option push				\n\t"
- 		"	.option norelax				\n\t"
- 		"	.option norvc				\n\t"
-@@ -39,6 +40,7 @@ static __always_inline bool arch_static_
- 						    const bool branch)
- {
- 	asm_volatile_goto(
-+		"	.align		2			\n\t"
- 		"	.option push				\n\t"
- 		"	.option norelax				\n\t"
- 		"	.option norvc				\n\t"
+--- a/arch/arm/boot/dts/qcom-sdx65.dtsi
++++ b/arch/arm/boot/dts/qcom-sdx65.dtsi
+@@ -455,7 +455,7 @@
+ 		};
+ 
+ 		apps_smmu: iommu@15000000 {
+-			compatible = "qcom,sdx65-smmu-500", "arm,mmu-500";
++			compatible = "qcom,sdx65-smmu-500", "qcom,smmu-500", "arm,mmu-500";
+ 			reg = <0x15000000 0x40000>;
+ 			#iommu-cells = <2>;
+ 			#global-interrupts = <1>;
 
 
