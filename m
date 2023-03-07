@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D63266AF1E0
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:48:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E746AECFF
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbjCGSsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:48:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        id S230078AbjCGSAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:00:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233172AbjCGSrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:47:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34F7FBC6CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:36:54 -0800 (PST)
+        with ESMTP id S229869AbjCGR73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:59:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F36B6A6747
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:53:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4152B819D6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11671C433EF;
-        Tue,  7 Mar 2023 18:35:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 902B06150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:53:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DE62C433EF;
+        Tue,  7 Mar 2023 17:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214154;
-        bh=/ypXcRd1i1Q/xmBqVkCBq9+NAEiJzmQzYxYM+zTAl54=;
+        s=korg; t=1678211635;
+        bh=Py1bmzYKjFEgUWI+o+vUve/ty30Xarky/J0VLTL8Vfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kq4fNd0zOatGX5C9rggZbK/NV8ZHITigrQJLxHjY4KvUv04/YI7pFoGigNQlhoFVg
-         0cnL1D+SV18lTQh+MVx5TnlUMoURtNVOvRx8W6o6VuXVfIf1E7a+C/XWdyni+Wr7gv
-         4TOZgcEmoLoH2IfaEgSSs2Gu+UHS0Hw+Y9YKF8Y4=
+        b=nMm0frAfyTpz3/k+YNgVmx1bIUYtewnYl6tev6u0Lb79F8nDANLmzD3EqgSfdQvhx
+         GCAjRj8YXKy+J6TKDK3bScFOm3jSsQYRbu5Qn8950aKzW86HNXr6PtXlhY9lxgXxW8
+         eyTN62Yr04TkaSwftwipPxYJnaun8xdut59WR13Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 6.1 732/885] x86/reboot: Disable virtualization in an emergency if SVM is supported
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.2 0894/1001] ext4: Fix possible corruption when moving a directory
 Date:   Tue,  7 Mar 2023 18:01:06 +0100
-Message-Id: <20230307170033.787553161@linuxfoundation.org>
+Message-Id: <20230307170100.767585324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jan Kara <jack@suse.cz>
 
-commit d81f952aa657b76cea381384bef1fea35c5fd266 upstream.
+commit 0813299c586b175d7edb25f56412c54b812d0379 upstream.
 
-Disable SVM on all CPUs via NMI shootdown during an emergency reboot.
-Like VMX, SVM can block INIT, e.g. if the emergency reboot is triggered
-between CLGI and STGI, and thus can prevent bringing up other CPUs via
-INIT-SIPI-SIPI.
+When we are renaming a directory to a different directory, we need to
+update '..' entry in the moved directory. However nothing prevents moved
+directory from being modified and even converted from the inline format
+to the normal format. When such race happens the rename code gets
+confused and we crash. Fix the problem by locking the moved directory.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221130233650.1404148-4-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
+CC: stable@vger.kernel.org
+Fixes: 32f7f22c0b52 ("ext4: let ext4_rename handle inline dir")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230126112221.11866-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/reboot.c |   23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ fs/ext4/namei.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -530,27 +530,26 @@ static inline void kb_wait(void)
- 
- static inline void nmi_shootdown_cpus_on_restart(void);
- 
--/* Use NMIs as IPIs to tell all CPUs to disable virtualization */
--static void emergency_vmx_disable_all(void)
-+static void emergency_reboot_disable_virtualization(void)
- {
- 	/* Just make sure we won't change CPUs while doing this */
- 	local_irq_disable();
- 
- 	/*
--	 * Disable VMX on all CPUs before rebooting, otherwise we risk hanging
--	 * the machine, because the CPU blocks INIT when it's in VMX root.
-+	 * Disable virtualization on all CPUs before rebooting to avoid hanging
-+	 * the system, as VMX and SVM block INIT when running in the host.
- 	 *
- 	 * We can't take any locks and we may be on an inconsistent state, so
--	 * use NMIs as IPIs to tell the other CPUs to exit VMX root and halt.
-+	 * use NMIs as IPIs to tell the other CPUs to disable VMX/SVM and halt.
- 	 *
--	 * Do the NMI shootdown even if VMX if off on _this_ CPU, as that
--	 * doesn't prevent a different CPU from being in VMX root operation.
-+	 * Do the NMI shootdown even if virtualization is off on _this_ CPU, as
-+	 * other CPUs may have virtualization enabled.
- 	 */
--	if (cpu_has_vmx()) {
--		/* Safely force _this_ CPU out of VMX root operation. */
--		__cpu_emergency_vmxoff();
-+	if (cpu_has_vmx() || cpu_has_svm(NULL)) {
-+		/* Safely force _this_ CPU out of VMX/SVM operation. */
-+		cpu_emergency_disable_virtualization();
- 
--		/* Halt and exit VMX root operation on the other CPUs. */
-+		/* Disable VMX/SVM and halt on other CPUs. */
- 		nmi_shootdown_cpus_on_restart();
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3872,9 +3872,16 @@ static int ext4_rename(struct user_names
+ 			if (new.dir != old.dir && EXT4_DIR_LINK_MAX(new.dir))
+ 				goto end_rename;
+ 		}
++		/*
++		 * We need to protect against old.inode directory getting
++		 * converted from inline directory format into a normal one.
++		 */
++		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
+ 		retval = ext4_rename_dir_prepare(handle, &old);
+-		if (retval)
++		if (retval) {
++			inode_unlock(old.inode);
+ 			goto end_rename;
++		}
  	}
- }
-@@ -587,7 +586,7 @@ static void native_machine_emergency_res
- 	unsigned short mode;
- 
- 	if (reboot_emergency)
--		emergency_vmx_disable_all();
-+		emergency_reboot_disable_virtualization();
- 
- 	tboot_shutdown(TB_SHUTDOWN_REBOOT);
- 
+ 	/*
+ 	 * If we're renaming a file within an inline_data dir and adding or
+@@ -4006,6 +4013,8 @@ end_rename:
+ 	} else {
+ 		ext4_journal_stop(handle);
+ 	}
++	if (old.dir_bh)
++		inode_unlock(old.inode);
+ release_bh:
+ 	brelse(old.dir_bh);
+ 	brelse(old.bh);
 
 
