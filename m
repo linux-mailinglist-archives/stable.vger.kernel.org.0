@@ -2,110 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A8E6AEC51
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C26B06AF128
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:40:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232222AbjCGRyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:54:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44326 "EHLO
+        id S232930AbjCGSkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:40:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232261AbjCGRxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:53:40 -0500
+        with ESMTP id S231240AbjCGSjv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:39:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7E188887
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:48:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8EB968F0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:31:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADF53B818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:48:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8797C4339B;
-        Tue,  7 Mar 2023 17:48:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 504C4B81A02
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:30:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE83C433EF;
+        Tue,  7 Mar 2023 18:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211305;
-        bh=HtEflstP9YVFSqBhKRZ5o60xntNJ2+/ynZx50FIm420=;
+        s=korg; t=1678213830;
+        bh=+IWnCY8nRXkgV2rY4QhoUp4clvCg11NoNmn48kCRs0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hxprcAb40fLtM8NK1g2/Kmd5zmjHsL7KpYhWshXdS7GLEhWjL7y7JcHDOCQkRcUAI
-         apsocK4S/S07/vrEutpbfaJ5UWqQGovRblXNH7K2i3wKm2b69MbItuWF9oKAcnaGuc
-         oHeiNx8ynRD4G5kWlAZiS7bjOHmUNLeJtz0zfqFY=
+        b=bj5ElrUn62hHPSxDrBcWVgma6lfZf1bIqkBViFc19EY9bbNB25Qc2tlihIzT6/3tf
+         aQGcJBj5B0U703liNuUd7fX1Fn0Sb5O72eRvpI7v/lGJJRNpayHstHmMV+vgM8ek+A
+         mCXeDevpT5a5kCernV7NSQgnWpblGlMR52naqNUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+57e3e98f7e3b80f64d56@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        "Theodore Tso" <tytso@mit.edu>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.2 0792/1001] fs: hfsplus: fix UAF issue in hfsplus_put_super
-Date:   Tue,  7 Mar 2023 17:59:24 +0100
-Message-Id: <20230307170056.130861735@linuxfoundation.org>
+        patches@lists.linux.dev, Denis Pauk <pauk.denis@gmail.com>,
+        Ahmad Khalifa <ahmad@khalifa.ws>,
+        Jeroen Beerstra <jeroen@beerstra.org>,
+        Slawomir Stepien <sst@poczta.fm>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 631/885] hwmon: (nct6775) B650/B660/X670 ASUS boards support
+Date:   Tue,  7 Mar 2023 17:59:25 +0100
+Message-Id: <20230307170029.623546159@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Denis Pauk <pauk.denis@gmail.com>
 
-commit 07db5e247ab5858439b14dd7cc1fe538b9efcf32 upstream.
+[ Upstream commit e2e09989ccc21ad428d6393450add78584b143bd ]
 
-The current hfsplus_put_super first calls hfs_btree_close on
-sbi->ext_tree, then invokes iput on sbi->hidden_dir, resulting in an
-use-after-free issue in hfsplus_release_folio.
+Boards such as:
+  "EX-B660M-V5 PRO D4",
+  "PRIME B650-PLUS",
+  "PRIME B650M-A",
+  "PRIME B650M-A AX",
+  "PRIME B650M-A II",
+  "PRIME B650M-A WIFI",
+  "PRIME B650M-A WIFI II",
+  "PRIME B660M-A D4",
+  "PRIME B660M-A WIFI D4",
+  "PRIME X670-P",
+  "PRIME X670-P WIFI",
+  "PRIME X670E-PRO WIFI",
+  "Pro B660M-C-D4",
+  "ProArt B660-CREATOR D4",
+  "ProArt X670E-CREATOR WIFI",
+  "ROG CROSSHAIR X670E EXTREME",
+  "ROG CROSSHAIR X670E GENE",
+  "ROG CROSSHAIR X670E HERO",
+  "ROG MAXIMUS XIII EXTREME GLACIAL",
+  "ROG MAXIMUS Z690 EXTREME",
+  "ROG MAXIMUS Z690 EXTREME GLACIAL",
+  "ROG STRIX B650-A GAMING WIFI",
+  "ROG STRIX B650E-E GAMING WIFI",
+  "ROG STRIX B650E-F GAMING WIFI",
+  "ROG STRIX B650E-I GAMING WIFI",
+  "ROG STRIX B660-A GAMING WIFI D4",
+  "ROG STRIX B660-F GAMING WIFI",
+  "ROG STRIX B660-G GAMING WIFI",
+  "ROG STRIX B660-I GAMING WIFI",
+  "ROG STRIX X670E-A GAMING WIFI",
+  "ROG STRIX X670E-E GAMING WIFI",
+  "ROG STRIX X670E-F GAMING WIFI",
+  "ROG STRIX X670E-I GAMING WIFI",
+  "ROG STRIX Z590-A GAMING WIFI II",
+  "ROG STRIX Z690-A GAMING WIFI D4",
+  "TUF GAMING B650-PLUS",
+  "TUF GAMING B650-PLUS WIFI",
+  "TUF GAMING B650M-PLUS",
+  "TUF GAMING B650M-PLUS WIFI",
+  "TUF GAMING B660M-PLUS WIFI",
+  "TUF GAMING X670E-PLUS",
+  "TUF GAMING X670E-PLUS WIFI",
+  "TUF GAMING Z590-PLUS WIFI",
+have got a NCT6799D chip, but by default there's no use of it
+because of resource conflict with WMI method.
 
-As shown in hfsplus_fill_super, the error handling code also calls iput
-before hfs_btree_close.
+This commit adds such boards to the monitoring list with new ACPI device
+UID.
 
-To fix this error, we move all iput calls before hfsplus_btree_close.
-
-Note that this patch is tested on Syzbot.
-
-Link: https://lkml.kernel.org/r/20230226124948.3175736-1-mudongliangabcd@gmail.com
-Reported-by: syzbot+57e3e98f7e3b80f64d56@syzkaller.appspotmail.com
-Tested-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204807
+Signed-off-by: Denis Pauk <pauk.denis@gmail.com>
+Co-developed-by: Ahmad Khalifa <ahmad@khalifa.ws>
+Signed-off-by: Ahmad Khalifa <ahmad@khalifa.ws>
+Tested-by: Jeroen Beerstra <jeroen@beerstra.org>
+Tested-by: Slawomir Stepien <sst@poczta.fm>
+Link: https://lore.kernel.org/r/20230111212241.7456-2-pauk.denis@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/super.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwmon/nct6775-platform.c | 52 ++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
---- a/fs/hfsplus/super.c
-+++ b/fs/hfsplus/super.c
-@@ -295,11 +295,11 @@ static void hfsplus_put_super(struct sup
- 		hfsplus_sync_fs(sb, 1);
+diff --git a/drivers/hwmon/nct6775-platform.c b/drivers/hwmon/nct6775-platform.c
+index e5d4a79cd5f7d..76c6b564d7fc4 100644
+--- a/drivers/hwmon/nct6775-platform.c
++++ b/drivers/hwmon/nct6775-platform.c
+@@ -114,6 +114,7 @@ struct nct6775_sio_data {
+ #define ASUSWMI_UNSUPPORTED_METHOD	0xFFFFFFFE
+ #define ASUSWMI_DEVICE_HID		"PNP0C14"
+ #define ASUSWMI_DEVICE_UID		"ASUSWMI"
++#define ASUSMSI_DEVICE_UID		"AsusMbSwInterface"
+ 
+ #if IS_ENABLED(CONFIG_ACPI)
+ /*
+@@ -1108,6 +1109,52 @@ static const char * const asus_wmi_boards[] = {
+ 	"TUF GAMING Z490-PLUS (WI-FI)",
+ };
+ 
++static const char * const asus_msi_boards[] = {
++	"EX-B660M-V5 PRO D4",
++	"PRIME B650-PLUS",
++	"PRIME B650M-A",
++	"PRIME B650M-A AX",
++	"PRIME B650M-A II",
++	"PRIME B650M-A WIFI",
++	"PRIME B650M-A WIFI II",
++	"PRIME B660M-A D4",
++	"PRIME B660M-A WIFI D4",
++	"PRIME X670-P",
++	"PRIME X670-P WIFI",
++	"PRIME X670E-PRO WIFI",
++	"Pro B660M-C-D4",
++	"ProArt B660-CREATOR D4",
++	"ProArt X670E-CREATOR WIFI",
++	"ROG CROSSHAIR X670E EXTREME",
++	"ROG CROSSHAIR X670E GENE",
++	"ROG CROSSHAIR X670E HERO",
++	"ROG MAXIMUS XIII EXTREME GLACIAL",
++	"ROG MAXIMUS Z690 EXTREME",
++	"ROG MAXIMUS Z690 EXTREME GLACIAL",
++	"ROG STRIX B650-A GAMING WIFI",
++	"ROG STRIX B650E-E GAMING WIFI",
++	"ROG STRIX B650E-F GAMING WIFI",
++	"ROG STRIX B650E-I GAMING WIFI",
++	"ROG STRIX B660-A GAMING WIFI D4",
++	"ROG STRIX B660-F GAMING WIFI",
++	"ROG STRIX B660-G GAMING WIFI",
++	"ROG STRIX B660-I GAMING WIFI",
++	"ROG STRIX X670E-A GAMING WIFI",
++	"ROG STRIX X670E-E GAMING WIFI",
++	"ROG STRIX X670E-F GAMING WIFI",
++	"ROG STRIX X670E-I GAMING WIFI",
++	"ROG STRIX Z590-A GAMING WIFI II",
++	"ROG STRIX Z690-A GAMING WIFI D4",
++	"TUF GAMING B650-PLUS",
++	"TUF GAMING B650-PLUS WIFI",
++	"TUF GAMING B650M-PLUS",
++	"TUF GAMING B650M-PLUS WIFI",
++	"TUF GAMING B660M-PLUS WIFI",
++	"TUF GAMING X670E-PLUS",
++	"TUF GAMING X670E-PLUS WIFI",
++	"TUF GAMING Z590-PLUS WIFI",
++};
++
+ #if IS_ENABLED(CONFIG_ACPI)
+ /*
+  * Callback for acpi_bus_for_each_dev() to find the right device
+@@ -1171,6 +1218,11 @@ static int __init sensors_nct6775_platform_init(void)
+ 				   board_name);
+ 		if (err >= 0)
+ 			access = nct6775_determine_access(ASUSWMI_DEVICE_UID);
++
++		err = match_string(asus_msi_boards, ARRAY_SIZE(asus_msi_boards),
++				   board_name);
++		if (err >= 0)
++			access = nct6775_determine_access(ASUSMSI_DEVICE_UID);
  	}
  
-+	iput(sbi->alloc_file);
-+	iput(sbi->hidden_dir);
- 	hfs_btree_close(sbi->attr_tree);
- 	hfs_btree_close(sbi->cat_tree);
- 	hfs_btree_close(sbi->ext_tree);
--	iput(sbi->alloc_file);
--	iput(sbi->hidden_dir);
- 	kfree(sbi->s_vhdr_buf);
- 	kfree(sbi->s_backup_vhdr_buf);
- 	unload_nls(sbi->nls);
+ 	/*
+-- 
+2.39.2
+
 
 
