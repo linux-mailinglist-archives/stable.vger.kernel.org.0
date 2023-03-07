@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE8F6AEE74
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 894056AE9C0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232269AbjCGSMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:12:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57040 "EHLO
+        id S231617AbjCGR11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232431AbjCGSLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB90029142
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:01 -0800 (PST)
+        with ESMTP id S231584AbjCGR07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C0296080
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:22:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20451B819BA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36F0DC433D2;
-        Tue,  7 Mar 2023 18:06:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3EBF6150C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71ECBC4339C;
+        Tue,  7 Mar 2023 17:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212418;
-        bh=pZDr7Q26PdTgodbfdfcqc+pYhPZBzDfTECAF3TVGyek=;
+        s=korg; t=1678209723;
+        bh=Y/sklo1DtXbedLOwLurLaX7pAxmsh2roGWDbL68H25Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGdgBu369sFhUE6fsNqA9wQgES+4iM63WxRQsOvfn5EBuu71/qzWmaOPiaWkPgZO5
-         LK4JcxZ9Jew02fzgOFCUp4mAAaSof2aaw+uHDtxkdlRjZprg/H37A/xKZqvKcUyJ3O
-         VIFuVIalRdPm975AMofYWFggSzTtaD2UbdJbuMjs=
+        b=ZuH0UnNg/g9emwLDlqX8B6yLWOEabOcOF+8Q7SuYYwoM2EuRvxOeaV+a54fwQaeQ6
+         sTCn4eragy82coL2K8GpSq1by/NxhrZW/cKOuGcQuyexaEmg7nuQHJVjgxA9UjeaHC
+         0XlKm9LU9htyzb5H1mMPUv+Fleq/Jqh8spEwFcPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 148/885] platform/chrome: cros_ec_typec: Update port DP VDO
+Subject: [PATCH 6.2 0310/1001] can: esd_usb: Move mislocated storage of SJA1000_ECC_SEG bits in case of a bus error
 Date:   Tue,  7 Mar 2023 17:51:22 +0100
-Message-Id: <20230307170008.313733810@linuxfoundation.org>
+Message-Id: <20230307170034.998390321@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Frank Jungclaus <frank.jungclaus@esd.eu>
 
-[ Upstream commit 8d2b28df6c3dc1581d856f52d9f78059ef2a568f ]
+[ Upstream commit 118469f88180438ef43dee93d71f77c00e7b425d ]
 
-The port advertising DP support is a Type-C receptacle. Fix the port's
-DisplayPort VDO to reflect this.
+Move the supply for cf->data[3] (bit stream position of CAN error), in
+case of a bus- or protocol-error, outside of the "switch (ecc &
+SJA1000_ECC_MASK){}"-statement, because this bit stream position is
+independent of the error type.
 
-Fixes: 1903adae0464 ("platform/chrome: cros_ec_typec: Add bit offset for DP VDO")
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20221228004648.793339-6-pmalani@chromium.org
+Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
+Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
+Link: https://lore.kernel.org/all/20230216190450.3901254-2-frank.jungclaus@esd.eu
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_typec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/usb/esd_usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_typec.c b/drivers/platform/chrome/cros_ec_typec.c
-index 59de4ce01faba..a74d01e9089e1 100644
---- a/drivers/platform/chrome/cros_ec_typec.c
-+++ b/drivers/platform/chrome/cros_ec_typec.c
-@@ -27,7 +27,7 @@
- #define DRV_NAME "cros-ec-typec"
+diff --git a/drivers/net/can/usb/esd_usb.c b/drivers/net/can/usb/esd_usb.c
+index 42323f5e6f3a0..5e182fadd875e 100644
+--- a/drivers/net/can/usb/esd_usb.c
++++ b/drivers/net/can/usb/esd_usb.c
+@@ -286,7 +286,6 @@ static void esd_usb_rx_event(struct esd_usb_net_priv *priv,
+ 				cf->data[2] |= CAN_ERR_PROT_STUFF;
+ 				break;
+ 			default:
+-				cf->data[3] = ecc & SJA1000_ECC_SEG;
+ 				break;
+ 			}
  
- #define DP_PORT_VDO	(DP_CONF_SET_PIN_ASSIGN(BIT(DP_PIN_ASSIGN_C) | BIT(DP_PIN_ASSIGN_D)) | \
--				DP_CAP_DFP_D)
-+				DP_CAP_DFP_D | DP_CAP_RECEPTACLE)
+@@ -294,6 +293,9 @@ static void esd_usb_rx_event(struct esd_usb_net_priv *priv,
+ 			if (!(ecc & SJA1000_ECC_DIR))
+ 				cf->data[2] |= CAN_ERR_PROT_TX;
  
- /* Supported alt modes. */
- enum {
++			/* Bit stream position in CAN frame as the error was detected */
++			cf->data[3] = ecc & SJA1000_ECC_SEG;
++
+ 			if (priv->can.state == CAN_STATE_ERROR_WARNING ||
+ 			    priv->can.state == CAN_STATE_ERROR_PASSIVE) {
+ 				cf->data[1] = (txerr > rxerr) ?
 -- 
 2.39.2
 
