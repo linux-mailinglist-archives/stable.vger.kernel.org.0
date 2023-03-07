@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FBC56AF222
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:50:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 014276AEBDA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:49:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233340AbjCGSuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:50:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47502 "EHLO
+        id S232007AbjCGRtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:49:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233342AbjCGSuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69990AFBAE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:38:44 -0800 (PST)
+        with ESMTP id S232102AbjCGRtP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:49:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FA48A54CF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:43:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2B667CE1C82
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C71D1C433AF;
-        Tue,  7 Mar 2023 18:28:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D7F9614B2
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:43:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F99CC433D2;
+        Tue,  7 Mar 2023 17:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213736;
-        bh=Gt5RttRD2uzBUsNCm618cpLLtdUwX0697o/p2YGOFh4=;
+        s=korg; t=1678211036;
+        bh=4S6++14pFs8C4dfALsnbpM+8aX0OuxAnlzTS33TScJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRhrb1yp8ES+5m0qMpEppDQZ995qeAi2vimnWx8ro4C0Fuk/B1fv3eipE/jN7J3cY
-         CrARaZYm4aZ68PsFVdurrTh4x+ZyqcXeGBbWNAikOGNojnG7lz5YwrIOx07k0XRqIb
-         HNofkKPdDMzGZhfiEt5y+UIbRIt9ytb3z+0ojo4Q=
+        b=ynR8g+6TRconUEIEDat7/QxpGk1DwcdlLjT3Wu2OLcE7fDMaHbtAGFboG5JB85vWh
+         Vn4mb7i/5/KVUe75mBWMJmbyf/dNfQmVkVFbT4GMGtyA2IAAGVaAmGTJnbaWmA8Urr
+         9jb4bftNagFD+Zc99W3r/5zElkT9xu6ZOG12tfAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+5aed6c3aaba661f5b917@syzkaller.appspotmail.com,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Hansen Dsouza <hansen.dsouza@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 572/885] can: isotp: check CAN address family in isotp_bind()
+Subject: [PATCH 6.2 0734/1001] drm/amd/display: Disable HUBP/DPP PG on DCN314 for now
 Date:   Tue,  7 Mar 2023 17:58:26 +0100
-Message-Id: <20230307170027.265096406@linuxfoundation.org>
+Message-Id: <20230307170053.556847534@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,45 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit c6adf659a8ba85913e16a571d5a9bcd17d3d1234 ]
+[ Upstream commit b7c67f72408b11b922f23f06c7df0f6743a2e89d ]
 
-Add missing check to block non-AF_CAN binds.
+[Why]
+The DMCUB implementation required to workaround corruption is
+not currently stable and may cause intermittent corruption or hangs.
 
-Syzbot created some code which matched the right sockaddr struct size
-but used AF_XDP (0x2C) instead of AF_CAN (0x1D) in the address family
-field:
+[How]
+Disable PG until the sequence is stable.
 
-bind$xdp(r2, &(0x7f0000000540)={0x2c, 0x0, r4, 0x0, r2}, 0x10)
-                                ^^^^
-This has no funtional impact but the userspace should be notified about
-the wrong address family field content.
-
-Link: https://syzkaller.appspot.com/text?tag=CrashLog&x=11ff9d8c480000
-Reported-by: syzbot+5aed6c3aaba661f5b917@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20230104201844.13168-1-socketcan@hartkopp.net
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Reviewed-by: Hansen Dsouza <hansen.dsouza@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/isotp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index fc81d77724a13..9bc344851704e 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1220,6 +1220,9 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 	if (len < ISOTP_MIN_NAMELEN)
- 		return -EINVAL;
- 
-+	if (addr->can_family != AF_CAN)
-+		return -EINVAL;
-+
- 	/* sanitize tx CAN identifier */
- 	if (tx_id & CAN_EFF_FLAG)
- 		tx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
+index bc7f2b735327e..73f519dbdb531 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
+@@ -892,6 +892,8 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 	.force_abm_enable = false,
+ 	.timing_trace = false,
+ 	.clock_trace = true,
++	.disable_dpp_power_gate = true,
++	.disable_hubp_power_gate = true,
+ 	.disable_pplib_clock_request = false,
+ 	.pipe_split_policy = MPC_SPLIT_DYNAMIC,
+ 	.force_single_disp_pipe_split = false,
 -- 
 2.39.2
 
