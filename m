@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2226AEE6C
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 924636AE9D9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232291AbjCGSLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:11:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47014 "EHLO
+        id S231628AbjCGR2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:28:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbjCGSL2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A60078ABEA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:31 -0800 (PST)
+        with ESMTP id S231644AbjCGR1y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:27:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED72834F61
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:23:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 435C86152C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 208FDC433EF;
-        Tue,  7 Mar 2023 18:06:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85B2DB819AB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:23:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2CC8C433EF;
+        Tue,  7 Mar 2023 17:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212390;
-        bh=mSxITTnFU5bUU3V1I7GVYbX3PaXbBd81I0qI7P0qZWk=;
+        s=korg; t=1678209787;
+        bh=wHJfAO5LsXajI8osGTdcr2aeOgtdaGADNY7wZzWn0Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVvHwhMqlf/74avHonZHGZOYNPMGKoipHy1qdWOmt/ApS54U9m9fiebwmsmIkNXN9
-         jzgfLyvH0YZDf3yaA69/aKkKEgJPZXzzdgYYGgeo0/m//jO1eVFFLKoBLLT2+k8+9X
-         nqJEpknPmQED8Kfsjzqq9mT/O6KmENk/brOaRx48=
+        b=F0M7FVAKzJiSCvRk5ZNyOipTYI9MfGrkhNBN0+J3TYRR1za5bBT/cnojtSS82s9hV
+         HT4UA2TEMC1ogVDoVOoFmZ5XC3RChJGEvw2j+tyo0FsI79NRu/6/ur6s3399UndYfs
+         5o7IGL9FXEduyVG30+5iAl9s6urokf+NJrAjqATU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Ian Ray <ian.ray@ge.com>, Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 169/885] wifi: ath9k: hif_usb: clean up skbs if ath9k_hif_usb_rx_stream() fails
-Date:   Tue,  7 Mar 2023 17:51:43 +0100
-Message-Id: <20230307170009.284008087@linuxfoundation.org>
+Subject: [PATCH 6.2 0332/1001] drm/bridge: megachips: Fix error handling in i2c_register_driver()
+Date:   Tue,  7 Mar 2023 17:51:44 +0100
+Message-Id: <20230307170035.904426605@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,119 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 0af54343a76263a12dbae7fafb64eb47c4a6ad38 ]
+[ Upstream commit 4ecff954c370b82bce45bdca2846c5c5563e8a8a ]
 
-Syzkaller detected a memory leak of skbs in ath9k_hif_usb_rx_stream().
-While processing skbs in ath9k_hif_usb_rx_stream(), the already allocated
-skbs in skb_pool are not freed if ath9k_hif_usb_rx_stream() fails. If we
-have an incorrect pkt_len or pkt_tag, the input skb is considered invalid
-and dropped. All the associated packets already in skb_pool should be
-dropped and freed. Added a comment describing this issue.
+A problem about insmod megachips-stdpxxxx-ge-b850v3-fw.ko failed is
+triggered with the following log given:
 
-The patch also makes remain_skb NULL after being processed so that it
-cannot be referenced after potential free. The initialization of hif_dev
-fields which are associated with remain_skb (rx_remain_len,
-rx_transfer_len and rx_pad_len) is moved after a new remain_skb is
-allocated.
+[ 4497.981497] Error: Driver 'stdp4028-ge-b850v3-fw' is already registered, aborting...
+insmod: ERROR: could not insert module megachips-stdpxxxx-ge-b850v3-fw.ko: Device or resource busy
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+The reason is that stdpxxxx_ge_b850v3_init() returns i2c_add_driver()
+directly without checking its return value, if i2c_add_driver() failed,
+it returns without calling i2c_del_driver() on the previous i2c driver,
+resulting the megachips-stdpxxxx-ge-b850v3-fw can never be installed
+later.
+A simple call graph is shown as below:
 
-Fixes: 6ce708f54cc8 ("ath9k: Fix out-of-bound memcpy in ath9k_hif_usb_rx_stream")
-Fixes: 44b23b488d44 ("ath9k: hif_usb: Reduce indent 1 column")
-Reported-by: syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230104123615.51511-1-pchelkin@ispras.ru
+ stdpxxxx_ge_b850v3_init()
+   i2c_add_driver(&stdp4028_ge_b850v3_fw_driver)
+   i2c_add_driver(&stdp2690_ge_b850v3_fw_driver)
+     i2c_register_driver()
+       driver_register()
+         bus_add_driver()
+           priv = kzalloc(...) # OOM happened
+   # return without delete stdp4028_ge_b850v3_fw_driver
+
+Fix by calling i2c_del_driver() on stdp4028_ge_b850v3_fw_driver when
+i2c_add_driver() returns error.
+
+Fixes: fcfa0ddc18ed ("drm/bridge: Drivers for megachips-stdpxxxx-ge-b850v3-fw (LVDS-DP++)")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Tested-by: Ian Ray <ian.ray@ge.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221108091226.114524-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 31 +++++++++++++++++-------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 1a2e0c7eeb023..de6c0824c9cab 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -561,11 +561,11 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 			memcpy(ptr, skb->data, rx_remain_len);
+diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+index 97359f807bfc3..cbfa05a6767b5 100644
+--- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
++++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+@@ -440,7 +440,11 @@ static int __init stdpxxxx_ge_b850v3_init(void)
+ 	if (ret)
+ 		return ret;
  
- 			rx_pkt_len += rx_remain_len;
--			hif_dev->rx_remain_len = 0;
- 			skb_put(remain_skb, rx_pkt_len);
- 
- 			skb_pool[pool_index++] = remain_skb;
--
-+			hif_dev->remain_skb = NULL;
-+			hif_dev->rx_remain_len = 0;
- 		} else {
- 			index = rx_remain_len;
- 		}
-@@ -584,16 +584,21 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 		pkt_len = get_unaligned_le16(ptr + index);
- 		pkt_tag = get_unaligned_le16(ptr + index + 2);
- 
-+		/* It is supposed that if we have an invalid pkt_tag or
-+		 * pkt_len then the whole input SKB is considered invalid
-+		 * and dropped; the associated packets already in skb_pool
-+		 * are dropped, too.
-+		 */
- 		if (pkt_tag != ATH_USB_RX_STREAM_MODE_TAG) {
- 			RX_STAT_INC(hif_dev, skb_dropped);
--			return;
-+			goto invalid_pkt;
- 		}
- 
- 		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
- 			dev_err(&hif_dev->udev->dev,
- 				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
- 			RX_STAT_INC(hif_dev, skb_dropped);
--			return;
-+			goto invalid_pkt;
- 		}
- 
- 		pad_len = 4 - (pkt_len & 0x3);
-@@ -605,11 +610,6 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 
- 		if (index > MAX_RX_BUF_SIZE) {
- 			spin_lock(&hif_dev->rx_lock);
--			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
--			hif_dev->rx_transfer_len =
--				MAX_RX_BUF_SIZE - chk_idx - 4;
--			hif_dev->rx_pad_len = pad_len;
--
- 			nskb = __dev_alloc_skb(pkt_len + 32, GFP_ATOMIC);
- 			if (!nskb) {
- 				dev_err(&hif_dev->udev->dev,
-@@ -617,6 +617,12 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				spin_unlock(&hif_dev->rx_lock);
- 				goto err;
- 			}
+-	return i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
++	ret = i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
++	if (ret)
++		i2c_del_driver(&stdp4028_ge_b850v3_fw_driver);
 +
-+			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
-+			hif_dev->rx_transfer_len =
-+				MAX_RX_BUF_SIZE - chk_idx - 4;
-+			hif_dev->rx_pad_len = pad_len;
-+
- 			skb_reserve(nskb, 32);
- 			RX_STAT_INC(hif_dev, skb_allocated);
- 
-@@ -654,6 +660,13 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				 skb_pool[i]->len, USB_WLAN_RX_PIPE);
- 		RX_STAT_INC(hif_dev, skb_completed);
- 	}
-+	return;
-+invalid_pkt:
-+	for (i = 0; i < pool_index; i++) {
-+		dev_kfree_skb_any(skb_pool[i]);
-+		RX_STAT_INC(hif_dev, skb_dropped);
-+	}
-+	return;
++	return ret;
  }
+ module_init(stdpxxxx_ge_b850v3_init);
  
- static void ath9k_hif_usb_rx_cb(struct urb *urb)
 -- 
 2.39.2
 
