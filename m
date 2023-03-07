@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5322C6AEC2F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C09B6AEC30
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232117AbjCGRxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:53:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44370 "EHLO
+        id S232277AbjCGRxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:53:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232297AbjCGRwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC1DA5938
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:06 -0800 (PST)
+        with ESMTP id S232235AbjCGRwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:52:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D52A54EC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:47:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1421E6150E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B1DDC4339E;
-        Tue,  7 Mar 2023 17:47:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C32ECB819BE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E0DCC433EF;
+        Tue,  7 Mar 2023 17:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211225;
-        bh=ZONAirZ6zfNf1iTb0FxKJx91w3mgVP51sUbKEawi4b4=;
+        s=korg; t=1678211228;
+        bh=PvVmhNWcGfmoX70Q35VETDXUPrnkRGlJ9jQ2jhJFUeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBC09UOkPpVYixQ478qZTsLdUDr/bCUDJTZ9aU3aXh8V42qipbTXvzOVjryeq5Js6
-         41LZXDvnPg+j3FK0ZCDg7o2XRQ+yqiiXL26ssJJIBs55MZLKWpXdd/i+skZJ9voiMV
-         G6qmMQVQIZ+TX9IN1nSkTmAe/yUCps9ROozdryNQ=
+        b=LEaignZq520mqRCdrAf9RoLbD47gto1Xee1rFioqMPb4Un0aV5UYhdJvPZUfJjSun
+         BdL1sVCbEw7a7TmrYpKttgpwIH3jAiJkx8DKvyhpXfI+/62uoWO9KtW8iPk2H1X4+s
+         YgmMGrK4ZqxmQ7LXkYeG/YWunz1E9CNZTuIwGyPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        patches@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 6.2 0763/1001] s390/extmem: return correct segment type in __segment_load()
-Date:   Tue,  7 Mar 2023 17:58:55 +0100
-Message-Id: <20230307170054.872194038@linuxfoundation.org>
+Subject: [PATCH 6.2 0764/1001] s390: discard .interp section
+Date:   Tue,  7 Mar 2023 17:58:56 +0100
+Message-Id: <20230307170054.916804129@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -44,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,76 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-commit 8c42dd78df148c90e48efff204cce38743906a79 upstream.
+commit e9c9cb90e76ffaabcc7ca8f275d9e82195fd6367 upstream.
 
-Commit f05f62d04271f ("s390/vmem: get rid of memory segment list")
-reshuffled the call to vmem_add_mapping() in __segment_load(), which now
-overwrites rc after it was set to contain the segment type code.
+When debugging vmlinux with QEMU + GDB, the following GDB error may
+occur:
 
-As result, __segment_load() will now always return 0 on success, which
-corresponds to the segment type code SEG_TYPE_SW, i.e. a writeable
-segment. This results in a kernel crash when loading a read-only segment
-as dcssblk block device, and trying to write to it.
+    (gdb) c
+    Continuing.
+    Warning:
+    Cannot insert breakpoint -1.
+    Cannot access memory at address 0xffffffffffff95c0
 
-Instead of reshuffling code again, make sure to return the segment type
-on success, and also describe this rather delicate and unexpected logic
-in the function comment. Also initialize new segtype variable with
-invalid value, to prevent possible future confusion.
+    Command aborted.
+    (gdb)
 
-Fixes: f05f62d04271 ("s390/vmem: get rid of memory segment list")
-Cc: <stable@vger.kernel.org> # 5.9+
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+The reason is that, when .interp section is present, GDB tries to
+locate the file specified in it in memory and put a number of
+breakpoints there (see enable_break() function in gdb/solib-svr4.c).
+Sometimes GDB finds a bogus location that matches its heuristics,
+fails to set a breakpoint and stops. This makes further debugging
+impossible.
+
+The .interp section contains misleading information anyway (vmlinux
+does not need ld.so), so fix by discarding it.
+
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/mm/extmem.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/s390/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/s390/mm/extmem.c
-+++ b/arch/s390/mm/extmem.c
-@@ -289,15 +289,17 @@ segment_overlaps_others (struct dcss_seg
- 
- /*
-  * real segment loading function, called from segment_load
-+ * Must return either an error code < 0, or the segment type code >= 0
-  */
- static int
- __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long *end)
- {
- 	unsigned long start_addr, end_addr, dummy;
- 	struct dcss_segment *seg;
--	int rc, diag_cc;
-+	int rc, diag_cc, segtype;
- 
- 	start_addr = end_addr = 0;
-+	segtype = -1;
- 	seg = kmalloc(sizeof(*seg), GFP_KERNEL | GFP_DMA);
- 	if (seg == NULL) {
- 		rc = -ENOMEM;
-@@ -326,9 +328,9 @@ __segment_load (char *name, int do_nonsh
- 	seg->res_name[8] = '\0';
- 	strlcat(seg->res_name, " (DCSS)", sizeof(seg->res_name));
- 	seg->res->name = seg->res_name;
--	rc = seg->vm_segtype;
--	if (rc == SEG_TYPE_SC ||
--	    ((rc == SEG_TYPE_SR || rc == SEG_TYPE_ER) && !do_nonshared))
-+	segtype = seg->vm_segtype;
-+	if (segtype == SEG_TYPE_SC ||
-+	    ((segtype == SEG_TYPE_SR || segtype == SEG_TYPE_ER) && !do_nonshared))
- 		seg->res->flags |= IORESOURCE_READONLY;
- 
- 	/* Check for overlapping resources before adding the mapping. */
-@@ -386,7 +388,7 @@ __segment_load (char *name, int do_nonsh
-  out_free:
- 	kfree(seg);
-  out:
--	return rc;
-+	return rc < 0 ? rc : segtype;
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -228,5 +228,6 @@ SECTIONS
+ 	DISCARDS
+ 	/DISCARD/ : {
+ 		*(.eh_frame)
++		*(.interp)
+ 	}
  }
- 
- /*
 
 
