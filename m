@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 310A16AEBE5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F1D86AF232
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232221AbjCGRuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:50:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42746 "EHLO
+        id S233357AbjCGSvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:51:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232084AbjCGRte (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:49:34 -0500
+        with ESMTP id S233363AbjCGSun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78BCAA2279
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4312A99D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:39:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AAFCB818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:44:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CAFEC433EF;
-        Tue,  7 Mar 2023 17:44:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA662B819EB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5470CC433D2;
+        Tue,  7 Mar 2023 18:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211066;
-        bh=yNPdvSlvwnp472yH/0FNF5wu39G6ekhcKcjp2QiyD9M=;
+        s=korg; t=1678213664;
+        bh=lX1KobrTflvWQnZeQwufnxX7sVZ0XDOpN260eJg/mhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKw+T1LilWQB9lX/o2q7Gc7Aw2PmmW4eWZU+RMX738JPGiHVqkI8UudFSsdO6o5+x
-         gzAxvwkC4UjHYQK33wAacMzVUrzsLJxpoTrJ9xQ0fCx3yqdrqT3S3YoFIY93xjFfu6
-         rSZAjQ4xRR8L4X+kDJ9Z/7bYj2jRtzJSGUNw1zqI=
+        b=p+5MyAeuIPGLSNwns3Byx+MeXYlwkavV5qIoJDVqiz70wI2KbpKvdwmpUKZ4gJG6c
+         zEH4chXYZktrdPZn+p/3lEXF0AAyRnYyshAWMwFX5D7Rr2puaSbfhfdI3m6MtuM+ph
+         RpCOXqG9pyum0wTA7v7mYpURz/MfO/NyKIC8i+ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Asahi Lina <lina@asahilina.net>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0742/1001] drm/shmem-helper: Revert accidental non-GPL export
+Subject: [PATCH 6.1 580/885] s390/idle: mark arch_cpu_idle() noinstr
 Date:   Tue,  7 Mar 2023 17:58:34 +0100
-Message-Id: <20230307170053.938697174@linuxfoundation.org>
+Message-Id: <20230307170027.570199401@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asahi Lina <lina@asahilina.net>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 047a754558d640eaa080fce3b22ca9f3d4e04626 ]
+[ Upstream commit a9cbc1b471d291c865907542394f1c483b93a811 ]
 
-The referenced commit added a wrapper for drm_gem_shmem_get_pages_sgt(),
-but in the process it accidentally changed the export type from GPL to
-non-GPL. Switch it back to GPL.
+linux-next commit ("cpuidle: tracing: Warn about !rcu_is_watching()")
+adds a new warning which hits on s390's arch_cpu_idle() function:
 
-Reported-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Fixes: ddddedaa0db9 ("drm/shmem-helper: Fix locking for drm_gem_shmem_get_pages_sgt()")
-Signed-off-by: Asahi Lina <lina@asahilina.net>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230227-shmem-export-fix-v1-1-8880b2c25e81@asahilina.net
+RCU not on for: arch_cpu_idle+0x0/0x28
+WARNING: CPU: 2 PID: 0 at include/linux/trace_recursion.h:162 arch_ftrace_ops_list_func+0x24c/0x258
+Modules linked in:
+CPU: 2 PID: 0 Comm: swapper/2 Not tainted 6.2.0-rc6-next-20230202 #4
+Hardware name: IBM 8561 T01 703 (z/VM 7.3.0)
+Krnl PSW : 0404d00180000000 00000000002b55c0 (arch_ftrace_ops_list_func+0x250/0x258)
+           R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+Krnl GPRS: c0000000ffffbfff 0000000080000002 0000000000000026 0000000000000000
+           0000037ffffe3a28 0000037ffffe3a20 0000000000000000 0000000000000000
+           0000000000000000 0000000000f4acf6 00000000001044f0 0000037ffffe3cb0
+           0000000000000000 0000000000000000 00000000002b55bc 0000037ffffe3bb8
+Krnl Code: 00000000002b55b0: c02000840051        larl    %r2,0000000001335652
+           00000000002b55b6: c0e5fff512d1        brasl   %r14,0000000000157b58
+          #00000000002b55bc: af000000            mc      0,0
+          >00000000002b55c0: a7f4ffe7            brc     15,00000000002b558e
+           00000000002b55c4: 0707                bcr     0,%r7
+           00000000002b55c6: 0707                bcr     0,%r7
+           00000000002b55c8: eb6ff0480024        stmg    %r6,%r15,72(%r15)
+           00000000002b55ce: b90400ef            lgr     %r14,%r15
+Call Trace:
+ [<00000000002b55c0>] arch_ftrace_ops_list_func+0x250/0x258
+([<00000000002b55bc>] arch_ftrace_ops_list_func+0x24c/0x258)
+ [<0000000000f5f0fc>] ftrace_common+0x1c/0x20
+ [<00000000001044f6>] arch_cpu_idle+0x6/0x28
+ [<0000000000f4acf6>] default_idle_call+0x76/0x128
+ [<00000000001cc374>] do_idle+0xf4/0x1b0
+ [<00000000001cc6ce>] cpu_startup_entry+0x36/0x40
+ [<0000000000119d00>] smp_start_secondary+0x140/0x150
+ [<0000000000f5d2ae>] restart_int_handler+0x6e/0x90
+
+Mark arch_cpu_idle() noinstr like all other architectures with
+CONFIG_ARCH_WANTS_NO_INSTR (should) have it to fix this.
+
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 2 +-
+ arch/s390/kernel/idle.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 2c559b310cad3..7af9da886d4e5 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -747,7 +747,7 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
- 
- 	return sgt;
+diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
+index 4bf1ee293f2b3..a0da049e73609 100644
+--- a/arch/s390/kernel/idle.c
++++ b/arch/s390/kernel/idle.c
+@@ -44,7 +44,7 @@ void account_idle_time_irq(void)
+ 	S390_lowcore.last_update_timer = idle->timer_idle_exit;
  }
--EXPORT_SYMBOL(drm_gem_shmem_get_pages_sgt);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_get_pages_sgt);
  
- /**
-  * drm_gem_shmem_prime_import_sg_table - Produce a shmem GEM object from
+-void arch_cpu_idle(void)
++void noinstr arch_cpu_idle(void)
+ {
+ 	struct s390_idle_data *idle = this_cpu_ptr(&s390_idle);
+ 	unsigned long idle_time;
 -- 
 2.39.2
 
