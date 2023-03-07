@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6864F6AF520
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A1F6AF52B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbjCGTWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:22:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52886 "EHLO
+        id S233991AbjCGTWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:22:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbjCGTWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0641F20D0D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:07 -0800 (PST)
+        with ESMTP id S229632AbjCGTWc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3844ABB17
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:07:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B536CB818C4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11159C433D2;
-        Tue,  7 Mar 2023 19:07:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D259B8117B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:07:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D5CC433D2;
+        Tue,  7 Mar 2023 19:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216024;
-        bh=79FmrR3Q82FQL0xE0nOcZGIdgYLCYeHQcd09R0tUx0k=;
+        s=korg; t=1678216058;
+        bh=ZONAirZ6zfNf1iTb0FxKJx91w3mgVP51sUbKEawi4b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYstl8Xuj56QTuBi8xW/UK/L8Dn7VbkAjJ4+auuhGZiN3EZCkl9+zsXlZJRz3PQ97
-         HoXI2jF8H2lKJ4L9Dw2O5wmpLqyY8JDskHD0FTBzSkkGwi31+npG1jYYfwBBTsXJWq
-         XXnKs9+5mGIFJYJ2U62+Bq3zRxBYiRk9jij4IstA=
+        b=f+qe44Hcx2CwFzWv0OzHyp+bOnmsHzld4+p60PNr1ffuTrcKd/41DsV5eemitn5px
+         a8y1z7LJNsWVgVHr3QCRg6f76x/G61LM+OKKD2Ok+OV9fuSsk818r2ALjzOTLiUia0
+         BX5ClNkwalo2A1YM9zxhNcxTZdRGIYoWdbFw/MVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.15 433/567] ipmi_ssif: Rename idle state and check
-Date:   Tue,  7 Mar 2023 18:02:49 +0100
-Message-Id: <20230307165924.673186395@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.15 434/567] s390/extmem: return correct segment type in __segment_load()
+Date:   Tue,  7 Mar 2023 18:02:50 +0100
+Message-Id: <20230307165924.721618457@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -42,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,193 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 8230831c43a328c2be6d28c65d3f77e14c59986b upstream.
+commit 8c42dd78df148c90e48efff204cce38743906a79 upstream.
 
-Rename the SSIF_IDLE() to IS_SSIF_IDLE(), since that is more clear, and
-rename SSIF_NORMAL to SSIF_IDLE, since that's more accurate.
+Commit f05f62d04271f ("s390/vmem: get rid of memory segment list")
+reshuffled the call to vmem_add_mapping() in __segment_load(), which now
+overwrites rc after it was set to contain the segment type code.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+As result, __segment_load() will now always return 0 on success, which
+corresponds to the segment type code SEG_TYPE_SW, i.e. a writeable
+segment. This results in a kernel crash when loading a read-only segment
+as dcssblk block device, and trying to write to it.
+
+Instead of reshuffling code again, make sure to return the segment type
+on success, and also describe this rather delicate and unexpected logic
+in the function comment. Also initialize new segtype variable with
+invalid value, to prevent possible future confusion.
+
+Fixes: f05f62d04271 ("s390/vmem: get rid of memory segment list")
+Cc: <stable@vger.kernel.org> # 5.9+
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c |   46 +++++++++++++++++++++---------------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+ arch/s390/mm/extmem.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -92,7 +92,7 @@
- #define SSIF_WATCH_WATCHDOG_TIMEOUT	msecs_to_jiffies(250)
- 
- enum ssif_intf_state {
--	SSIF_NORMAL,
-+	SSIF_IDLE,
- 	SSIF_GETTING_FLAGS,
- 	SSIF_GETTING_EVENTS,
- 	SSIF_CLEARING_FLAGS,
-@@ -100,8 +100,8 @@ enum ssif_intf_state {
- 	/* FIXME - add watchdog stuff. */
- };
- 
--#define SSIF_IDLE(ssif)	 ((ssif)->ssif_state == SSIF_NORMAL \
--			  && (ssif)->curr_msg == NULL)
-+#define IS_SSIF_IDLE(ssif) ((ssif)->ssif_state == SSIF_IDLE \
-+			    && (ssif)->curr_msg == NULL)
+--- a/arch/s390/mm/extmem.c
++++ b/arch/s390/mm/extmem.c
+@@ -289,15 +289,17 @@ segment_overlaps_others (struct dcss_seg
  
  /*
-  * Indexes into stats[] in ssif_info below.
-@@ -348,9 +348,9 @@ static void return_hosed_msg(struct ssif
- 
- /*
-  * Must be called with the message lock held.  This will release the
-- * message lock.  Note that the caller will check SSIF_IDLE and start a
-- * new operation, so there is no need to check for new messages to
-- * start in here.
-+ * message lock.  Note that the caller will check IS_SSIF_IDLE and
-+ * start a new operation, so there is no need to check for new
-+ * messages to start in here.
+  * real segment loading function, called from segment_load
++ * Must return either an error code < 0, or the segment type code >= 0
   */
- static void start_clear_flags(struct ssif_info *ssif_info, unsigned long *flags)
+ static int
+ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long *end)
  {
-@@ -367,7 +367,7 @@ static void start_clear_flags(struct ssi
+ 	unsigned long start_addr, end_addr, dummy;
+ 	struct dcss_segment *seg;
+-	int rc, diag_cc;
++	int rc, diag_cc, segtype;
  
- 	if (start_send(ssif_info, msg, 3) != 0) {
- 		/* Error, just go to normal state. */
--		ssif_info->ssif_state = SSIF_NORMAL;
-+		ssif_info->ssif_state = SSIF_IDLE;
- 	}
+ 	start_addr = end_addr = 0;
++	segtype = -1;
+ 	seg = kmalloc(sizeof(*seg), GFP_KERNEL | GFP_DMA);
+ 	if (seg == NULL) {
+ 		rc = -ENOMEM;
+@@ -326,9 +328,9 @@ __segment_load (char *name, int do_nonsh
+ 	seg->res_name[8] = '\0';
+ 	strlcat(seg->res_name, " (DCSS)", sizeof(seg->res_name));
+ 	seg->res->name = seg->res_name;
+-	rc = seg->vm_segtype;
+-	if (rc == SEG_TYPE_SC ||
+-	    ((rc == SEG_TYPE_SR || rc == SEG_TYPE_ER) && !do_nonshared))
++	segtype = seg->vm_segtype;
++	if (segtype == SEG_TYPE_SC ||
++	    ((segtype == SEG_TYPE_SR || segtype == SEG_TYPE_ER) && !do_nonshared))
+ 		seg->res->flags |= IORESOURCE_READONLY;
+ 
+ 	/* Check for overlapping resources before adding the mapping. */
+@@ -386,7 +388,7 @@ __segment_load (char *name, int do_nonsh
+  out_free:
+ 	kfree(seg);
+  out:
+-	return rc;
++	return rc < 0 ? rc : segtype;
  }
- 
-@@ -382,7 +382,7 @@ static void start_flag_fetch(struct ssif
- 	mb[0] = (IPMI_NETFN_APP_REQUEST << 2);
- 	mb[1] = IPMI_GET_MSG_FLAGS_CMD;
- 	if (start_send(ssif_info, mb, 2) != 0)
--		ssif_info->ssif_state = SSIF_NORMAL;
-+		ssif_info->ssif_state = SSIF_IDLE;
- }
- 
- static void check_start_send(struct ssif_info *ssif_info, unsigned long *flags,
-@@ -393,7 +393,7 @@ static void check_start_send(struct ssif
- 
- 		flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
- 		ssif_info->curr_msg = NULL;
--		ssif_info->ssif_state = SSIF_NORMAL;
-+		ssif_info->ssif_state = SSIF_IDLE;
- 		ipmi_ssif_unlock_cond(ssif_info, flags);
- 		ipmi_free_smi_msg(msg);
- 	}
-@@ -407,7 +407,7 @@ static void start_event_fetch(struct ssi
- 
- 	msg = ipmi_alloc_smi_msg();
- 	if (!msg) {
--		ssif_info->ssif_state = SSIF_NORMAL;
-+		ssif_info->ssif_state = SSIF_IDLE;
- 		ipmi_ssif_unlock_cond(ssif_info, flags);
- 		return;
- 	}
-@@ -430,7 +430,7 @@ static void start_recv_msg_fetch(struct
- 
- 	msg = ipmi_alloc_smi_msg();
- 	if (!msg) {
--		ssif_info->ssif_state = SSIF_NORMAL;
-+		ssif_info->ssif_state = SSIF_IDLE;
- 		ipmi_ssif_unlock_cond(ssif_info, flags);
- 		return;
- 	}
-@@ -448,9 +448,9 @@ static void start_recv_msg_fetch(struct
  
  /*
-  * Must be called with the message lock held.  This will release the
-- * message lock.  Note that the caller will check SSIF_IDLE and start a
-- * new operation, so there is no need to check for new messages to
-- * start in here.
-+ * message lock.  Note that the caller will check IS_SSIF_IDLE and
-+ * start a new operation, so there is no need to check for new
-+ * messages to start in here.
-  */
- static void handle_flags(struct ssif_info *ssif_info, unsigned long *flags)
- {
-@@ -466,7 +466,7 @@ static void handle_flags(struct ssif_inf
- 		/* Events available. */
- 		start_event_fetch(ssif_info, flags);
- 	else {
--		ssif_info->ssif_state = SSIF_NORMAL;
-+		ssif_info->ssif_state = SSIF_IDLE;
- 		ipmi_ssif_unlock_cond(ssif_info, flags);
- 	}
- }
-@@ -568,7 +568,7 @@ static void watch_timeout(struct timer_l
- 	if (ssif_info->watch_timeout) {
- 		mod_timer(&ssif_info->watch_timer,
- 			  jiffies + ssif_info->watch_timeout);
--		if (SSIF_IDLE(ssif_info)) {
-+		if (IS_SSIF_IDLE(ssif_info)) {
- 			start_flag_fetch(ssif_info, flags); /* Releases lock */
- 			return;
- 		}
-@@ -756,7 +756,7 @@ static void msg_done_handler(struct ssif
- 	}
- 
- 	switch (ssif_info->ssif_state) {
--	case SSIF_NORMAL:
-+	case SSIF_IDLE:
- 		ipmi_ssif_unlock_cond(ssif_info, flags);
- 		if (!msg)
- 			break;
-@@ -774,7 +774,7 @@ static void msg_done_handler(struct ssif
- 			 * Error fetching flags, or invalid length,
- 			 * just give up for now.
- 			 */
--			ssif_info->ssif_state = SSIF_NORMAL;
-+			ssif_info->ssif_state = SSIF_IDLE;
- 			ipmi_ssif_unlock_cond(ssif_info, flags);
- 			dev_warn(&ssif_info->client->dev,
- 				 "Error getting flags: %d %d, %x\n",
-@@ -809,7 +809,7 @@ static void msg_done_handler(struct ssif
- 				 "Invalid response clearing flags: %x %x\n",
- 				 data[0], data[1]);
- 		}
--		ssif_info->ssif_state = SSIF_NORMAL;
-+		ssif_info->ssif_state = SSIF_IDLE;
- 		ipmi_ssif_unlock_cond(ssif_info, flags);
- 		break;
- 
-@@ -887,7 +887,7 @@ static void msg_done_handler(struct ssif
- 	}
- 
- 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
--	if (SSIF_IDLE(ssif_info) && !ssif_info->stopping) {
-+	if (IS_SSIF_IDLE(ssif_info) && !ssif_info->stopping) {
- 		if (ssif_info->req_events)
- 			start_event_fetch(ssif_info, flags);
- 		else if (ssif_info->req_flags)
-@@ -1032,7 +1032,7 @@ static void start_next_msg(struct ssif_i
- 	unsigned long oflags;
- 
-  restart:
--	if (!SSIF_IDLE(ssif_info)) {
-+	if (!IS_SSIF_IDLE(ssif_info)) {
- 		ipmi_ssif_unlock_cond(ssif_info, flags);
- 		return;
- 	}
-@@ -1255,7 +1255,7 @@ static void shutdown_ssif(void *send_inf
- 	dev_set_drvdata(&ssif_info->client->dev, NULL);
- 
- 	/* make sure the driver is not looking for flags any more. */
--	while (ssif_info->ssif_state != SSIF_NORMAL)
-+	while (ssif_info->ssif_state != SSIF_IDLE)
- 		schedule_timeout(1);
- 
- 	ssif_info->stopping = true;
-@@ -1827,7 +1827,7 @@ static int ssif_probe(struct i2c_client
- 	}
- 
- 	spin_lock_init(&ssif_info->lock);
--	ssif_info->ssif_state = SSIF_NORMAL;
-+	ssif_info->ssif_state = SSIF_IDLE;
- 	timer_setup(&ssif_info->retry_timer, retry_timeout, 0);
- 	timer_setup(&ssif_info->watch_timer, watch_timeout, 0);
- 
 
 
