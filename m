@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C186AF419
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A41F6AF41B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229762AbjCGTNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:13:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33982 "EHLO
+        id S233658AbjCGTNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:13:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233737AbjCGTNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979D6B53E3
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:56:49 -0800 (PST)
+        with ESMTP id S233716AbjCGTNN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6FB6A400D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:56:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BDE4B819D5
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:56:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A731C4339B;
-        Tue,  7 Mar 2023 18:56:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6051F61546
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:56:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D71CC433D2;
+        Tue,  7 Mar 2023 18:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215407;
-        bh=73WqWkbemJ/4jwqXMVJeNr8VP/NZehtBXFOoTemCbwY=;
+        s=korg; t=1678215413;
+        bh=6/OwhqZEoCnWMvzWTG606iTH0y7ZrDpAltPe5w4+44o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPuHpExLb5w/oMng/L5gGnZ/QAmHMDh7uAfaO4tSVVmhA7FqAjAmJrubNHW7Ffqsi
-         7IU1wrQuCBqkGIe9zzEh3N2IiMptJJJyfx4fOz90yhnYHRTX3CQAVjfOdc6cRYkyZf
-         y7mkYJ1qU/Tej7eIcYcIkJWJbTxA+Gwf7KHlY6tw=
+        b=om5cyXPkRWiLqNTLz1gTyOdSPhYPyf7OimSCWeoY7cKibjWo5VFY4Xj79lDvWvdIk
+         DN50X7u4KNC0LiJPowQLvQROmiK9thOqeC3DypxwExbbJGI4ge1lMnIYpQob9tIYAr
+         V/you4HR6AmODMIohivNCoIieRwcijEYh5v+VRDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pietro Borrello <borrello@diag.uniroma1.it>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 251/567] HID: bigben_worker() remove unneeded check on report_field
-Date:   Tue,  7 Mar 2023 17:59:47 +0100
-Message-Id: <20230307165916.846694988@linuxfoundation.org>
+Subject: [PATCH 5.15 252/567] HID: bigben: use spinlock to safely schedule workers
+Date:   Tue,  7 Mar 2023 17:59:48 +0100
+Message-Id: <20230307165916.898514511@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,40 +57,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 27d2a2fd844ec7da70d19fabb482304fd1e0595b ]
+[ Upstream commit 76ca8da989c7d97a7f76c75d475fe95a584439d7 ]
 
-bigben_worker() checks report_field to be non-NULL.
-The check has been added in commit
-918aa1ef104d ("HID: bigbenff: prevent null pointer dereference")
-to prevent a NULL pointer crash.
-However, the true root cause was a missing check for output
-reports, patched in commit
-c7bf714f8755 ("HID: check empty report_list in bigben_probe()"),
-where the type-confused report list_entry was overlapping with
-a NULL pointer, which was then causing the crash.
+Use spinlocks to deal with workers introducing a wrapper
+bigben_schedule_work(), and several spinlock checks.
+Otherwise, bigben_set_led() may schedule bigben->worker after the
+structure has been freed, causing a use-after-free.
 
-Fixes: 918aa1ef104d ("HID: bigbenff: prevent null pointer dereference")
+Fixes: 4eb1b01de5b9 ("HID: hid-bigbenff: fix race condition for scheduled work during removal")
 Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-2-7860c5763c38@diag.uniroma1.it
+Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-3-7860c5763c38@diag.uniroma1.it
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-bigbenff.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index ed3d2d7bc1dd4..b98c5f31c184b 100644
+index b98c5f31c184b..9d6560db762b1 100644
 --- a/drivers/hid/hid-bigbenff.c
 +++ b/drivers/hid/hid-bigbenff.c
-@@ -197,7 +197,7 @@ static void bigben_worker(struct work_struct *work)
+@@ -185,6 +185,15 @@ struct bigben_device {
+ 	struct work_struct worker;
+ };
+ 
++static inline void bigben_schedule_work(struct bigben_device *bigben)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&bigben->lock, flags);
++	if (!bigben->removed)
++		schedule_work(&bigben->worker);
++	spin_unlock_irqrestore(&bigben->lock, flags);
++}
+ 
+ static void bigben_worker(struct work_struct *work)
+ {
+@@ -197,9 +206,6 @@ static void bigben_worker(struct work_struct *work)
  	u32 len;
  	unsigned long flags;
  
--	if (bigben->removed || !report_field)
-+	if (bigben->removed)
- 		return;
- 
+-	if (bigben->removed)
+-		return;
+-
  	buf = hid_alloc_report_buf(bigben->report, GFP_KERNEL);
+ 	if (!buf)
+ 		return;
+@@ -285,7 +291,7 @@ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
+ 		bigben->work_ff = true;
+ 		spin_unlock_irqrestore(&bigben->lock, flags);
+ 
+-		schedule_work(&bigben->worker);
++		bigben_schedule_work(bigben);
+ 	}
+ 
+ 	return 0;
+@@ -320,7 +326,7 @@ static void bigben_set_led(struct led_classdev *led,
+ 
+ 			if (work) {
+ 				bigben->work_led = true;
+-				schedule_work(&bigben->worker);
++				bigben_schedule_work(bigben);
+ 			}
+ 			return;
+ 		}
+@@ -450,7 +456,7 @@ static int bigben_probe(struct hid_device *hid,
+ 	bigben->left_motor_force = 0;
+ 	bigben->work_led = true;
+ 	bigben->work_ff = true;
+-	schedule_work(&bigben->worker);
++	bigben_schedule_work(bigben);
+ 
+ 	hid_info(hid, "LED and force feedback support for BigBen gamepad\n");
+ 
 -- 
 2.39.2
 
