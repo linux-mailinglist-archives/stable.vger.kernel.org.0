@@ -2,61 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 978396AEA88
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:34:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E51BE6AEF25
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:21:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231788AbjCGRen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:34:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60480 "EHLO
+        id S232666AbjCGSVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:21:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231654AbjCGRe3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108B38C520
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:30:17 -0800 (PST)
+        with ESMTP id S232673AbjCGSUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:20:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F95FA54EF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:14:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF9ACB819A1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7D11C433EF;
-        Tue,  7 Mar 2023 17:30:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0601CB8191D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:14:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BD9BC433EF;
+        Tue,  7 Mar 2023 18:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210214;
-        bh=dxFSj10K1gAdGhzhQE+cReJR7o4SDTExojXack2sgcc=;
+        s=korg; t=1678212875;
+        bh=cp1WTNH8NCKuZCAdIpnWWiih9OqgJnIfgLdj0K47gNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HXEaqvf03OH2uPj+tPGeha0503KVIR7SdBAj8nZKWpsvOcw4t35pyPgTsN0Kv+GET
-         UbHCz+DK6HxXEOGuoZbtLOTDzrhRuYIo2TaO13RWBIsRQ8ItMjJehv3l+UKzmaRVko
-         l+CRTZZ0hJ3BDR0V2goGVrl0WwCKR0+eIndElVw4=
+        b=zaC4VBGz+GAQAZzxvca36C3Jf9jhd+RnMhPjDe0i8PGJK7QlZ5g1GP+ruiTrWW3xE
+         uRygT9JRoQJlvV1TuHwfBbF5A0mEndlvzpQOgnzMIJqBvZ/Uh54E8L2bYw0FWTgMD1
+         qvwKAFUX3aourRO69C1Y0vbMNr4fV/fnyU5M9Shc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Disha Goel <disgoel@linux.ibm.com>,
-        Ian Rogers <irogers@google.com>,
-        James Clark <james.clark@arm.com>,
-        Jiri Olsa <jolsa@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wang Nan <wangnan0@huawei.com>, linuxppc-dev@lists.ozlabs.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Kiwoong Kim <kwmad.kim@samsung.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0470/1001] perf test bpf: Skip test if kernel-debuginfo is not present
+Subject: [PATCH 6.1 308/885] scsi: ufs: exynos: Fix DMA alignment for PAGE_SIZE != 4096
 Date:   Tue,  7 Mar 2023 17:54:02 +0100
-Message-Id: <20230307170041.792183851@linuxfoundation.org>
+Message-Id: <20230307170015.495106332@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -65,107 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 34266f904abd45731bdade2e92d0536c092ee9bc ]
+[ Upstream commit 86bd0c4a2a5dc4265884648cb92c681646509692 ]
 
-Perf BPF filter test fails in environment where "kernel-debuginfo"
-is not installed.
+The Exynos UFS controller only supports scatter/gather list elements that
+are aligned on a 4 KiB boundary. Fix DMA alignment in case PAGE_SIZE !=
+4096. Rename UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE into
+UFSHCD_QUIRK_4KB_DMA_ALIGNMENT.
 
-Test failure logs:
-
-  <<>>
-  42: BPF filter                            :
-  42.1: Basic BPF filtering                 : Ok
-  42.2: BPF pinning                         : Ok
-  42.3: BPF prologue generation             : FAILED!
-  <<>>
-
-Enabling verbose option provided debug logs, which says debuginfo
-needs to be installed. Snippet of verbose logs:
-
-  <<>>
-  42.3: BPF prologue generation                                       :
-  --- start ---
-  test child forked, pid 28218
-  <<>>
-  Rebuild with CONFIG_DEBUG_INFO=y, or install an appropriate debuginfo
-  package.
-  bpf_probe: failed to convert perf probe events
-  Failed to add events selected by BPF
-  test child finished with -1
-  ---- end ----
-  BPF filter subtest 3: FAILED!
-  <<>>
-
-Here the subtest "BPF prologue generation" failed and logs shows
-debuginfo is needed. After installing kernel-debuginfo package, testcase
-passes.
-
-The "BPF prologue generation" subtest failed because, the do_test()
-returns TEST_FAIL without checking the error type returned by
-parse_events_load_bpf_obj().
-
-parse_events_load_bpf_obj() can also return error of type -ENODATA
-incase kernel-debuginfo package is not installed. Fix this by adding
-check for -ENODATA error.
-
-Test result after the patch changes:
-
-Test failure logs:
-
-  <<>>
-  42: BPF filter                 :
-  42.1: Basic BPF filtering      : Ok
-  42.2: BPF pinning              : Ok
-  42.3: BPF prologue generation  : Skip (clang/debuginfo isn't installed or environment missing BPF support)
-  <<>>
-
-Fixes: ba1fae431e74bb42 ("perf test: Add 'perf test BPF'")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Disha Goel <disgoel@linux.ibm.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: James Clark <james.clark@arm.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kajol Jain <kjain@linux.ibm.com>
-Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Cc: linuxppc-dev@lists.ozlabs.org
-Link: http://lore.kernel.org/linux-perf-users/Y7bIk77mdE4j8Jyi@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Kiwoong Kim <kwmad.kim@samsung.com>
+Fixes: 2b2bfc8aa519 ("scsi: ufs: Introduce a quirk to allow only page-aligned sg entries")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/bpf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/ufs/core/ufshcd.c     | 4 ++--
+ drivers/ufs/host/ufs-exynos.c | 2 +-
+ include/ufs/ufshcd.h          | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/tests/bpf.c b/tools/perf/tests/bpf.c
-index 17c023823713d..6a4235a9cf57e 100644
---- a/tools/perf/tests/bpf.c
-+++ b/tools/perf/tests/bpf.c
-@@ -126,6 +126,10 @@ static int do_test(struct bpf_object *obj, int (*func)(void),
+diff --git a/drivers/ufs/core/ufshcd.c b/drivers/ufs/core/ufshcd.c
+index fb5c9e2fc5348..e08ce7f2ff3af 100644
+--- a/drivers/ufs/core/ufshcd.c
++++ b/drivers/ufs/core/ufshcd.c
+@@ -5068,8 +5068,8 @@ static int ufshcd_slave_configure(struct scsi_device *sdev)
+ 	ufshcd_hpb_configure(hba, sdev);
  
- 	err = parse_events_load_bpf_obj(&parse_state, &parse_state.list, obj, NULL);
- 	parse_events_error__exit(&parse_error);
-+	if (err == -ENODATA) {
-+		pr_debug("Failed to add events selected by BPF, debuginfo package not installed\n");
-+		return TEST_SKIP;
-+	}
- 	if (err || list_empty(&parse_state.list)) {
- 		pr_debug("Failed to add events selected by BPF\n");
- 		return TEST_FAIL;
-@@ -368,7 +372,7 @@ static struct test_case bpf_tests[] = {
- 			"clang isn't installed or environment missing BPF support"),
- #ifdef HAVE_BPF_PROLOGUE
- 	TEST_CASE_REASON("BPF prologue generation", bpf_prologue_test,
--			"clang isn't installed or environment missing BPF support"),
-+			"clang/debuginfo isn't installed or environment missing BPF support"),
- #else
- 	TEST_CASE_REASON("BPF prologue generation", bpf_prologue_test, "not compiled in"),
- #endif
+ 	blk_queue_update_dma_pad(q, PRDT_DATA_BYTE_COUNT_PAD - 1);
+-	if (hba->quirks & UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE)
+-		blk_queue_update_dma_alignment(q, PAGE_SIZE - 1);
++	if (hba->quirks & UFSHCD_QUIRK_4KB_DMA_ALIGNMENT)
++		blk_queue_update_dma_alignment(q, 4096 - 1);
+ 	/*
+ 	 * Block runtime-pm until all consumers are added.
+ 	 * Refer ufshcd_setup_links().
+diff --git a/drivers/ufs/host/ufs-exynos.c b/drivers/ufs/host/ufs-exynos.c
+index c3628a8645a56..3cdac89a28b81 100644
+--- a/drivers/ufs/host/ufs-exynos.c
++++ b/drivers/ufs/host/ufs-exynos.c
+@@ -1673,7 +1673,7 @@ static const struct exynos_ufs_drv_data exynos_ufs_drvs = {
+ 				  UFSHCD_QUIRK_BROKEN_OCS_FATAL_ERROR |
+ 				  UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL |
+ 				  UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING |
+-				  UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE,
++				  UFSHCD_QUIRK_4KB_DMA_ALIGNMENT,
+ 	.opts			= EXYNOS_UFS_OPT_HAS_APB_CLK_CTRL |
+ 				  EXYNOS_UFS_OPT_BROKEN_AUTO_CLK_CTRL |
+ 				  EXYNOS_UFS_OPT_BROKEN_RX_SEL_IDX |
+diff --git a/include/ufs/ufshcd.h b/include/ufs/ufshcd.h
+index 2bb89290da63c..b54f22840dabf 100644
+--- a/include/ufs/ufshcd.h
++++ b/include/ufs/ufshcd.h
+@@ -566,9 +566,9 @@ enum ufshcd_quirks {
+ 	UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING = 1 << 13,
+ 
+ 	/*
+-	 * This quirk allows only sg entries aligned with page size.
++	 * Align DMA SG entries on a 4 KiB boundary.
+ 	 */
+-	UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE		= 1 << 14,
++	UFSHCD_QUIRK_4KB_DMA_ALIGNMENT			= 1 << 14,
+ 
+ 	/*
+ 	 * This quirk needs to be enabled if the host controller does not
 -- 
 2.39.2
 
