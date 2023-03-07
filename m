@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40BE36ADB29
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 10:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BBB6ADB46
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 11:02:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230505AbjCGJ4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 04:56:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54124 "EHLO
+        id S230019AbjCGKCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 05:02:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231197AbjCGJzx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 04:55:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495A7521C2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 01:55:30 -0800 (PST)
+        with ESMTP id S229671AbjCGKCX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 05:02:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 840963B222
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 02:02:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7A75612BE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:55:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6209C433D2;
-        Tue,  7 Mar 2023 09:55:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47F26B816CF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D073C433EF;
+        Tue,  7 Mar 2023 10:02:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678182929;
-        bh=YvSBxxYoku/aLCABm73iZDtaweKs8WYaNFUlQcsd75Y=;
+        s=korg; t=1678183340;
+        bh=mrVpv62MXcxEuaKos8UbmM1Qh/+aQ6NEtRSbErPjmpc=;
         h=Subject:To:Cc:From:Date:From;
-        b=szKRXMBzWUM7ZDqGLetRMH7MyqeHNC4mr4co/raxMch21vSV+pVrclqAQuphfKSwn
-         VDtV1FlSkN0Ojdbrr2RKW9Qvrr6p3fqfHicup4TVF8suT0elPxnnbm50HvnUnv7Qb7
-         gXHyyo4Cfvt56ZbKMKN41kIxsc1aSwTq9E3TDZUw=
-Subject: FAILED: patch "[PATCH] iommu/amd: Add a length limitation for the ivrs_acpihid" failed to apply to 4.19-stable tree
-To:     Ilia.Gavrilov@infotecs.ru, jroedel@suse.de, kim.phillips@amd.com
+        b=rwwMRSl7ZLPRsnGZFXzTPDNIeCfaHvUKIUdDW/wkWYmn6hhcpBBQkno8FGI2k4aei
+         h4+ED+nHxAl8G/Ni//6VQ5DB0pQGqVHO/rQXteWU6xahmHR4UBgzImJtg6FpDEJMcf
+         xRjkvdsOw8D+iWURfoDbYE1eMnmIlxwEH3ieek1s=
+Subject: FAILED: patch "[PATCH] Input: exc3000 - properly stop timer on shutdown" failed to apply to 6.1-stable tree
+To:     dmitry.torokhov@gmail.com, mstahl@moba.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Mar 2023 10:55:11 +0100
-Message-ID: <1678182911148202@kroah.com>
+Date:   Tue, 07 Mar 2023 11:00:28 +0100
+Message-ID: <16781832289284@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -48,27 +48,23 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x b6b26d86c61c441144c72f842f7469bb686e1211
+git cherry-pick -x 79c81d137d36f9635bbcbc3916c0cccb418a61dd
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678182911148202@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16781832289284@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-b6b26d86c61c ("iommu/amd: Add a length limitation for the ivrs_acpihid command-line parameter")
-1198d2316dc4 ("iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options")
-bbe3a106580c ("iommu/amd: Add PCI segment support for ivrs_[ioapic/hpet/acpihid] commands")
-42bb5aa04338 ("iommu/amd: Increase timeout waiting for GA log enablement")
-03ebe48e235f ("Merge branches 'iommu/fixes', 'arm/renesas', 'arm/mediatek', 'arm/tegra', 'arm/omap', 'arm/smmu', 'x86/vt-d', 'x86/amd' and 'core' into next")
+79c81d137d36 ("Input: exc3000 - properly stop timer on shutdown")
 
 thanks,
 
@@ -76,66 +72,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b6b26d86c61c441144c72f842f7469bb686e1211 Mon Sep 17 00:00:00 2001
-From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
-Date: Thu, 2 Feb 2023 08:26:56 +0000
-Subject: [PATCH] iommu/amd: Add a length limitation for the ivrs_acpihid
- command-line parameter
+From 79c81d137d36f9635bbcbc3916c0cccb418a61dd Mon Sep 17 00:00:00 2001
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date: Fri, 3 Feb 2023 16:43:29 -0800
+Subject: [PATCH] Input: exc3000 - properly stop timer on shutdown
 
-The 'acpiid' buffer in the parse_ivrs_acpihid function may overflow,
-because the string specifier in the format string sscanf()
-has no width limitation.
+We need to stop the timer on driver unbind or probe failures, otherwise
+we get UAF/Oops.
 
-Found by InfoTeCS on behalf of Linux Verification Center
-(linuxtesting.org) with SVACE.
-
-Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
+Fixes: 7e577a17f2ee ("Input: add I2C attached EETI EXC3000 multi touch driver")
+Reported-by: "Stahl, Michael" <mstahl@moba.de>
+Link: https://lore.kernel.org/r/Y9dK57BFqtlf8NmN@google.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
-Reviewed-by: Kim Phillips <kim.phillips@amd.com>
-Link: https://lore.kernel.org/r/20230202082719.1513849-1-Ilia.Gavrilov@infotecs.ru
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index 467b194975b3..19a46b9f7357 100644
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -3475,15 +3475,26 @@ static int __init parse_ivrs_hpet(char *str)
- 	return 1;
+diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+index 4b7eee01c6aa..69eae79e2087 100644
+--- a/drivers/input/touchscreen/exc3000.c
++++ b/drivers/input/touchscreen/exc3000.c
+@@ -109,6 +109,11 @@ static inline void exc3000_schedule_timer(struct exc3000_data *data)
+ 	mod_timer(&data->timer, jiffies + msecs_to_jiffies(EXC3000_TIMEOUT_MS));
  }
  
-+#define ACPIID_LEN (ACPIHID_UID_LEN + ACPIHID_HID_LEN)
++static void exc3000_shutdown_timer(void *timer)
++{
++	timer_shutdown_sync(timer);
++}
 +
- static int __init parse_ivrs_acpihid(char *str)
+ static int exc3000_read_frame(struct exc3000_data *data, u8 *buf)
  {
- 	u32 seg = 0, bus, dev, fn;
- 	char *hid, *uid, *p, *addr;
--	char acpiid[ACPIHID_UID_LEN + ACPIHID_HID_LEN] = {0};
-+	char acpiid[ACPIID_LEN] = {0};
- 	int i;
+ 	struct i2c_client *client = data->client;
+@@ -386,6 +391,11 @@ static int exc3000_probe(struct i2c_client *client)
+ 	if (error)
+ 		return error;
  
- 	addr = strchr(str, '@');
- 	if (!addr) {
-+		addr = strchr(str, '=');
-+		if (!addr)
-+			goto not_found;
++	error = devm_add_action_or_reset(&client->dev, exc3000_shutdown_timer,
++					 &data->timer);
++	if (error)
++		return error;
 +
-+		++addr;
-+
-+		if (strlen(addr) > ACPIID_LEN)
-+			goto not_found;
-+
- 		if (sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid) == 4 ||
- 		    sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid) == 5) {
- 			pr_warn("ivrs_acpihid%s option format deprecated; use ivrs_acpihid=%s@%04x:%02x:%02x.%d instead\n",
-@@ -3496,6 +3507,9 @@ static int __init parse_ivrs_acpihid(char *str)
- 	/* We have the '@', make it the terminator to get just the acpiid */
- 	*addr++ = 0;
- 
-+	if (strlen(str) > ACPIID_LEN + 1)
-+		goto not_found;
-+
- 	if (sscanf(str, "=%s", acpiid) != 1)
- 		goto not_found;
- 
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  NULL, exc3000_interrupt, IRQF_ONESHOT,
+ 					  client->name, data);
 
