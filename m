@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13AA16AEF9F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E713D6AEB4F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:43:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231192AbjCGSY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:24:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
+        id S231904AbjCGRnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:43:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232674AbjCGSY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:24:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13AC09E048
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:19:59 -0800 (PST)
+        with ESMTP id S232003AbjCGRmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:42:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C7395615B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:38:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 815556152E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:19:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A025C433D2;
-        Tue,  7 Mar 2023 18:19:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 949DEB819B4
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:38:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20FFC433EF;
+        Tue,  7 Mar 2023 17:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213199;
-        bh=FrKyh+tjljhwezt9WqS6MhAMttatdxu2QHrUIYCY510=;
+        s=korg; t=1678210681;
+        bh=2cd3LTHah5jdbR0rtPbY0tbZtnUjQXv83YwUDRxZjtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ss807cCPUvIbjwGOG+s3f6tKoqHKQ3VCeOkBsTdTctpW2j5wjEZEW3qkzSspITMgm
-         ucMGkHg7YnD5Jm4xK90YwqUzbiYZdgOTYxAYkNXoKr3dz/2xkmnlemu1h0ynPhnW+X
-         6D50U5idfNcRuTBYw+R9bddl8fOTm98TZd9QImSw=
+        b=FcVYH3bbKNRrrWQINyx3jMum/78R3W2DbDIOhCIIKh5Oo4ri8dSVMvuzN19uuH6zg
+         pAk9fyrIx9AmU1kA2HiaNdd0eR0zrzPBBhwUVsnXtmQvnecVqlNEEhxRM6DHT0o4Hg
+         wYzJabWnmjAWc+As/MhMLkWm95B8MKZS/B9Km56A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
+        patches@lists.linux.dev,
+        coverity-bot <keescook+coverity-bot@chromium.org>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 430/885] tty: serial: fsl_lpuart: clear LPUART Status Register in lpuart32_shutdown()
+Subject: [PATCH 6.2 0592/1001] media: i2c: tc358746: fix missing return assignment
 Date:   Tue,  7 Mar 2023 17:56:04 +0100
-Message-Id: <20230307170021.089547777@linuxfoundation.org>
+Message-Id: <20230307170047.194446319@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit 4029dfc034febb54f6dd8ea83568accc943bc088 ]
+[ Upstream commit 0605081142070a41de8f1deb8fdaeb8677e97741 ]
 
-The LPUART Status Register needs to be cleared when closing the uart
-port to get a clean environment when reopening the uart.
+It was intended to return an error if tc358746_update_bits() call fail.
+Fix this by storing the return code.
 
-Fixes: 380c966c093e ("tty: serial: fsl_lpuart: add 32-bit register interface support")
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20221125101953.18753-4-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity-ID: 1527252 ("Control flow issues")
+
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Fixes: 80a21da36051 ("media: tc358746: add Toshiba TC358746 Parallel to CSI-2 bridge driver")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/i2c/tc358746.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 262b059e3ee11..110c8720af47a 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1791,6 +1791,10 @@ static void lpuart32_shutdown(struct uart_port *port)
+diff --git a/drivers/media/i2c/tc358746.c b/drivers/media/i2c/tc358746.c
+index d1f552bd81d42..e7f27cbb57907 100644
+--- a/drivers/media/i2c/tc358746.c
++++ b/drivers/media/i2c/tc358746.c
+@@ -406,7 +406,7 @@ tc358746_apply_pll_config(struct tc358746 *tc358746)
  
- 	spin_lock_irqsave(&port->lock, flags);
+ 	val = PLL_FRS(ilog2(post)) | RESETB | PLL_EN;
+ 	mask = PLL_FRS_MASK | RESETB | PLL_EN;
+-	tc358746_update_bits(tc358746, PLLCTL1_REG, mask, val);
++	err = tc358746_update_bits(tc358746, PLLCTL1_REG, mask, val);
+ 	if (err)
+ 		return err;
  
-+	/* clear status */
-+	temp = lpuart32_read(&sport->port, UARTSTAT);
-+	lpuart32_write(&sport->port, temp, UARTSTAT);
-+
- 	/* disable Rx/Tx DMA */
- 	temp = lpuart32_read(port, UARTBAUD);
- 	temp &= ~(UARTBAUD_TDMAE | UARTBAUD_RDMAE);
 -- 
 2.39.2
 
