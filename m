@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 715156AF4D4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:20:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EC16AF4D5
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:20:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233865AbjCGTUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:20:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50272 "EHLO
+        id S233909AbjCGTUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:20:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234021AbjCGTTw (ORCPT
+        with ESMTP id S234026AbjCGTTw (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:19:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CAE6C5612
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:03:50 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C41C5ACB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:03:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F4EEB819CD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:03:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A101AC433D2;
-        Tue,  7 Mar 2023 19:03:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6E7661532
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:03:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC7DC433D2;
+        Tue,  7 Mar 2023 19:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215828;
-        bh=zHzvPhiTP1yu2aZkueAGwAUIvsQzhPIs2WmN/NU/ijo=;
+        s=korg; t=1678215831;
+        bh=PwRfxWnd81gQ97pfEJN4tcjcJqRWKUYJWubMkulxQ2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBeDrDsXPdpamlot5J6IJQYEi49cUfbY9ZYRwdXv1tN40o0+97cz9qR3zzqrPzoEW
-         HrMuoxhddg9nyPI7GBhqnjM7py+sKoPB4Uwz27EWLW2ApqtoJO+xCHlICnicGFoWWV
-         0kub5zmsNC4tXxGsAkf1hrbNQK3kw+Wp99RyQ69E=
+        b=qlMQCnHMWs8IXs7y9p63t70SbXECSSRrXRxZfXrGJmEDKh676ULJNORN2sycAxpWM
+         GGux2MR1wOfAZ4wXK9U0Omf0iOInQi+Wl10L5TTXPpRo/M9zyrBMeH5ZomfjcYseFA
+         BBXZ3/0/TopjZhHzDr6Ew98r3UTXhCEtLCbAewQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Michael Schmitz <schmitzmic@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 387/567] net: bcmgenet: Add a check for oversized packets
-Date:   Tue,  7 Mar 2023 18:02:03 +0100
-Message-Id: <20230307165922.602607854@linuxfoundation.org>
+Subject: [PATCH 5.15 388/567] m68k: Check syscall_trace_enter() return code
+Date:   Tue,  7 Mar 2023 18:02:04 +0100
+Message-Id: <20230307165922.644987812@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -54,41 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-[ Upstream commit 5c0862c2c962052ed5055220a00ac1cefb92fbcd ]
+[ Upstream commit 2ca8a1de4437f21562e57f9ac123914747a8e7a1 ]
 
-Occasionnaly we may get oversized packets from the hardware which
-exceed the nomimal 2KiB buffer size we allocate SKBs with. Add an early
-check which drops the packet to avoid invoking skb_over_panic() and move
-on to processing the next packet.
+Check return code of syscall_trace_enter(), and skip syscall
+if -1. Return code will be left at what had been set by
+ptrace or seccomp (in regs->d0).
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+No regression seen in testing with strace on ARAnyM.
+
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20230112035529.13521-2-schmitzmic@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/m68k/68000/entry.S    | 2 ++
+ arch/m68k/coldfire/entry.S | 2 ++
+ arch/m68k/kernel/entry.S   | 3 +++
+ 3 files changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index ea13917537526..92cd2916e8015 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -2267,6 +2267,14 @@ static unsigned int bcmgenet_desc_rx(struct bcmgenet_rx_ring *ring,
- 			  __func__, p_index, ring->c_index,
- 			  ring->read_ptr, dma_length_status);
- 
-+		if (unlikely(len > RX_BUF_LENGTH)) {
-+			netif_err(priv, rx_status, dev, "oversized packet\n");
-+			dev->stats.rx_length_errors++;
-+			dev->stats.rx_errors++;
-+			dev_kfree_skb_any(skb);
-+			goto next;
-+		}
-+
- 		if (unlikely(!(dma_flag & DMA_EOP) || !(dma_flag & DMA_SOP))) {
- 			netif_err(priv, rx_status, dev,
- 				  "dropping fragmented packet!\n");
+diff --git a/arch/m68k/68000/entry.S b/arch/m68k/68000/entry.S
+index 997b549330156..7d63e2f1555a0 100644
+--- a/arch/m68k/68000/entry.S
++++ b/arch/m68k/68000/entry.S
+@@ -45,6 +45,8 @@ do_trace:
+ 	jbsr	syscall_trace_enter
+ 	RESTORE_SWITCH_STACK
+ 	addql	#4,%sp
++	addql	#1,%d0
++	jeq	ret_from_exception
+ 	movel	%sp@(PT_OFF_ORIG_D0),%d1
+ 	movel	#-ENOSYS,%d0
+ 	cmpl	#NR_syscalls,%d1
+diff --git a/arch/m68k/coldfire/entry.S b/arch/m68k/coldfire/entry.S
+index 9f337c70243a3..35104c5417ff4 100644
+--- a/arch/m68k/coldfire/entry.S
++++ b/arch/m68k/coldfire/entry.S
+@@ -90,6 +90,8 @@ ENTRY(system_call)
+ 	jbsr	syscall_trace_enter
+ 	RESTORE_SWITCH_STACK
+ 	addql	#4,%sp
++	addql	#1,%d0
++	jeq	ret_from_exception
+ 	movel	%d3,%a0
+ 	jbsr	%a0@
+ 	movel	%d0,%sp@(PT_OFF_D0)		/* save the return value */
+diff --git a/arch/m68k/kernel/entry.S b/arch/m68k/kernel/entry.S
+index 9434fca68de5d..9f3663facaa0e 100644
+--- a/arch/m68k/kernel/entry.S
++++ b/arch/m68k/kernel/entry.S
+@@ -184,9 +184,12 @@ do_trace_entry:
+ 	jbsr	syscall_trace
+ 	RESTORE_SWITCH_STACK
+ 	addql	#4,%sp
++	addql	#1,%d0			| optimization for cmpil #-1,%d0
++	jeq	ret_from_syscall
+ 	movel	%sp@(PT_OFF_ORIG_D0),%d0
+ 	cmpl	#NR_syscalls,%d0
+ 	jcs	syscall
++	jra	ret_from_syscall
+ badsys:
+ 	movel	#-ENOSYS,%sp@(PT_OFF_D0)
+ 	jra	ret_from_syscall
 -- 
 2.39.2
 
