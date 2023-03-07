@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36A7D6AEB7B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:45:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5A906AF063
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231962AbjCGRph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:45:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52976 "EHLO
+        id S233032AbjCGSaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:30:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231919AbjCGRoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:44:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9644A9DE1D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:40:22 -0800 (PST)
+        with ESMTP id S233147AbjCGS3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:29:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBC91360B1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:23:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B976D61524
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1652C433EF;
-        Tue,  7 Mar 2023 17:39:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2125CCE1C81
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:23:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD88C433D2;
+        Tue,  7 Mar 2023 18:23:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210793;
-        bh=RRyWeRcSvyajfQek4ugubDz6iuJkdc8lc1mIuiuEr+E=;
+        s=korg; t=1678213391;
+        bh=lwtDCNOB1P1C3uDyD3rizenKAw16yquVBJUkXGwWKKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eprmy/s5AiivhxdU4YhcOzLPDCB3ynQNtLwsiyN+oeDlLRIikU1NSQXlZm1yoYq2g
-         skM2ifq7Fx/tfiqq5bak5liEUWMUws9xrWMHJMd64UoRMpv6sCNd4cp18uaW6/a8zH
-         0EcUm6R2f5YEKpGwWRN39LMYREWLe2wQEo1XIUNY=
+        b=DHjvFnOmkO2WjCddZ6+Mb/3RKr52yDt6v19gRgXXZ6Oo53w/Ya1UvUR/s+Z/+TD0b
+         SkIM+tbMO2RA6AUZ7u845jZ1+g8mDtg2LbSKl2+u89RpCdjZ9I5W4uQ59YfmtbbeiV
+         86TwGRIXBvfLVDkP8nYHj3K6XmmJMn+wzDc5kdCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.2 0654/1001] ice: add missing checks for PF vsi type
+        Brendan Cunningham <bcunningham@cornelisnetworks.com>,
+        Patrick Kelsey <pat.kelsey@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 492/885] IB/hfi1: Fix sdma.h tx->num_descs off-by-one errors
 Date:   Tue,  7 Mar 2023 17:57:06 +0100
-Message-Id: <20230307170049.976128226@linuxfoundation.org>
+Message-Id: <20230307170023.843310078@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,70 +57,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
 
-[ Upstream commit 6a8d013e904ad9a66706fcc926ec9993bed7d190 ]
+[ Upstream commit fd8958efe8779d3db19c9124fce593ce681ac709 ]
 
-There were a few places we had missed checking the VSI type to make sure
-it was definitely a PF VSI, before calling setup functions intended only
-for the PF VSI.
+Fix three sources of error involving struct sdma_txreq.num_descs.
 
-This doesn't fix any explicit bugs but cleans up the code in a few
-places and removes one explicit != vsi->type check that can be
-superseded by this code (it's a super set)
+When _extend_sdma_tx_descs() extends the descriptor array, it uses the
+value of tx->num_descs to determine how many existing entries from the
+tx's original, internal descriptor array to copy to the newly allocated
+one.  As this value was incremented before the call, the copy loop will
+access one entry past the internal descriptor array, copying its contents
+into the corresponding slot in the new array.
 
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+If the call to _extend_sdma_tx_descs() fails, _pad_smda_tx_descs() then
+invokes __sdma_tx_clean() which uses the value of tx->num_desc to drive a
+loop that unmaps all descriptor entries in use.  As this value was
+incremented before the call, the unmap loop will invoke sdma_unmap_desc()
+on a descriptor entry whose contents consist of whatever random data was
+copied into it during (1), leading to cascading further calls into the
+kernel and driver using arbitrary data.
+
+_sdma_close_tx() was using tx->num_descs instead of tx->num_descs - 1.
+
+Fix all of the above by:
+- Only increment .num_descs after .descp is extended.
+- Use .num_descs - 1 instead of .num_descs for last .descp entry.
+
+Fixes: f4d26d81ad7f ("staging/rdma/hfi1: Add coalescing support for SDMA TX descriptors")
+Link: https://lore.kernel.org/r/167656658879.2223096.10026561343022570690.stgit@awfm-02.cornelisnetworks.com
+Signed-off-by: Brendan Cunningham <bcunningham@cornelisnetworks.com>
+Signed-off-by: Patrick Kelsey <pat.kelsey@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/infiniband/hw/hfi1/sdma.c |  4 ++--
+ drivers/infiniband/hw/hfi1/sdma.h | 15 +++++++--------
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 8ec24f6cf6beb..3811462824390 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -6182,15 +6182,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index a95b654f52540..8ed20392e9f0d 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -3160,8 +3160,7 @@ int _pad_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
  {
- 	int err;
+ 	int rval = 0;
  
--	if (vsi->netdev) {
-+	if (vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_set_rx_mode(vsi->netdev);
- 
--		if (vsi->type != ICE_VSI_LB) {
--			err = ice_vsi_vlan_setup(vsi);
--
--			if (err)
--				return err;
--		}
-+		err = ice_vsi_vlan_setup(vsi);
-+		if (err)
-+			return err;
- 	}
- 	ice_vsi_cfg_dcb_rings(vsi);
- 
-@@ -6371,7 +6368,7 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 
- 	if (vsi->port_info &&
- 	    (vsi->port_info->phy.link_info.link_info & ICE_AQ_LINK_UP) &&
--	    vsi->netdev) {
-+	    vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_print_link_msg(vsi, true);
- 		netif_tx_start_all_queues(vsi->netdev);
- 		netif_carrier_on(vsi->netdev);
-@@ -6382,7 +6379,9 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 	 * set the baseline so counters are ready when interface is up
- 	 */
- 	ice_update_eth_stats(vsi);
--	ice_service_task_schedule(pf);
-+
-+	if (vsi->type == ICE_VSI_PF)
-+		ice_service_task_schedule(pf);
- 
- 	return 0;
+-	tx->num_desc++;
+-	if ((unlikely(tx->num_desc == tx->desc_limit))) {
++	if ((unlikely(tx->num_desc + 1 == tx->desc_limit))) {
+ 		rval = _extend_sdma_tx_descs(dd, tx);
+ 		if (rval) {
+ 			__sdma_txclean(dd, tx);
+@@ -3174,6 +3173,7 @@ int _pad_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
+ 		SDMA_MAP_NONE,
+ 		dd->sdma_pad_phys,
+ 		sizeof(u32) - (tx->packet_len & (sizeof(u32) - 1)));
++	tx->num_desc++;
+ 	_sdma_close_tx(dd, tx);
+ 	return rval;
  }
+diff --git a/drivers/infiniband/hw/hfi1/sdma.h b/drivers/infiniband/hw/hfi1/sdma.h
+index d8170fcbfbdd5..b023fc461bd51 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.h
++++ b/drivers/infiniband/hw/hfi1/sdma.h
+@@ -631,14 +631,13 @@ static inline void sdma_txclean(struct hfi1_devdata *dd, struct sdma_txreq *tx)
+ static inline void _sdma_close_tx(struct hfi1_devdata *dd,
+ 				  struct sdma_txreq *tx)
+ {
+-	tx->descp[tx->num_desc].qw[0] |=
+-		SDMA_DESC0_LAST_DESC_FLAG;
+-	tx->descp[tx->num_desc].qw[1] |=
+-		dd->default_desc1;
++	u16 last_desc = tx->num_desc - 1;
++
++	tx->descp[last_desc].qw[0] |= SDMA_DESC0_LAST_DESC_FLAG;
++	tx->descp[last_desc].qw[1] |= dd->default_desc1;
+ 	if (tx->flags & SDMA_TXREQ_F_URGENT)
+-		tx->descp[tx->num_desc].qw[1] |=
+-			(SDMA_DESC1_HEAD_TO_HOST_FLAG |
+-			 SDMA_DESC1_INT_REQ_FLAG);
++		tx->descp[last_desc].qw[1] |= (SDMA_DESC1_HEAD_TO_HOST_FLAG |
++					       SDMA_DESC1_INT_REQ_FLAG);
+ }
+ 
+ static inline int _sdma_txadd_daddr(
+@@ -655,6 +654,7 @@ static inline int _sdma_txadd_daddr(
+ 		type,
+ 		addr, len);
+ 	WARN_ON(len > tx->tlen);
++	tx->num_desc++;
+ 	tx->tlen -= len;
+ 	/* special cases for last */
+ 	if (!tx->tlen) {
+@@ -666,7 +666,6 @@ static inline int _sdma_txadd_daddr(
+ 			_sdma_close_tx(dd, tx);
+ 		}
+ 	}
+-	tx->num_desc++;
+ 	return rval;
+ }
+ 
 -- 
 2.39.2
 
