@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2E986AEE79
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:12:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D75F6AE9BA
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232466AbjCGSMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:12:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50140 "EHLO
+        id S230371AbjCGR1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232460AbjCGSMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:12:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF76B1EDB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:07:17 -0800 (PST)
+        with ESMTP id S230268AbjCGR0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3118D9E672
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BF616CE1C79
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:07:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B7EC433D2;
-        Tue,  7 Mar 2023 18:07:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C19D9614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B85ADC433A1;
+        Tue,  7 Mar 2023 17:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212434;
-        bh=XTErf9Aln/p/7tr6d/NCkem36TtCVxIr9dQxahm+ZAs=;
+        s=korg; t=1678209707;
+        bh=tpWQ3pQ0YRv95/CN5dI+MV41MpEypJwHkvMGlvUE/e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gsr7agxYc71/ZLVf0jJfOEtDx1IDZ2Qu8N05PnyYnqUwszgA7KXZr6P7F6DOIlAl/
-         rzUJ07MAuyRCCWtJ2HFDyUx0tuEbP7Fua2NlWacCLqiMMk/cUOeo/FOqBJ4+f3HPcr
-         PHg1n/RO+rIRHVvrSYL3E8jx+nhKes6lPelTO0y4=
+        b=TbHl42dPouo+BMrAwQNON8oYA9Y6EJCTBARRmsS64Q4YnnhsU/ZM+ArKenGgGGe+l
+         YC3gu6HOaT/bQ/PmaRzhNmvzavRGxCDth674O1DeZ2VM0ehUdhs137dx543NCgbW1y
+         XZQgy1VyJ2xPNIPQPSqlpLcFAj8h454psLQV8RsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Boqun Feng <boqun.feng@gmail.com>,
-        Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        patches@lists.linux.dev, Alexei Starovoitov <ast@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 143/885] rcu-tasks: Improve comments explaining tasks_rcu_exit_srcu purpose
-Date:   Tue,  7 Mar 2023 17:51:17 +0100
-Message-Id: <20230307170008.076373636@linuxfoundation.org>
+Subject: [PATCH 6.2 0306/1001] selftests/bpf: Fix map_kptr test.
+Date:   Tue,  7 Mar 2023 17:51:18 +0100
+Message-Id: <20230307170034.846205028@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,97 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit e4e1e8089c5fd948da12cb9f4adc93821036945f ]
+[ Upstream commit 62d101d5f422cde39b269f7eb4cbbe2f1e26f9d4 ]
 
-Make sure we don't need to look again into the depths of git blame in
-order not to miss a subtle part about how rcu-tasks is dealing with
-exiting tasks.
+The compiler is optimizing out majority of unref_ptr read/writes, so the test
+wasn't testing much. For example, one could delete '__kptr' tag from
+'struct prog_test_ref_kfunc __kptr *unref_ptr;' and the test would still "pass".
 
-Suggested-by: Boqun Feng <boqun.feng@gmail.com>
-Suggested-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Suggested-by: Paul E. McKenney <paulmck@kernel.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Stable-dep-of: 28319d6dc5e2 ("rcu-tasks: Fix synchronize_rcu_tasks() VS zap_pid_ns_processes()")
+Convert it to volatile stores. Confirmed by comparing bpf asm before/after.
+
+Fixes: 2cbc469a6fc3 ("selftests/bpf: Add C tests for kptr")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/r/20230214235051.22938-1-alexei.starovoitov@gmail.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 37 +++++++++++++++++++++++++++++--------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ tools/testing/selftests/bpf/progs/map_kptr.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index f5bf6fb430dab..688c461036f57 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -827,11 +827,21 @@ static void rcu_tasks_pertask(struct task_struct *t, struct list_head *hop)
- static void rcu_tasks_postscan(struct list_head *hop)
- {
- 	/*
--	 * Wait for tasks that are in the process of exiting.  This
--	 * does only part of the job, ensuring that all tasks that were
--	 * previously exiting reach the point where they have disabled
--	 * preemption, allowing the later synchronize_rcu() to finish
--	 * the job.
-+	 * Exiting tasks may escape the tasklist scan. Those are vulnerable
-+	 * until their final schedule() with TASK_DEAD state. To cope with
-+	 * this, divide the fragile exit path part in two intersecting
-+	 * read side critical sections:
-+	 *
-+	 * 1) An _SRCU_ read side starting before calling exit_notify(),
-+	 *    which may remove the task from the tasklist, and ending after
-+	 *    the final preempt_disable() call in do_exit().
-+	 *
-+	 * 2) An _RCU_ read side starting with the final preempt_disable()
-+	 *    call in do_exit() and ending with the final call to schedule()
-+	 *    with TASK_DEAD state.
-+	 *
-+	 * This handles the part 1). And postgp will handle part 2) with a
-+	 * call to synchronize_rcu().
- 	 */
- 	synchronize_srcu(&tasks_rcu_exit_srcu);
- }
-@@ -898,7 +908,10 @@ static void rcu_tasks_postgp(struct rcu_tasks *rtp)
- 	 *
- 	 * In addition, this synchronize_rcu() waits for exiting tasks
- 	 * to complete their final preempt_disable() region of execution,
--	 * cleaning up after the synchronize_srcu() above.
-+	 * cleaning up after synchronize_srcu(&tasks_rcu_exit_srcu),
-+	 * enforcing the whole region before tasklist removal until
-+	 * the final schedule() with TASK_DEAD state to be an RCU TASKS
-+	 * read side critical section.
- 	 */
- 	synchronize_rcu();
- }
-@@ -988,7 +1001,11 @@ void show_rcu_tasks_classic_gp_kthread(void)
- EXPORT_SYMBOL_GPL(show_rcu_tasks_classic_gp_kthread);
- #endif // !defined(CONFIG_TINY_RCU)
+diff --git a/tools/testing/selftests/bpf/progs/map_kptr.c b/tools/testing/selftests/bpf/progs/map_kptr.c
+index eb82178034934..228ec45365a8d 100644
+--- a/tools/testing/selftests/bpf/progs/map_kptr.c
++++ b/tools/testing/selftests/bpf/progs/map_kptr.c
+@@ -62,21 +62,23 @@ extern struct prog_test_ref_kfunc *
+ bpf_kfunc_call_test_kptr_get(struct prog_test_ref_kfunc **p, int a, int b) __ksym;
+ extern void bpf_kfunc_call_test_release(struct prog_test_ref_kfunc *p) __ksym;
  
--/* Do the srcu_read_lock() for the above synchronize_srcu().  */
-+/*
-+ * Contribute to protect against tasklist scan blind spot while the
-+ * task is exiting and may be removed from the tasklist. See
-+ * corresponding synchronize_srcu() for further details.
-+ */
- void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
++#define WRITE_ONCE(x, val) ((*(volatile typeof(x) *) &(x)) = (val))
++
+ static void test_kptr_unref(struct map_value *v)
  {
- 	preempt_disable();
-@@ -996,7 +1013,11 @@ void exit_tasks_rcu_start(void) __acquires(&tasks_rcu_exit_srcu)
- 	preempt_enable();
+ 	struct prog_test_ref_kfunc *p;
+ 
+ 	p = v->unref_ptr;
+ 	/* store untrusted_ptr_or_null_ */
+-	v->unref_ptr = p;
++	WRITE_ONCE(v->unref_ptr, p);
+ 	if (!p)
+ 		return;
+ 	if (p->a + p->b > 100)
+ 		return;
+ 	/* store untrusted_ptr_ */
+-	v->unref_ptr = p;
++	WRITE_ONCE(v->unref_ptr, p);
+ 	/* store NULL */
+-	v->unref_ptr = NULL;
++	WRITE_ONCE(v->unref_ptr, NULL);
  }
  
--/* Do the srcu_read_unlock() for the above synchronize_srcu().  */
-+/*
-+ * Contribute to protect against tasklist scan blind spot while the
-+ * task is exiting and may be removed from the tasklist. See
-+ * corresponding synchronize_srcu() for further details.
-+ */
- void exit_tasks_rcu_finish(void) __releases(&tasks_rcu_exit_srcu)
- {
- 	struct task_struct *t = current;
+ static void test_kptr_ref(struct map_value *v)
+@@ -85,7 +87,7 @@ static void test_kptr_ref(struct map_value *v)
+ 
+ 	p = v->ref_ptr;
+ 	/* store ptr_or_null_ */
+-	v->unref_ptr = p;
++	WRITE_ONCE(v->unref_ptr, p);
+ 	if (!p)
+ 		return;
+ 	if (p->a + p->b > 100)
+@@ -99,7 +101,7 @@ static void test_kptr_ref(struct map_value *v)
+ 		return;
+ 	}
+ 	/* store ptr_ */
+-	v->unref_ptr = p;
++	WRITE_ONCE(v->unref_ptr, p);
+ 	bpf_kfunc_call_test_release(p);
+ 
+ 	p = bpf_kfunc_call_test_acquire(&(unsigned long){0});
 -- 
 2.39.2
 
