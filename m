@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C986AE92B
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:21:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F14906AEDF0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231384AbjCGRVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:21:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
+        id S232378AbjCGSI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231414AbjCGRV2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:21:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE5A4EC4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:16:36 -0800 (PST)
+        with ESMTP id S232355AbjCGSIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712CAA2F11
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:02:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 792E56150B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:16:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA59C433D2;
-        Tue,  7 Mar 2023 17:16:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AABF6150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:02:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01555C433A8;
+        Tue,  7 Mar 2023 18:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209395;
-        bh=pT08+Ag+ZJPUxmTHA6oYAUDsL2HMfkPh36QdEuKE48c=;
+        s=korg; t=1678212123;
+        bh=XvN+vnBs1AdgJkMmCEvqpw5yTPyAUwzo9AIP6A9gYw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IfYjy/BjqetXY+fVItixouiGCQPItezr7D2T9ZlcwqlI4kDpkJxItKyI2yPNGjgaf
-         OZV5V10+F5ZSKuu7eS5gHhz0sVvyoBmPRP3COt8R/MXcXDCUlLkdzNeEd6+nnNZJm0
-         MaXukK2OqEYnHyeUhCoTAaa3/BC8oCR6ugK7cFM8=
+        b=ADg00Vk67ONV+NwgemgaAGJk5N2jMxAL2VdAfDMO5bSwzNMk4FMZSjRsei8aT72+S
+         LsdZKrjRMLYEn1v3wH/U9wIjUCQJVyDY9ozRrVqHOT1pN1oy/WFMrHM94lmBL4GDNY
+         +e3w/cqJetE8uLiLBWkYxPSu3sEfP9tgYxfMZOnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Viorel Suman <viorel.suman@nxp.com>,
-        Dong Aisheng <Aisheng.dong@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        patches@lists.linux.dev,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0206/1001] thermal/drivers/imx_sc_thermal: Fix the loop condition
+Subject: [PATCH 6.1 044/885] arm64: dts: meson: remove CPU opps below 1GHz for G12A boards
 Date:   Tue,  7 Mar 2023 17:49:38 +0100
-Message-Id: <20230307170030.838893392@linuxfoundation.org>
+Message-Id: <20230307170003.597359648@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,45 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viorel Suman <viorel.suman@nxp.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 4b26b7c9cdefdcb478047c30901d2379ef9e50fc ]
+[ Upstream commit 3cbd431c2b34d84605d358c8c57654193fd661fb ]
 
-The minimal resource ID is 0: IMX_SC_R_AP_0=0, so fix
-the loop condition. Aside of this - constify the array.
+Amlogic G12A devices experience CPU stalls and random board wedges when
+the system idles and CPU cores clock down to lower opp points. Recent
+vendor kernels include a change to remove 100-250MHz and other distro
+sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
+are removed or the CPU governor forced to performance stalls are still
+observed, so let's remove them to improve stability and uptime.
 
-Fixes: 31fd4b9db13b ("thermal/drivers/imx_sc: Rely on the platform data to get the resource id")
-Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
-Reviewed-by: Dong Aisheng <Aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20230117091956.61729-1-viorel.suman@oss.nxp.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: b190056fa9ee ("arm64: dts: meson-g12a: add cpus OPP table")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Link: https://lore.kernel.org/r/20230119053031.21400-1-christianshewitt@gmail.com
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/imx_sc_thermal.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-g12a.dtsi | 20 --------------------
+ 1 file changed, 20 deletions(-)
 
-diff --git a/drivers/thermal/imx_sc_thermal.c b/drivers/thermal/imx_sc_thermal.c
-index 4df925e3a80bd..dfadb03580ae1 100644
---- a/drivers/thermal/imx_sc_thermal.c
-+++ b/drivers/thermal/imx_sc_thermal.c
-@@ -88,7 +88,7 @@ static int imx_sc_thermal_probe(struct platform_device *pdev)
- 	if (!resource_id)
- 		return -EINVAL;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
+index fb0ab27d1f642..6eaceb717d617 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a.dtsi
+@@ -57,26 +57,6 @@ cpu_opp_table: opp-table {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
--	for (i = 0; resource_id[i] > 0; i++) {
-+	for (i = 0; resource_id[i] >= 0; i++) {
- 
- 		sensor = devm_kzalloc(&pdev->dev, sizeof(*sensor), GFP_KERNEL);
- 		if (!sensor)
-@@ -127,7 +127,7 @@ static int imx_sc_thermal_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int imx_sc_sensors[] = { IMX_SC_R_SYSTEM, IMX_SC_R_PMIC_0, -1 };
-+static const int imx_sc_sensors[] = { IMX_SC_R_SYSTEM, IMX_SC_R_PMIC_0, -1 };
- 
- static const struct of_device_id imx_sc_thermal_table[] = {
- 	{ .compatible = "fsl,imx-sc-thermal", .data =  imx_sc_sensors },
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <666666666>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
 -- 
 2.39.2
 
