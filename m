@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A346AEFA6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:25:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8128E6AF300
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:58:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232787AbjCGSZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:25:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49636 "EHLO
+        id S233574AbjCGS6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:58:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232509AbjCGSYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:24:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694D97A937
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:20:05 -0800 (PST)
+        with ESMTP id S231603AbjCGS6M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:58:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E73A50F9E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:45:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F196061537
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:20:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA47C4339B;
-        Tue,  7 Mar 2023 18:20:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA6E3B8199A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:45:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17876C433D2;
+        Tue,  7 Mar 2023 18:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213204;
-        bh=0pE87RiyZMep/b+1Fh5ZG2RRKfHzq6oBN7PTl9rMKXc=;
+        s=korg; t=1678214730;
+        bh=v4jX79Ehyah2vsbCTFBNpXEWQOgNH+O8ga9XaJwvRIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+PX0WQlUS+aMrxbczWifK2yFwk6GzTnPP9txmBhQC69v1RZHheL11FUrKYHLnXeX
-         w1d5VzV7HMps8+Ex7NxRTlrDDC0WMB2P0hjisxnjbCzDjSV2Qpkmf7kHw872OWWk46
-         NBJDVhraAm2RqpBB25Z7Ep8GTKfEonbPZ62LKzWg=
+        b=fczHnCggLb61iuLX0lBdLBY3zjYUQpkDD5tUtX+W5jDgjOIkfOxg7uTZa7Skoksu2
+         uhz8kKVq6ipSnRz1r85uO1eS0+ekNKhH592ftBdcNEim3no83LDryKJWJ7JwUn3BT8
+         6DwAUsiG6PSt6mwaiQ5gB8z3DDPphu0wF7zZHIQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yi Yang <yiyang13@huawei.com>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 432/885] serial: tegra: Add missing clk_disable_unprepare() in tegra_uart_hw_init()
-Date:   Tue,  7 Mar 2023 17:56:06 +0100
-Message-Id: <20230307170021.188253087@linuxfoundation.org>
+Subject: [PATCH 5.15 031/567] ARM: s3c: fix s3c64xx_set_timer_source prototype
+Date:   Tue,  7 Mar 2023 17:56:07 +0100
+Message-Id: <20230307165907.267213113@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+References: <20230307165905.838066027@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Yang <yiyang13@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 38f28cfe9d08e3a47ef008798b275fef8118fc20 ]
+[ Upstream commit 5bf52f5e4d12b8109f348cab60cb7d51092c4270 ]
 
-Add the missing clk_disable_unprepare() before return from
-tegra_uart_hw_init() in the error handling path.
-When request_irq() fails in tegra_uart_startup(), 'tup->uart_clk'
-has been enabled, fix it by adding clk_disable_unprepare().
+The prototype does not match the definition, as gcc-13 points
+out:
 
-Fixes: cc9ca4d95846 ("serial: tegra: Only print FIFO error message when an error occurs")
-Fixes: d781ec21bae6 ("serial: tegra: report clk rate errors")
-Signed-off-by: Yi Yang <yiyang13@huawei.com>
-Link: https://lore.kernel.org/r/20221126020852.113378-1-yiyang13@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/arm/mach-s3c/s3c64xx.c:169:13: error: conflicting types for 's3c64xx_set_timer_source' due to enum/integer mismatch; have 'void(unsigned int,  unsigned int)' [-Werror=enum-int-mismatch]
+  169 | void __init s3c64xx_set_timer_source(unsigned int event, unsigned int source)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from arch/arm/mach-s3c/s3c64xx.c:50:
+arch/arm/mach-s3c/s3c64xx.h:62:20: note: previous declaration of 's3c64xx_set_timer_source' with type 'void(enum s3c64xx_timer_mode,  enum s3c64xx_timer_mode)'
+   62 | extern void __init s3c64xx_set_timer_source(enum s3c64xx_timer_mode event,
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~
+
+Fixes: 4280506ac9bb ("ARM: SAMSUNG: Move all platforms to new clocksource driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230118090224.2162863-1-arnd@kernel.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/mach-s3c/s3c64xx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index cda9cd4fa92c8..c08360212aa20 100644
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -1047,6 +1047,7 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
- 	if (tup->cdata->fifo_mode_enable_status) {
- 		ret = tegra_uart_wait_fifo_mode_enabled(tup);
- 		if (ret < 0) {
-+			clk_disable_unprepare(tup->uart_clk);
- 			dev_err(tup->uport.dev,
- 				"Failed to enable FIFO mode: %d\n", ret);
- 			return ret;
-@@ -1068,6 +1069,7 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
- 	 */
- 	ret = tegra_set_baudrate(tup, TEGRA_UART_DEFAULT_BAUD);
- 	if (ret < 0) {
-+		clk_disable_unprepare(tup->uart_clk);
- 		dev_err(tup->uport.dev, "Failed to set baud rate\n");
- 		return ret;
- 	}
-@@ -1227,10 +1229,13 @@ static int tegra_uart_startup(struct uart_port *u)
- 				dev_name(u->dev), tup);
- 	if (ret < 0) {
- 		dev_err(u->dev, "Failed to register ISR for IRQ %d\n", u->irq);
--		goto fail_hw_init;
-+		goto fail_request_irq;
- 	}
- 	return 0;
+diff --git a/arch/arm/mach-s3c/s3c64xx.c b/arch/arm/mach-s3c/s3c64xx.c
+index 4dfb648142f2a..17f0065031490 100644
+--- a/arch/arm/mach-s3c/s3c64xx.c
++++ b/arch/arm/mach-s3c/s3c64xx.c
+@@ -173,7 +173,8 @@ static struct samsung_pwm_variant s3c64xx_pwm_variant = {
+ 	.tclk_mask	= (1 << 7) | (1 << 6) | (1 << 5),
+ };
  
-+fail_request_irq:
-+	/* tup->uart_clk is already enabled in tegra_uart_hw_init */
-+	clk_disable_unprepare(tup->uart_clk);
- fail_hw_init:
- 	if (!tup->use_rx_pio)
- 		tegra_uart_dma_channel_free(tup, true);
+-void __init s3c64xx_set_timer_source(unsigned int event, unsigned int source)
++void __init s3c64xx_set_timer_source(enum s3c64xx_timer_mode event,
++				     enum s3c64xx_timer_mode source)
+ {
+ 	s3c64xx_pwm_variant.output_mask = BIT(SAMSUNG_PWM_NUM) - 1;
+ 	s3c64xx_pwm_variant.output_mask &= ~(BIT(event) | BIT(source));
 -- 
 2.39.2
 
