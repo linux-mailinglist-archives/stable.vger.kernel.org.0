@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74CA46AE8EA
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:19:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6286AED96
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbjCGRT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:19:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
+        id S231193AbjCGSFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:05:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231281AbjCGRS4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:18:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842C638B7F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:30 -0800 (PST)
+        with ESMTP id S230476AbjCGSF0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9CD94A76
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2163C614E1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2671FC433D2;
-        Tue,  7 Mar 2023 17:14:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 893D6B81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF00EC433EF;
+        Tue,  7 Mar 2023 17:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209269;
-        bh=bESz5YXKTObq0V7ITK9xXLVOrD03FJnvaNMiMWEXcb4=;
+        s=korg; t=1678211902;
+        bh=yysW5M1tTUvQ5PULybPKFKtjntc7qtk70DxuzXCvvLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtnSCmSFHweTVnuQ94wj4qPOfHYWdsOtdR/0Kdx5R6UiwLg6VUglyIbEnLxrs1W4n
-         T4FjO1Ti74ZQHOqjJbRBeIY53AfD56THDs1z3G4bkFDXUBJGwDQZZWCdQBAgH/hXp6
-         BV7cPbREZzMmc53LZtU7WVEO6DB/YU+ir4j7rmBM=
+        b=pX6DV5UZFJlfIN4RMkdxXmT6Z/VViNMUkAk4SBv0ik6hWeQXWRG8/zyctPyispMbD
+         Vt2q2koHns/xVv5Bvm8ltHqwmGggMxZ9wXW8j1Jz3+fgXyxdLp9PxBfSGEa/Mg42A1
+         KfpCFCBDgyevmp+Ib4n6Cz9Irk/joi0bYx0pFE8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0165/1001] wifi: wilc1000: add missing unregister_netdev() in wilc_netdev_ifc_init()
-Date:   Tue,  7 Mar 2023 17:48:57 +0100
-Message-Id: <20230307170029.178326511@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 6.1 004/885] ata: ahci: Revert "ata: ahci: Add Tiger Lake UP{3,4} AHCI controller"
+Date:   Tue,  7 Mar 2023 17:48:58 +0100
+Message-Id: <20230307170001.821308285@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,65 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 2b88974ecb358990e1c33fabcd0b9e142bab7f21 ]
+commit 6210038aeaf49c395c2da57572246d93ec67f6d4 upstream.
 
-Fault injection test reports this issue:
+Commit 104ff59af73a ("ata: ahci: Add Tiger Lake UP{3,4} AHCI
+controller") enabled low power mode for the Tiger Lake AHIC adapter in
+the author system but created regressions for others. Revert this patch
+for now until a better solution is found to make this adapter
+eco-friendly.
 
-kernel BUG at net/core/dev.c:10731!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-Call Trace:
-  <TASK>
-  wilc_netdev_ifc_init+0x19f/0x220 [wilc1000 884bf126e9e98af6a708f266a8dffd53f99e4bf5]
-  wilc_cfg80211_init+0x30c/0x380 [wilc1000 884bf126e9e98af6a708f266a8dffd53f99e4bf5]
-  wilc_bus_probe+0xad/0x2b0 [wilc1000_spi 1520a7539b6589cc6cde2ae826a523a33f8bacff]
-  spi_probe+0xe4/0x140
-  really_probe+0x17e/0x3f0
-  __driver_probe_device+0xe3/0x170
-  driver_probe_device+0x49/0x120
-
-The root case here is alloc_ordered_workqueue() fails, but
-cfg80211_unregister_netdevice() or unregister_netdev() not be called in
-error handling path. To fix add unregister_netdev goto lable to add the
-unregister operation in error handling path.
-
-Fixes: 09ed8bfc5215 ("wilc1000: Rename workqueue from "WILC_wq" to "NETDEV-wq"")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1669289902-23639-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217114
+CC: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/microchip/wilc1000/netdev.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/ata/ahci.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/wireless/microchip/wilc1000/netdev.c b/drivers/net/wireless/microchip/wilc1000/netdev.c
-index 6f3ae0dff77ce..e9f59de31b0b9 100644
---- a/drivers/net/wireless/microchip/wilc1000/netdev.c
-+++ b/drivers/net/wireless/microchip/wilc1000/netdev.c
-@@ -981,7 +981,7 @@ struct wilc_vif *wilc_netdev_ifc_init(struct wilc *wl, const char *name,
- 						    ndev->name);
- 	if (!wl->hif_workqueue) {
- 		ret = -ENOMEM;
--		goto error;
-+		goto unregister_netdev;
- 	}
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -422,7 +422,6 @@ static const struct pci_device_id ahci_p
+ 	{ PCI_VDEVICE(INTEL, 0x34d3), board_ahci_low_power }, /* Ice Lake LP AHCI */
+ 	{ PCI_VDEVICE(INTEL, 0x02d3), board_ahci_low_power }, /* Comet Lake PCH-U AHCI */
+ 	{ PCI_VDEVICE(INTEL, 0x02d7), board_ahci_low_power }, /* Comet Lake PCH RAID */
+-	{ PCI_VDEVICE(INTEL, 0xa0d3), board_ahci_low_power }, /* Tiger Lake UP{3,4} AHCI */
  
- 	ndev->needs_free_netdev = true;
-@@ -996,6 +996,11 @@ struct wilc_vif *wilc_netdev_ifc_init(struct wilc *wl, const char *name,
- 
- 	return vif;
- 
-+unregister_netdev:
-+	if (rtnl_locked)
-+		cfg80211_unregister_netdevice(ndev);
-+	else
-+		unregister_netdev(ndev);
-   error:
- 	free_netdev(ndev);
- 	return ERR_PTR(ret);
--- 
-2.39.2
-
+ 	/* JMicron 360/1/3/5/6, match class to avoid IDE function */
+ 	{ PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 
 
