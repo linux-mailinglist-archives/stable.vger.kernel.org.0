@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8564D6AF3B6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:08:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C68CD6AF3B7
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233437AbjCGTIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:08:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
+        id S233688AbjCGTI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:08:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231423AbjCGTHz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8529EAA702
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:53:00 -0800 (PST)
+        with ESMTP id S231474AbjCGTH4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:07:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7C54392B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:53:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1595B61522
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D525C433EF;
-        Tue,  7 Mar 2023 18:52:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F1FF6152E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:52:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33486C433EF;
+        Tue,  7 Mar 2023 18:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215174;
-        bh=LQcjWHSK0t8axOX1xwGU3uCI7fw5qyf5YkeNveO4wPE=;
+        s=korg; t=1678215177;
+        bh=FfpJnhSSDYT0RnoSov6k/eFBaf/KbypDWQONjpqEnto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4d/95kQVni/Qs1ZZiCnZUC98SuibieDEgnb9OT5oV0gNWeAM5gBZyX+Lpb4zZy6O
-         eupoNJLBK8nVE8dVFXeaEPgVdBUurU9QJrmIz8RDDoIaOGoo2VF4fWwBzrZa8LdD0H
-         ogxe8qvg2xhjFOFVPJCxj/SEmQ5JUtUq4qveMDJ0=
+        b=1gaWFjjbXfSJzaJUjWlRzapqUWM0q8UfJxH85VrZ+8y9XeGnA4Qu++vF/K37npFmA
+         Gjr8M78176y4taEpGCZEG7xEB7LilnEZMuZ62PCdM9TYraYzxlHNRJioX2WRJ/XC1S
+         sAFReVkn8Li/PRJidXtKnINZlcLWub1VYalAuHcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 175/567] hwmon: (ftsteutates) Fix scaling of measurements
-Date:   Tue,  7 Mar 2023 17:58:31 +0100
-Message-Id: <20230307165913.545810936@linuxfoundation.org>
+Subject: [PATCH 5.15 176/567] drm/msm/hdmi: Add missing check for alloc_ordered_workqueue
+Date:   Tue,  7 Mar 2023 17:58:32 +0100
+Message-Id: <20230307165913.589983977@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,122 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit ca8fd8c16a8b77dfcf7f6ce52d2c863220693a78 ]
+[ Upstream commit afe4cb96153a0d8003e4e4ebd91b5c543e10df84 ]
 
-A user complained that the ftsteutates driver was displaying
-bogus values since its introduction. This happens because the
-sensor measurements need to be scaled in order to produce
-meaningful results:
-- the fan speed needs to be multiplied by 60 since its in RPS
-- the temperature is in degrees celsius and needs an offset of 64
-- the voltage is in 1/256 of 3.3V
+Add check for the return value of alloc_ordered_workqueue as it may return
+NULL pointer and cause NULL pointer dereference in `hdmi_hdcp.c` and
+`hdmi_hpd.c`.
 
-The offical datasheet says the voltage needs to be divided by 256,
-but this is likely an off-by-one-error, since even the BIOS
-devides by 255 (otherwise 3.3V could not be measured).
-
-The voltage channels additionally need a board-specific multiplier,
-however this can be done by the driver since its board-specific.
-
-The reason the missing scaling of measurements is the way Fujitsu
-used this driver when it was still out-of-tree. Back then, all
-scaling was done in userspace by libsensors, even the generic one.
-
-Tested on a Fujitsu DS3401-B1.
-
-Fixes: 08426eda58e0 ("hwmon: Add driver for FTS BMC chip "Teutates"")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20221224041855.83981-2-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: c6a57a50ad56 ("drm/msm/hdmi: add hdmi hdcp support (V3)")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/517211/
+Link: https://lore.kernel.org/r/20230106023011.3985-1-jiasheng@iscas.ac.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/hwmon/ftsteutates.rst |  4 ++++
- drivers/hwmon/ftsteutates.c         | 19 +++++++++++++------
- 2 files changed, 17 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/hdmi/hdmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/hwmon/ftsteutates.rst b/Documentation/hwmon/ftsteutates.rst
-index 58a2483d8d0da..198fa8e2819da 100644
---- a/Documentation/hwmon/ftsteutates.rst
-+++ b/Documentation/hwmon/ftsteutates.rst
-@@ -22,6 +22,10 @@ enhancements. It can monitor up to 4 voltages, 16 temperatures and
- 8 fans. It also contains an integrated watchdog which is currently
- implemented in this driver.
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
+index e1a9b52d0a292..2c944419e1758 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -264,6 +264,10 @@ static struct hdmi *msm_hdmi_init(struct platform_device *pdev)
+ 	devm_pm_runtime_enable(&pdev->dev);
  
-+The 4 voltages require a board-specific multiplier, since the BMC can
-+only measure voltages up to 3.3V and thus relies on voltage dividers.
-+Consult your motherboard manual for details.
-+
- To clear a temperature or fan alarm, execute the following command with the
- correct path to the alarm file::
+ 	hdmi->workq = alloc_ordered_workqueue("msm_hdmi", 0);
++	if (!hdmi->workq) {
++		ret = -ENOMEM;
++		goto fail;
++	}
  
-diff --git a/drivers/hwmon/ftsteutates.c b/drivers/hwmon/ftsteutates.c
-index ceffc76a0c515..2998d8cdce006 100644
---- a/drivers/hwmon/ftsteutates.c
-+++ b/drivers/hwmon/ftsteutates.c
-@@ -12,6 +12,7 @@
- #include <linux/i2c.h>
- #include <linux/init.h>
- #include <linux/jiffies.h>
-+#include <linux/math.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
- #include <linux/slab.h>
-@@ -347,13 +348,15 @@ static ssize_t in_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->volt[index]);
-+	value = DIV_ROUND_CLOSEST(data->volt[index] * 3300, 255);
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t temp_value_show(struct device *dev,
-@@ -361,13 +364,15 @@ static ssize_t temp_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->temp_input[index]);
-+	value = (data->temp_input[index] - 64) * 1000;
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t temp_fault_show(struct device *dev,
-@@ -436,13 +441,15 @@ static ssize_t fan_value_show(struct device *dev,
- {
- 	struct fts_data *data = dev_get_drvdata(dev);
- 	int index = to_sensor_dev_attr(devattr)->index;
--	int err;
-+	int value, err;
- 
- 	err = fts_update_device(data);
- 	if (err < 0)
- 		return err;
- 
--	return sprintf(buf, "%u\n", data->fan_input[index]);
-+	value = data->fan_input[index] * 60;
-+
-+	return sprintf(buf, "%d\n", value);
- }
- 
- static ssize_t fan_source_show(struct device *dev,
+ 	hdmi->i2c = msm_hdmi_i2c_init(hdmi);
+ 	if (IS_ERR(hdmi->i2c)) {
 -- 
 2.39.2
 
