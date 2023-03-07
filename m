@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D396AEC15
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:52:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1678B6AF135
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232266AbjCGRwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:52:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46044 "EHLO
+        id S231558AbjCGSlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:41:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232272AbjCGRvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:51:54 -0500
+        with ESMTP id S229817AbjCGSlB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:41:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFB1A4B16
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:46:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906879BE3F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:31:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11141B819CA
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:46:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C3DC433D2;
-        Tue,  7 Mar 2023 17:46:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 891DEB819D1
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84EFFC433EF;
+        Tue,  7 Mar 2023 18:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211188;
-        bh=OS0gsR0zLlTOuBv5HysQkqgSDIydI0CVG9CyDf6+JH0=;
+        s=korg; t=1678213786;
+        bh=eJ0KK2OL+MuxD1Lnj5hX6avptKE0b8cOWC1wU9tD2L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pOSRTSkmqyeGquOjLwpVrBT97j3XnWs1vwQFdXS7Qn+8uNbyuu1706Nft39sOFN6c
-         5/PuRSwXrG0PUn3wYa1KvwAlIBz3dO0lDKQ8a4Ax7xW1HiJb9XLRJCuuMWnuCMWvgV
-         y58nLjeyH+CY5pr03pZgowxQm1eW4jVIQlWcO2/0=
+        b=fwFRUvrSMgltbTMlXPpceJpqfR0kUg/0LQGndXbIuvCPbXlb/6VROHxcq72GgWVhc
+         N/2UBjOdNM3n01XbQMNYXYoq2b2EihzmZdP6C64NDMXMSy56stN46fBjgJmNTJ7mA0
+         6Na3ViN9fUpntziS4OSt8g85Cv2dcWTjgH0TStu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 6.2 0781/1001] scsi: mpi3mr: Remove unnecessary memcpy() to alltgt_info->dmi
+        patches@lists.linux.dev, farah kassabri <fkassabri@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 619/885] habanalabs: fix bug in timestamps registration code
 Date:   Tue,  7 Mar 2023 17:59:13 +0100
-Message-Id: <20230307170055.637549782@linuxfoundation.org>
+Message-Id: <20230307170029.162269685@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+From: farah kassabri <fkassabri@habana.ai>
 
-commit eeb270aee3e085411399f129fc14fa04bd6d83cf upstream.
+[ Upstream commit ac5af9900f82b7034de7c9eb1d70d030ba325607 ]
 
-In the function mpi3mr_get_all_tgt_info(), devmap_info points to
-alltgt_info->dmi then there is no need to memcpy() data from devmap_info to
-alltgt_info->dmi. Remove the unnecessary memcpy(). This also allows to
-remove the local variable 'rval' and the goto label 'out'.
+Protect re-using the same timestamp buffer record before actually
+adding it to the to interrupt wait list.
+Mark ts buff offset as in use in the spinlock protection area of the
+interrupt wait list to avoid getting in the re-use section in
+ts_buff_get_kernel_ts_record before adding the node to the list.
+this scenario might happen when multiple threads are racing on
+same offset and one thread could set data in the ts buff in
+ts_buff_get_kernel_ts_record then the other thread takes over
+and get to ts_buff_get_kernel_ts_record and we will try
+to re-use the same ts buff offset then we will try to
+delete a non existing node from the list.
 
-Link: https://lore.kernel.org/r/20230214005019.1897251-3-shinichiro.kawasaki@wdc.com
-Cc: stable@vger.kernel.org
-Fixes: f5e6d5a34376 ("scsi: mpi3mr: Add support for driver commands")
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: farah kassabri <fkassabri@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_app.c |   13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ .../habanalabs/common/command_submission.c    | 33 ++++++++++++-------
+ 1 file changed, 22 insertions(+), 11 deletions(-)
 
---- a/drivers/scsi/mpi3mr/mpi3mr_app.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_app.c
-@@ -293,7 +293,6 @@ out:
- static long mpi3mr_get_all_tgt_info(struct mpi3mr_ioc *mrioc,
- 	struct bsg_job *job)
- {
--	long rval = -EINVAL;
- 	u16 num_devices = 0, i = 0, size;
- 	unsigned long flags;
- 	struct mpi3mr_tgt_dev *tgtdev;
-@@ -304,7 +303,7 @@ static long mpi3mr_get_all_tgt_info(stru
- 	if (job->request_payload.payload_len < sizeof(u32)) {
- 		dprint_bsg_err(mrioc, "%s: invalid size argument\n",
- 		    __func__);
--		return rval;
-+		return -EINVAL;
+diff --git a/drivers/misc/habanalabs/common/command_submission.c b/drivers/misc/habanalabs/common/command_submission.c
+index fa05770865c65..1071bf492e423 100644
+--- a/drivers/misc/habanalabs/common/command_submission.c
++++ b/drivers/misc/habanalabs/common/command_submission.c
+@@ -3091,19 +3091,18 @@ static int ts_buff_get_kernel_ts_record(struct hl_mmap_mem_buf *buf,
+ 			goto start_over;
+ 		}
+ 	} else {
++		/* Fill up the new registration node info */
++		requested_offset_record->ts_reg_info.buf = buf;
++		requested_offset_record->ts_reg_info.cq_cb = cq_cb;
++		requested_offset_record->ts_reg_info.timestamp_kernel_addr =
++				(u64 *) ts_buff->user_buff_address + ts_offset;
++		requested_offset_record->cq_kernel_addr =
++				(u64 *) cq_cb->kernel_address + cq_offset;
++		requested_offset_record->cq_target_value = target_value;
++
+ 		spin_unlock_irqrestore(wait_list_lock, flags);
  	}
  
- 	spin_lock_irqsave(&mrioc->tgtdev_lock, flags);
-@@ -350,20 +349,12 @@ static long mpi3mr_get_all_tgt_info(stru
- 		sizeof(*devmap_info);
- 	usr_entrylen *= sizeof(*devmap_info);
- 	min_entrylen = min(usr_entrylen, kern_entrylen);
--	if (min_entrylen && (!memcpy(&alltgt_info->dmi, devmap_info, min_entrylen))) {
--		dprint_bsg_err(mrioc, "%s:%d: device map info copy failed\n",
--		    __func__, __LINE__);
--		rval = -EFAULT;
--		goto out;
--	}
+-	/* Fill up the new registration node info */
+-	requested_offset_record->ts_reg_info.in_use = 1;
+-	requested_offset_record->ts_reg_info.buf = buf;
+-	requested_offset_record->ts_reg_info.cq_cb = cq_cb;
+-	requested_offset_record->ts_reg_info.timestamp_kernel_addr =
+-			(u64 *) ts_buff->user_buff_address + ts_offset;
+-	requested_offset_record->cq_kernel_addr =
+-			(u64 *) cq_cb->kernel_address + cq_offset;
+-	requested_offset_record->cq_target_value = target_value;
+-
+ 	*pend = requested_offset_record;
  
- 	sg_copy_from_buffer(job->request_payload.sg_list,
- 			    job->request_payload.sg_cnt,
- 			    alltgt_info, (min_entrylen + sizeof(u64)));
--	rval = 0;
--out:
- 	kfree(alltgt_info);
--	return rval;
-+	return 0;
- }
- /**
-  * mpi3mr_get_change_count - Get topology change count
+ 	dev_dbg(buf->mmg->dev, "Found available node in TS kernel CB %p\n",
+@@ -3151,7 +3150,7 @@ static int _hl_interrupt_wait_ioctl(struct hl_device *hdev, struct hl_ctx *ctx,
+ 			goto put_cq_cb;
+ 		}
+ 
+-		/* Find first available record */
++		/* get ts buffer record */
+ 		rc = ts_buff_get_kernel_ts_record(buf, cq_cb, ts_offset,
+ 						cq_counters_offset, target_value,
+ 						&interrupt->wait_list_lock, &pend);
+@@ -3199,7 +3198,19 @@ static int _hl_interrupt_wait_ioctl(struct hl_device *hdev, struct hl_ctx *ctx,
+ 	 * Note that we cannot have sorted list by target value,
+ 	 * in order to shorten the list pass loop, since
+ 	 * same list could have nodes for different cq counter handle.
++	 * Note:
++	 * Mark ts buff offset as in use here in the spinlock protection area
++	 * to avoid getting in the re-use section in ts_buff_get_kernel_ts_record
++	 * before adding the node to the list. this scenario might happen when
++	 * multiple threads are racing on same offset and one thread could
++	 * set the ts buff in ts_buff_get_kernel_ts_record then the other thread
++	 * takes over and get to ts_buff_get_kernel_ts_record and then we will try
++	 * to re-use the same ts buff offset, and will try to delete a non existing
++	 * node from the list.
+ 	 */
++	if (register_ts_record)
++		pend->ts_reg_info.in_use = 1;
++
+ 	list_add_tail(&pend->wait_list_node, &interrupt->wait_list_head);
+ 	spin_unlock_irqrestore(&interrupt->wait_list_lock, flags);
+ 
+-- 
+2.39.2
+
 
 
