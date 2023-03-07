@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6746AE808
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:12:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FE936AE80E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:12:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231193AbjCGRMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:12:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50684 "EHLO
+        id S229811AbjCGRMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:12:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231134AbjCGRMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:12:08 -0500
+        with ESMTP id S230250AbjCGRMS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:12:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1DD998E96
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:06:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18036A102D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:07:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B76E3B819AB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:06:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A117C4339C;
-        Tue,  7 Mar 2023 17:06:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D097CB81995
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:06:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DB56C433D2;
+        Tue,  7 Mar 2023 17:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678208811;
-        bh=Y/9BpXjoJ4s5XbNirml8FxjBUlBw3mXvKQurQOiKawM=;
+        s=korg; t=1678208814;
+        bh=UBrl6rgPoVy0si97V313R9e+lFMijy9jSb38gsa+eKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ku4RxhIhNFP6N9ku0IJmTVT7aRxz9JcJ8j1vGVS3SRMMzruaFkQF1kXj7R/PCaqUL
-         p0a43eK3bzRPilzDcBfZQJRkerRlVH9hLn0Ca3BlOAG9Jw3JDvC0K1VsgA8uI2sZu7
-         UajUikVuUiv2e0zlSFzIgXpKWOgsEfWJ1lb8AOwI=
+        b=T00SGU83aUXbvQLBpXRZaDYpn0KPgXLUR1Goa96b9JA2Fx0fqQ5yKNdMAgc7JqFdh
+         +4f/PMA3qyoDJrkVa4gmqwL8ugTRTQBRiqM8uF+lxcD+aE9GM7atAvKJD0B4K+8Odq
+         j8c3mfrbC+L5vdzMQ5gmDjDpbMPg0D7XXN4GH/qY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dzmitry Sankouski <dsankouski@gmail.com>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0018/1001] arm64: dts: qcom: Re-enable resin on MSM8998 and SDM845 boards
-Date:   Tue,  7 Mar 2023 17:46:30 +0100
-Message-Id: <20230307170022.937453529@linuxfoundation.org>
+Subject: [PATCH 6.2 0019/1001] arm64: dts: qcom: sm8350-sagami: Configure SLG51000 PMIC on PDX215
+Date:   Tue,  7 Mar 2023 17:46:31 +0100
+Message-Id: <20230307170022.984875451@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -55,187 +54,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dzmitry Sankouski <dsankouski@gmail.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 4c881ab73a64cdbf8691e258ef17b740d27040a0 ]
+[ Upstream commit 8875b1d71f112b30e4c7e65ed337096bc0cc396b ]
 
-resin node declaration was moved to pm8998.dtsi file (in disabled state).
-MSM8998 and SDM845 boards defining resin node did not previously have
-status="okay" and ended up disabled.
-Re-enable it by using resin node link from pm8998.dtsi with status="okay".
+Remove the mention of this PMIC from the common DTSI, as it's not
+used on PDX214. Add the required nodes to support it on PDX215.
 
-Fixes: f86ae6f23a9e ("arm64: dts: qcom: sagit: add initial device tree for sagit")
-Signed-off-by: Dzmitry Sankouski <dsankouski@gmail.com>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reported-by: Marijn Suijten <marijn.suijten@somainline.org>
-Link: https://lore.kernel.org/linux-arm-msm/20221222115922.jlachctn4lxopp7a@SoMainline.org/
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221228115243.201038-1-dsankouski@gmail.com
+Link: https://lore.kernel.org/r/20221118152028.59312-2-konrad.dybcio@linaro.org
+Stable-dep-of: dcc7cd5c46ca ("arm64: dts: qcom: sm8350-sagami: Rectify GPIO keys")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts       | 11 +++--------
- .../boot/dts/qcom/msm8998-sony-xperia-yoshino.dtsi    | 11 +++--------
- arch/arm64/boot/dts/qcom/sdm845-db845c.dts            | 11 +++--------
- arch/arm64/boot/dts/qcom/sdm845-lg-common.dtsi        | 11 +++--------
- arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts     | 11 +++--------
- .../boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi | 11 +++--------
- arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts    | 11 +++--------
- 7 files changed, 21 insertions(+), 56 deletions(-)
+ .../qcom/sm8350-sony-xperia-sagami-pdx215.dts | 66 +++++++++++++++++++
+ .../dts/qcom/sm8350-sony-xperia-sagami.dtsi   |  2 +-
+ 2 files changed, 67 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts b/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts
-index 310f7a2df1e83..510d12c8c5126 100644
---- a/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts
-+++ b/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts
-@@ -364,14 +364,9 @@ cam_snapshot_pin_a: cam-snapshot-btn-active-state {
- 	};
+diff --git a/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami-pdx215.dts b/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami-pdx215.dts
+index c74c973a69d2d..d4afaa393c9a9 100644
+--- a/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami-pdx215.dts
++++ b/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami-pdx215.dts
+@@ -12,6 +12,72 @@ / {
+ 	compatible = "sony,pdx215-generic", "qcom,sm8350";
  };
  
--&pm8998_pon {
--	resin {
--		compatible = "qcom,pm8941-resin";
--		interrupts = <GIC_SPI 0x8 1 IRQ_TYPE_EDGE_BOTH>;
--		bias-pull-up;
--		debounce = <15625>;
--		linux,code = <KEY_VOLUMEDOWN>;
--	};
-+&pm8998_resin {
-+	linux,code = <KEY_VOLUMEDOWN>;
-+	status = "okay";
++&i2c13 {
++	pmic@75 {
++		compatible = "dlg,slg51000";
++		reg = <0x75>;
++		dlg,cs-gpios = <&pm8350b_gpios 1 GPIO_ACTIVE_HIGH>;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&cam_pwr_a_cs>;
++
++		regulators {
++			slg51000_a_ldo1: ldo1 {
++				regulator-name = "slg51000_a_ldo1";
++				regulator-min-microvolt = <2400000>;
++				regulator-max-microvolt = <3300000>;
++			};
++
++			slg51000_a_ldo2: ldo2 {
++				regulator-name = "slg51000_a_ldo2";
++				regulator-min-microvolt = <2400000>;
++				regulator-max-microvolt = <3300000>;
++			};
++
++			slg51000_a_ldo3: ldo3 {
++				regulator-name = "slg51000_a_ldo3";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3750000>;
++			};
++
++			slg51000_a_ldo4: ldo4 {
++				regulator-name = "slg51000_a_ldo4";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3750000>;
++			};
++
++			slg51000_a_ldo5: ldo5 {
++				regulator-name = "slg51000_a_ldo5";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1200000>;
++			};
++
++			slg51000_a_ldo6: ldo6 {
++				regulator-name = "slg51000_a_ldo6";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1200000>;
++			};
++
++			slg51000_a_ldo7: ldo7 {
++				regulator-name = "slg51000_a_ldo7";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3750000>;
++			};
++		};
++	};
++};
++
++&pm8350b_gpios {
++	cam_pwr_a_cs: cam-pwr-a-cs-state {
++		pins = "gpio1";
++		function = "normal";
++		qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
++		power-source = <1>;
++		drive-push-pull;
++		output-high;
++	};
++};
++
+ &tlmm {
+ 	gpio-line-names = "APPS_I2C_0_SDA", /* GPIO_0 */
+ 			  "APPS_I2C_0_SCL",
+diff --git a/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi b/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi
+index 1f2d660f8f86c..a10306d82a3a1 100644
+--- a/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8350-sony-xperia-sagami.dtsi
+@@ -3,6 +3,7 @@
+  * Copyright (c) 2021, Konrad Dybcio <konrad.dybcio@somainline.org>
+  */
+ 
++#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+ #include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+ #include "sm8350.dtsi"
+ #include "pm8350.dtsi"
+@@ -506,7 +507,6 @@ &i2c13 {
+ 	clock-frequency = <100000>;
+ 
+ 	/* Qualcomm PM8008i/PM8008j (?) @ 8, 9, c, d */
+-	/* Dialog SLG51000 CMIC @ 75 */
  };
  
- &qusb2phy {
-diff --git a/arch/arm64/boot/dts/qcom/msm8998-sony-xperia-yoshino.dtsi b/arch/arm64/boot/dts/qcom/msm8998-sony-xperia-yoshino.dtsi
-index 5da87baa2b23b..3bbd5df196bfc 100644
---- a/arch/arm64/boot/dts/qcom/msm8998-sony-xperia-yoshino.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8998-sony-xperia-yoshino.dtsi
-@@ -357,14 +357,9 @@ vib_default: vib-en-state {
- 	};
- };
- 
--&pm8998_pon {
--	resin {
--		compatible = "qcom,pm8941-resin";
--		interrupts = <GIC_SPI 0x8 1 IRQ_TYPE_EDGE_BOTH>;
--		debounce = <15625>;
--		bias-pull-up;
--		linux,code = <KEY_VOLUMEUP>;
--	};
-+&pm8998_resin {
-+	linux,code = <KEY_VOLUMEUP>;
-+	status = "okay";
- };
- 
- &qusb2phy {
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-index f41c6d600ea8c..878801f540c54 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-@@ -615,14 +615,9 @@ vol_up_pin_a: vol-up-active-state {
- 	};
- };
- 
--&pm8998_pon {
--	resin {
--		compatible = "qcom,pm8941-resin";
--		interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
--		debounce = <15625>;
--		bias-pull-up;
--		linux,code = <KEY_VOLUMEDOWN>;
--	};
-+&pm8998_resin {
-+	linux,code = <KEY_VOLUMEDOWN>;
-+	status = "okay";
- };
- 
- &pmi8998_lpg {
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-lg-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-lg-common.dtsi
-index 1eb423e4be24c..943287804e1a6 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-lg-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-lg-common.dtsi
-@@ -482,14 +482,9 @@ &mss_pil {
- 	status = "okay";
- };
- 
--&pm8998_pon {
--	resin {
--		compatible = "qcom,pm8941-resin";
--		interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
--		debounce = <15625>;
--		bias-pull-up;
--		linux,code = <KEY_VOLUMEDOWN>;
--	};
-+&pm8998_resin {
-+	linux,code = <KEY_VOLUMEDOWN>;
-+	status = "okay";
- };
- 
- &sdhc_2 {
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts b/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
-index bb77ccfdc68c0..e6191602c70a8 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
-@@ -522,14 +522,9 @@ pinconf {
- 	};
- };
- 
--&pm8998_pon {
--	volume_down_resin: resin {
--		compatible = "qcom,pm8941-resin";
--		interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
--		debounce = <15625>;
--		bias-pull-up;
--		linux,code = <KEY_VOLUMEDOWN>;
--	};
-+&pm8998_resin {
-+	linux,code = <KEY_VOLUMEDOWN>;
-+	status = "okay";
- };
- 
- &pmi8998_lpg {
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi
-index eb6b2b676eca4..1b12b1a4dcbc7 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi
-@@ -325,14 +325,9 @@ &pmi8998_wled {
- 	qcom,cabc;
- };
- 
--&pm8998_pon {
--	resin {
--		compatible = "qcom,pm8941-resin";
--		interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
--		debounce = <15625>;
--		bias-pull-up;
--		linux,code = <KEY_VOLUMEDOWN>;
--	};
-+&pm8998_resin {
-+	linux,code = <KEY_VOLUMEDOWN>;
-+	status = "okay";
- };
- 
- &pmi8998_rradc {
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts
-index 38ba809a95cd6..fba229d0bd108 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-polaris.dts
-@@ -530,14 +530,9 @@ pinconf {
- 	};
- };
- 
--&pm8998_pon {
--	resin {
--		interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
--		compatible = "qcom,pm8941-resin";
--		linux,code = <KEY_VOLUMEDOWN>;
--		debounce = <15625>;
--		bias-pull-up;
--	};
-+&pm8998_resin {
-+	linux,code = <KEY_VOLUMEDOWN>;
-+	status = "okay";
- };
- 
- &q6afedai {
+ &i2c15 {
 -- 
 2.39.2
 
