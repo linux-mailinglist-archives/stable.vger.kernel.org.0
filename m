@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B21BE6AF1B4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:46:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C1B6AECD2
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:58:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232904AbjCGSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:46:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35698 "EHLO
+        id S230119AbjCGR6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:58:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233216AbjCGSqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:46:22 -0500
+        with ESMTP id S230166AbjCGR5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:57:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F12B9AF76F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:35:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3891FA4B0A;
+        Tue,  7 Mar 2023 09:52:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2ABB6150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:35:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7459C433EF;
-        Tue,  7 Mar 2023 18:35:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C98561507;
+        Tue,  7 Mar 2023 17:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ACC8C433EF;
+        Tue,  7 Mar 2023 17:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214134;
-        bh=LzxOs5VMddDWhrTpVYqWpNappj6ZqW23t5B16fBvJY8=;
+        s=korg; t=1678211539;
+        bh=5HPV5A2n+wX8FaESr1ESZ5sZPXmSk506fMceRtKFuNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8tOQabBTKTHviacfFc6S5VVOI2Im7NaG/S9p32Y6nN0QNCsrqvorZiClrCK3jTtu
-         gFHfUlf8Tl3TbmJ53sOraOVrHIEZt6lKE0mpDre/bNYksskZt9Srxz1FnZQN+QsKZJ
-         9OusNeANxppGYhy2XcewaSMOAiHWTf3AXdEgln8s=
+        b=IpWk0wxMmpmvM321EL9gUVPWyz9QYIB2jfIz7mEU+o1BBNnYqIlxw72KpkzFTanwl
+         /PFrNStyPXK2xogGBpGjjbiO5ELU8t5h54u4ZtS7rTLUJP5StgDC/YT6MAjRPZEyXX
+         OuYx6V//Jy7nnffVbaAp5zpRoOqXCca4R5Ih9a30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 703/885] ocfs2: fix non-auto defrag path not working issue
+        patches@lists.linux.dev,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 6.2 0865/1001] selftests: gpio: Fix incorrect kernel headers search path
 Date:   Tue,  7 Mar 2023 18:00:37 +0100
-Message-Id: <20230307170032.629103326@linuxfoundation.org>
+Message-Id: <20230307170059.400076491@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,91 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 236b9254f8d1edc273ad88b420aa85fbd84f492d upstream.
+commit 8bb9c1808628babcc7b99ec2439bf102379bd4ac upstream.
 
-This fixes three issues on move extents ioctl without auto defrag:
+Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
+building against kernel headers from the build environment in scenarios
+where kernel headers are installed into a specific output directory
+(O=...).
 
-a) In ocfs2_find_victim_alloc_group(), we have to convert bits to block
-   first in case of global bitmap.
-
-b) In ocfs2_probe_alloc_group(), when finding enough bits in block
-   group bitmap, we have to back off move_len to start pos as well,
-   otherwise it may corrupt filesystem.
-
-c) In ocfs2_ioctl_move_extents(), set me_threshold both for non-auto
-   and auto defrag paths.  Otherwise it will set move_max_hop to 0 and
-   finally cause unexpectedly ENOSPC error.
-
-Currently there are no tools triggering the above issues since
-defragfs.ocfs2 enables auto defrag by default.  Tested with manually
-changing defragfs.ocfs2 to run non auto defrag path.
-
-Link: https://lkml.kernel.org/r/20230220050526.22020-1-heming.zhao@suse.com
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: linux-kselftest@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: <stable@vger.kernel.org>  # 5.18+
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/move_extents.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ tools/testing/selftests/gpio/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ocfs2/move_extents.c
-+++ b/fs/ocfs2/move_extents.c
-@@ -434,7 +434,7 @@ static int ocfs2_find_victim_alloc_group
- 			bg = (struct ocfs2_group_desc *)gd_bh->b_data;
+--- a/tools/testing/selftests/gpio/Makefile
++++ b/tools/testing/selftests/gpio/Makefile
+@@ -3,6 +3,6 @@
+ TEST_PROGS := gpio-mockup.sh gpio-sim.sh
+ TEST_FILES := gpio-mockup-sysfs.sh
+ TEST_GEN_PROGS_EXTENDED := gpio-mockup-cdev gpio-chip-info gpio-line-name
+-CFLAGS += -O2 -g -Wall -I../../../../usr/include/ $(KHDR_INCLUDES)
++CFLAGS += -O2 -g -Wall $(KHDR_INCLUDES)
  
- 			if (vict_blkno < (le64_to_cpu(bg->bg_blkno) +
--						le16_to_cpu(bg->bg_bits))) {
-+						(le16_to_cpu(bg->bg_bits) << bits_per_unit))) {
- 
- 				*ret_bh = gd_bh;
- 				*vict_bit = (vict_blkno - blkno) >>
-@@ -549,6 +549,7 @@ static void ocfs2_probe_alloc_group(stru
- 			last_free_bits++;
- 
- 		if (last_free_bits == move_len) {
-+			i -= move_len;
- 			*goal_bit = i;
- 			*phys_cpos = base_cpos + i;
- 			break;
-@@ -1020,18 +1021,19 @@ int ocfs2_ioctl_move_extents(struct file
- 
- 	context->range = &range;
- 
-+	/*
-+	 * ok, the default theshold for the defragmentation
-+	 * is 1M, since our maximum clustersize was 1M also.
-+	 * any thought?
-+	 */
-+	if (!range.me_threshold)
-+		range.me_threshold = 1024 * 1024;
-+
-+	if (range.me_threshold > i_size_read(inode))
-+		range.me_threshold = i_size_read(inode);
-+
- 	if (range.me_flags & OCFS2_MOVE_EXT_FL_AUTO_DEFRAG) {
- 		context->auto_defrag = 1;
--		/*
--		 * ok, the default theshold for the defragmentation
--		 * is 1M, since our maximum clustersize was 1M also.
--		 * any thought?
--		 */
--		if (!range.me_threshold)
--			range.me_threshold = 1024 * 1024;
--
--		if (range.me_threshold > i_size_read(inode))
--			range.me_threshold = i_size_read(inode);
- 
- 		if (range.me_flags & OCFS2_MOVE_EXT_FL_PART_DEFRAG)
- 			context->partial = 1;
+ include ../lib.mk
 
 
