@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 966CF6AF532
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A80136AF533
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233926AbjCGTXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:23:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48816 "EHLO
+        id S233954AbjCGTXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:23:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233932AbjCGTWm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:42 -0500
+        with ESMTP id S234019AbjCGTWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:22:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086002FCC4
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E03222685F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:08:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B1276150D
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E2BC433D2;
-        Tue,  7 Mar 2023 19:07:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7704F6150D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:08:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 690DBC4339B;
+        Tue,  7 Mar 2023 19:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678216079;
-        bh=ryweG5EJHilOgZ4tR0uRsQvvgOKnud3VXYxJFgC9aiM=;
+        s=korg; t=1678216082;
+        bh=eeCU8/tBzYvap0j+f+/IlSz7p+GVMGU+Mro+AJJHqJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJUECVHxXwTCqTWTv+qjKr0seBwrnFm+fvHvCwZ3yujRfwcKrZSPiqZxpSwTACZtI
-         vJFqqXZ96tPYz05Ld+4hdmd/960PwLLaQA3a5ozTzVNkGiKsWoOlqVKqonGd5hH34D
-         ADUHDtHfa10AQ+zjQjWwkpnzvH14GgZWFNa135TE=
+        b=xgflRNKCPUPeq3Ojcp7LylEQUjnyDLARtH9KFPKo6PWNVU42aihoeeN4tori//AqI
+         aha7JmZcM2UHDiNPkWDqaG+Of1V6MPlXZ802VO1cKPAnrLCGZKuBqOkU/BnLRB1AWe
+         zLl5NEzdKE2P1g4Ey7gXo/JImZ2VhpS2CC3c3tc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.15 437/567] s390/kprobes: fix current_kprobe never cleared after kprobes reenter
-Date:   Tue,  7 Mar 2023 18:02:53 +0100
-Message-Id: <20230307165924.846811468@linuxfoundation.org>
+        patches@lists.linux.dev, Volker Lendecke <vl@samba.org>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 438/567] cifs: Fix uninitialized memory read in smb3_qfs_tcon()
+Date:   Tue,  7 Mar 2023 18:02:54 +0100
+Message-Id: <20230307165924.897343517@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -53,54 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Volker Lendecke <vl@samba.org>
 
-commit cd57953936f2213dfaccce10d20f396956222c7d upstream.
+commit d447e794a37288ec7a080aa1b044a8d9deebbab7 upstream.
 
-Recent test_kprobe_missed kprobes kunit test uncovers the following
-problem. Once kprobe is triggered from another kprobe (kprobe reenter),
-all future kprobes on this cpu are considered as kprobe reenter, thus
-pre_handler and post_handler are not being called and kprobes are counted
-as "missed".
+oparms was not fully initialized
 
-Commit b9599798f953 ("[S390] kprobes: activation and deactivation")
-introduced a simpler scheme for kprobes (de)activation and status
-tracking by using push_kprobe/pop_kprobe, which supposed to work for
-both initial kprobe entry as well as kprobe reentry and helps to avoid
-handling those two cases differently. The problem is that a sequence of
-calls in case of kprobes reenter:
-push_kprobe() <- NULL (current_kprobe)
-push_kprobe() <- kprobe1 (current_kprobe)
-pop_kprobe() -> kprobe1 (current_kprobe)
-pop_kprobe() -> kprobe1 (current_kprobe)
-leaves "kprobe1" as "current_kprobe" on this cpu, instead of setting it
-to NULL. In fact push_kprobe/pop_kprobe can only store a single state
-(there is just one prev_kprobe in kprobe_ctlblk). Which is a hack but
-sufficient, there is no need to have another prev_kprobe just to store
-NULL. To make a simple and backportable fix simply reset "prev_kprobe"
-when kprobe is poped from this "stack". No need to worry about
-"kprobe_status" in this case, because its value is only checked when
-current_kprobe != NULL.
-
+Signed-off-by: Volker Lendecke <vl@samba.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Cc: stable@vger.kernel.org
-Fixes: b9599798f953 ("[S390] kprobes: activation and deactivation")
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/kprobes.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2ops.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/arch/s390/kernel/kprobes.c
-+++ b/arch/s390/kernel/kprobes.c
-@@ -233,6 +233,7 @@ static void pop_kprobe(struct kprobe_ctl
- {
- 	__this_cpu_write(current_kprobe, kcb->prev_kprobe.kp);
- 	kcb->kprobe_status = kcb->prev_kprobe.status;
-+	kcb->prev_kprobe.kp = NULL;
- }
- NOKPROBE_SYMBOL(pop_kprobe);
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -966,12 +966,13 @@ smb3_qfs_tcon(const unsigned int xid, st
+ 	struct cifs_fid fid;
+ 	struct cached_fid *cfid = NULL;
  
+-	oparms.tcon = tcon;
+-	oparms.desired_access = FILE_READ_ATTRIBUTES;
+-	oparms.disposition = FILE_OPEN;
+-	oparms.create_options = cifs_create_options(cifs_sb, 0);
+-	oparms.fid = &fid;
+-	oparms.reconnect = false;
++	oparms = (struct cifs_open_parms) {
++		.tcon = tcon,
++		.desired_access = FILE_READ_ATTRIBUTES,
++		.disposition = FILE_OPEN,
++		.create_options = cifs_create_options(cifs_sb, 0),
++		.fid = &fid,
++	};
+ 
+ 	rc = open_cached_dir(xid, tcon, "", cifs_sb, &cfid);
+ 	if (rc == 0)
 
 
