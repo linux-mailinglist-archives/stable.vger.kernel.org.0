@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB7B6AEBAD
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EAAF6AF168
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:43:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232094AbjCGRrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:47:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
+        id S232771AbjCGSnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:43:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232186AbjCGRrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22ECE4C6D0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:14 -0800 (PST)
+        with ESMTP id S233099AbjCGSnB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:43:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A3D92BED
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:33:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C85F861514
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D44E1C433EF;
-        Tue,  7 Mar 2023 17:42:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BF6CB819DC
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5800EC433D2;
+        Tue,  7 Mar 2023 18:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210932;
-        bh=FR43rAtmpHjBfY1MdgtzjRQNf3n2KZR6/hd8PI6mKKQ=;
+        s=korg; t=1678213635;
+        bh=iOmt3RrNlbIEjx/KReScnh9+gup0ENoJQXZIu7UBVKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6E59Y4rQN1G5Kz9KfdqmsLmpKkdcip5cXhmVmnalH7d513/00qvTmwYDQLwnbFFh
-         ORnRQ0Cs/uQ37+k/KzJtf69fz5fuw9jYtK8zjQVoNep32KxkPZIKFj8lLtYc18P2d3
-         isvMPlALUA4CNSrNsRinX9lYN98Lyun7NJilR5QY=
+        b=NEq1zwOQCSUwB/HHXdxBb8Y2sfeUp5BMUNWWc4/QvjY8yRkWtuq4Oul95+JHxZm7M
+         +YRfNyt2THFdOZis3dSSZgSESZaA2G3I2pJ5RsoKuKezsID6TKCnYuSNsjiCxyiNIA
+         N+u1QNF7UYP+7t4G0uf6J2LhKigFuEtynJfh9MxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Konstantin Meskhidze <konstantin.meskhidze@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0701/1001] drm: amd: display: Fix memory leakage
-Date:   Tue,  7 Mar 2023 17:57:53 +0100
-Message-Id: <20230307170052.044689668@linuxfoundation.org>
+Subject: [PATCH 6.1 540/885] cpuidle, intel_idle: Fix CPUIDLE_FLAG_INIT_XSTATE
+Date:   Tue,  7 Mar 2023 17:57:54 +0100
+Message-Id: <20230307170025.957571795@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,31 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 6b8701be1f66064ca72733c5f6e13748cdbf8397 ]
+[ Upstream commit 821ad23d0eaff73ef599ece39ecc77482df20a8c ]
 
-This commit fixes memory leakage in dc_construct_ctx() function.
+Fix instrumentation bugs objtool found:
 
-Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  vmlinux.o: warning: objtool: intel_idle_s2idle+0xd5: call to fpu_idle_fpregs() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: intel_idle_xstate+0x11: call to fpu_idle_fpregs() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: fpu_idle_fpregs+0x9: call to xfeatures_in_use() leaves .noinstr.text section
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Link: https://lore.kernel.org/r/20230112195540.494977795@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/fpu/xcr.h       | 4 ++--
+ arch/x86/include/asm/special_insns.h | 2 +-
+ arch/x86/kernel/fpu/core.c           | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 0cb8d1f934d12..c03e86e49fea3 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -862,6 +862,7 @@ static bool dc_construct_ctx(struct dc *dc,
+diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
+index 9656a5bc6feae..9a710c0604457 100644
+--- a/arch/x86/include/asm/fpu/xcr.h
++++ b/arch/x86/include/asm/fpu/xcr.h
+@@ -5,7 +5,7 @@
+ #define XCR_XFEATURE_ENABLED_MASK	0x00000000
+ #define XCR_XFEATURE_IN_USE_MASK	0x00000001
  
- 	dc_ctx->perf_trace = dc_perf_trace_create();
- 	if (!dc_ctx->perf_trace) {
-+		kfree(dc_ctx);
- 		ASSERT_CRITICAL(false);
- 		return false;
+-static inline u64 xgetbv(u32 index)
++static __always_inline u64 xgetbv(u32 index)
+ {
+ 	u32 eax, edx;
+ 
+@@ -27,7 +27,7 @@ static inline void xsetbv(u32 index, u64 value)
+  *
+  * Callers should check X86_FEATURE_XGETBV1.
+  */
+-static inline u64 xfeatures_in_use(void)
++static __always_inline u64 xfeatures_in_use(void)
+ {
+ 	return xgetbv(XCR_XFEATURE_IN_USE_MASK);
+ }
+diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+index 35f709f619fb4..c2e322189f853 100644
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -295,7 +295,7 @@ static inline int enqcmds(void __iomem *dst, const void *src)
+ 	return 0;
+ }
+ 
+-static inline void tile_release(void)
++static __always_inline void tile_release(void)
+ {
+ 	/*
+ 	 * Instruction opcode for TILERELEASE; supported in binutils
+diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+index 9baa89a8877d0..dccce58201b7c 100644
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -853,12 +853,12 @@ int fpu__exception_code(struct fpu *fpu, int trap_nr)
+  * Initialize register state that may prevent from entering low-power idle.
+  * This function will be invoked from the cpuidle driver only when needed.
+  */
+-void fpu_idle_fpregs(void)
++noinstr void fpu_idle_fpregs(void)
+ {
+ 	/* Note: AMX_TILE being enabled implies XGETBV1 support */
+ 	if (cpu_feature_enabled(X86_FEATURE_AMX_TILE) &&
+ 	    (xfeatures_in_use() & XFEATURE_MASK_XTILE)) {
+ 		tile_release();
+-		fpregs_deactivate(&current->thread.fpu);
++		__this_cpu_write(fpu_fpregs_owner_ctx, NULL);
  	}
+ }
 -- 
 2.39.2
 
