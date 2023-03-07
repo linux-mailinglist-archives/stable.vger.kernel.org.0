@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8336AF0F6
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 421036AEBB0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:47:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232809AbjCGShS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:37:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
+        id S232166AbjCGRrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:47:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233367AbjCGSf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:58 -0500
+        with ESMTP id S231830AbjCGRr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:47:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60EFD42BFE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:28:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE4B64BE88
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF55B61532
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF217C433EF;
-        Tue,  7 Mar 2023 18:27:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A106B61516
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F856C4339B;
+        Tue,  7 Mar 2023 17:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213642;
-        bh=UWfoVHCIMcXXZEC4WkYEzU9xMqbxy+hmF9ARRDEdT9Q=;
+        s=korg; t=1678210944;
+        bh=dX2NPGi4U+YhtsEQrRQyN91TLwfRtnsI1A/pYXW35Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r21m9ap2bqbRNb0cw3d8+U7WLhoEv2olSIaLVf7BfXKqS2u5tvDgmHeSTIY7XKJLN
-         ORwVRRccW+zqsVxsjzVoFgD8Wtoq2Jnt9cg29+T/K+LdkAaeN3NWWpH+PfF3KS9ZM3
-         F5k2ChBrSy62f6CWra4l8hdY9PuetZSzWRMlNEY0=
+        b=xGqvQ6P0CmGJEz6VxU0i2FQGWfpKKVs+ZIdRc2uUt6TiELuC46y1QPQKwzGM1VgH3
+         r+KDI8uEX+MzMKP4ac0wY7P8JGpx9j8GTTviVViCUNr+RAkOBYE+6aqFYpV28/C3nu
+         J51/8zSJGIl/OocXJd8RRpGQ3ettrqlTCvy1ZWiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 542/885] cpuidle: drivers: firmware: psci: Dont instrument suspend code
-Date:   Tue,  7 Mar 2023 17:57:56 +0100
-Message-Id: <20230307170026.045829443@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0705/1001] HID: uclogic: Add support for XP-PEN Deco Pro SW
+Date:   Tue,  7 Mar 2023 17:57:57 +0100
+Message-Id: <20230307170052.214019222@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 393e2ea30aec634b37004d401863428e120d5e1b ]
+[ Upstream commit 7744ca571af55b794595cff2da9d51a26904998f ]
 
-The PSCI suspend code is currently instrumentable, which is not safe as
-instrumentation (e.g. ftrace) may try to make use of RCU during idle
-periods when RCU is not watching.
+The XP-PEN Deco Pro SW is a UGEE v2 device with a frame with 8 buttons,
+a bitmap dial and a mouse; however, the UCLOGIC_MOUSE_FRAME_QUIRK is
+required because it reports an incorrect frame type. Its pen has 2
+buttons, supports tilt and pressure.
 
-To fix this we need to ensure that psci_suspend_finisher() and anything
-it calls are not instrumented. We can do this fairly simply by marking
-psci_suspend_finisher() and the psci*_cpu_suspend() functions as
-noinstr, and the underlying helper functions as __always_inline.
+It can be connected using a USB cable or, to use it in wireless mode,
+using a USB Bluetooth dongle. When it is connected in wireless mode the
+device battery is used to power it.
 
-When CONFIG_DEBUG_VIRTUAL=y, __pa_symbol() can expand to an out-of-line
-instrumented function, so we must use __pa_symbol_nodebug() within
-psci_suspend_finisher().
+All the pieces to support it are already in place. Add its ID and
+quirks in order to support the device.
 
-The raw SMCCC invocation functions are written in assembly, and are not
-subject to compiler instrumentation.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230126151323.349423061@infradead.org
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/psci/psci.c | 31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ drivers/hid/hid-ids.h            | 1 +
+ drivers/hid/hid-input.c          | 2 ++
+ drivers/hid/hid-uclogic-core.c   | 3 +++
+ drivers/hid/hid-uclogic-params.c | 2 ++
+ 4 files changed, 8 insertions(+)
 
-diff --git a/drivers/firmware/psci/psci.c b/drivers/firmware/psci/psci.c
-index 447ee4ea5c903..f78249fe2512a 100644
---- a/drivers/firmware/psci/psci.c
-+++ b/drivers/firmware/psci/psci.c
-@@ -108,9 +108,10 @@ bool psci_power_state_is_valid(u32 state)
- 	return !(state & ~valid_mask);
- }
- 
--static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
--			unsigned long arg0, unsigned long arg1,
--			unsigned long arg2)
-+static __always_inline unsigned long
-+__invoke_psci_fn_hvc(unsigned long function_id,
-+		     unsigned long arg0, unsigned long arg1,
-+		     unsigned long arg2)
- {
- 	struct arm_smccc_res res;
- 
-@@ -118,9 +119,10 @@ static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
- 	return res.a0;
- }
- 
--static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
--			unsigned long arg0, unsigned long arg1,
--			unsigned long arg2)
-+static __always_inline unsigned long
-+__invoke_psci_fn_smc(unsigned long function_id,
-+		     unsigned long arg0, unsigned long arg1,
-+		     unsigned long arg2)
- {
- 	struct arm_smccc_res res;
- 
-@@ -128,7 +130,7 @@ static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
- 	return res.a0;
- }
- 
--static int psci_to_linux_errno(int errno)
-+static __always_inline int psci_to_linux_errno(int errno)
- {
- 	switch (errno) {
- 	case PSCI_RET_SUCCESS:
-@@ -169,7 +171,8 @@ int psci_set_osi_mode(bool enable)
- 	return psci_to_linux_errno(err);
- }
- 
--static int __psci_cpu_suspend(u32 fn, u32 state, unsigned long entry_point)
-+static __always_inline int
-+__psci_cpu_suspend(u32 fn, u32 state, unsigned long entry_point)
- {
- 	int err;
- 
-@@ -177,13 +180,15 @@ static int __psci_cpu_suspend(u32 fn, u32 state, unsigned long entry_point)
- 	return psci_to_linux_errno(err);
- }
- 
--static int psci_0_1_cpu_suspend(u32 state, unsigned long entry_point)
-+static __always_inline int
-+psci_0_1_cpu_suspend(u32 state, unsigned long entry_point)
- {
- 	return __psci_cpu_suspend(psci_0_1_function_ids.cpu_suspend,
- 				  state, entry_point);
- }
- 
--static int psci_0_2_cpu_suspend(u32 state, unsigned long entry_point)
-+static __always_inline int
-+psci_0_2_cpu_suspend(u32 state, unsigned long entry_point)
- {
- 	return __psci_cpu_suspend(PSCI_FN_NATIVE(0_2, CPU_SUSPEND),
- 				  state, entry_point);
-@@ -450,10 +455,12 @@ late_initcall(psci_debugfs_init)
- #endif
- 
- #ifdef CONFIG_CPU_IDLE
--static int psci_suspend_finisher(unsigned long state)
-+static noinstr int psci_suspend_finisher(unsigned long state)
- {
- 	u32 power_state = state;
--	phys_addr_t pa_cpu_resume = __pa_symbol(cpu_resume);
-+	phys_addr_t pa_cpu_resume;
-+
-+	pa_cpu_resume = __pa_symbol_nodebug((unsigned long)cpu_resume);
- 
- 	return psci_ops.cpu_suspend(power_state, pa_cpu_resume);
- }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9e36b4cd905ee..c662994d73381 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1300,6 +1300,7 @@
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01_V2	0x0905
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L	0x0935
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S	0x0909
++#define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW	0x0933
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06	0x0078
+ #define USB_DEVICE_ID_UGEE_TABLET_G5		0x0074
+ #define USB_DEVICE_ID_UGEE_TABLET_EX07S		0x0071
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index bd0cfccfb7a25..0f8a5152e48b1 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -378,6 +378,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
+ 	  HID_BATTERY_QUIRK_AVOID_QUERY },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW),
++	  HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index 739984b8fa1b8..7c05d38d3afad 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -513,6 +513,9 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
++				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW),
++		.driver_data = UCLOGIC_MOUSE_FRAME_QUIRK | UCLOGIC_BATTERY_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
+ 	{ }
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 23624d5b07b5a..492a30f83575a 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -1671,6 +1671,8 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
+ 	case VID_PID(USB_VENDOR_ID_UGEE,
+ 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S):
++	case VID_PID(USB_VENDOR_ID_UGEE,
++		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW):
+ 		rc = uclogic_params_ugee_v2_init(&p, hdev);
+ 		if (rc != 0)
+ 			goto cleanup;
 -- 
 2.39.2
 
