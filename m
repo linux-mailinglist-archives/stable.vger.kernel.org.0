@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 167996AEA02
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:30:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2226AEE6C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230373AbjCGRaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:30:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51168 "EHLO
+        id S232291AbjCGSLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:11:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231512AbjCGR3l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:29:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735F9311FD
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:24:43 -0800 (PST)
+        with ESMTP id S232287AbjCGSL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:11:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A60078ABEA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:06:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FF83B8199E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:24:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FAF1C433D2;
-        Tue,  7 Mar 2023 17:24:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 435C86152C
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 208FDC433EF;
+        Tue,  7 Mar 2023 18:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209880;
-        bh=S44YbCTOg4qaio8+Q0lxhklfMmScvyF6R6M3WLVfHkA=;
+        s=korg; t=1678212390;
+        bh=mSxITTnFU5bUU3V1I7GVYbX3PaXbBd81I0qI7P0qZWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ptx3D+qTvNG4UkIAUkoCM7lpYQ1npmPcv3NvVzs9J9oORX5QhFbU4r+kvDwcgMutr
-         XXEpFUdXT4iTVeQXHnRcrfY8Xy9a21R2OqkDyEG43VW7s/uTLg9MQ0XdA36LY/vDfP
-         gj6o6VWEwgAblkQlkJfdGoIevcAaIdx2rt8oo0WQ=
+        b=zVvHwhMqlf/74avHonZHGZOYNPMGKoipHy1qdWOmt/ApS54U9m9fiebwmsmIkNXN9
+         jzgfLyvH0YZDf3yaA69/aKkKEgJPZXzzdgYYGgeo0/m//jO1eVFFLKoBLLT2+k8+9X
+         nqJEpknPmQED8Kfsjzqq9mT/O6KmENk/brOaRx48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marek Vasut <marex@denx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0331/1001] drm: mxsfb: DRM_MXSFB should depend on ARCH_MXS || ARCH_MXC
+        syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 169/885] wifi: ath9k: hif_usb: clean up skbs if ath9k_hif_usb_rx_stream() fails
 Date:   Tue,  7 Mar 2023 17:51:43 +0100
-Message-Id: <20230307170035.859200437@linuxfoundation.org>
+Message-Id: <20230307170009.284008087@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +58,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit 7783cc67862f9166c901bfa0f80b717aa8d354dd ]
+[ Upstream commit 0af54343a76263a12dbae7fafb64eb47c4a6ad38 ]
 
-Freescale/NXP i.MX LCDIF and eLCDIF LCD controllers are only present on
-Freescale/NXP i.MX SoCs.  Hence add a dependency on ARCH_MXS ||
-ARCH_MXC, to prevent asking the user about this driver when configuring
-a kernel without Freescale/NXP i.MX support.
+Syzkaller detected a memory leak of skbs in ath9k_hif_usb_rx_stream().
+While processing skbs in ath9k_hif_usb_rx_stream(), the already allocated
+skbs in skb_pool are not freed if ath9k_hif_usb_rx_stream() fails. If we
+have an incorrect pkt_len or pkt_tag, the input skb is considered invalid
+and dropped. All the associated packets already in skb_pool should be
+dropped and freed. Added a comment describing this issue.
 
-Fixes: 45d59d704080cc0c ("drm: Add new driver for MXSFB controller")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/98e74779ca2bc575d91afff03369e86b080c01ac.1669046358.git.geert+renesas@glider.be
+The patch also makes remain_skb NULL after being processed so that it
+cannot be referenced after potential free. The initialization of hif_dev
+fields which are associated with remain_skb (rx_remain_len,
+rx_transfer_len and rx_pad_len) is moved after a new remain_skb is
+allocated.
+
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+Fixes: 6ce708f54cc8 ("ath9k: Fix out-of-bound memcpy in ath9k_hif_usb_rx_stream")
+Fixes: 44b23b488d44 ("ath9k: hif_usb: Reduce indent 1 column")
+Reported-by: syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20230104123615.51511-1-pchelkin@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 31 +++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/mxsfb/Kconfig b/drivers/gpu/drm/mxsfb/Kconfig
-index aa4b0eb2a562b..518b533453548 100644
---- a/drivers/gpu/drm/mxsfb/Kconfig
-+++ b/drivers/gpu/drm/mxsfb/Kconfig
-@@ -8,6 +8,7 @@ config DRM_MXSFB
- 	tristate "i.MX (e)LCDIF LCD controller"
- 	depends on DRM && OF
- 	depends on COMMON_CLK
-+	depends on ARCH_MXS || ARCH_MXC || COMPILE_TEST
- 	select DRM_MXS
- 	select DRM_KMS_HELPER
- 	select DRM_GEM_DMA_HELPER
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index 1a2e0c7eeb023..de6c0824c9cab 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -561,11 +561,11 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 			memcpy(ptr, skb->data, rx_remain_len);
+ 
+ 			rx_pkt_len += rx_remain_len;
+-			hif_dev->rx_remain_len = 0;
+ 			skb_put(remain_skb, rx_pkt_len);
+ 
+ 			skb_pool[pool_index++] = remain_skb;
+-
++			hif_dev->remain_skb = NULL;
++			hif_dev->rx_remain_len = 0;
+ 		} else {
+ 			index = rx_remain_len;
+ 		}
+@@ -584,16 +584,21 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 		pkt_len = get_unaligned_le16(ptr + index);
+ 		pkt_tag = get_unaligned_le16(ptr + index + 2);
+ 
++		/* It is supposed that if we have an invalid pkt_tag or
++		 * pkt_len then the whole input SKB is considered invalid
++		 * and dropped; the associated packets already in skb_pool
++		 * are dropped, too.
++		 */
+ 		if (pkt_tag != ATH_USB_RX_STREAM_MODE_TAG) {
+ 			RX_STAT_INC(hif_dev, skb_dropped);
+-			return;
++			goto invalid_pkt;
+ 		}
+ 
+ 		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
+ 			dev_err(&hif_dev->udev->dev,
+ 				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
+ 			RX_STAT_INC(hif_dev, skb_dropped);
+-			return;
++			goto invalid_pkt;
+ 		}
+ 
+ 		pad_len = 4 - (pkt_len & 0x3);
+@@ -605,11 +610,6 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 
+ 		if (index > MAX_RX_BUF_SIZE) {
+ 			spin_lock(&hif_dev->rx_lock);
+-			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
+-			hif_dev->rx_transfer_len =
+-				MAX_RX_BUF_SIZE - chk_idx - 4;
+-			hif_dev->rx_pad_len = pad_len;
+-
+ 			nskb = __dev_alloc_skb(pkt_len + 32, GFP_ATOMIC);
+ 			if (!nskb) {
+ 				dev_err(&hif_dev->udev->dev,
+@@ -617,6 +617,12 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 				spin_unlock(&hif_dev->rx_lock);
+ 				goto err;
+ 			}
++
++			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
++			hif_dev->rx_transfer_len =
++				MAX_RX_BUF_SIZE - chk_idx - 4;
++			hif_dev->rx_pad_len = pad_len;
++
+ 			skb_reserve(nskb, 32);
+ 			RX_STAT_INC(hif_dev, skb_allocated);
+ 
+@@ -654,6 +660,13 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 				 skb_pool[i]->len, USB_WLAN_RX_PIPE);
+ 		RX_STAT_INC(hif_dev, skb_completed);
+ 	}
++	return;
++invalid_pkt:
++	for (i = 0; i < pool_index; i++) {
++		dev_kfree_skb_any(skb_pool[i]);
++		RX_STAT_INC(hif_dev, skb_dropped);
++	}
++	return;
+ }
+ 
+ static void ath9k_hif_usb_rx_cb(struct urb *urb)
 -- 
 2.39.2
 
