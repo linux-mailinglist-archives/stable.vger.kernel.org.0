@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8287C6AEDCC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:07:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 894756AE8FC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbjCGSHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:07:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47000 "EHLO
+        id S230135AbjCGRUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:20:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232287AbjCGSHO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 038621B2EE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:00:23 -0800 (PST)
+        with ESMTP id S230280AbjCGRTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:19:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492EA8C0FB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:14:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B15D4B819C2
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:00:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D80AC433D2;
-        Tue,  7 Mar 2023 18:00:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8368614E8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDA2BC433D2;
+        Tue,  7 Mar 2023 17:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212020;
-        bh=xkcFN12T+VKdASzvMi9lXksazh6vkyk4ifLmLUeldd4=;
+        s=korg; t=1678209297;
+        bh=Yh3YOoIk/i1ir3llnCsDc7kUCVZGRLH/MGwJG31ZoLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpBSosjpbPaGTcPPlMnDwGgADaLE4TQ3W5q2DnjFA8g7xH06vI2FQHv5weTzq9A/q
-         jU7mbi69Ef+n4qX3vtAsQzo+4GtFCXJhB4gfEji9uHg+0u0V8c9X/8Hjiu3NRaOiVC
-         p5ObrHvA/0J6BxC3pG448DC8j3Y+/G8JYE1RA+tU=
+        b=l2bijK0+hOwWBBtWm9V4exZiKJPEQh5lfISPH0L++qYiq49Xk2hjIkwz/cJ+xmuqr
+         PmUUNaeyTx3FaORs4BtLrR+juELRicuBEgIVUAA4r9RSLPAWrZZyszRZLtKYyIbc0a
+         JWoY6BeW3ACH4DzpJ6l1yECsblf/4wSDq0SRGe3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, "Daniel T. Lee" <danieltimlee@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 011/885] arm64: dts: qcom: sm6125-seine: Clean up gpio-keys (volume down)
+Subject: [PATCH 6.2 0173/1001] libbpf: Fix invalid return address register in s390
 Date:   Tue,  7 Mar 2023 17:49:05 +0100
-Message-Id: <20230307170002.135074083@linuxfoundation.org>
+Message-Id: <20230307170029.450567839@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,73 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Daniel T. Lee <danieltimlee@gmail.com>
 
-[ Upstream commit a9f6a13da473bb6c7406d2784d9e3792f6763cba ]
+[ Upstream commit 7244eb669397f309c3d014264823cdc9cb3f8e6b ]
 
-- Remove autorepeat (leave key repetition to userspace);
-- Remove unneeded status = "okay" (this is the default);
-- Remove unneeded linux,input-type <EV_KEY> (this is the default for
-  gpio-keys);
-- Allow the interrupt line for this button to be disabled;
-- Use a full, descriptive node name;
-- Set proper bias on the GPIO via pinctrl;
-- Sort properties;
-- Replace deprecated gpio-key,wakeup property with wakeup-source.
+There is currently an invalid register mapping in the s390 return
+address register. As the manual[1] states, the return address can be
+found at r14. In bpf_tracing.h, the s390 registers were named
+gprs(general purpose registers). This commit fixes the problem by
+correcting the mistyped mapping.
 
-Fixes: 82e1783890b7 ("arm64: dts: qcom: sm6125: Add support for Sony Xperia 10II")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221222192443.119103-1-marijn.suijten@somainline.org
+[1]: https://uclibc.org/docs/psABI-s390x.pdf#page=14
+
+Fixes: 3cc31d794097 ("libbpf: Normalize PT_REGS_xxx() macro definitions")
+Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20221224071527.2292-7-danieltimlee@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../qcom/sm6125-sony-xperia-seine-pdx201.dts  | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ tools/lib/bpf/bpf_tracing.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts b/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts
-index 6a8b88cc43853..e1ab5b5189949 100644
---- a/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts
-+++ b/arch/arm64/boot/dts/qcom/sm6125-sony-xperia-seine-pdx201.dts
-@@ -40,17 +40,18 @@ extcon_usb: extcon-usb {
- 	};
- 
- 	gpio-keys {
--		status = "okay";
- 		compatible = "gpio-keys";
--		autorepeat;
- 
--		key-vol-dn {
-+		pinctrl-0 = <&vol_down_n>;
-+		pinctrl-names = "default";
-+
-+		key-volume-down {
- 			label = "Volume Down";
- 			gpios = <&tlmm 47 GPIO_ACTIVE_LOW>;
--			linux,input-type = <1>;
- 			linux,code = <KEY_VOLUMEDOWN>;
--			gpio-key,wakeup;
- 			debounce-interval = <15>;
-+			linux,can-disable;
-+			wakeup-source;
- 		};
- 	};
- 
-@@ -108,6 +109,14 @@ &sdhc_1 {
- 
- &tlmm {
- 	gpio-reserved-ranges = <22 2>, <28 6>;
-+
-+	vol_down_n: vol-down-n-state {
-+		pins = "gpio47";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-disable;
-+		input-enable;
-+	};
- };
- 
- &usb3 {
+diff --git a/tools/lib/bpf/bpf_tracing.h b/tools/lib/bpf/bpf_tracing.h
+index 2972dc25ff722..9c1b1689068d1 100644
+--- a/tools/lib/bpf/bpf_tracing.h
++++ b/tools/lib/bpf/bpf_tracing.h
+@@ -137,7 +137,7 @@ struct pt_regs___s390 {
+ #define __PT_PARM3_REG gprs[4]
+ #define __PT_PARM4_REG gprs[5]
+ #define __PT_PARM5_REG gprs[6]
+-#define __PT_RET_REG grps[14]
++#define __PT_RET_REG gprs[14]
+ #define __PT_FP_REG gprs[11]	/* Works only with CONFIG_FRAME_POINTER */
+ #define __PT_RC_REG gprs[2]
+ #define __PT_SP_REG gprs[15]
 -- 
 2.39.2
 
