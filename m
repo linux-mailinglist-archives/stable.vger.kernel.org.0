@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2F96AEA97
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:35:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C9A6AEF1C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:20:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231767AbjCGRfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:35:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
+        id S232572AbjCGSUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:20:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231839AbjCGRex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:34:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD39093E33
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:31:01 -0800 (PST)
+        with ESMTP id S232596AbjCGSUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:20:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE5E49FE64
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:14:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D5C361521
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C0FC4339C;
-        Tue,  7 Mar 2023 17:31:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D43DB81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:14:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFBB5C433EF;
+        Tue,  7 Mar 2023 18:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210260;
-        bh=PYNVio+z85vN0S/li/R9g78JoBx1KGn2xAbZRCbjbCw=;
+        s=korg; t=1678212863;
+        bh=aDwqvl4gv5oTovI26LjU7zpJwaXmCXHQkhq9LIAwLuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBdB+TKrVvVj2cYHawDLPhkNBq7iU91k3jBSlJbUAixgwSLyVBagPFQM1JUHesSoW
-         zMLgpPJY1nqBaw0ttTeu7AxWIdP0KuSoVc3EZc2wIGaUlm5o3j/bUY2U31waLyNU+Y
-         93lOh7ZjtuoeBF2+N7F7ZjQzRGuCmItYPsUrKFb0=
+        b=GlMbkfFVfwojEHB4+k2k2zWaKughrMmsa2Ge/IWku+NdRKVsywXtkwbb4fUnbHzLG
+         fzHZpJoL1E7thfmna6IARq7IRsNXwboPyAetOzKDzBfsCFqCr/iYZG9tkwmnnEEw/T
+         pCMv3LYmb2h2T3wx5irJO7Sb0Dewh9jidmnhx9ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0484/1001] mfd: cs5535: Dont build on UML
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 322/885] drm/msm/dpu: set pdpu->is_rt_pipe early in dpu_plane_sspp_atomic_update()
 Date:   Tue,  7 Mar 2023 17:54:16 +0100
-Message-Id: <20230307170042.407536781@linuxfoundation.org>
+Message-Id: <20230307170016.148036120@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 5ec32a3e4053c1a726b45381d56aa9e39eaf3911 ]
+[ Upstream commit 1d233b1cb149ec78c20fac58331b27bb460f9558 ]
 
-The cs5535-mfd driver uses CPU-specific data that is not available
-for ARCH=um builds, so don't allow it to be built for UML.
+The function dpu_plane_sspp_atomic_update() updates pdpu->is_rt_pipe
+flag, but after the commit 854f6f1c653b ("drm/msm/dpu: update the qos
+remap only if the client type changes") it sets the flag late, after all
+the qos functions have updated QoS programming. Move the flag update
+back to the place where it happened before the mentioned commit to let
+the pipe be programmed according to its current RT/non-RT state.
 
-Prevents these build errors:
-
-In file included from ../arch/x86/include/asm/olpc.h:7,
-                 from ../drivers/mfd/cs5535-mfd.c:17:
-../arch/x86/include/asm/geode.h: In function ‘is_geode_gx’:
-../arch/x86/include/asm/geode.h:16:31: error: ‘struct cpuinfo_um’ has no member named ‘x86_vendor’
-   16 |         return ((boot_cpu_data.x86_vendor == X86_VENDOR_NSC) &&
-../arch/x86/include/asm/geode.h:16:46: error: ‘X86_VENDOR_NSC’ undeclared (first use in this function); did you mean ‘X86_VENDOR_ANY’?
-   16 |         return ((boot_cpu_data.x86_vendor == X86_VENDOR_NSC) &&
-../arch/x86/include/asm/geode.h:17:31: error: ‘struct cpuinfo_um’ has no member named ‘x86’
-   17 |                 (boot_cpu_data.x86 == 5) &&
-../arch/x86/include/asm/geode.h:18:31: error: ‘struct cpuinfo_um’ has no member named ‘x86_model’
-   18 |                 (boot_cpu_data.x86_model == 5));
-../arch/x86/include/asm/geode.h: In function ‘is_geode_lx’:
-../arch/x86/include/asm/geode.h:23:31: error: ‘struct cpuinfo_um’ has no member named ‘x86_vendor’
-   23 |         return ((boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
-../arch/x86/include/asm/geode.h:23:46: error: ‘X86_VENDOR_AMD’ undeclared (first use in this function); did you mean ‘X86_VENDOR_ANY’?
-   23 |         return ((boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
-../arch/x86/include/asm/geode.h:24:31: error: ‘struct cpuinfo_um’ has no member named ‘x86’
-   24 |                 (boot_cpu_data.x86 == 5) &&
-../arch/x86/include/asm/geode.h:25:31: error: ‘struct cpuinfo_um’ has no member named ‘x86_model’
-   25 |                 (boot_cpu_data.x86_model == 10));
-
-Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20221201012541.11809-1-rdunlap@infradead.org
+Fixes: 854f6f1c653b ("drm/msm/dpu: update the qos remap only if the client type changes")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/516239/
+Link: https://lore.kernel.org/r/20221229191856.3508092-2-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 30db49f318668..7ed31fbd8c7fa 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -15,6 +15,7 @@ config MFD_CS5535
- 	tristate "AMD CS5535 and CS5536 southbridge core functions"
- 	select MFD_CORE
- 	depends on PCI && (X86_32 || (X86 && COMPILE_TEST))
-+	depends on !UML
- 	help
- 	  This is the core driver for CS5535/CS5536 MFD functions.  This is
- 	  necessary for using the board's GPIO and MFGPT functionality.
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+index 658005f609f4b..3fbda2a1f77fc 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+@@ -1124,7 +1124,7 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
+ 	struct dpu_plane_state *pstate = to_dpu_plane_state(state);
+ 	struct drm_crtc *crtc = state->crtc;
+ 	struct drm_framebuffer *fb = state->fb;
+-	bool is_rt_pipe, update_qos_remap;
++	bool is_rt_pipe;
+ 	const struct dpu_format *fmt =
+ 		to_dpu_format(msm_framebuffer_format(fb));
+ 	struct dpu_hw_pipe_cfg pipe_cfg;
+@@ -1136,6 +1136,9 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
+ 	pstate->pending = true;
+ 
+ 	is_rt_pipe = (dpu_crtc_get_client_type(crtc) != NRT_CLIENT);
++	pstate->needs_qos_remap |= (is_rt_pipe != pdpu->is_rt_pipe);
++	pdpu->is_rt_pipe = is_rt_pipe;
++
+ 	_dpu_plane_set_qos_ctrl(plane, false, DPU_PLANE_QOS_PANIC_CTRL);
+ 
+ 	DPU_DEBUG_PLANE(pdpu, "FB[%u] " DRM_RECT_FP_FMT "->crtc%u " DRM_RECT_FMT
+@@ -1217,14 +1220,8 @@ static void dpu_plane_sspp_atomic_update(struct drm_plane *plane)
+ 		_dpu_plane_set_ot_limit(plane, crtc, &pipe_cfg);
+ 	}
+ 
+-	update_qos_remap = (is_rt_pipe != pdpu->is_rt_pipe) ||
+-			pstate->needs_qos_remap;
+-
+-	if (update_qos_remap) {
+-		if (is_rt_pipe != pdpu->is_rt_pipe)
+-			pdpu->is_rt_pipe = is_rt_pipe;
+-		else if (pstate->needs_qos_remap)
+-			pstate->needs_qos_remap = false;
++	if (pstate->needs_qos_remap) {
++		pstate->needs_qos_remap = false;
+ 		_dpu_plane_set_qos_remap(plane);
+ 	}
+ 
 -- 
 2.39.2
 
