@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0416AEE2F
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 744EC6AE9AE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:27:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232424AbjCGSKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48076 "EHLO
+        id S231359AbjCGR1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:27:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232446AbjCGSJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:09:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85177A3B4E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:04:13 -0800 (PST)
+        with ESMTP id S231487AbjCGR0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:26:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D17694A5F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:21:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0B9B0CE1BF8
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:04:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF9DAC433A0;
-        Tue,  7 Mar 2023 18:04:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD082B818F6
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:21:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 154B5C433D2;
+        Tue,  7 Mar 2023 17:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212250;
-        bh=Zg4mtoMZ/nSmCrZSj0o+/6+e2B6YB4JBX3Ga5VZts+U=;
+        s=korg; t=1678209679;
+        bh=opN/afqKVDP/UNKIq0kK8XquPDYT3sZzOgpZdhM/Vxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fin8NfM9Utt50lb3v8oE7hPwg5fROVV8Z4WbAamryFxAuabgSFgx6eUwyYHsVV5xP
-         LpoI7dGigJeXlf/JBoXICOOKtNPso+0H6R6ikFj3DW1zJ9E3lcRyw4cQJESy72nTbO
-         MGrMxdoPjO+hr80aZbilNf1CEEnSbsbDPVZ4eX1k=
+        b=nAJ+bt6o+NrmvgchzZMAHDp4Rp9SL5yKJakaWZ3WdEjlI2zs/8iWdz+B19ppCuFg2
+         F41zrcE+cK1cP8qgpdUUvtCF5XZTrUIXC5eIravpC+m0llGSAxqKrWcU1rFgoW4FPG
+         GluSsk6cRnHEK9CxPMzSkJTOzI40WpkEcE5Ye7FE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Hector Martin <marcan@marcan.st>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 126/885] wifi: rtlwifi: Fix global-out-of-bounds bug in _rtl8812ae_phy_set_txpower_limit()
-Date:   Tue,  7 Mar 2023 17:51:00 +0100
-Message-Id: <20230307170007.313610702@linuxfoundation.org>
+Subject: [PATCH 6.2 0289/1001] wifi: brcmfmac: pcie: Perform correct BCM4364 firmware selection
+Date:   Tue,  7 Mar 2023 17:51:01 +0100
+Message-Id: <20230307170034.178144263@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,155 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 117dbeda22ec5ea0918254d03b540ef8b8a64d53 ]
+[ Upstream commit 6a142f70774fd10350a52a10ba1297d52da46780 ]
 
-There is a global-out-of-bounds reported by KASAN:
+This chip exists in two revisions (B2=r3 and B3=r4) on different
+platforms, and was added without regard to doing proper firmware
+selection or differentiating between them. Fix this to have proper
+per-revision firmwares and support Apple NVRAM selection.
 
-  BUG: KASAN: global-out-of-bounds in
-  _rtl8812ae_eq_n_byte.part.0+0x3d/0x84 [rtl8821ae]
-  Read of size 1 at addr ffffffffa0773c43 by task NetworkManager/411
+Revision B2 is present on at least these Apple T2 Macs:
 
-  CPU: 6 PID: 411 Comm: NetworkManager Tainted: G      D
-  6.1.0-rc8+ #144 e15588508517267d37
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-  Call Trace:
-   <TASK>
-   ...
-   kasan_report+0xbb/0x1c0
-   _rtl8812ae_eq_n_byte.part.0+0x3d/0x84 [rtl8821ae]
-   rtl8821ae_phy_bb_config.cold+0x346/0x641 [rtl8821ae]
-   rtl8821ae_hw_init+0x1f5e/0x79b0 [rtl8821ae]
-   ...
-   </TASK>
+kauai:    MacBook Pro 15" (Touch/2018-2019)
+maui:     MacBook Pro 13" (Touch/2018-2019)
+lanai:    Mac mini (Late 2018)
+ekans:    iMac Pro 27" (5K, Late 2017)
 
-The root cause of the problem is that the comparison order of
-"prate_section" in _rtl8812ae_phy_set_txpower_limit() is wrong. The
-_rtl8812ae_eq_n_byte() is used to compare the first n bytes of the two
-strings from tail to head, which causes the problem. In the
-_rtl8812ae_phy_set_txpower_limit(), it was originally intended to meet
-this requirement by carefully designing the comparison order.
-For example, "pregulation" and "pbandwidth" are compared in order of
-length from small to large, first is 3 and last is 4. However, the
-comparison order of "prate_section" dose not obey such order requirement,
-therefore when "prate_section" is "HT", when comparing from tail to head,
-it will lead to access out of bounds in _rtl8812ae_eq_n_byte(). As
-mentioned above, the _rtl8812ae_eq_n_byte() has the same function as
-strcmp(), so just strcmp() is enough.
+And these non-T2 Macs:
 
-Fix it by removing _rtl8812ae_eq_n_byte() and use strcmp() barely.
-Although it can be fixed by adjusting the comparison order of
-"prate_section", this may cause the value of "rate_section" to not be
-from 0 to 5. In addition, commit "21e4b0726dc6" not only moved driver
-from staging to regular tree, but also added setting txpower limit
-function during the driver config phase, so the problem was introduced
-by this commit.
+nihau:    iMac 27" (5K, 2019)
 
-Fixes: 21e4b0726dc6 ("rtlwifi: rtl8821ae: Move driver from staging to regular tree")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
+Revision B3 is present on at least these Apple T2 Macs:
+
+bali:     MacBook Pro 16" (2019)
+trinidad: MacBook Pro 13" (2020, 4 TB3)
+borneo:   MacBook Pro 16" (2019, 5600M)
+kahana:   Mac Pro (2019)
+kahana:   Mac Pro (2019, Rack)
+hanauma:  iMac 27" (5K, 2020)
+kure:     iMac 27" (5K, 2020, 5700/XT)
+
+Also fix the firmware interface for 4364, from BCA to WCC.
+
+Fixes: 24f0bd136264 ("brcmfmac: add the BRCM 4364 found in MacBook Pro 15,2")
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Hector Martin <marcan@marcan.st>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221212025812.1541311-1-lizetao1@huawei.com
+Link: https://lore.kernel.org/r/20230212063813.27622-5-marcan@marcan.st
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/realtek/rtlwifi/rtl8821ae/phy.c  | 52 +++++++------------
- 1 file changed, 20 insertions(+), 32 deletions(-)
+ .../net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
-index a29321e2fa72f..5323ead30db03 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
-@@ -1598,18 +1598,6 @@ static bool _rtl8812ae_get_integer_from_string(const char *str, u8 *pint)
- 	return true;
- }
- 
--static bool _rtl8812ae_eq_n_byte(const char *str1, const char *str2, u32 num)
--{
--	if (num == 0)
--		return false;
--	while (num > 0) {
--		num--;
--		if (str1[num] != str2[num])
--			return false;
--	}
--	return true;
--}
--
- static s8 _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(struct ieee80211_hw *hw,
- 					      u8 band, u8 channel)
- {
-@@ -1659,42 +1647,42 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw,
- 	power_limit = power_limit > MAX_POWER_INDEX ?
- 		      MAX_POWER_INDEX : power_limit;
- 
--	if (_rtl8812ae_eq_n_byte(pregulation, "FCC", 3))
-+	if (strcmp(pregulation, "FCC") == 0)
- 		regulation = 0;
--	else if (_rtl8812ae_eq_n_byte(pregulation, "MKK", 3))
-+	else if (strcmp(pregulation, "MKK") == 0)
- 		regulation = 1;
--	else if (_rtl8812ae_eq_n_byte(pregulation, "ETSI", 4))
-+	else if (strcmp(pregulation, "ETSI") == 0)
- 		regulation = 2;
--	else if (_rtl8812ae_eq_n_byte(pregulation, "WW13", 4))
-+	else if (strcmp(pregulation, "WW13") == 0)
- 		regulation = 3;
- 
--	if (_rtl8812ae_eq_n_byte(prate_section, "CCK", 3))
-+	if (strcmp(prate_section, "CCK") == 0)
- 		rate_section = 0;
--	else if (_rtl8812ae_eq_n_byte(prate_section, "OFDM", 4))
-+	else if (strcmp(prate_section, "OFDM") == 0)
- 		rate_section = 1;
--	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
--		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
-+	else if (strcmp(prate_section, "HT") == 0 &&
-+		 strcmp(prf_path, "1T") == 0)
- 		rate_section = 2;
--	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
--		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
-+	else if (strcmp(prate_section, "HT") == 0 &&
-+		 strcmp(prf_path, "2T") == 0)
- 		rate_section = 3;
--	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
--		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
-+	else if (strcmp(prate_section, "VHT") == 0 &&
-+		 strcmp(prf_path, "1T") == 0)
- 		rate_section = 4;
--	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
--		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
-+	else if (strcmp(prate_section, "VHT") == 0 &&
-+		 strcmp(prf_path, "2T") == 0)
- 		rate_section = 5;
- 
--	if (_rtl8812ae_eq_n_byte(pbandwidth, "20M", 3))
-+	if (strcmp(pbandwidth, "20M") == 0)
- 		bandwidth = 0;
--	else if (_rtl8812ae_eq_n_byte(pbandwidth, "40M", 3))
-+	else if (strcmp(pbandwidth, "40M") == 0)
- 		bandwidth = 1;
--	else if (_rtl8812ae_eq_n_byte(pbandwidth, "80M", 3))
-+	else if (strcmp(pbandwidth, "80M") == 0)
- 		bandwidth = 2;
--	else if (_rtl8812ae_eq_n_byte(pbandwidth, "160M", 4))
-+	else if (strcmp(pbandwidth, "160M") == 0)
- 		bandwidth = 3;
- 
--	if (_rtl8812ae_eq_n_byte(pband, "2.4G", 4)) {
-+	if (strcmp(pband, "2.4G") == 0) {
- 		ret = _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(hw,
- 							       BAND_ON_2_4G,
- 							       channel);
-@@ -1718,7 +1706,7 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw,
- 			regulation, bandwidth, rate_section, channel_index,
- 			rtlphy->txpwr_limit_2_4g[regulation][bandwidth]
- 				[rate_section][channel_index][RF90_PATH_A]);
--	} else if (_rtl8812ae_eq_n_byte(pband, "5G", 2)) {
-+	} else if (strcmp(pband, "5G") == 0) {
- 		ret = _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(hw,
- 							       BAND_ON_5G,
- 							       channel);
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index b752a65de2dcb..a9b9b2dc62d4f 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -57,7 +57,8 @@ BRCMF_FW_CLM_DEF(4356, "brcmfmac4356-pcie");
+ BRCMF_FW_CLM_DEF(43570, "brcmfmac43570-pcie");
+ BRCMF_FW_DEF(4358, "brcmfmac4358-pcie");
+ BRCMF_FW_DEF(4359, "brcmfmac4359-pcie");
+-BRCMF_FW_DEF(4364, "brcmfmac4364-pcie");
++BRCMF_FW_CLM_DEF(4364B2, "brcmfmac4364b2-pcie");
++BRCMF_FW_CLM_DEF(4364B3, "brcmfmac4364b3-pcie");
+ BRCMF_FW_DEF(4365B, "brcmfmac4365b-pcie");
+ BRCMF_FW_DEF(4365C, "brcmfmac4365c-pcie");
+ BRCMF_FW_DEF(4366B, "brcmfmac4366b-pcie");
+@@ -88,7 +89,8 @@ static const struct brcmf_firmware_mapping brcmf_pcie_fwnames[] = {
+ 	BRCMF_FW_ENTRY(BRCM_CC_43570_CHIP_ID, 0xFFFFFFFF, 43570),
+ 	BRCMF_FW_ENTRY(BRCM_CC_4358_CHIP_ID, 0xFFFFFFFF, 4358),
+ 	BRCMF_FW_ENTRY(BRCM_CC_4359_CHIP_ID, 0xFFFFFFFF, 4359),
+-	BRCMF_FW_ENTRY(BRCM_CC_4364_CHIP_ID, 0xFFFFFFFF, 4364),
++	BRCMF_FW_ENTRY(BRCM_CC_4364_CHIP_ID, 0x0000000F, 4364B2), /* 3 */
++	BRCMF_FW_ENTRY(BRCM_CC_4364_CHIP_ID, 0xFFFFFFF0, 4364B3), /* 4 */
+ 	BRCMF_FW_ENTRY(BRCM_CC_4365_CHIP_ID, 0x0000000F, 4365B),
+ 	BRCMF_FW_ENTRY(BRCM_CC_4365_CHIP_ID, 0xFFFFFFF0, 4365C),
+ 	BRCMF_FW_ENTRY(BRCM_CC_4366_CHIP_ID, 0x0000000F, 4366B),
+@@ -2003,6 +2005,11 @@ static int brcmf_pcie_read_otp(struct brcmf_pciedev_info *devinfo)
+ 		base = 0x8c0;
+ 		words = 0xb2;
+ 		break;
++	case BRCM_CC_4364_CHIP_ID:
++		coreid = BCMA_CORE_CHIPCOMMON;
++		base = 0x8c0;
++		words = 0x1a0;
++		break;
+ 	case BRCM_CC_4377_CHIP_ID:
+ 	case BRCM_CC_4378_CHIP_ID:
+ 		coreid = BCMA_CORE_GCI;
+@@ -2611,7 +2618,7 @@ static const struct pci_device_id brcmf_pcie_devid_table[] = {
+ 	BRCMF_PCIE_DEVICE(BRCM_PCIE_43602_2G_DEVICE_ID, WCC),
+ 	BRCMF_PCIE_DEVICE(BRCM_PCIE_43602_5G_DEVICE_ID, WCC),
+ 	BRCMF_PCIE_DEVICE(BRCM_PCIE_43602_RAW_DEVICE_ID, WCC),
+-	BRCMF_PCIE_DEVICE(BRCM_PCIE_4364_DEVICE_ID, BCA),
++	BRCMF_PCIE_DEVICE(BRCM_PCIE_4364_DEVICE_ID, WCC),
+ 	BRCMF_PCIE_DEVICE(BRCM_PCIE_4365_DEVICE_ID, BCA),
+ 	BRCMF_PCIE_DEVICE(BRCM_PCIE_4365_2G_DEVICE_ID, BCA),
+ 	BRCMF_PCIE_DEVICE(BRCM_PCIE_4365_5G_DEVICE_ID, BCA),
 -- 
 2.39.2
 
