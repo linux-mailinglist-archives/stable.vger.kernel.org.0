@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5906A6AEAC4
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:37:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 963B36AEF48
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:22:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbjCGRhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:37:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42790 "EHLO
+        id S232719AbjCGSWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:22:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231860AbjCGRgw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:36:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF81F25976
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:32:51 -0800 (PST)
+        with ESMTP id S232430AbjCGSWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:22:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B61A5AB08A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:16:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DD8661517
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A54C433D2;
-        Tue,  7 Mar 2023 17:32:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7460FB81851
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:16:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7F8AC433EF;
+        Tue,  7 Mar 2023 18:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678210370;
-        bh=hSHw0+w3LFQi4ksALU05R/0a2ukRR5E/U/EYVxDLyQs=;
+        s=korg; t=1678212967;
+        bh=fXzPbYK1dAhC782/uLVcdJd9IvDRrR+9sqOWzIGsKgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9j+1+bS1Npd4njQCl0JD4Jda3TPeByYwtFOW7uNyI9P28mW08AfvJZ7LtF0F5G9F
-         HPTX7ZHIcHZ74AtMD3lnrAD/OcOxGh1vFexDWhNRH4iAHy4m3FX1rZWuEgv4a292w+
-         IlMviKxNXbjTLxkAebA6Kz1okVwCLhAqS0ldPkyY=
+        b=QN0z+sXN+bDlWosz9LBpWkWQfQh+Pe4V2m1HybdWkkJDVuw25Xm4j09tGrfRCmi7H
+         HoFd7nrAZdcCZi01ih+nucKhGWkf3//vqcYfY6uVVpJoPDn8lOzzkmJsD1lYOZz5Sx
+         GskEKjoDPpmDy5/sxf4W8TTHGwiwfpBts9REG0+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
+        patches@lists.linux.dev, Kursad Oney <kursad.oney@broadcom.com>,
+        William Zhang <william.zhang@broadcom.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0518/1001] firmware: stratix10-svc: fix error handle while alloc/add device failed
+Subject: [PATCH 6.1 356/885] spi: bcm63xx-hsspi: Endianness fix for ARM based SoC
 Date:   Tue,  7 Mar 2023 17:54:50 +0100
-Message-Id: <20230307170043.921825951@linuxfoundation.org>
+Message-Id: <20230307170017.732793023@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: William Zhang <william.zhang@broadcom.com>
 
-[ Upstream commit d66a4c20ae55ac88136b4a3befd944c093ffa677 ]
+[ Upstream commit 85a84a61699990db6a025b5073f337f49933a875 ]
 
-If add device "stratix10-rsu" failed in stratix10_svc_drv_probe(),
-the 'svc_fifo' and 'genpool' need be freed in the error path.
+HSSPI controller uses big endian for the opcode in the message to the
+controller ping pong buffer. Use cpu_to_be16 to properly handle the
+endianness for both big and little endian host.
 
-If allocate or add device "intel-fcs" failed in stratix10_svc_drv_probe(),
-the device "stratix10-rsu" need be unregistered in the error path.
+Fixes: 142168eba9dc ("spi: bcm63xx-hsspi: add bcm63xx HSSPI driver")
+Signed-off-by: Kursad Oney <kursad.oney@broadcom.com>
+Signed-off-by: William Zhang <william.zhang@broadcom.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 
-Fixes: e6281c26674e ("firmware: stratix10-svc: Add support for FCS")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20221129163602.462369-2-dinguyen@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230207065826.285013-7-william.zhang@broadcom.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/stratix10-svc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/spi/spi-bcm63xx-hsspi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index 1a5640b3ab422..bde1f543f5298 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -1202,19 +1202,20 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 	ret = platform_device_add(svc->stratix10_svc_rsu);
- 	if (ret) {
- 		platform_device_put(svc->stratix10_svc_rsu);
--		return ret;
-+		goto err_free_kfifo;
- 	}
+diff --git a/drivers/spi/spi-bcm63xx-hsspi.c b/drivers/spi/spi-bcm63xx-hsspi.c
+index b871fd810d801..a74345ed0e2ff 100644
+--- a/drivers/spi/spi-bcm63xx-hsspi.c
++++ b/drivers/spi/spi-bcm63xx-hsspi.c
+@@ -194,7 +194,7 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
+ 			tx += curr_step;
+ 		}
  
- 	svc->intel_svc_fcs = platform_device_alloc(INTEL_FCS, 1);
- 	if (!svc->intel_svc_fcs) {
- 		dev_err(dev, "failed to allocate %s device\n", INTEL_FCS);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto err_unregister_dev;
- 	}
+-		__raw_writew(opcode | curr_step, bs->fifo);
++		__raw_writew((u16)cpu_to_be16(opcode | curr_step), bs->fifo);
  
- 	ret = platform_device_add(svc->intel_svc_fcs);
- 	if (ret) {
- 		platform_device_put(svc->intel_svc_fcs);
--		return ret;
-+		goto err_unregister_dev;
- 	}
- 
- 	dev_set_drvdata(dev, svc);
-@@ -1223,6 +1224,8 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+err_unregister_dev:
-+	platform_device_unregister(svc->stratix10_svc_rsu);
- err_free_kfifo:
- 	kfifo_free(&controller->svc_fifo);
- err_destroy_pool:
+ 		/* enable interrupt */
+ 		__raw_writel(HSSPI_PINGx_CMD_DONE(0),
 -- 
 2.39.2
 
