@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15EB06AF4F4
+	by mail.lfdr.de (Postfix) with ESMTP id F1B616AF4F5
 	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:21:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234000AbjCGTV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:21:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53770 "EHLO
+        id S229786AbjCGTV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:21:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229761AbjCGTVG (ORCPT
+        with ESMTP id S229996AbjCGTVG (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:21:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A118EA0F2E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:05:09 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57163A1888
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 11:05:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63B5DB8117B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:05:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83B9C4339B;
-        Tue,  7 Mar 2023 19:05:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E43AF6150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 19:05:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAF8AC433D2;
+        Tue,  7 Mar 2023 19:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215907;
-        bh=lEwzfpSD2IU7div+wZeU2a7iSTYXYJh1Caotb58PDtM=;
+        s=korg; t=1678215910;
+        bh=T4feDgcuhg7T+GZCRzZ14pz9YlRsMzRXx8vNiuHTS30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=etGQS0yhH8ESfK92trIQx/wio26m/tosuwBY+R89vK65nSZYUD6p0NSEYucyl7PZH
-         t3Vwq4Nj0FY2K7gvkjuo3ZOvnJ0UVoJrh4jkM+tZB0V43wfd50Hr/3kkxETeWcuADe
-         4doX6hPuPOT3FcSu0Fp36hNGp1bWpOvATPhD158Q=
+        b=F+nqcyi4tK8leLEbDOTPSGKNMfxCOnAwVz/ObHspyQLJDYl+783UHSHkTH0L6Hb8O
+         Nh3BV9b5Aqo341LGL7Ir+8byytsesjOz6d+22wznOLP2KO/dJxDXW6s+KY5ygl2cBZ
+         +QhBkB5U7aMsdP8ANb8dWzHEK4c7qeDhrxeD1F2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jakob Koschel <jkl820.git@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
+        patches@lists.linux.dev, Shinhyung Kang <s47.kang@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 413/567] docs/scripts/gdb: add necessary make scripts_gdb step
-Date:   Tue,  7 Mar 2023 18:02:29 +0100
-Message-Id: <20230307165923.762465384@linuxfoundation.org>
+Subject: [PATCH 5.15 414/567] ASoC: soc-compress: Reposition and add pcm_mutex
+Date:   Tue,  7 Mar 2023 18:02:30 +0100
+Message-Id: <20230307165923.808717178@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,44 +54,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jkl820.git@gmail.com>
+From: 강신형 <s47.kang@samsung.com>
 
-[ Upstream commit 6b219431037bf98c9efd49716aea9b68440477a3 ]
+[ Upstream commit aa9ff6a4955fdba02b54fbc4386db876603703b7 ]
 
-In order to debug the kernel successfully with gdb you need to run
-'make scripts_gdb' nowadays.
+If panic_on_warn is set and compress stream(DPCM) is started,
+then kernel panic occurred because card->pcm_mutex isn't held appropriately.
+In the following functions, warning were issued at this line
+"snd_soc_dpcm_mutex_assert_held".
 
-This was changed with the following commit:
+static int dpcm_be_connect(struct snd_soc_pcm_runtime *fe,
+		struct snd_soc_pcm_runtime *be, int stream)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-Commit 67274c083438340ad16c ("scripts/gdb: delay generation of gdb
-constants.py")
+void dpcm_be_disconnect(struct snd_soc_pcm_runtime *fe, int stream)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
 
-In order to have a complete guide for beginners this remark
-should be added to the offial documentation.
+void snd_soc_runtime_action(struct snd_soc_pcm_runtime *rtd,
+			    int stream, int action)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(rtd);
+	...
+}
 
-Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
-Link: https://lore.kernel.org/r/20230112-documentation-gdb-v2-1-292785c43dc9@gmail.com
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+int dpcm_dapm_stream_event(struct snd_soc_pcm_runtime *fe, int dir,
+	int event)
+{
+	...
+	snd_soc_dpcm_mutex_assert_held(fe);
+	...
+}
+
+These functions are called by soc_compr_set_params_fe, soc_compr_open_fe
+and soc_compr_free_fe
+without pcm_mutex locking. And this is call stack.
+
+[  414.527841][ T2179] pc : dpcm_process_paths+0x5a4/0x750
+[  414.527848][ T2179] lr : dpcm_process_paths+0x37c/0x750
+[  414.527945][ T2179] Call trace:
+[  414.527949][ T2179]  dpcm_process_paths+0x5a4/0x750
+[  414.527955][ T2179]  soc_compr_open_fe+0xb0/0x2cc
+[  414.527972][ T2179]  snd_compr_open+0x180/0x248
+[  414.527981][ T2179]  snd_open+0x15c/0x194
+[  414.528003][ T2179]  chrdev_open+0x1b0/0x220
+[  414.528023][ T2179]  do_dentry_open+0x30c/0x594
+[  414.528045][ T2179]  vfs_open+0x34/0x44
+[  414.528053][ T2179]  path_openat+0x914/0xb08
+[  414.528062][ T2179]  do_filp_open+0xc0/0x170
+[  414.528068][ T2179]  do_sys_openat2+0x94/0x18c
+[  414.528076][ T2179]  __arm64_sys_openat+0x78/0xa4
+[  414.528084][ T2179]  invoke_syscall+0x48/0x10c
+[  414.528094][ T2179]  el0_svc_common+0xbc/0x104
+[  414.528099][ T2179]  do_el0_svc+0x34/0xd8
+[  414.528103][ T2179]  el0_svc+0x34/0xc4
+[  414.528125][ T2179]  el0t_64_sync_handler+0x8c/0xfc
+[  414.528133][ T2179]  el0t_64_sync+0x1a0/0x1a4
+[  414.528142][ T2179] Kernel panic - not syncing: panic_on_warn set ...
+
+So, I reposition and add pcm_mutex to resolve lockdep error.
+
+Signed-off-by: Shinhyung Kang <s47.kang@samsung.com>
+Link: https://lore.kernel.org/r/016401d90ac4$7b6848c0$7238da40$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/dev-tools/gdb-kernel-debugging.rst | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/soc-compress.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/dev-tools/gdb-kernel-debugging.rst b/Documentation/dev-tools/gdb-kernel-debugging.rst
-index 8e0f1fe8d17ad..895285c037c72 100644
---- a/Documentation/dev-tools/gdb-kernel-debugging.rst
-+++ b/Documentation/dev-tools/gdb-kernel-debugging.rst
-@@ -39,6 +39,10 @@ Setup
-   this mode. In this case, you should build the kernel with
-   CONFIG_RANDOMIZE_BASE disabled if the architecture supports KASLR.
+diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
+index e352b06a7b7a3..c2703a7598dd5 100644
+--- a/sound/soc/soc-compress.c
++++ b/sound/soc/soc-compress.c
+@@ -116,6 +116,8 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
+ 	if (ret < 0)
+ 		goto be_err;
  
-+- Build the gdb scripts (required on kernels v5.1 and above)::
++	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
 +
-+    make scripts_gdb
-+
- - Enable the gdb stub of QEMU/KVM, either
+ 	/* calculate valid and active FE <-> BE dpcms */
+ 	dpcm_process_paths(fe, stream, &list, 1);
+ 	fe->dpcm[stream].runtime = fe_substream->runtime;
+@@ -151,7 +153,6 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
+ 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_OPEN;
+ 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_NO;
  
-     - at VM startup time by appending "-s" to the QEMU command line
+-	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	snd_soc_runtime_activate(fe, stream);
+ 	mutex_unlock(&fe->card->pcm_mutex);
+ 
+@@ -182,7 +183,6 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
+ 
+ 	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	snd_soc_runtime_deactivate(fe, stream);
+-	mutex_unlock(&fe->card->pcm_mutex);
+ 
+ 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_FE;
+ 
+@@ -201,6 +201,8 @@ static int soc_compr_free_fe(struct snd_compr_stream *cstream)
+ 
+ 	dpcm_be_disconnect(fe, stream);
+ 
++	mutex_unlock(&fe->card->pcm_mutex);
++
+ 	fe->dpcm[stream].runtime = NULL;
+ 
+ 	snd_soc_link_compr_shutdown(cstream, 0);
+@@ -376,8 +378,9 @@ static int soc_compr_set_params_fe(struct snd_compr_stream *cstream,
+ 	ret = snd_soc_link_compr_set_params(cstream);
+ 	if (ret < 0)
+ 		goto out;
+-
++	mutex_lock_nested(&fe->card->pcm_mutex, fe->card->pcm_subclass);
+ 	dpcm_dapm_stream_event(fe, stream, SND_SOC_DAPM_STREAM_START);
++	mutex_unlock(&fe->card->pcm_mutex);
+ 	fe->dpcm[stream].state = SND_SOC_DPCM_STATE_PREPARE;
+ 
+ out:
 -- 
 2.39.2
 
