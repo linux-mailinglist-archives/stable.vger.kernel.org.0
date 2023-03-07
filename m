@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A806AED72
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 762916AF25C
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231732AbjCGSEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:04:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43720 "EHLO
+        id S231533AbjCGSwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:52:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231783AbjCGSED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:04:03 -0500
+        with ESMTP id S233350AbjCGSwP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3023974BF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AC1ABB37
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B1D861507
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2234FC433EF;
-        Tue,  7 Mar 2023 17:56:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7570761543
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C17C4339C;
+        Tue,  7 Mar 2023 18:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211813;
-        bh=DAPalmKRd3jRAbkx9AfPcgoQr/ovQMCcdn9B9eZpwjk=;
+        s=korg; t=1678214440;
+        bh=UinLDplfNE5WubGvWzNS3vagqmC+AYzuy3EsBSKVgN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJacVKmC732VOiZZtQmULnCixNF5DTt/E/IsszWG+5F8RBBr0dGv/pTrGP/IukhUd
-         WfjK1eEa8JuATpmKYcOfnNWNr+teW4ojzLm91ZlxgvsTfO8ya89f+4HJ6q57ypT8oq
-         geNpza+GR+DTC9GaWZCvs/nbpBlhVuyM1UdHtFNM=
+        b=kpXCvhNYDZj3MN5tGymJObpr2mfm+wE9+VrShfcX2aAbuDL6iKqvcICkHkPSg/MIL
+         qDuyx/iovMfmj7M77eEsWhvxSg4G38CbsY9olcjWHUSuf28+uX6cTMGGm845LogKRl
+         F6so2mw9vKL/Gmop7Upc2QxEwXhNkw0wBSx4qCq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 6.2 0985/1001] bus: mhi: ep: Save channel state locally during suspend and resume
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Feng Tang <feng.tang@intel.com>,
+        HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
+        Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>,
+        Kees Cook <keescook@chromium.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 823/885] panic: fix the panic_print NMI backtrace setting
 Date:   Tue,  7 Mar 2023 18:02:37 +0100
-Message-Id: <20230307170104.978284720@linuxfoundation.org>
+Message-Id: <20230307170037.620692740@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +62,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-commit 8a1c24bb908f9ecbc4be0fea014df67d43161551 upstream.
+commit b905039e428d639adeebb719b76f98865ea38d4d upstream.
 
-During suspend and resume, the channel state needs to be saved locally.
-Otherwise, the endpoint may access the channels while they were being
-suspended and causing access violations.
+Commit 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in
+panic_print") introduced a setting for the "panic_print" kernel parameter
+to allow users to request a NMI backtrace on panic.  Problem is that the
+panic_print handling happens after the secondary CPUs are already
+disabled, hence this option ended-up being kind of a no-op - kernel skips
+the NMI trace in idling CPUs, which is the case of offline CPUs.
 
-Fix it by saving the channel state locally during suspend and resume.
+Fix it by checking the NMI backtrace bit in the panic_print prior to the
+CPU disabling function.
 
-Cc: <stable@vger.kernel.org> # 5.19
-Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com)
-Link: https://lore.kernel.org/r/20221228161704.255268-7-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lkml.kernel.org/r/20230226160838.414257-1-gpiccoli@igalia.com
+Fixes: 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in panic_print")
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Cc: <stable@vger.kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+Cc: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/ep/main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/panic.c |   44 ++++++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 18 deletions(-)
 
---- a/drivers/bus/mhi/ep/main.c
-+++ b/drivers/bus/mhi/ep/main.c
-@@ -1136,6 +1136,7 @@ void mhi_ep_suspend_channels(struct mhi_
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -211,9 +211,6 @@ static void panic_print_sys_info(bool co
+ 		return;
+ 	}
  
- 		dev_dbg(&mhi_chan->mhi_dev->dev, "Suspending channel\n");
- 		/* Set channel state to SUSPENDED */
-+		mhi_chan->state = MHI_CH_STATE_SUSPENDED;
- 		tmp &= ~CHAN_CTX_CHSTATE_MASK;
- 		tmp |= FIELD_PREP(CHAN_CTX_CHSTATE_MASK, MHI_CH_STATE_SUSPENDED);
- 		mhi_cntrl->ch_ctx_cache[i].chcfg = cpu_to_le32(tmp);
-@@ -1165,6 +1166,7 @@ void mhi_ep_resume_channels(struct mhi_e
+-	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
+-		trigger_all_cpu_backtrace();
+-
+ 	if (panic_print & PANIC_PRINT_TASK_INFO)
+ 		show_state();
  
- 		dev_dbg(&mhi_chan->mhi_dev->dev, "Resuming channel\n");
- 		/* Set channel state to RUNNING */
-+		mhi_chan->state = MHI_CH_STATE_RUNNING;
- 		tmp &= ~CHAN_CTX_CHSTATE_MASK;
- 		tmp |= FIELD_PREP(CHAN_CTX_CHSTATE_MASK, MHI_CH_STATE_RUNNING);
- 		mhi_cntrl->ch_ctx_cache[i].chcfg = cpu_to_le32(tmp);
+@@ -243,6 +240,30 @@ void check_panic_on_warn(const char *ori
+ 		      origin, limit);
+ }
+ 
++/*
++ * Helper that triggers the NMI backtrace (if set in panic_print)
++ * and then performs the secondary CPUs shutdown - we cannot have
++ * the NMI backtrace after the CPUs are off!
++ */
++static void panic_other_cpus_shutdown(bool crash_kexec)
++{
++	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
++		trigger_all_cpu_backtrace();
++
++	/*
++	 * Note that smp_send_stop() is the usual SMP shutdown function,
++	 * which unfortunately may not be hardened to work in a panic
++	 * situation. If we want to do crash dump after notifier calls
++	 * and kmsg_dump, we will need architecture dependent extra
++	 * bits in addition to stopping other CPUs, hence we rely on
++	 * crash_smp_send_stop() for that.
++	 */
++	if (!crash_kexec)
++		smp_send_stop();
++	else
++		crash_smp_send_stop();
++}
++
+ /**
+  *	panic - halt the system
+  *	@fmt: The text string to print
+@@ -333,23 +354,10 @@ void panic(const char *fmt, ...)
+ 	 *
+ 	 * Bypass the panic_cpu check and call __crash_kexec directly.
+ 	 */
+-	if (!_crash_kexec_post_notifiers) {
++	if (!_crash_kexec_post_notifiers)
+ 		__crash_kexec(NULL);
+ 
+-		/*
+-		 * Note smp_send_stop is the usual smp shutdown function, which
+-		 * unfortunately means it may not be hardened to work in a
+-		 * panic situation.
+-		 */
+-		smp_send_stop();
+-	} else {
+-		/*
+-		 * If we want to do crash dump after notifier calls and
+-		 * kmsg_dump, we will need architecture dependent extra
+-		 * works in addition to stopping other CPUs.
+-		 */
+-		crash_smp_send_stop();
+-	}
++	panic_other_cpus_shutdown(_crash_kexec_post_notifiers);
+ 
+ 	/*
+ 	 * Run any panic handlers, including those that might need to
 
 
