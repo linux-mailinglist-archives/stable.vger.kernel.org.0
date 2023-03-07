@@ -2,91 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92DFF6AF9FE
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 00:02:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 474366AFA0C
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 00:06:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbjCGXC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 18:02:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56968 "EHLO
+        id S229536AbjCGXG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 18:06:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230078AbjCGXCH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 18:02:07 -0500
-Received: from soltyk.jannau.net (soltyk.jannau.net [144.76.91.90])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90BA75F6CF;
-        Tue,  7 Mar 2023 14:59:58 -0800 (PST)
-Received: from robin.home.jannau.net (p54accbe8.dip0.t-ipconnect.de [84.172.203.232])
-        by soltyk.jannau.net (Postfix) with ESMTPSA id E283A26F88D;
-        Tue,  7 Mar 2023 23:59:56 +0100 (CET)
-From:   Janne Grunau <j@jannau.net>
-Date:   Tue, 07 Mar 2023 23:59:50 +0100
-Subject: [PATCH] PCI: apple: Set only available ports up
+        with ESMTP id S229484AbjCGXG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 18:06:27 -0500
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC1815650D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 15:06:25 -0800 (PST)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-176e43eb199so6802263fac.7
+        for <stable@vger.kernel.org>; Tue, 07 Mar 2023 15:06:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678230385;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=i4NnWmVrfipQoeKXWkdNzmEKC40JzLC7LeWlUBU0CRQ=;
+        b=VnifkjUvxJV3d4n82jTit8gSkclzz5I7Et4zjBwcehfib/+6KB+8dzIHYfRRj6Akgv
+         v1WkxSp6lmmC+dwXz5yKAIUpz+8aNUh5c1UIy2qbbduuYfXuUkIm/3FiJcauJ2hLzNg5
+         1jtCqbRACTbd5ZlBzy0saJXDIlDvDvnZ7vqFQNj5RtqBWnHWkBU1/K9gXP8hQkMgsPFa
+         CS3vgcN0X9AWxSjKkHLGfL8u7Kn6C/Tc3Dr5djiIA1vCkMoFyCjMk2V3XNmm5WLRmtVS
+         iRFIpAa2exC9dPUvQpJrzYzJxxO37q7oEHAsVQ8SSWhU05B8AnATN0AaVY3WDDZqk15x
+         6gAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678230385;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=i4NnWmVrfipQoeKXWkdNzmEKC40JzLC7LeWlUBU0CRQ=;
+        b=h61XjJq1wkmJL4T5QSt+iz5FfiCTluEpVY+s7ew9ceMmwBAF/myoDMz6e94ArXgrh8
+         3dEEAAubDz3/dAyjTx3eHTMn9njnLpEpC4nPRz69Hc2L9FY1U6aaurOiXIrk69XgHLby
+         dBuK0J/UA4+cJqCR1J4sUWjgqLFkq77g8LvK2loIjEshg9ytlybhGOhcD4om+BjoTmh7
+         jdU2zeokzYbmzQHXlUbgToS8jNmhoNpQ0syS2JxGO5UBawmC1CU5WXwdm84NOLPmov5J
+         h/42qKLvbGXZZlgAN5fxX1r0MhxhyJF6U/reda4Yd0jWWC/c0B0ppQoX2AoAk1DeVh5V
+         e/nQ==
+X-Gm-Message-State: AO0yUKWbQURnM2foZT/0KFQwf69Y3Bp2aUL4CLyhZ33N5Q3/fOX5bBtD
+        EvqsK+GMFXvjXp8cxQLmAg513g==
+X-Google-Smtp-Source: AK7set+aO4+g18qWuChV6ZR6WBv6Bi9+GAkzIIOEQeQMh5eeRdeq1qv4OJjhpO9Y7aPNO8nKhDkwvQ==
+X-Received: by 2002:a05:6870:524b:b0:176:438b:a8e2 with SMTP id o11-20020a056870524b00b00176438ba8e2mr11514872oai.33.1678230385189;
+        Tue, 07 Mar 2023 15:06:25 -0800 (PST)
+Received: from [192.168.17.16] ([189.219.75.19])
+        by smtp.gmail.com with ESMTPSA id v3-20020a4aad83000000b00524faf3d2d7sm5429603oom.41.2023.03.07.15.06.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Mar 2023 15:06:24 -0800 (PST)
+Message-ID: <c1bc24d9-0977-4d7e-bee8-aa897b1cb435@linaro.org>
+Date:   Tue, 7 Mar 2023 17:06:23 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230307-apple_pcie_disabled_ports-v1-1-b32ef91faf19@jannau.net>
-X-B4-Tracking: v=1; b=H4sIAOXBB2QC/x2OUQrDIBAFrxL87hY1pYZepRRZdVMXghFXSiHk7
- k36OfDmMZsSakyiHsOmGn1YeC0HmMugYsbyJuB0sLLajnrUDrDWhXyNTD6xYFgo+bq2LqCjcXN
- weHPjpA4/oBCEhiXm8wEFM8P9asH4PhljIfVzVhvN/P0nPF/7/gPJGbNtkgAAAA==
-To:     Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-        Marc Zyngier <maz@kernel.org>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        =?utf-8?q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
-        Rob Herring <robh@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Cc:     Sven Peter <sven@svenpeter.dev>, linux-pci@vger.kernel.org,
-        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH 5.15 000/567] 5.15.99-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
-X-Mailer: b4 0.12.2-dev-4f8ba
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1425; i=j@jannau.net;
- h=from:subject:message-id; bh=l9OFnjvz5hSLpKVP1Knu7cPVnfzmd8YSULsFW4CMVGk=;
- b=owGbwMvMwCG2UNrmdq9+ahrjabUkhhT2g29ObHdp+FD/Z29UeARP3s0dVl+5j8pMdjrC7p9ju
- rFumkx7RykLgxgHg6yYIkuS9ssOhtU1ijG1D8Jg5rAygQxh4OIUgIlMOczIMHX9vjwmlYQGN0Mt
- lsUyBfvPvr+lsfac+qOEeEUG1+KAewz/K76lvmLOZbSdxifixcq4btqOC399Lyz1vHODk/XTiaJ
- J7AA=
-X-Developer-Key: i=j@jannau.net; a=openpgp;
- fpr=8B336A6BE4E5695E89B8532B81E806F586338419
-X-Spam-Status: No, score=-0.4 required=5.0 tests=BAYES_00,RCVD_IN_SORBS_WEB,
-        SPF_HELO_NONE,SPF_NONE autolearn=no autolearn_force=no version=3.4.6
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230307165905.838066027@linuxfoundation.org>
+Content-Language: en-US
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fixes "interrupt-map" parsing in of_irq_parse_raw() which takes the
-node's availability into account.
+Hello!
 
-This became apparent after disabling unused PCIe ports in the Apple
-silicon device trees instead of disabling them.
+On 07/03/23 10:55, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.99 release.
+> There are 567 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 09 Mar 2023 16:57:34 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.99-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Link: https://lore.kernel.org/asahi/20230214-apple_dts_pcie_disable_unused-v1-0-5ea0d3ddcde3@jannau.net/
-Link: https://lore.kernel.org/asahi/1ea2107a-bb86-8c22-0bbc-82c453ab08ce@linaro.org/
-Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
-Cc: stable@vger.kernel.org
-Signed-off-by: Janne Grunau <j@jannau.net>
----
- drivers/pci/controller/pcie-apple.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+We see Perf failing to compile on: arm, arm64, i386, x86_64, under OpenEmbedded (GCC 11.3) when building for the following machines:
+* Dragonboard 410c (arm64)
+* Dragonboard 845c (arm64)
+* Juno (arm64)
+* X15 (arm)
+* intel-core2-32 (i386)
+* intel-corei7-64 (x86_64)
 
-diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
-index 66f37e403a09..f8670a032f7a 100644
---- a/drivers/pci/controller/pcie-apple.c
-+++ b/drivers/pci/controller/pcie-apple.c
-@@ -783,7 +783,7 @@ static int apple_pcie_init(struct pci_config_window *cfg)
- 	cfg->priv = pcie;
- 	INIT_LIST_HEAD(&pcie->ports);
- 
--	for_each_child_of_node(dev->of_node, of_port) {
-+	for_each_available_child_of_node(dev->of_node, of_port) {
- 		ret = apple_pcie_setup_port(pcie, of_port);
- 		if (ret) {
- 			dev_err(pcie->dev, "Port %pOF setup fail: %d\n", of_port, ret);
+Error:
+-----8<-----
+util/intel-pt-decoder/intel-pt-decoder.c: In function 'intel_pt_eptw_lookahead_cb':
+util/intel-pt-decoder/intel-pt-decoder.c:1445:7: error: 'INTEL_PT_CFE' undeclared (first use in this function); did you mean 'INTEL_PT_CBR'?
+  1445 |  case INTEL_PT_CFE:
+       |       ^~~~~~~~~~~~
+       |       INTEL_PT_CBR
+util/intel-pt-decoder/intel-pt-decoder.c:1445:7: note: each undeclared identifier is reported only once for each function it appears in
+util/intel-pt-decoder/intel-pt-decoder.c:1446:7: error: 'INTEL_PT_CFE_IP' undeclared (first use in this function); did you mean 'INTEL_PT_BEP_IP'?
+  1446 |  case INTEL_PT_CFE_IP:
+       |       ^~~~~~~~~~~~~~~
+       |       INTEL_PT_BEP_IP
+util/intel-pt-decoder/intel-pt-decoder.c:1447:7: error: 'INTEL_PT_EVD' undeclared (first use in this function); did you mean 'INTEL_PT_OVF'?
+  1447 |  case INTEL_PT_EVD:
+       |       ^~~~~~~~~~~~
+       |       INTEL_PT_OVF
+----->8-----
 
----
-base-commit: c9c3395d5e3dcc6daee66c6908354d47bf98cb0c
-change-id: 20230307-apple_pcie_disabled_ports-0c17fb7a4738
+Additionally, we see this same problem outside of OpenEmbedded but only on arm (32-bits), because in all other cases it fails to build at an earlier point with the already reported problem of init_disassemble_info() [1][2], so it's very likely to be there too on all architectures.
 
-Best regards,
--- 
-Janne Grunau <j@jannau.net>
+[1] https://lore.kernel.org/all/CAEUSe7-vBpHrbEy+eQrNZ_LTeqHpn2eQEr3C7cmfNYjK1YL4Ww@mail.gmail.com/
+[2] https://lore.kernel.org/all/e6e2df31-6327-f2ad-3049-0cbfa214ae5c@hauke-m.de/
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
 
