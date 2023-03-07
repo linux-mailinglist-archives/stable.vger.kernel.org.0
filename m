@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 855B66AEBED
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:50:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4DC6AF0FE
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:37:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232229AbjCGRud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:50:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41136 "EHLO
+        id S232825AbjCGShT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:37:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbjCGRuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:50:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA53231ED
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:44:52 -0800 (PST)
+        with ESMTP id S233382AbjCGSgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:36:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B09F9E052
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:28:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D857AB81851
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F05B0C4339B;
-        Tue,  7 Mar 2023 17:44:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38BFC61540
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:28:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15FE1C433A1;
+        Tue,  7 Mar 2023 18:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211089;
-        bh=eiyPRHTKbFMhk/WfNo54jTafuAH6RpDmIKMet5d2GsI=;
+        s=korg; t=1678213692;
+        bh=0UrN5Ya4jNeVaBqvPSKD6LjakYrw8VQiuRe0x97UxME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmoGCQmx8SwIzaPT646FlkCw6zbe+KKfqqfUw/FHLWSX/S+CYOSOB+Rwn0up/eZ5S
-         EKp1UDT6emh1KrTdYWz+D3TpG/bD2ueYQjuwgkUjN3zLEarQHihPv/KCUsMrSs3Q3q
-         jHB1Mwq2DglxYV5SmAPZrpiS/8RFDNqJfv8Ik2NM=
+        b=X9R+7CNj5sn5T21//MwJ8funO3DXaWTJ2RTEbtTMRmQQcoaWJeKqkBZLWtgKBe3uo
+         IrdR9p+T3aUXu962g321x36xI9Xt4qeIurbUz10fMaVr3yZIw0B1GkPNbGxhpmUOkk
+         LkHU1gP4iSta1TxhMbsjLFk2Dm/Y/4u3aU5deWCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        David Collins <quic_collinsd@quicinc.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 6.2 0749/1001] rtc: pm8xxx: fix set-alarm race
-Date:   Tue,  7 Mar 2023 17:58:41 +0100
-Message-Id: <20230307170054.225071429@linuxfoundation.org>
+        patches@lists.linux.dev, Michael Kelley <mikelley@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 588/885] hv_netvsc: Check status in SEND_RNDIS_PKT completion message
+Date:   Tue,  7 Mar 2023 17:58:42 +0100
+Message-Id: <20230307170027.933276710@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Michael Kelley <mikelley@microsoft.com>
 
-commit c88db0eff9722fc2b6c4d172a50471d20e08ecc6 upstream.
+[ Upstream commit dca5161f9bd052e9e73be90716ffd57e8762c697 ]
 
-Make sure to disable the alarm before updating the four alarm time
-registers to avoid spurious alarms during the update.
+Completion responses to SEND_RNDIS_PKT messages are currently processed
+regardless of the status in the response, so that resources associated
+with the request are freed.  While this is appropriate, code bugs that
+cause sending a malformed message, or errors on the Hyper-V host, go
+undetected. Fix this by checking the status and outputting a rate-limited
+message if there is an error.
 
-Note that the disable needs to be done outside of the ctrl_reg_lock
-section to prevent a racing alarm interrupt from disabling the newly set
-alarm when the lock is released.
-
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Cc: stable@vger.kernel.org      # 3.1
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: David Collins <quic_collinsd@quicinc.com>
-Link: https://lore.kernel.org/r/20230202155448.6715-2-johan+linaro@kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Link: https://lore.kernel.org/r/1676264881-48928-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c |   24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/net/hyperv/netvsc.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -221,7 +221,6 @@ static int pm8xxx_rtc_set_alarm(struct d
- {
- 	int rc, i;
- 	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned int ctrl_reg;
- 	unsigned long secs, irq_flags;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-@@ -233,6 +232,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		secs >>= 8;
- 	}
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index 79f4e13620a46..da737d959e81c 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -851,6 +851,7 @@ static void netvsc_send_completion(struct net_device *ndev,
+ 	u32 msglen = hv_pkt_datalen(desc);
+ 	struct nvsp_message *pkt_rqst;
+ 	u64 cmd_rqst;
++	u32 status;
  
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+				regs->alarm_en, 0);
-+	if (rc)
-+		return rc;
+ 	/* First check if this is a VMBUS completion without data payload */
+ 	if (!msglen) {
+@@ -922,6 +923,23 @@ static void netvsc_send_completion(struct net_device *ndev,
+ 		break;
+ 
+ 	case NVSP_MSG1_TYPE_SEND_RNDIS_PKT_COMPLETE:
++		if (msglen < sizeof(struct nvsp_message_header) +
++		    sizeof(struct nvsp_1_message_send_rndis_packet_complete)) {
++			if (net_ratelimit())
++				netdev_err(ndev, "nvsp_rndis_pkt_complete length too small: %u\n",
++					   msglen);
++			return;
++		}
 +
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
- 
- 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
-@@ -242,19 +246,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		goto rtc_rw_fail;
- 	}
- 
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
--	if (rc)
--		goto rtc_rw_fail;
--
--	if (alarm->enabled)
--		ctrl_reg |= regs->alarm_en;
--	else
--		ctrl_reg &= ~regs->alarm_en;
--
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
--	if (rc) {
--		dev_err(dev, "Write to RTC alarm control register failed\n");
--		goto rtc_rw_fail;
-+	if (alarm->enabled) {
-+		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+					regs->alarm_en, regs->alarm_en);
-+		if (rc)
-+			goto rtc_rw_fail;
- 	}
- 
- 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
++		/* If status indicates an error, output a message so we know
++		 * there's a problem. But process the completion anyway so the
++		 * resources are released.
++		 */
++		status = nvsp_packet->msg.v1_msg.send_rndis_pkt_complete.status;
++		if (status != NVSP_STAT_SUCCESS && net_ratelimit())
++			netdev_err(ndev, "nvsp_rndis_pkt_complete error status: %x\n",
++				   status);
++
+ 		netvsc_send_tx_complete(ndev, net_device, incoming_channel,
+ 					desc, budget);
+ 		break;
+-- 
+2.39.2
+
 
 
