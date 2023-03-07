@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0BF6AED0D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 990816AF21E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:50:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230521AbjCGSAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:00:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35766 "EHLO
+        id S233314AbjCGSug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:50:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232385AbjCGSA2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:00:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C3792BEB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:54:31 -0800 (PST)
+        with ESMTP id S233313AbjCGSuJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:50:09 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4D29F077
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:38:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED91EB818F6
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234EAC433D2;
-        Tue,  7 Mar 2023 17:54:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3CBD0CE1C93
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:37:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB5EDC433D2;
+        Tue,  7 Mar 2023 18:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211668;
-        bh=gq02DswUiICYcpZAVT4by6ofriE+TCB6Gbc1Uux5ID4=;
+        s=korg; t=1678214269;
+        bh=Yb4KOOaeUasvjjAxR5OmJBqzmUwcYCO78lISU59jhCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFp5LesgVcViSEleL3FuthnJJUbPuQ0P2mIY9rhFJk8/5veaGGCj4ITo9nla/nlE2
-         rsohCxu4vNvs4uXPKx6Eg3q/zPNCBIoHQ6co31Ib3C8wDUwxRVr4W6SGjsGPlUNeeH
-         VayXwAC1paxkBRhf6fUH5qVLF48YUs0rECNfoIKo=
+        b=xYNclkeWvKw1RK2rbsiQRLnZyF0fxWGwCHrx7fEuLCCCWTXykjsfgVy0MYNdJ9YLO
+         CeJuVaWnr7yo2C0cUdReN+oQw+vzHZQ3RMUWvmkv1dWJyXbbHW/hpLuUIBMGBcMRId
+         CEhkLwlLgYGBNObT5Ye+eyD1OsfyMxq/9FQND5pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Richard Henderson <rth@twiddle.net>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 6.2 0938/1001] alpha: fix FEN fault handling
+        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 6.1 776/885] irqdomain: Look for existing mapping only once
 Date:   Tue,  7 Mar 2023 18:01:50 +0100
-Message-Id: <20230307170102.816454533@linuxfoundation.org>
+Message-Id: <20230307170035.650246296@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +55,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit 977a3009547dad4a5bc95d91be4a58c9f7eedac0 upstream.
+commit 6e6f75c9c98d2d246d90411ff2b6f0cd271f4cba upstream.
 
-Type 3 instruction fault (FPU insn with FPU disabled) is handled
-by quietly enabling FPU and returning.  Which is fine, except that
-we need to do that both for fault in userland and in the kernel;
-the latter *can* legitimately happen - all it takes is this:
+Avoid looking for an existing mapping twice when creating a new mapping
+using irq_create_fwspec_mapping() by factoring out the actual allocation
+which is shared with irq_create_mapping_affinity().
 
-.global _start
-_start:
-        call_pal 0xae
-	lda $0, 0
-	ldq $0, 0($0)
+The new helper function will also be used to fix a shared-interrupt
+mapping race, hence the Fixes tag.
 
-- call_pal CLRFEN to clear "FPU enabled" flag and arrange for
-a signal delivery (SIGSEGV in this case).
-
-Fixed by moving the handling of type 3 into the common part of
-do_entIF(), before we check for kernel vs. user mode.
-
-Incidentally, the check for kernel mode is unidiomatic; the normal
-way to do that is !user_mode(regs).  The difference is that
-the open-coded variant treats any of bits 63..3 of regs->ps being
-set as "it's user mode" while the normal approach is to check just
-the bit 3.  PS is a 4-bit register and regs->ps always will have
-bits 63..4 clear, so the open-coded variant here is actually equivalent
-to !user_mode(regs).  Harder to follow, though...
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Richard Henderson <rth@twiddle.net>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: b62b2cf5759b ("irqdomain: Fix handling of type settings for existing mappings")
+Cc: stable@vger.kernel.org      # 4.8
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-5-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/kernel/traps.c |   30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ kernel/irq/irqdomain.c |   60 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 33 insertions(+), 27 deletions(-)
 
---- a/arch/alpha/kernel/traps.c
-+++ b/arch/alpha/kernel/traps.c
-@@ -233,7 +233,21 @@ do_entIF(unsigned long type, struct pt_r
- {
- 	int signo, code;
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -682,6 +682,34 @@ unsigned int irq_create_direct_mapping(s
+ EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
+ #endif
  
--	if ((regs->ps & ~IPL_MAX) == 0) {
-+	if (type == 3) { /* FEN fault */
-+		/* Irritating users can call PAL_clrfen to disable the
-+		   FPU for the process.  The kernel will then trap in
-+		   do_switch_stack and undo_switch_stack when we try
-+		   to save and restore the FP registers.
++static unsigned int __irq_create_mapping_affinity(struct irq_domain *domain,
++						  irq_hw_number_t hwirq,
++						  const struct irq_affinity_desc *affinity)
++{
++	struct device_node *of_node = irq_domain_get_of_node(domain);
++	int virq;
 +
-+		   Given that GCC by default generates code that uses the
-+		   FP registers, PAL_clrfen is not useful except for DoS
-+		   attacks.  So turn the bleeding FPU back on and be done
-+		   with it.  */
-+		current_thread_info()->pcb.flags |= 1;
-+		__reload_thread(&current_thread_info()->pcb);
-+		return;
++	pr_debug("irq_create_mapping(0x%p, 0x%lx)\n", domain, hwirq);
++
++	/* Allocate a virtual interrupt number */
++	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
++				      affinity);
++	if (virq <= 0) {
++		pr_debug("-> virq allocation failed\n");
++		return 0;
 +	}
-+	if (!user_mode(regs)) {
- 		if (type == 1) {
- 			const unsigned int *data
- 			  = (const unsigned int *) regs->pc;
-@@ -366,20 +380,6 @@ do_entIF(unsigned long type, struct pt_r
- 		}
- 		break;
++
++	if (irq_domain_associate(domain, virq, hwirq)) {
++		irq_free_desc(virq);
++		return 0;
++	}
++
++	pr_debug("irq %lu on domain %s mapped to virtual irq %u\n",
++		hwirq, of_node_full_name(of_node), virq);
++
++	return virq;
++}
++
+ /**
+  * irq_create_mapping_affinity() - Map a hardware interrupt into linux irq space
+  * @domain: domain owning this hardware interrupt or NULL for default domain
+@@ -694,14 +722,11 @@ EXPORT_SYMBOL_GPL(irq_create_direct_mapp
+  * on the number returned from that call.
+  */
+ unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
+-				       irq_hw_number_t hwirq,
+-				       const struct irq_affinity_desc *affinity)
++					 irq_hw_number_t hwirq,
++					 const struct irq_affinity_desc *affinity)
+ {
+-	struct device_node *of_node;
+ 	int virq;
  
--	      case 3: /* FEN fault */
--		/* Irritating users can call PAL_clrfen to disable the
--		   FPU for the process.  The kernel will then trap in
--		   do_switch_stack and undo_switch_stack when we try
--		   to save and restore the FP registers.
+-	pr_debug("irq_create_mapping(0x%p, 0x%lx)\n", domain, hwirq);
 -
--		   Given that GCC by default generates code that uses the
--		   FP registers, PAL_clrfen is not useful except for DoS
--		   attacks.  So turn the bleeding FPU back on and be done
--		   with it.  */
--		current_thread_info()->pcb.flags |= 1;
--		__reload_thread(&current_thread_info()->pcb);
--		return;
+ 	/* Look for default domain if necessary */
+ 	if (domain == NULL)
+ 		domain = irq_default_domain;
+@@ -709,34 +734,15 @@ unsigned int irq_create_mapping_affinity
+ 		WARN(1, "%s(, %lx) called with NULL domain\n", __func__, hwirq);
+ 		return 0;
+ 	}
+-	pr_debug("-> using domain @%p\n", domain);
 -
- 	      case 5: /* illoc */
- 	      default: /* unexpected instruction-fault type */
- 		      ;
+-	of_node = irq_domain_get_of_node(domain);
+ 
+ 	/* Check if mapping already exists */
+ 	virq = irq_find_mapping(domain, hwirq);
+ 	if (virq) {
+-		pr_debug("-> existing mapping on virq %d\n", virq);
++		pr_debug("existing mapping on virq %d\n", virq);
+ 		return virq;
+ 	}
+ 
+-	/* Allocate a virtual interrupt number */
+-	virq = irq_domain_alloc_descs(-1, 1, hwirq, of_node_to_nid(of_node),
+-				      affinity);
+-	if (virq <= 0) {
+-		pr_debug("-> virq allocation failed\n");
+-		return 0;
+-	}
+-
+-	if (irq_domain_associate(domain, virq, hwirq)) {
+-		irq_free_desc(virq);
+-		return 0;
+-	}
+-
+-	pr_debug("irq %lu on domain %s mapped to virtual irq %u\n",
+-		hwirq, of_node_full_name(of_node), virq);
+-
+-	return virq;
++	return __irq_create_mapping_affinity(domain, hwirq, affinity);
+ }
+ EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
+ 
+@@ -841,7 +847,7 @@ unsigned int irq_create_fwspec_mapping(s
+ 			return 0;
+ 	} else {
+ 		/* Create mapping */
+-		virq = irq_create_mapping(domain, hwirq);
++		virq = __irq_create_mapping_affinity(domain, hwirq, NULL);
+ 		if (!virq)
+ 			return virq;
+ 	}
 
 
