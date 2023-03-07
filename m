@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC67E6AF452
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:16:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E3A16AF428
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 20:14:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233891AbjCGTQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 14:16:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
+        id S233860AbjCGTOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 14:14:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233866AbjCGTPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:15:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5783A615C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:59:15 -0800 (PST)
+        with ESMTP id S233848AbjCGTNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 14:13:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 383B9B5A9D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:57:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A928B8117B
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:59:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8866FC433EF;
-        Tue,  7 Mar 2023 18:59:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D276DB819CD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:57:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 334C2C433EF;
+        Tue,  7 Mar 2023 18:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678215551;
-        bh=uz1DyUj9wiP23cA67KlGpjiDBKPir7H4mFieYghJyvk=;
+        s=korg; t=1678215450;
+        bh=z7ahMT7PCCZpGLLHnHCuhwIwaq6kT/3ECTKRYvNuR1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QeRjd3DwYqzKj8pzaL1iJ3FUML7BBRZzrKm7lKDHTICoqM4NBRHa1iVqu/1EaibQl
-         RxAToM6muK1B4xiC69vWUX0yI5r/ujia+ttKeTbZxFegQ45ad2ZNxXQ4O+ExCdkqu3
-         SZ4lHukJJ1gAmK7EchfZY/rJ4D5CVBX1FQeONS5g=
+        b=zsGM58Wuwj9exfZE9CvGHQbqZz/BkvwziNej3d/Jad/uKV59qVhQQQi10M/a1+OJh
+         iZSCQF03UNrfy/UmG9xJvb9Z2Ip0ooyZxtQH1kL7EA+9aTZDRx142tl9SmWJiweGGf
+         C5WjAeOnEJB480gHk8BdwYQ6bfFZOttcgGBqe7Fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Tom Talpey <tom@talpey.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 257/567] cifs: Fix warning and UAF when destroy the MR list
-Date:   Tue,  7 Mar 2023 17:59:53 +0100
-Message-Id: <20230307165917.076509276@linuxfoundation.org>
+Subject: [PATCH 5.15 258/567] gfs2: jdata writepage fix
+Date:   Tue,  7 Mar 2023 17:59:54 +0100
+Message-Id: <20230307165917.113911820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
 References: <20230307165905.838066027@linuxfoundation.org>
@@ -46,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,131 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 3e161c2791f8e661eed24a2c624087084d910215 ]
+[ Upstream commit cbb60951ce18c9b6e91d2eb97deb41d8ff616622 ]
 
-If the MR allocate failed, the MR recovery work not initialized
-and list not cleared. Then will be warning and UAF when release
-the MR:
+The ->writepage() and ->writepages() operations are supposed to write
+entire pages.  However, on filesystems with a block size smaller than
+PAGE_SIZE, __gfs2_jdata_writepage() only adds the first block to the
+current transaction instead of adding the entire page.  Fix that.
 
-  WARNING: CPU: 4 PID: 824 at kernel/workqueue.c:3066 __flush_work.isra.0+0xf7/0x110
-  CPU: 4 PID: 824 Comm: mount.cifs Not tainted 6.1.0-rc5+ #82
-  RIP: 0010:__flush_work.isra.0+0xf7/0x110
-  Call Trace:
-   <TASK>
-   __cancel_work_timer+0x2ba/0x2e0
-   smbd_destroy+0x4e1/0x990
-   _smbd_get_connection+0x1cbd/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-  BUG: KASAN: use-after-free in smbd_destroy+0x4fc/0x990
-  Read of size 8 at addr ffff88810b156a08 by task mount.cifs/824
-  CPU: 4 PID: 824 Comm: mount.cifs Tainted: G        W          6.1.0-rc5+ #82
-  Call Trace:
-   dump_stack_lvl+0x34/0x44
-   print_report+0x171/0x472
-   kasan_report+0xad/0x130
-   smbd_destroy+0x4fc/0x990
-   _smbd_get_connection+0x1cbd/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-  Allocated by task 824:
-   kasan_save_stack+0x1e/0x40
-   kasan_set_track+0x21/0x30
-   __kasan_kmalloc+0x7a/0x90
-   _smbd_get_connection+0x1b6f/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-  Freed by task 824:
-   kasan_save_stack+0x1e/0x40
-   kasan_set_track+0x21/0x30
-   kasan_save_free_info+0x2a/0x40
-   ____kasan_slab_free+0x143/0x1b0
-   __kmem_cache_free+0xc8/0x330
-   _smbd_get_connection+0x1c6a/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Let's initialize the MR recovery work before MR allocate to prevent
-the warning, remove the MRs from the list to prevent the UAF.
-
-Fixes: c7398583340a ("CIFS: SMBD: Implement RDMA memory registration")
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 18ec7d5c3f43 ("[GFS2] Make journaled data files identical to normal files on disk")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smbdirect.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/gfs2/aops.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/cifs/smbdirect.c b/fs/cifs/smbdirect.c
-index 58f086aabc888..a9a5d27b8d38b 100644
---- a/fs/cifs/smbdirect.c
-+++ b/fs/cifs/smbdirect.c
-@@ -2251,6 +2251,7 @@ static int allocate_mr_list(struct smbd_connection *info)
- 	atomic_set(&info->mr_ready_count, 0);
- 	atomic_set(&info->mr_used_count, 0);
- 	init_waitqueue_head(&info->wait_for_mr_cleanup);
-+	INIT_WORK(&info->mr_recovery_work, smbd_mr_recovery_work);
- 	/* Allocate more MRs (2x) than hardware responder_resources */
- 	for (i = 0; i < info->responder_resources * 2; i++) {
- 		smbdirect_mr = kzalloc(sizeof(*smbdirect_mr), GFP_KERNEL);
-@@ -2278,13 +2279,13 @@ static int allocate_mr_list(struct smbd_connection *info)
- 		list_add_tail(&smbdirect_mr->list, &info->mr_list);
- 		atomic_inc(&info->mr_ready_count);
+diff --git a/fs/gfs2/aops.c b/fs/gfs2/aops.c
+index 4bbfb156e6a40..ee212c9310ad0 100644
+--- a/fs/gfs2/aops.c
++++ b/fs/gfs2/aops.c
+@@ -152,7 +152,6 @@ static int __gfs2_jdata_writepage(struct page *page, struct writeback_control *w
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	struct gfs2_inode *ip = GFS2_I(inode);
+-	struct gfs2_sbd *sdp = GFS2_SB(inode);
+ 
+ 	if (PageChecked(page)) {
+ 		ClearPageChecked(page);
+@@ -160,7 +159,7 @@ static int __gfs2_jdata_writepage(struct page *page, struct writeback_control *w
+ 			create_empty_buffers(page, inode->i_sb->s_blocksize,
+ 					     BIT(BH_Dirty)|BIT(BH_Uptodate));
+ 		}
+-		gfs2_page_add_databufs(ip, page, 0, sdp->sd_vfs->s_blocksize);
++		gfs2_page_add_databufs(ip, page, 0, PAGE_SIZE);
  	}
--	INIT_WORK(&info->mr_recovery_work, smbd_mr_recovery_work);
- 	return 0;
- 
- out:
- 	kfree(smbdirect_mr);
- 
- 	list_for_each_entry_safe(smbdirect_mr, tmp, &info->mr_list, list) {
-+		list_del(&smbdirect_mr->list);
- 		ib_dereg_mr(smbdirect_mr->mr);
- 		kfree(smbdirect_mr->sgl);
- 		kfree(smbdirect_mr);
+ 	return gfs2_write_jdata_page(page, wbc);
+ }
 -- 
 2.39.2
 
