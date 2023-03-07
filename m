@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88FA96AE90A
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84DA56AED9D
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231349AbjCGRUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:20:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41742 "EHLO
+        id S231262AbjCGSGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:06:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231495AbjCGRUL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:20:11 -0500
+        with ESMTP id S232327AbjCGSFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:05:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C5979F20C
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:15:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7525121A17
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:58:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4577614FF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:15:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB8AEC433D2;
-        Tue,  7 Mar 2023 17:15:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24E87614DF
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:58:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7E1C4339B;
+        Tue,  7 Mar 2023 17:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209328;
-        bh=PYtdjopN2UJp+2eK/CBZp6xShk+9Njdh/NTg5rBPIco=;
+        s=korg; t=1678211927;
+        bh=8MfMAzplRHjMBfV0qjPO/lW6pFQGDpjNjvLdak1x0aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkBiqVynGHhUdB8KlBkXFC/r+FfrBjB4QERj/MNhk4CuEqpIS/m4ZIR1+JH2RpwCW
-         ADpx7g3825IPWj58g1XzyNshejVZzRIRrcwHwgVTWIcbAM1iIOQl0wrEocIxVw75Jm
-         ZKSi/tCDkUR+OsZYlXYy72w5UfhXbNvM9pZMdplQ=
+        b=fgmITW274SZjZ7K5KkX15oDQmhS+KUlIUkvJgvbaWGsT1VmGd2/GuyXxcmL+l51Ol
+         5ZQMmuws2aYAJF2oX4nxY4hmEiHKFu0uU0CIE3lxhGlDybqe8Jr7VOoBVM+7e9gaVU
+         +HEOnb4OEDaWEuzoUYbLL81jCVdv1CawF2vQp3SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andy Nguyen <theflow@google.com>,
-        Peter Gonda <pgonda@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        David Rientjes <rientjes@google.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0182/1001] crypto: ccp - Avoid page allocation failure warning for SEV_GET_ID2
-Date:   Tue,  7 Mar 2023 17:49:14 +0100
-Message-Id: <20230307170029.801106160@linuxfoundation.org>
+Subject: [PATCH 6.1 021/885] arm64: dts: qcom: sc7180: correct SPMI bus address cells
+Date:   Tue,  7 Mar 2023 17:49:15 +0100
+Message-Id: <20230307170002.555762618@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Rientjes <rientjes@google.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 91dfd98216d817ec5f1c55890bacb7b4fe9b068a ]
+[ Upstream commit 1f75745537222172f84783d369bbd1fb2d4b6414 ]
 
-For SEV_GET_ID2, the user provided length does not have a specified
-limitation because the length of the ID may change in the future.  The
-kernel memory allocation, however, is implicitly limited to 4MB on x86 by
-the page allocator, otherwise the kzalloc() will fail.
+The SPMI bus uses two address cells and zero size cells (second reg
+entry - SPMI_USID - is not the size):
 
-When this happens, it is best not to spam the kernel log with the warning.
-Simply fail the allocation and return ENOMEM to the user.
+  spmi@c440000: #address-cells:0:0: 2 was expected
 
-Fixes: d6112ea0cb34 ("crypto: ccp - introduce SEV_GET_ID2 command")
-Reported-by: Andy Nguyen <theflow@google.com>
-Reported-by: Peter Gonda <pgonda@google.com>
-Suggested-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: David Rientjes <rientjes@google.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 0f9dc5f09fbd ("arm64: dts: qcom: sc7180: Add SPMI PMIC arbiter device")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221213101921.47924-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sc7180.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index 06fc7156c04f3..56998bc579d67 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -881,7 +881,14 @@ static int sev_ioctl_do_get_id2(struct sev_issue_cmd *argp)
- 	input_address = (void __user *)input.address;
- 
- 	if (input.address && input.length) {
--		id_blob = kzalloc(input.length, GFP_KERNEL);
-+		/*
-+		 * The length of the ID shouldn't be assumed by software since
-+		 * it may change in the future.  The allocation size is limited
-+		 * to 1 << (PAGE_SHIFT + MAX_ORDER - 1) by the page allocator.
-+		 * If the allocation fails, simply return ENOMEM rather than
-+		 * warning in the kernel log.
-+		 */
-+		id_blob = kzalloc(input.length, GFP_KERNEL | __GFP_NOWARN);
- 		if (!id_blob)
- 			return -ENOMEM;
- 
+diff --git a/arch/arm64/boot/dts/qcom/sc7180.dtsi b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+index 58976a1ba06be..b16886f715179 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+@@ -3238,8 +3238,8 @@ spmi_bus: spmi@c440000 {
+ 			interrupts-extended = <&pdc 1 IRQ_TYPE_LEVEL_HIGH>;
+ 			qcom,ee = <0>;
+ 			qcom,channel = <0>;
+-			#address-cells = <1>;
+-			#size-cells = <1>;
++			#address-cells = <2>;
++			#size-cells = <0>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <4>;
+ 			cell-index = <0>;
 -- 
 2.39.2
 
