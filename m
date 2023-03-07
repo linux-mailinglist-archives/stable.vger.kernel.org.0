@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3DDF6AE999
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14DAC6AEE45
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231469AbjCGRZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:25:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50132 "EHLO
+        id S232442AbjCGSK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:10:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231418AbjCGRZW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97055A2F10
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:25 -0800 (PST)
+        with ESMTP id S232459AbjCGSKZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38836A42F5
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B525B819B0
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7601DC4339B;
-        Tue,  7 Mar 2023 17:20:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB38F6150F
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C90B6C433D2;
+        Tue,  7 Mar 2023 18:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209622;
-        bh=6UUeGEX5GlhzaR1SlSF1KWn04741UKjkHzpSXTw1kj4=;
+        s=korg; t=1678212316;
+        bh=2kBylMgMgKoqEmKniVaPExKAEBUFzeLAHLD3hLpmDWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXducqvthLV1cJGJ01F3KEp7cK0Sp2AcmxqUgWR59tOUGD4S7nFmXuQhTLJGfpw6P
-         jX8Ll54bZ0LsQSnRkuR3QkuKeryfJWzgUHiKtWXCSF9mVBD+z3mKlwu/L+Rg4KuyuN
-         HrmW14Jo11KWIJ+ZfzikIEj008T0NlA42ioHMmuk=
+        b=PDO2NE9viIDYnZSK+qTPPrJASWIDNmlbTSdRRY++r0QAWd3RUXopuaJ3MUpBBHegp
+         HgEB3m6kKNIp6NEPE3e8rXurfWya/7IE/vaE0nt9Jr46Klfh/2N1TBY+jFgUfszlnT
+         BOfKlfq0JAWRoA2iXFXFUTxWJe60LxRlZYBOPFZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Viresh Kumar <viresh.kumar@linaro.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0278/1001] xen/grant-dma-iommu: Implement a dummy probe_device() callback
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 116/885] wifi: mt76: fix coverity uninit_use_in_call in mt76_connac2_reverse_frag0_hdr_trans()
 Date:   Tue,  7 Mar 2023 17:50:50 +0100
-Message-Id: <20230307170033.728152303@linuxfoundation.org>
+Message-Id: <20230307170006.911846223@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit 2062f9fb6445451b189595e295765c69f43bc12e ]
+[ Upstream commit 0ffcb2a68b15bd63d5555a923ae7dfe8bfdb14a7 ]
 
-Update stub IOMMU driver (which main purpose is to reuse generic
-IOMMU device-tree bindings by Xen grant DMA-mapping layer on Arm)
-according to the recent changes done in the following
-commit 57365a04c921 ("iommu: Move bus setup to IOMMU device registration").
+The default case for frame_contorl is invalid. We should always
+assign addr3 of this frame properly.
 
-With probe_device() callback being called during IOMMU device registration,
-the uninitialized callback just leads to the "kernel NULL pointer
-dereference" issue during boot. Fix that by adding a dummy callback.
+Coverity error message:
+if (ieee80211_has_a4(hdr.frame_control))
+(19) Event uninit_use_in_call:	Using uninitialized value "hdr".
+Field "hdr.addr3" is uninitialized when calling "memcpy".
+	memcpy(skb_push(skb, sizeof(hdr)), &hdr, sizeof(hdr));
+else
+	memcpy(skb_push(skb, sizeof(hdr) - 6), &hdr, sizeof(hdr) - 6);
 
-Looks like the release_device() callback is not mandatory to be
-implemented as IOMMU framework makes sure that callback is initialized
-before dereferencing.
-
-Reported-by: Viresh Kumar <viresh.kumar@linaro.org>
-Fixes: 57365a04c921 ("iommu: Move bus setup to IOMMU device registration")
-Signed-off-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Tested-by: Viresh Kumar <viresh.kumar@linaro.org>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20230208153649.3604857-1-olekstysh@gmail.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 0880d40871d1 ("mt76: connac: move mt76_connac2_reverse_frag0_hdr_trans in mt76-connac module")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/grant-dma-iommu.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/xen/grant-dma-iommu.c b/drivers/xen/grant-dma-iommu.c
-index 16b8bc0c0b33d..6a9fe02c6bfcc 100644
---- a/drivers/xen/grant-dma-iommu.c
-+++ b/drivers/xen/grant-dma-iommu.c
-@@ -16,8 +16,15 @@ struct grant_dma_iommu_device {
- 	struct iommu_device iommu;
- };
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
+index 34ac3d81a5102..46ede1b72bbee 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
+@@ -921,7 +921,7 @@ int mt76_connac2_reverse_frag0_hdr_trans(struct ieee80211_vif *vif,
+ 		ether_addr_copy(hdr.addr4, eth_hdr->h_source);
+ 		break;
+ 	default:
+-		break;
++		return -EINVAL;
+ 	}
  
--/* Nothing is really needed here */
--static const struct iommu_ops grant_dma_iommu_ops;
-+static struct iommu_device *grant_dma_iommu_probe_device(struct device *dev)
-+{
-+	return ERR_PTR(-ENODEV);
-+}
-+
-+/* Nothing is really needed here except a dummy probe_device callback */
-+static const struct iommu_ops grant_dma_iommu_ops = {
-+	.probe_device = grant_dma_iommu_probe_device,
-+};
- 
- static const struct of_device_id grant_dma_iommu_of_match[] = {
- 	{ .compatible = "xen,grant-dma" },
+ 	skb_pull(skb, hdr_offset + sizeof(struct ethhdr) - 2);
 -- 
 2.39.2
 
