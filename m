@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2BB6AEEDB
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 310F26AEEE0
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:17:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbjCGSR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:17:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39318 "EHLO
+        id S232586AbjCGSRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:17:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232005AbjCGSRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:07 -0500
+        with ESMTP id S232590AbjCGSR0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:17:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305802A16A
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:11:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D8D9E677
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:12:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4418AB819C7
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C58C433EF;
-        Tue,  7 Mar 2023 18:11:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77A14B819BA
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:11:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A715CC4339B;
+        Tue,  7 Mar 2023 18:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212705;
-        bh=5crKRGoGjs7OvnBbceoKVHiUFKx5kaljmaFN01e52PI=;
+        s=korg; t=1678212711;
+        bh=guyVeRhx9rqRPMoWZeA5l+dclD/Xz5JoDYKUwyP2oGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wsYto6E0zEM4chpyjrZBUbcq/exdmQpkbYxdV2jxjtz2pWsTz1ojDN5cYDgPcu308
-         1VwMrdN7IwbCze+6W62BIa6t66z1z7elGk27nmCc5K4dTl9Ra7k9rsTF2wGTukOWDK
-         6yf03b9S59/9BDq4QofJVVTNdHcoep7UnTdypY2g=
+        b=PCz2QrTDpqSeH9vKF6YDElO2t5a2lDghZWTGEAkx7AT9PPa74e9OaRJyempCDMzwU
+         GQAVPujg3EU5N4ACIWgzA/kxj499+CQSIIjYKQcFFfLmzdDId7Qr4ACCRk77HKEMGP
+         kwmcY2rBf2agRb2uxt5vxV0w3OEaW7Anm6xKbh4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Melissa Wen <mwen@igalia.com>,
-        Melissa Wen <melissa.srw@gmail.com>,
+        patches@lists.linux.dev,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 270/885] drm/vkms: Fix null-ptr-deref in vkms_release()
-Date:   Tue,  7 Mar 2023 17:53:24 +0100
-Message-Id: <20230307170013.745153292@linuxfoundation.org>
+Subject: [PATCH 6.1 271/885] drm/vc4: dpi: Fix format mapping for RGB565
+Date:   Tue,  7 Mar 2023 17:53:25 +0100
+Message-Id: <20230307170013.792260760@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -55,77 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 2fe2a8f40c21161ffe7653cc234e7934db5b7cc5 ]
+[ Upstream commit 0870d86eac8a9abd89a0be1b719d5dc5bac936f0 ]
 
-A null-ptr-deref is triggered when it tries to destroy the workqueue in
-vkms->output.composer_workq in vkms_release().
+The mapping is incorrect for RGB565_1X16 as it should be
+DPI_FORMAT_18BIT_666_RGB_1 instead of DPI_FORMAT_18BIT_666_RGB_3.
 
- KASAN: null-ptr-deref in range [0x0000000000000118-0x000000000000011f]
- CPU: 5 PID: 17193 Comm: modprobe Not tainted 6.0.0-11331-gd465bff130bf #24
- RIP: 0010:destroy_workqueue+0x2f/0x710
- ...
- Call Trace:
-  <TASK>
-  ? vkms_config_debugfs_init+0x50/0x50 [vkms]
-  __devm_drm_dev_alloc+0x15a/0x1c0 [drm]
-  vkms_init+0x245/0x1000 [vkms]
-  do_one_initcall+0xd0/0x4f0
-  do_init_module+0x1a4/0x680
-  load_module+0x6249/0x7110
-  __do_sys_finit_module+0x140/0x200
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-The reason is that an OOM happened which triggers the destroy of the
-workqueue, however, the workqueue is alloced in the later process,
-thus a null-ptr-deref happened. A simple call graph is shown as below:
-
- vkms_init()
-  vkms_create()
-    devm_drm_dev_alloc()
-      __devm_drm_dev_alloc()
-        devm_drm_dev_init()
-          devm_add_action_or_reset()
-            devm_add_action() # an error happened
-            devm_drm_dev_init_release()
-              drm_dev_put()
-                kref_put()
-                  drm_dev_release()
-                    vkms_release()
-                      destroy_workqueue() # null-ptr-deref happened
-    vkms_modeset_init()
-      vkms_output_init()
-        vkms_crtc_init() # where the workqueue get allocated
-
-Fix this by checking if composer_workq is NULL before passing it to
-the destroy_workqueue() in vkms_release().
-
-Fixes: 6c234fe37c57 ("drm/vkms: Implement CRC debugfs API")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221101065156.41584-3-yuancan@huawei.com
+Fixes: 08302c35b59d ("drm/vc4: Add DPI driver")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/20221013-rpi-dpi-improvements-v3-7-eb76e26a772d@cerno.tech
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vkms/vkms_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_dpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vkms/vkms_drv.c b/drivers/gpu/drm/vkms/vkms_drv.c
-index dfe983eaa07ff..f716c5796f5fc 100644
---- a/drivers/gpu/drm/vkms/vkms_drv.c
-+++ b/drivers/gpu/drm/vkms/vkms_drv.c
-@@ -57,7 +57,8 @@ static void vkms_release(struct drm_device *dev)
- {
- 	struct vkms_device *vkms = drm_device_to_vkms_device(dev);
- 
--	destroy_workqueue(vkms->output.composer_workq);
-+	if (vkms->output.composer_workq)
-+		destroy_workqueue(vkms->output.composer_workq);
- }
- 
- static void vkms_atomic_commit_tail(struct drm_atomic_state *old_state)
+diff --git a/drivers/gpu/drm/vc4/vc4_dpi.c b/drivers/gpu/drm/vc4/vc4_dpi.c
+index 1f8f44b7b5a5f..61ef7d232a12c 100644
+--- a/drivers/gpu/drm/vc4/vc4_dpi.c
++++ b/drivers/gpu/drm/vc4/vc4_dpi.c
+@@ -179,7 +179,7 @@ static void vc4_dpi_encoder_enable(struct drm_encoder *encoder)
+ 						       DPI_FORMAT);
+ 				break;
+ 			case MEDIA_BUS_FMT_RGB565_1X16:
+-				dpi_c |= VC4_SET_FIELD(DPI_FORMAT_16BIT_565_RGB_3,
++				dpi_c |= VC4_SET_FIELD(DPI_FORMAT_16BIT_565_RGB_1,
+ 						       DPI_FORMAT);
+ 				break;
+ 			default:
 -- 
 2.39.2
 
