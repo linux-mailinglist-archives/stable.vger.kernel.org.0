@@ -2,125 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCAD6AED70
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208586AF25E
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231598AbjCGSET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:04:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37890 "EHLO
+        id S231405AbjCGSwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:52:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231199AbjCGSEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:04:01 -0500
+        with ESMTP id S233372AbjCGSwO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:52:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAE67A3B76
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:56:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2D3ABB28
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:40:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEEDFB819BB
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108C9C433EF;
-        Tue,  7 Mar 2023 17:56:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DBA0B819C8
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:40:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8DEDC4339B;
+        Tue,  7 Mar 2023 18:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678211810;
-        bh=+UFbwSapYubz/zOvph1T4DXXzplLGsq9iFOXSpN8Uzc=;
+        s=korg; t=1678214438;
+        bh=EvoJwXMHnUZUJHQOXHrAX9QKKcvmvLYb6Sj/YgUHLdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6/qFmU4+u5AF1N58Wsx6NVCuvyjiEcKCKJpD2mP0LLkcqq1oDAqiw0EfQEfCpfui
-         9HR3Tq7DZL/QNho6E1zUVJDrfMOlUoQeHOx6rddJLY9skmB/6gsYARuH2w30ofnE3v
-         k5S0FoVK/Q6Lp2jdYJd1/5Ho+9Rwd742Gdhm1/Rk=
+        b=rxNmmnOEYexgix+tSYFdRmQY5yfnwj17yU5VoBvvO8THFHpHBBR1q0YQ4KITVJWyk
+         8Ok7jvQSx7VfClVJ8UV/FLuTzMtZtDL/IEm2mvniL181flMoVtXe9wpeLi3QsHO4XY
+         I16OIqoVd4pNQZqR8qXjsjQG6Jl3FIv6d7H977vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>
-Subject: [PATCH 6.2 0984/1001] bus: mhi: ep: Move chan->lock to the start of processing queued ch ring
+        patches@lists.linux.dev, Matthias Kaehlcke <mka@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.1 822/885] regulator: core: Use ktime_get_boottime() to determine how long a regulator was off
 Date:   Tue,  7 Mar 2023 18:02:36 +0100
-Message-Id: <20230307170104.936230309@linuxfoundation.org>
+Message-Id: <20230307170037.570126571@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,TVD_PH_BODY_ACCOUNTS_PRE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-commit 8d6a1fea53864cd9545741f48f4ae4df804db557 upstream.
+commit 80d2c29e09e663761c2778167a625b25ffe01b6f upstream.
 
-There is a good chance that while the channel ring gets processed, the STOP
-or RESET command for the channel might be received from the MHI host. In
-those cases, the entire channel ring processing needs to be protected by
-chan->lock to prevent the race where the corresponding channel ring might
-be reset.
+For regulators with 'off-on-delay-us' the regulator framework currently
+uses ktime_get() to determine how long the regulator has been off
+before re-enabling it (after a delay if needed). A problem with using
+ktime_get() is that it doesn't account for the time the system is
+suspended. As a result a regulator with a longer 'off-on-delay' (e.g.
+500ms) that was switched off during suspend might still incurr in a
+delay on resume before it is re-enabled, even though the regulator
+might have been off for hours. ktime_get_boottime() accounts for
+suspend time, use it instead of ktime_get().
 
-While at it, let's also add a sanity check to make sure that the ring is
-started before processing it. Because, if the STOP/RESET command gets
-processed while mhi_ep_ch_ring_worker() waited for chan->lock, the ring
-would've been reset.
-
-Cc: <stable@vger.kernel.org> # 5.19
-Fixes: 03c0bb8ec983 ("bus: mhi: ep: Add support for processing channel rings")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Link: https://lore.kernel.org/r/20221228161704.255268-6-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Fixes: a8ce7bd89689 ("regulator: core: Fix off_on_delay handling")
+Cc: stable@vger.kernel.org    # 5.13+
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20230223003301.v2.1.I9719661b8eb0a73b8c416f9c26cf5bd8c0563f99@changeid
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/ep/main.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/regulator/core.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/bus/mhi/ep/main.c
-+++ b/drivers/bus/mhi/ep/main.c
-@@ -723,24 +723,37 @@ static void mhi_ep_ch_ring_worker(struct
- 		list_del(&itr->node);
- 		ring = itr->ring;
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1584,7 +1584,7 @@ static int set_machine_constraints(struc
+ 	}
  
-+		chan = &mhi_cntrl->mhi_chan[ring->ch_id];
-+		mutex_lock(&chan->lock);
-+
-+		/*
-+		 * The ring could've stopped while we waited to grab the (chan->lock), so do
-+		 * a sanity check before going further.
-+		 */
-+		if (!ring->started) {
-+			mutex_unlock(&chan->lock);
-+			kfree(itr);
-+			continue;
-+		}
-+
- 		/* Update the write offset for the ring */
- 		ret = mhi_ep_update_wr_offset(ring);
- 		if (ret) {
- 			dev_err(dev, "Error updating write offset for ring\n");
-+			mutex_unlock(&chan->lock);
- 			kfree(itr);
- 			continue;
- 		}
+ 	if (rdev->desc->off_on_delay)
+-		rdev->last_off = ktime_get();
++		rdev->last_off = ktime_get_boottime();
  
- 		/* Sanity check to make sure there are elements in the ring */
- 		if (ring->rd_offset == ring->wr_offset) {
-+			mutex_unlock(&chan->lock);
- 			kfree(itr);
- 			continue;
- 		}
+ 	/* If the constraints say the regulator should be on at this point
+ 	 * and we have control then make sure it is enabled.
+@@ -2673,7 +2673,7 @@ static int _regulator_do_enable(struct r
+ 		 * this regulator was disabled.
+ 		 */
+ 		ktime_t end = ktime_add_us(rdev->last_off, rdev->desc->off_on_delay);
+-		s64 remaining = ktime_us_delta(end, ktime_get());
++		s64 remaining = ktime_us_delta(end, ktime_get_boottime());
  
- 		el = &ring->ring_cache[ring->rd_offset];
--		chan = &mhi_cntrl->mhi_chan[ring->ch_id];
+ 		if (remaining > 0)
+ 			_regulator_delay_helper(remaining);
+@@ -2912,7 +2912,7 @@ static int _regulator_do_disable(struct
+ 	}
  
--		mutex_lock(&chan->lock);
- 		dev_dbg(dev, "Processing the ring for channel (%u)\n", ring->ch_id);
- 		ret = mhi_ep_process_ch_ring(ring, el);
- 		if (ret) {
+ 	if (rdev->desc->off_on_delay)
+-		rdev->last_off = ktime_get();
++		rdev->last_off = ktime_get_boottime();
+ 
+ 	trace_regulator_disable_complete(rdev_get_name(rdev));
+ 
 
 
