@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FED06AE86D
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:15:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 244A96AE86F
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:15:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230520AbjCGRPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:15:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55846 "EHLO
+        id S229591AbjCGRPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:15:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231166AbjCGRPa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:15:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9644899248
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:10:46 -0800 (PST)
+        with ESMTP id S231232AbjCGRPd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:15:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E6B29927A
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:10:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE18161508
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:10:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A09DC433EF;
-        Tue,  7 Mar 2023 17:10:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1C13B81995
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:10:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 029E9C433D2;
+        Tue,  7 Mar 2023 17:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209045;
-        bh=rfz0WfQAWj+mBSA05ozqQ41PgBWc6mWX7nifUwdXYDc=;
+        s=korg; t=1678209048;
+        bh=kZNN6dcrAPno52ez8PA+dWnQJ3W3MGvWUppph7XjsX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TssyLPkSuLVRlDvz0lMkSonIaRqnMVlAMNey6sjZNpnrdxTSPvtEViAzNbN6U7ahg
-         RjhurGi4j4YrIX386DBnFxg/7O3jwCXCCyvAxPnpIH1jQ2ASl9JZKRh0z8sWMYvBO9
-         fq2C4kWKxs0PMUhu3h4PQyOCM06weYpRRkS6/bhs=
+        b=phFTTrnytayRI0ySHZDUb/qWF+HaI4fIQnLCyMC3g0n2RO8rG1Il90UBeYdj8XGoA
+         HA/rchBF8PvBmptzfkMs1xJbLHKlrPc3QSwjYDDyJ3rrksuSwxAtspljQRrvqrtSmJ
+         Sd+KY6TU7eNyY6RcDu4xbZXWQdX4pZTYCcA3T12Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0063/1001] arm64: dts: mediatek: mt8192: Mark scp_adsp clock as broken
-Date:   Tue,  7 Mar 2023 17:47:15 +0100
-Message-Id: <20230307170024.851314929@linuxfoundation.org>
+Subject: [PATCH 6.2 0064/1001] ARM: bcm2835_defconfig: Enable the framebuffer
+Date:   Tue,  7 Mar 2023 17:47:16 +0100
+Message-Id: <20230307170024.887605216@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
 References: <20230307170022.094103862@linuxfoundation.org>
@@ -46,50 +44,47 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 089cd717e6ef03cf9cf7865777d67775de41339b ]
+[ Upstream commit afc8dd99840b7fb7190e769a893cda673bc3a907 ]
 
-The scp_adsp clock controller is under the SCP_ADSP power domain. This
-power domain is currently not supported nor defined.
+Booting Linux on a Raspberry Pi based on bcm2835_defconfig there is
+no display activity.
 
-Mark the clock controller as broken for now, to avoid the system from
-trying to access it, and causing the CPU or bus to stall.
+Enable CONFIG_FB which is nowadays required for CONFIG_FB_SIMPLE
+and CONFIG_FRAMEBUFFER_CONSOLE.
 
-Fixes: 5d2b897bc6f5 ("arm64: dts: mediatek: Add mt8192 clock controllers")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Link: https://lore.kernel.org/r/20221229101202.1655924-1-wenst@chromium.org
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: f611b1e7624c ("drm: Avoid circular dependencies for CONFIG_FB")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/20230113205842.17051-1-stefan.wahren@i2se.com
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8192.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/configs/bcm2835_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8192.dtsi b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
-index 0d43a32734a37..46a1e457fab45 100644
---- a/arch/arm64/boot/dts/mediatek/mt8192.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8192.dtsi
-@@ -586,6 +586,8 @@ scp_adsp: clock-controller@10720000 {
- 			compatible = "mediatek,mt8192-scp_adsp";
- 			reg = <0 0x10720000 0 0x1000>;
- 			#clock-cells = <1>;
-+			/* power domain dependency not upstreamed */
-+			status = "fail";
- 		};
- 
- 		uart0: serial@11002000 {
+diff --git a/arch/arm/configs/bcm2835_defconfig b/arch/arm/configs/bcm2835_defconfig
+index a51babd178c26..be0c984a66947 100644
+--- a/arch/arm/configs/bcm2835_defconfig
++++ b/arch/arm/configs/bcm2835_defconfig
+@@ -107,6 +107,7 @@ CONFIG_MEDIA_CAMERA_SUPPORT=y
+ CONFIG_DRM=y
+ CONFIG_DRM_V3D=y
+ CONFIG_DRM_VC4=y
++CONFIG_FB=y
+ CONFIG_FB_SIMPLE=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_SOUND=y
 -- 
 2.39.2
 
