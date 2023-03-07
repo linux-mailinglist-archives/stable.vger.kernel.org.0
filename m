@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3FA96AF2CF
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB03D6AF2D9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233172AbjCGS4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:56:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35820 "EHLO
+        id S233524AbjCGS5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:57:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233168AbjCGS4R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 486F59CBF9
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:43:48 -0800 (PST)
+        with ESMTP id S233530AbjCGS4q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:56:46 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8901DCB67D
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:44:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B97A61526
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C06EC433EF;
-        Tue,  7 Mar 2023 18:43:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AAA1BCE1C55
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:43:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D4C9C433D2;
+        Tue,  7 Mar 2023 18:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678214625;
-        bh=dYwR5rcLIabzIirgUlRVhd2HlYqELRPof6l9xWUaAIg=;
+        s=korg; t=1678214628;
+        bh=nZGfAIzeggdGJ6iRYCgvuBR/AzMajDhQ6CjlytbIn4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccmssKBTW4UubDRMyHCBfg584AmHjsQSjGmrSH7Jj4j01P+rTKeuGYKPktJelAPNP
-         bPkjl2uFCqbeXk/Kl3HK65taQwgC+bJkUZVqhYOZEFj2RhTOu9B9q0/zvMFKWqKmjY
-         vKmn3mIQOF+PLfwuEnsjzNVxBSvsaKPhc9zeYudA=
+        b=nqAAOiFMD1yvn+NGx1C+wM9x8Dewj0LO/5IAAew3udeHFXODulSCDL0qAsw853Ed1
+         3xxZ/2CcGFIPrwk4tKeoQIzohwnlICZWl6M/HJ4iR+P973kgWjHAYy+XtYpwcD3za/
+         qPHTofjIaZREkwAuQ3e6t9164mn4AEvbYlKQpgfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 6.1 882/885] drm/i915: Dont use BAR mappings for ring buffers with LLC
-Date:   Tue,  7 Mar 2023 18:03:36 +0100
-Message-Id: <20230307170040.101657104@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH 6.1 883/885] drm/gud: Fix UBSAN warning
+Date:   Tue,  7 Mar 2023 18:03:37 +0100
+Message-Id: <20230307170040.152197132@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
 References: <20230307170001.594919529@linuxfoundation.org>
@@ -51,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -61,53 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Harrison <John.C.Harrison@Intel.com>
+From: Noralf Trønnes <noralf@tronnes.org>
 
-commit 85636167e3206c3fbd52254fc432991cc4e90194 upstream.
+commit 951df98024f7272f85df5044eca7374f5b5b24ef upstream.
 
-Direction from hardware is that ring buffers should never be mapped
-via the BAR on systems with LLC. There are too many caching pitfalls
-due to the way BAR accesses are routed. So it is safest to just not
-use it.
+UBSAN complains about invalid value for bool:
 
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Fixes: 9d80841ea4c9 ("drm/i915: Allow ringbuffers to be bound anywhere")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.9+
-Tested-by: Jouni Högander <jouni.hogander@intel.com>
-Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230216011101.1909009-3-John.C.Harrison@Intel.com
-(cherry picked from commit 65c08339db1ada87afd6cfe7db8e60bb4851d919)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+[  101.165172] [drm] Initialized gud 1.0.0 20200422 for 2-3.2:1.0 on minor 1
+[  101.213360] gud 2-3.2:1.0: [drm] fb1: guddrmfb frame buffer device
+[  101.213426] usbcore: registered new interface driver gud
+[  101.989431] ================================================================================
+[  101.989441] UBSAN: invalid-load in linux/include/linux/iosys-map.h:253:9
+[  101.989447] load of value 121 is not a valid value for type '_Bool'
+[  101.989451] CPU: 1 PID: 455 Comm: kworker/1:6 Not tainted 5.18.0-rc5-gud-5.18-rc5 #3
+[  101.989456] Hardware name: Hewlett-Packard HP EliteBook 820 G1/1991, BIOS L71 Ver. 01.44 04/12/2018
+[  101.989459] Workqueue: events_long gud_flush_work [gud]
+[  101.989471] Call Trace:
+[  101.989474]  <TASK>
+[  101.989479]  dump_stack_lvl+0x49/0x5f
+[  101.989488]  dump_stack+0x10/0x12
+[  101.989493]  ubsan_epilogue+0x9/0x3b
+[  101.989498]  __ubsan_handle_load_invalid_value.cold+0x44/0x49
+[  101.989504]  dma_buf_vmap.cold+0x38/0x3d
+[  101.989511]  ? find_busiest_group+0x48/0x300
+[  101.989520]  drm_gem_shmem_vmap+0x76/0x1b0 [drm_shmem_helper]
+[  101.989528]  drm_gem_shmem_object_vmap+0x9/0xb [drm_shmem_helper]
+[  101.989535]  drm_gem_vmap+0x26/0x60 [drm]
+[  101.989594]  drm_gem_fb_vmap+0x47/0x150 [drm_kms_helper]
+[  101.989630]  gud_prep_flush+0xc1/0x710 [gud]
+[  101.989639]  ? _raw_spin_lock+0x17/0x40
+[  101.989648]  gud_flush_work+0x1e0/0x430 [gud]
+[  101.989653]  ? __switch_to+0x11d/0x470
+[  101.989664]  process_one_work+0x21f/0x3f0
+[  101.989673]  worker_thread+0x200/0x3e0
+[  101.989679]  ? rescuer_thread+0x390/0x390
+[  101.989684]  kthread+0xfd/0x130
+[  101.989690]  ? kthread_complete_and_exit+0x20/0x20
+[  101.989696]  ret_from_fork+0x22/0x30
+[  101.989706]  </TASK>
+[  101.989708] ================================================================================
+
+The source of this warning is in iosys_map_clear() called from
+dma_buf_vmap(). It conditionally sets values based on map->is_iomem. The
+iosys_map variables are allocated uninitialized on the stack leading to
+->is_iomem having all kinds of values and not only 0/1.
+
+Fix this by zeroing the iosys_map variables.
+
+Fixes: 40e1a70b4aed ("drm: Add GUD USB Display driver")
+Cc: <stable@vger.kernel.org> # v5.18+
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221122-gud-shadow-plane-v2-1-435037990a83@tronnes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/intel_ring.c |    4 ++--
+ drivers/gpu/drm/gud/gud_pipe.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_ring.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ring.c
-@@ -53,7 +53,7 @@ int intel_ring_pin(struct intel_ring *ri
- 	if (unlikely(ret))
- 		goto err_unpin;
- 
--	if (i915_vma_is_map_and_fenceable(vma)) {
-+	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915)) {
- 		addr = (void __force *)i915_vma_pin_iomap(vma);
- 	} else {
- 		int type = i915_coherent_map_type(vma->vm->i915, vma->obj, false);
-@@ -98,7 +98,7 @@ void intel_ring_unpin(struct intel_ring
- 		return;
- 
- 	i915_vma_unset_ggtt_write(vma);
--	if (i915_vma_is_map_and_fenceable(vma))
-+	if (i915_vma_is_map_and_fenceable(vma) && !HAS_LLC(vma->vm->i915))
- 		i915_vma_unpin_iomap(vma);
- 	else
- 		i915_gem_object_unpin_map(vma->obj);
+--- a/drivers/gpu/drm/gud/gud_pipe.c
++++ b/drivers/gpu/drm/gud/gud_pipe.c
+@@ -157,8 +157,8 @@ static int gud_prep_flush(struct gud_dev
+ {
+ 	struct dma_buf_attachment *import_attach = fb->obj[0]->import_attach;
+ 	u8 compression = gdrm->compression;
+-	struct iosys_map map[DRM_FORMAT_MAX_PLANES];
+-	struct iosys_map map_data[DRM_FORMAT_MAX_PLANES];
++	struct iosys_map map[DRM_FORMAT_MAX_PLANES] = { };
++	struct iosys_map map_data[DRM_FORMAT_MAX_PLANES] = { };
+ 	struct iosys_map dst;
+ 	void *vaddr, *buf;
+ 	size_t pitch, len;
 
 
