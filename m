@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 589BB6AEE44
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:10:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B06636AE98B
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:25:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbjCGSK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:10:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
+        id S231560AbjCGRZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:25:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230203AbjCGSKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:10:22 -0500
+        with ESMTP id S229907AbjCGRZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:25:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B183A42DF
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:05:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07088EA31
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:20:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 191476150F
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:05:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C34C433EF;
-        Tue,  7 Mar 2023 18:05:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 296EB614D0
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:20:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F286C4339B;
+        Tue,  7 Mar 2023 17:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212309;
-        bh=0FUQUf3tFMdapdNJSPv+2g5rn/pSoqfGPS9OJiaNXFM=;
+        s=korg; t=1678209616;
+        bh=jnSHuPMg5NCpgfM5FLzIyEv3LzUqrPtECnpS6f3ZFr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7ZvrFnSTOg5ejgswU+HcE13VO7jHF0B2xEQt3X8r2hlgmMf9ZAM4rwFsgInw8ny0
-         LNaqmPQww2vD8FUS8NpIQ9nVwsjfPe3x3NGVzsMleH0RK5m8yNR2D+HWb+oEFi4JhH
-         QG38JXKUQZTMXiQZdidxsGZglUhvl9/nQKIvAF/U=
+        b=IeSekpYunDlfVCx25ekmLcnWOKVFybZoeGGc9nlc2m8Ln7K8UqI/EUQIhXlu2jNII
+         vm2RbaqkQYIEIxG3jbKL69QFSOAO+STSgbTr3SzRazWMGJg5T8HKc+oTjImOgj9iNS
+         2ufS16Moah/jmUpsXGDioBFRwtbKSBBZbR+n5Yfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 114/885] wifi: mt76: mt7915: drop always true condition of __mt7915_reg_addr()
+        patches@lists.linux.dev, Halil Pasic <pasic@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 0276/1001] s390/ap: fix status returned by ap_qact()
 Date:   Tue,  7 Mar 2023 17:50:48 +0100
-Message-Id: <20230307170006.836654728@linuxfoundation.org>
+Message-Id: <20230307170033.641881937@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit b0f7b9563358493dfe70d3e4c3ebeffc92d4b494 ]
+[ Upstream commit a2522c80f074c35254974fec39fffe8b8d75befe ]
 
-smatch warnings:
-addr <= MT_CBTOP2_PHY_END(0xffffffff) is always true (<= u32max),
-so drop it.
+Since commit 159491f3b509 ("s390/ap: rework assembler functions to use
+unions for in/out register variables") the  function ap_qact() tries to
+grab the status from the wrong part of the register. Thus we always end
+up with zeros. Which is wrong, among others, because we detect failures
+via status.response_code.
 
-Fixes: cd4c314a65d3 ("mt76: mt7915: refine register definition")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Harald Freudenberger <freude@linux.ibm.com>
+Fixes: 159491f3b509 ("s390/ap: rework assembler functions to use unions for in/out register variables")
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mmio.c | 2 +-
- drivers/net/wireless/mediatek/mt76/mt7915/regs.h | 1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ arch/s390/include/asm/ap.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mmio.c b/drivers/net/wireless/mediatek/mt76/mt7915/mmio.c
-index 7bd5f6725d7b7..bc68ede64ddbb 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mmio.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mmio.c
-@@ -436,7 +436,7 @@ static u32 __mt7915_reg_addr(struct mt7915_dev *dev, u32 addr)
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index 876afe46f316d..57a2d6518d272 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -293,7 +293,10 @@ static inline struct ap_queue_status ap_qact(ap_qid_t qid, int ifbit,
+ 	unsigned long reg0 = qid | (5UL << 24) | ((ifbit & 0x01) << 22);
+ 	union {
+ 		unsigned long value;
+-		struct ap_queue_status status;
++		struct {
++			u32 _pad;
++			struct ap_queue_status status;
++		};
+ 	} reg1;
+ 	unsigned long reg2;
  
- 	if (dev_is_pci(dev->mt76.dev) &&
- 	    ((addr >= MT_CBTOP1_PHY_START && addr <= MT_CBTOP1_PHY_END) ||
--	     (addr >= MT_CBTOP2_PHY_START && addr <= MT_CBTOP2_PHY_END)))
-+	    addr >= MT_CBTOP2_PHY_START))
- 		return mt7915_reg_map_l1(dev, addr);
- 
- 	/* CONN_INFRA: covert to phyiscal addr and use layer 1 remap */
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/regs.h b/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
-index 5920e705835a7..bf569aa0057a7 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
-@@ -740,7 +740,6 @@ enum offs_rev {
- #define MT_CBTOP1_PHY_START		0x70000000
- #define MT_CBTOP1_PHY_END		__REG(CBTOP1_PHY_END)
- #define MT_CBTOP2_PHY_START		0xf0000000
--#define MT_CBTOP2_PHY_END		0xffffffff
- #define MT_INFRA_MCU_START		0x7c000000
- #define MT_INFRA_MCU_END		__REG(INFRA_MCU_ADDR_END)
- #define MT_CONN_INFRA_OFFSET(p)		((p) - MT_INFRA_BASE)
 -- 
 2.39.2
 
