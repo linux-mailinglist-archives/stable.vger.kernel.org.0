@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0036AEDE5
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD9E6AE936
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:22:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbjCGSIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:08:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48020 "EHLO
+        id S231293AbjCGRWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:22:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232343AbjCGSHz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:07:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347ED9FE76
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:33 -0800 (PST)
+        with ESMTP id S231192AbjCGRVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:21:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F8B98EBD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:16:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 972946151E
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8A8C433EF;
-        Tue,  7 Mar 2023 18:01:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D53F7B819AE
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC88C433EF;
+        Tue,  7 Mar 2023 17:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678212092;
-        bh=kZNN6dcrAPno52ez8PA+dWnQJ3W3MGvWUppph7XjsX4=;
+        s=korg; t=1678209408;
+        bh=sUZm+FyBMYJ6zyPvw9griu/YdHdoy8TRddoR0u202i4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R54Lz6J4TZ7zisYpkgVbihdCnyS/TkLL66aAtmWuZbSE8UZVezZmFTMAHhPkOoEle
-         VB1A9yxOvKeJCKt9SDU1bn9MtSQzdXdUhVWzHJxsArqjm4yJhm21UJ70T4FNuOKxjt
-         CovkRZMIJtdxQj7qAGFojRXk3XhT8mS9TP2vAZmg=
+        b=cdOYHu+cAqRkexKct53TGAnBUCBVSRdZPLzfgEurwF+x7psEpNFMSYv2igpVkOawv
+         5SxV7r/inBY0J+znT/rv9rc0oSoMYUJvRlzpKxivEOSHPCpXgwfwTvbXwxkiGPEFtj
+         g5xlltps/P9hROAnKojlWvsOQGDnGX5I6soEXJjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 047/885] ARM: bcm2835_defconfig: Enable the framebuffer
+Subject: [PATCH 6.2 0209/1001] wifi: ath9k: Fix potential stack-out-of-bounds write in ath9k_wmi_rsp_callback()
 Date:   Tue,  7 Mar 2023 17:49:41 +0100
-Message-Id: <20230307170003.750062148@linuxfoundation.org>
+Message-Id: <20230307170030.969119674@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,37 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit afc8dd99840b7fb7190e769a893cda673bc3a907 ]
+[ Upstream commit 8a2f35b9830692f7a616f2f627f943bc748af13a ]
 
-Booting Linux on a Raspberry Pi based on bcm2835_defconfig there is
-no display activity.
+Fix a stack-out-of-bounds write that occurs in a WMI response callback
+function that is called after a timeout occurs in ath9k_wmi_cmd().
+The callback writes to wmi->cmd_rsp_buf, a stack-allocated buffer that
+could no longer be valid when a timeout occurs. Set wmi->last_seq_id to
+0 when a timeout occurred.
 
-Enable CONFIG_FB which is nowadays required for CONFIG_FB_SIMPLE
-and CONFIG_FRAMEBUFFER_CONSOLE.
+Found by a modified version of syzkaller.
 
-Fixes: f611b1e7624c ("drm: Avoid circular dependencies for CONFIG_FB")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20230113205842.17051-1-stefan.wahren@i2se.com
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+BUG: KASAN: stack-out-of-bounds in ath9k_wmi_ctrl_rx
+Write of size 4
+Call Trace:
+ memcpy
+ ath9k_wmi_ctrl_rx
+ ath9k_htc_rx_msg
+ ath9k_hif_usb_reg_in_cb
+ __usb_hcd_giveback_urb
+ usb_hcd_giveback_urb
+ dummy_timer
+ call_timer_fn
+ run_timer_softirq
+ __do_softirq
+ irq_exit_rcu
+ sysvec_apic_timer_interrupt
+
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20230104124130.10996-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/configs/bcm2835_defconfig | 1 +
+ drivers/net/wireless/ath/ath9k/wmi.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/configs/bcm2835_defconfig b/arch/arm/configs/bcm2835_defconfig
-index a51babd178c26..be0c984a66947 100644
---- a/arch/arm/configs/bcm2835_defconfig
-+++ b/arch/arm/configs/bcm2835_defconfig
-@@ -107,6 +107,7 @@ CONFIG_MEDIA_CAMERA_SUPPORT=y
- CONFIG_DRM=y
- CONFIG_DRM_V3D=y
- CONFIG_DRM_VC4=y
-+CONFIG_FB=y
- CONFIG_FB_SIMPLE=y
- CONFIG_FRAMEBUFFER_CONSOLE=y
- CONFIG_SOUND=y
+diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
+index f315c54bd3ac0..19345b8f7bfd5 100644
+--- a/drivers/net/wireless/ath/ath9k/wmi.c
++++ b/drivers/net/wireless/ath/ath9k/wmi.c
+@@ -341,6 +341,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
+ 	if (!time_left) {
+ 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
+ 			wmi_cmd_to_name(cmd_id));
++		wmi->last_seq_id = 0;
+ 		mutex_unlock(&wmi->op_mutex);
+ 		return -ETIMEDOUT;
+ 	}
 -- 
 2.39.2
 
