@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B53276AE958
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 185766AEDE9
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230493AbjCGRXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 12:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41646 "EHLO
+        id S231274AbjCGSIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 13:08:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231357AbjCGRWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:22:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB69E5DEE9
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:18:13 -0800 (PST)
+        with ESMTP id S231272AbjCGSID (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:08:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B03F2ACE2B
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:01:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64EFAB819A9
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ECC0C433EF;
-        Tue,  7 Mar 2023 17:18:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38FC36151E
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:01:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 011A8C433A4;
+        Tue,  7 Mar 2023 18:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678209491;
-        bh=Ub4gL2SWRUQxDIbDVcCFnTHE8wFSikK5JXtvra/GilI=;
+        s=korg; t=1678212101;
+        bh=43W2j4eiBuNIi5H896k2NY4MReDUamO1JGOBhk39PTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LEVh4klC6waORVvrY15awRtNZYcQMnUOEPGBBNydo+rmgYmGxZELl91E7df8JQaZ8
-         gNhn1wKHpz7lXVGMBTtUscslF2ipiTEtA8rUeV/67ZGA+7SKh2vC/VEumF7bwjhPYy
-         BPoie9OSoMy/MDgwBoMkHaeXkFqhRrDosnW3vlxk=
+        b=lKB9hHqEL14Y+u53Grm36PkF/M2ySasC6d2pX2E2AMRX5m8Y0d7t4EKL3CNRMDFOA
+         OnuG6Q6GxEJvdftW2/kXbTO9/2FJ/3NzyspS/8iw0XeKCqHX0ZF5sNM0vxZ2F0haOX
+         +5z3otk6L18VKOWmv/9KLY7cY4TXk6ftTTjw59Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 0237/1001] wifi: mt76: mt7921: fix deadlock in mt7921_abort_roc
-Date:   Tue,  7 Mar 2023 17:50:09 +0100
-Message-Id: <20230307170032.125216943@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Kemeng Shi <shikemeng@huaweicloud.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 076/885] sbitmap: correct wake_batch recalculation to avoid potential IO hung
+Date:   Tue,  7 Mar 2023 17:50:10 +0100
+Message-Id: <20230307170005.082969961@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
-References: <20230307170022.094103862@linuxfoundation.org>
+In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
+References: <20230307170001.594919529@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Kemeng Shi <shikemeng@huaweicloud.com>
 
-[ Upstream commit de19b9c83654e323d83f839a550ca4af37fea15b ]
+[ Upstream commit b5fcf7871acb7f9a3a8ed341a68bd86aba3e254a ]
 
-When mt7921_abort_roc is called with dev->mutex held, it can deadlock while
-calling cancel_work_sync(&phy->roc_work), because the work function could
-be waiting to acquire the mutex.
+Commit 180dccb0dba4f ("blk-mq: fix tag_get wait task can't be awakened")
+mentioned that in case of shared tags, there could be just one real
+active hctx(queue) because of lazy detection of tag idle. Then driver tag
+allocation may wait forever on this real active hctx(queue) if wake_batch
+is > hctx_max_depth where hctx_max_depth is available tags depth for the
+actve hctx(queue). However, the condition wake_batch > hctx_max_depth is
+not strong enough to avoid IO hung as the sbitmap_queue_wake_up will only
+wake up one wait queue for each wake_batch even though there is only one
+waiter in the woken wait queue. After this, there is only one tag to free
+and wake_batch may not be reached anymore. Commit 180dccb0dba4f ("blk-mq:
+fix tag_get wait task can't be awakened") methioned that driver tag
+allocation may wait forever. Actually, the inactive hctx(queue) will be
+truely idle after at most 30 seconds and will call blk_mq_tag_wakeup_all
+to wake one waiter per wait queue to break the hung. But IO hung for 30
+seconds is also not acceptable. Set batch size to small enough that depth
+of the shared hctx(queue) is enough to wake up all of the queues like
+sbq_calc_wake_batch do to fix this potential IO hung.
 
-Fix this by flushing the work before taking the mutex
+Although hctx_max_depth will be clamped to at least 4 while wake_batch
+recalculation does not do the clamp, the wake_batch will be always
+recalculated to 1 when hctx_max_depth <= 4.
 
-Reported-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Fixes: 034ae28b56f1 ("wifi: mt76: mt7921: introduce remain_on_channel support")
-Fixes: 41ac53c899bd ("wifi: mt76: mt7921: introduce chanctx support")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 180dccb0dba4 ("blk-mq: fix tag_get wait task can't be awakened")
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
+Link: https://lore.kernel.org/r/20230116205059.3821738-6-shikemeng@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7921/main.c  | 22 ++++++-------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
+ lib/sbitmap.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-index 76ac5069638fe..722df8eea91f7 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -422,15 +422,15 @@ void mt7921_roc_timer(struct timer_list *timer)
- 
- static int mt7921_abort_roc(struct mt7921_phy *phy, struct mt7921_vif *vif)
+diff --git a/lib/sbitmap.c b/lib/sbitmap.c
+index a7c3dc3d2d174..e918cd8695f14 100644
+--- a/lib/sbitmap.c
++++ b/lib/sbitmap.c
+@@ -464,13 +464,10 @@ void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
+ 					    unsigned int users)
  {
--	int err;
+ 	unsigned int wake_batch;
+-	unsigned int min_batch;
+ 	unsigned int depth = (sbq->sb.depth + users - 1) / users;
+ 
+-	min_batch = sbq->sb.depth >= (4 * SBQ_WAIT_QUEUES) ? 4 : 1;
 -
--	if (!test_and_clear_bit(MT76_STATE_ROC, &phy->mt76->state))
--		return 0;
-+	int err = 0;
+ 	wake_batch = clamp_val(depth / SBQ_WAIT_QUEUES,
+-			min_batch, SBQ_WAKE_BATCH);
++			1, SBQ_WAKE_BATCH);
  
- 	del_timer_sync(&phy->roc_timer);
- 	cancel_work_sync(&phy->roc_work);
--	err = mt7921_mcu_abort_roc(phy, vif, phy->roc_token_id);
--	clear_bit(MT76_STATE_ROC, &phy->mt76->state);
-+
-+	mt7921_mutex_acquire(phy->dev);
-+	if (test_and_clear_bit(MT76_STATE_ROC, &phy->mt76->state))
-+		err = mt7921_mcu_abort_roc(phy, vif, phy->roc_token_id);
-+	mt7921_mutex_release(phy->dev);
- 
- 	return err;
+ 	WRITE_ONCE(sbq->wake_batch, wake_batch);
  }
-@@ -487,13 +487,8 @@ static int mt7921_cancel_remain_on_channel(struct ieee80211_hw *hw,
- {
- 	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
- 	struct mt7921_phy *phy = mt7921_hw_phy(hw);
--	int err;
- 
--	mt7921_mutex_acquire(phy->dev);
--	err = mt7921_abort_roc(phy, mvif);
--	mt7921_mutex_release(phy->dev);
--
--	return err;
-+	return mt7921_abort_roc(phy, mvif);
- }
- 
- static int mt7921_set_channel(struct mt7921_phy *phy)
-@@ -1778,11 +1773,8 @@ static void mt7921_mgd_complete_tx(struct ieee80211_hw *hw,
- 				   struct ieee80211_prep_tx_info *info)
- {
- 	struct mt7921_vif *mvif = (struct mt7921_vif *)vif->drv_priv;
--	struct mt7921_dev *dev = mt7921_hw_dev(hw);
- 
--	mt7921_mutex_acquire(dev);
- 	mt7921_abort_roc(mvif->phy, mvif);
--	mt7921_mutex_release(dev);
- }
- 
- const struct ieee80211_ops mt7921_ops = {
 -- 
 2.39.2
 
