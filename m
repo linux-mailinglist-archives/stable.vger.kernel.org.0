@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E611C6AF0CC
-	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 19:36:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0AC6AEBBC
+	for <lists+stable@lfdr.de>; Tue,  7 Mar 2023 18:48:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbjCGSgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Mar 2023 13:36:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44404 "EHLO
+        id S232215AbjCGRsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Mar 2023 12:48:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232867AbjCGSfB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 13:35:01 -0500
+        with ESMTP id S232214AbjCGRsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Mar 2023 12:48:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA07B8638
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 10:27:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6801BDD
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 09:42:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE2BCB819EE
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 18:26:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17BD0C433EF;
-        Tue,  7 Mar 2023 18:26:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E86F9B819BB
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 17:42:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3BFC433EF;
+        Tue,  7 Mar 2023 17:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678213575;
-        bh=21sn+9+rxw5uP6I6JBvjNsWFCeRI11pHBZQi2jQazpg=;
+        s=korg; t=1678210971;
+        bh=QLWxoO7q5r3HBT3pTtvAUaBO28iq3jSg7o+cbFPi5j0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hUZmBT3Ejg9wAgVvMO5No33eDE0eYPpeSpbCSQ+M7bTl7ZWkE4TB35eD5uFwgSMbn
-         HAkwE/XFphojk7dbeMR7DKXovDk3rBYfDMk8Jt6eawDL5OI4HYzRSTcpFHSS0qxmvN
-         8GkzWKiyqIsWsZWbvZ1iW5W5uP9Azt2zIPjpgGZ8=
+        b=n7K8o3pbpxd7t4VQCTq8+JM9llv1+geljsMizms3LW+ppcBvl9b1vskg30UBXvo2t
+         JKtma0yKg1hceRYXL/Zu5h7foLr/P930ACTyMGbdkzGz9ul3lZ4kreH/BbrBqi3ZkO
+         oambArcaN1ta8461ndR7Tr2b4QQysmG/B//XjAi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zqiang <qiang1.zhang@intel.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev, Moti Haimovski <mhaimovski@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 551/885] rcu-tasks: Make rude RCU-Tasks work well with CPU hotplug
+Subject: [PATCH 6.2 0713/1001] habanalabs: extend fatal messages to contain PCI info
 Date:   Tue,  7 Mar 2023 17:58:05 +0100
-Message-Id: <20230307170026.421346838@linuxfoundation.org>
+Message-Id: <20230307170052.581668641@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230307170001.594919529@linuxfoundation.org>
-References: <20230307170001.594919529@linuxfoundation.org>
+In-Reply-To: <20230307170022.094103862@linuxfoundation.org>
+References: <20230307170022.094103862@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,106 +54,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Moti Haimovski <mhaimovski@habana.ai>
 
-[ Upstream commit ea5c8987fef20a8cca07e428aa28bc64649c5104 ]
+[ Upstream commit 2a0a839b6a28f7c4c528bb75b740c7f38ef79a37 ]
 
-The synchronize_rcu_tasks_rude() function invokes rcu_tasks_rude_wait_gp()
-to wait one rude RCU-tasks grace period.  The rcu_tasks_rude_wait_gp()
-function in turn checks if there is only a single online CPU.  If so, it
-will immediately return, because a call to synchronize_rcu_tasks_rude()
-is by definition a grace period on a single-CPU system.  (We could
-have blocked!)
+This commit attaches the PCI device address to driver fatal messages
+in order to ease debugging in multi-device setups.
 
-Unfortunately, this check uses num_online_cpus() without synchronization,
-which can result in too-short grace periods.  To see this, consider the
-following scenario:
-
-        CPU0                                   CPU1 (going offline)
-                                          migration/1 task:
-                                      cpu_stopper_thread
-                                       -> take_cpu_down
-                                          -> _cpu_disable
-                                           (dec __num_online_cpus)
-                                          ->cpuhp_invoke_callback
-                                                preempt_disable
-                                                access old_data0
-           task1
- del old_data0                                  .....
- synchronize_rcu_tasks_rude()
- task1 schedule out
- ....
- task2 schedule in
- rcu_tasks_rude_wait_gp()
-     ->__num_online_cpus == 1
-       ->return
- ....
- task1 schedule in
- ->free old_data0
-                                                preempt_enable
-
-When CPU1 decrements __num_online_cpus, its value becomes 1.  However,
-CPU1 has not finished going offline, and will take one last trip through
-the scheduler and the idle loop before it actually stops executing
-instructions.  Because synchronize_rcu_tasks_rude() is mostly used for
-tracing, and because both the scheduler and the idle loop can be traced,
-this means that CPU0's prematurely ended grace period might disrupt the
-tracing on CPU1.  Given that this disruption might include CPU1 executing
-instructions in memory that was just now freed (and maybe reallocated),
-this is a matter of some concern.
-
-This commit therefore removes that problematic single-CPU check from the
-rcu_tasks_rude_wait_gp() function.  This dispenses with the single-CPU
-optimization, but there is no evidence indicating that this optimization
-is important.  In addition, synchronize_rcu_tasks_generic() contains a
-similar optimization (albeit only for early boot), which also splats.
-(As in exactly why are you invoking synchronize_rcu_tasks_rude() so
-early in boot, anyway???)
-
-It is OK for the synchronize_rcu_tasks_rude() function's check to be
-unsynchronized because the only times that this check can evaluate to
-true is when there is only a single CPU running with preemption
-disabled.
-
-While in the area, this commit also fixes a minor bug in which a
-call to synchronize_rcu_tasks_rude() would instead be attributed to
-synchronize_rcu_tasks().
-
-[ paulmck: Add "synchronize_" prefix and "()" suffix. ]
-
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Moti Haimovski <mhaimovski@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/misc/habanalabs/common/device.c | 38 ++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index a701001e8b321..0a8824bbfa372 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -560,8 +560,9 @@ static int __noreturn rcu_tasks_kthread(void *arg)
- static void synchronize_rcu_tasks_generic(struct rcu_tasks *rtp)
- {
- 	/* Complain if the scheduler has not started.  */
--	WARN_ONCE(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
--			 "synchronize_rcu_tasks called too soon");
-+	if (WARN_ONCE(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
-+			 "synchronize_%s() called too soon", rtp->name))
-+		return;
+diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
+index 87ab329e65d49..f7b9c3871518b 100644
+--- a/drivers/misc/habanalabs/common/device.c
++++ b/drivers/misc/habanalabs/common/device.c
+@@ -1566,7 +1566,8 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
+ 		if (rc == -EBUSY) {
+ 			if (hdev->device_fini_pending) {
+ 				dev_crit(hdev->dev,
+-					"Failed to kill all open processes, stopping hard reset\n");
++					"%s Failed to kill all open processes, stopping hard reset\n",
++					dev_name(&(hdev)->pdev->dev));
+ 				goto out_err;
+ 			}
  
- 	// If the grace-period kthread is running, use it.
- 	if (READ_ONCE(rtp->kthread_ptr)) {
-@@ -1064,9 +1065,6 @@ static void rcu_tasks_be_rude(struct work_struct *work)
- // Wait for one rude RCU-tasks grace period.
- static void rcu_tasks_rude_wait_gp(struct rcu_tasks *rtp)
- {
--	if (num_online_cpus() <= 1)
--		return;	// Fastpath for only one CPU.
--
- 	rtp->n_ipis += cpumask_weight(cpu_online_mask);
- 	schedule_on_each_cpu(rcu_tasks_be_rude);
+@@ -1576,7 +1577,8 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
+ 
+ 		if (rc) {
+ 			dev_crit(hdev->dev,
+-				"Failed to kill all open processes, stopping hard reset\n");
++				"%s Failed to kill all open processes, stopping hard reset\n",
++				dev_name(&(hdev)->pdev->dev));
+ 			goto out_err;
+ 		}
+ 
+@@ -1627,14 +1629,16 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
+ 			 * ensure driver puts the driver in a unusable state
+ 			 */
+ 			dev_crit(hdev->dev,
+-				"Consecutive FW fatal errors received, stopping hard reset\n");
++				"%s Consecutive FW fatal errors received, stopping hard reset\n",
++				dev_name(&(hdev)->pdev->dev));
+ 			rc = -EIO;
+ 			goto out_err;
+ 		}
+ 
+ 		if (hdev->kernel_ctx) {
+ 			dev_crit(hdev->dev,
+-				"kernel ctx was alive during hard reset, something is terribly wrong\n");
++				"%s kernel ctx was alive during hard reset, something is terribly wrong\n",
++				dev_name(&(hdev)->pdev->dev));
+ 			rc = -EBUSY;
+ 			goto out_err;
+ 		}
+@@ -1752,9 +1756,13 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
+ 	hdev->reset_info.needs_reset = false;
+ 
+ 	if (hard_reset)
+-		dev_info(hdev->dev, "Successfully finished resetting the device\n");
++		dev_info(hdev->dev,
++			 "Successfully finished resetting the %s device\n",
++			 dev_name(&(hdev)->pdev->dev));
+ 	else
+-		dev_dbg(hdev->dev, "Successfully finished resetting the device\n");
++		dev_dbg(hdev->dev,
++			"Successfully finished resetting the %s device\n",
++			dev_name(&(hdev)->pdev->dev));
+ 
+ 	if (hard_reset) {
+ 		hdev->reset_info.hard_reset_cnt++;
+@@ -1789,7 +1797,9 @@ int hl_device_reset(struct hl_device *hdev, u32 flags)
+ 	hdev->reset_info.in_compute_reset = 0;
+ 
+ 	if (hard_reset) {
+-		dev_err(hdev->dev, "Failed to reset! Device is NOT usable\n");
++		dev_err(hdev->dev,
++			"%s Failed to reset! Device is NOT usable\n",
++			dev_name(&(hdev)->pdev->dev));
+ 		hdev->reset_info.hard_reset_cnt++;
+ 	} else if (reset_upon_device_release) {
+ 		spin_unlock(&hdev->reset_info.lock);
+@@ -2186,7 +2196,8 @@ int hl_device_init(struct hl_device *hdev, struct class *hclass)
+ 	}
+ 
+ 	dev_notice(hdev->dev,
+-		"Successfully added device to habanalabs driver\n");
++		"Successfully added device %s to habanalabs driver\n",
++		dev_name(&(hdev)->pdev->dev));
+ 
+ 	hdev->init_done = true;
+ 
+@@ -2235,11 +2246,11 @@ int hl_device_init(struct hl_device *hdev, struct class *hclass)
+ 		device_cdev_sysfs_add(hdev);
+ 	if (hdev->pdev)
+ 		dev_err(&hdev->pdev->dev,
+-			"Failed to initialize hl%d. Device is NOT usable !\n",
+-			hdev->cdev_idx);
++			"Failed to initialize hl%d. Device %s is NOT usable !\n",
++			hdev->cdev_idx, dev_name(&(hdev)->pdev->dev));
+ 	else
+-		pr_err("Failed to initialize hl%d. Device is NOT usable !\n",
+-			hdev->cdev_idx);
++		pr_err("Failed to initialize hl%d. Device %s is NOT usable !\n",
++			hdev->cdev_idx, dev_name(&(hdev)->pdev->dev));
+ 
+ 	return rc;
  }
+@@ -2295,7 +2306,8 @@ void hl_device_fini(struct hl_device *hdev)
+ 
+ 		if (ktime_compare(ktime_get(), timeout) > 0) {
+ 			dev_crit(hdev->dev,
+-				"Failed to remove device because reset function did not finish\n");
++				"%s Failed to remove device because reset function did not finish\n",
++				dev_name(&(hdev)->pdev->dev));
+ 			return;
+ 		}
+ 	}
 -- 
 2.39.2
 
