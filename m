@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5391F6B0928
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:32:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1CA6B094B
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:34:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231522AbjCHNcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 08:32:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41118 "EHLO
+        id S231756AbjCHNel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 08:34:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231454AbjCHNcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:32:24 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976F230EA9
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 05:30:46 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id ay14so62018063edb.11
-        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 05:30:46 -0800 (PST)
+        with ESMTP id S231343AbjCHNeZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:34:25 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1038C51E
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 05:32:52 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id ec29so34914725edb.6
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 05:32:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1678282230;
+        d=chromium.org; s=google; t=1678282368;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
         bh=Ctz9ly3mUXvnOCMjKKKRKdGuWb3UkC97eu67J6b4ILg=;
-        b=E/lK6k9g3tUL2FKYNs+31ggY2q2uXhmySmJuUxf//M9CXVU28k/bR1U+LS2YoTYLJp
-         oauFvSjQHsvplA+7LpFrrpRASdgi1TUk4b4IJRHWMupsHzmT5JF5a468zH/VVX3TQpAv
-         9EyfKC4CnryFaK8HQPUD7YmiTcpP6nGiLMwcM=
+        b=bXsI5PssGy1FTktGXsNpQbhRsty/wt0SfH8rSqQXCya3SQvXFfer4A9+h9FdIISG7X
+         l3VffIo/TrmvcZxAOYyAmRug5h3O9WgZ4X+qrcmZYFnN3Y/YBlzVglXvuQirQI3w1F0M
+         ZZIIYvuNNXYXoUHpGhWy76Lh1G5TT709bIk+k=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678282230;
+        d=1e100.net; s=20210112; t=1678282368;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
         bh=Ctz9ly3mUXvnOCMjKKKRKdGuWb3UkC97eu67J6b4ILg=;
-        b=OxFoHpxlbzJCaramzDWDEwGHcF2mAGYuqffSsqnLj4YScXnKmlgnPyQxA7hG5D7bUj
-         /0SxvzsvtyzWdSNSmuBeYz5UlPg8dxI3BSzNLWWpCE62xWsuEVJpaGkJWc18VOm7UnOO
-         YBhuv4/8j5OupLRo7leqePJn2Yl5WBFS4QTJfEWHJQ1Je/tLuKwzB7N5kG8KXHlZu1zS
-         /WPW8cnXJw18gy03OzlWkcE+1WXHpAb6sIwHfc8EnR//Omb3k1XNyliYlfH/snB3edFm
-         ZmKww1wnZgtsJWDFuoEpCX0l/TuJQ5ejrRmTYNFyP/37FmHZyYJDI7a6Zq9Axb5jG0vK
-         icNA==
-X-Gm-Message-State: AO0yUKVwqMfIEalaZ/Hq36gK8Xh5tTP16X7o6PcUVPUs17soVXDfvUb1
-        DQ2JX2yEv1AcRlnBHOhV94MjRVAc0Ll/GgyWLW4=
-X-Google-Smtp-Source: AK7set8pkyH8Kk28GIYfL2Kj3v/hID8nndHAABCGRjqdzrN3XzoUuoUg0Dul6fC6vYOrYf/UOYoLSA==
-X-Received: by 2002:a17:906:11c6:b0:8b1:3191:286f with SMTP id o6-20020a17090611c600b008b13191286fmr16706587eja.25.1678282230060;
-        Wed, 08 Mar 2023 05:30:30 -0800 (PST)
+        b=kz4umMP+hYgjRUPh4G/t4dZENeY8dJU15n8YZH4aQ2GxV4voqCMJ0zeh2BwzxmAmzW
+         zwJnHwM3QlcRdokJFHKuIUCnBSAA29ydU79N9iMai2ptyyaOIWkGwkI/tLDYeyTNgVld
+         O6meHOIorW1IoJGCDiOlmLAP9VUf8+Pt0uJ3eZWets8nMtP7XoaUHAgYIchcPYB+5ahP
+         LO4d08Rvaax+3cXqwOlhYw1l6oD6hxLoqEXZfEV1SUOzAoAJWam1iVQzlXEUp/jTCceU
+         eShiQUb6gS1slhKDVkmmwqqq3xBOZGWIES6uVuUSsvdWA/vJwN/ktH8tPyXG/zeqsRf1
+         qKNg==
+X-Gm-Message-State: AO0yUKXJwnlbxZ/8amywPKH79RSeHjOP1jg+0bdRQuiDXDfVBOdxfyDQ
+        k9ZfbR4ReB7eVu4qxmUfwejLXhuafZwc+oXRT+M=
+X-Google-Smtp-Source: AK7set+oDoOBRwc08IUiF/CF/Q9h69ouxMS6f6GgkkohnOOulUFR5E+dRGpWVIs2lKcjUSkH9r8kuA==
+X-Received: by 2002:a17:906:4cd4:b0:8f8:eded:4254 with SMTP id q20-20020a1709064cd400b008f8eded4254mr19830562ejt.65.1678282368479;
+        Wed, 08 Mar 2023 05:32:48 -0800 (PST)
 Received: from alco.corp.google.com ([2620:0:1059:10:2926:70d3:ee98:eb12])
-        by smtp.gmail.com with ESMTPSA id l8-20020a170906938800b008bc8ad41646sm7461874ejx.157.2023.03.08.05.30.29
+        by smtp.gmail.com with ESMTPSA id qt2-20020a170906ece200b008e938e98046sm7454330ejb.223.2023.03.08.05.32.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Mar 2023 05:30:29 -0800 (PST)
+        Wed, 08 Mar 2023 05:32:48 -0800 (PST)
 From:   Ricardo Ribalda <ribalda@chromium.org>
 To:     stable@vger.kernel.org
 Cc:     Ricardo Ribalda <ribalda@chromium.org>,
         Yunke Cao <yunkec@chromium.org>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [PATCH 6.2.y] media: uvcvideo: Fix race condition with usb_kill_urb
-Date:   Wed,  8 Mar 2023 14:30:25 +0100
-Message-Id: <20230308133025.191306-1-ribalda@chromium.org>
+Subject: [PATCH 6.1.y] media: uvcvideo: Fix race condition with usb_kill_urb
+Date:   Wed,  8 Mar 2023 14:32:41 +0100
+Message-Id: <20230308133241.195743-1-ribalda@chromium.org>
 X-Mailer: git-send-email 2.40.0.rc0.216.gc4246ad0f0-goog
-In-Reply-To: <16781002113959@kroah.com>
-References: <16781002113959@kroah.com>
+In-Reply-To: <167810021281196@kroah.com>
+References: <167810021281196@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
