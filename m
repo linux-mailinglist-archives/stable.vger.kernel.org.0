@@ -2,149 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E99656B09EE
+	by mail.lfdr.de (Postfix) with ESMTP id 93D416B09ED
 	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:53:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231629AbjCHNxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 08:53:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53082 "EHLO
+        id S231663AbjCHNxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 08:53:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231597AbjCHNxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:53:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7695B7EE9;
-        Wed,  8 Mar 2023 05:52:57 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20ACEB81CE4;
-        Wed,  8 Mar 2023 13:52:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE36AC433A7;
-        Wed,  8 Mar 2023 13:52:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678283574;
-        bh=VHnhsadzPGHqJRv9MI6xvp4gg6SnAwL1GGVQ7RBfbOg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUyV/CIL2Uksw628kRRyhFuxsGA0Uhkr3iNlsL/hZnwf2MDwclV2lXGVSd7dD6wC5
-         k1U28L6hP9GE6vom8HKakZIdipoWGJIN8x5GsWQi2/KBHRiuwVfPWct2vAA0KqnwOj
-         jYCAJEzlHgKfq9yp0rS7vllJn8WmlPSu6tFWOBaC0FATbTd5IY/1Hn1Cfehq+qV7v0
-         3axlHhimvkCsqZKOUzzNGSTPO2873bg2FIrsK6K11eo4QjRTf8r/2pIP7mSuZHu/6c
-         hjBO5BJMI0zpDOXNMvHTEvoS/R0Q1BihBa/+J55STkxNO8PAtCjGDO9zBnqt5u6xxT
-         hCLqRQaHXTukg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Elder <paul.elder@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
-        Jai Luthra <j-luthra@ti.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, slongerbeam@gmail.com,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 2/3] media: ov5640: Fix analogue gain control
-Date:   Wed,  8 Mar 2023 08:52:46 -0500
-Message-Id: <20230308135250.2927358-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230308135250.2927358-1-sashal@kernel.org>
-References: <20230308135250.2927358-1-sashal@kernel.org>
+        with ESMTP id S230264AbjCHNw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:52:57 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B4DE1999
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 05:52:53 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id da10so66087779edb.3
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 05:52:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1678283571;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Xabt1myQBRuE+eMEByQcLDVFrVSSoahD8jub5KQw9Yg=;
+        b=Z8Bh3g7ESIZOiKUtkhCvjLbhx7Z/YEkoHVETTlkRca1m6mLlWhZvqB9IJet6EuF/8y
+         p0aqX/cVE3hs/YhEj+EwealQxU9QmRfqVMovoaFnKj74/czP5JZ/l39fVLhqR5HeutKv
+         DEPybwJp4+K+NVC/B3m4zKRjF3dkL3PBIswBM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678283571;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Xabt1myQBRuE+eMEByQcLDVFrVSSoahD8jub5KQw9Yg=;
+        b=AxdLGiLZZU7Poc2lYAtoGP1fKd5lbgq2aCrYC2TtUjT+BLCuHAwiPksPHVkn/RRHAm
+         LxxPr6G6iqRAAQ/0QEFkQ+b+hBiOWzw1ORFBGMjrrf4rekdGEovMhOjYAJOvGjIrNSRM
+         9TIPi+RjqyaEpzIVhvl9CY3rxwQMyYXM+T6bidilklXIBxgla1enjFrzH7LcW3/QPB7O
+         YqtY+OMdvPDSUbny1du8JZFkp6UPEKn5QG2fZEUmMZlYKTi7MsxPSqDzUlPUfBOPDSLd
+         F3n7a8qutpgaSCJHrHEhNtdwEUVxBSHsilFOEXIxwxkN26+pfj5qr0yTnE/gCm+Mv5N4
+         SzlA==
+X-Gm-Message-State: AO0yUKUayQcN0xzBCAtxOgOQzS4WZyJ5l2hXROl3gvTjwtPwxWH70kRL
+        tbgPz0KTuouUeufR0GxxE9l8quUAYDDV1SM1ggw=
+X-Google-Smtp-Source: AK7set+BUgfzZvs8GgOTQBKBJRPeMQOnBjtNQatAJwOB6iD5E7ifKwo2ej114s5Jrx3QtPoU8a5kZQ==
+X-Received: by 2002:a17:906:af62:b0:8d9:383a:be39 with SMTP id os2-20020a170906af6200b008d9383abe39mr21758842ejb.41.1678283571452;
+        Wed, 08 Mar 2023 05:52:51 -0800 (PST)
+Received: from alco.corp.google.com ([2620:0:1059:10:2926:70d3:ee98:eb12])
+        by smtp.gmail.com with ESMTPSA id qw15-20020a170906fcaf00b008d57e796dcbsm7476927ejb.25.2023.03.08.05.52.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Mar 2023 05:52:50 -0800 (PST)
+From:   Ricardo Ribalda <ribalda@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+        Yunke Cao <yunkec@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 5.4.y 2/2] media: uvcvideo: Fix race condition with usb_kill_urb
+Date:   Wed,  8 Mar 2023 14:52:47 +0100
+Message-Id: <20230308135247.262826-2-ribalda@chromium.org>
+X-Mailer: git-send-email 2.40.0.rc0.216.gc4246ad0f0-goog
+In-Reply-To: <20230308135247.262826-1-ribalda@chromium.org>
+References: <167810021615514@kroah.com>
+ <20230308135247.262826-1-ribalda@chromium.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Elder <paul.elder@ideasonboard.com>
+usb_kill_urb warranties that all the handlers are finished when it
+returns, but does not protect against threads that might be handling
+asynchronously the urb.
 
-[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
+For UVC, the function uvc_ctrl_status_event_async() takes care of
+control changes asynchronously.
 
-Gain control is badly documented in publicly available (including
-leaked) documentation.
+If the code is executed in the following order:
 
-There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
-(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
-one application note states is equal to x1.047. The documentation also
-states that 0x40 is equel to x1.000. The pre-gain thus seems to be
-expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
-What the pre-gain does is however unspecified.
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+uvc_ctrl_status_event_work()
+					uvc_status_start() -> FAIL
 
-There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
-expressed as a 10-bit "real gain format" value. One application note
-sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
-expressed in 1/16 increments, up to x63.9375.
+Then uvc_status_start will keep failing and this error will be shown:
 
-The manual gain is stored in registers 0x350a and 0x350b, also as a
-10-bit "real gain format" value. It is documented in the application
-note as a Q6.4 values, up to x63.9375.
+<4>[    5.540139] URB 0000000000000000 submitted while active
+drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
 
-One version of the datasheet indicates that the sensor supports a
-digital gain:
+Let's improve the current situation, by not re-submiting the urb if
+we are stopping the status event. Also process the queued work
+(if any) during stop.
 
-  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
-  controlled automatically by the automatic gain control (AGC) block.
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+					uvc_status_start()
+uvc_ctrl_status_event_work() -> FAIL
 
-It isn't clear how that would be controlled manually.
+Hopefully, with the usb layer protection this should be enough to cover
+all the cases.
 
-There appears to be no indication regarding whether the gain controlled
-through registers 0x350a and 0x350b is an analogue gain only or also
-includes digital gain. The words "real gain" don't necessarily mean
-"combined analogue and digital gains". Some OmniVision sensors (such as
-the OV8858) are documented as supoprting different formats for the gain
-values, selectable through a register bit, and they are called "real
-gain format" and "sensor gain format". For that sensor, we have (one of)
-the gain registers documented as
-
-  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
-  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
-
-  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
-  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
-  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
-  0x70 is 4x gain
-
-(The second part of the text makes little sense)
-
-"Real gain" may thus refer to the combination of the coarse and fine
-analogue gains as a single value.
-
-The OV5640 0x350a and 0x350b registers thus appear to control analogue
-gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
-control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
-
-If registers 0x350a and 0x350b are later found to control digital gain
-as well, the driver could then restrict the range of the analogue gain
-control value to lower than x64 and add a separate digital gain control.
-
-Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
+Cc: stable@vger.kernel.org
+Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
+Reviewed-by: Yunke Cao <yunkec@chromium.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
-Reviewed-by: Jai Luthra <j-luthra@ti.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+(cherry picked from commit 619d9b710cf06f7a00a17120ca92333684ac45a8)
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 ---
- drivers/media/i2c/ov5640.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_ctrl.c   |  5 ++++
+ drivers/media/usb/uvc/uvc_status.c | 37 ++++++++++++++++++++++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |  1 +
+ 3 files changed, 43 insertions(+)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index 3f6d715efa823..1dfd409dfb2b0 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -3458,7 +3458,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
- 	/* Auto/manual gain */
- 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
- 					     0, 1, 1, 1);
--	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
-+	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
- 					0, 1023, 1, 0);
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index b6cadae3c187..e0d894c61f4b 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
  
- 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -1318,6 +1319,10 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 
+ 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
+ 
++	/* The barrier is needed to synchronize with uvc_status_stop(). */
++	if (smp_load_acquire(&dev->flush_status))
++		return;
++
+ 	/* Resubmit the URB. */
+ 	w->urb->interval = dev->int_ep->desc.bInterval;
+ 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
+diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
+index 3e26d82a906d..73725051cc16 100644
+--- a/drivers/media/usb/uvc/uvc_status.c
++++ b/drivers/media/usb/uvc/uvc_status.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
+ 
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+@@ -310,5 +311,41 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
+ 
+ void uvc_status_stop(struct uvc_device *dev)
+ {
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++
++	/*
++	 * Prevent the asynchronous control handler from requeing the URB. The
++	 * barrier is needed so the flush_status change is visible to other
++	 * CPUs running the asynchronous handler before usb_kill_urb() is
++	 * called below.
++	 */
++	smp_store_release(&dev->flush_status, true);
++
++	/*
++	 * Cancel any pending asynchronous work. If any status event was queued,
++	 * process it synchronously.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/* Kill the urb. */
+ 	usb_kill_urb(dev->int_urb);
++
++	/*
++	 * The URB completion handler may have queued asynchronous work. This
++	 * won't resubmit the URB as flush_status is set, but it needs to be
++	 * cancelled before returning or it could then race with a future
++	 * uvc_status_start() call.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/*
++	 * From this point, there are no events on the queue and the status URB
++	 * is dead. No events will be queued until uvc_status_start() is called.
++	 * The barrier is needed to make sure that flush_status is visible to
++	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
++	 * again.
++	 */
++	smp_store_release(&dev->flush_status, false);
+ }
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index fce41609e27a..d9e954335e75 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -664,6 +664,7 @@ struct uvc_device {
+ 	struct usb_host_endpoint *int_ep;
+ 	struct urb *int_urb;
+ 	u8 *status;
++	bool flush_status;
+ 	struct input_dev *input;
+ 	char input_phys[64];
+ 
 -- 
-2.39.2
+2.40.0.rc0.216.gc4246ad0f0-goog
 
