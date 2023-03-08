@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65BA16B122C
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 20:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C647C6B1227
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 20:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbjCHTjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 14:39:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36710 "EHLO
+        id S229715AbjCHTjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 14:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229747AbjCHTjk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 14:39:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1898524CB9;
-        Wed,  8 Mar 2023 11:39:39 -0800 (PST)
+        with ESMTP id S229707AbjCHTjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 14:39:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B161C7C3C7;
+        Wed,  8 Mar 2023 11:39:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDEECB81133;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D8CA61938;
         Wed,  8 Mar 2023 19:39:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43E51C4339B;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D60C433D2;
         Wed,  8 Mar 2023 19:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1678304376;
-        bh=7dr9+DjhjafLBUoTUZ0wTXvTwv6zLvDMtQOWv5BZ7AE=;
+        bh=bbb+45XrVULPTKf/JqPwmrPjLg03mNEHizYqoAVoe1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzDnR7DtfGVr+41MGbk5kRmsxP9YrUOju1pjAJRJlwkjJaK9Nr/V7r/qjiLS2Jkqi
-         WfEeuT2Lat8AfMPGd0VlyJ7o2NdFhkA9UZQ2wecZuG8I/bAPedgC9DzCSdd/ymmmet
-         kKw0tcIFnWlScxJOft5PA7PmedMemCl3jWybyLEUiZIwWRdRHaXqXohXC7Wi2LExGE
-         CqJKLPH6QAWn180Hn4/0PkxRB0ZokCz+nnRzqEHwZYo6OULl76+rxZVUv+z3sXcxwY
-         8AtGlQY2WMw2GksV4HPMZRRtJAP3jM9ZUHKBrUmGiwayC88Jvz/dZNSQOVZn8a4ZYl
-         /NBp0SVmeINCQ==
+        b=aEc4Lbjtd0ge0AydvT2tB0mTOToL+HIr1wjag7UXlEzHxFjBDwEK4yFzn9T9uD9Xz
+         ASSdEnK5QRT4Jf1ngG102uNYYxpQGcYanKxYuUxWn3i5qrI5gwL7rW4/eI6sIPBr38
+         ijwfqKMfEhTyv7557LiY+cOe4cbxXUeH9RHjtj8gKZVaGvETgnAA8zU4PJK5dL5dpP
+         /a588v2OAURbEyRRB5DdrWRmzncO7k2zlCpUtU77pZME2Eplt5tCNVDu9+QJkJ/lc7
+         uJR/M2RGpmdFXGy7TnPbgAMT9qXbmbg3NY/vcjr1lx3lHMiol7RudAoY3LoQ3KR0qx
+         7cSiwtLBbjFeg==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc:     linux-fscrypt@vger.kernel.org,
         Nathan Huckleberry <nhuck@google.com>, stable@vger.kernel.org
-Subject: [PATCH v2 1/4] blk-mq: release crypto keyslot before reporting I/O complete
-Date:   Wed,  8 Mar 2023 11:36:42 -0800
-Message-Id: <20230308193645.114069-2-ebiggers@kernel.org>
+Subject: [PATCH v2 2/4] blk-crypto: make blk_crypto_evict_key() more robust
+Date:   Wed,  8 Mar 2023 11:36:43 -0800
+Message-Id: <20230308193645.114069-3-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230308193645.114069-1-ebiggers@kernel.org>
 References: <20230308193645.114069-1-ebiggers@kernel.org>
@@ -54,194 +54,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-Once all I/O using a blk_crypto_key has completed, filesystems can call
-blk_crypto_evict_key().  However, the block layer currently doesn't call
-blk_crypto_put_keyslot() until the request is being freed, which happens
-after upper layers have been told (via bio_endio()) the I/O has
-completed.  This causes a race condition where blk_crypto_evict_key()
-can see 'slot_refs != 0' without there being an actual bug.
+If blk_crypto_evict_key() sees that the key is still in-use (due to a
+bug) or that ->keyslot_evict failed, it currently just returns an error
+while leaving the key linked into the keyslot management structures.
 
-This makes __blk_crypto_evict_key() hit the
-'WARN_ON_ONCE(atomic_read(&slot->slot_refs) != 0)' and return without
-doing anything, eventually causing a use-after-free in
-blk_crypto_reprogram_all_keys().  (This is a very rare bug and has only
-been seen when per-file keys are being used with fscrypt.)
+However, blk_crypto_evict_key() is only called in contexts such as inode
+eviction where failure is not an option.  So actually the caller
+proceeds with freeing the blk_crypto_key regardless of the return value
+of blk_crypto_evict_key().
 
-There are two options to fix this: either release the keyslot before
-bio_endio() is called on the request's last bio, or make
-__blk_crypto_evict_key() ignore slot_refs.  Let's go with the first
-solution, since it preserves the ability to report bugs (via
-WARN_ON_ONCE) where a key is evicted while still in-use.
+These two assumptions don't match, and the result is that there can be a
+use-after-free in blk_crypto_reprogram_all_keys() after one of these
+errors occurs.  (Note, these errors *shouldn't* happen; we're just
+talking about what happens if they do anyway.)
 
-Fixes: a892c8d52c02 ("block: Inline encryption support for blk-mq")
+Fix this by making blk_crypto_evict_key() unlink the key from the
+keyslot management structures even on failure.
+
+Fixes: 1b2628397058 ("block: Keyslot Manager for Inline Encryption")
 Cc: stable@vger.kernel.org
+Reviewed-by: Nathan Huckleberry <nhuck@google.com>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- block/blk-crypto-internal.h | 25 +++++++++++++++++++++----
- block/blk-crypto.c          | 24 ++++++++++++------------
- block/blk-merge.c           |  2 ++
- block/blk-mq.c              | 15 ++++++++++++++-
- 4 files changed, 49 insertions(+), 17 deletions(-)
+ block/blk-crypto-profile.c | 50 +++++++++++++++-----------------------
+ block/blk-crypto.c         | 23 +++++++++++-------
+ 2 files changed, 33 insertions(+), 40 deletions(-)
 
-diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
-index a8cdaf26851e..4f1de2495f0c 100644
---- a/block/blk-crypto-internal.h
-+++ b/block/blk-crypto-internal.h
-@@ -65,6 +65,11 @@ static inline bool blk_crypto_rq_is_encrypted(struct request *rq)
- 	return rq->crypt_ctx;
- }
- 
-+static inline bool blk_crypto_rq_has_keyslot(struct request *rq)
-+{
-+	return rq->crypt_keyslot;
-+}
-+
- blk_status_t blk_crypto_get_keyslot(struct blk_crypto_profile *profile,
- 				    const struct blk_crypto_key *key,
- 				    struct blk_crypto_keyslot **slot_ptr);
-@@ -119,6 +124,11 @@ static inline bool blk_crypto_rq_is_encrypted(struct request *rq)
- 	return false;
- }
- 
-+static inline bool blk_crypto_rq_has_keyslot(struct request *rq)
-+{
-+	return false;
-+}
-+
- #endif /* CONFIG_BLK_INLINE_ENCRYPTION */
- 
- void __bio_crypt_advance(struct bio *bio, unsigned int bytes);
-@@ -153,14 +163,21 @@ static inline bool blk_crypto_bio_prep(struct bio **bio_ptr)
+diff --git a/block/blk-crypto-profile.c b/block/blk-crypto-profile.c
+index 0307fb0d95d3..1b20ead59f39 100644
+--- a/block/blk-crypto-profile.c
++++ b/block/blk-crypto-profile.c
+@@ -354,22 +354,10 @@ bool __blk_crypto_cfg_supported(struct blk_crypto_profile *profile,
  	return true;
- }
- 
--blk_status_t __blk_crypto_init_request(struct request *rq);
--static inline blk_status_t blk_crypto_init_request(struct request *rq)
-+blk_status_t __blk_crypto_rq_get_keyslot(struct request *rq);
-+static inline blk_status_t blk_crypto_rq_get_keyslot(struct request *rq)
- {
- 	if (blk_crypto_rq_is_encrypted(rq))
--		return __blk_crypto_init_request(rq);
-+		return __blk_crypto_rq_get_keyslot(rq);
- 	return BLK_STS_OK;
- }
- 
-+void __blk_crypto_rq_put_keyslot(struct request *rq);
-+static inline void blk_crypto_rq_put_keyslot(struct request *rq)
-+{
-+	if (blk_crypto_rq_has_keyslot(rq))
-+		__blk_crypto_rq_put_keyslot(rq);
-+}
-+
- void __blk_crypto_free_request(struct request *rq);
- static inline void blk_crypto_free_request(struct request *rq)
- {
-@@ -199,7 +216,7 @@ static inline blk_status_t blk_crypto_insert_cloned_request(struct request *rq)
- {
- 
- 	if (blk_crypto_rq_is_encrypted(rq))
--		return blk_crypto_init_request(rq);
-+		return blk_crypto_rq_get_keyslot(rq);
- 	return BLK_STS_OK;
- }
- 
-diff --git a/block/blk-crypto.c b/block/blk-crypto.c
-index 45378586151f..d0c7feb447e9 100644
---- a/block/blk-crypto.c
-+++ b/block/blk-crypto.c
-@@ -224,27 +224,27 @@ static bool bio_crypt_check_alignment(struct bio *bio)
- 	return true;
- }
- 
--blk_status_t __blk_crypto_init_request(struct request *rq)
-+blk_status_t __blk_crypto_rq_get_keyslot(struct request *rq)
- {
- 	return blk_crypto_get_keyslot(rq->q->crypto_profile,
- 				      rq->crypt_ctx->bc_key,
- 				      &rq->crypt_keyslot);
  }
  
 -/**
-- * __blk_crypto_free_request - Uninitialize the crypto fields of a request.
+- * __blk_crypto_evict_key() - Evict a key from a device.
+- * @profile: the crypto profile of the device
+- * @key: the key to evict.  It must not still be used in any I/O.
 - *
-- * @rq: The request whose crypto fields to uninitialize.
+- * If the device has keyslots, this finds the keyslot (if any) that contains the
+- * specified key and calls the driver's keyslot_evict function to evict it.
 - *
-- * Completely uninitializes the crypto fields of a request. If a keyslot has
-- * been programmed into some inline encryption hardware, that keyslot is
-- * released. The rq->crypt_ctx is also freed.
-- */
--void __blk_crypto_free_request(struct request *rq)
-+void __blk_crypto_rq_put_keyslot(struct request *rq)
- {
- 	blk_crypto_put_keyslot(rq->crypt_keyslot);
-+	rq->crypt_keyslot = NULL;
-+}
-+
-+void __blk_crypto_free_request(struct request *rq)
-+{
-+	/* The keyslot, if one was needed, should have been released earlier. */
-+	if (WARN_ON_ONCE(rq->crypt_keyslot))
-+		__blk_crypto_rq_put_keyslot(rq);
-+
- 	mempool_free(rq->crypt_ctx, bio_crypt_ctx_pool);
--	blk_crypto_rq_set_defaults(rq);
-+	rq->crypt_ctx = NULL;
+- * Otherwise, this just calls the driver's keyslot_evict function if it is
+- * implemented, passing just the key (without any particular keyslot).  This
+- * allows layered devices to evict the key from their underlying devices.
+- *
+- * Context: Process context. Takes and releases profile->lock.
+- * Return: 0 on success or if there's no keyslot with the specified key, -EBUSY
+- *	   if the keyslot is still in use, or another -errno value on other
+- *	   error.
++/*
++ * This is an internal function that evicts a key from an inline encryption
++ * device that can be either a real device or the blk-crypto-fallback "device".
++ * It is used only by blk_crypto_evict_key(); see that function for details.
+  */
+ int __blk_crypto_evict_key(struct blk_crypto_profile *profile,
+ 			   const struct blk_crypto_key *key)
+@@ -389,22 +377,22 @@ int __blk_crypto_evict_key(struct blk_crypto_profile *profile,
+ 
+ 	blk_crypto_hw_enter(profile);
+ 	slot = blk_crypto_find_keyslot(profile, key);
+-	if (!slot)
+-		goto out_unlock;
+-
+-	if (WARN_ON_ONCE(atomic_read(&slot->slot_refs) != 0)) {
+-		err = -EBUSY;
+-		goto out_unlock;
++	if (slot) {
++		if (WARN_ON_ONCE(atomic_read(&slot->slot_refs) != 0)) {
++			/* BUG: key is still in use by I/O */
++			err = -EBUSY;
++		} else {
++			err = profile->ll_ops.keyslot_evict(
++					profile, key,
++					blk_crypto_keyslot_index(slot));
++		}
++		/*
++		 * Callers may free the key even on error, so unlink the key
++		 * from the hash table and clear slot->key even on error.
++		 */
++		hlist_del(&slot->hash_node);
++		slot->key = NULL;
+ 	}
+-	err = profile->ll_ops.keyslot_evict(profile, key,
+-					    blk_crypto_keyslot_index(slot));
+-	if (err)
+-		goto out_unlock;
+-
+-	hlist_del(&slot->hash_node);
+-	slot->key = NULL;
+-	err = 0;
+-out_unlock:
+ 	blk_crypto_hw_exit(profile);
+ 	return err;
+ }
+diff --git a/block/blk-crypto.c b/block/blk-crypto.c
+index d0c7feb447e9..4e26fac64199 100644
+--- a/block/blk-crypto.c
++++ b/block/blk-crypto.c
+@@ -399,17 +399,22 @@ int blk_crypto_start_using_key(struct block_device *bdev,
  }
  
  /**
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index 6460abdb2426..65e75efa9bd3 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -867,6 +867,8 @@ static struct request *attempt_merge(struct request_queue *q,
- 	if (!blk_discard_mergable(req))
- 		elv_merge_requests(q, req, next);
- 
-+	blk_crypto_rq_put_keyslot(next);
-+
- 	/*
- 	 * 'next' is going away, so update stats accordingly
- 	 */
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index d0cb2ef18fe2..49825538d932 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -840,6 +840,12 @@ static void blk_complete_request(struct request *req)
- 		req->q->integrity.profile->complete_fn(req, total_bytes);
- #endif
- 
-+	/*
-+	 * Upper layers may call blk_crypto_evict_key() anytime after the last
-+	 * bio_endio().  Therefore, the keyslot must be released before that.
-+	 */
-+	blk_crypto_rq_put_keyslot(req);
-+
- 	blk_account_io_completion(req, total_bytes);
- 
- 	do {
-@@ -905,6 +911,13 @@ bool blk_update_request(struct request *req, blk_status_t error,
- 		req->q->integrity.profile->complete_fn(req, nr_bytes);
- #endif
- 
-+	/*
-+	 * Upper layers may call blk_crypto_evict_key() anytime after the last
-+	 * bio_endio().  Therefore, the keyslot must be released before that.
-+	 */
-+	if (blk_crypto_rq_has_keyslot(req) && nr_bytes >= blk_rq_bytes(req))
-+		__blk_crypto_rq_put_keyslot(req);
-+
- 	if (unlikely(error && !blk_rq_is_passthrough(req) &&
- 		     !(req->rq_flags & RQF_QUIET)) &&
- 		     !test_bit(GD_DEAD, &req->q->disk->state)) {
-@@ -2967,7 +2980,7 @@ void blk_mq_submit_bio(struct bio *bio)
- 
- 	blk_mq_bio_to_request(rq, bio, nr_segs);
- 
--	ret = blk_crypto_init_request(rq);
-+	ret = blk_crypto_rq_get_keyslot(rq);
- 	if (ret != BLK_STS_OK) {
- 		bio->bi_status = ret;
- 		bio_endio(bio);
+- * blk_crypto_evict_key() - Evict a key from any inline encryption hardware
+- *			    it may have been programmed into
+- * @bdev: The block_device who's associated inline encryption hardware this key
+- *     might have been programmed into
+- * @key: The key to evict
++ * blk_crypto_evict_key() - Evict a blk_crypto_key from a block_device
++ * @bdev: a block_device on which I/O using the key may have been done
++ * @key: the key to evict
+  *
+- * Upper layers (filesystems) must call this function to ensure that a key is
+- * evicted from any hardware that it might have been programmed into.  The key
+- * must not be in use by any in-flight IO when this function is called.
++ * For a given block_device, this function removes the given blk_crypto_key from
++ * the keyslot management structures and evicts it from any underlying hardware
++ * keyslot(s) or blk-crypto-fallback keyslot it may have been programmed into.
+  *
+- * Return: 0 on success or if the key wasn't in any keyslot; -errno on error.
++ * Upper layers must call this before freeing the blk_crypto_key.  It must be
++ * called for every block_device the key may have been used on.  The key must no
++ * longer be in use by any I/O when this function is called.
++ *
++ * Context: May sleep.
++ * Return: 0 on success or if the key wasn't in any keyslot; -errno if the key
++ *	   failed to be evicted from a keyslot or is still in-use.  Even on
++ *	   "failure", the key is removed from the keyslot management structures.
+  */
+ int blk_crypto_evict_key(struct block_device *bdev,
+ 			 const struct blk_crypto_key *key)
 -- 
 2.39.2
 
