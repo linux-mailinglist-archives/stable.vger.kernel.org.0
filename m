@@ -2,68 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1FEF6B14FB
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 23:21:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A276B1509
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 23:25:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230306AbjCHWVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 17:21:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38386 "EHLO
+        id S229816AbjCHWZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 17:25:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230345AbjCHWVf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 17:21:35 -0500
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 73CC6AA730;
-        Wed,  8 Mar 2023 14:21:04 -0800 (PST)
-Received: by linux.microsoft.com (Postfix, from userid 1131)
-        id 5E90D20C14D5; Wed,  8 Mar 2023 14:20:47 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5E90D20C14D5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1678314047;
-        bh=laX+9r3N8J6ML42rUkDuUJzagntslBBug9S0aP109Tk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WQGoYetRGfk4lLMl/bhYhbey05TXdYrfwcxR3IBMJx6lCwXuku7zQCiSgZATy8USp
-         dMXA8XX1M2LyQ/NXH1bShEVXYnszkOqptiOgztA8xS5SmWl64P0UHApSnmzZZuXB5W
-         4fH2DTeMy9RLrVkZjA2tLu1WCz6G4KOlq1a95NzM=
-Date:   Wed, 8 Mar 2023 14:20:47 -0800
-From:   Kelsey Steele <kelseysteele@linux.microsoft.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/887] 6.1.16-rc2 review
-Message-ID: <20230308222047.GB9044@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20230308091853.132772149@linuxfoundation.org>
+        with ESMTP id S229903AbjCHWZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 17:25:37 -0500
+Received: from EX-PRD-EDGE02.vmware.com (EX-PRD-EDGE02.vmware.com [208.91.3.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7701FABB09;
+        Wed,  8 Mar 2023 14:25:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+    s=s1024; d=vmware.com;
+    h=from:to:cc:subject:date:message-id:mime-version:content-type;
+    bh=2pwrAG2og3CsxoWUPHj07yKUTRNwYme2YdUv23v0xiQ=;
+    b=ckG+DgFPdvs414R3BcMUOtBpLVCP9m4rnqsYcSqschueDmpXrH2+1ptV8SVJ29
+      /LnEJdeBu1junoQ+UCX+kTlfBIhC0y5YRy7pG3+eKQKvhjCc1atUy+5rPZVLY4
+      srok310ip3uhY1gZHjRhU0xUs1cQAmxKXn7zXaRfYDYyIiY=
+Received: from sc9-mailhost2.vmware.com (10.113.161.72) by
+ EX-PRD-EDGE02.vmware.com (10.188.245.7) with Microsoft SMTP Server id
+ 15.1.2375.34; Wed, 8 Mar 2023 14:25:21 -0800
+Received: from htb-1n-eng-dhcp122.eng.vmware.com (unknown [10.20.114.216])
+        by sc9-mailhost2.vmware.com (Postfix) with ESMTP id 447D92079D;
+        Wed,  8 Mar 2023 14:25:22 -0800 (PST)
+Received: by htb-1n-eng-dhcp122.eng.vmware.com (Postfix, from userid 0)
+        id 13C25A8386; Wed,  8 Mar 2023 14:25:21 -0800 (PST)
+From:   Ronak Doshi <doshir@vmware.com>
+To:     <netdev@vger.kernel.org>
+CC:     Ronak Doshi <doshir@vmware.com>, <stable@vger.kernel.org>,
+        VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Guolin Yang <gyang@vmware.com>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: [PATCH net] vmxnet3: use gro callback when UPT is enabled
+Date:   Wed, 8 Mar 2023 14:25:03 -0800
+Message-ID: <20230308222504.25675-1-doshir@vmware.com>
+X-Mailer: git-send-email 2.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230308091853.132772149@linuxfoundation.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+Received-SPF: None (EX-PRD-EDGE02.vmware.com: doshir@vmware.com does not
+ designate permitted sender hosts)
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 08, 2023 at 10:29:31AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.16 release.
-> There are 887 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 10 Mar 2023 09:16:12 +0000.
-> Anything received after that time might be too late.
-> 
-No regressions found on WSL x86_64 or WSL arm64
+Currently, vmxnet3 uses GRO callback only if LRO is disabled. However,
+on smartNic based setups where UPT is supported, LRO can be enabled
+from guest VM but UPT devicve does not support LRO as of now. In such
+cases, there can be performance degradation as GRO is not being done.
 
-Built, booted, and reviewed dmesg.
+This patch fixes this issue by calling GRO API when UPT is enabled. We
+use updateRxProd to determine if UPT mode is active or not.
 
-Thank you.
+Cc: stable@vger.kernel.org
+Fixes: 6f91f4ba046e ("vmxnet3: add support for capability registers")
+Signed-off-by: Ronak Doshi <doshir@vmware.com>
+Acked-by: Guolin Yang <gyang@vmware.com>
+---
+ drivers/net/vmxnet3/vmxnet3_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Tested-by: Kelsey Steele <kelseysteele@linux.microsoft.com> 
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index 682987040ea8..8f7ac7d85afc 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -1688,7 +1688,8 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
+ 			if (unlikely(rcd->ts))
+ 				__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), rcd->tci);
+ 
+-			if (adapter->netdev->features & NETIF_F_LRO)
++			/* Use GRO callback if UPT is enabled */
++			if ((adapter->netdev->features & NETIF_F_LRO) && !rq->shared->updateRxProd)
+ 				netif_receive_skb(skb);
+ 			else
+ 				napi_gro_receive(&rq->napi, skb);
+-- 
+2.11.0
+
