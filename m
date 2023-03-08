@@ -2,120 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4AC6B134A
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 21:43:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEBC36B134B
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 21:43:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230151AbjCHUnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 15:43:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42362 "EHLO
+        id S229919AbjCHUnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 15:43:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230383AbjCHUm6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 15:42:58 -0500
-Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3097B59FF
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 12:42:56 -0800 (PST)
-Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
-        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id 9AC6A8028F6E
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 20:42:55 +0000 (UTC)
-Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
-        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 0FF8E10048291
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 20:42:25 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id a0cCpMl2QNX2aa0cDp4NLj; Wed, 08 Mar 2023 20:42:25 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=NMAQR22g c=1 sm=1 tr=0 ts=6408f331
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=k__wU0fu6RkA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=WzVMo6mmhJd9EY20C/Af9KjmQLQ/fvgOnPTPasIwdW0=; b=iBQUPhlx+4bW7G4WWiD8kz5lRs
-        BKHZL975RfHIb3mZhXFGJwfykdGvCUaypfrxrAPEJywKVrOYa3kkiawVOD6lUV7Q35ZNGeT4lgE/w
-        cazvBWjtK6OBTYE5p3R/Oj1GYtnDdJEr/NOMD16yHAf919ezxNbphP1jSox7Gpt8Bf+vW4PD3C87u
-        2PfI+OR2V7DHnBgOhv+BuyUNHP0amdEgRX/LR3KhM1XLAmE6FWowF/TkUDi33ZUTf6TQvdV1t5Prj
-        VzA/Q2I/DL1xQZs5FdUYaufxvkO7oftuavh1QgSBRgY64n8H9Pjb9n7hMGy8+I7EO0t4OTtyjjafi
-        rDehkn8A==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:59618 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pa0cB-001eoR-AB;
-        Wed, 08 Mar 2023 13:42:23 -0700
-Subject: Re: [PATCH 6.1 000/887] 6.1.16-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230308091853.132772149@linuxfoundation.org>
-In-Reply-To: <20230308091853.132772149@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <d91ecd0b-f26f-a8fc-2e69-9e92758ec367@w6rz.net>
-Date:   Wed, 8 Mar 2023 12:42:18 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S230249AbjCHUnX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 15:43:23 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C07D5A92A
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 12:43:22 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id y2so63737pjg.3
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 12:43:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678308202;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=+A3AtZti2PCqmdIYgNre4htS7aEfSODdk6XIsliXGR0=;
+        b=NjjE44Cq+X+3ws4COGwfuUrlCOkJ/rp2yP4ci/PFnUpl8BA5guW/KBt0eggEKMmv6g
+         BpHcKokqdAL2aMGxcFqVQ6v5F42oVXNw5enGVlcCJOFshcRNX1gDMCjaNOtRP0dwIVw4
+         RhtsN194Tja3hWviZPIcKcryMGQO9vJaPhisHB0VquLkl99J6bDRmJVzsNPEgLAMHdv6
+         HpGfVJU9LS5hYabZe/9To8ti/QbrL//Igc7ZG+Tpvq9LVnYFbN23WA2MNukb4OTh2t3Q
+         9CUiMg2Nb1qeqoxZAyG+m+QxoyTJWiVBQTMGTRjiJPxgxvlJzrNvHIrJpCOgu90+tZAq
+         +Z3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678308202;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+A3AtZti2PCqmdIYgNre4htS7aEfSODdk6XIsliXGR0=;
+        b=xNo5P3JITDd3neghTpqMODmhATVXBXOPyJiVrMvGJIah8LboppGmR0pQyMHsASkZD+
+         6m4qa6KAG4qvyRgL48+6cihDBYQTtZjbm5Bem/fhcgp2o6qHEUvry2tkf9B3rA9YjgQ8
+         wiY2CQu6l1ZfgHXGVNWBF1VC6iC6xMnLF7paPV1l0i0WdJMpSHN7P1ZCHW0oog1Id1Wo
+         8f6b3lloYYfDL7GF1dBxqc83dRLPnMhV+w4dMpnDXnj4/fEchhIrtTer/OED8FblNZGz
+         evc48gzJudTi9AwNZiHj3e42BudkfLcBiIWywmkEnOPWE0WFcqttDpMvSTOyx0wBXDNB
+         GRDg==
+X-Gm-Message-State: AO0yUKVwA91v/QSymhKw/6uHyQdJWn/OG/phMkRW3uws4d6jUcngJ6F5
+        lZicIrdBS/sKWGawmUST31pHjvqz2/TnecaSAgvyNw==
+X-Google-Smtp-Source: AK7set/5bRmjrU7uKJt1EzKNzhsfPsE5B5pD570yhpFlVTdxJUQGX3eXSxtlJugWH5j7O+v5FlkGAg==
+X-Received: by 2002:a05:6a20:5487:b0:c6:d37c:2a62 with SMTP id i7-20020a056a20548700b000c6d37c2a62mr26141306pzk.11.1678308201807;
+        Wed, 08 Mar 2023 12:43:21 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y13-20020aa7854d000000b00592543d7363sm9787036pfn.1.2023.03.08.12.43.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Mar 2023 12:43:21 -0800 (PST)
+Message-ID: <6408f369.a70a0220.877c3.28bf@mx.google.com>
+Date:   Wed, 08 Mar 2023 12:43:21 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pa0cB-001eoR-AB
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:59618
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-6.1.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v6.1.15-889-gbb4e875c8c41e
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-6.1.y baseline: 179 runs,
+ 1 regressions (v6.1.15-889-gbb4e875c8c41e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/8/23 1:29 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.16 release.
-> There are 887 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 10 Mar 2023 09:16:12 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.16-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-6.1.y baseline: 179 runs, 1 regressions (v6.1.15-889-gbb4e8=
+75c8c41e)
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Regressions Summary
+-------------------
 
-Tested-by: Ron Economos <re@w6rz.net>
+platform           | arch | lab         | compiler | defconfig         | re=
+gressions
+-------------------+------+-------------+----------+-------------------+---=
+---------
+bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
+         =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-6.1.y/kern=
+el/v6.1.15-889-gbb4e875c8c41e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-6.1.y
+  Describe: v6.1.15-889-gbb4e875c8c41e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bb4e875c8c41e8f41325722722e6a9cf02850f50 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab         | compiler | defconfig         | re=
+gressions
+-------------------+------+-------------+----------+-------------------+---=
+---------
+bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/6408bda4614c7460888c8671
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-6.1.y/v6.1.15-=
+889-gbb4e875c8c41e/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm283=
+5-rpi-b-rev2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-6.1.y/v6.1.15-=
+889-gbb4e875c8c41e/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm283=
+5-rpi-b-rev2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230303.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/6408bda4614c7460888c867a
+        failing since 0 day (last pass: v6.1.15, first fail: v6.1.15-886-g7=
+ff82f8ebd2b)
+
+    2023-03-08T16:53:39.501847  + set +x
+    2023-03-08T16:53:39.505361  <8>[   17.716314] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 128033_1.5.2.4.1>
+    2023-03-08T16:53:39.623183  / # #
+    2023-03-08T16:53:39.726717  export SHELL=3D/bin/sh
+    2023-03-08T16:53:39.727678  #
+    2023-03-08T16:53:39.829492  / # export SHELL=3D/bin/sh. /lava-128033/en=
+vironment
+    2023-03-08T16:53:39.829931  =
+
+    2023-03-08T16:53:39.932307  / # . /lava-128033/environment/lava-128033/=
+bin/lava-test-runner /lava-128033/1
+    2023-03-08T16:53:39.933677  =
+
+    2023-03-08T16:53:39.939889  / # /lava-128033/bin/lava-test-runner /lava=
+-128033/1 =
+
+    ... (14 line(s) more)  =
+
+ =20
