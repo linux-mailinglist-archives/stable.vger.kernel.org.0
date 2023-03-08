@@ -2,107 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF456AFED2
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 07:18:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD726AFEDE
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 07:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbjCHGSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 01:18:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35872 "EHLO
+        id S229750AbjCHGZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 01:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjCHGSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 01:18:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C06558B7E;
-        Tue,  7 Mar 2023 22:18:33 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE36CB81BC1;
-        Wed,  8 Mar 2023 06:18:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5297FC433D2;
-        Wed,  8 Mar 2023 06:18:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678256310;
-        bh=71aPwkLQex1x+QJiLQLCx21XaqRi77OvXFklt0nE/KE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Wh69IBPHpiAWHCRdc7XGE9n8/3JloJVAPmdaCATTPy7SHhDBWNgYKxbHQAU54U1lm
-         maBxoRoSsuxbHxhj7slzRSRmwww2Z6pIKPwxyNPJtLd+arjC09rULc4mmn2cbN39H/
-         Bvt+8PUuvzp4wKYKNly6ufa4VQmvQ2k7TyvEhbaECTKv9Sg3E3hfqSwBgnqBRa8Bzy
-         vC4allIJ6HIzjfNwAdyhf6c5WO7vDydIokwoJcc5gD3gkJCptk0GvzHUxVpuasHjoR
-         ghENndS5CCqEd5PMVw0NyWP3pEfyQOCR7goG/9TgXY7m86TMMnXNqWBYdk15BxdiPE
-         Rl7ISFoRSasGw==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        linux-fscrypt@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Tejun Heo <tj@kernel.org>, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 4.19] f2fs: fix cgroup writeback accounting with fs-layer encryption
-Date:   Tue,  7 Mar 2023 22:17:46 -0800
-Message-Id: <20230308061746.711142-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S229879AbjCHGY7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 01:24:59 -0500
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28B5B9BA58
+        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 22:24:51 -0800 (PST)
+Received: by mail-oi1-x229.google.com with SMTP id bp19so11449506oib.4
+        for <stable@vger.kernel.org>; Tue, 07 Mar 2023 22:24:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678256690;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=5X5KlJGh8wmufQGIV2D/tgCOyLpAoiqef77SrBzKk+k=;
+        b=ieBDziEaCEOU5BTCib18PBto1Gq5N8s4DoCs5oN8h2hdjXaemKKmCueAMJzohRt9yY
+         /Gei/ehKN/NcqqFfZGgtuEWlmxkNbDgWV4SjU4QlFSOwuBDKPHV6YWZ1fH5032apXv3s
+         87sXd5enefs6y2/+peP4zA6oHoeTMjvEgk2A/1a+TuBN1t93PK3mh9Bc2JKAe612cd18
+         v5NRaCvPyqPyNpgrsULfjrXvoREpm9wUHegUVNHt4VEMITEsJZy2M6ZwmvRD4q+YhVhS
+         hqOpwZrzBvrOSwNJdaTp54Xe+izDIIHc8uECIphieTuRcjj0r3DVDnoTGLYFu206Oosc
+         fpOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678256690;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5X5KlJGh8wmufQGIV2D/tgCOyLpAoiqef77SrBzKk+k=;
+        b=vPXUdmQhnTioqnmk2C07zGokVlaQCjMCG5O1my4Q9IAWZGu5hjxie+qBR7wory2dMa
+         Pa16P6Ns7sEcX9cXvLyUTEp2qDbjJSUTw3L9NvhABt+ydmHz8i4x/nueY1DfjmoEcYle
+         VD3QH998cDGVE+RHd6MaNzjAiVsw/hz+WDmVmISsa+vugEHDVBOZAcOQzV0/BEvBVEJA
+         WUcg0Q557b7e3gYiQlyj9jxpyejsUUsB3G89WxxnGAto5UHicl2abia4/KXUYKc1D/Yu
+         4NBE8v+rlxn8RRzOAxeCPTPo/jUvQzvpRgFLkjychxzd/PaJBUs5cmxuaVx11ZJgqvUq
+         OSEQ==
+X-Gm-Message-State: AO0yUKXbDIwV0DCH7KR/xL57OqjRqg4yxCtTQ9meF4YaRVvrc8LIRxcQ
+        k9zXUsZ8TmI1hUfeAce2g23ZDQ==
+X-Google-Smtp-Source: AK7set/IqnTdfkK2/5VmcLj+50JMgv5m//T40wTxcdYkzR0RXiu0N8C4nqtywJqs3YseiF8959OW8w==
+X-Received: by 2002:a05:6808:5ce:b0:383:b777:8518 with SMTP id d14-20020a05680805ce00b00383b7778518mr7587929oij.24.1678256688725;
+        Tue, 07 Mar 2023 22:24:48 -0800 (PST)
+Received: from [192.168.17.16] ([189.219.75.19])
+        by smtp.gmail.com with ESMTPSA id s82-20020acadb55000000b00383ecd10ea6sm6016159oig.20.2023.03.07.22.24.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Mar 2023 22:24:48 -0800 (PST)
+Message-ID: <4ce8fe57-53eb-4a83-a468-ebfc98fed496@linaro.org>
+Date:   Wed, 8 Mar 2023 00:24:45 -0600
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH 5.15 000/567] 5.15.99-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de, peterz@infradead.org,
+        jpoimboe@redhat.com
+References: <20230307165905.838066027@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20230307165905.838066027@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+Hello!
 
-commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
+On 07/03/23 10:55, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.99 release.
+> There are 567 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 09 Mar 2023 16:57:34 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.99-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), f2fs encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+A new warning has been introduced on x86_64; we've seen it with GCC 8, 11, 12, and Clang 16.
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
+   arch/x86/kernel/smp.o: warning: objtool: sysvec_reboot()+0x54: unreachable instruction
 
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
+Bisection pointed towards "x86: Mark stop_this_cpu() __noreturn" (upstream commit f9cdf7ca57cada055f61ef6d0eb4db21c3f200db). Reverting this commit did remove the warning.
 
-Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
- fs/f2fs/data.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Reproducer:
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index c63f5e32630ee..56b2dadd623b2 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -464,7 +464,7 @@ int f2fs_submit_page_bio(struct f2fs_io_info *fio)
- 	}
- 
- 	if (fio->io_wbc && !is_read_io(fio->op))
--		wbc_account_io(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_io(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	bio_set_op_attrs(bio, fio->op, fio->op_flags);
- 
-@@ -533,7 +533,7 @@ void f2fs_submit_page_write(struct f2fs_io_info *fio)
- 	}
- 
- 	if (fio->io_wbc)
--		wbc_account_io(fio->io_wbc, bio_page, PAGE_SIZE);
-+		wbc_account_io(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	io->last_block_in_bio = fio->new_blkaddr;
- 	f2fs_trace_ios(fio, 0);
--- 
-2.39.2
+   tuxmake \
+     --runtime podman \
+     --target-arch x86_64 \
+     --toolchain gcc-11 \
+     --kconfig https://storage.tuxsuite.com/public/linaro/lkft/builds/2MhGKYH63pYIllJIDAxH3FsvakK/config
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
 
