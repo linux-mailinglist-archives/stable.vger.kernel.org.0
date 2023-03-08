@@ -2,64 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE4E6B0E85
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 17:22:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D00916B0E86
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 17:22:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229768AbjCHQWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 11:22:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59972 "EHLO
+        id S229762AbjCHQWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 11:22:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229841AbjCHQWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 11:22:39 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA487C1C39
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 08:22:37 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id v16so15999335wrn.0
-        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 08:22:37 -0800 (PST)
+        with ESMTP id S229872AbjCHQWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 11:22:41 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2530B7DBB
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 08:22:39 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id e13so15912997wro.10
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 08:22:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1678292556;
+        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1678292558;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cHn56iVt2HnwdivXldQ/f2/54UUSj5cl5rbeRHFVuNk=;
-        b=DUoTX/Tu2ZOW3VwtzRwjrhqU3KUg11JEtrDS4xKEkfNmMOFTEiRL5gI5ZZ/2YHAu8H
-         w8m81ireaXWVEs52tKxy/9iDciOreVvLEyv8dCY3b1G3amg7Ufs2fxsUPNBFg9gWIYK/
-         JVuAyaXb8UAXzL3pcmqKWLI1PikAROD75N/eFVh0/Faa2qXH3JKRouHXRftSJj3bl9wA
-         IKtEHs3SU0aM+W2ncvu70LlKopvu9E1vIsnMrQst6z1P+8sHNV/qL+VZ1rbXYJgqEO+d
-         CPq0H2RGyt77KtFJhn2RZAwTUF1CPZM9t83MCpa9oPrCPnJsrbIjhg2I93VOlKjCc/aA
-         PQig==
+        bh=FVmc4O7N6lTFzucegzVlexfmD/ygBi6+v2FQsqfQN6s=;
+        b=gRWeTzeHcUGMojJLAOWtWL++JZQAKttcpFk7qtfr1EGoop8yhuSShbpIcc93sjRUc5
+         nKgSc7b3xkQO57CE+G8C9DS1dutFTX8qjvUK+pIOmdZTtYnCaJlv1UbEm0/us/7cxdC+
+         cyEDs6YwsZgjV/4a70rX2qM054EwXc+UoORzbppwan3lgdqYtYxhTLF0+KviR8EbRCd9
+         KOAiueNsJKoFutUWbIibQGE2kpQjQCe0xP0QzxruuPHcar0HarprjlhlS30HZGcnzAub
+         lZF35L3LZhfd4zGWsX0MxqB/VHAhfc1RPGVyODuhZju65DN7m7cFD/SYO/jf/Iz9H4/c
+         lqyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678292556;
+        d=1e100.net; s=20210112; t=1678292558;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=cHn56iVt2HnwdivXldQ/f2/54UUSj5cl5rbeRHFVuNk=;
-        b=aRuYfuqQtJk83O1rqRoLWfJJob/UHZyts/3sGjG5M5/8Z2uStsHWiCkcUoN0gHGaxq
-         OLl9N43yDqHWlmvwcqjDaFgQKqbvSJCZabNZEbVu5JtVydvtBAZTlCI1us5Dw1mbWdAG
-         BwtFnWfzcGqsLCz4fkg5dbWsO73V8TMl4djNjft6BXBWqNKyk40eGF7u8QzUrKwmRh4x
-         pXF4B14Re6R62DOqAr27dt1GWmlJvmAvhbmOHd80HVHQanPPPbTmrN6dlbSRRC4aCZUh
-         ftstAJJC6UgdLhal0ZHJyCyKNK0hnqZJqCIe+EwRcYACJJrRz3Xuni83fvfVZkg2B4Rq
-         ntoA==
-X-Gm-Message-State: AO0yUKVHCWF8iYeH03FhO891hH9A4vii8vpGhC8TNpDl7Xgusg+ZAmNr
-        Wuwtfz+IJURdDyV8+RMmYAtPda9u9bhkhyVmKec=
-X-Google-Smtp-Source: AK7set/H5hiHiXQX4tZa9Sxdx7W7jYmJpsIZWMbGLhiWXu5AvnGeMq5r4TiciEN9WdWm8ixaCWsR2Q==
-X-Received: by 2002:a5d:46c8:0:b0:2ca:101e:1056 with SMTP id g8-20020a5d46c8000000b002ca101e1056mr12657581wrs.1.1678292556425;
-        Wed, 08 Mar 2023 08:22:36 -0800 (PST)
+        bh=FVmc4O7N6lTFzucegzVlexfmD/ygBi6+v2FQsqfQN6s=;
+        b=eJfJqheIryaEO7fjhXg2Dwqa5KBi80x96GxL2PbGBWxPaLbaCIO72BWxDlfHHBUG3F
+         iXrwVpFVUQ38CuW/dHJdWMBmxXK1TT7J7BAsC9YkNXL8cGzOBejuaYkOBxR38zE4y29q
+         GxbPFkPzdOwkwT6y2vRa0YUe99iFx00aDAFb/z0oPKWs90JOj/bCFR2I5e0Q7FlIY9Qp
+         /17L2uaPhkA2kRiD6jRCFRJ3VWmJm4BKBeX50jid8GOWirthybaQNZR6n0LrDHsBvcBN
+         bQMEEeXoct9sGB8+TJKwax8xRgQHPp7lBcFV9VU4g1seaToSqbN7v1BAnZ7yRFQtjii5
+         bA6A==
+X-Gm-Message-State: AO0yUKWpEeb7N5Khm5mSpXWITDeX7pAHYeGV12C8WWvje09zR2YEbG72
+        bbHnelPm2OMlDO/Ezj/VRIkDAY56mGSKCrSJ3YY=
+X-Google-Smtp-Source: AK7set+0TZFwGm4FiXqS7oz7CmLur4BwOEI2K1mdd8ki7wU6OfW7PFh6RLCLLiDBJAPTkqimGjxW4w==
+X-Received: by 2002:a5d:6512:0:b0:2c5:5687:5ed5 with SMTP id x18-20020a5d6512000000b002c556875ed5mr10875119wru.18.1678292558427;
+        Wed, 08 Mar 2023 08:22:38 -0800 (PST)
 Received: from localhost.localdomain (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
-        by smtp.gmail.com with ESMTPSA id r8-20020a5d4e48000000b002c5d3f0f737sm15786015wrt.30.2023.03.08.08.22.35
+        by smtp.gmail.com with ESMTPSA id r8-20020a5d4e48000000b002c5d3f0f737sm15786015wrt.30.2023.03.08.08.22.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Mar 2023 08:22:36 -0800 (PST)
+        Wed, 08 Mar 2023 08:22:38 -0800 (PST)
 From:   Qais Yousef <qyousef@layalina.io>
 To:     stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Qais Yousef <qyousef@layalina.io>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>
-Subject: [PATCH 6/7] sched/uclamp: Fix a uninitialized variable warnings
-Date:   Wed,  8 Mar 2023 16:22:06 +0000
-Message-Id: <20230308162207.2886641-7-qyousef@layalina.io>
+        Qais Yousef <qyousef@layalina.io>
+Subject: [PATCH 7/7] sched/fair: Fixes for capacity inversion detection
+Date:   Wed,  8 Mar 2023 16:22:07 +0000
+Message-Id: <20230308162207.2886641-8-qyousef@layalina.io>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230308162207.2886641-1-qyousef@layalina.io>
 References: <20230308162207.2886641-1-qyousef@layalina.io>
@@ -74,92 +72,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit e26fd28db82899be71b4b949527373d0a6be1e65 upstream.
+commit da07d2f9c153e457e845d4dcfdd13568d71d18a4 upstream.
 
-Addresses the following warnings:
+Traversing the Perf Domains requires rcu_read_lock() to be held and is
+conditional on sched_energy_enabled(). Ensure right protections applied.
 
-> config: riscv-randconfig-m031-20221111
-> compiler: riscv64-linux-gcc (GCC) 12.1.0
->
-> smatch warnings:
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_min'.
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_max'.
+Also skip capacity inversion detection for our own pd; which was an
+error.
 
-Fixes: 244226035a1f ("sched/uclamp: Fix fits_capacity() check in feec()")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
+Fixes: 44c7b80bffc3 ("sched/fair: Detect capacity inversion")
+Reported-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20230112122708.330667-2-qyousef@layalina.io
-(cherry picked from commit e26fd28db82899be71b4b949527373d0a6be1e65)
-[Conflict in kernel/sched/fair.c due to new automatic variables being
-added on master vs 5.15]
+Link: https://lore.kernel.org/r/20230112122708.330667-3-qyousef@layalina.io
+(cherry picked from commit da07d2f9c153e457e845d4dcfdd13568d71d18a4)
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 ---
- kernel/sched/fair.c | 35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ kernel/sched/fair.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index a9ae621d58cb..1a78a7882868 100644
+index 1a78a7882868..5a050c827113 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -6977,14 +6977,16 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
- 		goto unlock;
- 
- 	for (; pd; pd = pd->next) {
-+		unsigned long util_min = p_util_min, util_max = p_util_max;
- 		unsigned long cur_delta, spare_cap, max_spare_cap = 0;
- 		unsigned long rq_util_min, rq_util_max;
--		unsigned long util_min, util_max;
- 		bool compute_prev_delta = false;
- 		unsigned long base_energy_pd;
- 		int max_spare_cap_cpu = -1;
- 
- 		for_each_cpu_and(cpu, perf_domain_span(pd), sched_domain_span(sd)) {
-+			struct rq *rq = cpu_rq(cpu);
+@@ -8605,16 +8605,23 @@ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
+ 	 *   * Thermal pressure will impact all cpus in this perf domain
+ 	 *     equally.
+ 	 */
+-	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
++	if (sched_energy_enabled()) {
+ 		unsigned long inv_cap = capacity_orig - thermal_load_avg(rq);
+-		struct perf_domain *pd = rcu_dereference(rq->rd->pd);
++		struct perf_domain *pd;
 +
- 			if (!cpumask_test_cpu(cpu, p->cpus_ptr))
- 				continue;
++		rcu_read_lock();
  
-@@ -7000,24 +7002,19 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
- 			 * much capacity we can get out of the CPU; this is
- 			 * aligned with sched_cpu_util().
- 			 */
--			if (uclamp_is_used()) {
--				if (uclamp_rq_is_idle(cpu_rq(cpu))) {
--					util_min = p_util_min;
--					util_max = p_util_max;
--				} else {
--					/*
--					 * Open code uclamp_rq_util_with() except for
--					 * the clamp() part. Ie: apply max aggregation
--					 * only. util_fits_cpu() logic requires to
--					 * operate on non clamped util but must use the
--					 * max-aggregated uclamp_{min, max}.
--					 */
--					rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
--					rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
--
--					util_min = max(rq_util_min, p_util_min);
--					util_max = max(rq_util_max, p_util_max);
--				}
-+			if (uclamp_is_used() && !uclamp_rq_is_idle(rq)) {
-+				/*
-+				 * Open code uclamp_rq_util_with() except for
-+				 * the clamp() part. Ie: apply max aggregation
-+				 * only. util_fits_cpu() logic requires to
-+				 * operate on non clamped util but must use the
-+				 * max-aggregated uclamp_{min, max}.
-+				 */
-+				rq_util_min = uclamp_rq_get(rq, UCLAMP_MIN);
-+				rq_util_max = uclamp_rq_get(rq, UCLAMP_MAX);
++		pd = rcu_dereference(rq->rd->pd);
+ 		rq->cpu_capacity_inverted = 0;
+ 
+ 		for (; pd; pd = pd->next) {
+ 			struct cpumask *pd_span = perf_domain_span(pd);
+ 			unsigned long pd_cap_orig, pd_cap;
+ 
++			/* We can't be inverted against our own pd */
++			if (cpumask_test_cpu(cpu_of(rq), pd_span))
++				continue;
 +
-+				util_min = max(rq_util_min, p_util_min);
-+				util_max = max(rq_util_max, p_util_max);
+ 			cpu = cpumask_any(pd_span);
+ 			pd_cap_orig = arch_scale_cpu_capacity(cpu);
+ 
+@@ -8639,6 +8646,8 @@ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
+ 				break;
  			}
- 			if (!util_fits_cpu(util, util_min, util_max, cpu))
- 				continue;
+ 		}
++
++		rcu_read_unlock();
+ 	}
+ 
+ 	trace_sched_cpu_capacity_tp(rq);
 -- 
 2.25.1
 
