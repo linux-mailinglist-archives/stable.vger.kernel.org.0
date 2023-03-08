@@ -2,53 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F926B0E3D
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 17:10:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F25416B0E4F
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 17:15:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbjCHQKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 11:10:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39414 "EHLO
+        id S229635AbjCHQPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 11:15:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232142AbjCHQKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 11:10:15 -0500
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1556D87360;
-        Wed,  8 Mar 2023 08:09:46 -0800 (PST)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 0C66820008;
-        Wed,  8 Mar 2023 16:09:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1678291785;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zpTLB8XHi0AtrWUZ58ZmZi24Zue7n9YuQOFOVfBwfP4=;
-        b=e335GaXqZ+WXb47i01TuLaXKA8Od66iG5sVvdiT49ZMd60zyxGHmBAAmvNj9Tl+1GiQdVm
-        aAn1o9fLrWLHPmxcvvKWGaTLmEy3kLqy64vuXXV3isG9DEq4bJUpFcfzH51YAXJYjvHCUR
-        /euKDtxjPGckSPVEHk0GMdOTesOmb1kEzowT4l9k038NGEJb1F/RGlg9RRD7EZBEV6P6Sc
-        dRrzUIkQHMOr/HvFB1L1VB6vDD9vL1OsRsl9s3d6M0anPLaQLlwrfir1sPAEV+Re+9z1Uz
-        zXB0g/sYFWyGAz2F9Y7FpR1ocyKxcNv8a1qr2o6w01wHnMLEA6lquQG8+osZsQ==
-Date:   Wed, 8 Mar 2023 17:09:43 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable-commits@vger.kernel.org, pali@kernel.org,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>, stable@vger.kernel.org,
-        Marek =?UTF-8?B?QmVow7pu?= <marek.behun@nic.cz>
-Subject: Re: Patch "mtd: rawnand: fsl_elbc: Propagate HW ECC settings to HW"
- has been added to the 5.4-stable tree
-Message-ID: <20230308170943.13b6ee5e@xps-13>
-In-Reply-To: <20230305035038.1777370-1-sashal@kernel.org>
-References: <20230305035038.1777370-1-sashal@kernel.org>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S230156AbjCHQPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 11:15:31 -0500
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3687410420
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 08:15:30 -0800 (PST)
+Received: by mail-wm1-x329.google.com with SMTP id p16so10136714wmq.5
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 08:15:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1678292128;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JaJhrQVIlWswjYEXLHqG/SrK6Z+JO3tCXTUikzqyaCc=;
+        b=cVbIzuihUgmsdt8tuREPD6DGAKNVpd2k+X3NAOujFFiQiPT+zDx3q2k7MFmbQ3ni0Z
+         mVNXBPKaLEBuJV7cKAIQUrfFqB8FRkKJwYp90304De1bO7NmRU8cnKBxuJj2Ygjnw4Nt
+         DMtJrcmW60mSE+pwPb7Pk2nI/oyUBhtym+bfYBPaIkARuZlK1EJDDn7wJo+kJqxi6ZJi
+         v6vlFYPGSf4z3ln4E6+egT3jxnTUsdhDuU0TU0+m410jwKt0xg9xYFXUk+EloDyHsv4D
+         ZdidaPA54MHu95L1cS0bWfdH5qihPI5btJhVZ+GQcAkQh1uH5yVdssWMwwaGEzzPhe80
+         BAZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678292128;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JaJhrQVIlWswjYEXLHqG/SrK6Z+JO3tCXTUikzqyaCc=;
+        b=n6PkmFvtc05Qsw6sPNV10VYill2PvA01E/DcUYy1OKIQTo5Zf2f/VzOyDpV447AiaC
+         mgPSQg63zFQ28lNwHNjKebxVgbf+NeHI5nu6Htk+OKab6L7veFo4Mi+nfSDUpwj4u0GE
+         K13cBIVXz9NCAtO0mYYoKO9fEpz52IFTBwevbS/A4kxNEwFjmZUXm6QPOBDn8nlLhLeI
+         Emu/MWc2lFhMQxstcZ2Y/oCXj3ixlaYBr3cDeIdw1rt8M7cBMbMdJ7Vo8Zdd4F5ddris
+         lH5tjNFOZRhKJ575iduE+P5u1WoqffsFSGolTTj2q7dMJVO0viURdENf+H/VlLKLscSI
+         GJZQ==
+X-Gm-Message-State: AO0yUKWJtcT5EhKymsxrabDuZjzezjZ1o+Fuwazp5z8LzGcHrg0FS430
+        aG3we1wVVIECbqGEoCxsspXyqGkkZ+4IQMGcFiE=
+X-Google-Smtp-Source: AK7set9FXA8+hMyzlUqwuyjqo5zrZzfoRu9WNnnQA+zS5cmQuGa0HYXR/FUBfevQoUT9cu4oFnukPQ==
+X-Received: by 2002:a05:600c:45d2:b0:3df:e6bb:768 with SMTP id s18-20020a05600c45d200b003dfe6bb0768mr16827842wmo.24.1678292128706;
+        Wed, 08 Mar 2023 08:15:28 -0800 (PST)
+Received: from localhost.localdomain (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
+        by smtp.gmail.com with ESMTPSA id h19-20020a05600c30d300b003db06224953sm15632583wmn.41.2023.03.08.08.15.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Mar 2023 08:15:27 -0800 (PST)
+From:   Qais Yousef <qyousef@layalina.io>
+To:     stable@vger.kernel.org
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Qais Yousef <qyousef@layalina.io>
+Subject: [PATCH 00/10] Backport uclamp vs margin fixes into 5.10.y
+Date:   Wed,  8 Mar 2023 16:12:55 +0000
+Message-Id: <20230308161305.2881766-1-qyousef@layalina.io>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,116 +69,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Commit 2ff401441711 ("sched/uclamp: Fix relationship between uclamp and
+migration margin") was cherry-picked into 5.10 kernels but missed the rest of
+the series.
 
-sashal@kernel.org wrote on Sat,  4 Mar 2023 22:50:38 -0500:
+This ports the remainder of the fixes.
 
-> This is a note to let you know that I've just added the patch titled
->=20
->     mtd: rawnand: fsl_elbc: Propagate HW ECC settings to HW
->=20
-> to the 5.4-stable tree which can be found at:
->     http://www.kernel.org/git/?p=3Dlinux/kernel/git/stable/stable-queue.g=
-it;a=3Dsummary
->=20
-> The filename of the patch is:
->      mtd-rawnand-fsl_elbc-propagate-hw-ecc-settings-to-hw.patch
-> and it can be found in the queue-5.4 subdirectory.
->=20
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
+Based on 5.10.172.
 
-+Marek
+Build tested on x86 with and without uclamp config enabled.
 
-As reported by kernel test robot, this commit does not apply on 5.4
-because many changes have happened in the core since the introduction
-of the fixed patch. In practice the driver works in most cases,
-but does not in few rare cases (IIUC) so I would be in favor of just
-dropping this commit from the queue/5.4 branch. If someone feels like
-this commit should be backported there, please send an updated fix.
+Tested on 5.10 Android GKI kernel and android device (with slight modifications
+due to other conflicts on there).
 
-Link: https://lore.kernel.org/oe-kbuild-all/202303060514.1ziBICF7-lkp@intel=
-.com/
+Qais Yousef (10):
+  sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
+  sched/uclamp: Fix fits_capacity() check in feec()
+  sched/uclamp: Make select_idle_capacity() use util_fits_cpu()
+  sched/uclamp: Make asym_fits_capacity() use util_fits_cpu()
+  sched/uclamp: Make cpu_overutilized() use util_fits_cpu()
+  sched/uclamp: Cater for uclamp in find_energy_efficient_cpu()'s early
+    exit condition
+  sched/fair: Detect capacity inversion
+  sched/fair: Consider capacity inversion in util_fits_cpu()
+  sched/uclamp: Fix a uninitialized variable warnings
+  sched/fair: Fixes for capacity inversion detection
 
-Thanks,
-Miqu=C3=A8l
+ kernel/sched/core.c  |  10 +--
+ kernel/sched/fair.c  | 183 ++++++++++++++++++++++++++++++++++---------
+ kernel/sched/sched.h |  70 ++++++++++++++++-
+ 3 files changed, 217 insertions(+), 46 deletions(-)
 
->=20
->=20
->=20
-> commit 839c09472742b383f65eb7c1f7e576ebfb6a1f62
-> Author: Pali Roh=C3=A1r <pali@kernel.org>
-> Date:   Sat Jan 28 14:41:11 2023 +0100
->=20
->     mtd: rawnand: fsl_elbc: Propagate HW ECC settings to HW
->    =20
->     [ Upstream commit b56265257d38af5abf43bd5461ca166b401c35a5 ]
->    =20
->     It is possible that current chip->ecc.engine_type value does not matc=
-h to
->     configured HW value (if HW ECC checking and generating is enabled or =
-not).
->    =20
->     This can happen with old U-Boot bootloader version which either does =
-not
->     initialize NAND (and let it in some default unusable state) or initia=
-lize
->     NAND with different parameters than what is specified in kernel DTS f=
-ile.
->    =20
->     So if kernel chose to use some chip->ecc.engine_type settings (e.g. f=
-rom
->     DTS file) then do not depend on bootloader HW configuration and confi=
-gures
->     HW ECC settings according to chip->ecc.engine_type value.
->    =20
->     BR_DECC must be set to BR_DECC_CHK_GEN when HW is doing ECC (both
->     generating and checking), or to BR_DECC_OFF when HW is not doing ECC.
->    =20
->     This change fixes usage of SW ECC support in case bootloader explicit=
-ly
->     enabled HW ECC support and kernel DTS file has specified to use SW EC=
-C.
->     (Of course this works only in case when NAND is not a boot device and=
- both
->     bootloader and kernel are loaded from different location, e.g. FLASH =
-NOR.)
->    =20
->     Fixes: f6424c22aa36 ("mtd: rawnand: fsl_elbc: Make SW ECC work")
->     Signed-off-by: Pali Roh=C3=A1r <pali@kernel.org>
->     Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
->     Link: https://lore.kernel.org/linux-mtd/20230128134111.32559-1-pali@k=
-ernel.org
->     Signed-off-by: Sasha Levin <sashal@kernel.org>
->=20
-> diff --git a/drivers/mtd/nand/raw/fsl_elbc_nand.c b/drivers/mtd/nand/raw/=
-fsl_elbc_nand.c
-> index 634c550db13a7..e900c0eddc21d 100644
-> --- a/drivers/mtd/nand/raw/fsl_elbc_nand.c
-> +++ b/drivers/mtd/nand/raw/fsl_elbc_nand.c
-> @@ -727,6 +727,7 @@ static int fsl_elbc_attach_chip(struct nand_chip *chi=
-p)
->  	struct fsl_lbc_ctrl *ctrl =3D priv->ctrl;
->  	struct fsl_lbc_regs __iomem *lbc =3D ctrl->regs;
->  	unsigned int al;
-> +	u32 br;
-> =20
->  	switch (chip->ecc.mode) {
->  	/*
-> @@ -762,6 +763,13 @@ static int fsl_elbc_attach_chip(struct nand_chip *ch=
-ip)
->  		return -EINVAL;
->  	}
-> =20
-> +	/* enable/disable HW ECC checking and generating based on if HW ECC was=
- chosen */
-> +	br =3D in_be32(&lbc->bank[priv->bank].br) & ~BR_DECC;
-> +	if (chip->ecc.engine_type =3D=3D NAND_ECC_ENGINE_TYPE_ON_HOST)
-> +		out_be32(&lbc->bank[priv->bank].br, br | BR_DECC_CHK_GEN);
-> +	else
-> +		out_be32(&lbc->bank[priv->bank].br, br | BR_DECC_OFF);
-> +
->  	/* calculate FMR Address Length field */
->  	al =3D 0;
->  	if (chip->pagemask & 0xffff0000)
+-- 
+2.25.1
 
