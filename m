@@ -2,53 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9677A6B05A7
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 12:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD886B05E7
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 12:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229943AbjCHLRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 06:17:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33332 "EHLO
+        id S229893AbjCHLYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 06:24:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231431AbjCHLQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 06:16:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08995B5B7D;
-        Wed,  8 Mar 2023 03:16:49 -0800 (PST)
+        with ESMTP id S230155AbjCHLYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 06:24:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B045A6F3;
+        Wed,  8 Mar 2023 03:24:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 848DF61769;
-        Wed,  8 Mar 2023 11:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B883DC433EF;
-        Wed,  8 Mar 2023 11:16:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CA6361759;
+        Wed,  8 Mar 2023 11:23:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91FF6C433D2;
+        Wed,  8 Mar 2023 11:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678274209;
-        bh=QvBtY96SpBwzqiwlyNQBPDVTsFicwouO2HvLFCqvFNc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TdZrSKV2pWKofYZlIV+1/BtRzOSJ3CPpBS/Rf/NMUbnnsFKgQwHN50DJi1/x7JIhC
-         ShejteOgv62BL7DDHVB6wiFc4mMJVkVne4uV/U4c338Vfw6Ls0rUVsw4m2WALuzE+s
-         M+YGmLvpDF6DkNX3YoNm6m8Hf0Ce3Q3kAq7a+isUKiXgclKBqErbVODe9P5otfpiSC
-         ZRBrICYd24ICikqPAAzAXU/EEI2RBvkej+99XfTFQfjsSzdJ7qYDiXC07aTDLgDIu6
-         znvvTBcyivrPU3lU4R/XfpYz3sFNQfw6+iX0buNj1Z6GQmJF7DBRwhbxntTiWVvSd9
-         xO0yg7NLadjuA==
-Date:   Wed, 8 Mar 2023 12:16:43 +0100
-From:   Christian Brauner <brauner@kernel.org>
-To:     Tobias Klauser <tklauser@distanz.ch>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Dmitry Safonov <dima@arista.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel@vger.kernel.org, Andrey Vagin <avagin@openvz.org>,
+        s=k20201202; t=1678274611;
+        bh=oq6aIPRAgavZLxPz5VT8O3NCLrZYoXm3Op/iTT+pU9I=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=E62w86/Zp51RmfULN+gsdnz3FhqFXJvNUW8/7UbbdQsIVuMSK2S1OSCyqlS1J+42n
+         /7JJOUugapr33d1zvELsa0Ejuvkvm97KLENVTqdS8fcV3vUnXtFmoXFgAu21IpUaWF
+         KUU993ID6jN83RrenzcDhblVb5vgW7I+fuo+K0bKri0zdXwz1vQQ8p2yxqqBcP4gW3
+         PyBer43hFbdecMG0ovrmWERF3wxzG9Zqe7CrdvK4CQtZYs5GF8cvMtHDyINVebhxIp
+         /YaVrGvauPOg7iJ6y7tTp7DNRNPaA/0dZdUGH+AhS1CtNeZxi1VND5kz9Np5jZQCGc
+         YxWZyM3WdYVug==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1pZrtI-00FwJn-V0;
+        Wed, 08 Mar 2023 11:23:29 +0000
+Date:   Wed, 08 Mar 2023 11:23:28 +0000
+Message-ID: <86356fzdu7.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Janne Grunau <j@jannau.net>
+Cc:     Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Krzysztof =?UTF-8?B?V2lsY3p5xYRza2k=?= <kw@linux.com>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sven Peter <sven@svenpeter.dev>, linux-pci@vger.kernel.org,
+        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] fork: allow CLONE_NEWTIME in clone3 flags
-Message-ID: <20230308111643.dfa5zgiumdairdhn@wittgenstein>
-References: <20230308105126.10107-1-tklauser@distanz.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230308105126.10107-1-tklauser@distanz.ch>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Subject: Re: [PATCH] PCI: apple: Set only available ports up
+In-Reply-To: <20230307-apple_pcie_disabled_ports-v1-1-b32ef91faf19@jannau.net>
+References: <20230307-apple_pcie_disabled_ports-v1-1-b32ef91faf19@jannau.net>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/28.2
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: j@jannau.net, alyssa@rosenzweig.io, lpieralisi@kernel.org, kw@linux.com, robh@kernel.org, bhelgaas@google.com, sven@svenpeter.dev, linux-pci@vger.kernel.org, asahi@lists.linux.dev, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,25 +70,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 08, 2023 at 11:51:26AM +0100, Tobias Klauser wrote:
-> Currently, calling clone3() with CLONE_NEWTIME in clone_args->flags
-> fails with -EINVAL. This is because CLONE_NEWTIME intersects with
-> CSIGNAL. However, CSIGNAL was deprecated when clone3 was introduced in
-> commit 7f192e3cd316 ("fork: add clone3"), allowing re-use of that part
-> of clone flags.
+On Tue, 07 Mar 2023 22:59:50 +0000,
+Janne Grunau <j@jannau.net> wrote:
 > 
-> Fix this by explicitly allowing CLONE_NEWTIME in clone3_args_valid. This
-> is also in line with the respective check in check_unshare_flags which
-> allow CLONE_NEWTIME for unshare().
+> Fixes "interrupt-map" parsing in of_irq_parse_raw() which takes the
+> node's availability into account.
 > 
-> Fixes: 769071ac9f20 ("ns: Introduce Time Namespace")
-> Cc: Andrey Vagin <avagin@openvz.org>
-> Cc: Christian Brauner <brauner@kernel.org>
+> This became apparent after disabling unused PCIe ports in the Apple
+> silicon device trees instead of disabling them.
+
+Something looks wrong in this sentence.
+
+> 
+> Link: https://lore.kernel.org/asahi/20230214-apple_dts_pcie_disable_unused-v1-0-5ea0d3ddcde3@jannau.net/
+> Link: https://lore.kernel.org/asahi/1ea2107a-bb86-8c22-0bbc-82c453ab08ce@linaro.org/
+> Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+> Signed-off-by: Janne Grunau <j@jannau.net>
 > ---
+>  drivers/pci/controller/pcie-apple.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+> index 66f37e403a09..f8670a032f7a 100644
+> --- a/drivers/pci/controller/pcie-apple.c
+> +++ b/drivers/pci/controller/pcie-apple.c
+> @@ -783,7 +783,7 @@ static int apple_pcie_init(struct pci_config_window *cfg)
+>  	cfg->priv = pcie;
+>  	INIT_LIST_HEAD(&pcie->ports);
+>  
+> -	for_each_child_of_node(dev->of_node, of_port) {
+> +	for_each_available_child_of_node(dev->of_node, of_port) {
+>  		ret = apple_pcie_setup_port(pcie, of_port);
+>  		if (ret) {
+>  			dev_err(pcie->dev, "Port %pOF setup fail: %d\n", of_port, ret);
+> 
 
-Oh I either forgot or missed that we use a CSIGNAL bit for
-CLONE_NEWTIME. Looks good,
+Yup, this looks like the correct course of action if we need to take
+the 'status' property into account. Maybe worth mentioning in the
+commit log.
 
-Reviewed-by: Christian Brauner <brauner@kernel.org>
+With the commit message clarified:
+
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
