@@ -2,193 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE716B09F0
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4994E6B09F9
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:53:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbjCHNxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 08:53:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53068 "EHLO
+        id S231694AbjCHNxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 08:53:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231576AbjCHNxA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:53:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B489B77F;
-        Wed,  8 Mar 2023 05:52:58 -0800 (PST)
+        with ESMTP id S231676AbjCHNxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:53:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EF912714;
+        Wed,  8 Mar 2023 05:53:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 599D0B81CE6;
-        Wed,  8 Mar 2023 13:52:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 451A0C433EF;
-        Wed,  8 Mar 2023 13:52:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E19A1B81CE4;
+        Wed,  8 Mar 2023 13:53:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C42E1C433A1;
+        Wed,  8 Mar 2023 13:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678283576;
-        bh=cMc+h0EdzLDs1AgWG9sov4h4C2Yo60GqELjLDqqHhHg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jnoxu2SE1C2hT0Peq768NbMw5KpxGsVrDawvWKSjUusvhyounr7fXlslcWG0Wst+t
-         4bhBNd3ENebPBTAi2ipXRVgT9yjDUFCqGUcmmnCFddFxGWFNNR65fP6EDGD+ED+Gh7
-         nwklVEPPrUrCcVkRDxE3c1dfo8J+areCsBnRu6+YzUzj11ylXGxNZEiZuG5kNkOmPY
-         G/PQA+zsjIzK8b1nJNrj8iTFdv2OeL0uzRMrDpYZs9lqnNd6rxnG7hiZD6Hm/R4AYs
-         yvjRxnjar5JPYDNSG8v4Wt+2gnf2/lYxhRGotwlruZa8SquCBNUZoQWntEEXWJy5D4
-         WBiJq+9CLYbNw==
+        s=k20201202; t=1678283582;
+        bh=F7PSvEsj8583WT74j11i/ggrg+iKXSefTVUucPnnePM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LMOpFm57xTKxO0RCkeNN0BZx3vEwKk0TTfSozDD37aDopkOmlrOvPgovX1mzYMQYx
+         AmDrRcDzgVxsaQ4dTJuWWhEUXLD1OP3yLpomoZMGqGWfV7JJyT2PU9gv2O7l9PRhAy
+         etfCBQ+amPMMP+/K8Hn9LQ3UxbUSVO76pp73tZ+rWCvCDQaW9oQxg2i3z2xdedlIp6
+         3/NnaKYEKQaSRKcrveaaD6ZuGDb8QDG2bzE0hhFeR/R3f2DnSy5YAIAGVL66kFLyTn
+         4c7QXn+5L/wahr5OplNxE7pM5Dqh7mgv+3r2Hco0z/Z3qRraqEOz7nLVZdNDDTgTgy
+         xpEP21wy8oNYA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Jun <jun.li@nxp.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 3/3] media: rc: gpio-ir-recv: add remove function
-Date:   Wed,  8 Mar 2023 08:52:47 -0500
-Message-Id: <20230308135250.2927358-3-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nicolas Schier <nicolas@fjasle.eu>,
+        Sasha Levin <sashal@kernel.org>, nathan@kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 1/3] scripts: handle BrokenPipeError for python scripts
+Date:   Wed,  8 Mar 2023 08:52:54 -0500
+Message-Id: <20230308135300.2927409-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230308135250.2927358-1-sashal@kernel.org>
-References: <20230308135250.2927358-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 30040818b338b8ebc956ce0ebd198f8d593586a6 ]
+[ Upstream commit 87c7ee67deb7fce9951a5f9d80641138694aad17 ]
 
-In case runtime PM is enabled, do runtime PM clean up to remove
-cpu latency qos request, otherwise driver removal may have below
-kernel dump:
+In the follow-up of commit fb3041d61f68 ("kbuild: fix SIGPIPE error
+message for AR=gcc-ar and AR=llvm-ar"), Kees Cook pointed out that
+tools should _not_ catch their own SIGPIPEs [1] [2].
 
-[   19.463299] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000048
-[   19.472161] Mem abort info:
-[   19.474985]   ESR = 0x0000000096000004
-[   19.478754]   EC = 0x25: DABT (current EL), IL = 32 bits
-[   19.484081]   SET = 0, FnV = 0
-[   19.487149]   EA = 0, S1PTW = 0
-[   19.490361]   FSC = 0x04: level 0 translation fault
-[   19.495256] Data abort info:
-[   19.498149]   ISV = 0, ISS = 0x00000004
-[   19.501997]   CM = 0, WnR = 0
-[   19.504977] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000049f81000
-[   19.511432] [0000000000000048] pgd=0000000000000000,
-p4d=0000000000000000
-[   19.518245] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-[   19.524520] Modules linked in: gpio_ir_recv(+) rc_core [last
-unloaded: rc_core]
-[   19.531845] CPU: 0 PID: 445 Comm: insmod Not tainted
-6.2.0-rc1-00028-g2c397a46d47c #72
-[   19.531854] Hardware name: FSL i.MX8MM EVK board (DT)
-[   19.531859] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS
-BTYPE=--)
-[   19.551777] pc : cpu_latency_qos_remove_request+0x20/0x110
-[   19.557277] lr : gpio_ir_recv_runtime_suspend+0x18/0x30
-[gpio_ir_recv]
-[   19.557294] sp : ffff800008ce3740
-[   19.557297] x29: ffff800008ce3740 x28: 0000000000000000 x27:
-ffff800008ce3d50
-[   19.574270] x26: ffffc7e3e9cea100 x25: 00000000000f4240 x24:
-ffffc7e3f9ef0e30
-[   19.574284] x23: 0000000000000000 x22: ffff0061803820f4 x21:
-0000000000000008
-[   19.574296] x20: ffffc7e3fa75df30 x19: 0000000000000020 x18:
-ffffffffffffffff
-[   19.588570] x17: 0000000000000000 x16: ffffc7e3f9efab70 x15:
-ffffffffffffffff
-[   19.595712] x14: ffff800008ce37b8 x13: ffff800008ce37aa x12:
-0000000000000001
-[   19.602853] x11: 0000000000000001 x10: ffffcbe3ec0dff87 x9 :
-0000000000000008
-[   19.609991] x8 : 0101010101010101 x7 : 0000000000000000 x6 :
-000000000f0bfe9f
-[   19.624261] x5 : 00ffffffffffffff x4 : 0025ab8e00000000 x3 :
-ffff006180382010
-[   19.631405] x2 : ffffc7e3e9ce8030 x1 : ffffc7e3fc3eb810 x0 :
-0000000000000020
-[   19.638548] Call trace:
-[   19.640995]  cpu_latency_qos_remove_request+0x20/0x110
-[   19.646142]  gpio_ir_recv_runtime_suspend+0x18/0x30 [gpio_ir_recv]
-[   19.652339]  pm_generic_runtime_suspend+0x2c/0x44
-[   19.657055]  __rpm_callback+0x48/0x1dc
-[   19.660807]  rpm_callback+0x6c/0x80
-[   19.664301]  rpm_suspend+0x10c/0x640
-[   19.667880]  rpm_idle+0x250/0x2d0
-[   19.671198]  update_autosuspend+0x38/0xe0
-[   19.675213]  pm_runtime_set_autosuspend_delay+0x40/0x60
-[   19.680442]  gpio_ir_recv_probe+0x1b4/0x21c [gpio_ir_recv]
-[   19.685941]  platform_probe+0x68/0xc0
-[   19.689610]  really_probe+0xc0/0x3dc
-[   19.693189]  __driver_probe_device+0x7c/0x190
-[   19.697550]  driver_probe_device+0x3c/0x110
-[   19.701739]  __driver_attach+0xf4/0x200
-[   19.705578]  bus_for_each_dev+0x70/0xd0
-[   19.709417]  driver_attach+0x24/0x30
-[   19.712998]  bus_add_driver+0x17c/0x240
-[   19.716834]  driver_register+0x78/0x130
-[   19.720676]  __platform_driver_register+0x28/0x34
-[   19.725386]  gpio_ir_recv_driver_init+0x20/0x1000 [gpio_ir_recv]
-[   19.731404]  do_one_initcall+0x44/0x2ac
-[   19.735243]  do_init_module+0x48/0x1d0
-[   19.739003]  load_module+0x19fc/0x2034
-[   19.742759]  __do_sys_finit_module+0xac/0x12c
-[   19.747124]  __arm64_sys_finit_module+0x20/0x30
-[   19.751664]  invoke_syscall+0x48/0x114
-[   19.755420]  el0_svc_common.constprop.0+0xcc/0xec
-[   19.760132]  do_el0_svc+0x38/0xb0
-[   19.763456]  el0_svc+0x2c/0x84
-[   19.766516]  el0t_64_sync_handler+0xf4/0x120
-[   19.770789]  el0t_64_sync+0x190/0x194
-[   19.774460] Code: 910003fd a90153f3 aa0003f3 91204021 (f9401400)
-[   19.780556] ---[ end trace 0000000000000000 ]---
+Based on his feedback, LLVM was fixed [3].
 
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+However, Python's default behavior is to show noisy bracktrace when
+SIGPIPE is sent. So, scripts written in Python are basically in the
+same situation as the buggy llvm tools.
+
+Example:
+
+  $ make -s allnoconfig
+  $ make -s allmodconfig
+  $ scripts/diffconfig .config.old .config | head -n1
+  -ALIX n
+  Traceback (most recent call last):
+    File "/home/masahiro/linux/scripts/diffconfig", line 132, in <module>
+      main()
+    File "/home/masahiro/linux/scripts/diffconfig", line 130, in main
+      print_config("+", config, None, b[config])
+    File "/home/masahiro/linux/scripts/diffconfig", line 64, in print_config
+      print("+%s %s" % (config, new_value))
+  BrokenPipeError: [Errno 32] Broken pipe
+
+Python documentation [4] notes how to make scripts die immediately and
+silently:
+
+  """
+  Piping output of your program to tools like head(1) will cause a
+  SIGPIPE signal to be sent to your process when the receiver of its
+  standard output closes early. This results in an exception like
+  BrokenPipeError: [Errno 32] Broken pipe. To handle this case,
+  wrap your entry point to catch this exception as follows:
+
+    import os
+    import sys
+
+    def main():
+        try:
+            # simulate large output (your code replaces this loop)
+            for x in range(10000):
+                print("y")
+            # flush output here to force SIGPIPE to be triggered
+            # while inside this try block.
+            sys.stdout.flush()
+        except BrokenPipeError:
+            # Python flushes standard streams on exit; redirect remaining output
+            # to devnull to avoid another BrokenPipeError at shutdown
+            devnull = os.open(os.devnull, os.O_WRONLY)
+            os.dup2(devnull, sys.stdout.fileno())
+            sys.exit(1)  # Python exits with error code 1 on EPIPE
+
+    if __name__ == '__main__':
+        main()
+
+  Do not set SIGPIPE’s disposition to SIG_DFL in order to avoid
+  BrokenPipeError. Doing that would cause your program to exit
+  unexpectedly whenever any socket connection is interrupted while
+  your program is still writing to it.
+  """
+
+Currently, tools/perf/scripts/python/intel-pt-events.py seems to be the
+only script that fixes the issue that way.
+
+tools/perf/scripts/python/compaction-times.py uses another approach
+signal.signal(signal.SIGPIPE, signal.SIG_DFL) but the Python
+documentation clearly says "Don't do it".
+
+I cannot fix all Python scripts since there are so many.
+I fixed some in the scripts/ directory.
+
+[1]: https://lore.kernel.org/all/202211161056.1B9611A@keescook/
+[2]: https://github.com/llvm/llvm-project/issues/59037
+[3]: https://github.com/llvm/llvm-project/commit/4787efa38066adb51e2c049499d25b3610c0877b
+[4]: https://docs.python.org/3/library/signal.html#note-on-sigpipe
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/gpio-ir-recv.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ scripts/checkkconfigsymbols.py         | 13 ++++++++++++-
+ scripts/clang-tools/run-clang-tools.py | 21 ++++++++++++++-------
+ scripts/diffconfig                     | 16 ++++++++++++++--
+ 3 files changed, 40 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/rc/gpio-ir-recv.c b/drivers/media/rc/gpio-ir-recv.c
-index 22e524b69806a..a56c844d7f816 100644
---- a/drivers/media/rc/gpio-ir-recv.c
-+++ b/drivers/media/rc/gpio-ir-recv.c
-@@ -130,6 +130,23 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
- 				"gpio-ir-recv-irq", gpio_dev);
- }
+diff --git a/scripts/checkkconfigsymbols.py b/scripts/checkkconfigsymbols.py
+index 217d21abc86e8..36c920e713137 100755
+--- a/scripts/checkkconfigsymbols.py
++++ b/scripts/checkkconfigsymbols.py
+@@ -115,7 +115,7 @@ def parse_options():
+     return args
  
-+static int gpio_ir_recv_remove(struct platform_device *pdev)
-+{
-+	struct gpio_rc_dev *gpio_dev = platform_get_drvdata(pdev);
-+	struct device *pmdev = gpio_dev->pmdev;
-+
-+	if (pmdev) {
-+		pm_runtime_get_sync(pmdev);
-+		cpu_latency_qos_remove_request(&gpio_dev->qos);
-+
-+		pm_runtime_disable(pmdev);
-+		pm_runtime_put_noidle(pmdev);
-+		pm_runtime_set_suspended(pmdev);
-+	}
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_PM
- static int gpio_ir_recv_suspend(struct device *dev)
- {
-@@ -189,6 +206,7 @@ MODULE_DEVICE_TABLE(of, gpio_ir_recv_of_match);
  
- static struct platform_driver gpio_ir_recv_driver = {
- 	.probe  = gpio_ir_recv_probe,
-+	.remove = gpio_ir_recv_remove,
- 	.driver = {
- 		.name   = KBUILD_MODNAME,
- 		.of_match_table = of_match_ptr(gpio_ir_recv_of_match),
+-def main():
++def print_undefined_symbols():
+     """Main function of this module."""
+     args = parse_options()
+ 
+@@ -467,5 +467,16 @@ def parse_kconfig_file(kfile):
+     return defined, references
+ 
+ 
++def main():
++    try:
++        print_undefined_symbols()
++    except BrokenPipeError:
++        # Python flushes standard streams on exit; redirect remaining output
++        # to devnull to avoid another BrokenPipeError at shutdown
++        devnull = os.open(os.devnull, os.O_WRONLY)
++        os.dup2(devnull, sys.stdout.fileno())
++        sys.exit(1)  # Python exits with error code 1 on EPIPE
++
++
+ if __name__ == "__main__":
+     main()
+diff --git a/scripts/clang-tools/run-clang-tools.py b/scripts/clang-tools/run-clang-tools.py
+index f754415af398b..f42699134f1c0 100755
+--- a/scripts/clang-tools/run-clang-tools.py
++++ b/scripts/clang-tools/run-clang-tools.py
+@@ -60,14 +60,21 @@ def run_analysis(entry):
+ 
+ 
+ def main():
+-    args = parse_arguments()
++    try:
++        args = parse_arguments()
+ 
+-    lock = multiprocessing.Lock()
+-    pool = multiprocessing.Pool(initializer=init, initargs=(lock, args))
+-    # Read JSON data into the datastore variable
+-    with open(args.path, "r") as f:
+-        datastore = json.load(f)
+-        pool.map(run_analysis, datastore)
++        lock = multiprocessing.Lock()
++        pool = multiprocessing.Pool(initializer=init, initargs=(lock, args))
++        # Read JSON data into the datastore variable
++        with open(args.path, "r") as f:
++            datastore = json.load(f)
++            pool.map(run_analysis, datastore)
++    except BrokenPipeError:
++        # Python flushes standard streams on exit; redirect remaining output
++        # to devnull to avoid another BrokenPipeError at shutdown
++        devnull = os.open(os.devnull, os.O_WRONLY)
++        os.dup2(devnull, sys.stdout.fileno())
++        sys.exit(1)  # Python exits with error code 1 on EPIPE
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/scripts/diffconfig b/scripts/diffconfig
+index d5da5fa05d1d3..43f0f3d273ae7 100755
+--- a/scripts/diffconfig
++++ b/scripts/diffconfig
+@@ -65,7 +65,7 @@ def print_config(op, config, value, new_value):
+         else:
+             print(" %s %s -> %s" % (config, value, new_value))
+ 
+-def main():
++def show_diff():
+     global merge_style
+ 
+     # parse command line args
+@@ -129,4 +129,16 @@ def main():
+     for config in new:
+         print_config("+", config, None, b[config])
+ 
+-main()
++def main():
++    try:
++        show_diff()
++    except BrokenPipeError:
++        # Python flushes standard streams on exit; redirect remaining output
++        # to devnull to avoid another BrokenPipeError at shutdown
++        devnull = os.open(os.devnull, os.O_WRONLY)
++        os.dup2(devnull, sys.stdout.fileno())
++        sys.exit(1)  # Python exits with error code 1 on EPIPE
++
++
++if __name__ == '__main__':
++    main()
 -- 
 2.39.2
 
