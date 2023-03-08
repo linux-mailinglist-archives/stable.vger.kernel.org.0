@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2E96B0A13
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4596B0A14
 	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:55:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231720AbjCHNze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231787AbjCHNze (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 8 Mar 2023 08:55:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55380 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231773AbjCHNyJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:54:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AB0F5ADCA;
-        Wed,  8 Mar 2023 05:53:19 -0800 (PST)
+        with ESMTP id S231848AbjCHNyb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:54:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F49491B48;
+        Wed,  8 Mar 2023 05:53:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5625361840;
-        Wed,  8 Mar 2023 13:53:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA8FDC433AA;
-        Wed,  8 Mar 2023 13:53:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94927B81CE2;
+        Wed,  8 Mar 2023 13:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4587AC4339C;
+        Wed,  8 Mar 2023 13:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678283598;
-        bh=lCKDASUtGE1lwVMwOB/R2i9NQDU7sIYKiTJYeBvFxsk=;
+        s=k20201202; t=1678283602;
+        bh=zbALlWFHvbSHmi7+KHrV5xNme8KL939BcCxb4rMePOc=;
         h=From:To:Cc:Subject:Date:From;
-        b=sUtvvfV/YuMtca6H9kNLI51WGadlYFxdlyFYUZcTl75eq+jVsOL1gY03PGdfsowkq
-         GpzAzLdRHhzlaeeLCZH+QgzhecGLanFPjGp8ki0tLgEUgw1/7o9SqLmZtQEOPHmXwF
-         vqL+qlwZIWTSzpq5rlYWvg3nILdqDf9EvbWtAO03nEBYnm+Yo/5rLPMIiLAq5NMMJD
-         jlYKfdo4ErSNtc7X196W+3X6PnUbDX+78SQiOSwfozgORR6jQEnpdGp3bmlzRLsJxk
-         uXqmlVSPQ5lSJsZR9Fqu4zMb4ImyQZgbHPAu/1ymYSPuKlPKtgksutpeDAVTfyq5Zk
-         53Gt+5wfJU4hw==
+        b=Eah7eUmAgpi2Ny1duKjelRbSeZf7gS17+heVLO4seegtn4fsxTqYAn/OPtC3kP8UQ
+         /RVr0luwFzl7yo8dFcja41MXPsjO2oM9Dvc2onhVrkNa7hiiZQr1yjCQXBb4pb2glg
+         ghW8sgeqIrrnrT30mFR65ggXC6UBgVLNm/LmSfUS4Jjl+m8gWaO8Ny2tuKljpkNOUX
+         rpSjV5c9YSQ9C1dLD6EdIU+Cq1QnBwX16kToo9YmyvCMV35y/W1GIPHguKp0dfQgSW
+         KhrFdbKJOL+YNBnAsxgvrtQwWQ1aHFbcqspDtCLuLNK/ArDV0Sn//b5B/NvVyZ0ip3
+         ZYBZuFEbJf1uA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Paul Elder <paul.elder@ideasonboard.com>,
@@ -41,16 +41,16 @@ Cc:     Paul Elder <paul.elder@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>, slongerbeam@gmail.com,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4] media: ov5640: Fix analogue gain control
-Date:   Wed,  8 Mar 2023 08:53:15 -0500
-Message-Id: <20230308135315.2927513-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19] media: ov5640: Fix analogue gain control
+Date:   Wed,  8 Mar 2023 08:53:19 -0500
+Message-Id: <20230308135319.2927539-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -131,10 +131,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index be6c882dd1d54..087fb464ffc12 100644
+index aa9c0b7ee7a22..31b26b18e5251 100644
 --- a/drivers/media/i2c/ov5640.c
 +++ b/drivers/media/i2c/ov5640.c
-@@ -2704,7 +2704,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
+@@ -2447,7 +2447,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
  	/* Auto/manual gain */
  	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
  					     0, 1, 1, 1);
