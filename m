@@ -2,67 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 993A96B0E58
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 17:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E126B0E5B
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 17:17:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231379AbjCHQQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 11:16:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
+        id S229537AbjCHQRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 11:17:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230360AbjCHQQx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 11:16:53 -0500
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6660F5FA5A
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 08:16:17 -0800 (PST)
-Received: by mail-wr1-x434.google.com with SMTP id t15so15908991wrz.7
-        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 08:16:17 -0800 (PST)
+        with ESMTP id S231479AbjCHQQ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 11:16:58 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05401BF391
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 08:16:32 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id l25so15940111wrb.3
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 08:16:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1678292176;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=L8V9YSwmWG8n2IxSW6nZDku18nbiFHuZNDpp6hhof7U=;
-        b=539hZgZAmhl24JYVqPCSlddjtJpaxw03+Khwclt5v2Rlp/Ft/rLqSEv/4t8Qm2AsLp
-         cuw49kzjeD/Hm1HU9d6PmWZ+kJl0697M2RQ6bMlzCpvUHYEZfW3K6ATzAxjUeBDtBwkv
-         fPrpkfWcwHSub6BRuxxyMwX373LU7/jKEx771JTOQBZiFf121+Y8x2He/NUcSRY6zB2j
-         IZbknWBiiSMQZM5YI4aZs8kCMHdCWM2zgPwA0W12M276siGlos+iVday4kqPma+jC3Rm
-         Ww6xvhX1cUWFc/0M0dxveM2Z2ihQE53n2HVtUw02HWD6c1J04vKzA+1VAPZKZ6tkha27
-         K5jA==
+        d=layalina-io.20210112.gappssmtp.com; s=20210112; t=1678292190;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9qYnf6bG4t/CZsEfkond99dTvRo5PJ1m29yCx2krtwQ=;
+        b=DuVVyofCqR/DB0SEELVwfdvEg/ot5un92WMcMELZGeifKs7WiF7BM3snru5pjYHC9o
+         3vILcKWPqsy0ywbxq/YK726hezIFJcLHEm88lPiDpoBMzLVelf0erDnt+zhS0dnFC7TF
+         uPFbKlgEq5B91E+enDhh6GiJM/Mmv+InXVZCBDj7XYKa5Bao6qzi2zxhacAKdGe5PQPl
+         aLrLUCGOKFjSQgvwYQXhsKIn93SP2oQ5CHtWwEFOu/YU3+jk5hYB5cNuGj9IH/OsXum9
+         LEyFiDuG5QtFvzY4xWoG9Kfr9snjL2i0eNV4vGIYyWNA1nSjf++jhmVpWUinCHsmhaaT
+         kBeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678292176;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=L8V9YSwmWG8n2IxSW6nZDku18nbiFHuZNDpp6hhof7U=;
-        b=JaGGfBh99Tam3gCq5xveD2YPUXdoY9WjUTFZEjbvvz1c1/RvYBIrtR0Zot9z20RZk4
-         oPENQvhP88V30Ga+ivTMPTWMlD28tvdgzR+gvA8FdATJFsX1sePdn2c6CTO9owgrg6Po
-         wuFw3FBHiGiw1x5PEzDJyn6pS9X7D29eUP5yNMjfFCxtJSeigOnVe5FTi20l71INSlgy
-         xqhGe0TPJ7FZrkGRLD9+6sYt6ERAiaXb5d/qPWuGLdTgZiSwoePkHFFx+TJthzacd8BQ
-         +2Yli9bis47/27ssmSNwXcLIpswr5m1I7t1zy2Hf87QBEb/JZW8LE3Y82slKecjjBhDV
-         1sYA==
-X-Gm-Message-State: AO0yUKWyOoev2OC3+Re/s/wCJ+8oFrAmBVC9Bj2NlCOdQ8z4bVEm5a83
-        5Sz8mG/C6xdTJC+RpeRf5civbLYfnwy3DIyPYME=
-X-Google-Smtp-Source: AK7set9/fnV/SQ3APi7tjnVobKQ/siqHU3f3Ktf8tEMxy2lrXZwTRq+PyHBJ2c0jfSwwRzcBWACdkw==
-X-Received: by 2002:a5d:45d0:0:b0:2c5:54a7:3630 with SMTP id b16-20020a5d45d0000000b002c554a73630mr12953586wrs.46.1678292175856;
-        Wed, 08 Mar 2023 08:16:15 -0800 (PST)
+        d=1e100.net; s=20210112; t=1678292190;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9qYnf6bG4t/CZsEfkond99dTvRo5PJ1m29yCx2krtwQ=;
+        b=CL3k2HSLjYFbd47uJpnSmiJYk/wHLkwOFiYV658OgQ+kKO54lwx4ZhmHtTnvlJC/Td
+         rBmuNkbl/ACfYDB3J1U44JdIF0drQLXPIi0nMIr2Vx8LvMIm+OiZ+CP2hEhq8DGW7eBV
+         6JfvrdgmL/oL3LzsoX8eZB9bOXhssjIf1nPAKM5cahGN24kooVq2spg4qN0qT8eUYbaL
+         /C9ImMBIGuV+HWEk5AGVb83uWfm7wGrr1FqEKN8vu8l1a0aY12GRRrmxv6DgmnQnEb9C
+         uXiH/xlNnP7uESpU7WayCdWrmAbHQXFLpf0U4ZkQ9KW1XjQqvswZnGnc+Ttk1Hp31vob
+         J0/Q==
+X-Gm-Message-State: AO0yUKWyPPaaphMAGRoZIwY2VHYvw54pp4GADXGC4b+TbuFJ7t44ixo1
+        NtISEpgDz5oCDcWxayhvqBxyTldLspbmgZCYEkk=
+X-Google-Smtp-Source: AK7set/6lhO2vJJhofgKWRLu/Nj0W96Pr2LmoeLAM+hl02MtXZsoAzHMqvBjhoAuh3EqEXh4JSmTlQ==
+X-Received: by 2002:a5d:4b05:0:b0:2c7:7b7:ee94 with SMTP id v5-20020a5d4b05000000b002c707b7ee94mr11162173wrq.13.1678292189893;
+        Wed, 08 Mar 2023 08:16:29 -0800 (PST)
 Received: from localhost.localdomain (host86-168-251-3.range86-168.btcentralplus.com. [86.168.251.3])
-        by smtp.gmail.com with ESMTPSA id w7-20020a5d6087000000b002c567b58e9asm15862379wrt.56.2023.03.08.08.16.15
+        by smtp.gmail.com with ESMTPSA id w7-20020a5d6087000000b002c567b58e9asm15862379wrt.56.2023.03.08.08.16.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Mar 2023 08:16:15 -0800 (PST)
+        Wed, 08 Mar 2023 08:16:29 -0800 (PST)
 From:   Qais Yousef <qyousef@layalina.io>
 To:     stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Qais Yousef <qais.yousef@arm.com>
-Subject: [PATCH 01/10] sched/uclamp: Make task_fits_capacity() use util_fits_cpu()
-Date:   Wed,  8 Mar 2023 16:15:49 +0000
-Message-Id: <20230308161558.2882972-2-qyousef@layalina.io>
+        Qais Yousef <qais.yousef@arm.com>,
+        Yun Hsiang <hsiang023167@gmail.com>
+Subject: [PATCH 02/10] sched/uclamp: Fix fits_capacity() check in feec()
+Date:   Wed,  8 Mar 2023 16:15:50 +0000
+Message-Id: <20230308161558.2882972-3-qyousef@layalina.io>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230308161558.2882972-2-qyousef@layalina.io>
+References: <20230308161558.2882972-2-qyousef@layalina.io>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -71,100 +75,184 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qais Yousef <qais.yousef@arm.com>
 
-commit b48e16a69792b5dc4a09d6807369d11b2970cc36 upstream.
+commit 244226035a1f9b2b6c326e55ae5188fab4f428cb upstream.
 
-So that the new uclamp rules in regard to migration margin and capacity
-pressure are taken into account correctly.
+As reported by Yun Hsiang [1], if a task has its uclamp_min >= 0.8 * 1024,
+it'll always pick the previous CPU because fits_capacity() will always
+return false in this case.
 
-Fixes: a7008c07a568 ("sched/fair: Make task_fits_capacity() consider uclamp restrictions")
-Co-developed-by: Vincent Guittot <vincent.guittot@linaro.org>
+The new util_fits_cpu() logic should handle this correctly for us beside
+more corner cases where similar failures could occur, like when using
+UCLAMP_MAX.
+
+We open code uclamp_rq_util_with() except for the clamp() part,
+util_fits_cpu() needs the 'raw' values to be passed to it.
+
+Also introduce uclamp_rq_{set, get}() shorthand accessors to get uclamp
+value for the rq. Makes the code more readable and ensures the right
+rules (use READ_ONCE/WRITE_ONCE) are respected transparently.
+
+[1] https://lists.linaro.org/pipermail/eas-dev/2020-July/001488.html
+
+Fixes: 1d42509e475c ("sched/fair: Make EAS wakeup placement consider uclamp restrictions")
+Reported-by: Yun Hsiang <hsiang023167@gmail.com>
 Signed-off-by: Qais Yousef <qais.yousef@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-3-qais.yousef@arm.com
-(cherry picked from commit b48e16a69792b5dc4a09d6807369d11b2970cc36)
+Link: https://lore.kernel.org/r/20220804143609.515789-4-qais.yousef@arm.com
+(cherry picked from commit 244226035a1f9b2b6c326e55ae5188fab4f428cb)
+[Fix trivial conflict in kernel/sched/fair.c due to new automatic
+variables in master vs 5.10]
 Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
 ---
- kernel/sched/fair.c  | 26 ++++++++++++++++----------
- kernel/sched/sched.h |  9 +++++++++
- 2 files changed, 25 insertions(+), 10 deletions(-)
+ kernel/sched/core.c  | 10 +++++-----
+ kernel/sched/fair.c  | 26 ++++++++++++++++++++++++--
+ kernel/sched/sched.h | 42 +++++++++++++++++++++++++++++++++++++++---
+ 3 files changed, 68 insertions(+), 10 deletions(-)
 
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 1303a2607f1f..7c151cf7b7c1 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -980,7 +980,7 @@ static inline void uclamp_idle_reset(struct rq *rq, enum uclamp_id clamp_id,
+ 	if (!(rq->uclamp_flags & UCLAMP_FLAG_IDLE))
+ 		return;
+ 
+-	WRITE_ONCE(rq->uclamp[clamp_id].value, clamp_value);
++	uclamp_rq_set(rq, clamp_id, clamp_value);
+ }
+ 
+ static inline
+@@ -1158,8 +1158,8 @@ static inline void uclamp_rq_inc_id(struct rq *rq, struct task_struct *p,
+ 	if (bucket->tasks == 1 || uc_se->value > bucket->value)
+ 		bucket->value = uc_se->value;
+ 
+-	if (uc_se->value > READ_ONCE(uc_rq->value))
+-		WRITE_ONCE(uc_rq->value, uc_se->value);
++	if (uc_se->value > uclamp_rq_get(rq, clamp_id))
++		uclamp_rq_set(rq, clamp_id, uc_se->value);
+ }
+ 
+ /*
+@@ -1225,7 +1225,7 @@ static inline void uclamp_rq_dec_id(struct rq *rq, struct task_struct *p,
+ 	if (likely(bucket->tasks))
+ 		return;
+ 
+-	rq_clamp = READ_ONCE(uc_rq->value);
++	rq_clamp = uclamp_rq_get(rq, clamp_id);
+ 	/*
+ 	 * Defensive programming: this should never happen. If it happens,
+ 	 * e.g. due to future modification, warn and fixup the expected value.
+@@ -1233,7 +1233,7 @@ static inline void uclamp_rq_dec_id(struct rq *rq, struct task_struct *p,
+ 	SCHED_WARN_ON(bucket->value > rq_clamp);
+ 	if (bucket->value >= rq_clamp) {
+ 		bkt_clamp = uclamp_rq_max_value(rq, clamp_id, uc_se->value);
+-		WRITE_ONCE(uc_rq->value, bkt_clamp);
++		uclamp_rq_set(rq, clamp_id, bkt_clamp);
+ 	}
+ }
+ 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index c39d2fc3f994..de7e81cbfed2 100644
+index de7e81cbfed2..642869018e42 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -4197,10 +4197,12 @@ static inline int util_fits_cpu(unsigned long util,
- 	return fits;
- }
- 
--static inline int task_fits_capacity(struct task_struct *p,
--				     unsigned long capacity)
-+static inline int task_fits_cpu(struct task_struct *p, int cpu)
+@@ -6755,6 +6755,8 @@ compute_energy(struct task_struct *p, int dst_cpu, struct perf_domain *pd)
+ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
  {
--	return fits_capacity(uclamp_task_util(p), capacity);
-+	unsigned long uclamp_min = uclamp_eff_value(p, UCLAMP_MIN);
-+	unsigned long uclamp_max = uclamp_eff_value(p, UCLAMP_MAX);
-+	unsigned long util = task_util_est(p);
-+	return util_fits_cpu(util, uclamp_min, uclamp_max, cpu);
- }
+ 	unsigned long prev_delta = ULONG_MAX, best_delta = ULONG_MAX;
++	unsigned long p_util_min = uclamp_is_used() ? uclamp_eff_value(p, UCLAMP_MIN) : 0;
++	unsigned long p_util_max = uclamp_is_used() ? uclamp_eff_value(p, UCLAMP_MAX) : 1024;
+ 	struct root_domain *rd = cpu_rq(smp_processor_id())->rd;
+ 	unsigned long cpu_cap, util, base_energy = 0;
+ 	int cpu, best_energy_cpu = prev_cpu;
+@@ -6782,6 +6784,8 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
  
- static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
-@@ -4213,7 +4215,7 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
- 		return;
- 	}
+ 	for (; pd; pd = pd->next) {
+ 		unsigned long cur_delta, spare_cap, max_spare_cap = 0;
++		unsigned long rq_util_min, rq_util_max;
++		unsigned long util_min, util_max;
+ 		unsigned long base_energy_pd;
+ 		int max_spare_cap_cpu = -1;
  
--	if (task_fits_capacity(p, capacity_of(cpu_of(rq)))) {
-+	if (task_fits_cpu(p, cpu_of(rq))) {
- 		rq->misfit_task_load = 0;
- 		return;
- 	}
-@@ -7898,7 +7900,7 @@ static int detach_tasks(struct lb_env *env)
- 
- 		case migrate_misfit:
- 			/* This is not a misfit task */
--			if (task_fits_capacity(p, capacity_of(env->src_cpu)))
-+			if (task_fits_cpu(p, env->src_cpu))
- 				goto next;
- 
- 			env->imbalance = 0;
-@@ -8840,6 +8842,10 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
- 
- 	memset(sgs, 0, sizeof(*sgs));
- 
-+	/* Assume that task can't fit any CPU of the group */
-+	if (sd->flags & SD_ASYM_CPUCAPACITY)
-+		sgs->group_misfit_task_load = 1;
+@@ -6805,8 +6809,26 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
+ 			 * much capacity we can get out of the CPU; this is
+ 			 * aligned with schedutil_cpu_util().
+ 			 */
+-			util = uclamp_rq_util_with(cpu_rq(cpu), util, p);
+-			if (!fits_capacity(util, cpu_cap))
++			if (uclamp_is_used()) {
++				if (uclamp_rq_is_idle(cpu_rq(cpu))) {
++					util_min = p_util_min;
++					util_max = p_util_max;
++				} else {
++					/*
++					 * Open code uclamp_rq_util_with() except for
++					 * the clamp() part. Ie: apply max aggregation
++					 * only. util_fits_cpu() logic requires to
++					 * operate on non clamped util but must use the
++					 * max-aggregated uclamp_{min, max}.
++					 */
++					rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
++					rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
 +
- 	for_each_cpu(i, sched_group_span(group)) {
- 		struct rq *rq = cpu_rq(i);
- 		unsigned int local;
-@@ -8859,12 +8865,12 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
- 		if (!nr_running && idle_cpu_without(i, p))
- 			sgs->idle_cpus++;
++					util_min = max(rq_util_min, p_util_min);
++					util_max = max(rq_util_max, p_util_max);
++				}
++			}
++			if (!util_fits_cpu(util, util_min, util_max, cpu))
+ 				continue;
  
--	}
-+		/* Check if task fits in the CPU */
-+		if (sd->flags & SD_ASYM_CPUCAPACITY &&
-+		    sgs->group_misfit_task_load &&
-+		    task_fits_cpu(p, i))
-+			sgs->group_misfit_task_load = 0;
- 
--	/* Check if task fits in the group */
--	if (sd->flags & SD_ASYM_CPUCAPACITY &&
--	    !task_fits_capacity(p, group->sgc->max_capacity)) {
--		sgs->group_misfit_task_load = 1;
- 	}
- 
- 	sgs->group_capacity = group->sgc->capacity;
+ 			/* Always use prev_cpu as a candidate. */
 diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 12c65628801c..3758f98c068c 100644
+index 3758f98c068c..d4632e50d8b3 100644
 --- a/kernel/sched/sched.h
 +++ b/kernel/sched/sched.h
-@@ -2468,6 +2468,15 @@ static inline bool uclamp_is_used(void)
- 	return static_branch_likely(&sched_uclamp_used);
+@@ -2402,6 +2402,23 @@ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags) {}
+ #ifdef CONFIG_UCLAMP_TASK
+ unsigned long uclamp_eff_value(struct task_struct *p, enum uclamp_id clamp_id);
+ 
++static inline unsigned long uclamp_rq_get(struct rq *rq,
++					  enum uclamp_id clamp_id)
++{
++	return READ_ONCE(rq->uclamp[clamp_id].value);
++}
++
++static inline void uclamp_rq_set(struct rq *rq, enum uclamp_id clamp_id,
++				 unsigned int value)
++{
++	WRITE_ONCE(rq->uclamp[clamp_id].value, value);
++}
++
++static inline bool uclamp_rq_is_idle(struct rq *rq)
++{
++	return rq->uclamp_flags & UCLAMP_FLAG_IDLE;
++}
++
+ /**
+  * uclamp_rq_util_with - clamp @util with @rq and @p effective uclamp values.
+  * @rq:		The rq to clamp against. Must not be NULL.
+@@ -2437,12 +2454,12 @@ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 		 * Ignore last runnable task's max clamp, as this task will
+ 		 * reset it. Similarly, no need to read the rq's min clamp.
+ 		 */
+-		if (rq->uclamp_flags & UCLAMP_FLAG_IDLE)
++		if (uclamp_rq_is_idle(rq))
+ 			goto out;
+ 	}
+ 
+-	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
+-	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
++	min_util = max_t(unsigned long, min_util, uclamp_rq_get(rq, UCLAMP_MIN));
++	max_util = max_t(unsigned long, max_util, uclamp_rq_get(rq, UCLAMP_MAX));
+ out:
+ 	/*
+ 	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
+@@ -2488,6 +2505,25 @@ static inline bool uclamp_is_used(void)
+ {
+ 	return false;
  }
- #else /* CONFIG_UCLAMP_TASK */
-+static inline unsigned long uclamp_eff_value(struct task_struct *p,
-+					     enum uclamp_id clamp_id)
++
++static inline unsigned long uclamp_rq_get(struct rq *rq,
++					  enum uclamp_id clamp_id)
 +{
 +	if (clamp_id == UCLAMP_MIN)
 +		return 0;
@@ -172,9 +260,18 @@ index 12c65628801c..3758f98c068c 100644
 +	return SCHED_CAPACITY_SCALE;
 +}
 +
- static inline
- unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
- 				  struct task_struct *p)
++static inline void uclamp_rq_set(struct rq *rq, enum uclamp_id clamp_id,
++				 unsigned int value)
++{
++}
++
++static inline bool uclamp_rq_is_idle(struct rq *rq)
++{
++	return false;
++}
+ #endif /* CONFIG_UCLAMP_TASK */
+ 
+ #ifdef arch_scale_freq_capacity
 -- 
 2.25.1
 
