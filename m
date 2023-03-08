@@ -2,212 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D416B09ED
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:53:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE716B09F0
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:53:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231663AbjCHNxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 08:53:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53586 "EHLO
+        id S230197AbjCHNxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 08:53:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230264AbjCHNw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:52:57 -0500
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B4DE1999
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 05:52:53 -0800 (PST)
-Received: by mail-ed1-x535.google.com with SMTP id da10so66087779edb.3
-        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 05:52:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1678283571;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Xabt1myQBRuE+eMEByQcLDVFrVSSoahD8jub5KQw9Yg=;
-        b=Z8Bh3g7ESIZOiKUtkhCvjLbhx7Z/YEkoHVETTlkRca1m6mLlWhZvqB9IJet6EuF/8y
-         p0aqX/cVE3hs/YhEj+EwealQxU9QmRfqVMovoaFnKj74/czP5JZ/l39fVLhqR5HeutKv
-         DEPybwJp4+K+NVC/B3m4zKRjF3dkL3PBIswBM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678283571;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Xabt1myQBRuE+eMEByQcLDVFrVSSoahD8jub5KQw9Yg=;
-        b=AxdLGiLZZU7Poc2lYAtoGP1fKd5lbgq2aCrYC2TtUjT+BLCuHAwiPksPHVkn/RRHAm
-         LxxPr6G6iqRAAQ/0QEFkQ+b+hBiOWzw1ORFBGMjrrf4rekdGEovMhOjYAJOvGjIrNSRM
-         9TIPi+RjqyaEpzIVhvl9CY3rxwQMyYXM+T6bidilklXIBxgla1enjFrzH7LcW3/QPB7O
-         YqtY+OMdvPDSUbny1du8JZFkp6UPEKn5QG2fZEUmMZlYKTi7MsxPSqDzUlPUfBOPDSLd
-         F3n7a8qutpgaSCJHrHEhNtdwEUVxBSHsilFOEXIxwxkN26+pfj5qr0yTnE/gCm+Mv5N4
-         SzlA==
-X-Gm-Message-State: AO0yUKUayQcN0xzBCAtxOgOQzS4WZyJ5l2hXROl3gvTjwtPwxWH70kRL
-        tbgPz0KTuouUeufR0GxxE9l8quUAYDDV1SM1ggw=
-X-Google-Smtp-Source: AK7set+BUgfzZvs8GgOTQBKBJRPeMQOnBjtNQatAJwOB6iD5E7ifKwo2ej114s5Jrx3QtPoU8a5kZQ==
-X-Received: by 2002:a17:906:af62:b0:8d9:383a:be39 with SMTP id os2-20020a170906af6200b008d9383abe39mr21758842ejb.41.1678283571452;
-        Wed, 08 Mar 2023 05:52:51 -0800 (PST)
-Received: from alco.corp.google.com ([2620:0:1059:10:2926:70d3:ee98:eb12])
-        by smtp.gmail.com with ESMTPSA id qw15-20020a170906fcaf00b008d57e796dcbsm7476927ejb.25.2023.03.08.05.52.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Mar 2023 05:52:50 -0800 (PST)
-From:   Ricardo Ribalda <ribalda@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>,
-        Yunke Cao <yunkec@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [PATCH 5.4.y 2/2] media: uvcvideo: Fix race condition with usb_kill_urb
-Date:   Wed,  8 Mar 2023 14:52:47 +0100
-Message-Id: <20230308135247.262826-2-ribalda@chromium.org>
-X-Mailer: git-send-email 2.40.0.rc0.216.gc4246ad0f0-goog
-In-Reply-To: <20230308135247.262826-1-ribalda@chromium.org>
-References: <167810021615514@kroah.com>
- <20230308135247.262826-1-ribalda@chromium.org>
+        with ESMTP id S231576AbjCHNxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:53:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B489B77F;
+        Wed,  8 Mar 2023 05:52:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 599D0B81CE6;
+        Wed,  8 Mar 2023 13:52:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 451A0C433EF;
+        Wed,  8 Mar 2023 13:52:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678283576;
+        bh=cMc+h0EdzLDs1AgWG9sov4h4C2Yo60GqELjLDqqHhHg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Jnoxu2SE1C2hT0Peq768NbMw5KpxGsVrDawvWKSjUusvhyounr7fXlslcWG0Wst+t
+         4bhBNd3ENebPBTAi2ipXRVgT9yjDUFCqGUcmmnCFddFxGWFNNR65fP6EDGD+ED+Gh7
+         nwklVEPPrUrCcVkRDxE3c1dfo8J+areCsBnRu6+YzUzj11ylXGxNZEiZuG5kNkOmPY
+         G/PQA+zsjIzK8b1nJNrj8iTFdv2OeL0uzRMrDpYZs9lqnNd6rxnG7hiZD6Hm/R4AYs
+         yvjRxnjar5JPYDNSG8v4Wt+2gnf2/lYxhRGotwlruZa8SquCBNUZoQWntEEXWJy5D4
+         WBiJq+9CLYbNw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Li Jun <jun.li@nxp.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 3/3] media: rc: gpio-ir-recv: add remove function
+Date:   Wed,  8 Mar 2023 08:52:47 -0500
+Message-Id: <20230308135250.2927358-3-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230308135250.2927358-1-sashal@kernel.org>
+References: <20230308135250.2927358-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-usb_kill_urb warranties that all the handlers are finished when it
-returns, but does not protect against threads that might be handling
-asynchronously the urb.
+From: Li Jun <jun.li@nxp.com>
 
-For UVC, the function uvc_ctrl_status_event_async() takes care of
-control changes asynchronously.
+[ Upstream commit 30040818b338b8ebc956ce0ebd198f8d593586a6 ]
 
-If the code is executed in the following order:
+In case runtime PM is enabled, do runtime PM clean up to remove
+cpu latency qos request, otherwise driver removal may have below
+kernel dump:
 
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-uvc_ctrl_status_event_work()
-					uvc_status_start() -> FAIL
+[   19.463299] Unable to handle kernel NULL pointer dereference at
+virtual address 0000000000000048
+[   19.472161] Mem abort info:
+[   19.474985]   ESR = 0x0000000096000004
+[   19.478754]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   19.484081]   SET = 0, FnV = 0
+[   19.487149]   EA = 0, S1PTW = 0
+[   19.490361]   FSC = 0x04: level 0 translation fault
+[   19.495256] Data abort info:
+[   19.498149]   ISV = 0, ISS = 0x00000004
+[   19.501997]   CM = 0, WnR = 0
+[   19.504977] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000049f81000
+[   19.511432] [0000000000000048] pgd=0000000000000000,
+p4d=0000000000000000
+[   19.518245] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
+[   19.524520] Modules linked in: gpio_ir_recv(+) rc_core [last
+unloaded: rc_core]
+[   19.531845] CPU: 0 PID: 445 Comm: insmod Not tainted
+6.2.0-rc1-00028-g2c397a46d47c #72
+[   19.531854] Hardware name: FSL i.MX8MM EVK board (DT)
+[   19.531859] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS
+BTYPE=--)
+[   19.551777] pc : cpu_latency_qos_remove_request+0x20/0x110
+[   19.557277] lr : gpio_ir_recv_runtime_suspend+0x18/0x30
+[gpio_ir_recv]
+[   19.557294] sp : ffff800008ce3740
+[   19.557297] x29: ffff800008ce3740 x28: 0000000000000000 x27:
+ffff800008ce3d50
+[   19.574270] x26: ffffc7e3e9cea100 x25: 00000000000f4240 x24:
+ffffc7e3f9ef0e30
+[   19.574284] x23: 0000000000000000 x22: ffff0061803820f4 x21:
+0000000000000008
+[   19.574296] x20: ffffc7e3fa75df30 x19: 0000000000000020 x18:
+ffffffffffffffff
+[   19.588570] x17: 0000000000000000 x16: ffffc7e3f9efab70 x15:
+ffffffffffffffff
+[   19.595712] x14: ffff800008ce37b8 x13: ffff800008ce37aa x12:
+0000000000000001
+[   19.602853] x11: 0000000000000001 x10: ffffcbe3ec0dff87 x9 :
+0000000000000008
+[   19.609991] x8 : 0101010101010101 x7 : 0000000000000000 x6 :
+000000000f0bfe9f
+[   19.624261] x5 : 00ffffffffffffff x4 : 0025ab8e00000000 x3 :
+ffff006180382010
+[   19.631405] x2 : ffffc7e3e9ce8030 x1 : ffffc7e3fc3eb810 x0 :
+0000000000000020
+[   19.638548] Call trace:
+[   19.640995]  cpu_latency_qos_remove_request+0x20/0x110
+[   19.646142]  gpio_ir_recv_runtime_suspend+0x18/0x30 [gpio_ir_recv]
+[   19.652339]  pm_generic_runtime_suspend+0x2c/0x44
+[   19.657055]  __rpm_callback+0x48/0x1dc
+[   19.660807]  rpm_callback+0x6c/0x80
+[   19.664301]  rpm_suspend+0x10c/0x640
+[   19.667880]  rpm_idle+0x250/0x2d0
+[   19.671198]  update_autosuspend+0x38/0xe0
+[   19.675213]  pm_runtime_set_autosuspend_delay+0x40/0x60
+[   19.680442]  gpio_ir_recv_probe+0x1b4/0x21c [gpio_ir_recv]
+[   19.685941]  platform_probe+0x68/0xc0
+[   19.689610]  really_probe+0xc0/0x3dc
+[   19.693189]  __driver_probe_device+0x7c/0x190
+[   19.697550]  driver_probe_device+0x3c/0x110
+[   19.701739]  __driver_attach+0xf4/0x200
+[   19.705578]  bus_for_each_dev+0x70/0xd0
+[   19.709417]  driver_attach+0x24/0x30
+[   19.712998]  bus_add_driver+0x17c/0x240
+[   19.716834]  driver_register+0x78/0x130
+[   19.720676]  __platform_driver_register+0x28/0x34
+[   19.725386]  gpio_ir_recv_driver_init+0x20/0x1000 [gpio_ir_recv]
+[   19.731404]  do_one_initcall+0x44/0x2ac
+[   19.735243]  do_init_module+0x48/0x1d0
+[   19.739003]  load_module+0x19fc/0x2034
+[   19.742759]  __do_sys_finit_module+0xac/0x12c
+[   19.747124]  __arm64_sys_finit_module+0x20/0x30
+[   19.751664]  invoke_syscall+0x48/0x114
+[   19.755420]  el0_svc_common.constprop.0+0xcc/0xec
+[   19.760132]  do_el0_svc+0x38/0xb0
+[   19.763456]  el0_svc+0x2c/0x84
+[   19.766516]  el0t_64_sync_handler+0xf4/0x120
+[   19.770789]  el0t_64_sync+0x190/0x194
+[   19.774460] Code: 910003fd a90153f3 aa0003f3 91204021 (f9401400)
+[   19.780556] ---[ end trace 0000000000000000 ]---
 
-Then uvc_status_start will keep failing and this error will be shown:
-
-<4>[    5.540139] URB 0000000000000000 submitted while active
-drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
-
-Let's improve the current situation, by not re-submiting the urb if
-we are stopping the status event. Also process the queued work
-(if any) during stop.
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-					uvc_status_start()
-uvc_ctrl_status_event_work() -> FAIL
-
-Hopefully, with the usb layer protection this should be enough to cover
-all the cases.
-
-Cc: stable@vger.kernel.org
-Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-Reviewed-by: Yunke Cao <yunkec@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-(cherry picked from commit 619d9b710cf06f7a00a17120ca92333684ac45a8)
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_ctrl.c   |  5 ++++
- drivers/media/usb/uvc/uvc_status.c | 37 ++++++++++++++++++++++++++++++
- drivers/media/usb/uvc/uvcvideo.h   |  1 +
- 3 files changed, 43 insertions(+)
+ drivers/media/rc/gpio-ir-recv.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index b6cadae3c187..e0d894c61f4b 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/module.h>
-@@ -1318,6 +1319,10 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 
- 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
-+	/* The barrier is needed to synchronize with uvc_status_stop(). */
-+	if (smp_load_acquire(&dev->flush_status))
-+		return;
-+
- 	/* Resubmit the URB. */
- 	w->urb->interval = dev->int_ep->desc.bInterval;
- 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
-diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
-index 3e26d82a906d..73725051cc16 100644
---- a/drivers/media/usb/uvc/uvc_status.c
-+++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/kernel.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-@@ -310,5 +311,41 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
- 
- void uvc_status_stop(struct uvc_device *dev)
- {
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+
-+	/*
-+	 * Prevent the asynchronous control handler from requeing the URB. The
-+	 * barrier is needed so the flush_status change is visible to other
-+	 * CPUs running the asynchronous handler before usb_kill_urb() is
-+	 * called below.
-+	 */
-+	smp_store_release(&dev->flush_status, true);
-+
-+	/*
-+	 * Cancel any pending asynchronous work. If any status event was queued,
-+	 * process it synchronously.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/* Kill the urb. */
- 	usb_kill_urb(dev->int_urb);
-+
-+	/*
-+	 * The URB completion handler may have queued asynchronous work. This
-+	 * won't resubmit the URB as flush_status is set, but it needs to be
-+	 * cancelled before returning or it could then race with a future
-+	 * uvc_status_start() call.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/*
-+	 * From this point, there are no events on the queue and the status URB
-+	 * is dead. No events will be queued until uvc_status_start() is called.
-+	 * The barrier is needed to make sure that flush_status is visible to
-+	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
-+	 * again.
-+	 */
-+	smp_store_release(&dev->flush_status, false);
+diff --git a/drivers/media/rc/gpio-ir-recv.c b/drivers/media/rc/gpio-ir-recv.c
+index 22e524b69806a..a56c844d7f816 100644
+--- a/drivers/media/rc/gpio-ir-recv.c
++++ b/drivers/media/rc/gpio-ir-recv.c
+@@ -130,6 +130,23 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
+ 				"gpio-ir-recv-irq", gpio_dev);
  }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index fce41609e27a..d9e954335e75 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -664,6 +664,7 @@ struct uvc_device {
- 	struct usb_host_endpoint *int_ep;
- 	struct urb *int_urb;
- 	u8 *status;
-+	bool flush_status;
- 	struct input_dev *input;
- 	char input_phys[64];
  
++static int gpio_ir_recv_remove(struct platform_device *pdev)
++{
++	struct gpio_rc_dev *gpio_dev = platform_get_drvdata(pdev);
++	struct device *pmdev = gpio_dev->pmdev;
++
++	if (pmdev) {
++		pm_runtime_get_sync(pmdev);
++		cpu_latency_qos_remove_request(&gpio_dev->qos);
++
++		pm_runtime_disable(pmdev);
++		pm_runtime_put_noidle(pmdev);
++		pm_runtime_set_suspended(pmdev);
++	}
++
++	return 0;
++}
++
+ #ifdef CONFIG_PM
+ static int gpio_ir_recv_suspend(struct device *dev)
+ {
+@@ -189,6 +206,7 @@ MODULE_DEVICE_TABLE(of, gpio_ir_recv_of_match);
+ 
+ static struct platform_driver gpio_ir_recv_driver = {
+ 	.probe  = gpio_ir_recv_probe,
++	.remove = gpio_ir_recv_remove,
+ 	.driver = {
+ 		.name   = KBUILD_MODNAME,
+ 		.of_match_table = of_match_ptr(gpio_ir_recv_of_match),
 -- 
-2.40.0.rc0.216.gc4246ad0f0-goog
+2.39.2
 
