@@ -2,147 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 679146B0A17
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:55:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 235686B0A24
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 14:56:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbjCHNzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 08:55:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55196 "EHLO
+        id S231349AbjCHN4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 08:56:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231717AbjCHNym (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:54:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB837C080C;
-        Wed,  8 Mar 2023 05:53:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 012ECB81CE5;
-        Wed,  8 Mar 2023 13:53:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA0F7C433D2;
-        Wed,  8 Mar 2023 13:53:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678283605;
-        bh=MU5EXANTWSsAxrH9VDoE9T6jLGfx/q/yU3e3ldMitrc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=i/3wkZl5nmVgMvW2S8rVgbbpo8g8Q1+JH8S0zsVOqiIdkSeqVqmZyl6udhULFfY+Z
-         1rgW5Irn1evUONLDFWHjHwo6paZYmoQKKLcuyNoIgY/2GJMdayxiFOt8E5AD3r54Tn
-         XoH08ESj8KXSbfZkLiCR2or6d4xeJBBUkbVSqobPVbMMJu1VkPZ9RBsFYTQgs9uHrk
-         gsbs8fzHh5ZGjUouI9uEauvue2hD/3OddFah8EccdSaugXhwaxuTgfE5WBCdbJCU4P
-         n59m/kw75Kx0RRhyoS+KRLeAUs010/hEBwMgwRvIMyEYF/MQlvf4nDfFUiT3z6BDku
-         AHAayjBxY86KQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Elder <paul.elder@ideasonboard.com>,
+        with ESMTP id S231620AbjCHN4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 08:56:18 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257C97C94B
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 05:55:04 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id ec29so35196258edb.6
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 05:55:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1678283699;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aKYWzKXafiQG8he4OAJrxmaJR9hVnm3yMCcj6gd4Znw=;
+        b=QP4aKoY78z4nuvSeJSM1Ista/KT7bvMzg2hI12iCFwC+PdKGKrvHglQnPKEmrPFEKL
+         aMo7lK6JJtzoMYey2XrHfX55NgYaL8MSEpQyzkiCia+UVEPUXz5tpmMY/YAwtg4nRLbl
+         iV6nvLvgv4xZ2uDThibbboV63KgK4hsyKIFNs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678283699;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aKYWzKXafiQG8he4OAJrxmaJR9hVnm3yMCcj6gd4Znw=;
+        b=JiYePkwjkPFXrrxgwjtOv587IZpLU6KRoSueEYfBb9BSHal5tVNG79gfmtsKdnjBnL
+         uBAQvjqLTk/f9Om7HfsuCpHG7AsAioi1A8jlQ7/drbFRs3T16QMuG6AZlQgku/cQl/NO
+         9OCg64g0/4AGK8cQJ7T+mI6IRM/nS1ZpfrPJcFa1Y7VQBefcH/y1mKusUqF48L21QHrP
+         T7XefC3DwOUgLi/3R2sD9arWxBCqgxQssfNqjo9F3zyRnydHxGZB//9syw4y8e/KItBq
+         Pactc3nsU3c2I3/oAzyv8iOAXnoTELHOJTrJdib+gHqhEVAWV699riObMbYb05/5oveo
+         VTxw==
+X-Gm-Message-State: AO0yUKVo1sF5R/JBkU7xFgYlOSNFemQjfj6m+nMzB+x6H3g1k08RCGHv
+        vy6tZKY8h2vYWaTq3uS2xLXDyutV604eAijTLj8=
+X-Google-Smtp-Source: AK7set+OWda3ZI5Y6XA8XGu8zR2ukGPTHYSYBL/OwoBW5pDBAt7FPkqsrY/VMAeTMjHBYRLXi0mU4w==
+X-Received: by 2002:a17:907:3f10:b0:906:3799:cc7f with SMTP id hq16-20020a1709073f1000b009063799cc7fmr20569370ejc.39.1678283699453;
+        Wed, 08 Mar 2023 05:54:59 -0800 (PST)
+Received: from alco.corp.google.com ([2620:0:1059:10:2926:70d3:ee98:eb12])
+        by smtp.gmail.com with ESMTPSA id x22-20020a170906b09600b008d9ddd2da88sm7503701ejy.6.2023.03.08.05.54.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Mar 2023 05:54:59 -0800 (PST)
+From:   Ricardo Ribalda <ribalda@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Jacopo Mondi <jacopo.mondi@ideasonboard.com>,
-        Jai Luthra <j-luthra@ti.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, slongerbeam@gmail.com,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14] media: ov5640: Fix analogue gain control
-Date:   Wed,  8 Mar 2023 08:53:22 -0500
-Message-Id: <20230308135322.2927564-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19.y 1/2] media: uvcvideo: Provide sync and async uvc_ctrl_status_event
+Date:   Wed,  8 Mar 2023 14:54:55 +0100
+Message-Id: <20230308135456.269294-1-ribalda@chromium.org>
+X-Mailer: git-send-email 2.40.0.rc0.216.gc4246ad0f0-goog
+In-Reply-To: <167810021760137@kroah.com>
+References: <167810021760137@kroah.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Elder <paul.elder@ideasonboard.com>
+Split the functionality of void uvc_ctrl_status_event_work in two, so it
+can be called by functions outside interrupt context and not part of an
+URB.
 
-[ Upstream commit afa4805799c1d332980ad23339fdb07b5e0cf7e0 ]
-
-Gain control is badly documented in publicly available (including
-leaked) documentation.
-
-There is an AGC pre-gain in register 0x3a13, expressed as a 6-bit value
-(plus an enable bit in bit 6). The driver hardcodes it to 0x43, which
-one application note states is equal to x1.047. The documentation also
-states that 0x40 is equel to x1.000. The pre-gain thus seems to be
-expressed as in 1/64 increments, and thus ranges from x1.00 to x1.984.
-What the pre-gain does is however unspecified.
-
-There is then an AGC gain limit, in registers 0x3a18 and 0x3a19,
-expressed as a 10-bit "real gain format" value. One application note
-sets it to 0x00f8 and states it is equal to x15.5, so it appears to be
-expressed in 1/16 increments, up to x63.9375.
-
-The manual gain is stored in registers 0x350a and 0x350b, also as a
-10-bit "real gain format" value. It is documented in the application
-note as a Q6.4 values, up to x63.9375.
-
-One version of the datasheet indicates that the sensor supports a
-digital gain:
-
-  The OV5640 supports 1/2/4 digital gain. Normally, the gain is
-  controlled automatically by the automatic gain control (AGC) block.
-
-It isn't clear how that would be controlled manually.
-
-There appears to be no indication regarding whether the gain controlled
-through registers 0x350a and 0x350b is an analogue gain only or also
-includes digital gain. The words "real gain" don't necessarily mean
-"combined analogue and digital gains". Some OmniVision sensors (such as
-the OV8858) are documented as supoprting different formats for the gain
-values, selectable through a register bit, and they are called "real
-gain format" and "sensor gain format". For that sensor, we have (one of)
-the gain registers documented as
-
-  0x3503[2]=0, gain[7:0] is real gain format, where low 4 bits are
-  fraction bits, for example, 0x10 is 1x gain, 0x28 is 2.5x gain
-
-  If 0x3503[2]=1, gain[7:0] is sensor gain format, gain[7:4] is coarse
-  gain, 00000: 1x, 00001: 2x, 00011: 4x, 00111: 8x, gain[7] is 1,
-  gain[3:0] is fine gain. For example, 0x10 is 1x gain, 0x30 is 2x gain,
-  0x70 is 4x gain
-
-(The second part of the text makes little sense)
-
-"Real gain" may thus refer to the combination of the coarse and fine
-analogue gains as a single value.
-
-The OV5640 0x350a and 0x350b registers thus appear to control analogue
-gain. The driver incorrectly uses V4L2_CID_GAIN as V4L2 has a specific
-control for analogue gain, V4L2_CID_ANALOGUE_GAIN. Use it.
-
-If registers 0x350a and 0x350b are later found to control digital gain
-as well, the driver could then restrict the range of the analogue gain
-control value to lower than x64 and add a separate digital gain control.
-
-Signed-off-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Jacopo Mondi <jacopo.mondi@ideasonboard.com>
-Reviewed-by: Jai Luthra <j-luthra@ti.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 ---
- drivers/media/i2c/ov5640.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_ctrl.c   | 25 +++++++++++++++----------
+ drivers/media/usb/uvc/uvc_status.c |  3 ++-
+ drivers/media/usb/uvc/uvcvideo.h   |  4 +++-
+ 3 files changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index eb0331b8a5833..b78e35425d14f 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -2002,7 +2002,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
- 	/* Auto/manual gain */
- 	ctrls->auto_gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_AUTOGAIN,
- 					     0, 1, 1, 1);
--	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
-+	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_ANALOGUE_GAIN,
- 					0, 1023, 1, 0);
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index cb6046481aed..c0650c49c9ab 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -1280,17 +1280,12 @@ static void uvc_ctrl_send_slave_event(struct uvc_video_chain *chain,
+ 	uvc_ctrl_send_event(chain, handle, ctrl, mapping, val, changes);
+ }
  
- 	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
+-static void uvc_ctrl_status_event_work(struct work_struct *work)
++void uvc_ctrl_status_event(struct uvc_video_chain *chain,
++			   struct uvc_control *ctrl, const u8 *data)
+ {
+-	struct uvc_device *dev = container_of(work, struct uvc_device,
+-					      async_ctrl.work);
+-	struct uvc_ctrl_work *w = &dev->async_ctrl;
+-	struct uvc_video_chain *chain = w->chain;
+ 	struct uvc_control_mapping *mapping;
+-	struct uvc_control *ctrl = w->ctrl;
+ 	struct uvc_fh *handle;
+ 	unsigned int i;
+-	int ret;
+ 
+ 	mutex_lock(&chain->ctrl_mutex);
+ 
+@@ -1298,7 +1293,7 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 	ctrl->handle = NULL;
+ 
+ 	list_for_each_entry(mapping, &ctrl->info.mappings, list) {
+-		s32 value = __uvc_ctrl_get_value(mapping, w->data);
++		s32 value = __uvc_ctrl_get_value(mapping, data);
+ 
+ 		/*
+ 		 * handle may be NULL here if the device sends auto-update
+@@ -1317,6 +1312,16 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 	}
+ 
+ 	mutex_unlock(&chain->ctrl_mutex);
++}
++
++static void uvc_ctrl_status_event_work(struct work_struct *work)
++{
++	struct uvc_device *dev = container_of(work, struct uvc_device,
++					      async_ctrl.work);
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++	int ret;
++
++	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
+ 
+ 	/* Resubmit the URB. */
+ 	w->urb->interval = dev->int_ep->desc.bInterval;
+@@ -1326,8 +1331,8 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 			   ret);
+ }
+ 
+-bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
+-			   struct uvc_control *ctrl, const u8 *data)
++bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
++				 struct uvc_control *ctrl, const u8 *data)
+ {
+ 	struct uvc_device *dev = chain->dev;
+ 	struct uvc_ctrl_work *w = &dev->async_ctrl;
+diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
+index 883e4cab45e7..fd2a9b5a62e9 100644
+--- a/drivers/media/usb/uvc/uvc_status.c
++++ b/drivers/media/usb/uvc/uvc_status.c
+@@ -184,7 +184,8 @@ static bool uvc_event_control(struct urb *urb,
+ 
+ 	switch (status->bAttribute) {
+ 	case UVC_CTRL_VALUE_CHANGE:
+-		return uvc_ctrl_status_event(urb, chain, ctrl, status->bValue);
++		return uvc_ctrl_status_event_async(urb, chain, ctrl,
++						   status->bValue);
+ 
+ 	case UVC_CTRL_INFO_CHANGE:
+ 	case UVC_CTRL_FAILURE_CHANGE:
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index 839ba3cc5311..38951d7b646a 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -768,7 +768,9 @@ int uvc_ctrl_add_mapping(struct uvc_video_chain *chain,
+ int uvc_ctrl_init_device(struct uvc_device *dev);
+ void uvc_ctrl_cleanup_device(struct uvc_device *dev);
+ int uvc_ctrl_restore_values(struct uvc_device *dev);
+-bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
++bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
++				 struct uvc_control *ctrl, const u8 *data);
++void uvc_ctrl_status_event(struct uvc_video_chain *chain,
+ 			   struct uvc_control *ctrl, const u8 *data);
+ 
+ int uvc_ctrl_begin(struct uvc_video_chain *chain);
 -- 
-2.39.2
+2.40.0.rc0.216.gc4246ad0f0-goog
 
