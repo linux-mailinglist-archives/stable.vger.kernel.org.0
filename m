@@ -2,195 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04ED96B0340
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 10:43:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40DB16B033F
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 10:42:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbjCHJm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 04:42:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53794 "EHLO
+        id S230148AbjCHJms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 04:42:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229914AbjCHJmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 04:42:25 -0500
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23F9B8F1D
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 01:41:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678268516; x=1709804516;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=IOotfOVmg3pdiNQpQIdy/u1GE39m3M/0ofAz2lryi5Y=;
-  b=cLmaQCowQG7opgMNi8dIqIoS3nQRApmc9iIyjDapu1UUxK3smdpkLWmC
-   SLKJ5dfA6CslkDChhVWdML94y/W0gIyYzh3/E7E4G6DqRIOhBSkpS3Y8l
-   40icnVCxq+XQLwtnlM+B207OW5/Z9nnuxxUL9tAfefncm0wDZX1COJhll
-   Rg+t4S7enu86spIw+wdOszEEeQR34iSgce9PFGRfYv7VPRHnliN9J5vo8
-   kZrDP3xBxyMvdvb/hspE1Saasqp86pX0SvqebxuZGchJ4OfSY2xj+dfuP
-   YInDuJQn8hYtRV+NGXQwh253fXZ5suzhDa1c7MVUuBZvXSZlkPCdaSLL8
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10642"; a="315772855"
-X-IronPort-AV: E=Sophos;i="5.98,243,1673942400"; 
-   d="scan'208";a="315772855"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2023 01:41:56 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10642"; a="922712448"
-X-IronPort-AV: E=Sophos;i="5.98,243,1673942400"; 
-   d="scan'208";a="922712448"
-Received: from gbain-mobl1.ger.corp.intel.com (HELO intel.com) ([10.252.47.108])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Mar 2023 01:41:54 -0800
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        stable@vger.kernel.org
-Cc:     Matthew Auld <matthew.auld@intel.com>,
-        Maciej Patelczyk <maciej.patelczyk@intel.com>,
-        Chris Wilson <chris.p.wilson@linux.intel.com>,
-        Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH v4 5/5] drm/i915/gt: Make sure that errors are propagated through request chains
-Date:   Wed,  8 Mar 2023 10:41:06 +0100
-Message-Id: <20230308094106.203686-6-andi.shyti@linux.intel.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230308094106.203686-1-andi.shyti@linux.intel.com>
-References: <20230308094106.203686-1-andi.shyti@linux.intel.com>
+        with ESMTP id S229823AbjCHJmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 04:42:17 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 006E8B53DF
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 01:41:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678268476;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=m7Td16p3TbD+kDYru97cnkRp6o+vBB7jl8z2uw+Ca3w=;
+        b=aUNrwLAh9Pzu0jUqV79rsH5eNZJw5TQaw0JBUmgt8puYqfADOZQZArP0Lgn1qHZ0t3dhbU
+        22jD6uje5Fo0YOXxbJ+bOVV960J5Zk/gv/XRcnhJOn68+nygmxZ3CcUpSZfrzRzSHvfLbW
+        Rp11n1js5xexda1p4m+mQXEHUCOffjw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-218-UzWbQPqOPGmukR8Ln_Wdvg-1; Wed, 08 Mar 2023 04:41:13 -0500
+X-MC-Unique: UzWbQPqOPGmukR8Ln_Wdvg-1
+Received: by mail-wm1-f70.google.com with SMTP id j32-20020a05600c1c2000b003e9bdf02c9fso722065wms.6
+        for <Stable@vger.kernel.org>; Wed, 08 Mar 2023 01:41:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678268472;
+        h=content-transfer-encoding:in-reply-to:subject:organization:from
+         :references:cc:to:content-language:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=m7Td16p3TbD+kDYru97cnkRp6o+vBB7jl8z2uw+Ca3w=;
+        b=Lt4H0um6o6yEu5fRBNNUPneTLg0A6ZrZyq6Lw/D9FIQ8oiJ86KXV5mCq+w3HqIY6Nq
+         OqT3pWIPpbx55oR46MnKoyy/jek6xBU4c6iVcJYDauWV5wlNQ9qAJXmdPpYAnq+ZLbIo
+         8OAqQd2iIHhYmEub36X1FhnngZ17U5UX+GOY7BoXI2zFAAw4Oc0vtLKoYwtcHwSo4t7r
+         L/Ayshb2xThck/GJ3fKJecu5tM7l7+hORYCfPeg//IUw6PA45EjvUmIk3ON12Y9HioPB
+         5G8tV6TN3LvkHg2MEAwty0JpEvTgvemJcAKmWK2FViZCFwXZ1g1SzBCU8pBjxlEnRBi9
+         w7Mw==
+X-Gm-Message-State: AO0yUKVXPanLVYdnlfdJtKMs05cPxPNdxiZPGbMnLw6aYCklsgfrcaLE
+        JGxQZjVNbWxz8rN3qjqQ4E9wshv7Z0GUGmnyjLoDScL+0pJu3EaN1BE/TpLwfTWyQRlqCGYKrPH
+        sbjkmdITELKEsMwAe
+X-Received: by 2002:adf:f048:0:b0:2c7:1757:3a8e with SMTP id t8-20020adff048000000b002c717573a8emr11809175wro.34.1678268472207;
+        Wed, 08 Mar 2023 01:41:12 -0800 (PST)
+X-Google-Smtp-Source: AK7set8Ymu+LXx9nCtK2pvrM5/lBSUM962NTfLkeMSnJCReM+FspgE/w457FUI4GWu9X+B6h9vVsRA==
+X-Received: by 2002:adf:f048:0:b0:2c7:1757:3a8e with SMTP id t8-20020adff048000000b002c717573a8emr11809163wro.34.1678268471894;
+        Wed, 08 Mar 2023 01:41:11 -0800 (PST)
+Received: from ?IPV6:2003:cb:c71b:cb00:d372:1da8:9e9e:422d? (p200300cbc71bcb00d3721da89e9e422d.dip0.t-ipconnect.de. [2003:cb:c71b:cb00:d372:1da8:9e9e:422d])
+        by smtp.gmail.com with ESMTPSA id z7-20020a5d4407000000b002c5503a8d21sm15012364wrq.70.2023.03.08.01.41.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Mar 2023 01:41:11 -0800 (PST)
+Message-ID: <d6670aa7-37ee-85aa-1053-96284a2f6720@redhat.com>
+Date:   Wed, 8 Mar 2023 10:41:10 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Content-Language: en-US
+To:     "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        maple-tree@lists.infradead.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Pengfei Xu <pengfei.xu@intel.com>,
+        syzbot+2ee18845e89ae76342c5@syzkaller.appspotmail.com,
+        Matthew Wilcox <willy@infradead.org>, heng.su@intel.com,
+        lkp@intel.com, Stable@vger.kernel.org
+References: <20230307205951.2465275-1-Liam.Howlett@oracle.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH] mm/ksm: Fix race with ksm_exit() in VMA iteration
+In-Reply-To: <20230307205951.2465275-1-Liam.Howlett@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, when we perform operations such as clearing or copying
-large blocks of memory, we generate multiple requests that are
-executed in a chain.
+On 07.03.23 21:59, Liam R. Howlett wrote:
+> ksm_exit() may remove the mm from the ksm_scan between the unlocking of
+> the ksm_mmlist and the start of the VMA iteration.  This results in the
+> mmap_read_lock() not being taken and a report from lockdep that the mm
+> isn't locked in the maple tree code.
 
-However, if one of these requests fails, we may not realize it
-unless it happens to be the last request in the chain. This is
-because errors are not properly propagated.
+I'm confused. The code does
 
-For this we need to keep propagating the chain of fence
-notification in order to always reach the final fence associated
-to the final request.
+mmap_read_lock(mm);
+...
+for_each_vma(vmi, vma) {
+mmap_read_unlock(mm);
 
-To address this issue, we need to ensure that the chain of fence
-notifications is always propagated so that we can reach the final
-fence associated with the last request. By doing so, we will be
-able to detect any memory operation  failures and determine
-whether the memory is still invalid.
+How can we not take the mmap_read_lock() ? Or am I staring at the wrong 
+mmap_read_lock() ?
 
-On copy and clear migration signal fences upon completion.
+> 
+> Fix the race by checking if this mm has been removed before iterating
+> the VMAs. __ksm_exit() uses the mmap lock to synchronize the freeing of
+> an mm, so it is safe to keep iterating over the VMAs when it is going to
+> be freed.
+> 
+> This change will slow down the mm exit during the race condition, but
+> will speed up the non-race scenarios iteration over the VMA list, which
+> should be much more common.
 
-On copy and clear migration, signal fences upon request
-completion to ensure that we have a reliable perpetuation of the
-operation outcome.
+Would leaving the existing check in help to just stop scanning faster in 
+that case?
 
-Fixes: cf586021642d80 ("drm/i915/gt: Pipelined page migration")
-Reported-by: Matthew Auld <matthew.auld@intel.com>
-Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
----
- drivers/gpu/drm/i915/gt/intel_migrate.c | 41 ++++++++++++++++++-------
- 1 file changed, 30 insertions(+), 11 deletions(-)
+> 
+> Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+> Link: https://lore.kernel.org/lkml/ZAdUUhSbaa6fHS36@xpf.sh.intel.com/
+> Reported-by: syzbot+2ee18845e89ae76342c5@syzkaller.appspotmail.com
+> Link: https://syzkaller.appspot.com/bug?id=64a3e95957cd3deab99df7cd7b5a9475af92c93e
+> Cc: linux-mm@kvack.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+> Cc: heng.su@intel.com
+> Cc: lkp@intel.com
+> Cc: <Stable@vger.kernel.org>
+> Fixes: a5f18ba07276 ("mm/ksm: use vma iterators instead of vma linked list")
+> Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+> ---
+>   mm/ksm.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/mm/ksm.c b/mm/ksm.c
+> index 525c3306e78b..723ddbe6ea97 100644
+> --- a/mm/ksm.c
+> +++ b/mm/ksm.c
+> @@ -1044,9 +1044,10 @@ static int unmerge_and_remove_all_rmap_items(void)
+>   
+>   		mm = mm_slot->slot.mm;
+>   		mmap_read_lock(mm);
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c b/drivers/gpu/drm/i915/gt/intel_migrate.c
-index 3f638f1987968..0031e7b1b4704 100644
---- a/drivers/gpu/drm/i915/gt/intel_migrate.c
-+++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
-@@ -742,13 +742,19 @@ intel_context_migrate_copy(struct intel_context *ce,
- 			dst_offset = 2 * CHUNK_SZ;
- 	}
- 
-+	/*
-+	 * While building the chain of requests, we need to ensure
-+	 * that no one can sneak into the timeline unnoticed.
-+	 */
-+	mutex_lock(&ce->timeline->mutex);
-+
- 	do {
- 		int len;
- 
--		rq = i915_request_create(ce);
-+		rq = i915_request_create_locked(ce);
- 		if (IS_ERR(rq)) {
- 			err = PTR_ERR(rq);
--			goto out_ce;
-+			break;
- 		}
- 
- 		if (deps) {
-@@ -878,10 +884,14 @@ intel_context_migrate_copy(struct intel_context *ce,
- 
- 		/* Arbitration is re-enabled between requests. */
- out_rq:
--		if (*out)
-+		i915_sw_fence_await(&rq->submit);
-+		i915_request_get(rq);
-+		i915_request_add_locked(rq);
-+		if (*out) {
-+			i915_sw_fence_complete(&(*out)->submit);
- 			i915_request_put(*out);
--		*out = i915_request_get(rq);
--		i915_request_add(rq);
-+		}
-+		*out = rq;
- 
- 		if (err)
- 			break;
-@@ -905,7 +915,10 @@ intel_context_migrate_copy(struct intel_context *ce,
- 		cond_resched();
- 	} while (1);
- 
--out_ce:
-+	mutex_unlock(&ce->timeline->mutex);
-+
-+	if (*out)
-+		i915_sw_fence_complete(&(*out)->submit);
- 	return err;
- }
- 
-@@ -1005,7 +1018,7 @@ intel_context_migrate_clear(struct intel_context *ce,
- 		rq = i915_request_create(ce);
- 		if (IS_ERR(rq)) {
- 			err = PTR_ERR(rq);
--			goto out_ce;
-+			break;
- 		}
- 
- 		if (deps) {
-@@ -1056,17 +1069,23 @@ intel_context_migrate_clear(struct intel_context *ce,
- 
- 		/* Arbitration is re-enabled between requests. */
- out_rq:
--		if (*out)
--			i915_request_put(*out);
--		*out = i915_request_get(rq);
-+		i915_sw_fence_await(&rq->submit);
-+		i915_request_get(rq);
- 		i915_request_add(rq);
-+		if (*out) {
-+			i915_sw_fence_complete(&(*out)->submit);
-+			i915_request_put(*out);
-+		}
-+		*out = rq;
-+
- 		if (err || !it.sg || !sg_dma_len(it.sg))
- 			break;
- 
- 		cond_resched();
- 	} while (1);
- 
--out_ce:
-+	if (*out)
-+		i915_sw_fence_complete(&(*out)->submit);
- 	return err;
- }
- 
+Better add a comment:
+
+/*
+  * Don't iterate any VMAs if we might be racing against ksm_exit(),
+  * just exit early.
+  */
+
+> +		if (ksm_test_exit(mm))
+> +			goto mm_exiting;
+> +
+>   		for_each_vma(vmi, vma) {
+> -			if (ksm_test_exit(mm))
+> -				break;
+>   			if (!(vma->vm_flags & VM_MERGEABLE) || !vma->anon_vma)
+>   				continue;
+>   			err = unmerge_ksm_pages(vma,
+> @@ -1055,6 +1056,7 @@ static int unmerge_and_remove_all_rmap_items(void)
+>   				goto error;
+>   		}
+>   
+> +mm_exiting:
+>   		remove_trailing_rmap_items(&mm_slot->rmap_list);
+>   		mmap_read_unlock(mm);
+>   
+
+
+
 -- 
-2.39.2
+Thanks,
+
+David / dhildenb
 
