@@ -2,74 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC9896AFECB
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 07:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF456AFED2
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 07:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbjCHGRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 01:17:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33648 "EHLO
+        id S229733AbjCHGSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 01:18:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjCHGRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 01:17:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C278FBF1
-        for <stable@vger.kernel.org>; Tue,  7 Mar 2023 22:17:41 -0800 (PST)
+        with ESMTP id S229468AbjCHGSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 01:18:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C06558B7E;
+        Tue,  7 Mar 2023 22:18:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68783615C1
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 06:17:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FB8EC433D2;
-        Wed,  8 Mar 2023 06:17:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678256260;
-        bh=7a8jwSZ00SsRskj163Xe9JcZKpW4sE63QdrI3OM7OaQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qtL59F2Dyjn7G+tDXXTp+DDjSMwYzS2AKdD6MQcemQhfnL+B44j9haChPv/VYlkCw
-         qxq3jKEVBR5sD5j1Z67g+WOZ9eK125XWnZm6/ivie/4ptpycAb0Mh7Ehbm1PuXY9AH
-         /9GW81QvHvj4e3hEcX5gzjI67oqRK77hVeS9XKrA=
-Date:   Wed, 8 Mar 2023 07:17:37 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     bug-make@gnu.org, stable@vger.kernel.org,
-        Dmitry Goncharov <dgoncharov@users.sf.net>
-Subject: Re: No progress output when make 4.4.1 builds Linux 4.19 and earlier
-Message-ID: <ZAgogdFlu69QlYwu@kroah.com>
-References: <ZAgnmbYtGa80L731@sol.localdomain>
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE36CB81BC1;
+        Wed,  8 Mar 2023 06:18:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5297FC433D2;
+        Wed,  8 Mar 2023 06:18:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678256310;
+        bh=71aPwkLQex1x+QJiLQLCx21XaqRi77OvXFklt0nE/KE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Wh69IBPHpiAWHCRdc7XGE9n8/3JloJVAPmdaCATTPy7SHhDBWNgYKxbHQAU54U1lm
+         maBxoRoSsuxbHxhj7slzRSRmwww2Z6pIKPwxyNPJtLd+arjC09rULc4mmn2cbN39H/
+         Bvt+8PUuvzp4wKYKNly6ufa4VQmvQ2k7TyvEhbaECTKv9Sg3E3hfqSwBgnqBRa8Bzy
+         vC4allIJ6HIzjfNwAdyhf6c5WO7vDydIokwoJcc5gD3gkJCptk0GvzHUxVpuasHjoR
+         ghENndS5CCqEd5PMVw0NyWP3pEfyQOCR7goG/9TgXY7m86TMMnXNqWBYdk15BxdiPE
+         Rl7ISFoRSasGw==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-fscrypt@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Tejun Heo <tj@kernel.org>, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 4.19] f2fs: fix cgroup writeback accounting with fs-layer encryption
+Date:   Tue,  7 Mar 2023 22:17:46 -0800
+Message-Id: <20230308061746.711142-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZAgnmbYtGa80L731@sol.localdomain>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 07, 2023 at 10:13:45PM -0800, Eric Biggers wrote:
-> After upgrading to make v4.4.1 (released last week), there's no longer any
-> progress output from builds of the Linux kernel v4.19 and earlier.  It seems the
-> actual build still works, but it's now silent except for warnings and errors.
-> 
-> It bisects to the following 'make' commit:
-> 
->     commit dc2d963989b96161472b2cd38cef5d1f4851ea34
->     Author: Dmitry Goncharov <dgoncharov@users.sf.net>
->     Date:   Sun Nov 27 14:09:17 2022 -0500
-> 
->         [SV 63347] Always add command line variable assignments to MAKEFLAGS
-> 
-> Is this an intentional breakage from the 'make' side?
+From: Eric Biggers <ebiggers@google.com>
 
-Ah, thanks for figuring this out, it's been bugging me locally for a bit
-as well!  The fact that kernels 5.4 and newer imply to me that there is
-a kernel build fix that should resolve this if someone can take the time
-to bisect it...
+commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
 
-thanks,
+When writing a page from an encrypted file that is using
+filesystem-layer encryption (not inline encryption), f2fs encrypts the
+pagecache page into a bounce page, then writes the bounce page.
 
-greg k-h
+It also passes the bounce page to wbc_account_cgroup_owner().  That's
+incorrect, because the bounce page is a newly allocated temporary page
+that doesn't have the memory cgroup of the original pagecache page.
+This makes wbc_account_cgroup_owner() not account the I/O to the owner
+of the pagecache page as it should.
+
+Fix this by always passing the pagecache page to
+wbc_account_cgroup_owner().
+
+Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
+Cc: stable@vger.kernel.org
+Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+---
+ fs/f2fs/data.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index c63f5e32630ee..56b2dadd623b2 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -464,7 +464,7 @@ int f2fs_submit_page_bio(struct f2fs_io_info *fio)
+ 	}
+ 
+ 	if (fio->io_wbc && !is_read_io(fio->op))
+-		wbc_account_io(fio->io_wbc, page, PAGE_SIZE);
++		wbc_account_io(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	bio_set_op_attrs(bio, fio->op, fio->op_flags);
+ 
+@@ -533,7 +533,7 @@ void f2fs_submit_page_write(struct f2fs_io_info *fio)
+ 	}
+ 
+ 	if (fio->io_wbc)
+-		wbc_account_io(fio->io_wbc, bio_page, PAGE_SIZE);
++		wbc_account_io(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	io->last_block_in_bio = fio->new_blkaddr;
+ 	f2fs_trace_ios(fio, 0);
+-- 
+2.39.2
+
