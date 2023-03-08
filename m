@@ -2,106 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C545C6B0D3D
-	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 16:45:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FB56B0DBE
+	for <lists+stable@lfdr.de>; Wed,  8 Mar 2023 16:55:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232187AbjCHPpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Mar 2023 10:45:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42908 "EHLO
+        id S232077AbjCHPzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Mar 2023 10:55:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232296AbjCHPo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 10:44:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7BB3241FB
-        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 07:43:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1678290180;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=RPVa/J5Cl7M2LIQutNWuK1JrUlzAeTjMVNLtf2BCpTE=;
-        b=ROHeQC0cC04PUQQUb5i+4rBwzugX6qRj5sd3Jw7yJPA5sVwf8bHSuRD2HI48Kqbw/kUals
-        WT8Fokr7hsdEVQ3RKjUKRlX/9nT9e2+M89NnNfsr/kzHIWvy6lGOtNS7/clNovusbqVJZ6
-        8uBUOSZpDl8E6Z9+wpOS2OHs8iSpTc0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-258-_N02oHL4PF2VkJt9L5qcuw-1; Wed, 08 Mar 2023 10:42:57 -0500
-X-MC-Unique: _N02oHL4PF2VkJt9L5qcuw-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BD8EB87A381;
-        Wed,  8 Mar 2023 15:42:56 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.39.195.179])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DD479492B04;
-        Wed,  8 Mar 2023 15:42:55 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v4 3/3] usb: ucsi_acpi: Increase the command completion timeout
-Date:   Wed,  8 Mar 2023 16:42:44 +0100
-Message-Id: <20230308154244.722337-4-hdegoede@redhat.com>
-In-Reply-To: <20230308154244.722337-1-hdegoede@redhat.com>
-References: <20230308154244.722337-1-hdegoede@redhat.com>
+        with ESMTP id S232340AbjCHPyo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Mar 2023 10:54:44 -0500
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFC291B7C
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 07:54:06 -0800 (PST)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-72-mj1XC4KrMCG4ZP0_bw2c9w-1; Wed, 08 Mar 2023 15:53:59 +0000
+X-MC-Unique: mj1XC4KrMCG4ZP0_bw2c9w-1
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.47; Wed, 8 Mar
+ 2023 15:53:57 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.047; Wed, 8 Mar 2023 15:53:57 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "'psmith@gnu.org'" <psmith@gnu.org>,
+        Greg KH <gregkh@linuxfoundation.org>
+CC:     Eric Biggers <ebiggers@kernel.org>,
+        "bug-make@gnu.org" <bug-make@gnu.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: No progress output when make 4.4.1 builds Linux 4.19 and earlier
+Thread-Topic: No progress output when make 4.4.1 builds Linux 4.19 and earlier
+Thread-Index: AQHZUcY8m3WvjvFA30iYgh0GUAxHw67xCC6A
+Date:   Wed, 8 Mar 2023 15:53:57 +0000
+Message-ID: <72676b579d6f48288044a512fd51d0af@AcuMS.aculab.com>
+References: <ZAgnmbYtGa80L731@sol.localdomain> <ZAgogdFlu69QlYwu@kroah.com>
+         <CAG+Z0CuAQsq-1DNaX0_qHnqSBt1YrUBbBaypxgwT0USFyOkk4g@mail.gmail.com>
+ <4e731dfbe197f5c0a6c1093aee503b7f4d76cc1a.camel@gnu.org>
+In-Reply-To: <4e731dfbe197f5c0a6c1093aee503b7f4d76cc1a.camel@gnu.org>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 130a96d698d7 ("usb: typec: ucsi: acpi: Increase command
-completion timeout value") increased the timeout from 5 seconds
-to 60 seconds due to issues related to alternate mode discovery.
-
-After the alternate mode discovery switch to polled mode
-the timeout was reduced, but instead of being set back to
-5 seconds it was reduced to 1 second.
-
-This is causing problems when using a Lenovo ThinkPad X1 yoga gen7
-connected over Type-C to a LG 27UL850-W (charging DP over Type-C).
-
-When the monitor is already connected at boot the following error
-is logged: "PPM init failed (-110)", /sys/class/typec is empty and
-on unplugging the NULL pointer deref fixed earlier in this series
-happens.
-
-When the monitor is connected after boot the following error
-is logged instead: "GET_CONNECTOR_STATUS failed (-110)".
-
-Setting the timeout back to 5 seconds fixes both cases.
-
-Fixes: e08065069fc7 ("usb: typec: ucsi: acpi: Reduce the command completion timeout")
-Cc: stable@vger.kernel.org
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/usb/typec/ucsi/ucsi_acpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/usb/typec/ucsi/ucsi_acpi.c b/drivers/usb/typec/ucsi/ucsi_acpi.c
-index ce0c8ef80c04..62206a6b8ea7 100644
---- a/drivers/usb/typec/ucsi/ucsi_acpi.c
-+++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
-@@ -78,7 +78,7 @@ static int ucsi_acpi_sync_write(struct ucsi *ucsi, unsigned int offset,
- 	if (ret)
- 		goto out_clear_bit;
- 
--	if (!wait_for_completion_timeout(&ua->complete, HZ))
-+	if (!wait_for_completion_timeout(&ua->complete, 5 * HZ))
- 		ret = -ETIMEDOUT;
- 
- out_clear_bit:
--- 
-2.39.1
+Li4uDQo+IERvZXMgYW55b25lIGtub3cgd2h5IHRoaXMgY29tbWl0IGlzIHVzaW5nIGEgbWFrZSB2
+ZXJzaW9uIGNvbXBhcmlzb24/DQo+IFRoYXQgc2VlbXMgdG90YWxseSB1bm5lY2Vzc2FyeSB0byBt
+ZTsgYW0gSSBmb3JnZXR0aW5nIHNvbWV0aGluZz8gIEFzDQo+IGZhciBhcyBJIHJlbWVtYmVyLA0K
+PiANCj4gICAgIHNpbGVuY2UgOj0gJChmaW5kc3RyaW5nIHMsJChmaXJzdHdvcmQgLSQoTUFLRUZM
+QUdTKSkpDQoNCkFkZGluZyBhICQoZmlsdGVyLW91dCAtLSUsLi4uKSBzaG91bGQgaGVscCB3aXRo
+IG9sZCBtYWtlczoNClByb2JhYmx5Og0KDQoJc2lsZW5jZSA6PSAkKGZpbmRzdHJpbmcgcywkKGZp
+cnN0d29yZCAkKGZpbHRlci1vdXQgLS0lLCQoTUFLRUZMQUdTKSkpKQ0KDQogICAgRGF2aWQNCg0K
+LQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0s
+IE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdh
+bGVzKQ0K
 
