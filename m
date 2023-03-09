@@ -2,64 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15A3F6B1C60
-	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 08:32:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A80D6B1C6E
+	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 08:34:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229892AbjCIHcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 02:32:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51508 "EHLO
+        id S229521AbjCIHe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 02:34:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230112AbjCIHcC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 02:32:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B4C61A91;
-        Wed,  8 Mar 2023 23:31:29 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A277C60989;
-        Thu,  9 Mar 2023 07:31:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09EFBC433D2;
-        Thu,  9 Mar 2023 07:31:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678347087;
-        bh=yDVgfe8xtdNFs1hk143OhTG5isTtChU/yLlLC18WBEo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aJtjGnJ8UKBplRZLe3wQb/lVb6d5zasLP0ux9nJ+ufN720LGzRkfbyEgB9C3iROv0
-         AlvB6Y4pxr+ktAitr9Ho552dHGa7J26eosJOoOKAwfvP6rMv2rEeabwPZnBlokHxPD
-         veH9P1u6iakOoMTIMTO70MCmIuoZdBPCfNHACzh3MwR82/oZTxhz2EHagsnTUwhfM8
-         tAuvspY/FrOZKF8nYm5ibBccqrA078ArqHh4NzG7e67Y5GHCHA5eg2u2sjKHhw8qgG
-         7cHcgA8CM53P1JhsDPdEhaEsvLjLeLoBY/mUFOydCKLTd+I63R9t5GykDP5C5d8Qs0
-         udKoIgorQ6/QA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1paAl5-0004fH-C0; Thu, 09 Mar 2023 08:32:15 +0100
-Date:   Thu, 9 Mar 2023 08:32:15 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Cyril Brulebois <kibi@debian.org>
-Cc:     Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Torokhov <dtor@chromium.org>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Subject: Re: [PATCH v6 06/20] irqdomain: Fix mapping-creation race
-Message-ID: <ZAmLf3YKxI5fE9w5@hovoldconsulting.com>
-References: <20230213104302.17307-1-johan+linaro@kernel.org>
- <20230213104302.17307-7-johan+linaro@kernel.org>
- <20230308144105.di552lbogqv2s7fk@mraw.org>
+        with ESMTP id S230157AbjCIHew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 02:34:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B052462D85
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 23:33:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678347233;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Y2eI75EI2bEfBrzO7ljqtkrRx9cCPWQmstR3/D9o91c=;
+        b=jUOSXKip03sfqBBTnkHtXu608Eoq5MCDn+nmJDbah6gBhnFYdMVmGlgyEsGSSiufBcfz+j
+        TNFKfagpawW1IRFzgG1xcgSGb2NOl1E13OC5WoNNpmqV03Es8ZWNvljaOCQQ0kJwQNKatL
+        g0QKHs7g3V5cJGB9e69/7wk9mfoIVKs=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-627-E50aXX4DO7mUsJAk4SmL1w-1; Thu, 09 Mar 2023 02:33:52 -0500
+X-MC-Unique: E50aXX4DO7mUsJAk4SmL1w-1
+Received: by mail-pl1-f198.google.com with SMTP id s8-20020a170902b18800b0019c92f56a8aso666974plr.22
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 23:33:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678347231;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y2eI75EI2bEfBrzO7ljqtkrRx9cCPWQmstR3/D9o91c=;
+        b=uaJg7gB1FVTU8n8R0l7oB3LthUNm2ltcIX7sBvXLr+MDZpDSSdqFCSEYDyLlGKtg5F
+         BMRzKSAD8lyrY9EKVL3siDf6unRqqGEiQW/nSiW6hIq3ZuwfAcISXOzVPeHYDnPIkSqx
+         LQKdihmNjtbg7jzDEqPg8c3mJ5cV35u0VrvkARMb4XofL0DlQ9ikFIEKv/gwG02nKQr9
+         9vr2UiHZR3trpT9K9WU1gjE+vDPQm44lEHvJC5WKpxpdP3+CjtuWBzQdHib9Zredqn5I
+         7mQL3eHlxeHP6hn9HxXPuAow8BRD9sWZA8VpQXr6RhM1nFEZdJjLrb+qBkJA6eA9ycHI
+         NCCA==
+X-Gm-Message-State: AO0yUKUfBQhH9cYiMlkhn7D8EwWZe1A68NaPjYbjCJmltccX81U3dgHG
+        LXoavLBy+pSBJkUMGieoYJwm6RLF9MN2GOJFZe22Kpd0SKD/LXto8yNfVJCMuVibVNdygrP3PLP
+        yHCc1Ij4baYugO7mn
+X-Received: by 2002:a17:90b:4ac5:b0:233:ca14:6ae8 with SMTP id mh5-20020a17090b4ac500b00233ca146ae8mr22001487pjb.45.1678347231372;
+        Wed, 08 Mar 2023 23:33:51 -0800 (PST)
+X-Google-Smtp-Source: AK7set/dW6MqQ3ILRER0QVrnho4NKjeKEmnrKxg3LwqOnLbM60mqEDfosx62kAURLpWjFBEbHUW3jw==
+X-Received: by 2002:a17:90b:4ac5:b0:233:ca14:6ae8 with SMTP id mh5-20020a17090b4ac500b00233ca146ae8mr22001477pjb.45.1678347231113;
+        Wed, 08 Mar 2023 23:33:51 -0800 (PST)
+Received: from [10.72.13.99] ([43.228.180.230])
+        by smtp.gmail.com with ESMTPSA id q10-20020a63504a000000b004fcda0e59c3sm10102052pgl.69.2023.03.08.23.33.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Mar 2023 23:33:50 -0800 (PST)
+Message-ID: <c8d44e19-6e4c-9c62-2f5e-300013e0adf8@redhat.com>
+Date:   Thu, 9 Mar 2023 15:33:45 +0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="1pYx6IuXSbcDEQEb"
-Content-Disposition: inline
-In-Reply-To: <20230308144105.di552lbogqv2s7fk@mraw.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH] fs/ceph/mds_client: ignore responses for waiting requests
+Content-Language: en-US
+To:     Max Kellermann <max.kellermann@ionos.com>
+Cc:     idryomov@gmail.com, jlayton@kernel.org, ceph-devel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20230302130650.2209938-1-max.kellermann@ionos.com>
+ <c2f9e0d3-0242-1304-26ea-04f25c3cdee4@redhat.com>
+ <CAKPOu+_1ee8QDkuB4TxQBaUwnHi4bRKuszWzCb-BCY44cp1aJQ@mail.gmail.com>
+ <cf545923-e782-76a7-dd94-f8586530502b@redhat.com>
+ <CAKPOu+-jCt6NoVaR=z6c-D-PY1skdt6u-2sKkzd8GFDHbsQdxQ@mail.gmail.com>
+From:   Xiubo Li <xiubli@redhat.com>
+In-Reply-To: <CAKPOu+-jCt6NoVaR=z6c-D-PY1skdt6u-2sKkzd8GFDHbsQdxQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -67,96 +86,18 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---1pYx6IuXSbcDEQEb
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 09/03/2023 15:30, Max Kellermann wrote:
+> On Thu, Mar 9, 2023 at 6:31 AM Xiubo Li <xiubli@redhat.com> wrote:
+>
+>> I attached one testing patch based yours, just added more debug logs,
+>> which won't be introduce perf issue since all the logs should be printed
+>> in corner cases.
+>>
+>> Could you help test it ?
+> The patch now runs on one of our clusters, and I'll get back to you as
+> soon as the problem occurs again. Thanks so far!
 
-On Wed, Mar 08, 2023 at 03:41:05PM +0100, Cyril Brulebois wrote:
-> Hi Johan,
->=20
-> And thanks so much for this patch series.
->=20
-> Johan Hovold <johan+linaro@kernel.org> (2023-02-13):
-> > Parallel probing of devices that share interrupts (e.g. when a driver
-> > uses asynchronous probing) can currently result in two mappings for the
-> > same hardware interrupt to be created due to missing serialisation.
-> >=20
-> > Make sure to hold the irq_domain_mutex when creating mappings so that
-> > looking for an existing mapping before creating a new one is done
-> > atomically.
->=20
-> Just for information: This patch fixes a long-standing regression
-> regarding Raspberry Pi devices, which have been failing to boot (at
-> least reliably) due to MMC timeouts for a long while; I think that
-> started between v5.17 and v5.19, but I couldn't bisect at the time
-> (I was already chasing some other regression).
->=20
-> Example bug report:
->   https://bugs.debian.org/1019700
->=20
-> Before trying to pinpoint when the regression appeared, I've checked
-> these versions, with a Debian testing userspace as of 2023-03-07:
->  - v6.1.12: affected.
->  - v6.2: affected.
->  - v6.3-rc1: not affected.
->=20
-> A bisect between v6.2 and v6.3-rc1 led me to this patch specifically.
-> Seeing how it's part of a patch series, and how previous patches are
-> preliminary ones, I've checked that cherry-picking the first 6 patches
-> on top of v6.1.15 indeed fixes the problem there too, and it does
-> (git cherry-pick v6.2-rc4..601363cc08da25747feb87c55573dd54de91d66a).
+Cool, thanks very much.
 
-That's good to hear, thanks for reporting.
+- Xiubo
 
-> With the following systems:
->  - Pi 4 B, using external storage (SD card),
->  - CM4 Lite on CM4 IO Board, using external storage (SD card),
->  - CM4 on CM4 IO Board, using internal storage (eMMC),
->=20
-> I've been able to verify that v6.1.12 (baseline in Debian testing)
-> triggers this MMC timeout issue, while v6.1.15 + the aforementioned
-> range of cherry-picked commits no longer triggers this issue.
->=20
-> (Methodology: cold boot then reboot 20 times, monitoring via serial
-> console to keep HDMI output of the equation; affected systems stop
-> booting after 1-4 boots; unaffected systems boot and reboot just fine
-> all the time.)
->=20
->=20
-> This looks like a critical bugfix for Raspberry Pi users.
->=20
-> Seeing the stable@ mention is about 4.8, I suppose this is going to be
-> considered for a wide range of kernels already=E2=80=A6 but I'm happy to =
-dig
-> into this further to pinpoint when the regression appeared, if that's
-> helpful.
-
-I took a quick look at the rpi-4 devicetree and it looks like the emmc
-indeed is sharing an irq line with another device which should make is
-susceptible to the mapping race.
-
-The corresponding drivers also use asynchronous probing since commits
-
-	7320915c8861 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for drivers that existed=
- in v4.14")
-	21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for drivers that existed=
- in v4.4"
-
-that went into 5.10. So the issue should have been there for longer but
-perhaps only manifested itself around 5.17 due to changes in timing.
-
-Johan
-
---1pYx6IuXSbcDEQEb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQQHbPq+cpGvN/peuzMLxc3C7H1lCAUCZAmLeAAKCRALxc3C7H1l
-CG9UAP9ztoxOSXxHCUZXg63cjsFhvy7S6lrLVZ5RvHvjmjv2CwD/XUbPSo+2Fd5H
-Z4bA7fuXNrGMT4z40fDurbv+sBWmogw=
-=aPds
------END PGP SIGNATURE-----
-
---1pYx6IuXSbcDEQEb--
