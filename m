@@ -2,131 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 554696B2699
-	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 15:19:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F1B6B26E1
+	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 15:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231513AbjCIOTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 09:19:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36332 "EHLO
+        id S230018AbjCIO2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 09:28:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231593AbjCIOTL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 09:19:11 -0500
+        with ESMTP id S229532AbjCIO2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 09:28:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 023EA84F5F
-        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 06:19:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 417D1B5AAE;
+        Thu,  9 Mar 2023 06:28:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9494261261
-        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 14:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BE5DC4339C;
-        Thu,  9 Mar 2023 14:19:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678371549;
-        bh=BW9Os4jEGHYsp1Xi0Izb9IlRpaNdzimHKe3RBD3IVpo=;
-        h=Subject:To:From:Date:From;
-        b=yMc15JMUlLaYC4LuGT/ceYL1SxreZB5ZlLO6VEveFrdsYU+CIiM9KV4v1wGPaRyak
-         wy+mEUgFZyYPbXa6URMDMee6E5S9wkSj/z3RmU3orqOstomV1J+5rQBAsWdDe/yzEE
-         bJA4rgHq2Ac8NjhEbEy1q/xJnjHW1RtAKVFhOnGc=
-Subject: patch "usb: typec: tcpm: fix create duplicate source-capabilities file" added to usb-linus
-To:     xu.yang_2@nxp.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 09 Mar 2023 15:19:06 +0100
-Message-ID: <1678371546220203@kroah.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D467E618B8;
+        Thu,  9 Mar 2023 14:28:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B48E8C433EF;
+        Thu,  9 Mar 2023 14:28:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678372123;
+        bh=60Yf7G5xHK2RG+spG0/BSdW4iD21Ab+2egSl11944Fw=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=nX/ZyQ73OyiDDKJUkdEz83IGJr1eBcTpyYRAPffY7e1Mv1sErbrGI9cI5aVGBj5bB
+         IzXBakAnH9KM9uHObPyOgHaZ0Jw/9UsuyHpn8tnsKqp2J8dNaMjcZzDwZjlEFc+ItJ
+         dPNEBSeyeRblX7RsflzsH0ySrhmuPWNq+ziIiO2Q7YCRl1J6CEIfZf3rEhFh1ZkiNJ
+         LCBa9pleX5WUSUc83lylFwPs3QChut6LiOpkEdSwSwUFOYcy4anyzkAgbc/Ljt5lQ0
+         jLnmz3Xs1GCNizg4Pri2GjPXacyTlaRtMOaAg5VsV64NuhnFYxF87NuWeYGIiuZ1Mt
+         vkPo5klVaD/vg==
+Message-ID: <b9ddc3ff-ddfa-846b-61f8-cdcfcb71510e@kernel.org>
+Date:   Thu, 9 Mar 2023 22:28:38 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH] erofs: fix wrong kunmap when using LZMA on HIGHMEM
+ platforms
+Content-Language: en-US
+To:     Gao Xiang <hsiangkao@linux.alibaba.com>,
+        linux-erofs@lists.ozlabs.org
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+References: <20230305134455.88236-1-hsiangkao@linux.alibaba.com>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <20230305134455.88236-1-hsiangkao@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2023/3/5 21:44, Gao Xiang wrote:
+> As the call trace shown, the root cause is kunmap incorrect pages:
+> 
+>   BUG: kernel NULL pointer dereference, address: 00000000
+>   CPU: 1 PID: 40 Comm: kworker/u5:0 Not tainted 6.2.0-rc5 #4
+>   Workqueue: erofs_worker z_erofs_decompressqueue_work
+>   EIP: z_erofs_lzma_decompress+0x34b/0x8ac
+>    z_erofs_decompress+0x12/0x14
+>    z_erofs_decompress_queue+0x7e7/0xb1c
+>    z_erofs_decompressqueue_work+0x32/0x60
+>    process_one_work+0x24b/0x4d8
+>    ? process_one_work+0x1a4/0x4d8
+>    worker_thread+0x14c/0x3fc
+>    kthread+0xe6/0x10c
+>    ? rescuer_thread+0x358/0x358
+>    ? kthread_complete_and_exit+0x18/0x18
+>    ret_from_fork+0x1c/0x28
+>   ---[ end trace 0000000000000000 ]---
+> 
+> The bug is trivial and should be fixed now.  It has no impact on
+> !HIGHMEM platforms.
+> 
+> Fixes: 622ceaddb764 ("erofs: lzma compression support")
+> Cc: <stable@vger.kernel.org> # 5.16+
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-This is a note to let you know that I've just added the patch titled
+Reviewed-by: Chao Yu <chao@kernel.org>
 
-    usb: typec: tcpm: fix create duplicate source-capabilities file
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From a826492fc9dfe32afd70fff93955ae8174bbf14b Mon Sep 17 00:00:00 2001
-From: Xu Yang <xu.yang_2@nxp.com>
-Date: Wed, 15 Feb 2023 13:49:51 +0800
-Subject: usb: typec: tcpm: fix create duplicate source-capabilities file
-
-The kernel will dump in the below cases:
-sysfs: cannot create duplicate filename
-'/devices/virtual/usb_power_delivery/pd1/source-capabilities'
-
-1. After soft reset has completed, an Explicit Contract negotiation occurs.
-The sink device will receive source capabilitys again. This will cause
-a duplicate source-capabilities file be created.
-2. Power swap twice on a device that is initailly sink role.
-
-This will unregister existing capabilities when above cases occurs.
-
-Fixes: 8203d26905ee ("usb: typec: tcpm: Register USB Power Delivery Capabilities")
-cc: <stable@vger.kernel.org>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20230215054951.238394-1-xu.yang_2@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tcpm/tcpm.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index a0d943d78580..7f39cb9b3429 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -4570,6 +4570,9 @@ static void run_state_machine(struct tcpm_port *port)
- 	case SOFT_RESET:
- 		port->message_id = 0;
- 		port->rx_msgid = -1;
-+		/* remove existing capabilities */
-+		usb_power_delivery_unregister_capabilities(port->partner_source_caps);
-+		port->partner_source_caps = NULL;
- 		tcpm_pd_send_control(port, PD_CTRL_ACCEPT);
- 		tcpm_ams_finish(port);
- 		if (port->pwr_role == TYPEC_SOURCE) {
-@@ -4589,6 +4592,9 @@ static void run_state_machine(struct tcpm_port *port)
- 	case SOFT_RESET_SEND:
- 		port->message_id = 0;
- 		port->rx_msgid = -1;
-+		/* remove existing capabilities */
-+		usb_power_delivery_unregister_capabilities(port->partner_source_caps);
-+		port->partner_source_caps = NULL;
- 		if (tcpm_pd_send_control(port, PD_CTRL_SOFT_RESET))
- 			tcpm_set_state_cond(port, hard_reset_state(port), 0);
- 		else
-@@ -4718,6 +4724,9 @@ static void run_state_machine(struct tcpm_port *port)
- 		tcpm_set_state(port, SNK_STARTUP, 0);
- 		break;
- 	case PR_SWAP_SNK_SRC_SINK_OFF:
-+		/* will be source, remove existing capabilities */
-+		usb_power_delivery_unregister_capabilities(port->partner_source_caps);
-+		port->partner_source_caps = NULL;
- 		/*
- 		 * Prevent vbus discharge circuit from turning on during PR_SWAP
- 		 * as this is not a disconnect.
--- 
-2.39.2
-
-
+Thanks,
