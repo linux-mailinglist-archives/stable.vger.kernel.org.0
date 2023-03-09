@@ -2,143 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D092D6B2AB1
-	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 17:27:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE696B2B2B
+	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 17:50:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230071AbjCIQ1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 11:27:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47752 "EHLO
+        id S230274AbjCIQuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 11:50:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230180AbjCIQ1E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 11:27:04 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB88F8F35
-        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 08:18:39 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id u9so9232624edd.2
-        for <stable@vger.kernel.org>; Thu, 09 Mar 2023 08:18:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1678378653;
-        h=content-transfer-encoding:mime-version:message-id:date:references
-         :in-reply-to:subject:cc:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=pU1OTBYl8ElxfZaqjfIJsMTqsKjO/PQMi+tQNnzKT4Q=;
-        b=1s3j1puhxYyfQ09uZ3e+DIhwkoUaFfD0RcK6I16jGn3TiBVvfoubfjqUPRjyNgUkgH
-         PS4g7/mLfekYbrkb39ZATniMywOTXQr2+xHHYAa5EPJ2oPiMpFhXapHrUengprVnM0AT
-         5lDUNMl6cVovHbftxTx4vRCtYUK34aqb2FCg01G/CatzYQ+rQmwq1WplOTcUn9FnTnw4
-         6P3xGQI7GU09oJKvMrmoXtzSuEl4FD/n/3Sh5h1bd/vODPzvu6+1BTHlxwNi9OO5wrRv
-         jJyrBhTrK1sMaaHWaL1v2ozQwFgM4Sgrr1iE9wAdMqOIIhXmJJsaC+JiX6kaB41UUgaM
-         CMsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678378653;
-        h=content-transfer-encoding:mime-version:message-id:date:references
-         :in-reply-to:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pU1OTBYl8ElxfZaqjfIJsMTqsKjO/PQMi+tQNnzKT4Q=;
-        b=Vpc9qR1o65b2T3aZzOiHkPEUQ+W/RWHXQCOlyWDwnJousKapITxh57IaiTr9rxpgqy
-         kev+lr8BIsAkuj6Qu4md05JWp6SkCk9XqVECpyqVNQ+7osuVhQJMHTAOqrL7Ve3ghCN2
-         581+cRrFpQ18tYDRTERLV9QTkz1Rjf3hbuoawNdLSN6PqGBRPjQZf59NQqDP6x7llbnK
-         s/GLzOFtzgI4Q/PiWHqJin/oViegwKbPYCF0z5B1FuqR4hf2Joy1cr8oWBvXLEGTMGZY
-         XhKE8PE1CbyEkOZwOO10D/KRrbbkTZKaPaHZ8PZJ1fgWFblVwceMMxFQMEShxd3OaFwl
-         PlYg==
-X-Gm-Message-State: AO0yUKWD4X72HrzAcqMcmVVK3EUvYi3gqqRMwIv0zKzooXj5l/Fyon3K
-        UOyMyrrg9HZgSVK+xBdBQMiXqnYd9Hp/ydL0Quo=
-X-Google-Smtp-Source: AK7set/uDxSQX6guni2q9LjuMZgDKvnwtVPDVc/y4ZwVZTtKpMFGC+aDylsQfmADZ8cH166t4rv0qg==
-X-Received: by 2002:a05:600c:1906:b0:3eb:3c76:c23c with SMTP id j6-20020a05600c190600b003eb3c76c23cmr20444802wmq.3.1678378147773;
-        Thu, 09 Mar 2023 08:09:07 -0800 (PST)
-Received: from localhost ([82.66.159.240])
-        by smtp.gmail.com with ESMTPSA id z18-20020a1c4c12000000b003e876122dc1sm216880wmf.47.2023.03.09.08.09.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Mar 2023 08:09:07 -0800 (PST)
-From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-To:     Jason Andryuk <jandryuk@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
-        Phillip Susi <phill@thesusis.net>, stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] Input: xen-kbdfront - drop keys to shrink modalias
-In-Reply-To: <CAKf6xpsGy7rjK3Rkosevr3dD+64-WqCEzAecBbHEHpBMeAHh7A@mail.gmail.com>
-References: <20221209142615.33574-1-jandryuk@gmail.com>
- <87359gkc1d.fsf@baylibre.com>
- <CAKf6xpsGy7rjK3Rkosevr3dD+64-WqCEzAecBbHEHpBMeAHh7A@mail.gmail.com>
-Date:   Thu, 09 Mar 2023 17:09:05 +0100
-Message-ID: <87o7p1dhzy.fsf@baylibre.com>
+        with ESMTP id S231181AbjCIQt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 11:49:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEC1FE0B9;
+        Thu,  9 Mar 2023 08:39:38 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A966261C4A;
+        Thu,  9 Mar 2023 16:39:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E9AC433D2;
+        Thu,  9 Mar 2023 16:39:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678379977;
+        bh=lPti0CqiJyrVN8p1peO9ayPP4zvhtBCZaW4gjRkGXz8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=Hmd9ToL/4LqU26a4rwLzPqQpJBKFO8O+twt93NgBKvVPwnX+l0D9Ol3IV38M5Zao2
+         ufqkOsdfBfSub5n5DO0TnGDEYsaiszTiNoGQckU+9qAuwLty8/q+buZ1jR2fbFBv3L
+         WofwK2r/iDZKABvCQJzIRRT27sPnR1a4DG8esc4HeA3S185UFVUDcPgop47s+CGpbP
+         kipr2ysjLmeFPZ8i0xPt9RfS8OEnhIPOkelIFmJVlBzIKm+c6Jm8yp56gEZb7wbaCd
+         O4AIRxiBKLbGlH+9cxeilrw30RONRlR2TICcAaj4O9KoCbVqqZJtPPmOtLhV/cabi5
+         BCrXSROYicgGA==
+Date:   Thu, 9 Mar 2023 10:39:35 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Janne Grunau <j@jannau.net>
+Cc:     Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Marc Zyngier <maz@kernel.org>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Rob Herring <robh@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sven Peter <sven@svenpeter.dev>, linux-pci@vger.kernel.org,
+        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Daire McNamara <daire.mcnamara@microchip.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] PCI: apple: Set only available ports up
+Message-ID: <20230309163935.GA1140101@bhelgaas>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230307-apple_pcie_disabled_ports-v2-1-c3bd1fd278a4@jannau.net>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jason,
+[+cc Daire, Conor for apple/microchip use of ECAM .init() method]
 
-On mer., mars 08, 2023 at 11:26, Jason Andryuk <jandryuk@gmail.com> wrote:
+On Thu, Mar 09, 2023 at 02:36:24PM +0100, Janne Grunau wrote:
+> Fixes following warning inside of_irq_parse_raw() called from the common
+> PCI device probe path.
+> 
+>   /soc/pcie@690000000/pci@1,0 interrupt-map failed, using interrupt-controller
+>   WARNING: CPU: 4 PID: 252 at drivers/of/irq.c:279 of_irq_parse_raw+0x5fc/0x724
 
-> On Thu, Dec 15, 2022 at 8:54=E2=80=AFAM Mattijs Korpershoek
-> <mkorpershoek@baylibre.com> wrote:
->>
->> On Fri, Dec 09, 2022 at 09:26, Jason Andryuk <jandryuk@gmail.com> wrote:
->>
->> > xen kbdfront registers itself as being able to deliver *any* key since
->> > it doesn't know what keys the backend may produce.
->> >
->> > Unfortunately, the generated modalias gets too large and uevent creati=
-on
->> > fails with -ENOMEM.
->> >
->> > This can lead to gdm not using the keyboard since there is no seat
->> > associated [1] and the debian installer crashing [2].
->> >
->> > Trim the ranges of key capabilities by removing some BTN_* ranges.
->> > While doing this, some neighboring undefined ranges are removed to trim
->> > it further.
->> >
->> > An upper limit of KEY_KBD_LCD_MENU5 is still too large.  Use an upper
->> > limit of KEY_BRIGHTNESS_MENU.
->> >
->> > This removes:
->> > BTN_DPAD_UP(0x220)..BTN_DPAD_RIGHT(0x223)
->> > Empty space 0x224..0x229
->> >
->> > Empty space 0x28a..0x28f
->> > KEY_MACRO1(0x290)..KEY_MACRO30(0x2ad)
->> > KEY_MACRO_RECORD_START          0x2b0
->> > KEY_MACRO_RECORD_STOP           0x2b1
->> > KEY_MACRO_PRESET_CYCLE          0x2b2
->> > KEY_MACRO_PRESET1(0x2b3)..KEY_MACRO_PRESET3(0xb5)
->> > Empty space 0x2b6..0x2b7
->> > KEY_KBD_LCD_MENU1(0x2b8)..KEY_KBD_LCD_MENU5(0x2bc)
->> > Empty space 0x2bd..0x2bf
->> > BTN_TRIGGER_HAPPY(0x2c0)..BTN_TRIGGER_HAPPY40(0x2e7)
->> > Empty space 0x2e8..0x2ff
->> >
->> > The modalias shrinks from 2082 to 1550 bytes.
->> >
->> > A chunk of keys need to be removed to allow the keyboard to be used.
->> > This may break some functionality, but the hope is these macro keys are
->> > uncommon and don't affect any users.
->> >
->> > [1] https://github.com/systemd/systemd/issues/22944
->> > [2] https://lore.kernel.org/xen-devel/87o8dw52jc.fsf@vps.thesusis.net/=
-T/
->> >
->> > Cc: Phillip Susi <phill@thesusis.net>
->> > Cc: stable@vger.kernel.org
->> > Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
->>
->> Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
->
-> Thank you, Mattjis.
->
-> Any other thoughts?  Can this patch be applied?
+Based on this commit log, I assume this patch only fixes the warning,
+and the system *works* just fine either way.  If that's the case, it's
+debatable whether it meets the stable kernel criteria, although the
+documented criteria are much stricter than what happens in practice.
 
-That's not up to to decide, Dmitry might pick this up or give you a
-review whenever he has time.
+>   ...
+>   Call trace:
+>    of_irq_parse_raw+0x5fc/0x724
+>    of_irq_parse_and_map_pci+0x128/0x1d8
+>    pci_assign_irq+0xc8/0x140
+>    pci_device_probe+0x70/0x188
+>    really_probe+0x178/0x418
+>    __driver_probe_device+0x120/0x188
+>    driver_probe_device+0x48/0x22c
+>    __device_attach_driver+0x134/0x1d8
+>    bus_for_each_drv+0x8c/0xd8
+>    __device_attach+0xdc/0x1d0
+>    device_attach+0x20/0x2c
+>    pci_bus_add_device+0x5c/0xc0
+>    pci_bus_add_devices+0x58/0x88
+>    pci_host_probe+0x124/0x178
+>    pci_host_common_probe+0x124/0x198 [pci_host_common]
+>    apple_pcie_probe+0x108/0x16c [pcie_apple]
+>    platform_probe+0xb4/0xdc
+> 
+> This became apparent after disabling unused PCIe ports in the Apple
+> silicon device trees instead of deleting them.
+> 
+> Use for_each_available_child_of_node instead of for_each_child_of_node
+> which takes the "status" property into account.
+> 
+> Link: https://lore.kernel.org/asahi/20230214-apple_dts_pcie_disable_unused-v1-0-5ea0d3ddcde3@jannau.net/
+> Link: https://lore.kernel.org/asahi/1ea2107a-bb86-8c22-0bbc-82c453ab08ce@linaro.org/
+> Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Marc Zyngier <maz@kernel.org>
+> Signed-off-by: Janne Grunau <j@jannau.net>
+> ---
+> Changes in v2:
+> - rewritten commit message with more details and corrections
+> - collected Marc's "Reviewed-by:"
+> - Link to v1: https://lore.kernel.org/r/20230307-apple_pcie_disabled_ports-v1-1-b32ef91faf19@jannau.net
+> ---
+>  drivers/pci/controller/pcie-apple.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+> index 66f37e403a09..f8670a032f7a 100644
+> --- a/drivers/pci/controller/pcie-apple.c
+> +++ b/drivers/pci/controller/pcie-apple.c
+> @@ -783,7 +783,7 @@ static int apple_pcie_init(struct pci_config_window *cfg)
+>  	cfg->priv = pcie;
+>  	INIT_LIST_HEAD(&pcie->ports);
+>  
+> -	for_each_child_of_node(dev->of_node, of_port) {
+> +	for_each_available_child_of_node(dev->of_node, of_port) {
+>  		ret = apple_pcie_setup_port(pcie, of_port);
+>  		if (ret) {
+>  			dev_err(pcie->dev, "Port %pOF setup fail: %d\n", of_port, ret);
 
->
-> Thanks,
-> Jason
+Is this change still needed after 6fffbc7ae137 ("PCI: Honor firmware's
+device disabled status")?  This is a generic problem, and it would be
+a lot nicer if we had a generic solution.  But I assume it *is* still
+needed because Rob gave his Reviewed-by.
+
+Not related to this patch, but this function looks funny to me.  Most
+pci_ecam_ops.init functions just set up ECAM-related things.
+
+In addition to ECAM stuff, apple_pcie_init() and mc_platform_init()
+also initialize IRQs, clocks, and resets.
+
+Maybe we shoehorn the IRQ, clock, reset setup into pci_ecam_ops.init
+because we lack a generic hook for doing those things, but it seems a
+little muddy conceptually.
+
+Bjorn
