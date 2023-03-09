@@ -2,87 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F1B6B26E1
-	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 15:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7AB6B27CF
+	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 15:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230018AbjCIO2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 09:28:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
+        id S231965AbjCIOwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 09:52:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229532AbjCIO2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 09:28:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 417D1B5AAE;
-        Thu,  9 Mar 2023 06:28:44 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D467E618B8;
-        Thu,  9 Mar 2023 14:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B48E8C433EF;
-        Thu,  9 Mar 2023 14:28:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678372123;
-        bh=60Yf7G5xHK2RG+spG0/BSdW4iD21Ab+2egSl11944Fw=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=nX/ZyQ73OyiDDKJUkdEz83IGJr1eBcTpyYRAPffY7e1Mv1sErbrGI9cI5aVGBj5bB
-         IzXBakAnH9KM9uHObPyOgHaZ0Jw/9UsuyHpn8tnsKqp2J8dNaMjcZzDwZjlEFc+ItJ
-         dPNEBSeyeRblX7RsflzsH0ySrhmuPWNq+ziIiO2Q7YCRl1J6CEIfZf3rEhFh1ZkiNJ
-         LCBa9pleX5WUSUc83lylFwPs3QChut6LiOpkEdSwSwUFOYcy4anyzkAgbc/Ljt5lQ0
-         jLnmz3Xs1GCNizg4Pri2GjPXacyTlaRtMOaAg5VsV64NuhnFYxF87NuWeYGIiuZ1Mt
-         vkPo5klVaD/vg==
-Message-ID: <b9ddc3ff-ddfa-846b-61f8-cdcfcb71510e@kernel.org>
-Date:   Thu, 9 Mar 2023 22:28:38 +0800
+        with ESMTP id S231968AbjCIOwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 09:52:05 -0500
+Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830A3CDD6
+        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 06:50:21 -0800 (PST)
+Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-176d93cd0daso2549783fac.4
+        for <stable@vger.kernel.org>; Thu, 09 Mar 2023 06:50:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=tessares.net; s=google; t=1678373420;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=pd3Lkot3b9xUlf3dAcLlAT6oagcWYg/ttZtHlyeFJuA=;
+        b=XguBoN4c3w1EVz2TKdJNXfaRnsWcFj+3h7Sri2mnrra4n1lMANrVVw5hQhqNyHynK1
+         k2/wgRUCHAqSMlsI/fbWbg1wtroyhlH9ClfpzwRtU3lJ+RJkaoyRIBZ8hADXb40oWnP0
+         Fuevm9l6l6zuukDFqZRNy5M0st17lcjINX8PNXE71QpU7+NJH13kAEjGoS2yF9DAaeVy
+         hMhujEqq56L6Etm+CY7U4bGM3meZ3VZQDibsQR7XyCG0zcJCX/l/7SyQCakia0zqAJv8
+         Il9lvmy9IwnQ+F79LBx9YUbYxGIWwjXs9RlckvlAWnfDEI9CaVayn0V1k6Bdho9koQl2
+         svmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678373420;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pd3Lkot3b9xUlf3dAcLlAT6oagcWYg/ttZtHlyeFJuA=;
+        b=R3wOO9FDLjHUt1iqAEUMmcKeu84KCj5Yy5ljDQXqqY8k2CyoxmsbvCPXAt27YxwqVP
+         3sKF1wZL+61ZpP8gDt5FDNL60X2D6WsSKjrlQDwWuYgevTwoRWCXCAkL6jWNLKoy4EFi
+         f1JvsS1S+UszYUzGR3IYp0G/cUgmAj0fvSrtnuUVxIsslgg6A34RVMDNn2inw4NgsOVU
+         q7FKgRhqE11FLaJCOLMnSd5QM/dRUe9ulrk7MUNXajiPuo1G0iDdOrypjKE/1ElV/8//
+         nAYZTaWDmrsqwa9tzse+tPI/K97kLAPJiAh0/dkoXa+AoENdxFo6nYOL2MhiRdiWjtQM
+         HpDQ==
+X-Gm-Message-State: AO0yUKV+WAVZr9Zk4hq5Zf66333bM1pkrhU4SzTfCQ2Lap6NP427nThG
+        ZaiWaM2A4fV1vu6fEuSEUHwbMA==
+X-Google-Smtp-Source: AK7set8xW0L9dkcHq5g5ySMDfkDxpoazn3bl3Z3RUPUkkhBfK6L9OQtJMDXf/DF4tSrzNjWzqVmb4g==
+X-Received: by 2002:a05:687c:19c:b0:172:4240:f224 with SMTP id yo28-20020a05687c019c00b001724240f224mr572178oab.18.1678373418243;
+        Thu, 09 Mar 2023 06:50:18 -0800 (PST)
+Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
+        by smtp.gmail.com with ESMTPSA id ax39-20020a05687c022700b0016b0369f08fsm7351116oac.15.2023.03.09.06.50.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Mar 2023 06:50:17 -0800 (PST)
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH net v2 0/8] mptcp: fixes for 6.3
+Date:   Thu, 09 Mar 2023 15:49:56 +0100
+Message-Id: <20230227-upstream-net-20230227-mptcp-fixes-v2-0-47c2e95eada9@tessares.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH] erofs: fix wrong kunmap when using LZMA on HIGHMEM
- platforms
-Content-Language: en-US
-To:     Gao Xiang <hsiangkao@linux.alibaba.com>,
-        linux-erofs@lists.ozlabs.org
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-References: <20230305134455.88236-1-hsiangkao@linux.alibaba.com>
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <20230305134455.88236-1-hsiangkao@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-B4-Tracking: v=1; b=H4sIABTyCWQC/5WOwQ7CIBBEf6Xh7Cqlmjae/A/jYUu3lkMpYZFoG
+ v5d4ODd48zbmZ1dMHlDLK7NLjxFw2azWahDI/SC9klgpqyFkqqTSvXwchw84QqWAvzc1QXtYDZ
+ vYtC6H+YO1XwZlcg9IzLB6NHqpTTl3ESxxE8rGlsunKcazfheuHhkczEcNv+py2Jb0R8jYgsSZ
+ C+pk0hnHOgWiBk98bE+SCl9AbE4x8X8AAAA
+To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <martineau@kernel.org>,
+        Jiang Biao <benbjiang@tencent.com>,
+        Menglong Dong <imagedong@tencent.com>,
+        Mengen Sun <mengensun@tencent.com>,
+        Shuah Khan <shuah@kernel.org>, Florian Westphal <fw@strlen.de>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Christoph Paasch <cpaasch@apple.com>, stable@vger.kernel.org,
+        Geliang Tang <geliang.tang@suse.com>
+X-Mailer: b4 0.12.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2908;
+ i=matthieu.baerts@tessares.net; h=from:subject:message-id;
+ bh=eJfqegXakEakPpXnWf87SdzqEbYoKrFI19FY/itAd28=;
+ b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBkCfIhXcnZ5ZKt/o/UUyrdQcd85f2M6UnxDt9d2
+ ec5EeELVvuJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCZAnyIQAKCRD2t4JPQmmg
+ c72nEACeRBMVD2sAi3192xUCYkclJkbIcz0MIm3veGwJgdYvodHnBs9LAn5x29IGjvnvY8ZRJz3
+ dlmDwMDMwvLVvt4LsS3sU/ZC5Il1EJIx/w4QZFaOO3f5DCKviEX5b4yjtcYFsYUSpkf/1B9fKvV
+ Two7LCfQMGlOK0QjBgFDCtPf+GgPe8jkoc83mP9a69Ab2E2eKkn6gzOUfUGFjYmeT7/BKdocUfn
+ yiVMGR5X3YBbnBNIMoT0peQ+TmHbi/ZfonqC4XtpQTMHIHMZ+ITUuW6k6T420dTDOKysHhpfZgv
+ 8mTpk0+UqIy2zeqtSEd/8c46i7nPASDd9Uhapk3avT7LMkndSn4o32fpvh5oOTRAA3YI+1P7szO
+ 5oLUctP7XCBxMAzVgtLM7uAp35NQOx9IFYPg3Kk2LrqG8oypW3NWSyfMLxLAdB2B75yBluZ373A
+ ncGvPs4V1Yg9EtbW3r7vHWeyfvT6jZO9Srvl3rABBvVm+7xqjg0UOOm3NhZAcwf7pAgDy/MtW5L
+ ej9BiWeZY/FdRapKR80iFVZCJoJUZeWmJL51OvhvQa6r0lGPc2ow+ueuxU53lC1GrDOPB9C/W81
+ QAd3AyUY13rAfSeQMare7cUXGn4rnWdAJlrNuTLhqB5yQyMHDM0rcO0gzadzXPu8+dYLyp8kKM+
+ cEKi5S4c+KluQJA==
+X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
+ fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/3/5 21:44, Gao Xiang wrote:
-> As the call trace shown, the root cause is kunmap incorrect pages:
-> 
->   BUG: kernel NULL pointer dereference, address: 00000000
->   CPU: 1 PID: 40 Comm: kworker/u5:0 Not tainted 6.2.0-rc5 #4
->   Workqueue: erofs_worker z_erofs_decompressqueue_work
->   EIP: z_erofs_lzma_decompress+0x34b/0x8ac
->    z_erofs_decompress+0x12/0x14
->    z_erofs_decompress_queue+0x7e7/0xb1c
->    z_erofs_decompressqueue_work+0x32/0x60
->    process_one_work+0x24b/0x4d8
->    ? process_one_work+0x1a4/0x4d8
->    worker_thread+0x14c/0x3fc
->    kthread+0xe6/0x10c
->    ? rescuer_thread+0x358/0x358
->    ? kthread_complete_and_exit+0x18/0x18
->    ret_from_fork+0x1c/0x28
->   ---[ end trace 0000000000000000 ]---
-> 
-> The bug is trivial and should be fixed now.  It has no impact on
-> !HIGHMEM platforms.
-> 
-> Fixes: 622ceaddb764 ("erofs: lzma compression support")
-> Cc: <stable@vger.kernel.org> # 5.16+
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Patch 1 fixes a possible deadlock in subflow_error_report() reported by
+lockdep. The report was in fact a false positive but the modification
+makes sense and silences lockdep to allow syzkaller to find real issues.
+The regression has been introduced in v5.12.
 
-Reviewed-by: Chao Yu <chao@kernel.org>
+Patch 2 is a refactoring needed to be able to fix the two next issues.
+It improves the situation and can be backported up to v6.0.
 
-Thanks,
+Patches 3 and 4 fix UaF reported by KASAN. It fixes issues potentially
+visible since v5.7 and v5.19 but only reproducible until recently
+(v6.0). These two patches depend on patch 2/7.
+
+Patch 5 fixes the order of the printed values: expected vs seen values.
+The regression has been introduced recently: v6.3-rc1.
+
+Patch 6 adds missing ro_after_init flags. A previous patch added them
+for other functions but these two have been missed. This previous patch
+has been backported to stable versions (up to v5.12) so probably better
+to do the same here.
+
+Patch 7 fixes tcp_set_state() being called twice in a row since v5.10.
+
+Patch 8 fixes another lockdep false positive issue but this time in
+MPTCP PM code. Same here, some modifications in the code has been made
+to silence this issue and help finding real ones later. This issue can
+be seen since v6.2.
+
+Note that checkpatch.pl is now complaining about the "Closes" tag but
+discussions are ongoing to add an exception:
+
+  https://lore.kernel.org/all/a27480c5-c3d4-b302-285e-323df0349b8f@tessares.net/
+
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+---
+Changes in v2:
+- Patches 3 and 4 have been modified to fix the issue reported on netdev
+- Patch 8 has been added
+- Rebased
+- Link to v1: https://lore.kernel.org/r/20230227-upstream-net-20230227-mptcp-fixes-v1-0-070e30ae4a8e@tessares.net
+
+---
+Geliang Tang (1):
+      mptcp: add ro_after_init for tcp{,v6}_prot_override
+
+Matthieu Baerts (2):
+      selftests: mptcp: userspace pm: fix printed values
+      mptcp: avoid setting TCP_CLOSE state twice
+
+Paolo Abeni (5):
+      mptcp: fix possible deadlock in subflow_error_report
+      mptcp: refactor passive socket initialization
+      mptcp: use the workqueue to destroy unaccepted sockets
+      mptcp: fix UaF in listener shutdown
+      mptcp: fix lockdep false positive in mptcp_pm_nl_create_listen_socket()
+
+ net/mptcp/pm_netlink.c                            |  16 +++
+ net/mptcp/protocol.c                              |  64 +++++------
+ net/mptcp/protocol.h                              |   6 +-
+ net/mptcp/subflow.c                               | 128 +++++++---------------
+ tools/testing/selftests/net/mptcp/userspace_pm.sh |   2 +-
+ 5 files changed, 95 insertions(+), 121 deletions(-)
+---
+base-commit: 67eeadf2f95326f6344adacb70c880bf2ccff57b
+change-id: 20230227-upstream-net-20230227-mptcp-fixes-cc78f3a2f5b2
+
+Best regards,
+-- 
+Matthieu Baerts <matthieu.baerts@tessares.net>
+
