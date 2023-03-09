@@ -2,165 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 435116B2086
-	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 10:47:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3546E6B20D5
+	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 11:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbjCIJrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 04:47:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35014 "EHLO
+        id S231192AbjCIKCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 05:02:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230034AbjCIJqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 04:46:42 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2489EE681F
-        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 01:45:30 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id j3so713595wms.2
-        for <stable@vger.kernel.org>; Thu, 09 Mar 2023 01:45:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678355128;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=r/CEEmT9yjwga5EOHyB11d5kpRkYTDfVDqStXRyqNgs=;
-        b=D7JT75tlmd/63EQMbsBVoZ3YA+taB5qGiDaNgUfQ/cxc768vaRZdImoxJqLhzpqPXE
-         3Z33wJOArbdU2KKmyUpk837ooADUUMCN6F0+hPakJUASNknwoHoy+YBCMCTWQUyqdusH
-         Fgx3jfdehw8Y4OF+lJlrAsTLFXAYPYJwx8MRPIqOmF6huSdhmbn0Iz/pBBmBa0BW1j8p
-         zgttZ31zcJaBcI9QPXqRP5ykjmyS4PU8gs7Kn/1qvhmldGv4BFzCQV8KM8oF0+g4u2kV
-         OGUgK25HfdfnheVw/lHE2OfzwHL4Cb57Hvfs9QUFlvB65S0f+XY+arM7qVY+QTualRoA
-         Srcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678355128;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=r/CEEmT9yjwga5EOHyB11d5kpRkYTDfVDqStXRyqNgs=;
-        b=ClgLG9sVeovPM4sVYp2+tDbEfzKJN5r+pUzx3zmvYzl4BjP5qL0uU4i6Wxk4jcwOyG
-         bZdFhdT4PRTtmzLsjIl1yZ/TlQRdSPj4jNV+xMtfhrAisxZya1GepHqqG0Um7Cg9UuHT
-         Z92tTx+EpUAc/p0PFcRX9Z11BWIat2/wRuZ5JVZ8sa/JtfFFXX/1Yxvq54B9GzdJdkvS
-         /uPRtYpcrMxVSRV6M8UHqDULzF1X/CNxpeBlL7mN5lqoTqWVDjdNvKabbgVpRCNn7RfM
-         fTHN0iLowuYgdRKohPd9rHmL0LwNE9TfZ7nw0efKqaGP8up3hCI5m44Lcbb3J0LvUhod
-         7pqQ==
-X-Gm-Message-State: AO0yUKW1Jyde0JDfEc0eK8nzmovenbnMrSc/bVenR18zDSvktmlR4n+7
-        BgVNh3DkOrJyjTWWjui3AYU=
-X-Google-Smtp-Source: AK7set9DKfIwYdITs+rtcfuqm7a7eLR7EDmjZhN7l6vysUxLwwS9ydCy9TyZH6xWofrar72lphkzRg==
-X-Received: by 2002:a05:600c:45c7:b0:3eb:368c:5eb with SMTP id s7-20020a05600c45c700b003eb368c05ebmr19368569wmo.36.1678355128514;
-        Thu, 09 Mar 2023 01:45:28 -0800 (PST)
-Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
-        by smtp.gmail.com with ESMTPSA id p12-20020a05600c468c00b003eb596cbc54sm2279910wmo.0.2023.03.09.01.45.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Mar 2023 01:45:27 -0800 (PST)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Received: by eldamar.lan (Postfix, from userid 1000)
-        id 26ED9BE2DE0; Thu,  9 Mar 2023 10:45:27 +0100 (CET)
-Date:   Thu, 9 Mar 2023 10:45:27 +0100
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Martin Wilck <mwilck@suse.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Subject: Re: Please apply commit 06e472acf964 ("scsi: mpt3sas: Remove usage
- of dma_get_required_mask() API") to stable series
-Message-ID: <ZAmqt45uu1YoEnaD@eldamar.lan>
-References: <ZAMUx8rG8xukulTu@eldamar.lan>
- <yq1356hnzd2.fsf@ca-mkp.ca.oracle.com>
- <ZAi4k/09acWV0wRZ@eldamar.lan>
- <yq1wn3rgj7a.fsf@ca-mkp.ca.oracle.com>
+        with ESMTP id S231168AbjCIKCE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 05:02:04 -0500
+Received: from EUR04-HE1-obe.outbound.protection.outlook.com (mail-he1eur04on2053.outbound.protection.outlook.com [40.107.7.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D33CB56E6;
+        Thu,  9 Mar 2023 02:01:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=fSY5vh9UsW28pWJYdYRAZkZLj4S9dZ+G7zOFyY8dQmsoV7zgSB0TQ1Ii8E2kT3+WjOXhlbr+eiNtOuo38eXaV/jLVFcKo1PTYpFa8PqMYPWNwutrBefaL/FCwQ9udCf5QIf8sfbCqyr5Di80SVPWRqRH/MMG8Bi0U9VQVb5oK3rG+xQgSi/Dgo9Nzgte1qdVBWvS04fSE9XPE12Pr+D64N4u+YWl9fkYx9+1zzXIxjq1+75kxXMlnmZUGnMoZ/8UraRZDQ9KVIvqboi4CxPH3b0ETgA0tr/Y8eWL2H7CJnkqqETYdkGxwSUdyZGOG2jkW6HCXJ8yF/e9sB25vHgrVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tA8TWh+NiIWX13/t+0QMCA7HCK2nNgMciBKxvWOEtyk=;
+ b=GV7M39KiM7ha4VRQVUJ+V4cjbdmos2lbj432D1Yq7/I1/SCnAxlNhbArJ2LGXzfOlXisNtbDjKoeZBw94NRS56OCCeHQNz6oVTRW+OhNPEmN21L9W7ailtLKWL2+siEqlchEa9QBV94iKvWuFyXSKBwRx9iauyvcWL5h8BaLCTv2jy9dfNqCYMUF+pJV8PY7cfZ3D4Mjc8fr0e7xNUGcyKAm0vnyDzeQ9gccN1+6s67nfwIYaiCegRoVO18Y69k9EjILP0xMMO9QRpQfHOJYp3INPKbysvUK6AbG3IjIvarXgxbv7a3VFt+yczm4f7wQL3dQQPobRpuAbuMamokO/g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector2-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tA8TWh+NiIWX13/t+0QMCA7HCK2nNgMciBKxvWOEtyk=;
+ b=UgJDvQXilU8cTLR1avYO5hCBfHLP1cuRrUfeiuSLBpKLMOdd7iJ9OhFv9GRxEB+6Xoy3X1pMglRW9YRAVtwfuyeiwk9IqH1OarNpbu+1eeCT7XY9l+5daEPV1Wj3Yd21bsvk1F2mcN/MJYHW3Wp97Q0TwxFF04xBXmnpdp80Oqs=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from AM9PR04MB8954.eurprd04.prod.outlook.com (2603:10a6:20b:409::7)
+ by DB9PR04MB8396.eurprd04.prod.outlook.com (2603:10a6:10:24a::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.16; Thu, 9 Mar
+ 2023 10:01:49 +0000
+Received: from AM9PR04MB8954.eurprd04.prod.outlook.com
+ ([fe80::ae5d:59b0:7707:e5e8]) by AM9PR04MB8954.eurprd04.prod.outlook.com
+ ([fe80::ae5d:59b0:7707:e5e8%8]) with mapi id 15.20.6156.029; Thu, 9 Mar 2023
+ 10:01:49 +0000
+From:   "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>
+To:     andrew@lunn.ch, hkallweit1@gmail.com, linux@armlinux.org.uk,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Radu Pirea (OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        stable@vger.kernel.org
+Subject: [PATCH net] net: phy: nxp-c45-tja11xx: fix MII_BASIC_CONFIG_REV bit
+Date:   Thu,  9 Mar 2023 12:01:11 +0200
+Message-Id: <20230309100111.1246214-1-radu-nicolae.pirea@oss.nxp.com>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: AM0PR07CA0026.eurprd07.prod.outlook.com
+ (2603:10a6:208:ac::39) To AM9PR04MB8954.eurprd04.prod.outlook.com
+ (2603:10a6:20b:409::7)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq1wn3rgj7a.fsf@ca-mkp.ca.oracle.com>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM9PR04MB8954:EE_|DB9PR04MB8396:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7faae0e3-7963-4dbe-86c5-08db20854cba
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: /SwY4a6E9BD3MHy4uQFP4xZi0rAaMHTRxT0ZEhAj6jsrjs3oCfB6TC636Ibbk929Yqx39BL0HmFxR+aSytSBcfDVkpr/HNGd7O8Scv5nKmqoCwUZio2S8nRJ87kwKN9w6Zn6xrYy4ybD9T7i9kmCRjbrkXgwBrZKMULrF12BKh5g+mmDyYDvty5VXBKup+1R8LAbH0JiTNYuUBNxlrhVJ/NP9OfqYkqGYiVEEG/kpGRwqIZYOnfIF0XvKXSBI3ji9oR8bwDqOQ6x7j0DQKAf+sE2DClQ4DK0zLIzzBoV8WBPkhVVmEeyA3oMslNrNV6hxiEw8slh0nQoBdjkSg4SVxat1/VJd1sJU2tDEnzINPdyXlBvj4KQMs0OrvwjqNjt7ZSUpTVJHFLDr3B3ioWyOQ53n7KWmxL/Ot0R7usOrYgR7Vekhg7ev18m9FVKJ6tMm3ZAEGHJnzCxrRdzg0PfzBnEoiwwxXOY1y6+N9ZzVJqNM6tpRiE+S22Ae4DXK/mRglMCICFOQIvbwBaR/x41/DH63qRwomzkA7vaARjjZLnNKTsdnzwFMKaa2Mwri4HEFxv4qSahF5jpxT3LYrREr5VPYSXKjyHY+k/hpdfa5SJtCUO2oQMRKANIn/lPd98ST8cTN4B10+gqgDEKH/cW+UwhQ9CFiGJUdPTyAkCUS7t5QaogfjLGtt39PKjqW7nwYjz0sE/fmExNgKLTk9E03w==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR04MB8954.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(376002)(39860400002)(136003)(396003)(366004)(346002)(451199018)(2616005)(41300700001)(186003)(38350700002)(316002)(8676002)(66556008)(66476007)(66946007)(55236004)(26005)(6506007)(1076003)(6512007)(52116002)(6486002)(83380400001)(86362001)(38100700002)(4326008)(4744005)(7416002)(5660300002)(478600001)(2906002)(6666004)(8936002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?whYuJvpPx0BTc5ic4QHcayE5yi1+27UiFWRnsQjhlYn3ClAU3Aml2Lqx6ymt?=
+ =?us-ascii?Q?OU8WHe2Ha3LDaRwlj3HdG7ftZBo/huS2eLDaPw18z/BPSNo4O0dGEj3nUWBC?=
+ =?us-ascii?Q?qdcnQ5Ft7cafJ3EEb317wWxZ8x/yudpywoDPr+np23LdX1hjPznZga+yEKTM?=
+ =?us-ascii?Q?n1eEb7EzhXnRT+N77W9gCeG8yCemtTEjd//dzXfLUT/iQ5Iv1PzfZ8gG/TnC?=
+ =?us-ascii?Q?fvJ7ofw2sn6kO6HFHKe8yrY3S8JyYIK/a0Isg2njet79QP3kZe7T1jSYa+2j?=
+ =?us-ascii?Q?AjNYd5gh94N4Me1OdflYvvWsVY4FGPxfFjGqENiR7UGbX8QJCpzlRWISkr24?=
+ =?us-ascii?Q?r6aDNmsRO8ejQk5YbdSs0iTZOyuQZdEyzmm2QpxDwNdcR81OpeKIV/TvIO2k?=
+ =?us-ascii?Q?W1nUP268r1jDp0cdhK9hkGIeOIZDBhYVKrg0JyOS3Q5s5Ak+4335K2cvwjBM?=
+ =?us-ascii?Q?v6gBME1MoEioZO62NpJyhTVaTWn2+kg842iBtFYQcTKvIEizGGUw+ILIHa8/?=
+ =?us-ascii?Q?zQloZFGXg/r07lbeZ3QC8H4YKeOnQ6X36PARBoMk/JMlrXFxBn1YzeECBpT8?=
+ =?us-ascii?Q?x3vrJbiCgyGs0MYtBCUTTpgj3qfc+FzBqEvVUbOrNHZECVhK6GdnPOpy0BE/?=
+ =?us-ascii?Q?9CaZ9DZNpRPJE8Dfb9r9fYv3ODSZUxUf5bQM+mJBz/6s2hy7qC/M/hCgqo/a?=
+ =?us-ascii?Q?FjFWdaJrE+GW1IXyHIRDlYnQ8Ith6PACIOGJ8e8rBQgO3VEmOuezULs8TcAm?=
+ =?us-ascii?Q?jE+STZX6/Qv0V0fhdj/rPxcayaUdpwaOoTq+F4j8UVscdIXMXzj00EUUOYo5?=
+ =?us-ascii?Q?9AFpyIW6/1//JtlT3HvjchYLOoeEA9zyXcD7DQlFVO1Ox9DCp6aEURdC3Wt4?=
+ =?us-ascii?Q?2IxvjOgsG8Awl2ZQKqKIX3u810IoIuhzp9xKEOBYyLmhXTha/gaP89rp5esh?=
+ =?us-ascii?Q?WjKIxNgj9Q/cwtraT2eRRsEGvymkkvMOtW/ierSb2gqyRX3SGgaLNBdQpi48?=
+ =?us-ascii?Q?+hgXnRlaoLhvijP/JLE1zEl5qQm5R7qs/1i/jTwLOR5fVfs8nGu2eWvvg6zv?=
+ =?us-ascii?Q?tDY045qguE8+A0sYRuzLCFoGYXTw8wd9p3NUftjyIibsvhieW8Fgnxhpv2Pe?=
+ =?us-ascii?Q?iVy5oOvrMqB9GZn0756k/SHTdgMxn1FLssqFtrVI7jhKj4xuNaStL3i/BkhM?=
+ =?us-ascii?Q?h3k52s/CmEd6r/NChYfEV4Y/dQ+tYKlSj23x7neVdbHZ5MEwCkNFBZ4wFArG?=
+ =?us-ascii?Q?9vPfWeaPsPeVRKeF+IEdz4iZqpAUe9/VGexyq6xQsMep2N7o8Vy/KO8yqZgF?=
+ =?us-ascii?Q?7o/mu3A51Mh+VMnk9whNGKtCb+KwL2G/tR05zCxlGodX1pJePWfXDAFaOY+W?=
+ =?us-ascii?Q?7/wh15ABsMb5mrX+iDVN/GcnXz1C3rlQyr5hMXGOU8kMmWXKH2DxihMFz6Em?=
+ =?us-ascii?Q?AbTDiv46EX2M/LlIlSUS/w5NV0Z5UnukHi5YjMtmBG9gF+brI8Pi8WKQGnri?=
+ =?us-ascii?Q?htryxXXHFsewSKlu2sdovlm+EsSNeJONqLOWo1novAly+KeMEd8njzr7WkAE?=
+ =?us-ascii?Q?C7mkx+jjjudtotEJCCDAq4+gGaKw+COZtc6NeTavwhxzZDT2PWnxQedzy5m5?=
+ =?us-ascii?Q?1DvR8YI5SCKngK97z0UljM0=3D?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7faae0e3-7963-4dbe-86c5-08db20854cba
+X-MS-Exchange-CrossTenant-AuthSource: AM9PR04MB8954.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2023 10:01:49.5900
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: w45ncNYmJLFctoYVCBLD3+8zc4jRNZ5n4IiWbu29gL5zuTJBbVc4YurfVESSO5VGXaCmMkMc64Cf70ha5pB3d4vu/9naGqsWeNucxdDpxMo=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR04MB8396
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,RCVD_IN_VALIDITY_RPBL,
+        SPF_HELO_PASS,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Martin,
+According to the TJA1103 user manual, the bit for the reversed role in MII
+or RMII modes is bit 4.
 
-On Wed, Mar 08, 2023 at 02:05:01PM -0500, Martin K. Petersen wrote:
-> 
-> Salvatore,
-> 
-> > So I believe the right thing would be to revert first in the stable
-> > series where it was applied (5.10.y, 5.15.y) the commit e0e0747de0ea
-> > ("scsi: mpt3sas: Fix return value check of dma_get_required_mask()")
-> > and then on top of this revert apply the patches:
-> >
-> > 9df650963bf6 ("scsi: mpt3sas: Don't change DMA mask while reallocating pools")
-> > 1a2dcbdde82e ("scsi: mpt3sas: re-do lost mpt3sas DMA mask fix")
-> > 06e472acf964 ("scsi: mpt3sas: Remove usage of dma_get_required_mask() API")
-> >
-> > Attached mbox file implements this.
-> >
-> > Does that looks now good for resolving the regression?
-> 
-> Yes, that's one way to resolve it.
-> 
-> At a quick glance your mbox looks fine. Best way to validate would be to
-> compare the resulting _base_config_dma_addressing() function between
-> your tree and upstream. I don't believe we have had additional changes
-> here so there should be no delta.
+Cc: <stable@vger.kernel.org> # 5.15+
+Signed-off-by: Radu Pirea (OSS) <radu-nicolae.pirea@oss.nxp.com>
+---
+ drivers/net/phy/nxp-c45-tja11xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yes, the resulting _base_config_dma_addressing() function is the same
-after applying the series of commits.
+diff --git a/drivers/net/phy/nxp-c45-tja11xx.c b/drivers/net/phy/nxp-c45-tja11xx.c
+index 047c581457e3..5813b07242ce 100644
+--- a/drivers/net/phy/nxp-c45-tja11xx.c
++++ b/drivers/net/phy/nxp-c45-tja11xx.c
+@@ -79,7 +79,7 @@
+ #define SGMII_ABILITY			BIT(0)
+ 
+ #define VEND1_MII_BASIC_CONFIG		0xAFC6
+-#define MII_BASIC_CONFIG_REV		BIT(8)
++#define MII_BASIC_CONFIG_REV		BIT(4)
+ #define MII_BASIC_CONFIG_SGMII		0x9
+ #define MII_BASIC_CONFIG_RGMII		0x7
+ #define MII_BASIC_CONFIG_RMII		0x5
+-- 
+2.34.1
 
-In both cases it will be:
-
-/**
- * _base_config_dma_addressing - set dma addressing
- * @ioc: per adapter object
- * @pdev: PCI device struct
- *
- * Return: 0 for success, non-zero for failure.
- */
-static int
-_base_config_dma_addressing(struct MPT3SAS_ADAPTER *ioc, struct pci_dev *pdev)
-{
-        struct sysinfo s;
-        u64 coherent_dma_mask, dma_mask;
-
-        if (ioc->is_mcpu_endpoint || sizeof(dma_addr_t) == 4) {
-                ioc->dma_mask = 32;
-                coherent_dma_mask = dma_mask = DMA_BIT_MASK(32);
-        /* Set 63 bit DMA mask for all SAS3 and SAS35 controllers */
-        } else if (ioc->hba_mpi_version_belonged > MPI2_VERSION) {
-                ioc->dma_mask = 63;
-                coherent_dma_mask = dma_mask = DMA_BIT_MASK(63);
-        } else {
-                ioc->dma_mask = 64;
-                coherent_dma_mask = dma_mask = DMA_BIT_MASK(64);
-        }
-
-        if (ioc->use_32bit_dma)
-                coherent_dma_mask = DMA_BIT_MASK(32);
-
-        if (dma_set_mask(&pdev->dev, dma_mask) ||
-            dma_set_coherent_mask(&pdev->dev, coherent_dma_mask))
-                return -ENODEV;
-
-        if (ioc->dma_mask > 32) {
-                ioc->base_add_sg_single = &_base_add_sg_single_64;
-                ioc->sge_size = sizeof(Mpi2SGESimple64_t);
-        } else {
-                ioc->base_add_sg_single = &_base_add_sg_single_32;
-                ioc->sge_size = sizeof(Mpi2SGESimple32_t);
-        }
-
-        si_meminfo(&s);
-        ioc_info(ioc, "%d BIT PCI BUS DMA ADDRESSING SUPPORTED, total mem (%ld kB)\n",
-                ioc->dma_mask, convert_to_kb(s.totalram));
-
-        return 0;
-}
-
-Regards,
-Salvatore
