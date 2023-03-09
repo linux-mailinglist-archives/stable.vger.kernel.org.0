@@ -2,167 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08BAB6B27F5
-	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 15:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0066B2890
+	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 16:20:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231705AbjCIOzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 09:55:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46684 "EHLO
+        id S229827AbjCIPT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 10:19:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232023AbjCIOyF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 09:54:05 -0500
-Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 177EDF4B40
-        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 06:51:29 -0800 (PST)
-Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-176d1a112bfso2537305fac.5
-        for <stable@vger.kernel.org>; Thu, 09 Mar 2023 06:51:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tessares.net; s=google; t=1678373488;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Hmy3PkPHQ2u3OS0v9qWvPRQmIDrYZcauNq0B9Zz8Ptw=;
-        b=75S4M1/anGft2wOuhmMfIB2P5gXujxapU5TSo4ZG6/cMhcGqvW3htpmJHpBs8faCf8
-         W4TXN3jKZ7vKY46xq/Ohqw0jSxPPZTD8w70DIs3L4p0fhlcZj4v4LYNBKkFBU1mIlYiA
-         CB/CwRmr8041sLXRxpxhIV2l3YdAExY4pOTQYpZA/k6zymLu3myyjK/Jml2Zj+caFWoG
-         jUX6HUTKv6LRJGCEQRlwJX5jIoaWxoM34y6OEmrbyr7CupjCRi/R7n+YQhC3wtERhr1c
-         1+gUKRo+U4UjkGLTZMeT6WtWFAr1CC+l9MgiwsDtNvO1MRp4AKnYAywf0JMcmZrhf/IU
-         rogw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678373488;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Hmy3PkPHQ2u3OS0v9qWvPRQmIDrYZcauNq0B9Zz8Ptw=;
-        b=TwSgj4lKSBEE+RiABtuXTlXpJpuJvSLxgqtzlWei/ccGPSW4iBFpxTUEpF1c8tMx7v
-         whnq4ylWWQK+2W4uH0w6k824hrGrays+m1g+mRbo/AimTxVLffUtKuGfWOSd4oSsN8iH
-         4JlAVG9C8HL4JKBqIVgC6kKmygjIjVu6Vh3Icg2PNxza4NHDAArJZMkF0dFM+xa4Nx2s
-         isf48Dok+q0FvRcLP1uMnpCVJJHro4HjRqjbmFJyBcCOJUqFljSPQEf1kNWwfNeIiDrV
-         Mb2zAr2YGzi64LnlWqAj9FJpO3lYNsgG6jFdEPKdu6rLJ0VOBxNYAcKkUrT2IUZB2w6G
-         2sLg==
-X-Gm-Message-State: AO0yUKXI1+YXhtQFKaACBxPEY5+MGKGVuPZvJScoq5fdYSJAE2v+oEIq
-        M7y+jv7rKPY8j+iYgXQFMUb18g==
-X-Google-Smtp-Source: AK7set/Q93gXpFgSkUWy+boYAiBLU/suM/9YdzeWXiBdvjgFNz3JrdgnlUBcu4Cy6bJL/cS+yvNOfA==
-X-Received: by 2002:a05:6870:63a7:b0:163:58e8:77e5 with SMTP id t39-20020a05687063a700b0016358e877e5mr13797510oap.52.1678373487398;
-        Thu, 09 Mar 2023 06:51:27 -0800 (PST)
-Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
-        by smtp.gmail.com with ESMTPSA id ax39-20020a05687c022700b0016b0369f08fsm7351116oac.15.2023.03.09.06.51.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Mar 2023 06:51:27 -0800 (PST)
-From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-Date:   Thu, 09 Mar 2023 15:50:04 +0100
-Subject: [PATCH net v2 8/8] mptcp: fix lockdep false positive in
- mptcp_pm_nl_create_listen_socket()
+        with ESMTP id S230219AbjCIPTr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 10:19:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73DE71166B;
+        Thu,  9 Mar 2023 07:19:46 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03FA361BD2;
+        Thu,  9 Mar 2023 15:19:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59E72C4339B;
+        Thu,  9 Mar 2023 15:19:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678375185;
+        bh=uGQ4+6pHq7XtriJV3b//hs9AavpLTw/sTULP6Va7e14=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=p+Ywt9Ss7qo77YnK/L7v+Jc8782nMY/mf3L6b4i1BQBvzouagzMRVZX5lPqvhTmRa
+         2uuLn8oN7qSGPYgpTrWMsTz19j4UrY603wczoD+HqLQdafKaqTG2On9HS7uyOAB7mo
+         IfBsOOQBP+KrF8rEcHNbOKiwG062NtKYbJ5PfTbXI+GD0krxREj41wvQJOlyaC/c5W
+         dAeJChfEncvrzjmwNfDDzu8AtswL82RyF60M7AsV/eoDz+cAvGj5Rv3zPEWbqKQCNu
+         Ze9H664F5ooqfdgwpYi8y34AdKLKgiJp9DeE2PIW/rUlQLtuBOeKg4u73QvXzA/ELi
+         PDISn4XfgjoTQ==
+Received: by mail-vs1-f50.google.com with SMTP id o6so1910796vsq.10;
+        Thu, 09 Mar 2023 07:19:45 -0800 (PST)
+X-Gm-Message-State: AO0yUKWR4AsT4L2vxhkqSoGXZfq6BdvqQOFkigG2a6aIPvOY3YkLdfjk
+        e6VYqIk3MnN6bZh3lv0orfuoB0Dnrte6e0fTqg==
+X-Google-Smtp-Source: AK7set8RGQOVHa/iBNZKJxL7flt/46pZiHDOP14HDqww3nC9X82ZNMZiMhz/FKDiDPM1DFOTBkNd9yGlmJ8gwF5gT1w=
+X-Received: by 2002:a67:7302:0:b0:414:2d02:6c96 with SMTP id
+ o2-20020a677302000000b004142d026c96mr14391301vsc.7.1678375184277; Thu, 09 Mar
+ 2023 07:19:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230227-upstream-net-20230227-mptcp-fixes-v2-8-47c2e95eada9@tessares.net>
-References: <20230227-upstream-net-20230227-mptcp-fixes-v2-0-47c2e95eada9@tessares.net>
-In-Reply-To: <20230227-upstream-net-20230227-mptcp-fixes-v2-0-47c2e95eada9@tessares.net>
-To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <martineau@kernel.org>,
-        Jiang Biao <benbjiang@tencent.com>,
-        Menglong Dong <imagedong@tencent.com>,
-        Mengen Sun <mengensun@tencent.com>,
-        Shuah Khan <shuah@kernel.org>, Florian Westphal <fw@strlen.de>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        stable@vger.kernel.org, Christoph Paasch <cpaasch@apple.com>
-X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2460;
- i=matthieu.baerts@tessares.net; h=from:subject:message-id;
- bh=hqAM0Pg1CL8N6FLTp05rrsEa/m98vr/X4KK/h6eveNg=;
- b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBkCfIhlczjyma02ViYKD6MJ5M1VuWVHNyx+4BGF
- d/hvmQ7fwqJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCZAnyIQAKCRD2t4JPQmmg
- c31kEACurErU6ZCLhi48hHRrQ9GNdmdYCPgJTdZYIMLZ7iV3AAq4Z2knWKWnK7+hx2YiFszPJ/P
- hYvLL71GwNTWFGKHmnhR+aGBx1ZREpAS65kS8/p5vnBRiTwFI1q7LnFDDNa80czfsBCFpR0XXgf
- 2fZjQRKIl/Dhw7FBdCZ2wezTqAPmGmQdRQxRtzofrlhdK2wpqerqMeqRPKLiggC3ftK7nsdcpG+
- uWC/9v4WamN0SsjGPdmbgnS5i8L+Fdcr03Ynfa+5YYRYcpaMjsCFMryP+J4+ku7OnUaKV8+W4/P
- G2odQbe8ZsjFUiWPwp5Af1f9Zjd4A1oNYxl+IiL1pm7oTFICdecr1YvLlG7/HmodFaU4JRsGj/y
- XiiJps3ZdQqQneTAeEKdI459qkvYklb+7HpOUR3y8Gsj3zQzvC76nR/W8iuvDa1BeKVWAWoSMp5
- Yy+IbUKK5ZMf7WFtnXoPBIkLfHjmi9XXRgA/o4o1/ADAE9aGzCs4aMxv6oxYHfzb33AT2cHb0SJ
- N7xXmEJujU/9pTGfCGukRGZxFehB5IPqNiRB+rqAB57yXmq7svmCpxp2uzHGAtgVRfNvjGRkIxT
- MusvZ77L+pYpvPpoTrOHS5RVypXW/W5l9cuyUFA+nPnYepl2BcEd5HQvPc1+U/TG85cWI/2t8SZ
- Y0EKjBYvBQ+BYkw==
-X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
- fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20230307-apple_pcie_disabled_ports-v2-1-c3bd1fd278a4@jannau.net>
+In-Reply-To: <20230307-apple_pcie_disabled_ports-v2-1-c3bd1fd278a4@jannau.net>
+From:   Rob Herring <robh@kernel.org>
+Date:   Thu, 9 Mar 2023 09:19:32 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqLd4sR2LRgjLy7ON1qtpaOzMJQ9A_0YkYWG7TPxKtFOcQ@mail.gmail.com>
+Message-ID: <CAL_JsqLd4sR2LRgjLy7ON1qtpaOzMJQ9A_0YkYWG7TPxKtFOcQ@mail.gmail.com>
+Subject: Re: [PATCH v2] PCI: apple: Set only available ports up
+To:     Janne Grunau <j@jannau.net>
+Cc:     Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Marc Zyngier <maz@kernel.org>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sven Peter <sven@svenpeter.dev>, linux-pci@vger.kernel.org,
+        asahi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+On Thu, Mar 9, 2023 at 7:36=E2=80=AFAM Janne Grunau <j@jannau.net> wrote:
+>
+> Fixes following warning inside of_irq_parse_raw() called from the common
+> PCI device probe path.
+>
+>   /soc/pcie@690000000/pci@1,0 interrupt-map failed, using interrupt-contr=
+oller
+>   WARNING: CPU: 4 PID: 252 at drivers/of/irq.c:279 of_irq_parse_raw+0x5fc=
+/0x724
+>   ...
+>   Call trace:
+>    of_irq_parse_raw+0x5fc/0x724
+>    of_irq_parse_and_map_pci+0x128/0x1d8
+>    pci_assign_irq+0xc8/0x140
+>    pci_device_probe+0x70/0x188
+>    really_probe+0x178/0x418
+>    __driver_probe_device+0x120/0x188
+>    driver_probe_device+0x48/0x22c
+>    __device_attach_driver+0x134/0x1d8
+>    bus_for_each_drv+0x8c/0xd8
+>    __device_attach+0xdc/0x1d0
+>    device_attach+0x20/0x2c
+>    pci_bus_add_device+0x5c/0xc0
+>    pci_bus_add_devices+0x58/0x88
+>    pci_host_probe+0x124/0x178
+>    pci_host_common_probe+0x124/0x198 [pci_host_common]
+>    apple_pcie_probe+0x108/0x16c [pcie_apple]
+>    platform_probe+0xb4/0xdc
+>
+> This became apparent after disabling unused PCIe ports in the Apple
+> silicon device trees instead of deleting them.
+>
+> Use for_each_available_child_of_node instead of for_each_child_of_node
+> which takes the "status" property into account.
+>
+> Link: https://lore.kernel.org/asahi/20230214-apple_dts_pcie_disable_unuse=
+d-v1-0-5ea0d3ddcde3@jannau.net/
+> Link: https://lore.kernel.org/asahi/1ea2107a-bb86-8c22-0bbc-82c453ab08ce@=
+linaro.org/
+> Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Marc Zyngier <maz@kernel.org>
+> Signed-off-by: Janne Grunau <j@jannau.net>
+> ---
+> Changes in v2:
+> - rewritten commit message with more details and corrections
+> - collected Marc's "Reviewed-by:"
+> - Link to v1: https://lore.kernel.org/r/20230307-apple_pcie_disabled_port=
+s-v1-1-b32ef91faf19@jannau.net
+> ---
+>  drivers/pci/controller/pcie-apple.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Christoph reports a lockdep splat in the mptcp_subflow_create_socket()
-error path, when such function is invoked by
-mptcp_pm_nl_create_listen_socket().
+Unfortunately, this is a common issue...
 
-Such code path acquires two separates, nested socket lock, with the
-internal lock operation lacking the "nested" annotation. Adding that
-in sock_release() for mptcp's sake only could be confusing.
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-Instead just add a new lockclass to the in-kernel msk socket,
-re-initializing the lockdep infra after the socket creation.
-
-Fixes: ad2171009d96 ("mptcp: fix locking for in-kernel listener creation")
-Cc: stable@vger.kernel.org
-Reported-by: Christoph Paasch <cpaasch@apple.com>
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/354
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Tested-by: Christoph Paasch <cpaasch@apple.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
----
- net/mptcp/pm_netlink.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-index 56628b52d100..5c8dea49626c 100644
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -997,9 +997,13 @@ static int mptcp_pm_nl_append_new_local_addr(struct pm_nl_pernet *pernet,
- 	return ret;
- }
- 
-+static struct lock_class_key mptcp_slock_keys[2];
-+static struct lock_class_key mptcp_keys[2];
-+
- static int mptcp_pm_nl_create_listen_socket(struct sock *sk,
- 					    struct mptcp_pm_addr_entry *entry)
- {
-+	bool is_ipv6 = sk->sk_family == AF_INET6;
- 	int addrlen = sizeof(struct sockaddr_in);
- 	struct sockaddr_storage addr;
- 	struct socket *ssock;
-@@ -1016,6 +1020,18 @@ static int mptcp_pm_nl_create_listen_socket(struct sock *sk,
- 	if (!newsk)
- 		return -EINVAL;
- 
-+	/* The subflow socket lock is acquired in a nested to the msk one
-+	 * in several places, even by the TCP stack, and this msk is a kernel
-+	 * socket: lockdep complains. Instead of propagating the _nested
-+	 * modifiers in several places, re-init the lock class for the msk
-+	 * socket to an mptcp specific one.
-+	 */
-+	sock_lock_init_class_and_name(newsk,
-+				      is_ipv6 ? "mlock-AF_INET6" : "mlock-AF_INET",
-+				      &mptcp_slock_keys[is_ipv6],
-+				      is_ipv6 ? "msk_lock-AF_INET6" : "msk_lock-AF_INET",
-+				      &mptcp_keys[is_ipv6]);
-+
- 	lock_sock(newsk);
- 	ssock = __mptcp_nmpc_socket(mptcp_sk(newsk));
- 	release_sock(newsk);
-
--- 
-2.39.2
-
+Rob
