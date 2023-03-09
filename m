@@ -2,88 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0902B6B1C49
-	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 08:30:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2F46B1C5D
+	for <lists+stable@lfdr.de>; Thu,  9 Mar 2023 08:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229717AbjCIHa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 02:30:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49812 "EHLO
+        id S229993AbjCIHcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 02:32:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229835AbjCIHaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 02:30:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2F460D6C;
-        Wed,  8 Mar 2023 23:30:23 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D65EFB81E93;
-        Thu,  9 Mar 2023 07:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 8FAA3C4339B;
-        Thu,  9 Mar 2023 07:30:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678347020;
-        bh=mu4O7Pvq1VNZVGOZLBf7dz+hLxR8Z6QVu2isJcMcwxE=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=LMA0ITtUNNBu9wowRtgErO4EczJ4X7ten37Ue68OJD9Bz32rM6EaOy3OiAzRrbgjW
-         7pEd6FOwuluGqJsjhIRJNsK8+kEu3VIWjdr3sSk+XwrHFq4I3fleGJGDEJao17cW+h
-         kjQr0PcY0ykrIaFfUoMM8MklPFFJaOWZOPwmEcOOjmNaejXw3lKx+9hIx8kKtnchoI
-         8DTocUmhaf+S/krh2SXsiExaOZjNnJtV8N+3ENQt6jSYW4IJvJnyFAINWjXETFW2pI
-         KlW7JXceHr2kevBsycJYyQMF0mzVatau6qB9vL2/540hDKToPB36nz3BScErRIENaP
-         Zqtg6wtmBcILg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 72B64E68C00;
-        Thu,  9 Mar 2023 07:30:19 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229900AbjCIHbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 02:31:50 -0500
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF430DD347
+        for <stable@vger.kernel.org>; Wed,  8 Mar 2023 23:31:16 -0800 (PST)
+Received: by mail-lf1-x12e.google.com with SMTP id s20so1088861lfb.11
+        for <stable@vger.kernel.org>; Wed, 08 Mar 2023 23:31:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ionos.com; s=google; t=1678347067;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ha/3mU3Llx0Wa0WUDy/uPl76sON4g9057OoIU9zRL5M=;
+        b=Qtcqr7ffdSk4foYwmHCYlCxkgdTb3gmp7/PVtv7leT7UJxqj1XYVgAKrSWxc+lFTS/
+         Rev8wfsj0fMgfNjI1T4d/s6gMi2grLLQfG9T/Ua4sxcfkwkcVAm/T5DEktpu5BnipoB7
+         v8L02Nd4TsqrsxZizzBjmEw6Cm3KhBYJLUM/kJc2Rz7Z3f2M/P31gM3ldwkw5dTon9B8
+         U2KyFcBKmOBVdLZJ7H6nzmUsXq9NQ92DFNXPautpgG/MFC3IL33JnVFR/0xRoQOygyHl
+         /XgnbCXOxdKSoaFLjCZWjnhdfLz9mZjrOeu13FI1RiCIZvLonWvp1AwKZO20/h6epr2e
+         GjRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678347067;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ha/3mU3Llx0Wa0WUDy/uPl76sON4g9057OoIU9zRL5M=;
+        b=RKH42I01J7B42CiBcB0NcmR5xwqhWUOgYjH2I45JMCODgy44uGDcZN0NalRm0+3hAv
+         FqECjHZYoBro6NuPr88B67oqBVcoaVwuVjhr491pUqwB3lL5dQmj+NHOoAWj8hmWXcJP
+         F+W0qv0pd3Txn3svVZfeAH2ytbR0GKKwCKfbmEnt4k1PfbZjBSuxyjTmQ/cVWZXZDEiI
+         xpCzhlOrRQSFc6IVLGEh9QdEvwcYvMLm2ARFaXadQwP9uACuwiFhPkgFJ1825mtghZ2O
+         ntup/7Af3qLd723XzOalcG9pLNxGsy49i265vH21UB+FrsG/LrjFIt/qMpuIjgZi2Ci1
+         D06w==
+X-Gm-Message-State: AO0yUKUYDCV0siATRghI4vLZ1N/PlwdxWIc/UhtI/b4oojxO1SAy5pFr
+        +TZPvu+H+tyGGZo9sl03ThNl83RRj18p8lxohLHq8w==
+X-Google-Smtp-Source: AK7set/CzLKvBYZT7akl9keu/O524xE6wDtFMN64SvHQrgjOET2PcHeMncNYZT90K5hf1/HQwtE9Gcpwc6bJMuvu2OE=
+X-Received: by 2002:a19:7517:0:b0:4dd:805b:5b75 with SMTP id
+ y23-20020a197517000000b004dd805b5b75mr6471232lfe.7.1678347067247; Wed, 08 Mar
+ 2023 23:31:07 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] eth: fealnx: bring back this old driver
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167834701946.22182.5252646764368734052.git-patchwork-notify@kernel.org>
-Date:   Thu, 09 Mar 2023 07:30:19 +0000
-References: <20230307171930.4008454-1-kuba@kernel.org>
-In-Reply-To: <20230307171930.4008454-1-kuba@kernel.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
-        pabeni@redhat.com, stable@vger.kernel.org,
-        tsbogend@alpha.franken.de, mpe@ellerman.id.au, npiggin@gmail.com,
-        christophe.leroy@csgroup.eu, lukas.bulwahn@gmail.com,
-        stephen@networkplumber.org, leon@kernel.org, geoff@infradead.org,
-        petrm@nvidia.com, wsa+renesas@sang-engineering.com,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20230302130650.2209938-1-max.kellermann@ionos.com>
+ <c2f9e0d3-0242-1304-26ea-04f25c3cdee4@redhat.com> <CAKPOu+_1ee8QDkuB4TxQBaUwnHi4bRKuszWzCb-BCY44cp1aJQ@mail.gmail.com>
+ <cf545923-e782-76a7-dd94-f8586530502b@redhat.com>
+In-Reply-To: <cf545923-e782-76a7-dd94-f8586530502b@redhat.com>
+From:   Max Kellermann <max.kellermann@ionos.com>
+Date:   Thu, 9 Mar 2023 08:30:56 +0100
+Message-ID: <CAKPOu+-jCt6NoVaR=z6c-D-PY1skdt6u-2sKkzd8GFDHbsQdxQ@mail.gmail.com>
+Subject: Re: [PATCH] fs/ceph/mds_client: ignore responses for waiting requests
+To:     Xiubo Li <xiubli@redhat.com>
+Cc:     idryomov@gmail.com, jlayton@kernel.org, ceph-devel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+On Thu, Mar 9, 2023 at 6:31=E2=80=AFAM Xiubo Li <xiubli@redhat.com> wrote:
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+> I attached one testing patch based yours, just added more debug logs,
+> which won't be introduce perf issue since all the logs should be printed
+> in corner cases.
+>
+> Could you help test it ?
 
-On Tue,  7 Mar 2023 09:19:30 -0800 you wrote:
-> This reverts commit d5e2d038dbece821f1af57acbeded3aa9a1832c1.
-> 
-> We have a report of this chip being used on a
-> 
->   SURECOM EP-320X-S 100/10M Ethernet PCI Adapter
-> 
-> which could still have been purchased in some parts
-> of the world 3 years ago.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net] eth: fealnx: bring back this old driver
-    https://git.kernel.org/netdev/net/c/8f1482080104
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+The patch now runs on one of our clusters, and I'll get back to you as
+soon as the problem occurs again. Thanks so far!
