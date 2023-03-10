@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 742276B46C5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA646B46C6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233020AbjCJOq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:46:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40950 "EHLO
+        id S232924AbjCJOq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:46:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232965AbjCJOqK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:46:10 -0500
+        with ESMTP id S232969AbjCJOqN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:46:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36369107D64
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:46:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5227C121153
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:46:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD74861745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2D86C4339B;
-        Fri, 10 Mar 2023 14:46:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D942B61965
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:46:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5DA2C433A4;
+        Fri, 10 Mar 2023 14:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459561;
-        bh=8OSjvR9c1Yk98G5cuFl6JHRq7lWmwm1Xw7XeEkkQASE=;
+        s=korg; t=1678459564;
+        bh=W/F1RDm1ip5lH1HOwxsafEE4/+ZbE7E4MuzkO3akoes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbzUzOID8lAlCZCQVHzOGMFNXqsjFk7qDQIaK8kdzz9kVAf2CDbf6M6qE1aEcGqpd
-         0TE8J5Mx42BGa3AMXFg8un0P5moCOgRYnfV9BdIU9bYgt4sw7T3GLdT7mtyUgIBhm6
-         Lue7Xpbx4rtVdSzGhgsSIflzPubfRwWFUgobKLik=
+        b=JwzpT3w6Vp+6ba6fX9kyLj4HR63g1NKMIvkdbB43o8THHDqafyb74ys+Y+WECIdx/
+         Tb7Cqa2QzFULDRCBB4MK3mhmT+rf9wWC8vAejw8iDCEm8x575j+NgBwjALJ+1pCqjj
+         t2FV4Xi9EP6VJqiYVAnEoUGHqqhq++8wZnP07570=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/529] s390/dasd: Fix potential memleak in dasd_eckd_init()
-Date:   Fri, 10 Mar 2023 14:33:07 +0100
-Message-Id: <20230310133807.031134140@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 045/529] sched/deadline,rt: Remove unused parameter from pick_next_[rt|dl]_entity()
+Date:   Fri, 10 Mar 2023 14:33:08 +0100
+Message-Id: <20230310133807.078813974@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,41 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiheng Lin <linqiheng@huawei.com>
+From: Dietmar Eggemann <dietmar.eggemann@arm.com>
 
-[ Upstream commit 460e9bed82e49db1b823dcb4e421783854d86c40 ]
+[ Upstream commit 821aecd09e5ad2f8d4c3d8195333d272b392f7d3 ]
 
-`dasd_reserve_req` is allocated before `dasd_vol_info_req`, and it
-also needs to be freed before the error returns, just like the other
-cases in this function.
+The `struct rq *rq` parameter isn't used. Remove it.
 
-Fixes: 9e12e54c7a8f ("s390/dasd: Handle out-of-space constraint")
-Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
-Link: https://lore.kernel.org/r/20221208133809.16796-1-linqiheng@huawei.com
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230210000253.1644903-3-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Juri Lelli <juri.lelli@redhat.com>
+Link: https://lore.kernel.org/r/20220302183433.333029-7-dietmar.eggemann@arm.com
+Stable-dep-of: 7c4a5b89a0b5 ("sched/rt: pick_next_rt_entity(): check list_entry")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sched/deadline.c | 5 ++---
+ kernel/sched/rt.c       | 5 ++---
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index d1429936f38c6..c6930c159d2a6 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -6763,8 +6763,10 @@ dasd_eckd_init(void)
- 		return -ENOMEM;
- 	dasd_vol_info_req = kmalloc(sizeof(*dasd_vol_info_req),
- 				    GFP_KERNEL | GFP_DMA);
--	if (!dasd_vol_info_req)
-+	if (!dasd_vol_info_req) {
-+		kfree(dasd_reserve_req);
- 		return -ENOMEM;
-+	}
- 	pe_handler_worker = kmalloc(sizeof(*pe_handler_worker),
- 				    GFP_KERNEL | GFP_DMA);
- 	if (!pe_handler_worker) {
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index aaf98771f9357..f59cb3e8a6130 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -1847,8 +1847,7 @@ static void set_next_task_dl(struct rq *rq, struct task_struct *p, bool first)
+ 	deadline_queue_push_tasks(rq);
+ }
+ 
+-static struct sched_dl_entity *pick_next_dl_entity(struct rq *rq,
+-						   struct dl_rq *dl_rq)
++static struct sched_dl_entity *pick_next_dl_entity(struct dl_rq *dl_rq)
+ {
+ 	struct rb_node *left = rb_first_cached(&dl_rq->root);
+ 
+@@ -1867,7 +1866,7 @@ static struct task_struct *pick_next_task_dl(struct rq *rq)
+ 	if (!sched_dl_runnable(rq))
+ 		return NULL;
+ 
+-	dl_se = pick_next_dl_entity(rq, dl_rq);
++	dl_se = pick_next_dl_entity(dl_rq);
+ 	BUG_ON(!dl_se);
+ 	p = dl_task_of(dl_se);
+ 	set_next_task_dl(rq, p, true);
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index e6f22836c600b..e1ce5d1868b50 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -1605,8 +1605,7 @@ static inline void set_next_task_rt(struct rq *rq, struct task_struct *p, bool f
+ 	rt_queue_push_tasks(rq);
+ }
+ 
+-static struct sched_rt_entity *pick_next_rt_entity(struct rq *rq,
+-						   struct rt_rq *rt_rq)
++static struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
+ {
+ 	struct rt_prio_array *array = &rt_rq->active;
+ 	struct sched_rt_entity *next = NULL;
+@@ -1628,7 +1627,7 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
+ 	struct rt_rq *rt_rq  = &rq->rt;
+ 
+ 	do {
+-		rt_se = pick_next_rt_entity(rq, rt_rq);
++		rt_se = pick_next_rt_entity(rt_rq);
+ 		BUG_ON(!rt_se);
+ 		rt_rq = group_rt_rq(rt_se);
+ 	} while (rt_rq);
 -- 
 2.39.2
 
