@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDFD96B4474
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 904706B4151
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232308AbjCJOY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:24:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40458 "EHLO
+        id S230493AbjCJNvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:51:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232187AbjCJOYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:04 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA452F793
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:12 -0800 (PST)
+        with ESMTP id S230501AbjCJNvo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 003F6111B3A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EF079CE290B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C03C433EF;
-        Fri, 10 Mar 2023 14:23:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB9EBB822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BED8C433D2;
+        Fri, 10 Mar 2023 13:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458184;
-        bh=P7ANxNI8vGnTHoYsX1RHY7+Tym4hE7xBvh0nKSEweqE=;
+        s=korg; t=1678456300;
+        bh=ZUZZb2WIgYRmeV4k6Up47FPZ8FOaO9rxv8UVlgTHkTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wf65Jmt5MAoXvO4LpEByiTN7ODw9TtSbs+VMJoUdy1e2hR+/C6qYtLxljBlvVFb4s
-         GfgC6PX+s3xCUpblG9VIH32b3EylFeIsShp+rAZgCatOtOCDqJSQ4NE9Rmb9xtZMXk
-         AAAezXGt4OegqxRwPdGo5Ik31hWdH1B/YSRz7qU0=
+        b=Vn029iLzUdUs+4OmLMVa0Mft3Cx7yIBdg8SSS99sDFN2vZWbdNZNFlVI30Pz8vh7r
+         EAuS09OgqXZs1UYLrdQ6bqZMNEhdTNjGBVpIRCKDWdIUa74cNd0RqLz8DxJdVgxVKC
+         lQexVzRyZJ81npLSHl/4TRxAmWnmmNfJMfD5GK0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 4.19 162/252] x86/microcode/AMD: Add a @cpu parameter to the reloading functions
+        patches@lists.linux.dev,
+        syzbot+0be96567042453c0c820@syzkaller.appspotmail.com,
+        Liu Shixin <liushixin2@huawei.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 150/193] fs/jfs: fix shift exponent db_agl2size negative
 Date:   Fri, 10 Mar 2023 14:38:52 +0100
-Message-Id: <20230310133723.742413876@linuxfoundation.org>
+Message-Id: <20230310133716.200164862@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,98 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Liu Shixin via Jfs-discussion <jfs-discussion@lists.sourceforge.net>
 
-commit a5ad92134bd153a9ccdcddf09a95b088f36c3cce upstream.
+[ Upstream commit fad376fce0af58deebc5075b8539dc05bf639af3 ]
 
-Will be used in a subsequent change.
+As a shift exponent, db_agl2size can not be less than 0. Add the missing
+check to fix the shift-out-of-bounds bug reported by syzkaller:
 
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-3-bp@alien8.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ UBSAN: shift-out-of-bounds in fs/jfs/jfs_dmap.c:2227:15
+ shift exponent -744642816 is negative
+
+Reported-by: syzbot+0be96567042453c0c820@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/microcode.h     |    4 ++--
- arch/x86/include/asm/microcode_amd.h |    4 ++--
- arch/x86/kernel/cpu/microcode/amd.c  |    2 +-
- arch/x86/kernel/cpu/microcode/core.c |    6 +++---
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ fs/jfs/jfs_dmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -130,7 +130,7 @@ static inline unsigned int x86_cpuid_fam
- int __init microcode_init(void);
- extern void __init load_ucode_bsp(void);
- extern void load_ucode_ap(void);
--void reload_early_microcode(void);
-+void reload_early_microcode(unsigned int cpu);
- extern bool get_builtin_firmware(struct cpio_data *cd, const char *name);
- extern bool initrd_gone;
- void microcode_bsp_resume(void);
-@@ -138,7 +138,7 @@ void microcode_bsp_resume(void);
- static inline int __init microcode_init(void)			{ return 0; };
- static inline void __init load_ucode_bsp(void)			{ }
- static inline void load_ucode_ap(void)				{ }
--static inline void reload_early_microcode(void)			{ }
-+static inline void reload_early_microcode(unsigned int cpu)	{ }
- static inline void microcode_bsp_resume(void)			{ }
- static inline bool
- get_builtin_firmware(struct cpio_data *cd, const char *name)	{ return false; }
---- a/arch/x86/include/asm/microcode_amd.h
-+++ b/arch/x86/include/asm/microcode_amd.h
-@@ -47,12 +47,12 @@ struct microcode_amd {
- extern void __init load_ucode_amd_bsp(unsigned int family);
- extern void load_ucode_amd_ap(unsigned int family);
- extern int __init save_microcode_in_initrd_amd(unsigned int family);
--void reload_ucode_amd(void);
-+void reload_ucode_amd(unsigned int cpu);
- #else
- static inline void __init load_ucode_amd_bsp(unsigned int family) {}
- static inline void load_ucode_amd_ap(unsigned int family) {}
- static inline int __init
- save_microcode_in_initrd_amd(unsigned int family) { return -EINVAL; }
--void reload_ucode_amd(void) {}
-+static inline void reload_ucode_amd(unsigned int cpu) {}
- #endif
- #endif /* _ASM_X86_MICROCODE_AMD_H */
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -354,7 +354,7 @@ int __init save_microcode_in_initrd_amd(
- 	return 0;
- }
- 
--void reload_ucode_amd(void)
-+void reload_ucode_amd(unsigned int cpu)
- {
- 	struct microcode_amd *mc;
- 	u32 rev, dummy;
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -326,7 +326,7 @@ struct cpio_data find_microcode_in_initr
- #endif
- }
- 
--void reload_early_microcode(void)
-+void reload_early_microcode(unsigned int cpu)
- {
- 	int vendor, family;
- 
-@@ -340,7 +340,7 @@ void reload_early_microcode(void)
- 		break;
- 	case X86_VENDOR_AMD:
- 		if (family >= 0x10)
--			reload_ucode_amd();
-+			reload_ucode_amd(cpu);
- 		break;
- 	default:
- 		break;
-@@ -783,7 +783,7 @@ void microcode_bsp_resume(void)
- 	if (uci->valid && uci->mc)
- 		microcode_ops->apply_microcode(cpu);
- 	else if (!uci->mc)
--		reload_early_microcode();
-+		reload_early_microcode(cpu);
- }
- 
- static struct syscore_ops mc_syscore_ops = {
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 0ca1ad2610df9..6a0f564e58ddb 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -206,7 +206,8 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
+ 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
+ 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
+-	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
++	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG ||
++	    bmp->db_agl2size < 0) {
+ 		err = -EINVAL;
+ 		goto err_release_metapage;
+ 	}
+-- 
+2.39.2
+
 
 
