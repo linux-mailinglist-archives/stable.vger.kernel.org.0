@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB556B4888
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:03:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97EF46B48C5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:06:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233760AbjCJPDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:03:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46904 "EHLO
+        id S233632AbjCJPGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:06:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233099AbjCJPDI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:03:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7447A130C17
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:56:27 -0800 (PST)
+        with ESMTP id S232909AbjCJPG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:06:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50AA26C1D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:59:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 890A0B822E5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:50:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0228BC4339B;
-        Fri, 10 Mar 2023 14:50:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F8066196F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:50:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06F79C433D2;
+        Fri, 10 Mar 2023 14:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459817;
-        bh=QWiufvSY18xyAYhN9U/7BhkGAcbUi0Aa4xBhKUhlFrs=;
+        s=korg; t=1678459820;
+        bh=wpxueW/m+JtNBS4scknZXA1UddReqA14TpBsRMIHn3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YypgQZ2EyHLqNoKYvhYH5G2nEAnFAVptOSqtNHws8W1SgjqwuCd6vGQZImPAiuyKb
-         ojATEe5gSWxd3ENE1IGowATUhgGe6vx1DpYDXjYb1gYvBaDbbnCljE+KIDPcITIFbL
-         8kxkO+m5kiBktuEiSjcWjqx5tZGySqdu9m78jjII=
+        b=mOmkpDrD3usR67C+HRw4sRO1hequOScr8mRs1yZnY8XoWfv3AQmL6nch0k87XxbyB
+         eOYHuE8rS0CPC0YWQJBgjKIpc0VNLn9GMR+tp3oxXc6mwI6/g62n63qTVFvtVAT6Wm
+         8AkgF41u8GeUSLSA5dKLYWVzyEtjYN0biUfKXb5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Anup Patel <apatel@ventanamicro.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Daniel Lezcano <daniel.lezcano@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/529] m68k: /proc/hardware should depend on PROC_FS
-Date:   Fri, 10 Mar 2023 14:34:33 +0100
-Message-Id: <20230310133810.997937187@linuxfoundation.org>
+Subject: [PATCH 5.10 131/529] RISC-V: time: initialize hrtimer based broadcast clock event device
+Date:   Fri, 10 Mar 2023 14:34:34 +0100
+Message-Id: <20230310133811.043914330@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,40 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 1e5b5df65af99013b4d31607ddb3ca5731dbe44d ]
+[ Upstream commit 8b3b8fbb4896984b5564789a42240e4b3caddb61 ]
 
-When CONFIG_PROC_FS is not set, there is a build error for an unused
-function. Make PROC_HARDWARE depend on PROC_FS to prevent this error.
+Similarly to commit 022eb8ae8b5e ("ARM: 8938/1: kernel: initialize
+broadcast hrtimer based clock event device"), RISC-V needs to initiate
+hrtimer based broadcast clock event device before C3STOP can be used.
+Otherwise, the introduction of C3STOP for the RISC-V arch timer in
+commit 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped
+during CPU suspend") leaves us without any broadcast timer registered.
+This prevents the kernel from entering oneshot mode, which breaks timer
+behaviour, for example clock_nanosleep().
 
-In file included from ../arch/m68k/kernel/setup.c:3:
-../arch/m68k/kernel/setup_mm.c:477:12: error: 'hardware_proc_show' defined but not used [-Werror=unused-function]
-  477 | static int hardware_proc_show(struct seq_file *m, void *v)
-      |            ^~~~~~~~~~~~~~~~~~
+A test app that sleeps each cpu for 6, 5, 4, 3 ms respectively, HZ=250
+& C3STOP enabled, the sleep times are rounded up to the next jiffy:
+== CPU: 1 ==      == CPU: 2 ==      == CPU: 3 ==      == CPU: 4 ==
+Mean: 7.974992    Mean: 7.976534    Mean: 7.962591    Mean: 3.952179
+Std Dev: 0.154374 Std Dev: 0.156082 Std Dev: 0.171018 Std Dev: 0.076193
+Hi: 9.472000      Hi: 10.495000     Hi: 8.864000      Hi: 4.736000
+Lo: 6.087000      Lo: 6.380000      Lo: 4.872000      Lo: 3.403000
+Samples: 521      Samples: 521      Samples: 521      Samples: 521
 
-Fixes: 66d857b08b8c ("m68k: merge m68k and m68knommu arch directories") # v3.0
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230209010825.24136-1-rdunlap@infradead.org
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/linux-riscv/YzYTNQRxLr7Q9JR0@spud/
+Fixes: 232ccac1bd9b ("clocksource/drivers/riscv: Events are stopped during CPU suspend")
+Suggested-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20230103141102.772228-2-apatel@ventanamicro.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.devices | 1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/kernel/time.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/m68k/Kconfig.devices b/arch/m68k/Kconfig.devices
-index 6a87b4a5fcac2..e6e3efac18407 100644
---- a/arch/m68k/Kconfig.devices
-+++ b/arch/m68k/Kconfig.devices
-@@ -19,6 +19,7 @@ config HEARTBEAT
- # We have a dedicated heartbeat LED. :-)
- config PROC_HARDWARE
- 	bool "/proc/hardware support"
-+	depends on PROC_FS
- 	help
- 	  Say Y here to support the /proc/hardware file, which gives you
- 	  access to information about the machine you're running on,
+diff --git a/arch/riscv/kernel/time.c b/arch/riscv/kernel/time.c
+index 8a5cf99c07762..303ae47dfb4d6 100644
+--- a/arch/riscv/kernel/time.c
++++ b/arch/riscv/kernel/time.c
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/of_clk.h>
++#include <linux/clockchips.h>
+ #include <linux/clocksource.h>
+ #include <linux/delay.h>
+ #include <asm/sbi.h>
+@@ -28,6 +29,8 @@ void __init time_init(void)
+ 
+ 	of_clk_init(NULL);
+ 	timer_probe();
++
++	tick_setup_hrtimer_broadcast();
+ }
+ 
+ void clocksource_arch_init(struct clocksource *cs)
 -- 
 2.39.2
 
