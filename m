@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 067736B44A9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B4E6B464F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232391AbjCJO1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:27:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
+        id S232846AbjCJOmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:42:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232253AbjCJO01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:26:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4CB9DF73C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:09 -0800 (PST)
+        with ESMTP id S232821AbjCJOlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C45F122CFF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 65346CE2911
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 636F1C433D2;
-        Fri, 10 Mar 2023 14:25:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 037ECB822DC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D84DC4339C;
+        Fri, 10 Mar 2023 14:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458304;
-        bh=Sfd7ALKP9WVTrFRLUUekbWVSI++kG3TJ/aPrRBnTJJ4=;
+        s=korg; t=1678459305;
+        bh=Kz30x7qeVI0eOKRJ9XU/0uuK2LRBrXmze+ya30VssIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1eRNMt+ngvkWgBAqXnD3b+yLKhuhWJW2v2VKTgRkyO227AiSqdGSOvwWGZSJACFa
-         iPGfy99MYhvtSudMSODM3H6c/ScuhRPRwl3aEpTn1IAGnPjZv/fOo6kqqH1LS3BDuk
-         UgmADks7X4dcLbR+Mwbfw6LpJazW5K1mvM/gtKNM=
+        b=kuBGyiyRD1t6VJDTLp7JFKSBeLZcIhIgz10bCR3qbfYcprBM/I40KOrMLkMTEPOcq
+         /+l9S7ExF7z1/Rlq/iXAtWsM9lTjJxBgNjEDyHw3rTXkJetk3cVH4o5m3bbRxT01Q/
+         jh6CCz9SHApPVhYQM9fWcQENVFuQahkb2U57xKqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ionut_n2001@yahoo.com,
-        Kees Cook <keescook@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 234/252] media: uvcvideo: Silence memcpy() run-time false positive warnings
-Date:   Fri, 10 Mar 2023 14:40:04 +0100
-Message-Id: <20230310133726.443568621@linuxfoundation.org>
+Subject: [PATCH 5.4 316/357] 9p/xen: fix connection sequence
+Date:   Fri, 10 Mar 2023 14:40:05 +0100
+Message-Id: <20230310133748.634883679@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +56,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
+[ Upstream commit c15fe55d14b3b4ded5af2a3260877460a6ffb8ad ]
 
-The memcpy() in uvc_video_decode_meta() intentionally copies across the
-length and flags members and into the trailing buf flexible array.
-Split the copy so that the compiler can better reason about (the lack
-of) buffer overflows here. Avoid the run-time false positive warning:
+Today the connection sequence of the Xen 9pfs frontend doesn't match
+the documented sequence. It can work reliably only for a PV 9pfs device
+having been added at boot time already, as the frontend is not waiting
+for the backend to have set its state to "XenbusStateInitWait" before
+reading the backend properties from Xenstore.
 
-  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
+Fix that by following the documented sequence [1] (the documentation
+has a bug, so the reference is for the patch fixing that).
 
-Additionally fix a typo in the documentation for struct uvc_meta_buf.
+[1]: https://lore.kernel.org/xen-devel/20230130090937.31623-1-jgross@suse.com/T/#u
 
-Reported-by: ionut_n2001@yahoo.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lkml.kernel.org/r/20230130113036.7087-3-jgross@suse.com
+Fixes: 868eb122739a ("xen/9pfs: introduce Xen 9pfs transport driver")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_video.c | 4 +++-
- include/uapi/linux/uvcvideo.h     | 2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ net/9p/trans_xen.c | 38 +++++++++++++++++++++++---------------
+ 1 file changed, 23 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index b431f06d5a1f5..1c0249df52566 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -1278,7 +1278,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
- 	if (has_scr)
- 		memcpy(stream->clock.last_scr, scr, 6);
+diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
+index 131757aa0e6e2..67e9a7085e13b 100644
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -389,12 +389,11 @@ static int xen_9pfs_front_alloc_dataring(struct xenbus_device *dev,
+ 	return ret;
+ }
  
--	memcpy(&meta->length, mem, length);
-+	meta->length = mem[0];
-+	meta->flags  = mem[1];
-+	memcpy(meta->buf, &mem[2], length - 2);
- 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
+-static int xen_9pfs_front_probe(struct xenbus_device *dev,
+-				const struct xenbus_device_id *id)
++static int xen_9pfs_front_init(struct xenbus_device *dev)
+ {
+ 	int ret, i;
+ 	struct xenbus_transaction xbt;
+-	struct xen_9pfs_front_priv *priv = NULL;
++	struct xen_9pfs_front_priv *priv = dev_get_drvdata(&dev->dev);
+ 	char *versions, *v;
+ 	unsigned int max_rings, max_ring_order, len = 0;
  
- 	uvc_trace(UVC_TRACE_FRAME,
-diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
-index f80f05b3c423f..2140923661934 100644
---- a/include/uapi/linux/uvcvideo.h
-+++ b/include/uapi/linux/uvcvideo.h
-@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
-  * struct. The first two fields are added by the driver, they can be used for
-  * clock synchronisation. The rest is an exact copy of a UVC payload header.
-  * Only complete objects with complete buffers are included. Therefore it's
-- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
-+ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
-  */
- struct uvc_meta_buf {
- 	__u64 ns;
+@@ -420,11 +419,6 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
+ 	if (max_ring_order < XEN_9PFS_RING_ORDER)
+ 		return -EINVAL;
+ 
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
+-
+-	priv->dev = dev;
+ 	priv->num_rings = XEN_9PFS_NUM_RINGS;
+ 	priv->rings = kcalloc(priv->num_rings, sizeof(*priv->rings),
+ 			      GFP_KERNEL);
+@@ -482,23 +476,35 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
+ 		goto error;
+ 	}
+ 
+-	write_lock(&xen_9pfs_lock);
+-	list_add_tail(&priv->list, &xen_9pfs_devs);
+-	write_unlock(&xen_9pfs_lock);
+-	dev_set_drvdata(&dev->dev, priv);
+-	xenbus_switch_state(dev, XenbusStateInitialised);
+-
+ 	return 0;
+ 
+  error_xenbus:
+ 	xenbus_transaction_end(xbt, 1);
+ 	xenbus_dev_fatal(dev, ret, "writing xenstore");
+  error:
+-	dev_set_drvdata(&dev->dev, NULL);
+ 	xen_9pfs_front_free(priv);
+ 	return ret;
+ }
+ 
++static int xen_9pfs_front_probe(struct xenbus_device *dev,
++				const struct xenbus_device_id *id)
++{
++	struct xen_9pfs_front_priv *priv = NULL;
++
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->dev = dev;
++	dev_set_drvdata(&dev->dev, priv);
++
++	write_lock(&xen_9pfs_lock);
++	list_add_tail(&priv->list, &xen_9pfs_devs);
++	write_unlock(&xen_9pfs_lock);
++
++	return 0;
++}
++
+ static int xen_9pfs_front_resume(struct xenbus_device *dev)
+ {
+ 	dev_warn(&dev->dev, "suspend/resume unsupported\n");
+@@ -517,6 +523,8 @@ static void xen_9pfs_front_changed(struct xenbus_device *dev,
+ 		break;
+ 
+ 	case XenbusStateInitWait:
++		if (!xen_9pfs_front_init(dev))
++			xenbus_switch_state(dev, XenbusStateInitialised);
+ 		break;
+ 
+ 	case XenbusStateConnected:
 -- 
 2.39.2
 
