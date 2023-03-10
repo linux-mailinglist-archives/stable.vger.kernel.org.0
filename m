@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4DB6B4953
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 447E06B4957
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:11:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233751AbjCJPLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:11:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41794 "EHLO
+        id S233953AbjCJPLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:11:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234008AbjCJPKx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 198A21F5C0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:03:13 -0800 (PST)
+        with ESMTP id S234027AbjCJPLE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:11:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E392CC71
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:03:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91553B82341
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D399BC433EF;
-        Fri, 10 Mar 2023 15:03:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63523B82320
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:03:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44A0C433EF;
+        Fri, 10 Mar 2023 15:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460590;
-        bh=mGOTvhT10kr3HBdlWc4oVYr5iFFuzh9c95yCZ4R8I04=;
+        s=korg; t=1678460593;
+        bh=a+3PT9OUchlhJgpcU534AWA+icGvyEIYFB1zwZppYa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vblJGRpB9FfOiNBYCo5aGFuFk8ICjSw3XFkhZDA30kcSTzdoYJMAaQv8OpZxH21vF
-         O8XvHOZk+xiZ+eY2D+J+KpJhYWLVdtZZ0mDA1QSMKL3JwkYLyPn2yrjURAcZa4zvXk
-         frCheiJnBajs2V8bn3TRq0ed8FW9tXUaMBbAYQbc=
+        b=nxQ0vaqRk4VwLlcu4gBhTk4oMm5SDgS2MvAqFaFrCt1hO19INXdzFxgw83CfnKb37
+         F1t4DRH+WS3Z4MgOa80m/kqofB/6YVWkawA+J6UVpL5149oH1KPX2Fzkd5PQGb/GPn
+         kbVTbjRKf4YA+3qwT53F5cf7EaOZdVRtpWGLer+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 386/529] wifi: rtl8xxxu: Use a longer retry limit of 48
-Date:   Fri, 10 Mar 2023 14:38:49 +0100
-Message-Id: <20230310133822.900150816@linuxfoundation.org>
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 387/529] wifi: cfg80211: Fix use after free for wext
+Date:   Fri, 10 Mar 2023 14:38:50 +0100
+Message-Id: <20230310133822.938802347@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,59 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-commit 2a86aa9a1892d60ef2e3f310f5b42b8b05546d65 upstream.
+commit 015b8cc5e7c4d7bb671f1984d7b7338c310b185b upstream.
 
-The Realtek rate control algorithm goes back and forth a lot between
-the highest and the lowest rate it's allowed to use. This is due to
-a lot of frames being dropped because the retry limits set by
-IEEE80211_CONF_CHANGE_RETRY_LIMITS are too low. (Experimentally, they
-are 4 for long frames and 7 for short frames.)
+Key information in wext.connect is not reset on (re)connect and can hold
+data from a previous connection.
 
-The vendor drivers hardcode the value 48 for both retry limits (for
-station mode), which makes dropped frames very rare and thus the rate
-control is more stable.
+Reset key data to avoid that drivers or mac80211 incorrectly detect a
+WEP connection request and access the freed or already reused memory.
 
-Because most Realtek chips handle the rate control in the firmware,
-which can't be modified, ignore the limits set by
-IEEE80211_CONF_CHANGE_RETRY_LIMITS and use the value 48 (set during
-chip initialisation), same as the vendor drivers.
+Additionally optimize cfg80211_sme_connect() and avoid an useless
+schedule of conn_work.
 
+Fixes: fffd0934b939 ("cfg80211: rework key operation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/477d745b-6bac-111d-403c-487fc19aa30d@gmail.com
+Link: https://lore.kernel.org/r/20230124141856.356646-1-alexander@wetzel-home.de
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ net/wireless/sme.c |   31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5908,7 +5908,6 @@ static int rtl8xxxu_config(struct ieee80
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -269,6 +269,15 @@ void cfg80211_conn_work(struct work_stru
+ 	rtnl_unlock();
+ }
+ 
++static void cfg80211_step_auth_next(struct cfg80211_conn *conn,
++				    struct cfg80211_bss *bss)
++{
++	memcpy(conn->bssid, bss->bssid, ETH_ALEN);
++	conn->params.bssid = conn->bssid;
++	conn->params.channel = bss->channel;
++	conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
++}
++
+ /* Returned bss is reference counted and must be cleaned up appropriately. */
+ static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
  {
- 	struct rtl8xxxu_priv *priv = hw->priv;
- 	struct device *dev = &priv->udev->dev;
--	u16 val16;
- 	int ret = 0, channel;
- 	bool ht40;
+@@ -286,10 +295,7 @@ static struct cfg80211_bss *cfg80211_get
+ 	if (!bss)
+ 		return NULL;
  
-@@ -5918,14 +5917,6 @@ static int rtl8xxxu_config(struct ieee80
- 			 __func__, hw->conf.chandef.chan->hw_value,
- 			 changed, hw->conf.chandef.width);
+-	memcpy(wdev->conn->bssid, bss->bssid, ETH_ALEN);
+-	wdev->conn->params.bssid = wdev->conn->bssid;
+-	wdev->conn->params.channel = bss->channel;
+-	wdev->conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
++	cfg80211_step_auth_next(wdev->conn, bss);
+ 	schedule_work(&rdev->conn_work);
  
--	if (changed & IEEE80211_CONF_CHANGE_RETRY_LIMITS) {
--		val16 = ((hw->conf.long_frame_max_tx_count <<
--			  RETRY_LIMIT_LONG_SHIFT) & RETRY_LIMIT_LONG_MASK) |
--			((hw->conf.short_frame_max_tx_count <<
--			  RETRY_LIMIT_SHORT_SHIFT) & RETRY_LIMIT_SHORT_MASK);
--		rtl8xxxu_write16(priv, REG_RETRY_LIMIT, val16);
--	}
--
- 	if (changed & IEEE80211_CONF_CHANGE_CHANNEL) {
- 		switch (hw->conf.chandef.width) {
- 		case NL80211_CHAN_WIDTH_20_NOHT:
+ 	return bss;
+@@ -568,7 +574,12 @@ static int cfg80211_sme_connect(struct w
+ 	wdev->conn->params.ssid_len = wdev->ssid_len;
+ 
+ 	/* see if we have the bss already */
+-	bss = cfg80211_get_conn_bss(wdev);
++	bss = cfg80211_get_bss(wdev->wiphy, wdev->conn->params.channel,
++			       wdev->conn->params.bssid,
++			       wdev->conn->params.ssid,
++			       wdev->conn->params.ssid_len,
++			       wdev->conn_bss_type,
++			       IEEE80211_PRIVACY(wdev->conn->params.privacy));
+ 
+ 	if (prev_bssid) {
+ 		memcpy(wdev->conn->prev_bssid, prev_bssid, ETH_ALEN);
+@@ -579,6 +590,7 @@ static int cfg80211_sme_connect(struct w
+ 	if (bss) {
+ 		enum nl80211_timeout_reason treason;
+ 
++		cfg80211_step_auth_next(wdev->conn, bss);
+ 		err = cfg80211_conn_do_work(wdev, &treason);
+ 		cfg80211_put_bss(wdev->wiphy, bss);
+ 	} else {
+@@ -1245,6 +1257,15 @@ int cfg80211_connect(struct cfg80211_reg
+ 	} else {
+ 		if (WARN_ON(connkeys))
+ 			return -EINVAL;
++
++		/* connect can point to wdev->wext.connect which
++		 * can hold key data from a previous connection
++		 */
++		connect->key = NULL;
++		connect->key_len = 0;
++		connect->key_idx = 0;
++		connect->crypto.cipher_group = 0;
++		connect->crypto.n_ciphers_pairwise = 0;
+ 	}
+ 
+ 	wdev->connect_keys = connkeys;
 
 
