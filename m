@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 646916B44BC
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D373D6B4665
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232286AbjCJO1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:27:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53266 "EHLO
+        id S232840AbjCJOmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:42:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232298AbjCJO13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:29 -0500
+        with ESMTP id S232804AbjCJOml (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:42:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28080118BF7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:26:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA1D120E9B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:42:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0D54B822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C3EC433D2;
-        Fri, 10 Mar 2023 14:25:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B46AB822DC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:42:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C8A7C433D2;
+        Fri, 10 Mar 2023 14:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458360;
-        bh=9YnypwYQpihCst+WgcQEOLTet+xEiqZhBLwSAQ5gzFQ=;
+        s=korg; t=1678459348;
+        bh=ICUo+3AoOR3DSqV/0peJ+lnKr4GOBjTwhw8DibwD7nE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBGC89D5yX116/uzGlXYbAIn8WxvCMYnorQ/TzK43SMaExrpgiRdOO8nFVmIT9XBt
-         MkpafElqpYugOAUwPT3Si/OUcf/I+iMHTvNDI8cH3zNyx8CR+/9cJaifvCSj4QADeE
-         XYpiWkZAlm2DE7963c55nLMz8IHO3AUqlBrY1RaQ=
+        b=D3PqjRSi8pXJCpaeykJRCzlLhvLD0yiLgciDdG4umqxpmXk6fPR9acQ0azCWZSoo0
+         hEHYX+MKJdbT1QuoMbblf4dXYDhIjnJzIDgyXrIOs3ZVF61a7qQZnDQMgbXcYXICog
+         6GIAc3cwksiVORXp/f7kOh3l04RbZfWpxo8a+tt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Eric Biggers <ebiggers@google.com>, Tejun Heo <tj@kernel.org>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 4.19 251/252] f2fs: fix cgroup writeback accounting with fs-layer encryption
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 332/357] media: uvcvideo: Handle cameras with invalid descriptors
 Date:   Fri, 10 Mar 2023 14:40:21 +0100
-Message-Id: <20230310133727.239052985@linuxfoundation.org>
+Message-Id: <20230310133749.309622686@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
+[ Upstream commit 41ddb251c68ac75c101d3a50a68c4629c9055e4c ]
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), f2fs encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+If the source entity does not contain any pads, do not create a link.
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
-
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
-
-Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/uvc/uvc_entity.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -464,7 +464,7 @@ int f2fs_submit_page_bio(struct f2fs_io_
- 	}
+diff --git a/drivers/media/usb/uvc/uvc_entity.c b/drivers/media/usb/uvc/uvc_entity.c
+index ca3a9c2eec271..7c9895377118c 100644
+--- a/drivers/media/usb/uvc/uvc_entity.c
++++ b/drivers/media/usb/uvc/uvc_entity.c
+@@ -37,7 +37,7 @@ static int uvc_mc_create_links(struct uvc_video_chain *chain,
+ 			continue;
  
- 	if (fio->io_wbc && !is_read_io(fio->op))
--		wbc_account_io(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_io(fio->io_wbc, fio->page, PAGE_SIZE);
+ 		remote = uvc_entity_by_id(chain->dev, entity->baSourceID[i]);
+-		if (remote == NULL)
++		if (remote == NULL || remote->num_pads == 0)
+ 			return -EINVAL;
  
- 	bio_set_op_attrs(bio, fio->op, fio->op_flags);
- 
-@@ -533,7 +533,7 @@ alloc_new:
- 	}
- 
- 	if (fio->io_wbc)
--		wbc_account_io(fio->io_wbc, bio_page, PAGE_SIZE);
-+		wbc_account_io(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	io->last_block_in_bio = fio->new_blkaddr;
- 	f2fs_trace_ios(fio, 0);
+ 		source = (UVC_ENTITY_TYPE(remote) == UVC_TT_STREAMING)
+-- 
+2.39.2
+
 
 
