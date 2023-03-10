@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 299C16B4A34
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:20:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B76616B4AE7
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:27:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233631AbjCJPUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:20:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35988 "EHLO
+        id S234278AbjCJP1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:27:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234067AbjCJPTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:19:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD29125D9D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:10:15 -0800 (PST)
+        with ESMTP id S234280AbjCJP1K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:27:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7C8134AC8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:16:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD63C6187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:10:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B13BCC433D2;
-        Fri, 10 Mar 2023 15:10:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D912B82286
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:10:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA9DAC4339B;
+        Fri, 10 Mar 2023 15:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461015;
-        bh=zC8lk43VVsn404hbBnc8ADXfyQIVTE44HMGfX8Xk4hk=;
+        s=korg; t=1678461018;
+        bh=5f1BYfMrrvm2K95uuqXp0UE0kR9Po0RPJl77QJ/a1a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZ0PCEArTwwqkiAChCZFgEUJMl9xfXAghtI1gy7rrbL2nd9ZunyRwRFqVt8J6moR+
-         mcPeBiUPghPNoXjz41d0IwrrN6aAUKcntWgw027Hsqw322V+0Y1XPfTMXSWsgzcWj7
-         HHVu8EgBSBhoUWygrWMHUPcdJp9adsYGL0Zc3iqE=
+        b=C4v2/VfHqmDaMwC8BKJCQvRsiU57tC7xQjgS/hNm2pLCfl+i0iIeqtdFS6wyRChR1
+         3lOSJ7WWtj/Uc/irhwPPFMdgGEnDZsdRHqmMvfapDNECavMcwHucQ14V0eLqx8dZn3
+         7QuMVvc84ZJBIdEcswMTS4YtkFTLvxWrvxiJyEjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 5.10 527/529] malidp: Fix NULL vs IS_ERR() checking
-Date:   Fri, 10 Mar 2023 14:41:10 +0100
-Message-Id: <20230310133829.228355743@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>
+Subject: [PATCH 5.10 528/529] usb: gadget: uvc: fix missing mutex_unlock() if kstrtou8() fails
+Date:   Fri, 10 Mar 2023 14:41:11 +0100
+Message-Id: <20230310133829.268270187@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,32 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 15342f930ebebcfe36f2415049736a77d7d2e045 upstream.
+commit 7ebb605d2283fb2647b4fa82030307ce00bee436 upstream.
 
-The get_sg_table() function does not return NULL.
-It returns error pointers.
+If kstrtou8() fails, the mutex_unlock() is missed, move kstrtou8()
+before mutex_lock() to fix it up.
 
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
-Link: https://lore.kernel.org/dri-devel/20211213072115.18098-1-linmq006@gmail.com/
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+Fixes: 0525210c9840 ("usb: gadget: uvc: Allow definition of XUs in configfs")
+Fixes: b3c839bd8a07 ("usb: gadget: uvc: Make bSourceID read/write")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20230213070926.776447-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/arm/malidp_planes.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_configfs.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/arm/malidp_planes.c
-+++ b/drivers/gpu/drm/arm/malidp_planes.c
-@@ -348,7 +348,7 @@ static bool malidp_check_pages_threshold
- 		else
- 			sgt = obj->funcs->get_sg_table(obj);
+--- a/drivers/usb/gadget/function/uvc_configfs.c
++++ b/drivers/usb/gadget/function/uvc_configfs.c
+@@ -546,6 +546,10 @@ static ssize_t uvcg_default_output_b_sou
+ 	int result;
+ 	u8 num;
  
--		if (!sgt)
-+		if (IS_ERR(sgt))
- 			return false;
++	result = kstrtou8(page, 0, &num);
++	if (result)
++		return result;
++
+ 	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
  
- 		sgl = sgt->sgl;
+ 	opts_item = group->cg_item.ci_parent->ci_parent->
+@@ -553,10 +557,6 @@ static ssize_t uvcg_default_output_b_sou
+ 	opts = to_f_uvc_opts(opts_item);
+ 	cd = &opts->uvc_output_terminal;
+ 
+-	result = kstrtou8(page, 0, &num);
+-	if (result)
+-		return result;
+-
+ 	mutex_lock(&opts->lock);
+ 	cd->bSourceID = num;
+ 	mutex_unlock(&opts->lock);
 
 
