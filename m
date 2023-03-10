@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D88B56B452F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0A96B40AC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232474AbjCJObo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:31:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33570 "EHLO
+        id S230154AbjCJNou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:44:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232466AbjCJOb2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9E0DE1DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:33 -0800 (PST)
+        with ESMTP id S229523AbjCJNot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:44:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8289387359
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:44:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D9DD6191D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74BEDC433D2;
-        Fri, 10 Mar 2023 14:30:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17B6BB822B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:44:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13CEEC433D2;
+        Fri, 10 Mar 2023 13:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458632;
-        bh=zgWl2ppkWQ9Q4XbjYNMGClQNmCQ1qh7b/+50aYuQoIE=;
+        s=korg; t=1678455885;
+        bh=TGryrwuA6HKr9VvU/8RU+K/sgCT6aPGkXxCYLy38lwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQLaK7wtSyO6hlOe6riOeMVkaASUKVtHP67qkh+K/eJ5IjGHx6TxV6pYuUnO9ZFpS
-         +h2jrG7k34Lc1vHNDdUkTjMa6KyR6qxHB35KJOkcQFTwCWAUuRczzi+FfN1HLLhXm4
-         snHlXTCXx3r6ZVt6J8iFLEByB829IvdZwGm5NU4g=
+        b=bh6gK51E1vsmGzNjzBK9lIVWUzpR5iT9e/455BopE6Hon2OKzNdJMqTed2uEKJO6M
+         PyDslfR5FE0Y1M2RAlmfrKhZJGXm7ziYTymjLI4kq/UcG6KtBiPDXZ+5jZ1QYheVuw
+         4sOyZFGF+dHjiinsE37N+czKBIEmA0ANGyi6Q+Y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/357] irqchip/irq-bcm7120-l2: Set IRQ_LEVEL for level triggered interrupts
-Date:   Fri, 10 Mar 2023 14:36:22 +0100
-Message-Id: <20230310133738.110197678@linuxfoundation.org>
+        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 001/193] ARM: dts: rockchip: add power-domains property to dp node on rk3288
+Date:   Fri, 10 Mar 2023 14:36:23 +0100
+Message-Id: <20230310133710.974830282@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,41 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 13a157b38ca5b4f9eed81442b8821db293755961 ]
+[ Upstream commit 80422339a75088322b4d3884bd12fa0fe5d11050 ]
 
-When support for the interrupt controller was added with a5042de2688d,
-we forgot to update the flags to be set to contain IRQ_LEVEL. While the
-flow handler is correct, the output from /proc/interrupts does not show
-such interrupts as being level triggered when they are, correct that.
+The clocks in the Rockchip rk3288 DisplayPort node are
+included in the power-domain@RK3288_PD_VIO logic, but the
+power-domains property in the dp node is missing, so fix it.
 
-Fixes: a5042de2688d ("irqchip: bcm7120-l2: Add Broadcom BCM7120-style Level 2 interrupt controller")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221216230934.2478345-3-f.fainelli@gmail.com
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/dab85bfb-9f55-86a1-5cd5-7388c43e0ec5@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-bcm7120-l2.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/rk3288.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/irqchip/irq-bcm7120-l2.c b/drivers/irqchip/irq-bcm7120-l2.c
-index 586df3587be06..d308bbe6f5286 100644
---- a/drivers/irqchip/irq-bcm7120-l2.c
-+++ b/drivers/irqchip/irq-bcm7120-l2.c
-@@ -268,7 +268,8 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
- 		flags |= IRQ_GC_BE_IO;
- 
- 	ret = irq_alloc_domain_generic_chips(data->domain, IRQS_PER_WORD, 1,
--				dn->full_name, handle_level_irq, clr, 0, flags);
-+				dn->full_name, handle_level_irq, clr,
-+				IRQ_LEVEL, flags);
- 	if (ret) {
- 		pr_err("failed to allocate generic irq chip\n");
- 		goto out_free_domain;
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 872e4e690beb4..c3440adc763ce 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -1096,6 +1096,7 @@ edp: dp@ff970000 {
+ 		clock-names = "dp", "pclk";
+ 		phys = <&edp_phy>;
+ 		phy-names = "dp";
++		power-domains = <&power RK3288_PD_VIO>;
+ 		resets = <&cru SRST_EDP>;
+ 		reset-names = "dp";
+ 		rockchip,grf = <&grf>;
 -- 
-2.39.2
+2.39.0
 
 
 
