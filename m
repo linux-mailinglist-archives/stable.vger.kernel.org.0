@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4626B45ED
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE406B444A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232714AbjCJOiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50154 "EHLO
+        id S232288AbjCJOWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232747AbjCJOil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280B958B44
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:19 -0800 (PST)
+        with ESMTP id S232041AbjCJOW1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E6812857
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEA5BB822DE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C306C4339C;
-        Fri, 10 Mar 2023 14:38:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 533DDB822B5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97886C433D2;
+        Fri, 10 Mar 2023 14:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459097;
-        bh=qBdIMnChHF7gI12WtzrqELC3IT7yk5d25GmltChWsow=;
+        s=korg; t=1678458106;
+        bh=Gqs/LELoLYzOfnMHoUTx1og3wVOcv1jv0FrgVA4eL4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvjO0ev8jA3RbXOVbbqKNL5vas+2qUnnY2NQ9o61gB6Flc7lrPHVWLNroFmIlrVNN
-         aIYIgv5w+kKXQEp0lUUfpLgxde5Ch/FzfqghEy4W04Cjfy6/Ac2Pv2Pmcg3EKHgwy4
-         +4xBlZ9T51dfd2n2ls5vQZh9Cv1V0XRDRuUWfI6A=
+        b=H2pQecMrCOT1NbRnHIguNi4jAFUjK31Ve8qEQBcic1EhMZDWbuT7l6AmEuygA6SCh
+         JlsuvATbVODLZ0lpJQdHeX9MnOCs6JytckGqKKamh2uEHyulXCFp9nnX9KGfULuJqr
+         D0QeEvt79kqzKS+xz0urvrt5FdDO6HSCBAWWlzP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 246/357] irqdomain: Fix disassociation race
-Date:   Fri, 10 Mar 2023 14:38:55 +0100
-Message-Id: <20230310133745.601096931@linuxfoundation.org>
+        patches@lists.linux.dev, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.19 166/252] ima: Align ima_file_mmap() parameters with mmap_file LSM hook
+Date:   Fri, 10 Mar 2023 14:38:56 +0100
+Message-Id: <20230310133723.881324410@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,51 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 3f883c38f5628f46b30bccf090faec054088e262 upstream.
+commit 4971c268b85e1c7a734a61622fc0813c86e2362e upstream.
 
-The global irq_domain_mutex is held when mapping interrupts from
-non-hierarchical domains but currently not when disposing them.
+Commit 98de59bfe4b2f ("take calculation of final prot in
+security_mmap_file() into a helper") moved the code to update prot, to be
+the actual protections applied to the kernel, to a new helper called
+mmap_prot().
 
-This specifically means that updates of the domain mapcount is racy
-(currently only used for statistics in debugfs).
+However, while without the helper ima_file_mmap() was getting the updated
+prot, with the helper ima_file_mmap() gets the original prot, which
+contains the protections requested by the application.
 
-Make sure to hold the global irq_domain_mutex also when disposing
-mappings from non-hierarchical domains.
+A possible consequence of this change is that, if an application calls
+mmap() with only PROT_READ, and the kernel applies PROT_EXEC in addition,
+that application would have access to executable memory without having this
+event recorded in the IMA measurement list. This situation would occur for
+example if the application, before mmap(), calls the personality() system
+call with READ_IMPLIES_EXEC as the first argument.
 
-Fixes: 9dc6be3d4193 ("genirq/irqdomain: Add map counter")
-Cc: stable@vger.kernel.org      # 4.13
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-3-johan+linaro@kernel.org
+Align ima_file_mmap() parameters with those of the mmap_file LSM hook, so
+that IMA can receive both the requested prot and the final prot. Since the
+requested protections are stored in a new variable, and the final
+protections are stored in the existing variable, this effectively restores
+the original behavior of the MMAP_CHECK hook.
+
+Cc: stable@vger.kernel.org
+Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ include/linux/ima.h               |    6 ++++--
+ security/integrity/ima/ima_main.c |    7 +++++--
+ security/security.c               |    7 ++++---
+ 3 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -509,6 +509,9 @@ void irq_domain_disassociate(struct irq_
- 		return;
- 
- 	hwirq = irq_data->hwirq;
-+
-+	mutex_lock(&irq_domain_mutex);
-+
- 	irq_set_status_flags(irq, IRQ_NOREQUEST);
- 
- 	/* remove chip and handler */
-@@ -528,6 +531,8 @@ void irq_domain_disassociate(struct irq_
- 
- 	/* Clear reverse map for this hwirq */
- 	irq_domain_clear_mapping(domain, hwirq);
-+
-+	mutex_unlock(&irq_domain_mutex);
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -19,7 +19,8 @@ struct linux_binprm;
+ extern int ima_bprm_check(struct linux_binprm *bprm);
+ extern int ima_file_check(struct file *file, int mask);
+ extern void ima_file_free(struct file *file);
+-extern int ima_file_mmap(struct file *file, unsigned long prot);
++extern int ima_file_mmap(struct file *file, unsigned long reqprot,
++			 unsigned long prot, unsigned long flags);
+ extern int ima_load_data(enum kernel_load_data_id id);
+ extern int ima_read_file(struct file *file, enum kernel_read_file_id id);
+ extern int ima_post_read_file(struct file *file, void *buf, loff_t size,
+@@ -46,7 +47,8 @@ static inline void ima_file_free(struct
+ 	return;
  }
  
- static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
+-static inline int ima_file_mmap(struct file *file, unsigned long prot)
++static inline int ima_file_mmap(struct file *file, unsigned long reqprot,
++				unsigned long prot, unsigned long flags)
+ {
+ 	return 0;
+ }
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -323,7 +323,9 @@ out:
+ /**
+  * ima_file_mmap - based on policy, collect/store measurement.
+  * @file: pointer to the file to be measured (May be NULL)
+- * @prot: contains the protection that will be applied by the kernel.
++ * @reqprot: protection requested by the application
++ * @prot: protection that will be applied by the kernel
++ * @flags: operational flags
+  *
+  * Measure files being mmapped executable based on the ima_must_measure()
+  * policy decision.
+@@ -331,7 +333,8 @@ out:
+  * On success return 0.  On integrity appraisal error, assuming the file
+  * is in policy and IMA-appraisal is in enforcing mode, return -EACCES.
+  */
+-int ima_file_mmap(struct file *file, unsigned long prot)
++int ima_file_mmap(struct file *file, unsigned long reqprot,
++		  unsigned long prot, unsigned long flags)
+ {
+ 	u32 secid;
+ 
+--- a/security/security.c
++++ b/security/security.c
+@@ -926,12 +926,13 @@ static inline unsigned long mmap_prot(st
+ int security_mmap_file(struct file *file, unsigned long prot,
+ 			unsigned long flags)
+ {
++	unsigned long prot_adj = mmap_prot(file, prot);
+ 	int ret;
+-	ret = call_int_hook(mmap_file, 0, file, prot,
+-					mmap_prot(file, prot), flags);
++
++	ret = call_int_hook(mmap_file, 0, file, prot, prot_adj, flags);
+ 	if (ret)
+ 		return ret;
+-	return ima_file_mmap(file, prot);
++	return ima_file_mmap(file, prot, prot_adj, flags);
+ }
+ 
+ int security_mmap_addr(unsigned long addr)
 
 
