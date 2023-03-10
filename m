@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 262B36B4206
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 866E86B458A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbjCJN66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:58:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45450 "EHLO
+        id S232421AbjCJOei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:34:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231392AbjCJN65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:57 -0500
+        with ESMTP id S232415AbjCJOe0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:34:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1489FE9CC3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93AE01BADF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:34:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A20AB616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5077C433EF;
-        Fri, 10 Mar 2023 13:58:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3056661745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:34:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32469C4339C;
+        Fri, 10 Mar 2023 14:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456735;
-        bh=4lnI+5Kb8MywBCiDi5A3cBTfxTbIBDrqoA3KNl/THWo=;
+        s=korg; t=1678458864;
+        bh=r4sQguZ+i/cZlqPM1CYzJ3qXU0fSxlMDDzyhokLGqzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDJSjL+1TrmCb1GRtoOdjRNyc1VP9Ivur0Kgj1+FcDwnvKHvjWwQuQgueOI3nIniO
-         J/yJIf/2xsvlzEJyrfvHL8DdIlhl6oUA3LH+KxVAPYSBmoygN1LHuziYjPmYGci4RN
-         0weXr3RKDnnm+ppxqtA7sBbJOBjo+DP2xBx7cFjk=
+        b=pWFhNHR/7J9JGNN+APqzA1h16oHJW9t0qIgCgujMfmR1g9a7A9ZHgh4yu8etkG6Ux
+         IuQfdk28hSZrgVOK1jujhsH0m2Z7uorksHSI/fcGfdyMiAJ2Cyq9nt7zpBXIB9gi3k
+         aOPntw+GZP7fvuYXHVrxFM5h0MDsNGGCrGxk3tlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geetha sowjanya <gakula@marvell.com>,
-        Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        Sai Krishna <saikrishnag@marvell.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 078/211] octeontx2-pf: Recalculate UDP checksum for ptp 1-step sync packet
+Subject: [PATCH 5.4 169/357] powerpc: Remove linker flag from KBUILD_AFLAGS
 Date:   Fri, 10 Mar 2023 14:37:38 +0100
-Message-Id: <20230310133721.152024808@linuxfoundation.org>
+Message-Id: <20230310133742.178515761@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,171 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit edea0c5a994b7829c9ada8f5bc762c4e32f4f797 ]
+[ Upstream commit 31f48f16264bc70962fb3e7ec62da64d0a2ba04a ]
 
-When checksum offload is disabled in the driver via ethtool,
-the PTP 1-step sync packets contain incorrect checksum, since
-the stack calculates the checksum before driver updates
-PTP timestamp field in the packet. This results in PTP packets
-getting dropped at the other end. This patch fixes the issue by
-re-calculating the UDP checksum after updating PTP
-timestamp field in the driver.
+When clang's -Qunused-arguments is dropped from KBUILD_CPPFLAGS, it
+points out that KBUILD_AFLAGS contains a linker flag, which will be
+unused:
 
-Fixes: 2958d17a8984 ("octeontx2-pf: Add support for ptp 1-step mode on CN10K silicon")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Signed-off-by: Sai Krishna <saikrishnag@marvell.com>
-Link: https://lore.kernel.org/r/20230222113600.1965116-1-saikrishnag@marvell.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+  clang: error: -Wl,-a32: 'linker' input unused [-Werror,-Wunused-command-line-argument]
+
+This was likely supposed to be '-Wa,-a$(BITS)'. However, this change is
+unnecessary, as all supported versions of clang and gcc will pass '-a64'
+or '-a32' to GNU as based on the value of '-m'; the behavior of the
+latest stable release of the oldest supported major version of each
+compiler is shown below and each compiler's latest release exhibits the
+same behavior (GCC 12.2.0 and Clang 15.0.6).
+
+  $ powerpc64-linux-gcc --version | head -1
+  powerpc64-linux-gcc (GCC) 5.5.0
+
+  $ powerpc64-linux-gcc -m64 -### -x assembler-with-cpp -c -o /dev/null /dev/null &| grep 'as '
+  .../as -a64 -mppc64 -many -mbig -o /dev/null /tmp/cctwuBzZ.s
+
+  $ powerpc64-linux-gcc -m32 -### -x assembler-with-cpp -c -o /dev/null /dev/null &| grep 'as '
+  .../as -a32 -mppc -many -mbig -o /dev/null /tmp/ccaZP4mF.sg
+
+  $ clang --version | head -1
+  Ubuntu clang version 11.1.0-++20211011094159+1fdec59bffc1-1~exp1~20211011214622.5
+
+  $ clang --target=powerpc64-linux-gnu -fno-integrated-as -m64 -### \
+    -x assembler-with-cpp -c -o /dev/null /dev/null &| grep gnu-as
+   "/usr/bin/powerpc64-linux-gnu-as" "-a64" "-mppc64" "-many" "-o" "/dev/null" "/tmp/null-80267c.s"
+
+  $ clang --target=powerpc64-linux-gnu -fno-integrated-as -m64 -### \
+    -x assembler-with-cpp -c -o /dev/null /dev/null &| grep gnu-as
+   "/usr/bin/powerpc64-linux-gnu-as" "-a32" "-mppc" "-many" "-o" "/dev/null" "/tmp/null-ab8f8d.s"
+
+Remove this flag altogether to avoid future issues.
+
+Fixes: 1421dc6d4829 ("powerpc/kbuild: Use flags variables rather than overriding LD/CC/AS")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../marvell/octeontx2/nic/otx2_txrx.c         | 76 ++++++++++++++-----
- 1 file changed, 57 insertions(+), 19 deletions(-)
+ arch/powerpc/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c
-index ef10aef3cda02..7045fedfd73a0 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_txrx.c
-@@ -10,6 +10,7 @@
- #include <net/tso.h>
- #include <linux/bpf.h>
- #include <linux/bpf_trace.h>
-+#include <net/ip6_checksum.h>
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 95183a717eb67..6c32ea6dc7558 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -93,7 +93,7 @@ aflags-$(CONFIG_CPU_LITTLE_ENDIAN)	+= -mlittle-endian
  
- #include "otx2_reg.h"
- #include "otx2_common.h"
-@@ -699,7 +700,7 @@ static void otx2_sqe_add_ext(struct otx2_nic *pfvf, struct otx2_snd_queue *sq,
+ ifeq ($(HAS_BIARCH),y)
+ KBUILD_CFLAGS	+= -m$(BITS)
+-KBUILD_AFLAGS	+= -m$(BITS) -Wl,-a$(BITS)
++KBUILD_AFLAGS	+= -m$(BITS)
+ KBUILD_LDFLAGS	+= -m elf$(BITS)$(LDEMULATION)
+ endif
  
- static void otx2_sqe_add_mem(struct otx2_snd_queue *sq, int *offset,
- 			     int alg, u64 iova, int ptp_offset,
--			     u64 base_ns, int udp_csum)
-+			     u64 base_ns, bool udp_csum_crt)
- {
- 	struct nix_sqe_mem_s *mem;
- 
-@@ -711,7 +712,7 @@ static void otx2_sqe_add_mem(struct otx2_snd_queue *sq, int *offset,
- 
- 	if (ptp_offset) {
- 		mem->start_offset = ptp_offset;
--		mem->udp_csum_crt = udp_csum;
-+		mem->udp_csum_crt = !!udp_csum_crt;
- 		mem->base_ns = base_ns;
- 		mem->step_type = 1;
- 	}
-@@ -986,10 +987,11 @@ static bool otx2_validate_network_transport(struct sk_buff *skb)
- 	return false;
- }
- 
--static bool otx2_ptp_is_sync(struct sk_buff *skb, int *offset, int *udp_csum)
-+static bool otx2_ptp_is_sync(struct sk_buff *skb, int *offset, bool *udp_csum_crt)
- {
- 	struct ethhdr *eth = (struct ethhdr *)(skb->data);
- 	u16 nix_offload_hlen = 0, inner_vhlen = 0;
-+	bool udp_hdr_present = false, is_sync;
- 	u8 *data = skb->data, *msgtype;
- 	__be16 proto = eth->h_proto;
- 	int network_depth = 0;
-@@ -1029,45 +1031,81 @@ static bool otx2_ptp_is_sync(struct sk_buff *skb, int *offset, int *udp_csum)
- 		if (!otx2_validate_network_transport(skb))
- 			return false;
- 
--		*udp_csum = 1;
- 		*offset = nix_offload_hlen + skb_transport_offset(skb) +
- 			  sizeof(struct udphdr);
-+		udp_hdr_present = true;
-+
- 	}
- 
- 	msgtype = data + *offset;
--
- 	/* Check PTP messageId is SYNC or not */
--	return (*msgtype & 0xf) == 0;
-+	is_sync = !(*msgtype & 0xf);
-+	if (is_sync)
-+		*udp_csum_crt = udp_hdr_present;
-+	else
-+		*offset = 0;
-+
-+	return is_sync;
- }
- 
- static void otx2_set_txtstamp(struct otx2_nic *pfvf, struct sk_buff *skb,
- 			      struct otx2_snd_queue *sq, int *offset)
- {
-+	struct ethhdr	*eth = (struct ethhdr *)(skb->data);
- 	struct ptpv2_tstamp *origin_tstamp;
--	int ptp_offset = 0, udp_csum = 0;
-+	bool udp_csum_crt = false;
-+	unsigned int udphoff;
- 	struct timespec64 ts;
-+	int ptp_offset = 0;
-+	__wsum skb_csum;
- 	u64 iova;
- 
- 	if (unlikely(!skb_shinfo(skb)->gso_size &&
- 		     (skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP))) {
--		if (unlikely(pfvf->flags & OTX2_FLAG_PTP_ONESTEP_SYNC)) {
--			if (otx2_ptp_is_sync(skb, &ptp_offset, &udp_csum)) {
--				origin_tstamp = (struct ptpv2_tstamp *)
--						((u8 *)skb->data + ptp_offset +
--						 PTP_SYNC_SEC_OFFSET);
--				ts = ns_to_timespec64(pfvf->ptp->tstamp);
--				origin_tstamp->seconds_msb = htons((ts.tv_sec >> 32) & 0xffff);
--				origin_tstamp->seconds_lsb = htonl(ts.tv_sec & 0xffffffff);
--				origin_tstamp->nanoseconds = htonl(ts.tv_nsec);
--				/* Point to correction field in PTP packet */
--				ptp_offset += 8;
-+		if (unlikely(pfvf->flags & OTX2_FLAG_PTP_ONESTEP_SYNC &&
-+			     otx2_ptp_is_sync(skb, &ptp_offset, &udp_csum_crt))) {
-+			origin_tstamp = (struct ptpv2_tstamp *)
-+					((u8 *)skb->data + ptp_offset +
-+					 PTP_SYNC_SEC_OFFSET);
-+			ts = ns_to_timespec64(pfvf->ptp->tstamp);
-+			origin_tstamp->seconds_msb = htons((ts.tv_sec >> 32) & 0xffff);
-+			origin_tstamp->seconds_lsb = htonl(ts.tv_sec & 0xffffffff);
-+			origin_tstamp->nanoseconds = htonl(ts.tv_nsec);
-+			/* Point to correction field in PTP packet */
-+			ptp_offset += 8;
-+
-+			/* When user disables hw checksum, stack calculates the csum,
-+			 * but it does not cover ptp timestamp which is added later.
-+			 * Recalculate the checksum manually considering the timestamp.
-+			 */
-+			if (udp_csum_crt) {
-+				struct udphdr *uh = udp_hdr(skb);
-+
-+				if (skb->ip_summed != CHECKSUM_PARTIAL && uh->check != 0) {
-+					udphoff = skb_transport_offset(skb);
-+					uh->check = 0;
-+					skb_csum = skb_checksum(skb, udphoff, skb->len - udphoff,
-+								0);
-+					if (ntohs(eth->h_proto) == ETH_P_IPV6)
-+						uh->check = csum_ipv6_magic(&ipv6_hdr(skb)->saddr,
-+									    &ipv6_hdr(skb)->daddr,
-+									    skb->len - udphoff,
-+									    ipv6_hdr(skb)->nexthdr,
-+									    skb_csum);
-+					else
-+						uh->check = csum_tcpudp_magic(ip_hdr(skb)->saddr,
-+									      ip_hdr(skb)->daddr,
-+									      skb->len - udphoff,
-+									      IPPROTO_UDP,
-+									      skb_csum);
-+				}
- 			}
- 		} else {
- 			skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
- 		}
- 		iova = sq->timestamps->iova + (sq->head * sizeof(u64));
- 		otx2_sqe_add_mem(sq, offset, NIX_SENDMEMALG_E_SETTSTMP, iova,
--				 ptp_offset, pfvf->ptp->base_ns, udp_csum);
-+				 ptp_offset, pfvf->ptp->base_ns, udp_csum_crt);
- 	} else {
- 		skb_tx_timestamp(skb);
- 	}
 -- 
 2.39.2
 
