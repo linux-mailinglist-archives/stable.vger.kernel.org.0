@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4F56B40C0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8804F6B43AF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230162AbjCJNpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:45:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43918 "EHLO
+        id S232112AbjCJOQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:16:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbjCJNpl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:41 -0500
+        with ESMTP id S231831AbjCJOQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07D93A337B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6D9DABB4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A67F617C8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:45:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29033C433D2;
-        Fri, 10 Mar 2023 13:45:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3748861771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49388C433EF;
+        Fri, 10 Mar 2023 14:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455939;
-        bh=6uyyjKz/ebMty0dd/pvTKNhJLuHPpzt/JYKcIZL2Ybg=;
+        s=korg; t=1678457728;
+        bh=NMrqUrsRs8AvMQtBLRF6K5Yh5aBmqg68/evaDnOVldw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R7wuBKjy79ihF9D8EnU+mKIWRFwrYkC0flY1WRd0cS8dKAu7Z86zouC0RILMFABsQ
-         BqMfp6I64gfIPWIdIHGkK+zyzmmMalgg3v0DqiAX7AfUMyL1p9Nk3IYKvLgIlvSz0y
-         iUjg8P+4ABz636fV0dcNCWtOC/YrdhOVV7t1gBFs=
+        b=IAh3BBzsQMlcWDM3h041x7WF1rLz+GMOksT/J6homPLuDf/OMrchXrnb9xqfFJmGm
+         JXcEXeAc8Mp3XioBFsu6WUqwIFXndYfFYwBFlZ31O125AFoGwKAWoDEy3sR5BR1uDK
+         8mh47Fm9zUjg/xpesvQHZR0/0fCS4LldhVl15hqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 026/193] wifi: rtl8xxxu: dont call dev_kfree_skb() under spin_lock_irqsave()
+        patches@lists.linux.dev,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 038/252] ACPICA: nsrepair: handle cases without a return value correctly
 Date:   Fri, 10 Mar 2023 14:36:48 +0100
-Message-Id: <20230310133711.825530350@linuxfoundation.org>
+Message-Id: <20230310133719.979276336@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit 4c2005ac87685907b3719b4f40215b578efd27c4 ]
+[ Upstream commit ca843a4c79486e99a19b859ef0b9887854afe146 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+Previously acpi_ns_simple_repair() would crash if expected_btypes
+contained any combination of ACPI_RTYPE_NONE with a different type,
+e.g | ACPI_RTYPE_INTEGER because of slightly incorrect logic in the
+!return_object branch, which wouldn't return AE_AML_NO_RETURN_VALUE
+for such cases.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-In this case, dev_kfree_skb() is called to free and drop the SKB when
-it's shutdown, so replace it with dev_kfree_skb_irq(). Compile tested
-only.
-
-Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221208143517.2383424-1-yangyingliang@huawei.com
+Link: https://github.com/acpica/acpica/pull/811
+Fixes: 61db45ca2163 ("ACPICA: Restore code that repairs NULL package elements in return values.")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpica/nsrepair.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index f7c879a7a1be3..c9fe9383026e2 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5101,7 +5101,7 @@ static void rtl8xxxu_queue_rx_urb(struct rtl8xxxu_priv *priv,
- 		pending = priv->rx_urb_pending_count;
- 	} else {
- 		skb = (struct sk_buff *)rx_urb->urb.context;
--		dev_kfree_skb(skb);
-+		dev_kfree_skb_irq(skb);
- 		usb_free_urb(&rx_urb->urb);
+diff --git a/drivers/acpi/acpica/nsrepair.c b/drivers/acpi/acpica/nsrepair.c
+index ff2ab8fbec384..8de80bf7802b4 100644
+--- a/drivers/acpi/acpica/nsrepair.c
++++ b/drivers/acpi/acpica/nsrepair.c
+@@ -181,8 +181,9 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
+ 	 * Try to fix if there was no return object. Warning if failed to fix.
+ 	 */
+ 	if (!return_object) {
+-		if (expected_btypes && (!(expected_btypes & ACPI_RTYPE_NONE))) {
+-			if (package_index != ACPI_NOT_PACKAGE_ELEMENT) {
++		if (expected_btypes) {
++			if (!(expected_btypes & ACPI_RTYPE_NONE) &&
++			    package_index != ACPI_NOT_PACKAGE_ELEMENT) {
+ 				ACPI_WARN_PREDEFINED((AE_INFO,
+ 						      info->full_pathname,
+ 						      ACPI_WARN_ALWAYS,
+@@ -196,14 +197,15 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
+ 				if (ACPI_SUCCESS(status)) {
+ 					return (AE_OK);	/* Repair was successful */
+ 				}
+-			} else {
++			}
++
++			if (expected_btypes != ACPI_RTYPE_NONE) {
+ 				ACPI_WARN_PREDEFINED((AE_INFO,
+ 						      info->full_pathname,
+ 						      ACPI_WARN_ALWAYS,
+ 						      "Missing expected return value"));
++				return (AE_AML_NO_RETURN_VALUE);
+ 			}
+-
+-			return (AE_AML_NO_RETURN_VALUE);
+ 		}
  	}
  
 -- 
