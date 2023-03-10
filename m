@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B076B482D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 033536B44EB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233339AbjCJPAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:00:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46646 "EHLO
+        id S232284AbjCJO3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:29:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233692AbjCJO7c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:59:32 -0500
+        with ESMTP id S232433AbjCJO3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D0A1717B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:53:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED14F2F7A7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:27:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9178CB82301
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E694AC4339B;
-        Fri, 10 Mar 2023 14:52:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93BDDB822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:27:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBB64C433EF;
+        Fri, 10 Mar 2023 14:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459968;
-        bh=1nGAQCqyAUnxXvyeM5Q+k0olIqOrc2IBOP5PcmFTr9E=;
+        s=korg; t=1678458454;
+        bh=f0nVKhNDPzhfCKNRFI3VygVHIA+Vz8P9OjPnVWdO9iI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ji4jC+8Pj7e5iFPmS0dlgkRFCwIwxWEh74y3l0DyaggnFi18kwpJEnnU4v7zHeF7B
-         dIu8a1qk0TlBlRlJdFZ8xcpFxGVz0CMPmpVbhZQIAA7I5sNuTu2+RSLkFea21mcxR4
-         0+6NYXKTWIgVwpEAFFkpOzYq5IEF3dcQVakPr8yI=
+        b=LjlD5YIGFcQipe5YUELf7KCc6m9Vl+qtEsfKyN/uf/z8mpDaN8fBrwVKtWmJbZMYe
+         dX1ASQRNpx8FBs5qQRgZcym3wl+/5XgKm+oIioGEVrMM3CHAzvqvAVWEBr2wjOlAHx
+         WvfI35Ocwfd1miMVRg0Pm3UWGPLojmJ9/esCMsrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 178/529] drm/msm/dpu: Add check for cstate
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 032/357] wifi: rsi: Fix memory leak in rsi_coex_attach()
 Date:   Fri, 10 Mar 2023 14:35:21 +0100
-Message-Id: <20230310133813.186663698@linuxfoundation.org>
+Message-Id: <20230310133735.426673563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit c96988b7d99327bb08bd9efd29a203b22cd88ace ]
+[ Upstream commit 956fb851a6e19da5ab491e19c1bc323bb2c2cf6f ]
 
-As kzalloc may fail and return NULL pointer,
-it should be better to check cstate
-in order to avoid the NULL pointer dereference
-in __drm_atomic_helper_crtc_reset.
+The coex_cb needs to be freed when rsi_create_kthread() failed in
+rsi_coex_attach().
 
-Fixes: 1cff7440a86e ("drm/msm: Convert to using __drm_atomic_helper_crtc_reset() for reset.")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/514163/
-Link: https://lore.kernel.org/r/20221206080517.43786-1-jiasheng@iscas.ac.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 2108df3c4b18 ("rsi: add coex support")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221205061441.114632-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_coex.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index f56414a06ec41..d6e9efed8b6a3 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -682,7 +682,10 @@ static void dpu_crtc_reset(struct drm_crtc *crtc)
- 	if (crtc->state)
- 		dpu_crtc_destroy_state(crtc, crtc->state);
- 
--	__drm_atomic_helper_crtc_reset(crtc, &cstate->base);
-+	if (cstate)
-+		__drm_atomic_helper_crtc_reset(crtc, &cstate->base);
-+	else
-+		__drm_atomic_helper_crtc_reset(crtc, NULL);
- }
- 
- /**
+diff --git a/drivers/net/wireless/rsi/rsi_91x_coex.c b/drivers/net/wireless/rsi/rsi_91x_coex.c
+index c8ba148f8c6cf..acf4d8cb4b479 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_coex.c
++++ b/drivers/net/wireless/rsi/rsi_91x_coex.c
+@@ -160,6 +160,7 @@ int rsi_coex_attach(struct rsi_common *common)
+ 			       rsi_coex_scheduler_thread,
+ 			       "Coex-Tx-Thread")) {
+ 		rsi_dbg(ERR_ZONE, "%s: Unable to init tx thrd\n", __func__);
++		kfree(coex_cb);
+ 		return -EINVAL;
+ 	}
+ 	return 0;
 -- 
 2.39.2
 
