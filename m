@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9576A6B48B4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:06:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 200566B48C2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233080AbjCJPGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:06:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36652 "EHLO
+        id S233803AbjCJPGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:06:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231336AbjCJPFa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:05:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7E31241FD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:58:47 -0800 (PST)
+        with ESMTP id S233801AbjCJPGZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:06:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98C926C06
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:59:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D38EB822E5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89DC2C433D2;
-        Fri, 10 Mar 2023 14:57:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E3F1B82315
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BABC4339B;
+        Fri, 10 Mar 2023 14:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460259;
-        bh=qis+eYYzC2GGf9NGKeVBnzSivi6anabzUl8GqOHH+ko=;
+        s=korg; t=1678460265;
+        bh=TItNAgtP/E7/tEGF1cRq/A1AGqaclXGzOMTHHlVY3/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmviwX5Gdk17ya+NliuVSmeP1JRL/ZQe3oEaT8DwUDsZIVwfrvXdMfkXi2gHi7jJm
-         PsdvuqeECtTbDkgGa3SDgcgf592U8CjSQfv1ducnBjTSpfUAySdN1VkDLXsBZypWWN
-         wf21K02LasuaIyb+DlQv5PcLohqTH9r72DzKN3O0=
+        b=HFaU342+kcy5ubDTdQ9pIuoF9VcO6qbFsev1El263KRmqNZXHZBFTXaKeyZ2UJwVe
+         HjGm6IPufAaLDWf61cZSHpzEObhgoyNCKv1PpIRFLKLIBDrNZuOGs9Z+wG8g+EKhzW
+         3gv08Gb8G5PGzKwDilLsURyVX+SMbZpYvKpRmq60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Andrew Jeffery <andrew@aj.id.au>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 248/529] clk: qcom: gpucc-sdm845: fix clk_dis_wait being programmed for CX GDSC
-Date:   Fri, 10 Mar 2023 14:36:31 +0100
-Message-Id: <20230310133816.455745826@linuxfoundation.org>
+Subject: [PATCH 5.10 249/529] powerpc/powernv/ioda: Skip unallocated resources when mapping to PE
+Date:   Fri, 10 Mar 2023 14:36:32 +0100
+Message-Id: <20230310133816.496376628@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,60 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Frederic Barrat <fbarrat@linux.ibm.com>
 
-[ Upstream commit cb81719e3c1165ef1bc33137dc628f750eed8ea4 ]
+[ Upstream commit e64e71056f323a1e178dccf04d4c0f032d84436c ]
 
-The gdsc_init() function will rewrite the CLK_DIS_WAIT field while
-registering the GDSC (writing the value 0x2 by default). This will
-override the setting done in the driver's probe function.
+pnv_ioda_setup_pe_res() calls opal to map a resource with a PE. However,
+the code assumes the resource is allocated and it uses the resource
+address to find out the segment(s) which need to be mapped to the
+PE. In the unlikely case where the resource hasn't been allocated, the
+computation for the segment number is garbage, which can lead to
+invalid memory access and potentially a kernel crash, such as:
 
-Set cx_gdsc.clk_dis_wait_val to 8 to follow the intention of the probe
-function.
+[ ] pci_bus 0002:02: Configuring PE for bus
+[ ] pci 0002:02     : [PE# fc] Secondary bus 0x0000000000000002..0x0000000000000002 associated with PE#fc
+[ ] BUG: Kernel NULL pointer dereference on write at 0x00000000
+[ ] Faulting instruction address: 0xc00000000005eac4
+[ ] Oops: Kernel access of bad area, sig: 7 [#1]
+[ ] LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
+[ ] Modules linked in:
+[ ] CPU: 12 PID: 1 Comm: swapper/20 Not tainted 5.10.50-openpower1 #2
+[ ] NIP:  c00000000005eac4 LR: c00000000005ea44 CTR: 0000000030061b9c
+[ ] REGS: c000200007383650 TRAP: 0300   Not tainted  (5.10.50-openpower1)
+[ ] MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44000224  XER: 20040000
+[ ] CFAR: c00000000005eaa0 DAR: 0000000000000000 DSISR: 02080000 IRQMASK: 0
+[ ] GPR00: c00000000005dd98 c0002000073838e0 c00000000185de00 c000200fff018960
+[ ] GPR04: 00000000000000fc 0000000000000003 0000000000000000 0000000000000000
+[ ] GPR08: 0000000000000000 0000000000000000 0000000000000000 9000000000001033
+[ ] GPR12: 0000000031cb0000 c000000ffffe6a80 c000000000010a58 0000000000000000
+[ ] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[ ] GPR20: 0000000000000000 0000000000000000 0000000000000000 c00000000711e200
+[ ] GPR24: 0000000000000100 c000200009501120 c00020000cee2800 00000000000003ff
+[ ] GPR28: c000200fff018960 0000000000000000 c000200ffcb7fd00 0000000000000000
+[ ] NIP [c00000000005eac4] pnv_ioda_setup_pe_res+0x94/0x1a0
+[ ] LR [c00000000005ea44] pnv_ioda_setup_pe_res+0x14/0x1a0
+[ ] Call Trace:
+[ ] [c0002000073838e0] [c00000000005eb98] pnv_ioda_setup_pe_res+0x168/0x1a0 (unreliable)
+[ ] [c000200007383970] [c00000000005dd98] pnv_pci_ioda_dma_dev_setup+0x43c/0x970
+[ ] [c000200007383a60] [c000000000032cdc] pcibios_bus_add_device+0x78/0x18c
+[ ] [c000200007383aa0] [c00000000028f2bc] pci_bus_add_device+0x28/0xbc
+[ ] [c000200007383b10] [c00000000028f3a0] pci_bus_add_devices+0x50/0x7c
+[ ] [c000200007383b50] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
+[ ] [c000200007383b90] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
+[ ] [c000200007383bd0] [c00000000069ad0c] pcibios_init+0xf0/0x104
+[ ] [c000200007383c50] [c0000000000106d8] do_one_initcall+0x84/0x1c4
+[ ] [c000200007383d20] [c0000000006910b8] kernel_init_freeable+0x264/0x268
+[ ] [c000200007383dc0] [c000000000010a68] kernel_init+0x18/0x138
+[ ] [c000200007383e20] [c00000000000cbfc] ret_from_kernel_thread+0x5c/0x80
+[ ] Instruction dump:
+[ ] 7f89e840 409d000c 7fbbf840 409c000c 38210090 4848f448 809c002c e95e0120
+[ ] 7ba91764 38a00003 57a7043e 38c00000 <7c8a492e> 5484043e e87e0018 4bff23bd
 
-Fixes: 453361cdd757 ("clk: qcom: Add graphics clock controller driver for SDM845")
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230201172305.993146-2-dmitry.baryshkov@linaro.org
+Hitting the problem is not that easy. It was seen with a (semi-bogus)
+PCI device with a class code of 0. The generic PCI framework doesn't
+allocate resources in such a case.
+
+The patch is simply skipping resources which are still flagged with
+IORESOURCE_UNSET.
+
+We don't have the problem with 64-bit mem resources, as the address of
+the resource is checked to be within the range of the 64-bit mmio
+window. See pnv_ioda_reserve_dev_m64_pe() and pnv_pci_is_m64().
+
+Reported-by: Andrew Jeffery <andrew@aj.id.au>
+Fixes: 23e79425fe7c ("powerpc/powernv: Simplify pnv_ioda_setup_pe_seg()")
+Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230120093215.19496-1-fbarrat@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gpucc-sdm845.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/powerpc/platforms/powernv/pci-ioda.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gpucc-sdm845.c b/drivers/clk/qcom/gpucc-sdm845.c
-index 5663698b306b9..658c6ac700e1e 100644
---- a/drivers/clk/qcom/gpucc-sdm845.c
-+++ b/drivers/clk/qcom/gpucc-sdm845.c
-@@ -22,8 +22,6 @@
- #define CX_GMU_CBCR_SLEEP_SHIFT		4
- #define CX_GMU_CBCR_WAKE_MASK		0xf
- #define CX_GMU_CBCR_WAKE_SHIFT		8
--#define CLK_DIS_WAIT_SHIFT		12
--#define CLK_DIS_WAIT_MASK		(0xf << CLK_DIS_WAIT_SHIFT)
+diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+index 2b4ceb5e6ce4c..a1e6dd47743f1 100644
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -2260,7 +2260,8 @@ static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
+ 	int index;
+ 	int64_t rc;
  
- enum {
- 	P_BI_TCXO,
-@@ -124,6 +122,7 @@ static struct clk_branch gpu_cc_cxo_clk = {
- static struct gdsc gpu_cx_gdsc = {
- 	.gdscr = 0x106c,
- 	.gds_hw_ctrl = 0x1540,
-+	.clk_dis_wait_val = 0x8,
- 	.pd = {
- 		.name = "gpu_cx_gdsc",
- 	},
-@@ -196,10 +195,6 @@ static int gpu_cc_sdm845_probe(struct platform_device *pdev)
- 	value = 0xf << CX_GMU_CBCR_WAKE_SHIFT | 0xf << CX_GMU_CBCR_SLEEP_SHIFT;
- 	regmap_update_bits(regmap, 0x1098, mask, value);
+-	if (!res || !res->flags || res->start > res->end)
++	if (!res || !res->flags || res->start > res->end ||
++	    res->flags & IORESOURCE_UNSET)
+ 		return;
  
--	/* Configure clk_dis_wait for gpu_cx_gdsc */
--	regmap_update_bits(regmap, 0x106c, CLK_DIS_WAIT_MASK,
--						8 << CLK_DIS_WAIT_SHIFT);
--
- 	return qcom_cc_really_probe(pdev, &gpu_cc_sdm845_desc, regmap);
- }
- 
+ 	if (res->flags & IORESOURCE_IO) {
 -- 
 2.39.2
 
