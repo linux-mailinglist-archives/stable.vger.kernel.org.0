@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 507066B436E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B64676B4636
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231862AbjCJOOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50870 "EHLO
+        id S232691AbjCJOlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:41:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231897AbjCJOOT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:19 -0500
+        with ESMTP id S232735AbjCJOlM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7738F149B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C66121B57
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E23946187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC29C433A0;
-        Fri, 10 Mar 2023 14:12:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F0C46187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C65C4339E;
+        Fri, 10 Mar 2023 14:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457579;
-        bh=cvci2CIgjhUYpoLQqTiU0LVo7ik06hSSnpDB3PV9V98=;
+        s=korg; t=1678459270;
+        bh=VantBuzLmUQ5pSnDywrq4IwrOn0bxInJZQJxlZZnvM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oge7Rti+x/0DTRhAu/TesHX77Ky731Kpw9nAs1id3gNo+Liv9WMgvkuPh6I4HlWD/
-         LNlqrfZj9UtLAenlxrOuJbwqOZ1dIH7IG25BzZUOh2C1n20KN308CkMrw+T0cOFeEi
-         fnsyvtt/TZTb3kq859qlPXsnReNXvHdYd5ke1TVs=
+        b=LWDmURamaN1Ss1ztVXi1HgrgPxgyiinrSRbieDeKCAV4acBpcWO/YR+uBKyZzHoKY
+         4GlYjlCu3bkAuI6HmT0d0CVfYaIJM3yxPXkUZyRREU4lNU7eZFTRo/IA7HA45eDdcZ
+         TZa1zq7M0RlP5+UAZUSnbojGjSZUZ38eWkva5Yks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6.1 186/200] vDPA/ifcvf: manage ifcvf_hw in the mgmt_dev
-Date:   Fri, 10 Mar 2023 14:39:53 +0100
-Message-Id: <20230310133722.805514713@linuxfoundation.org>
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 305/357] ubi: Fix UAF wear-leveling entry in eraseblk_count_seq_show()
+Date:   Fri, 10 Mar 2023 14:39:54 +0100
+Message-Id: <20230310133748.153526554@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 6a3b2f179b49f2c6452ecc37b4778a43848b454c upstream.
+[ Upstream commit a240bc5c43130c6aa50831d7caaa02a1d84e1bce ]
 
-This commit allocates the hw structure in the
-management device structure. So the hardware
-can be initialized once the management device
-is allocated in probe.
+Wear-leveling entry could be freed in error path, which may be accessed
+again in eraseblk_count_seq_show(), for example:
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20221125145724.1129962-10-lingshan.zhu@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+__erase_worker                eraseblk_count_seq_show
+                                wl = ubi->lookuptbl[*block_number]
+				if (wl)
+  wl_entry_destroy
+    ubi->lookuptbl[e->pnum] = NULL
+    kmem_cache_free(ubi_wl_entry_slab, e)
+		                   erase_count = wl->ec  // UAF!
+
+Wear-leveling entry updating/accessing in ubi->lookuptbl should be
+protected by ubi->wl_lock, fix it by adding ubi->wl_lock to serialize
+wl entry accessing between wl_entry_destroy() and
+eraseblk_count_seq_show().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216305
+Fixes: 7bccd12d27b7e3 ("ubi: Add debugfs file for tracking PEB state")
+Fixes: 801c135ce73d5d ("UBI: Unsorted Block Images")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_base.h |    5 +++--
- drivers/vdpa/ifcvf/ifcvf_main.c |    7 ++++---
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/mtd/ubi/wl.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/vdpa/ifcvf/ifcvf_base.h
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-@@ -39,7 +39,7 @@
- #define IFCVF_INFO(pdev, fmt, ...)	dev_info(&pdev->dev, fmt, ##__VA_ARGS__)
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 7def041bbe484..585c5273b1fb5 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -879,8 +879,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
  
- #define ifcvf_private_to_vf(adapter) \
--	(&((struct ifcvf_adapter *)adapter)->vf)
-+	(((struct ifcvf_adapter *)adapter)->vf)
+ 	err = do_sync_erase(ubi, e1, vol_id, lnum, 0);
+ 	if (err) {
+-		if (e2)
++		if (e2) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e2);
++			spin_unlock(&ubi->wl_lock);
++		}
+ 		goto out_ro;
+ 	}
  
- /* all vqs and config interrupt has its own vector */
- #define MSIX_VECTOR_PER_VQ_AND_CONFIG		1
-@@ -95,7 +95,7 @@ struct ifcvf_hw {
- struct ifcvf_adapter {
- 	struct vdpa_device vdpa;
- 	struct pci_dev *pdev;
--	struct ifcvf_hw vf;
-+	struct ifcvf_hw *vf;
- };
+@@ -1110,14 +1113,18 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
+ 		/* Re-schedule the LEB for erasure */
+ 		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
+ 		if (err1) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e);
++			spin_unlock(&ubi->wl_lock);
+ 			err = err1;
+ 			goto out_ro;
+ 		}
+ 		return err;
+ 	}
  
- struct ifcvf_vring_lm_cfg {
-@@ -110,6 +110,7 @@ struct ifcvf_lm_cfg {
- 
- struct ifcvf_vdpa_mgmt_dev {
- 	struct vdpa_mgmt_dev mdev;
-+	struct ifcvf_hw vf;
- 	struct ifcvf_adapter *adapter;
- 	struct pci_dev *pdev;
- };
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -402,7 +402,7 @@ static struct ifcvf_hw *vdpa_to_vf(struc
- {
- 	struct ifcvf_adapter *adapter = vdpa_to_adapter(vdpa_dev);
- 
--	return &adapter->vf;
-+	return adapter->vf;
- }
- 
- static u64 ifcvf_vdpa_get_device_features(struct vdpa_device *vdpa_dev)
-@@ -750,7 +750,7 @@ static int ifcvf_vdpa_dev_add(struct vdp
- 		return -EOPNOTSUPP;
- 
- 	adapter = ifcvf_mgmt_dev->adapter;
--	vf = &adapter->vf;
-+	vf = adapter->vf;
- 	pdev = adapter->pdev;
- 	vdpa_dev = &adapter->vdpa;
- 
-@@ -838,10 +838,11 @@ static int ifcvf_probe(struct pci_dev *p
- 	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
- 	ifcvf_mgmt_dev->adapter = adapter;
- 
--	vf = &adapter->vf;
-+	vf = &ifcvf_mgmt_dev->vf;
- 	vf->dev_type = get_dev_type(pdev);
- 	vf->base = pcim_iomap_table(pdev);
- 	vf->pdev = pdev;
-+	adapter->vf = vf;
- 
- 	ret = ifcvf_init_hw(vf, pdev);
- 	if (ret) {
++	spin_lock(&ubi->wl_lock);
+ 	wl_entry_destroy(ubi, e);
++	spin_unlock(&ubi->wl_lock);
+ 	if (err != -EIO)
+ 		/*
+ 		 * If this is not %-EIO, we have no idea what to do. Scheduling
+-- 
+2.39.2
+
 
 
