@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DBF6B40DF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E5D6B43D2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbjCJNrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46124 "EHLO
+        id S232050AbjCJOSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:18:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230315AbjCJNrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C3428E65
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:46:59 -0800 (PST)
+        with ESMTP id S231991AbjCJOSD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:18:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 876E0120870
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A100B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:46:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3EBC433EF;
-        Fri, 10 Mar 2023 13:46:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA4E161771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5644C433EF;
+        Fri, 10 Mar 2023 14:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456017;
-        bh=PnFPcGnSqGG/kE3uz3cio9R00rJwc4VZbUG+/gwUNss=;
+        s=korg; t=1678457804;
+        bh=+xUMu1Yq6bwwcXKDXoN7WG1N9Lqljdat3QOwoNJGF6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDWrelTdkeyhgYh7z0zlTuJBEiHf37M5SO9ijtGraBnCZ9PWmSuySvsKeoiP4DheU
-         GtMEPgS5o/yfqzkDQcIiOyabNfE6VqT/UWDFVR3ywRHpMertADkxZSVslDIcptiE0u
-         P4IIw8RBnNgiVnB9utMhE1QUnMoepym/ZZjgIylE=
+        b=TFUs902DV05bMdrZdSCmZhZFVFy2rPu3VFbiukDB9iKWi/V9U/LvhH1F8p7oR37Ed
+         8lnJiYYJF4qODUG57rSYhF8unly2IcRDSvVZ5S8/lGuMcejD9ODUlgGLKJ2C8odz6y
+         ikYjqxn4R7wNs1NdHKEAvs4r7jhFwRQZQpXet9nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marek Vasut <marex@denx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 052/193] drm: mxsfb: DRM_MXSFB should depend on ARCH_MXS || ARCH_MXC
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 064/252] irqchip/irq-bcm7120-l2: Set IRQ_LEVEL for level triggered interrupts
 Date:   Fri, 10 Mar 2023 14:37:14 +0100
-Message-Id: <20230310133712.732911632@linuxfoundation.org>
+Message-Id: <20230310133720.775299363@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 7783cc67862f9166c901bfa0f80b717aa8d354dd ]
+[ Upstream commit 13a157b38ca5b4f9eed81442b8821db293755961 ]
 
-Freescale/NXP i.MX LCDIF and eLCDIF LCD controllers are only present on
-Freescale/NXP i.MX SoCs.  Hence add a dependency on ARCH_MXS ||
-ARCH_MXC, to prevent asking the user about this driver when configuring
-a kernel without Freescale/NXP i.MX support.
+When support for the interrupt controller was added with a5042de2688d,
+we forgot to update the flags to be set to contain IRQ_LEVEL. While the
+flow handler is correct, the output from /proc/interrupts does not show
+such interrupts as being level triggered when they are, correct that.
 
-Fixes: 45d59d704080cc0c ("drm: Add new driver for MXSFB controller")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/98e74779ca2bc575d91afff03369e86b080c01ac.1669046358.git.geert+renesas@glider.be
+Fixes: a5042de2688d ("irqchip: bcm7120-l2: Add Broadcom BCM7120-style Level 2 interrupt controller")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221216230934.2478345-3-f.fainelli@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-bcm7120-l2.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mxsfb/Kconfig b/drivers/gpu/drm/mxsfb/Kconfig
-index 3ed6849d63cba..1a2805c7a0eb7 100644
---- a/drivers/gpu/drm/mxsfb/Kconfig
-+++ b/drivers/gpu/drm/mxsfb/Kconfig
-@@ -7,6 +7,7 @@ config DRM_MXSFB
- 	tristate "i.MX23/i.MX28/i.MX6SX MXSFB LCD controller"
- 	depends on DRM && OF
- 	depends on COMMON_CLK
-+	depends on ARCH_MXS || ARCH_MXC || COMPILE_TEST
- 	select DRM_MXS
- 	select DRM_KMS_HELPER
- 	select DRM_KMS_CMA_HELPER
+diff --git a/drivers/irqchip/irq-bcm7120-l2.c b/drivers/irqchip/irq-bcm7120-l2.c
+index 8968e5e93fcb8..fefafe1af1167 100644
+--- a/drivers/irqchip/irq-bcm7120-l2.c
++++ b/drivers/irqchip/irq-bcm7120-l2.c
+@@ -271,7 +271,8 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
+ 		flags |= IRQ_GC_BE_IO;
+ 
+ 	ret = irq_alloc_domain_generic_chips(data->domain, IRQS_PER_WORD, 1,
+-				dn->full_name, handle_level_irq, clr, 0, flags);
++				dn->full_name, handle_level_irq, clr,
++				IRQ_LEVEL, flags);
+ 	if (ret) {
+ 		pr_err("failed to allocate generic irq chip\n");
+ 		goto out_free_domain;
 -- 
 2.39.2
 
