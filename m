@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E335C6B4A00
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:17:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEF26B4A44
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:20:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233577AbjCJPRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:17:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54910 "EHLO
+        id S234170AbjCJPUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:20:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233842AbjCJPRP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:17:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E71438E95
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:08:25 -0800 (PST)
+        with ESMTP id S234168AbjCJPUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:20:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7162F136D37
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:11:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D450B822F6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:07:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01D4C433EF;
-        Fri, 10 Mar 2023 15:07:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A8226195A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70D49C433D2;
+        Fri, 10 Mar 2023 15:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460854;
-        bh=W42HJaRPvV2pPpgSJmFSi5F2KT5nC2MuyQGSy1TBjyo=;
+        s=korg; t=1678460973;
+        bh=FlEM1SLL5dNpDBFSQttKIKrPyUrugb5bX4HdUbRIS7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVZ6VY62kgAk1U/QLMC3iVHFtUUmPGen4KvgTAC7vYAwVcvLfnpZ2ittg9VENZGyq
-         L3HdGqCxV4FAPESszDgJP329AI56dGYWrC3ZCq9eHSu6Ki46AK9HtZe+pxiv+mHDgJ
-         1VgYzaO0Rg1NGeWtSnJlGYYLJwylGQzHLz99lSvE=
+        b=Dx1R0IuofS2HzXfMTJrkEDQaqRdYc455plt1cOaX0t0qNsQonGIhKwfyX2WarhwIC
+         JH9rZmKppGhgq8lMa6Uh4K4SYGCdQ/0qT9amH0hjwdBaMAtZOqf3VxnxHVOVcWopa3
+         tRODUDnQX+JNUDGdK2PNoDDTEXyXYgOAoZkTPP1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 472/529] ARM: dts: spear320-hmi: correct STMPE GPIO compatible
-Date:   Fri, 10 Mar 2023 14:40:15 +0100
-Message-Id: <20230310133826.715492207@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Frederick Lawler <fred@cloudflare.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 473/529] tcp: tcp_check_req() can be called from process context
+Date:   Fri, 10 Mar 2023 14:40:16 +0100
+Message-Id: <20230310133826.762024004@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,35 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 33a0c1b850c8c85f400531dab3a0b022cdb164b1 ]
+[ Upstream commit 580f98cc33a260bb8c6a39ae2921b29586b84fdf ]
 
-The compatible is st,stmpe-gpio.
+This is a follow up of commit 0a375c822497 ("tcp: tcp_rtx_synack()
+can be called from process context").
 
-Fixes: e2eb69183ec4 ("ARM: SPEAr320: DT: Add SPEAr 320 HMI board support")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Link: https://lore.kernel.org/r/20230225162237.40242-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Frederick Lawler reported another "__this_cpu_add() in preemptible"
+warning caused by the same reason.
+
+In my former patch I took care of tcp_rtx_synack()
+but forgot that tcp_check_req() also contained some SNMP updates.
+
+Note that some parts of tcp_check_req() always run in BH context,
+I added a comment to clarify this.
+
+Fixes: 8336886f786f ("tcp: TCP Fast Open Server - support TFO listeners")
+Link: https://lore.kernel.org/netdev/8cd33923-a21d-397c-e46b-2a068c287b03@cloudflare.com/T/
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Frederick Lawler <fred@cloudflare.com>
+Tested-by: Frederick Lawler <fred@cloudflare.com>
+Link: https://lore.kernel.org/r/20230227083336.4153089-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/spear320-hmi.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_minisocks.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/spear320-hmi.dts b/arch/arm/boot/dts/spear320-hmi.dts
-index 367ba48aac3e5..5c562fb4886f4 100644
---- a/arch/arm/boot/dts/spear320-hmi.dts
-+++ b/arch/arm/boot/dts/spear320-hmi.dts
-@@ -242,7 +242,7 @@
- 					irq-trigger = <0x1>;
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index e42312321191b..8d854feebdb00 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -565,6 +565,9 @@ EXPORT_SYMBOL(tcp_create_openreq_child);
+  * validation and inside tcp_v4_reqsk_send_ack(). Can we do better?
+  *
+  * We don't need to initialize tmp_opt.sack_ok as we don't use the results
++ *
++ * Note: If @fastopen is true, this can be called from process context.
++ *       Otherwise, this is from BH context.
+  */
  
- 					stmpegpio: stmpe-gpio {
--						compatible = "stmpe,gpio";
-+						compatible = "st,stmpe-gpio";
- 						reg = <0>;
- 						gpio-controller;
- 						#gpio-cells = <2>;
+ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+@@ -717,7 +720,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 					  &tcp_rsk(req)->last_oow_ack_time))
+ 			req->rsk_ops->send_ack(sk, skb, req);
+ 		if (paws_reject)
+-			__NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
++			NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
+ 		return NULL;
+ 	}
+ 
+@@ -736,7 +739,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 	 *	   "fourth, check the SYN bit"
+ 	 */
+ 	if (flg & (TCP_FLAG_RST|TCP_FLAG_SYN)) {
+-		__TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
++		TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
+ 		goto embryonic_reset;
+ 	}
+ 
 -- 
 2.39.2
 
