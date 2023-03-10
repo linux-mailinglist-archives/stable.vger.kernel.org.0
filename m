@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9ED66B436C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFE46B427D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231994AbjCJOOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S231625AbjCJOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232014AbjCJOOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:12 -0500
+        with ESMTP id S231626AbjCJODl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3D16183
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABDE8F6016
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92B816194B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A895DC4339E;
-        Fri, 10 Mar 2023 14:12:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48E32617D5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AEEFC433D2;
+        Fri, 10 Mar 2023 14:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457544;
-        bh=wgOvNNT4YbR9WNPv+UltzsUQ9FQfS82J/oIRqgcNIf0=;
+        s=korg; t=1678457010;
+        bh=F3qQD6N+1h7dNl+LJ+lDg3z/E7I0j0DYBS8kKRf7vkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWZN6tbIfM2FhkQ2OzqAxz6yata+jHU9rN/OihjeyRAENPrPF1EHkm+x9t0kICcS7
-         IfSjNo92oWLFYODrnPIhe5O/D1lfvdKt5rfm92I6sjNVx1GVno87qBHkCBWIFTvLp/
-         WdlJxJqKE/rKA2xMGqyUGUJH0W1X1WpzPn4EuPwo=
+        b=LHFRixk1qFotzeuipFtK6NAPX7e61dMPZPn26z2q0LypXEt6jMO0e5t0W9Jyik4U8
+         Yju0FcisF9QWPWIio5gc95L4wbjW+zE8hwDZ4aqDcSEHCaSWJ/sApkyTHs+T2YIPJF
+         zt2mNRvO3/BtzaYHuDYsugSxdh1uSlLkt7/HcPGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 174/200] soundwire: cadence: Remove wasted space in response_buf
+        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, dri-devel@lists.freedesktop.org,
+        Daniel Vetter <daniel@ffwll.ch>, Wayne Lin <wayne.lin@amd.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Imre Deak <imre.deak@intel.com>
+Subject: [PATCH 6.2 201/211] drm/display/dp_mst: Add drm_atomic_get_old_mst_topology_state()
 Date:   Fri, 10 Mar 2023 14:39:41 +0100
-Message-Id: <20230310133722.443301004@linuxfoundation.org>
+Message-Id: <20230310133725.016840060@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +57,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 827c32d0df4bbe0d1c47d79f6a5eabfe9ac75216 ]
+commit 9ffdb67af0ee625ae127711845532f670cc6a4e7 upstream.
 
-The response_buf was declared much larger (128 entries) than the number
-of responses that could ever be written into it. The Cadence IP is
-configurable up to a maximum of 32 entries, and the datasheet says
-that RX_FIFO_AVAIL can be 2 larger than this. So allow up to 34
-responses.
+Add a function to get the old MST topology state, required by a
+follow-up i915 patch.
 
-Also add checking in cdns_read_response() to prevent overflowing
-reponse_buf if RX_FIFO_AVAIL contains an unexpectedly large number.
+While at it clarify the code comment of
+drm_atomic_get_new_mst_topology_state() and add _new prefix
+to the new state pointer to remind about its difference from the old
+state.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221202161812.4186897-3-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+v2: Use old_/new_ prefixes for the state pointers. (Ville)
+
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: stable@vger.kernel.org # 6.1
+Cc: dri-devel@lists.freedesktop.org
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Daniel Vetter <daniel@ffwll.ch>
+Acked-by: Wayne Lin <wayne.lin@amd.com>
+Acked-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230206114856.2665066-3-imre.deak@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/cadence_master.c |  7 +++++++
- drivers/soundwire/cadence_master.h | 13 ++++++++++++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/display/drm_dp_mst_topology.c |   33 ++++++++++++++++++++++----
+ include/drm/display/drm_dp_mst_helper.h       |    3 ++
+ 2 files changed, 32 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index b65cdf2a7593e..6cd9db19758c9 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -774,8 +774,15 @@ static void cdns_read_response(struct sdw_cdns *cdns)
- 	u32 num_resp, cmd_base;
- 	int i;
+--- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+@@ -5355,27 +5355,52 @@ struct drm_dp_mst_topology_state *drm_at
+ EXPORT_SYMBOL(drm_atomic_get_mst_topology_state);
  
-+	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
-+	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
-+
- 	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
- 	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
-+	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
-+		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
-+		num_resp = ARRAY_SIZE(cdns->response_buf);
-+	}
- 
- 	cmd_base = CDNS_MCP_CMD_BASE;
- 
-diff --git a/drivers/soundwire/cadence_master.h b/drivers/soundwire/cadence_master.h
-index ca9e805bab88f..51e6ecc027cbc 100644
---- a/drivers/soundwire/cadence_master.h
-+++ b/drivers/soundwire/cadence_master.h
-@@ -8,6 +8,12 @@
- #define SDW_CADENCE_GSYNC_KHZ		4 /* 4 kHz */
- #define SDW_CADENCE_GSYNC_HZ		(SDW_CADENCE_GSYNC_KHZ * 1000)
- 
-+/*
-+ * The Cadence IP supports up to 32 entries in the FIFO, though implementations
-+ * can configure the IP to have a smaller FIFO.
-+ */
-+#define CDNS_MCP_IP_MAX_CMD_LEN		32
-+
  /**
-  * struct sdw_cdns_pdi: PDI (Physical Data Interface) instance
-  *
-@@ -114,7 +120,12 @@ struct sdw_cdns {
- 	struct sdw_bus bus;
- 	unsigned int instance;
- 
--	u32 response_buf[0x80];
-+	/*
-+	 * The datasheet says the RX FIFO AVAIL can be 2 entries more
-+	 * than the FIFO capacity, so allow for this.
-+	 */
-+	u32 response_buf[CDNS_MCP_IP_MAX_CMD_LEN + 2];
++ * drm_atomic_get_old_mst_topology_state: get old MST topology state in atomic state, if any
++ * @state: global atomic state
++ * @mgr: MST topology manager, also the private object in this case
++ *
++ * This function wraps drm_atomic_get_old_private_obj_state() passing in the MST atomic
++ * state vtable so that the private object state returned is that of a MST
++ * topology object.
++ *
++ * Returns:
++ *
++ * The old MST topology state, or NULL if there's no topology state for this MST mgr
++ * in the global atomic state
++ */
++struct drm_dp_mst_topology_state *
++drm_atomic_get_old_mst_topology_state(struct drm_atomic_state *state,
++				      struct drm_dp_mst_topology_mgr *mgr)
++{
++	struct drm_private_state *old_priv_state =
++		drm_atomic_get_old_private_obj_state(state, &mgr->base);
 +
- 	struct completion tx_complete;
- 	struct sdw_defer *defer;
++	return old_priv_state ? to_dp_mst_topology_state(old_priv_state) : NULL;
++}
++EXPORT_SYMBOL(drm_atomic_get_old_mst_topology_state);
++
++/**
+  * drm_atomic_get_new_mst_topology_state: get new MST topology state in atomic state, if any
+  * @state: global atomic state
+  * @mgr: MST topology manager, also the private object in this case
+  *
+- * This function wraps drm_atomic_get_priv_obj_state() passing in the MST atomic
++ * This function wraps drm_atomic_get_new_private_obj_state() passing in the MST atomic
+  * state vtable so that the private object state returned is that of a MST
+  * topology object.
+  *
+  * Returns:
+  *
+- * The MST topology state, or NULL if there's no topology state for this MST mgr
++ * The new MST topology state, or NULL if there's no topology state for this MST mgr
+  * in the global atomic state
+  */
+ struct drm_dp_mst_topology_state *
+ drm_atomic_get_new_mst_topology_state(struct drm_atomic_state *state,
+ 				      struct drm_dp_mst_topology_mgr *mgr)
+ {
+-	struct drm_private_state *priv_state =
++	struct drm_private_state *new_priv_state =
+ 		drm_atomic_get_new_private_obj_state(state, &mgr->base);
  
--- 
-2.39.2
-
+-	return priv_state ? to_dp_mst_topology_state(priv_state) : NULL;
++	return new_priv_state ? to_dp_mst_topology_state(new_priv_state) : NULL;
+ }
+ EXPORT_SYMBOL(drm_atomic_get_new_mst_topology_state);
+ 
+--- a/include/drm/display/drm_dp_mst_helper.h
++++ b/include/drm/display/drm_dp_mst_helper.h
+@@ -867,6 +867,9 @@ struct drm_dp_mst_topology_state *
+ drm_atomic_get_mst_topology_state(struct drm_atomic_state *state,
+ 				  struct drm_dp_mst_topology_mgr *mgr);
+ struct drm_dp_mst_topology_state *
++drm_atomic_get_old_mst_topology_state(struct drm_atomic_state *state,
++				      struct drm_dp_mst_topology_mgr *mgr);
++struct drm_dp_mst_topology_state *
+ drm_atomic_get_new_mst_topology_state(struct drm_atomic_state *state,
+ 				      struct drm_dp_mst_topology_mgr *mgr);
+ struct drm_dp_mst_atomic_payload *
 
 
