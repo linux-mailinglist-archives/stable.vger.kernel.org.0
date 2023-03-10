@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DC06B43B9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 538B16B4558
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbjCJORE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:17:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58054 "EHLO
+        id S232395AbjCJOdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:33:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231802AbjCJOQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A47E11ACB2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:53 -0800 (PST)
+        with ESMTP id S232560AbjCJOdA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E99EF8F01
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACFA861771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C08CEC433D2;
-        Fri, 10 Mar 2023 14:15:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A2F3B822DA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82593C433D2;
+        Fri, 10 Mar 2023 14:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457752;
-        bh=7J5HSHDxRcVkjVxdnbAAcNS0Ikr0EXVHLtr0MbZclHk=;
+        s=korg; t=1678458730;
+        bh=zz/PTPwM8i//+kMyOt9rE7zmlKll+ty7ismdgbou/WQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/nbBPJmKbDqfSclsp8LRkKFIVbnCJTOftblNPA72q8nv4EZ5aSDMTyku/0PUSwhq
-         bPoPV+V3FLp44P0wuGmBW3zsWdKGrCVwZsCWFCYc0pSUyej6yv9JghGMss2lu8icdO
-         TyUuDxbq8X+f5s7jPo8iwKiJyIZAp2i7GYjtd8fQ=
+        b=U5DOJNOvou+Vrmt44sxFL3y5+8ZyGKPUmKnlt8k1VrX7mCoFIQJRaVhiEw7wb0NaG
+         OAKeRIPaf6my2taiFdQRv6vPqnSZhUGf/OrYFQpTcLlEVzl17ph7OdAFB1995/hPgU
+         OIPwIX8USnX+8n+I1jiNoXa8TJg6xB3bZP7Ox6+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Vadim Pasternak <vadimp@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 045/252] ACPI: battery: Fix missing NUL-termination with large strings
+Subject: [PATCH 5.4 126/357] hwmon: (mlxreg-fan) Return zero speed for broken fan
 Date:   Fri, 10 Mar 2023 14:36:55 +0100
-Message-Id: <20230310133720.185112503@linuxfoundation.org>
+Message-Id: <20230310133740.225112835@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-[ Upstream commit f2ac14b5f197e4a2dec51e5ceaa56682ff1592bc ]
+[ Upstream commit a1ffd3c46267ee5c807acd780e15df9bb692223f ]
 
-When encountering a string bigger than the destination buffer (32 bytes),
-the string is not properly NUL-terminated, causing buffer overreads later.
+Currently for broken fan driver returns value calculated based on error
+code (0xFF) in related fan speed register.
+Thus, for such fan user gets fan{n}_fault to 1 and fan{n}_input with
+misleading value.
 
-This for example happens on the Inspiron 3505, where the battery
-model name is larger than 32 bytes, which leads to sysfs showing
-the model name together with the serial number string (which is
-NUL-terminated and thus prevents worse).
+Add check for fan fault prior return speed value and return zero if
+fault is detected.
 
-Fix this by using strscpy() which ensures that the result is
-always NUL-terminated.
-
-Fixes: 106449e870b3 ("ACPI: Battery: Allow extract string from integer")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 65afb4c8e7e4 ("hwmon: (mlxreg-fan) Add support for Mellanox FAN driver")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20230212145730.24247-1-vadimp@nvidia.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/mlxreg-fan.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index c0c533206e02d..88f4040d6c1f2 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -478,7 +478,7 @@ static int extract_package(struct acpi_battery *battery,
- 			u8 *ptr = (u8 *)battery + offsets[i].offset;
- 			if (element->type == ACPI_TYPE_STRING ||
- 			    element->type == ACPI_TYPE_BUFFER)
--				strncpy(ptr, element->string.pointer, 32);
-+				strscpy(ptr, element->string.pointer, 32);
- 			else if (element->type == ACPI_TYPE_INTEGER) {
- 				strncpy(ptr, (u8 *)&element->integer.value,
- 					sizeof(u64));
+diff --git a/drivers/hwmon/mlxreg-fan.c b/drivers/hwmon/mlxreg-fan.c
+index bd8f5a3aaad9c..052c897a635d5 100644
+--- a/drivers/hwmon/mlxreg-fan.c
++++ b/drivers/hwmon/mlxreg-fan.c
+@@ -127,6 +127,12 @@ mlxreg_fan_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+ 			if (err)
+ 				return err;
+ 
++			if (MLXREG_FAN_GET_FAULT(regval, tacho->mask)) {
++				/* FAN is broken - return zero for FAN speed. */
++				*val = 0;
++				return 0;
++			}
++
+ 			*val = MLXREG_FAN_GET_RPM(regval, fan->divider,
+ 						  fan->samples);
+ 			break;
 -- 
 2.39.2
 
