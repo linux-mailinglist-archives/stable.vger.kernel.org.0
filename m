@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 235AF6B49EE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:17:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A078E6B49F2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234148AbjCJPQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:16:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
+        id S234079AbjCJPRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:17:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234136AbjCJPQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:16:43 -0500
+        with ESMTP id S234086AbjCJPQs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:16:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373C1142DD1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:07:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 546EB12B019
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:07:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 379BFB822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84CBFC4339B;
-        Fri, 10 Mar 2023 15:07:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FD07B822E7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8FF3C433EF;
+        Fri, 10 Mar 2023 15:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460824;
-        bh=EVRhxtAUgG4b1w2v1Q04YEhamJ3ebKBuWedXtgPsKoU=;
+        s=korg; t=1678460827;
+        bh=u7nGIYaFRU4xB3pRoR//pGrDx8PEek/or49Z88NpTXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJbZ1sGtl1AhNiJnugOnqWiam1Iymb2Le3h3Y7tFIrB4bMbCNQuNpCuS4LbPy2R/L
-         boQvPUPqVyOi900LvuopNwQOZt2Rr7JcYLzbE6FFbPLAcvXJ7Ez5aAgsLo//SaoWEl
-         sEiGjqv8xKupv3TlPDwOOHXuc9sTcPbLPvMWTPIk=
+        b=GpDVMGdVpGbHMmGDMwltzjvoqpN8MeOW4DBuEhnCO+6Ga1tswx1jHj+yqqL7Cu0NH
+         QEZ75iTOq7mtgZrZWSvM9I7y21fSIC6plEbZL8XGhoFzfPcvpdNRLFt8vQUZgzc1/j
+         mGOSVPQi9NdM3d2hFwDaPdBBH4SDVBz11ykv4biI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lu Wei <luwei32@huawei.com>,
-        David Ahern <dsahern@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Ying Xu <yinxu@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 463/529] ipv6: Add lwtunnel encap size of all siblings in nexthop calculation
-Date:   Fri, 10 Mar 2023 14:40:06 +0100
-Message-Id: <20230310133826.339123259@linuxfoundation.org>
+Subject: [PATCH 5.10 464/529] sctp: add a refcnt in sctp_stream_priorities to avoid a nested loop
+Date:   Fri, 10 Mar 2023 14:40:07 +0100
+Message-Id: <20230310133826.376540405@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,94 +56,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Wei <luwei32@huawei.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 4cc59f386991ec9374cb4bc83dbe1c0b5a95033f ]
+[ Upstream commit 68ba44639537de6f91fe32783766322d41848127 ]
 
-In function rt6_nlmsg_size(), the length of nexthop is calculated
-by multipling the nexthop length of fib6_info and the number of
-siblings. However if the fib6_info has no lwtunnel but the siblings
-have lwtunnels, the nexthop length is less than it should be, and
-it will trigger a warning in inet6_rt_notify() as follows:
+With this refcnt added in sctp_stream_priorities, we don't need to
+traverse all streams to check if the prio is used by other streams
+when freeing one stream's prio in sctp_sched_prio_free_sid(). This
+can avoid a nested loop (up to 65535 * 65535), which may cause a
+stuck as Ying reported:
 
-WARNING: CPU: 0 PID: 6082 at net/ipv6/route.c:6180 inet6_rt_notify+0x120/0x130
-......
-Call Trace:
- <TASK>
- fib6_add_rt2node+0x685/0xa30
- fib6_add+0x96/0x1b0
- ip6_route_add+0x50/0xd0
- inet6_rtm_newroute+0x97/0xa0
- rtnetlink_rcv_msg+0x156/0x3d0
- netlink_rcv_skb+0x5a/0x110
- netlink_unicast+0x246/0x350
- netlink_sendmsg+0x250/0x4c0
- sock_sendmsg+0x66/0x70
- ___sys_sendmsg+0x7c/0xd0
- __sys_sendmsg+0x5d/0xb0
- do_syscall_64+0x3f/0x90
- entry_SYSCALL_64_after_hwframe+0x72/0xdc
+    watchdog: BUG: soft lockup - CPU#23 stuck for 26s! [ksoftirqd/23:136]
+    Call Trace:
+     <TASK>
+     sctp_sched_prio_free_sid+0xab/0x100 [sctp]
+     sctp_stream_free_ext+0x64/0xa0 [sctp]
+     sctp_stream_free+0x31/0x50 [sctp]
+     sctp_association_free+0xa5/0x200 [sctp]
 
-This bug can be reproduced by script:
+Note that it doesn't need to use refcount_t type for this counter,
+as its accessing is always protected under the sock lock.
 
-ip -6 addr add 2002::2/64 dev ens2
-ip -6 route add 100::/64 via 2002::1 dev ens2 metric 100
+v1->v2:
+ - add a check in sctp_sched_prio_set to avoid the possible prio_head
+   refcnt overflow.
 
-for i in 10 20 30 40 50 60 70;
-do
-	ip link add link ens2 name ipv_$i type ipvlan
-	ip -6 addr add 2002::$i/64 dev ipv_$i
-	ifconfig ipv_$i up
-done
-
-for i in 10 20 30 40 50 60;
-do
-	ip -6 route append 100::/64 encap ip6 dst 2002::$i via 2002::1
-dev ipv_$i metric 100
-done
-
-ip -6 route append 100::/64 via 2002::1 dev ipv_70 metric 100
-
-This patch fixes it by adding nexthop_len of every siblings using
-rt6_nh_nlmsg_size().
-
-Fixes: beb1afac518d ("net: ipv6: Add support to dump multipath routes via RTA_MULTIPATH attribute")
-Signed-off-by: Lu Wei <luwei32@huawei.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20230222083629.335683-2-luwei32@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 9ed7bfc79542 ("sctp: fix memory leak in sctp_stream_outq_migrate()")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/825eb0c905cb864991eba335f4a2b780e543f06b.1677085641.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ include/net/sctp/structs.h   |  1 +
+ net/sctp/stream_sched_prio.c | 52 +++++++++++++++---------------------
+ 2 files changed, 22 insertions(+), 31 deletions(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 803d1aa83140c..a6d5c99f65a3a 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -5444,16 +5444,17 @@ static size_t rt6_nlmsg_size(struct fib6_info *f6i)
- 		nexthop_for_each_fib6_nh(f6i->nh, rt6_nh_nlmsg_size,
- 					 &nexthop_len);
- 	} else {
-+		struct fib6_info *sibling, *next_sibling;
- 		struct fib6_nh *nh = f6i->fib6_nh;
+diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
+index be9ff0422c162..be59e8df0bffc 100644
+--- a/include/net/sctp/structs.h
++++ b/include/net/sctp/structs.h
+@@ -1394,6 +1394,7 @@ struct sctp_stream_priorities {
+ 	/* The next stream in line */
+ 	struct sctp_stream_out_ext *next;
+ 	__u16 prio;
++	__u16 users;
+ };
  
- 		nexthop_len = 0;
- 		if (f6i->fib6_nsiblings) {
--			nexthop_len = nla_total_size(0)	 /* RTA_MULTIPATH */
--				    + NLA_ALIGN(sizeof(struct rtnexthop))
--				    + nla_total_size(16) /* RTA_GATEWAY */
--				    + lwtunnel_get_encap_size(nh->fib_nh_lws);
-+			rt6_nh_nlmsg_size(nh, &nexthop_len);
+ struct sctp_stream_out_ext {
+diff --git a/net/sctp/stream_sched_prio.c b/net/sctp/stream_sched_prio.c
+index 4fc9f2923ed11..7dd9f8b387cca 100644
+--- a/net/sctp/stream_sched_prio.c
++++ b/net/sctp/stream_sched_prio.c
+@@ -25,6 +25,18 @@
  
--			nexthop_len *= f6i->fib6_nsiblings;
-+			list_for_each_entry_safe(sibling, next_sibling,
-+						 &f6i->fib6_siblings, fib6_siblings) {
-+				rt6_nh_nlmsg_size(sibling->fib6_nh, &nexthop_len);
-+			}
- 		}
- 		nexthop_len += lwtunnel_get_encap_size(nh->fib_nh_lws);
+ static void sctp_sched_prio_unsched_all(struct sctp_stream *stream);
+ 
++static struct sctp_stream_priorities *sctp_sched_prio_head_get(struct sctp_stream_priorities *p)
++{
++	p->users++;
++	return p;
++}
++
++static void sctp_sched_prio_head_put(struct sctp_stream_priorities *p)
++{
++	if (p && --p->users == 0)
++		kfree(p);
++}
++
+ static struct sctp_stream_priorities *sctp_sched_prio_new_head(
+ 			struct sctp_stream *stream, int prio, gfp_t gfp)
+ {
+@@ -38,6 +50,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_new_head(
+ 	INIT_LIST_HEAD(&p->active);
+ 	p->next = NULL;
+ 	p->prio = prio;
++	p->users = 1;
+ 
+ 	return p;
+ }
+@@ -53,7 +66,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_get_head(
+ 	 */
+ 	list_for_each_entry(p, &stream->prio_list, prio_sched) {
+ 		if (p->prio == prio)
+-			return p;
++			return sctp_sched_prio_head_get(p);
+ 		if (p->prio > prio)
+ 			break;
  	}
+@@ -70,7 +83,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_get_head(
+ 			 */
+ 			break;
+ 		if (p->prio == prio)
+-			return p;
++			return sctp_sched_prio_head_get(p);
+ 	}
+ 
+ 	/* If not even there, allocate a new one. */
+@@ -154,32 +167,21 @@ static int sctp_sched_prio_set(struct sctp_stream *stream, __u16 sid,
+ 	struct sctp_stream_out_ext *soute = sout->ext;
+ 	struct sctp_stream_priorities *prio_head, *old;
+ 	bool reschedule = false;
+-	int i;
++
++	old = soute->prio_head;
++	if (old && old->prio == prio)
++		return 0;
+ 
+ 	prio_head = sctp_sched_prio_get_head(stream, prio, gfp);
+ 	if (!prio_head)
+ 		return -ENOMEM;
+ 
+ 	reschedule = sctp_sched_prio_unsched(soute);
+-	old = soute->prio_head;
+ 	soute->prio_head = prio_head;
+ 	if (reschedule)
+ 		sctp_sched_prio_sched(stream, soute);
+ 
+-	if (!old)
+-		/* Happens when we set the priority for the first time */
+-		return 0;
+-
+-	for (i = 0; i < stream->outcnt; i++) {
+-		soute = SCTP_SO(stream, i)->ext;
+-		if (soute && soute->prio_head == old)
+-			/* It's still in use, nothing else to do here. */
+-			return 0;
+-	}
+-
+-	/* No hits, we are good to free it. */
+-	kfree(old);
+-
++	sctp_sched_prio_head_put(old);
+ 	return 0;
+ }
+ 
+@@ -206,20 +208,8 @@ static int sctp_sched_prio_init_sid(struct sctp_stream *stream, __u16 sid,
+ 
+ static void sctp_sched_prio_free_sid(struct sctp_stream *stream, __u16 sid)
+ {
+-	struct sctp_stream_priorities *prio = SCTP_SO(stream, sid)->ext->prio_head;
+-	int i;
+-
+-	if (!prio)
+-		return;
+-
++	sctp_sched_prio_head_put(SCTP_SO(stream, sid)->ext->prio_head);
+ 	SCTP_SO(stream, sid)->ext->prio_head = NULL;
+-	for (i = 0; i < stream->outcnt; i++) {
+-		if (SCTP_SO(stream, i)->ext &&
+-		    SCTP_SO(stream, i)->ext->prio_head == prio)
+-			return;
+-	}
+-
+-	kfree(prio);
+ }
+ 
+ static void sctp_sched_prio_free(struct sctp_stream *stream)
 -- 
 2.39.2
 
