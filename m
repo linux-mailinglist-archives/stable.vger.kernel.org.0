@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C5B6B4466
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5BD6B4600
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbjCJOXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:23:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
+        id S232717AbjCJOj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbjCJOXO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:23:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C399511C8C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:38 -0800 (PST)
+        with ESMTP id S232732AbjCJOjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:39:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E67BF6C64
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8C1B82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9F7EC433EF;
-        Fri, 10 Mar 2023 14:22:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB68260F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF6C4C433A0;
+        Fri, 10 Mar 2023 14:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458156;
-        bh=YiRHittQpWN5YfTa13A16IRnbNhvRX/dtklVC0XFaKM=;
+        s=korg; t=1678459142;
+        bh=o/9jWFjU9021b6x9zvYVHxGXNXJok/5CyrGkLsmvWls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuNZ+fMInemj+7tYAzDac+pbXMEzFgMN4Pt8+2CE8De2T24ZVy03bY15deEMfcL1d
-         DT9f5MG/jxG76irhukK5JCASU83MlIl6BDImfGkxhUekZgA67q7OP/qUWATCGrG2kC
-         xfkmEPKq6dxvWjJQF/e+RCFs6ZURZCwaH4m2BfcU=
+        b=GH+u12HrNVlDNG3oniuYR/XroNUW6kNrL081q1jmgLI9fd77GQhaNAlPUCumdKUA1
+         LVCpghT0H0O7hvYaVzKm/RNbHOV3inLnMB1PQ/PszjL1/FoTMGox0yETZZVkfimDLn
+         s+NlQ5OP1nw352s493oz66GAHkzgHM+iRWOPaHn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.19 182/252] media: ipu3-cio2: Fix PM runtime usage_count in driver unbind
+        patches@lists.linux.dev, Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Hugh Dickins <hughd@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 263/357] mm: memcontrol: deprecate charge moving
 Date:   Fri, 10 Mar 2023 14:39:12 +0100
-Message-Id: <20230310133724.409674587@linuxfoundation.org>
+Message-Id: <20230310133746.335962306@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,34 +58,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-commit 909d3096ac99fa2289f9b8945a3eab2269947a0a upstream.
+commit da34a8484d162585e22ed8c1e4114aa2f60e3567 upstream.
 
-Get the PM runtime usage_count and forbid PM runtime at driver unbind. The
-opposite is being done in probe() already.
+Charge moving mode in cgroup1 allows memory to follow tasks as they
+migrate between cgroups.  This is, and always has been, a questionable
+thing to do - for several reasons.
 
-Fixes: commit c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Cc: stable@vger.kernel.org # for >= 4.16
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+First, it's expensive.  Pages need to be identified, locked and isolated
+from various MM operations, and reassigned, one by one.
+
+Second, it's unreliable.  Once pages are charged to a cgroup, there isn't
+always a clear owner task anymore.  Cache isn't moved at all, for example.
+Mapped memory is moved - but if trylocking or isolating a page fails,
+it's arbitrarily left behind.  Frequent moving between domains may leave a
+task's memory scattered all over the place.
+
+Third, it isn't really needed.  Launcher tasks can kick off workload tasks
+directly in their target cgroup.  Using dedicated per-workload groups
+allows fine-grained policy adjustments - no need to move tasks and their
+physical pages between control domains.  The feature was never
+forward-ported to cgroup2, and it hasn't been missed.
+
+Despite it being a niche usecase, the maintenance overhead of supporting
+it is enormous.  Because pages are moved while they are live and subject
+to various MM operations, the synchronization rules are complicated.
+There are lock_page_memcg() in MM and FS code, which non-cgroup people
+don't understand.  In some cases we've been able to shift code and cgroup
+API calls around such that we can rely on native locking as much as
+possible.  But that's fragile, and sometimes we need to hold MM locks for
+longer than we otherwise would (pte lock e.g.).
+
+Mark the feature deprecated. Hopefully we can remove it soon.
+
+And backport into -stable kernels so that people who develop against
+earlier kernels are warned about this deprecation as early as possible.
+
+[akpm@linux-foundation.org: fix memory.rst underlining]
+Link: https://lkml.kernel.org/r/Y5COd+qXwk/S+n8N@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |    3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/admin-guide/cgroup-v1/memory.rst |   13 +++++++++++--
+ mm/memcontrol.c                                |    4 ++++
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1860,6 +1860,9 @@ static void cio2_pci_remove(struct pci_d
- 	v4l2_device_unregister(&cio2->v4l2_dev);
- 	media_device_cleanup(&cio2->media_dev);
- 	mutex_destroy(&cio2->lock);
-+
-+	pm_runtime_forbid(&pci_dev->dev);
-+	pm_runtime_get_noresume(&pci_dev->dev);
- }
+--- a/Documentation/admin-guide/cgroup-v1/memory.rst
++++ b/Documentation/admin-guide/cgroup-v1/memory.rst
+@@ -82,6 +82,8 @@ Brief summary of control files.
+  memory.swappiness		     set/show swappiness parameter of vmscan
+ 				     (See sysctl's vm.swappiness)
+  memory.move_charge_at_immigrate     set/show controls of moving charges
++                                     This knob is deprecated and shouldn't be
++                                     used.
+  memory.oom_control		     set/show oom controls.
+  memory.numa_stat		     show the number of memory usage per numa
+ 				     node
+@@ -745,8 +747,15 @@ NOTE2:
+        It is recommended to set the soft limit always below the hard limit,
+        otherwise the hard limit will take precedence.
  
- static int __maybe_unused cio2_runtime_suspend(struct device *dev)
+-8. Move charges at task migration
+-=================================
++8. Move charges at task migration (DEPRECATED!)
++===============================================
++
++THIS IS DEPRECATED!
++
++It's expensive and unreliable! It's better practice to launch workload
++tasks directly from inside their target cgroup. Use dedicated workload
++cgroups to allow fine-grained policy adjustments without having to
++move physical pages between control domains.
+ 
+ Users can move charges associated with a task along with task migration, that
+ is, uncharge task's pages from the old cgroup and charge them to the new cgroup.
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3775,6 +3775,10 @@ static int mem_cgroup_move_charge_write(
+ {
+ 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
+ 
++	pr_warn_once("Cgroup memory moving (move_charge_at_immigrate) is deprecated. "
++		     "Please report your usecase to linux-mm@kvack.org if you "
++		     "depend on this functionality.\n");
++
+ 	if (val & ~MOVE_MASK)
+ 		return -EINVAL;
+ 
 
 
