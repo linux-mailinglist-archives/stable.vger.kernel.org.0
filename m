@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2561B6B4A8F
+	by mail.lfdr.de (Postfix) with ESMTP id B6D726B4A90
 	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234248AbjCJPY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234185AbjCJPY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 10 Mar 2023 10:24:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54324 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234185AbjCJPYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:24:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B6D114EFE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:54 -0800 (PST)
+        with ESMTP id S233181AbjCJPYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:24:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E7F116B80
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 939D1CE2911
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:13:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81888C433D2;
-        Fri, 10 Mar 2023 15:12:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E069AB822F4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:13:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EFFAC433D2;
+        Fri, 10 Mar 2023 15:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461178;
-        bh=mxwS7JpjaMjvYJIANbrNMNaJyjoMH0oNOYBWnP2Dlpg=;
+        s=korg; t=1678461181;
+        bh=JHShmRp3tRLXch88m4N/oZrTogVoNcn63idwjNH2u4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QIXNVz5L2U1dcOHZMdvYkJFlLvZGA2uK6+aHuSWbLnIdfvn/O4robsFw7sBUvUZt7
-         z1RHrha/O3NCQmpAmJP/F5gon3++Qi8QOrJY7+6s3vtPLH+u4iebO4frhCudTve/9e
-         O769Se/hq77MadwJBbXnSWp1netlPg6IhTTJUHvQ=
+        b=qXUtkTyD209j1VnJcZAg6HSi/UHZWpGJ1Y4N50YJD3BRV8/6NVuGBbM9oNUcx8YKa
+         ousTzhfc9w57ZBmkWqQ8WXSwnaa3aTl1n3ewY5SKk5odOMLCd2QdJdnnHVOjgrAiGa
+         iM7AfhneMaeMPV/rPXk8NrAeq/HQg69RJscj78Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
+        patches@lists.linux.dev, Maor Dickman <maord@nvidia.com>,
+        Raed Salem <raeds@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 051/136] net/mlx5e: Verify flow_source cap before using it
-Date:   Fri, 10 Mar 2023 14:42:53 +0100
-Message-Id: <20230310133708.648769454@linuxfoundation.org>
+Subject: [PATCH 5.15 052/136] net/mlx5: Geneve, Fix handling of Geneve object id as error code
+Date:   Fri, 10 Mar 2023 14:42:54 +0100
+Message-Id: <20230310133708.687650273@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -55,36 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Maor Dickman <maord@nvidia.com>
 
-[ Upstream commit 1bf8b0dae8dde6f02520a5ea34fdaa3b39342e69 ]
+[ Upstream commit d28a06d7dbedc598a06bd1e53a28125f87ca5d0c ]
 
-When adding send to vport rule verify flow_source matching is
-supported by checking the flow_source cap.
+On success, mlx5_geneve_tlv_option_create returns non negative
+Geneve object id. In case the object id is positive value the
+caller functions will handle it as an error (non zero) and
+will fail to offload the Geneve rule.
 
-Fixes: d04442540372 ("net/mlx5: E-Switch, set flow source for send to uplink rule")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
+Fix this by changing caller function ,mlx5_geneve_tlv_option_add,
+to return 0 in case valid non negative object id was provided.
+
+Fixes: 0ccc171ea6a2 ("net/mlx5: Geneve, Manage Geneve TLV options")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Reviewed-by: Raed Salem <raeds@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index 3194cdcd2f630..002567792e91e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -962,7 +962,8 @@ mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *on_esw,
- 	dest.vport.flags |= MLX5_FLOW_DEST_VPORT_VHCA_ID;
- 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c
+index 23361a9ae4fa0..6dc83e871cd76 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c
+@@ -105,6 +105,7 @@ int mlx5_geneve_tlv_option_add(struct mlx5_geneve *geneve, struct geneve_opt *op
+ 		geneve->opt_type = opt->type;
+ 		geneve->obj_id = res;
+ 		geneve->refcount++;
++		res = 0;
+ 	}
  
--	if (rep->vport == MLX5_VPORT_UPLINK)
-+	if (MLX5_CAP_ESW_FLOWTABLE(on_esw->dev, flow_source) &&
-+	    rep->vport == MLX5_VPORT_UPLINK)
- 		spec->flow_context.flow_source = MLX5_FLOW_CONTEXT_FLOW_SOURCE_LOCAL_VPORT;
- 
- 	flow_rule = mlx5_add_flow_rules(on_esw->fdb_table.offloads.slow_fdb,
+ unlock:
 -- 
 2.39.2
 
