@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 358576B45A5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 746B06B41DC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232604AbjCJOfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44624 "EHLO
+        id S231284AbjCJN5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232555AbjCJOfh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A10A4F8288
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:27 -0800 (PST)
+        with ESMTP id S231337AbjCJN5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E58112DF5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A2FEB822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D55C4339B;
-        Fri, 10 Mar 2023 14:35:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1675FB822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A5ABC4339B;
+        Fri, 10 Mar 2023 13:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458925;
-        bh=Q+czA8BMcxhFuCShtXTm1UjpwiFvRSyo6OmeTnk4khU=;
+        s=korg; t=1678456624;
+        bh=dE+5LADuhZBVnsFfNFjhlvGqNXHwb1Hr6Eeh0eL1FXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRvltl1522n8VbHm+sSOgjWA8Zbkz3N52o3e7iR5GZnIthlK58nr+xhZSxoEOBLPN
-         sIQu8+LaEz2FRHJMltflk8fwxKSz3tXtdfwXmQWGpRL6aLQvQkq/od4C01xv0ctUuA
-         xbryJINB1fct5/50BHNvMfOFsihM8eouJe1VtT2w=
+        b=JUeM3R8k8tAnrDv/tz6GkmTcWjLV+/bwE++AOIvg0kvPDh/eem1BcVCTSo9LBTQxm
+         yIleKbeoaeGaw0Xp5dK0J0m+eE+6CBaHmDJbBDOUoYnb0U7C62ajrxh58y1/cAjfjz
+         JVT4/9+3xeaDb+2SCZMkY1UALK0nFPcDNk6UDGT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 158/357] clk: Honor CLK_OPS_PARENT_ENABLE in clk_core_is_enabled()
+Subject: [PATCH 6.2 067/211] netfilter: conntrack: fix rmmod double-free race
 Date:   Fri, 10 Mar 2023 14:37:27 +0100
-Message-Id: <20230310133741.688596331@linuxfoundation.org>
+Message-Id: <20230310133720.788881842@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,66 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 79200d5851c8e7179f68a4a6f162d8f1bde4986f ]
+[ Upstream commit e6d57e9ff0aec323717ee36fc9ea34ad89217151 ]
 
-In the previous commits that added CLK_OPS_PARENT_ENABLE, support for
-this flag was only added to rate change operations (rate setting and
-reparent) and disabling unused subtree. It was not added to the
-clock gate related operations. Any hardware driver that needs it for
-these operations will either see bogus results, or worse, hang.
+nf_conntrack_hash_check_insert() callers free the ct entry directly, via
+nf_conntrack_free.
 
-This has been seen on MT8192 and MT8195, where the imp_ii2_* clk
-drivers set this, but dumping debugfs clk_summary would cause it
-to hang.
+This isn't safe anymore because
+nf_conntrack_hash_check_insert() might place the entry into the conntrack
+table and then delteted the entry again because it found that a conntrack
+extension has been removed at the same time.
 
-Prepare parent on prepare and enable parent on enable dependencies are
-already handled automatically by the core as part of its sequencing.
-Whether the case for "enable parent on prepare" should be supported by
-this flag or not is not clear, and thus ignored for now.
+In this case, the just-added entry is removed again and an error is
+returned to the caller.
 
-This change solely fixes the handling of clk_core_is_enabled, i.e.
-enabling the parent clock when reading the hardware state. Unfortunately
-clk_core_is_enabled is called in a variety of places, sometimes with
-the enable clock already held. To avoid deadlocking, the core will
-ignore readouts and just return false if CLK_OPS_PARENT_ENABLE is set
-but the parent isn't currently enabled.
+Problem is that another cpu might have picked up this entry and
+incremented its reference count.
 
-Fixes: fc8726a2c021 ("clk: core: support clocks which requires parents enable (part 2)")
-Fixes: a4b3518d146f ("clk: core: support clocks which requires parents enable (part 1)")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Link: https://lore.kernel.org/r/20230103092330.494102-1-wenst@chromium.org
-Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+This results in a use-after-free/double-free, once by the other cpu and
+once by the caller of nf_conntrack_hash_check_insert().
+
+Fix this by making nf_conntrack_hash_check_insert() not fail anymore
+after the insertion, just like before the 'Fixes' commit.
+
+This is safe because a racing nf_ct_iterate() has to wait for us
+to release the conntrack hash spinlocks.
+
+While at it, make the function return -EAGAIN in the rmmod (genid
+changed) case, this makes nfnetlink replay the command (suggested
+by Pablo Neira).
+
+Fixes: c56716c69ce1 ("netfilter: extensions: introduce extension genid count")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/netfilter/nf_conntrack_bpf.c     |  1 -
+ net/netfilter/nf_conntrack_core.c    | 25 +++++++++++++++----------
+ net/netfilter/nf_conntrack_netlink.c |  3 ---
+ 3 files changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index c002f83adf573..1c73668b43755 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -251,6 +251,17 @@ static bool clk_core_is_enabled(struct clk_core *core)
- 		}
+diff --git a/net/netfilter/nf_conntrack_bpf.c b/net/netfilter/nf_conntrack_bpf.c
+index 24002bc61e07e..e1af14e3b63c5 100644
+--- a/net/netfilter/nf_conntrack_bpf.c
++++ b/net/netfilter/nf_conntrack_bpf.c
+@@ -381,7 +381,6 @@ struct nf_conn *bpf_ct_insert_entry(struct nf_conn___init *nfct_i)
+ 	struct nf_conn *nfct = (struct nf_conn *)nfct_i;
+ 	int err;
+ 
+-	nfct->status |= IPS_CONFIRMED;
+ 	err = nf_conntrack_hash_check_insert(nfct);
+ 	if (err < 0) {
+ 		nf_conntrack_free(nfct);
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 496c4920505b3..ead11a9c261f3 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -886,10 +886,8 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
+ 
+ 	zone = nf_ct_zone(ct);
+ 
+-	if (!nf_ct_ext_valid_pre(ct->ext)) {
+-		NF_CT_STAT_INC_ATOMIC(net, insert_failed);
+-		return -ETIMEDOUT;
+-	}
++	if (!nf_ct_ext_valid_pre(ct->ext))
++		return -EAGAIN;
+ 
+ 	local_bh_disable();
+ 	do {
+@@ -924,6 +922,19 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
+ 			goto chaintoolong;
  	}
  
-+	/*
-+	 * This could be called with the enable lock held, or from atomic
-+	 * context. If the parent isn't enabled already, we can't do
-+	 * anything here. We can also assume this clock isn't enabled.
++	/* If genid has changed, we can't insert anymore because ct
++	 * extensions could have stale pointers and nf_ct_iterate_destroy
++	 * might have completed its table scan already.
++	 *
++	 * Increment of the ext genid right after this check is fine:
++	 * nf_ct_iterate_destroy blocks until locks are released.
 +	 */
-+	if ((core->flags & CLK_OPS_PARENT_ENABLE) && core->parent)
-+		if (!clk_core_is_enabled(core->parent)) {
-+			ret = false;
-+			goto done;
-+		}
++	if (!nf_ct_ext_valid_post(ct->ext)) {
++		err = -EAGAIN;
++		goto out;
++	}
 +
- 	ret = core->ops->is_enabled(core->hw);
- done:
- 	if (core->rpm_enabled)
++	ct->status |= IPS_CONFIRMED;
+ 	smp_wmb();
+ 	/* The caller holds a reference to this object */
+ 	refcount_set(&ct->ct_general.use, 2);
+@@ -932,12 +943,6 @@ nf_conntrack_hash_check_insert(struct nf_conn *ct)
+ 	NF_CT_STAT_INC(net, insert);
+ 	local_bh_enable();
+ 
+-	if (!nf_ct_ext_valid_post(ct->ext)) {
+-		nf_ct_kill(ct);
+-		NF_CT_STAT_INC_ATOMIC(net, drop);
+-		return -ETIMEDOUT;
+-	}
+-
+ 	return 0;
+ chaintoolong:
+ 	NF_CT_STAT_INC(net, chaintoolong);
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index ca4d5bb1ea524..733bb56950c14 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -2316,9 +2316,6 @@ ctnetlink_create_conntrack(struct net *net,
+ 	nfct_seqadj_ext_add(ct);
+ 	nfct_synproxy_ext_add(ct);
+ 
+-	/* we must add conntrack extensions before confirmation. */
+-	ct->status |= IPS_CONFIRMED;
+-
+ 	if (cda[CTA_STATUS]) {
+ 		err = ctnetlink_change_status(ct, cda);
+ 		if (err < 0)
 -- 
 2.39.2
 
