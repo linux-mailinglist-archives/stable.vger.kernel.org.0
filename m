@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F536B41E6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2E0F6B41E2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231359AbjCJN5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:57:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40732 "EHLO
+        id S231355AbjCJN5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231354AbjCJN5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02D210F45F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:32 -0800 (PST)
+        with ESMTP id S231363AbjCJN5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A281151FE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26922B822BE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ADC2C433EF;
-        Fri, 10 Mar 2023 13:57:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55EFD6182F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 525F4C4339B;
+        Fri, 10 Mar 2023 13:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456646;
-        bh=sycv6iu5K5F3S5Tr2gJLFuQPxHuazObeqeVF4t+R/m4=;
+        s=korg; t=1678456649;
+        bh=T1UvVUZq879g5HlfmSbqGqSsR3xI/xu1OA63map/8xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9mE1dVnmEvfMoyBn/cg5CdMdRAX/akaDpQwafzRM4KKYx5cjwEemUE8+BZTkax6C
-         bUCGp+iKc+54aLqZ98AGvwHxI0X7P8BYWTZFFM6mhVCixfM3LRJeYYzy/qko8RB6aL
-         cQrhalVASLsNeosdM/hUyqiowu85KXdPX08Z2EB8=
+        b=qDf6J1jsX0X5CnZRaXuwrxgbpcUi+7pRW6dQBKlLHguNOSM+1QyCkLiYyh+WJuOzS
+         g4nYOlrSZI1auiVbI4+tRk1ex3PxcF9lb6qDMqDtGilJQ1ALu6/OTp1FxKmarYkrzp
+         4ugzAUorLEFD2In+A/O3Xijn61Mhpnrp9P0wnIto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Alexey Kardashevskiy <aik@amd.com>,
-        Christoph Hellwig <hch@lst.de>, iommu@lists.linux.dev,
-        Mike Rapoport <rppt@kernel.org>, linux-mm@kvack.org,
+        patches@lists.linux.dev, Yalin Li <yalli@redhat.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 073/211] swiotlb: mark swiotlb_memblock_alloc() as __init
-Date:   Fri, 10 Mar 2023 14:37:33 +0100
-Message-Id: <20230310133721.005935440@linuxfoundation.org>
+Subject: [PATCH 6.2 074/211] ptp: vclock: use mutex to fix "sleep on atomic" bug
+Date:   Fri, 10 Mar 2023 14:37:34 +0100
+Message-Id: <20230310133721.036145483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
 References: <20230310133718.689332661@linuxfoundation.org>
@@ -46,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,49 +57,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 9b07d27d0fbb7f7441aa986859a0f53ec93a0335 ]
+[ Upstream commit 67d93ffc0f3c47094750bde6d62e7c5765dc47a6 ]
 
-swiotlb_memblock_alloc() calls memblock_alloc(), which calls
-(__init) memblock_alloc_try_nid(). However, swiotlb_membloc_alloc()
-can be marked as __init since it is only called by swiotlb_init_remap(),
-which is already marked as __init. This prevents a modpost build
-warning/error:
+vclocks were using spinlocks to protect access to its timecounter and
+cyclecounter. Access to timecounter/cyclecounter is backed by the same
+driver callbacks that are used for non-virtual PHCs, but the usage of
+the spinlock imposes a new limitation that didn't exist previously: now
+they're called in atomic context so they mustn't sleep.
 
-WARNING: modpost: vmlinux.o: section mismatch in reference: swiotlb_memblock_alloc (section: .text) -> memblock_alloc_try_nid (section: .init.text)
-WARNING: modpost: vmlinux.o: section mismatch in reference: swiotlb_memblock_alloc (section: .text) -> memblock_alloc_try_nid (section: .init.text)
+Some drivers like sfc or ice may sleep on these callbacks, causing
+errors like "BUG: scheduling while atomic: ptp5/25223/0x00000002"
 
-This fixes the build warning/error seen on ARM64, PPC64, S390, i386,
-and x86_64.
+Fix it replacing the vclock's spinlock by a mutex. It fix the mentioned
+bug and it doesn't introduce longer delays.
 
-Fixes: 8d58aa484920 ("swiotlb: reduce the swiotlb buffer size on allocation failure")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Alexey Kardashevskiy <aik@amd.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: iommu@lists.linux.dev
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: linux-mm@kvack.org
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+I've tested synchronizing various different combinations of clocks:
+- vclock->sysclock
+- sysclock->vclock
+- vclock->vclock
+- hardware PHC in different NIC -> vclock
+- created 4 vclocks and launch 4 parallel phc2sys processes with
+  lockdep enabled
+
+In all cases, comparing the delays reported by phc2sys, they are in the
+same range of values than before applying the patch.
+
+Link: https://lore.kernel.org/netdev/69d0ff33-bd32-6aa5-d36c-fbdc3c01337c@redhat.com/
+Fixes: 5d43f951b1ac ("ptp: add ptp virtual clock driver framework")
+Reported-by: Yalin Li <yalli@redhat.com>
+Suggested-by: Richard Cochran <richardcochran@gmail.com>
+Tested-by: Miroslav Lichvar <mlichvar@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Link: https://lore.kernel.org/r/20230221130616.21837-1-ihuguet@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/swiotlb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ptp/ptp_private.h |  2 +-
+ drivers/ptp/ptp_vclock.c  | 44 +++++++++++++++++++--------------------
+ 2 files changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index a34c38bbe28f1..ef3bc3a5bbed3 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -300,7 +300,8 @@ static void swiotlb_init_io_tlb_mem(struct io_tlb_mem *mem, phys_addr_t start,
- 	return;
- }
+diff --git a/drivers/ptp/ptp_private.h b/drivers/ptp/ptp_private.h
+index 77918a2c67018..75f58fc468a71 100644
+--- a/drivers/ptp/ptp_private.h
++++ b/drivers/ptp/ptp_private.h
+@@ -66,7 +66,7 @@ struct ptp_vclock {
+ 	struct hlist_node vclock_hash_node;
+ 	struct cyclecounter cc;
+ 	struct timecounter tc;
+-	spinlock_t lock;	/* protects tc/cc */
++	struct mutex lock;	/* protects tc/cc */
+ };
  
--static void *swiotlb_memblock_alloc(unsigned long nslabs, unsigned int flags,
-+static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
-+		unsigned int flags,
- 		int (*remap)(void *tlb, unsigned long nslabs))
+ /*
+diff --git a/drivers/ptp/ptp_vclock.c b/drivers/ptp/ptp_vclock.c
+index 1c0ed4805c0aa..dcf752c9e0450 100644
+--- a/drivers/ptp/ptp_vclock.c
++++ b/drivers/ptp/ptp_vclock.c
+@@ -43,16 +43,16 @@ static void ptp_vclock_hash_del(struct ptp_vclock *vclock)
+ static int ptp_vclock_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
  {
- 	size_t bytes = PAGE_ALIGN(nslabs << IO_TLB_SHIFT);
+ 	struct ptp_vclock *vclock = info_to_vclock(ptp);
+-	unsigned long flags;
+ 	s64 adj;
+ 
+ 	adj = (s64)scaled_ppm << PTP_VCLOCK_FADJ_SHIFT;
+ 	adj = div_s64(adj, PTP_VCLOCK_FADJ_DENOMINATOR);
+ 
+-	spin_lock_irqsave(&vclock->lock, flags);
++	if (mutex_lock_interruptible(&vclock->lock))
++		return -EINTR;
+ 	timecounter_read(&vclock->tc);
+ 	vclock->cc.mult = PTP_VCLOCK_CC_MULT + adj;
+-	spin_unlock_irqrestore(&vclock->lock, flags);
++	mutex_unlock(&vclock->lock);
+ 
+ 	return 0;
+ }
+@@ -60,11 +60,11 @@ static int ptp_vclock_adjfine(struct ptp_clock_info *ptp, long scaled_ppm)
+ static int ptp_vclock_adjtime(struct ptp_clock_info *ptp, s64 delta)
+ {
+ 	struct ptp_vclock *vclock = info_to_vclock(ptp);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&vclock->lock, flags);
++	if (mutex_lock_interruptible(&vclock->lock))
++		return -EINTR;
+ 	timecounter_adjtime(&vclock->tc, delta);
+-	spin_unlock_irqrestore(&vclock->lock, flags);
++	mutex_unlock(&vclock->lock);
+ 
+ 	return 0;
+ }
+@@ -73,12 +73,12 @@ static int ptp_vclock_gettime(struct ptp_clock_info *ptp,
+ 			      struct timespec64 *ts)
+ {
+ 	struct ptp_vclock *vclock = info_to_vclock(ptp);
+-	unsigned long flags;
+ 	u64 ns;
+ 
+-	spin_lock_irqsave(&vclock->lock, flags);
++	if (mutex_lock_interruptible(&vclock->lock))
++		return -EINTR;
+ 	ns = timecounter_read(&vclock->tc);
+-	spin_unlock_irqrestore(&vclock->lock, flags);
++	mutex_unlock(&vclock->lock);
+ 	*ts = ns_to_timespec64(ns);
+ 
+ 	return 0;
+@@ -91,7 +91,6 @@ static int ptp_vclock_gettimex(struct ptp_clock_info *ptp,
+ 	struct ptp_vclock *vclock = info_to_vclock(ptp);
+ 	struct ptp_clock *pptp = vclock->pclock;
+ 	struct timespec64 pts;
+-	unsigned long flags;
+ 	int err;
+ 	u64 ns;
+ 
+@@ -99,9 +98,10 @@ static int ptp_vclock_gettimex(struct ptp_clock_info *ptp,
+ 	if (err)
+ 		return err;
+ 
+-	spin_lock_irqsave(&vclock->lock, flags);
++	if (mutex_lock_interruptible(&vclock->lock))
++		return -EINTR;
+ 	ns = timecounter_cyc2time(&vclock->tc, timespec64_to_ns(&pts));
+-	spin_unlock_irqrestore(&vclock->lock, flags);
++	mutex_unlock(&vclock->lock);
+ 
+ 	*ts = ns_to_timespec64(ns);
+ 
+@@ -113,11 +113,11 @@ static int ptp_vclock_settime(struct ptp_clock_info *ptp,
+ {
+ 	struct ptp_vclock *vclock = info_to_vclock(ptp);
+ 	u64 ns = timespec64_to_ns(ts);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&vclock->lock, flags);
++	if (mutex_lock_interruptible(&vclock->lock))
++		return -EINTR;
+ 	timecounter_init(&vclock->tc, &vclock->cc, ns);
+-	spin_unlock_irqrestore(&vclock->lock, flags);
++	mutex_unlock(&vclock->lock);
+ 
+ 	return 0;
+ }
+@@ -127,7 +127,6 @@ static int ptp_vclock_getcrosststamp(struct ptp_clock_info *ptp,
+ {
+ 	struct ptp_vclock *vclock = info_to_vclock(ptp);
+ 	struct ptp_clock *pptp = vclock->pclock;
+-	unsigned long flags;
+ 	int err;
+ 	u64 ns;
+ 
+@@ -135,9 +134,10 @@ static int ptp_vclock_getcrosststamp(struct ptp_clock_info *ptp,
+ 	if (err)
+ 		return err;
+ 
+-	spin_lock_irqsave(&vclock->lock, flags);
++	if (mutex_lock_interruptible(&vclock->lock))
++		return -EINTR;
+ 	ns = timecounter_cyc2time(&vclock->tc, ktime_to_ns(xtstamp->device));
+-	spin_unlock_irqrestore(&vclock->lock, flags);
++	mutex_unlock(&vclock->lock);
+ 
+ 	xtstamp->device = ns_to_ktime(ns);
+ 
+@@ -205,7 +205,7 @@ struct ptp_vclock *ptp_vclock_register(struct ptp_clock *pclock)
+ 
+ 	INIT_HLIST_NODE(&vclock->vclock_hash_node);
+ 
+-	spin_lock_init(&vclock->lock);
++	mutex_init(&vclock->lock);
+ 
+ 	vclock->clock = ptp_clock_register(&vclock->info, &pclock->dev);
+ 	if (IS_ERR_OR_NULL(vclock->clock)) {
+@@ -269,7 +269,6 @@ ktime_t ptp_convert_timestamp(const ktime_t *hwtstamp, int vclock_index)
+ {
+ 	unsigned int hash = vclock_index % HASH_SIZE(vclock_hash);
+ 	struct ptp_vclock *vclock;
+-	unsigned long flags;
+ 	u64 ns;
+ 	u64 vclock_ns = 0;
+ 
+@@ -281,9 +280,10 @@ ktime_t ptp_convert_timestamp(const ktime_t *hwtstamp, int vclock_index)
+ 		if (vclock->clock->index != vclock_index)
+ 			continue;
+ 
+-		spin_lock_irqsave(&vclock->lock, flags);
++		if (mutex_lock_interruptible(&vclock->lock))
++			break;
+ 		vclock_ns = timecounter_cyc2time(&vclock->tc, ns);
+-		spin_unlock_irqrestore(&vclock->lock, flags);
++		mutex_unlock(&vclock->lock);
+ 		break;
+ 	}
+ 
 -- 
 2.39.2
 
