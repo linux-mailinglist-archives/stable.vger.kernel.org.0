@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B926B42AE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A86216B456A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231668AbjCJOFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:05:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59912 "EHLO
+        id S232365AbjCJOdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:33:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231700AbjCJOFX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:05:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB53E11759E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:13 -0800 (PST)
+        with ESMTP id S232608AbjCJOdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128431ADFC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77AE6617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AF1BC433EF;
-        Fri, 10 Mar 2023 14:05:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22FC3B822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C62EC433EF;
+        Fri, 10 Mar 2023 14:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457112;
-        bh=dTJrYnKqk8s+vqBi0F09hGyI2OcwSqs+R0H4WLcmEC8=;
+        s=korg; t=1678458780;
+        bh=yf1V2yYku1Tb2D38hbQzvy58pR0jhpqtt7MShKtSbEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sD4jQa3SwTIboMZRmrCIKVGUctIji4h0n7Ua8+U4OVr6v1BDB4UeRoagR44IYJvbT
-         7pkTzLMuYML/FQWwfFpENhiDesq+oESynZOHi9nrlfJdrNM/NAQnIr+/6SB8MqdX8Z
-         jdrM83GNfw4E8s2jYoQWxr3pSZS6OWCFoI0dnhkE=
+        b=HlicrhXUuC/nxKDNSvV8hjAQXNRS4LR6QDh7qRk/PnwF+YKlavtwOejQEj/2uOJAP
+         KLfi73WJFEuEVqr1mk4T0y498xS9tu6b0qCi2OlDmy7BubGwaah/J2WwFndg03xZ3I
+         jJ4WNxUvMB/5EQqui4DPFLN7KWYijh8bGIoEEiGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 024/200] ubi: ensure that VID header offset + VID header size <= alloc, size
+Subject: [PATCH 5.4 142/357] gfs2: jdata writepage fix
 Date:   Fri, 10 Mar 2023 14:37:11 +0100
-Message-Id: <20230310133717.790406125@linuxfoundation.org>
+Message-Id: <20230310133740.959202477@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,129 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 1b42b1a36fc946f0d7088425b90d491b4257ca3e ]
+[ Upstream commit cbb60951ce18c9b6e91d2eb97deb41d8ff616622 ]
 
-Ensure that the VID header offset + VID header size does not exceed
-the allocated area to avoid slab OOB.
+The ->writepage() and ->writepages() operations are supposed to write
+entire pages.  However, on filesystems with a block size smaller than
+PAGE_SIZE, __gfs2_jdata_writepage() only adds the first block to the
+current transaction instead of adding the entire page.  Fix that.
 
-BUG: KASAN: slab-out-of-bounds in crc32_body lib/crc32.c:111 [inline]
-BUG: KASAN: slab-out-of-bounds in crc32_le_generic lib/crc32.c:179 [inline]
-BUG: KASAN: slab-out-of-bounds in crc32_le_base+0x58c/0x626 lib/crc32.c:197
-Read of size 4 at addr ffff88802bb36f00 by task syz-executor136/1555
-
-CPU: 2 PID: 1555 Comm: syz-executor136 Tainted: G        W
-6.0.0-1868 #1
-Hardware name: Red Hat KVM, BIOS 1.13.0-2.module+el8.3.0+7860+a7792d29
-04/01/2014
-Call Trace:
-  <TASK>
-  __dump_stack lib/dump_stack.c:88 [inline]
-  dump_stack_lvl+0x85/0xad lib/dump_stack.c:106
-  print_address_description mm/kasan/report.c:317 [inline]
-  print_report.cold.13+0xb6/0x6bb mm/kasan/report.c:433
-  kasan_report+0xa7/0x11b mm/kasan/report.c:495
-  crc32_body lib/crc32.c:111 [inline]
-  crc32_le_generic lib/crc32.c:179 [inline]
-  crc32_le_base+0x58c/0x626 lib/crc32.c:197
-  ubi_io_write_vid_hdr+0x1b7/0x472 drivers/mtd/ubi/io.c:1067
-  create_vtbl+0x4d5/0x9c4 drivers/mtd/ubi/vtbl.c:317
-  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
-  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
-  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
-  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
-  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
-  vfs_ioctl fs/ioctl.c:51 [inline]
-  __do_sys_ioctl fs/ioctl.c:870 [inline]
-  __se_sys_ioctl fs/ioctl.c:856 [inline]
-  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0x0
-RIP: 0033:0x7f96d5cf753d
-Code:
-RSP: 002b:00007fffd72206f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f96d5cf753d
-RDX: 0000000020000080 RSI: 0000000040186f40 RDI: 0000000000000003
-RBP: 0000000000400cd0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000400be0
-R13: 00007fffd72207e0 R14: 0000000000000000 R15: 0000000000000000
-  </TASK>
-
-Allocated by task 1555:
-  kasan_save_stack+0x20/0x3d mm/kasan/common.c:38
-  kasan_set_track mm/kasan/common.c:45 [inline]
-  set_alloc_info mm/kasan/common.c:437 [inline]
-  ____kasan_kmalloc mm/kasan/common.c:516 [inline]
-  __kasan_kmalloc+0x88/0xa3 mm/kasan/common.c:525
-  kasan_kmalloc include/linux/kasan.h:234 [inline]
-  __kmalloc+0x138/0x257 mm/slub.c:4429
-  kmalloc include/linux/slab.h:605 [inline]
-  ubi_alloc_vid_buf drivers/mtd/ubi/ubi.h:1093 [inline]
-  create_vtbl+0xcc/0x9c4 drivers/mtd/ubi/vtbl.c:295
-  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
-  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
-  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
-  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
-  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
-  vfs_ioctl fs/ioctl.c:51 [inline]
-  __do_sys_ioctl fs/ioctl.c:870 [inline]
-  __se_sys_ioctl fs/ioctl.c:856 [inline]
-  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0x0
-
-The buggy address belongs to the object at ffff88802bb36e00
-  which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 0 bytes to the right of
-  256-byte region [ffff88802bb36e00, ffff88802bb36f00)
-
-The buggy address belongs to the physical page:
-page:00000000ea4d1263 refcount:1 mapcount:0 mapping:0000000000000000
-index:0x0 pfn:0x2bb36
-head:00000000ea4d1263 order:1 compound_mapcount:0 compound_pincount:0
-flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
-raw: 000fffffc0010200 ffffea000066c300 dead000000000003 ffff888100042b40
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff88802bb36e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ffff88802bb36e80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff88802bb36f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                    ^
-  ffff88802bb36f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff88802bb37000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 18ec7d5c3f43 ("[GFS2] Make journaled data files identical to normal files on disk")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/gfs2/aops.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-index a901f8edfa41d..2178eb4115b36 100644
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -663,6 +663,12 @@ static int io_init(struct ubi_device *ubi, int max_beb_per1024)
- 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
- 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
+diff --git a/fs/gfs2/aops.c b/fs/gfs2/aops.c
+index b9fe975d7625a..c21383fab33b7 100644
+--- a/fs/gfs2/aops.c
++++ b/fs/gfs2/aops.c
+@@ -156,7 +156,6 @@ static int __gfs2_jdata_writepage(struct page *page, struct writeback_control *w
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	struct gfs2_inode *ip = GFS2_I(inode);
+-	struct gfs2_sbd *sdp = GFS2_SB(inode);
  
-+	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
-+	    ubi->vid_hdr_alsize)) {
-+		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
-+		return -EINVAL;
-+	}
-+
- 	dbg_gen("min_io_size      %d", ubi->min_io_size);
- 	dbg_gen("max_write_size   %d", ubi->max_write_size);
- 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
+ 	if (PageChecked(page)) {
+ 		ClearPageChecked(page);
+@@ -164,7 +163,7 @@ static int __gfs2_jdata_writepage(struct page *page, struct writeback_control *w
+ 			create_empty_buffers(page, inode->i_sb->s_blocksize,
+ 					     BIT(BH_Dirty)|BIT(BH_Uptodate));
+ 		}
+-		gfs2_page_add_databufs(ip, page, 0, sdp->sd_vfs->s_blocksize);
++		gfs2_page_add_databufs(ip, page, 0, PAGE_SIZE);
+ 	}
+ 	return gfs2_write_full_page(page, gfs2_get_block_noalloc, wbc);
+ }
 -- 
 2.39.2
 
