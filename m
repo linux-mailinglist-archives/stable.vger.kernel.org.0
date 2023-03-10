@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5B06B4AA6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:25:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0169A6B496D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:12:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234255AbjCJPZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:25:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56716 "EHLO
+        id S233932AbjCJPMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:12:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234315AbjCJPY4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:24:56 -0500
+        with ESMTP id S234034AbjCJPMN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:12:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BEDC5B429
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:14:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87AF110C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:03:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8AE6B82300
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:50:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06D75C4339B;
-        Fri, 10 Mar 2023 14:50:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5E96B822BF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:50:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B311C4339C;
+        Fri, 10 Mar 2023 14:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459835;
-        bh=Jqbw3s2CuE8wbRmwz/SEgem1CEglRObBL4yKCUluc64=;
+        s=korg; t=1678459841;
+        bh=dbNVXLNXLF9tmtDeLxwn0K7X2YQccU4s+X8cG+vzoOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5GFyrAESh9y2qBy/748WgQQZeErLkDgyXJHXvuz26pBgYU7Ml1VQpYw8JjvZPWO5
-         WIsCV43ZAk+Jbq64lJ9x2mZm4vELzsaSpGL41srFASVV+8NCHDUwYQ8HIOsocaPTCd
-         ZgLmj89AKJyl+PHK+k3y1iHb7Kuk47mvNrdEXoyg=
+        b=bpyKdKmN84GqAaSldtyzAizemBcsAABVWPwlP82gMWwZ82g0WZKuivwMtfMxiKqLp
+         4Td9jFjQUsroI8U9Yfjsr+XvtYoW9af6f370dZamXQ9ICOyTBtgZj5l3LXRhXKadnX
+         UyCbXGXVxSVk/QqcpO0gax9guRakNoEDK8E7srvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        patches@lists.linux.dev, Shayne Chen <shayne.chen@mediatek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 135/529] selftests/bpf: Fix out-of-srctree build
-Date:   Fri, 10 Mar 2023 14:34:38 +0100
-Message-Id: <20230310133811.225901952@linuxfoundation.org>
+Subject: [PATCH 5.10 137/529] wifi: mac80211: make rate u32 in sta_set_rate_info_rx()
+Date:   Fri, 10 Mar 2023 14:34:40 +0100
+Message-Id: <20230310133811.317090111@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,47 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Shayne Chen <shayne.chen@mediatek.com>
 
-[ Upstream commit 0b0757244754ea1d0721195c824770f5576e119e ]
+[ Upstream commit 59336e07b287d91dc4ec265e07724e8f7e3d0209 ]
 
-Building BPF selftests out of srctree fails with:
+The value of last_rate in ieee80211_sta_rx_stats is degraded from u32 to
+u16 after being assigned to rate variable, which causes information loss
+in STA_STATS_FIELD_TYPE and later bitfields.
 
-  make: *** No rule to make target '/linux-build//ima_setup.sh', needed by 'ima_setup.sh'.  Stop.
-
-The culprit is the rule that defines convenient shorthands like
-"make test_progs", which builds $(OUTPUT)/test_progs. These shorthands
-make sense only for binaries that are built though; scripts that live
-in the source tree do not end up in $(OUTPUT).
-
-Therefore drop $(TEST_PROGS) and $(TEST_PROGS_EXTENDED) from the rule.
-
-The issue exists for a while, but it became a problem only after commit
-d68ae4982cb7 ("selftests/bpf: Install all required files to run selftests"),
-which added dependencies on these scripts.
-
-Fixes: 03dcb78460c2 ("selftests/bpf: Add simple per-test targets to Makefile")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20230208231211.283606-1-iii@linux.ibm.com
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Link: https://lore.kernel.org/r/20230209110659.25447-1-shayne.chen@mediatek.com
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 2 --
- 1 file changed, 2 deletions(-)
+ net/mac80211/sta_info.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 1d91555333608..a845724e0906a 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -119,8 +119,6 @@ RESOLVE_BTFIDS := $(BUILD_DIR)/resolve_btfids/resolve_btfids
- # NOTE: Semicolon at the end is critical to override lib.mk's default static
- # rule for binaries.
- $(notdir $(TEST_GEN_PROGS)						\
--	 $(TEST_PROGS)							\
--	 $(TEST_PROGS_EXTENDED)						\
- 	 $(TEST_GEN_PROGS_EXTENDED)					\
- 	 $(TEST_CUSTOM_PROGS)): %: $(OUTPUT)/% ;
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index cee39ae52245c..d572478c4d68e 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2159,7 +2159,7 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u32 rate,
  
+ static int sta_set_rate_info_rx(struct sta_info *sta, struct rate_info *rinfo)
+ {
+-	u16 rate = READ_ONCE(sta_get_last_rx_stats(sta)->last_rate);
++	u32 rate = READ_ONCE(sta_get_last_rx_stats(sta)->last_rate);
+ 
+ 	if (rate == STA_STATS_RATE_INVALID)
+ 		return -EINVAL;
 -- 
 2.39.2
 
