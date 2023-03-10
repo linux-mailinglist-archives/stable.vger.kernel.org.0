@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF766B4498
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B686B462F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232377AbjCJOZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:25:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40990 "EHLO
+        id S232748AbjCJOlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:41:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232184AbjCJOZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE121118BCE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:28 -0800 (PST)
+        with ESMTP id S232735AbjCJOk6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE1D121B5D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E3306187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 415A3C4339C;
-        Fri, 10 Mar 2023 14:24:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93598B822DD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F14C433D2;
+        Fri, 10 Mar 2023 14:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458267;
-        bh=QIlAN8joKU9hoWiLyMc5pj40O+R97F8T7XIxJfqVqd8=;
+        s=korg; t=1678459253;
+        bh=omxXRtzNX4H2ec7YLtDltJ24Opdx3WzkYuF6tEPd5PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwmL7eojbLpw1UeKCcq5ahzZCVGasRQHfqT5YiS8Oim+haIoPa3Q6zdx4dXps9joQ
-         Fi8O4TcqDYdh9O/XEBUahMirqNUnHNCzYnMan9V0U2cx14a81Iy/sSxRY5/TNE8IKL
-         uvoUeY57fpacAmGO5lgLd1oKN2QTqVjYTTi+KeWM=
+        b=S+iCOxaP0+4wyNd1h+hhOl9hr3EPKiAi982TjP1qD95u/lV5ta3zqMkisUevtek0Z
+         02cvPBsvihXichiHBKhIMcaX3xVHjvNOJwxmZ1VuxC0gj0xMAd4z84KfJ66URkRkVz
+         KPEF3XyyC9p0JVK1+ukNVG1UGwvqlsiHQoD5o5QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 219/252] netfilter: ctnetlink: fix possible refcount leak in ctnetlink_create_conntrack()
+Subject: [PATCH 5.4 300/357] ubifs: Fix memory leak in alloc_wbufs()
 Date:   Fri, 10 Mar 2023 14:39:49 +0100
-Message-Id: <20230310133725.828171254@linuxfoundation.org>
+Message-Id: <20230310133747.979455099@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit ac4893980bbe79ce383daf9a0885666a30fe4c83 ]
+[ Upstream commit 4a1ff3c5d04b9079b4f768d9a71b51c4af578dd2 ]
 
-nf_ct_put() needs to be called to put the refcount got by
-nf_conntrack_find_get() to avoid refcount leak when
-nf_conntrack_hash_check_insert() fails.
+kmemleak reported a sequence of memory leaks, and show them as following:
 
-Fixes: 7d367e06688d ("netfilter: ctnetlink: fix soft lockup when netlink adds new entries (v2)")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+  unreferenced object 0xffff8881575f8400 (size 1024):
+    comm "mount", pid 19625, jiffies 4297119604 (age 20.383s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<ffffffff8176cecd>] __kmalloc+0x4d/0x150
+      [<ffffffffa0406b2b>] ubifs_mount+0x307b/0x7170 [ubifs]
+      [<ffffffff819fa8fd>] legacy_get_tree+0xed/0x1d0
+      [<ffffffff81936f2d>] vfs_get_tree+0x7d/0x230
+      [<ffffffff819b2bd4>] path_mount+0xdd4/0x17b0
+      [<ffffffff819b37aa>] __x64_sys_mount+0x1fa/0x270
+      [<ffffffff83c14295>] do_syscall_64+0x35/0x80
+      [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+  unreferenced object 0xffff8881798a6e00 (size 512):
+    comm "mount", pid 19677, jiffies 4297121912 (age 37.816s)
+    hex dump (first 32 bytes):
+      6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+      6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+    backtrace:
+      [<ffffffff8176cecd>] __kmalloc+0x4d/0x150
+      [<ffffffffa0418342>] ubifs_wbuf_init+0x52/0x480 [ubifs]
+      [<ffffffffa0406ca5>] ubifs_mount+0x31f5/0x7170 [ubifs]
+      [<ffffffff819fa8fd>] legacy_get_tree+0xed/0x1d0
+      [<ffffffff81936f2d>] vfs_get_tree+0x7d/0x230
+      [<ffffffff819b2bd4>] path_mount+0xdd4/0x17b0
+      [<ffffffff819b37aa>] __x64_sys_mount+0x1fa/0x270
+      [<ffffffff83c14295>] do_syscall_64+0x35/0x80
+      [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+The problem is that the ubifs_wbuf_init() returns an error in the
+loop which in the alloc_wbufs(), then the wbuf->buf and wbuf->inodes
+that were successfully alloced before are not freed.
+
+Fix it by adding error hanging path in alloc_wbufs() which frees
+the memory alloced before when ubifs_wbuf_init() returns an error.
+
+Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ubifs/super.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 2850a638401d5..58bba2e2691fa 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -2056,12 +2056,15 @@ ctnetlink_create_conntrack(struct net *net,
+diff --git a/fs/ubifs/super.c b/fs/ubifs/super.c
+index b37c6b1e33253..29526040ad774 100644
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -815,7 +815,7 @@ static int alloc_wbufs(struct ubifs_info *c)
+ 		INIT_LIST_HEAD(&c->jheads[i].buds_list);
+ 		err = ubifs_wbuf_init(c, &c->jheads[i].wbuf);
+ 		if (err)
+-			return err;
++			goto out_wbuf;
  
- 	err = nf_conntrack_hash_check_insert(ct);
- 	if (err < 0)
--		goto err2;
-+		goto err3;
+ 		c->jheads[i].wbuf.sync_callback = &bud_wbuf_callback;
+ 		c->jheads[i].wbuf.jhead = i;
+@@ -823,7 +823,7 @@ static int alloc_wbufs(struct ubifs_info *c)
+ 		c->jheads[i].log_hash = ubifs_hash_get_desc(c);
+ 		if (IS_ERR(c->jheads[i].log_hash)) {
+ 			err = PTR_ERR(c->jheads[i].log_hash);
+-			goto out;
++			goto out_log_hash;
+ 		}
+ 	}
  
- 	rcu_read_unlock();
+@@ -836,9 +836,18 @@ static int alloc_wbufs(struct ubifs_info *c)
  
- 	return ct;
+ 	return 0;
  
-+err3:
-+	if (ct->master)
-+		nf_ct_put(ct->master);
- err2:
- 	rcu_read_unlock();
- err1:
+-out:
+-	while (i--)
++out_log_hash:
++	kfree(c->jheads[i].wbuf.buf);
++	kfree(c->jheads[i].wbuf.inodes);
++
++out_wbuf:
++	while (i--) {
++		kfree(c->jheads[i].wbuf.buf);
++		kfree(c->jheads[i].wbuf.inodes);
+ 		kfree(c->jheads[i].log_hash);
++	}
++	kfree(c->jheads);
++	c->jheads = NULL;
+ 
+ 	return err;
+ }
 -- 
 2.39.2
 
