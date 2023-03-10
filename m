@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 005F66B4574
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C306B42A9
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232624AbjCJOd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
+        id S231492AbjCJOFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:05:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232598AbjCJOdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1C61CBF9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:25 -0800 (PST)
+        with ESMTP id S231563AbjCJOFE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:05:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83400110512
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E51FB61771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC77C433EF;
-        Fri, 10 Mar 2023 14:33:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1ECEB822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8C92C433D2;
+        Fri, 10 Mar 2023 14:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458804;
-        bh=UgoPtPAhoj/u43kJKnFSX4Uw/HXzV5J0B+ZbP0hxNs8=;
+        s=korg; t=1678457098;
+        bh=s8HttMRlfxiQVjgYNpcGtmLGKklX1y1jNFUtoylxP2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxDjsZ69EMiCq6mUbjtJI1lJCNqy1s0tD+EUykub9+Pj1PVvgZ2XXcpYiIfwmXdEM
-         XRcsYgjSrsT2ECIdGOpngHWuqw8yhKvm14UKIHjrq9FGzeJdIuqBJodwYv8hca/A4I
-         QrTnAWpYtWrAy94RVBKK4qNer5uoIex/xJu+lwEQ=
+        b=vy1iO4xWcwhXALSga23gWDVRcYSxbv0JBvRVrVfFgcbw2Ja1HiTClszSqyg4nOrK6
+         r0gShSYjEBmtSc2/TrJ0+iOSVJIdxFmgiCjG3PO81g9eAj1kGXTAc6dGjt0EOuN8+v
+         dTmSH1xskae4+lxQVm+R5aMvsXhmDbl3p51gdwew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        kernel test robot <lkp@intel.com>,
+        Jianglei Nie <niejianglei2021@163.com>,
+        Miguel Ojeda <ojeda@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 120/357] ASoC: soc-compress.c: fixup private_data on snd_soc_new_compress()
+Subject: [PATCH 6.1 002/200] auxdisplay: hd44780: Fix potential memory leak in hd44780_remove()
 Date:   Fri, 10 Mar 2023 14:36:49 +0100
-Message-Id: <20230310133739.960538293@linuxfoundation.org>
+Message-Id: <20230310133717.132481820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,39 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit ffe4c0f0bfaa571a676a0e946d4a6a0607f94294 ]
+[ Upstream commit ddf75a86aba2cfb7ec4497e8692b60c8c8fe0ee7 ]
 
-commit d3268a40d4b19f ("ASoC: soc-compress.c: fix NULL dereference")
-enables DPCM capture, but it should independent from playback.
-This patch fixup it.
+hd44780_probe() allocates a memory chunk for hd with kzalloc() and
+makes "lcd->drvdata->hd44780" point to it. When we call hd44780_remove(),
+we should release all relevant memory and resource. But "lcd->drvdata
+->hd44780" is not released, which will lead to a memory leak.
 
-Fixes: d3268a40d4b1 ("ASoC: soc-compress.c: fix NULL dereference")
-Link: https://lore.kernel.org/r/87tu0i6j7j.wl-kuninori.morimoto.gx@renesas.com
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/871qnkvo1s.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+We should release the "lcd->drvdata->hd44780" in hd44780_remove() to fix
+the memory leak bug.
+
+Fixes: 718e05ed92ec ("auxdisplay: Introduce hd44780_common.[ch]")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-compress.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/auxdisplay/hd44780.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
-index da6e40aef7b6e..1e37bb7436ecc 100644
---- a/sound/soc/soc-compress.c
-+++ b/sound/soc/soc-compress.c
-@@ -927,7 +927,7 @@ int snd_soc_new_compress(struct snd_soc_pcm_runtime *rtd, int num)
- 		rtd->fe_compr = 1;
- 		if (rtd->dai_link->dpcm_playback)
- 			be_pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream->private_data = rtd;
--		else if (rtd->dai_link->dpcm_capture)
-+		if (rtd->dai_link->dpcm_capture)
- 			be_pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream->private_data = rtd;
- 		memcpy(compr->ops, &soc_compr_dyn_ops, sizeof(soc_compr_dyn_ops));
- 	} else {
+diff --git a/drivers/auxdisplay/hd44780.c b/drivers/auxdisplay/hd44780.c
+index 8b2a0eb3f32a4..d56a5d508ccd7 100644
+--- a/drivers/auxdisplay/hd44780.c
++++ b/drivers/auxdisplay/hd44780.c
+@@ -322,8 +322,10 @@ static int hd44780_probe(struct platform_device *pdev)
+ static int hd44780_remove(struct platform_device *pdev)
+ {
+ 	struct charlcd *lcd = platform_get_drvdata(pdev);
++	struct hd44780_common *hdc = lcd->drvdata;
+ 
+ 	charlcd_unregister(lcd);
++	kfree(hdc->hd44780);
+ 	kfree(lcd->drvdata);
+ 
+ 	kfree(lcd);
 -- 
 2.39.2
 
