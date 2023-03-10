@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A44236B41F1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 338BB6B441B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231368AbjCJN6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:58:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
+        id S232234AbjCJOVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:21:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231395AbjCJN56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:58 -0500
+        with ESMTP id S232185AbjCJOVB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA3A166EC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C0D1E1CE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:19:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBD1F61552
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F08E0C4339C;
-        Fri, 10 Mar 2023 13:57:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2097261771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:19:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 069F8C433A0;
+        Fri, 10 Mar 2023 14:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456675;
-        bh=WyvtTXrSIf4F5EnjKnIMnikvS8JpCCgLWGrp97SG79w=;
+        s=korg; t=1678457985;
+        bh=+gG78ObpD8v6Uhmrv4zUkPa2t7eYN91BNznaEBr2Ekw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pT7iEeMFh7H2dRn0NfeBdi4p50yXzbyGkAgTCMkFVeyXSUthtSBt7D/tr2jdkCXZQ
-         jFHejPA4R8dyDa+80K0NT1B/TLviJXJs9G+EQ1sZZfn2ugPKjzz1lNyni99fOTldCO
-         ryYlkufCpL/Zx94N5k3gY8gw0eRh4zJ6nVtFfJ18=
+        b=2jSgxt19P4QoNs+WXNepi3/ckhiG9q0rDZU/NAMvPfGUAfda1DHLnkYJXJ90A+Mh8
+         JU2DsrCaKQQwvnwpiath7irAsA1FKBbrwrOrLfhbuNcS80fyyW7VpiJBqYtvJgVh7X
+         +00u1YoVE4ijE1dpG0tr02BKuASDsOPwJdY1KaUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
+        patches@lists.linux.dev, James Clark <james.clark@arm.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-arm-kernel@lists.infradead.org, linuxarm@huawei.com,
+        prime.zeng@hisilicon.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 085/211] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
+Subject: [PATCH 4.19 095/252] perf tools: Fix auto-complete on aarch64
 Date:   Fri, 10 Mar 2023 14:37:45 +0100
-Message-Id: <20230310133721.367138995@linuxfoundation.org>
+Message-Id: <20230310133721.693320032@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +64,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
+[ Upstream commit ffd1240e8f0814262ceb957dbe961f6e0aef1e7a ]
 
-When down_interruptible() or ib_post_send() failed in rdma_request(),
-receive dma buffer is not unmapped. Add unmap action to error path.
-Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
-Add unmap action to error path.
+On aarch64 CPU related events are not under event_source/devices/cpu/events,
+they're under event_source/devices/armv8_pmuv3_0/events on my machine.
+Using current auto-complete script will generate below error:
 
-Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
-Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+  [root@localhost bin]# perf stat -e
+  ls: cannot access '/sys/bus/event_source/devices/cpu/events': No such file or directory
+
+Fix this by not testing /sys/bus/event_source/devices/cpu/events on
+aarch64 machine.
+
+Fixes: 74cd5815d9af6e6c ("perf tool: Improve bash command line auto-complete for multiple events with comma")
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxarm@huawei.com
+Cc: prime.zeng@hisilicon.com
+Link: https://lore.kernel.org/r/20230207035057.43394-1-yangyicong@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_rdma.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ tools/perf/perf-completion.sh | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
-index 83f9100d46bff..b84748baf9cbe 100644
---- a/net/9p/trans_rdma.c
-+++ b/net/9p/trans_rdma.c
-@@ -385,6 +385,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	struct p9_trans_rdma *rdma = client->trans;
- 	struct ib_recv_wr wr;
- 	struct ib_sge sge;
-+	int ret;
+diff --git a/tools/perf/perf-completion.sh b/tools/perf/perf-completion.sh
+index fdf75d45efff7..978249d7868c2 100644
+--- a/tools/perf/perf-completion.sh
++++ b/tools/perf/perf-completion.sh
+@@ -165,7 +165,12 @@ __perf_main ()
  
- 	c->busa = ib_dma_map_single(rdma->cm_id->device,
- 				    c->rc.sdata, client->msize,
-@@ -402,7 +403,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	wr.wr_cqe = &c->cqe;
- 	wr.sg_list = &sge;
- 	wr.num_sge = 1;
--	return ib_post_recv(rdma->qp, &wr, NULL);
+ 		local cur1=${COMP_WORDS[COMP_CWORD]}
+ 		local raw_evts=$($cmd list --raw-dump)
+-		local arr s tmp result
++		local arr s tmp result cpu_evts
 +
-+	ret = ib_post_recv(rdma->qp, &wr, NULL);
-+	if (ret)
-+		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+				    client->msize, DMA_FROM_DEVICE);
-+	return ret;
++		# aarch64 doesn't have /sys/bus/event_source/devices/cpu/events
++		if [[ `uname -m` != aarch64 ]]; then
++			cpu_evts=$(ls /sys/bus/event_source/devices/cpu/events)
++		fi
  
-  error:
- 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
-@@ -499,7 +505,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 		if [[ "$cur1" == */* && ${cur1#*/} =~ ^[A-Z] ]]; then
+ 			OLD_IFS="$IFS"
+@@ -183,9 +188,9 @@ __perf_main ()
+ 				fi
+ 			done
  
- 	if (down_interruptible(&rdma->sq_sem)) {
- 		err = -EINTR;
--		goto send_error;
-+		goto dma_unmap;
- 	}
+-			evts=${result}" "$(ls /sys/bus/event_source/devices/cpu/events)
++			evts=${result}" "${cpu_evts}
+ 		else
+-			evts=${raw_evts}" "$(ls /sys/bus/event_source/devices/cpu/events)
++			evts=${raw_evts}" "${cpu_evts}
+ 		fi
  
- 	/* Mark request as `sent' *before* we actually send it,
-@@ -509,11 +515,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
- 	WRITE_ONCE(req->status, REQ_STATUS_SENT);
- 	err = ib_post_send(rdma->qp, &wr, NULL);
- 	if (err)
--		goto send_error;
-+		goto dma_unmap;
- 
- 	/* Success */
- 	return 0;
- 
-+dma_unmap:
-+	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+			    c->req->tc.size, DMA_TO_DEVICE);
-  /* Handle errors that happened during or while preparing the send: */
-  send_error:
- 	WRITE_ONCE(req->status, REQ_STATUS_ERROR);
+ 		if [[ "$cur1" == , ]]; then
 -- 
 2.39.2
 
