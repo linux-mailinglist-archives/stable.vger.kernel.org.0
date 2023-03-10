@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6953A6B4878
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A15566B4866
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233762AbjCJPCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:02:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
+        id S233766AbjCJPCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:02:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233698AbjCJPC0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:02:26 -0500
+        with ESMTP id S233525AbjCJPBn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F47E126996
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B6D125D85
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B890961A0A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:54:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A89BFC4339B;
-        Fri, 10 Mar 2023 14:54:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5AF66196E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B83B4C4339B;
+        Fri, 10 Mar 2023 14:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460045;
-        bh=Ub/ZpnZEji3h4XX3RPjqlTWVyKgoc3jMKGjlIua6AHM=;
+        s=korg; t=1678460048;
+        bh=Uqe88ZOiTAMwGWY9SJd3pNnDcjxhEl+vnrYP76spxsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htIs9CVE/P/o1ps2RoRlBXEGkgJ4iJyY1C4OTv0Gfqjn+XsGLAKBPLdnz2ttm3g7+
-         gucTpAcQxQbfG7b/C6TzXESFzII94L78DybK79YkHPDcvxGp8U2o+1I2faknK3kLgE
-         m0+hOADF9wqNxQcSBkX1QSVTLnfEqlTs3TJ82Ipo=
+        b=pfkCPyfl7xf8JhJlrf2cu12ZDyCOMz+Maa2IF8eFfNWf0XY+dSBw1mQL1BXFpT4VA
+         gu5bQqArdNnCCfHPWpiHlLhOeJZ2uAOPfO/oS4okChgLQYZoSTTkwle6SgO24n9oJh
+         SXnwIXG9+OrRN+ONsE0XpannJKrMeSE21VyIBQAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Mark Brown <broonie@kernel.org>,
+        William Zhang <william.zhang@broadcom.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 204/529] spi: bcm63xx-hsspi: fix pm_runtime
-Date:   Fri, 10 Mar 2023 14:35:47 +0100
-Message-Id: <20230310133814.457967159@linuxfoundation.org>
+Subject: [PATCH 5.10 205/529] spi: bcm63xx-hsspi: Fix multi-bit mode setting
+Date:   Fri, 10 Mar 2023 14:35:48 +0100
+Message-Id: <20230310133814.504294249@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,54 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: William Zhang <william.zhang@broadcom.com>
 
-[ Upstream commit 216e8e80057a9f0b6366327881acf88eaf9f1fd4 ]
+[ Upstream commit 811ff802aaf878ebbbaeac0307a0164fa21e7d40 ]
 
-The driver sets auto_runtime_pm to true, but it doesn't call
-pm_runtime_enable(), which results in "Failed to power device" when PM support
-is enabled.
+Currently the driver always sets the controller to dual data bit mode
+for both tx and rx data in the profile mode control register even for
+single data bit transfer. Luckily the opcode is set correctly according
+to SPI transfer data bit width so it does not actually cause issues.
 
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Link: https://lore.kernel.org/r/20210223151851.4110-3-noltari@gmail.com
+This change fixes the problem by setting tx and rx data bit mode field
+correctly according to the actual SPI transfer tx and rx data bit width.
+
+Fixes: 142168eba9dc ("spi: bcm63xx-hsspi: add bcm63xx HSSPI driver")
+Signed-off-by: William Zhang <william.zhang@broadcom.com>
+Link: https://lore.kernel.org/r/20230209200246.141520-11-william.zhang@broadcom.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Stable-dep-of: 811ff802aaf8 ("spi: bcm63xx-hsspi: Fix multi-bit mode setting")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm63xx-hsspi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/spi/spi-bcm63xx-hsspi.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/spi/spi-bcm63xx-hsspi.c b/drivers/spi/spi-bcm63xx-hsspi.c
-index f591a543b1d07..a74345ed0e2ff 100644
+index a74345ed0e2ff..9ec33745c1472 100644
 --- a/drivers/spi/spi-bcm63xx-hsspi.c
 +++ b/drivers/spi/spi-bcm63xx-hsspi.c
-@@ -21,6 +21,7 @@
- #include <linux/mutex.h>
- #include <linux/of.h>
- #include <linux/reset.h>
-+#include <linux/pm_runtime.h>
+@@ -163,6 +163,7 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
+ 	int step_size = HSSPI_BUFFER_LEN;
+ 	const u8 *tx = t->tx_buf;
+ 	u8 *rx = t->rx_buf;
++	u32 val = 0;
  
- #define HSSPI_GLOBAL_CTRL_REG			0x0
- #define GLOBAL_CTRL_CS_POLARITY_SHIFT		0
-@@ -439,13 +440,17 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto out_put_master;
+ 	bcm63xx_hsspi_set_clk(bs, spi, t->speed_hz);
+ 	bcm63xx_hsspi_set_cs(bs, spi->chip_select, true);
+@@ -178,11 +179,16 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
+ 		step_size -= HSSPI_OPCODE_LEN;
  
-+	pm_runtime_enable(&pdev->dev);
+ 	if ((opcode == HSSPI_OP_READ && t->rx_nbits == SPI_NBITS_DUAL) ||
+-	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL))
++	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL)) {
+ 		opcode |= HSSPI_OP_MULTIBIT;
+ 
+-	__raw_writel(1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT |
+-		     1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT | 0xff,
++		if (t->rx_nbits == SPI_NBITS_DUAL)
++			val |= 1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT;
++		if (t->tx_nbits == SPI_NBITS_DUAL)
++			val |= 1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT;
++	}
 +
- 	/* register and we are done */
- 	ret = devm_spi_register_master(dev, master);
- 	if (ret)
--		goto out_put_master;
-+		goto out_pm_disable;
++	__raw_writel(val | 0xff,
+ 		     bs->regs + HSSPI_PROFILE_MODE_CTRL_REG(chip_select));
  
- 	return 0;
- 
-+out_pm_disable:
-+	pm_runtime_disable(&pdev->dev);
- out_put_master:
- 	spi_master_put(master);
- out_disable_pll_clk:
+ 	while (pending > 0) {
 -- 
 2.39.2
 
