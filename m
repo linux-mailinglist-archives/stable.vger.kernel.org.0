@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7173F6B4A86
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:24:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2561B6B4A8F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234183AbjCJPYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:24:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46856 "EHLO
+        id S234248AbjCJPY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:24:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234225AbjCJPXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:23:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9028810CEBC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:42 -0800 (PST)
+        with ESMTP id S234185AbjCJPYB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:24:01 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B6D114EFE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85A8C6193B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:12:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D173C433D2;
-        Fri, 10 Mar 2023 15:12:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 939D1CE2911
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:13:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81888C433D2;
+        Fri, 10 Mar 2023 15:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461176;
-        bh=bNJYGpt/iFklFlTJ4v38QAJQTM02KFM5dZvOwHFp5Mk=;
+        s=korg; t=1678461178;
+        bh=mxwS7JpjaMjvYJIANbrNMNaJyjoMH0oNOYBWnP2Dlpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLHHBXhxnV+Ww1VoMll2B+ZYoLr6g69sGtWvkpI/DTAJ1JzV/suN/xB+kW7w2uQm5
-         ysnt0iEKpfHPSWCZYBoCCX9wjdg0Ipuc5IOLLYnziDn9j2hxJiPbtKb7Rm01NBPv03
-         v4a2BwDxo5OFBfsExTguZuSNZZckaPqQtJRp7r9w=
+        b=QIXNVz5L2U1dcOHZMdvYkJFlLvZGA2uK6+aHuSWbLnIdfvn/O4robsFw7sBUvUZt7
+         z1RHrha/O3NCQmpAmJP/F5gon3++Qi8QOrJY7+6s3vtPLH+u4iebO4frhCudTve/9e
+         O769Se/hq77MadwJBbXnSWp1netlPg6IhTTJUHvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
+        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/136] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
-Date:   Fri, 10 Mar 2023 14:42:52 +0100
-Message-Id: <20230310133708.618823609@linuxfoundation.org>
+Subject: [PATCH 5.15 051/136] net/mlx5e: Verify flow_source cap before using it
+Date:   Fri, 10 Mar 2023 14:42:53 +0100
+Message-Id: <20230310133708.648769454@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -56,77 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
+[ Upstream commit 1bf8b0dae8dde6f02520a5ea34fdaa3b39342e69 ]
 
-When down_interruptible() or ib_post_send() failed in rdma_request(),
-receive dma buffer is not unmapped. Add unmap action to error path.
-Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
-Add unmap action to error path.
+When adding send to vport rule verify flow_source matching is
+supported by checking the flow_source cap.
 
-Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
-Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Fixes: d04442540372 ("net/mlx5: E-Switch, set flow source for send to uplink rule")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_rdma.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
-index f6d145873b497..e5bfe8d7ef449 100644
---- a/net/9p/trans_rdma.c
-+++ b/net/9p/trans_rdma.c
-@@ -388,6 +388,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	struct p9_trans_rdma *rdma = client->trans;
- 	struct ib_recv_wr wr;
- 	struct ib_sge sge;
-+	int ret;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 3194cdcd2f630..002567792e91e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -962,7 +962,8 @@ mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *on_esw,
+ 	dest.vport.flags |= MLX5_FLOW_DEST_VPORT_VHCA_ID;
+ 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
  
- 	c->busa = ib_dma_map_single(rdma->cm_id->device,
- 				    c->rc.sdata, client->msize,
-@@ -405,7 +406,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	wr.wr_cqe = &c->cqe;
- 	wr.sg_list = &sge;
- 	wr.num_sge = 1;
--	return ib_post_recv(rdma->qp, &wr, NULL);
-+
-+	ret = ib_post_recv(rdma->qp, &wr, NULL);
-+	if (ret)
-+		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+				    client->msize, DMA_FROM_DEVICE);
-+	return ret;
+-	if (rep->vport == MLX5_VPORT_UPLINK)
++	if (MLX5_CAP_ESW_FLOWTABLE(on_esw->dev, flow_source) &&
++	    rep->vport == MLX5_VPORT_UPLINK)
+ 		spec->flow_context.flow_source = MLX5_FLOW_CONTEXT_FLOW_SOURCE_LOCAL_VPORT;
  
-  error:
- 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
-@@ -502,7 +508,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
- 
- 	if (down_interruptible(&rdma->sq_sem)) {
- 		err = -EINTR;
--		goto send_error;
-+		goto dma_unmap;
- 	}
- 
- 	/* Mark request as `sent' *before* we actually send it,
-@@ -512,11 +518,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
- 	req->status = REQ_STATUS_SENT;
- 	err = ib_post_send(rdma->qp, &wr, NULL);
- 	if (err)
--		goto send_error;
-+		goto dma_unmap;
- 
- 	/* Success */
- 	return 0;
- 
-+dma_unmap:
-+	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+			    c->req->tc.size, DMA_TO_DEVICE);
-  /* Handle errors that happened during or while preparing the send: */
-  send_error:
- 	req->status = REQ_STATUS_ERROR;
+ 	flow_rule = mlx5_add_flow_rules(on_esw->fdb_table.offloads.slow_fdb,
 -- 
 2.39.2
 
