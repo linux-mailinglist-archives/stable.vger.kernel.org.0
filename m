@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 190026B4126
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 726496B423B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:01:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230437AbjCJNuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:50:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
+        id S231513AbjCJOBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:01:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231139AbjCJNuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31CF5EB8AC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:55 -0800 (PST)
+        with ESMTP id S231536AbjCJOBC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83F2114EF5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA0B4616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDDC4C433EF;
-        Fri, 10 Mar 2023 13:49:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A2EDB822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD58AC433EF;
+        Fri, 10 Mar 2023 14:00:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456194;
-        bh=3ESICwBBXTPzePQ57qR1TG39JF5H3fr/JWZ32Y25Y3U=;
+        s=korg; t=1678456851;
+        bh=dX4rEmIFO27bO7AQOKWNI2F8gHXYOMoxqFMOzaz+fNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0MFidAj2Z5D35sXFIhg5GHBA52z4pT8t1aHIHVKIpW8Ctt4k/VQRp/0wBCvK/o3U
-         0lCR0Ja85QYwUqnkTpdTbtbpjCu8lPiDXTwHJsRCo3AS6mktLg0FLPZrB/+IAxnagc
-         neWK1GpMWDpJCItAoNEYClvqJUfnr+RkzTE3pKpw=
+        b=Xn5fqJs1KWhG38YQs3GS0Pf19suZupl8HaPs8bYLsbeMoP1Zb0VpsVgMi48HJ8sIE
+         cPC0F9bWmA2jvaIJAEaZlBpH9KyXfd66aqb47P4X5inkV0ifDEQVHeeQEE/dCLHlex
+         /4/URLv68royOKOrZjCDSjdbk++oJxhmWYoGNhFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 4.14 113/193] x86/reboot: Disable virtualization in an emergency if SVM is supported
-Date:   Fri, 10 Mar 2023 14:38:15 +0100
-Message-Id: <20230310133715.046347424@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 116/211] ASoC: apple: mca: Improve handling of unavailable DMA channels
+Date:   Fri, 10 Mar 2023 14:38:16 +0100
+Message-Id: <20230310133722.269651232@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-commit d81f952aa657b76cea381384bef1fea35c5fd266 upstream.
+[ Upstream commit fb1847cc460c127b12720119eae5f438ffc62e85 ]
 
-Disable SVM on all CPUs via NMI shootdown during an emergency reboot.
-Like VMX, SVM can block INIT, e.g. if the emergency reboot is triggered
-between CLGI and STGI, and thus can prevent bringing up other CPUs via
-INIT-SIPI-SIPI.
+When we fail to obtain a DMA channel, don't return a blanket -EINVAL,
+instead return the original error code if there's one. This makes
+deferring work as it should. Also don't print an error message for
+-EPROBE_DEFER.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221130233650.1404148-4-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4ec8179c212f ("ASoC: apple: mca: Postpone requesting of DMA channels")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20230224153302.45365-3-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/reboot.c |   23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ sound/soc/apple/mca.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -538,27 +538,26 @@ static inline void kb_wait(void)
+diff --git a/sound/soc/apple/mca.c b/sound/soc/apple/mca.c
+index aea08c7b2ee85..64750db9b9639 100644
+--- a/sound/soc/apple/mca.c
++++ b/sound/soc/apple/mca.c
+@@ -950,10 +950,17 @@ static int mca_pcm_new(struct snd_soc_component *component,
+ 		chan = mca_request_dma_channel(cl, i);
  
- static inline void nmi_shootdown_cpus_on_restart(void);
+ 		if (IS_ERR_OR_NULL(chan)) {
++			mca_pcm_free(component, rtd->pcm);
++
++			if (chan && PTR_ERR(chan) == -EPROBE_DEFER)
++				return PTR_ERR(chan);
++
+ 			dev_err(component->dev, "unable to obtain DMA channel (stream %d cluster %d): %pe\n",
+ 				i, cl->no, chan);
+-			mca_pcm_free(component, rtd->pcm);
+-			return -EINVAL;
++
++			if (!chan)
++				return -EINVAL;
++			return PTR_ERR(chan);
+ 		}
  
--/* Use NMIs as IPIs to tell all CPUs to disable virtualization */
--static void emergency_vmx_disable_all(void)
-+static void emergency_reboot_disable_virtualization(void)
- {
- 	/* Just make sure we won't change CPUs while doing this */
- 	local_irq_disable();
- 
- 	/*
--	 * Disable VMX on all CPUs before rebooting, otherwise we risk hanging
--	 * the machine, because the CPU blocks INIT when it's in VMX root.
-+	 * Disable virtualization on all CPUs before rebooting to avoid hanging
-+	 * the system, as VMX and SVM block INIT when running in the host.
- 	 *
- 	 * We can't take any locks and we may be on an inconsistent state, so
--	 * use NMIs as IPIs to tell the other CPUs to exit VMX root and halt.
-+	 * use NMIs as IPIs to tell the other CPUs to disable VMX/SVM and halt.
- 	 *
--	 * Do the NMI shootdown even if VMX if off on _this_ CPU, as that
--	 * doesn't prevent a different CPU from being in VMX root operation.
-+	 * Do the NMI shootdown even if virtualization is off on _this_ CPU, as
-+	 * other CPUs may have virtualization enabled.
- 	 */
--	if (cpu_has_vmx()) {
--		/* Safely force _this_ CPU out of VMX root operation. */
--		__cpu_emergency_vmxoff();
-+	if (cpu_has_vmx() || cpu_has_svm(NULL)) {
-+		/* Safely force _this_ CPU out of VMX/SVM operation. */
-+		cpu_emergency_disable_virtualization();
- 
--		/* Halt and exit VMX root operation on the other CPUs. */
-+		/* Disable VMX/SVM and halt on other CPUs. */
- 		nmi_shootdown_cpus_on_restart();
- 
- 	}
-@@ -596,7 +595,7 @@ static void native_machine_emergency_res
- 	unsigned short mode;
- 
- 	if (reboot_emergency)
--		emergency_vmx_disable_all();
-+		emergency_reboot_disable_virtualization();
- 
- 	tboot_shutdown(TB_SHUTDOWN_REBOOT);
- 
+ 		cl->dma_chans[i] = chan;
+-- 
+2.39.2
+
 
 
