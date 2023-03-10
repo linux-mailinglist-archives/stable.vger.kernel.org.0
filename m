@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 330D36B4427
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D67B46B45DB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232243AbjCJOWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58874 "EHLO
+        id S232662AbjCJOiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:38:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231893AbjCJOVh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:37 -0500
+        with ESMTP id S232699AbjCJOiH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E450B12086F;
-        Fri, 10 Mar 2023 06:20:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D8D1204A2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:37:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39A4F616F0;
-        Fri, 10 Mar 2023 14:20:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DFEDC4339B;
-        Fri, 10 Mar 2023 14:20:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30872618B8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:37:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2583FC4339B;
+        Fri, 10 Mar 2023 14:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458014;
-        bh=e0kjNd8dXWiayVzUnyofvlTCsuC6QsMuMAlfe1EJO04=;
+        s=korg; t=1678459028;
+        bh=+l7zOQ56DtVh0IMdm20/OB3CezTKlI53c4+VSHTH7Io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2i464Go4qhhkOkn/jWcshkGyAidvBNeICuMrv7JQKSgkwDwd+3t1tPXD5bze1qgn
-         W4/gb6rMI1JW4daym9W7PNmR5NcGKukmSbfBPf7FZbjos62QHfZeOUb52k9tawUplp
-         PBHHKBkXuxoxjeVe5UFlYfA8mm6ddIPHuLF27ukY=
+        b=fJUDts214uuxdSPhN1s+hQ/JWt4MMqYSQNpv9Tf3Fed4+uDQ3Td/t9CllFGZRKhBJ
+         VtCClQbkSM9G0hT6NjQf8Aj5jqKMNg5ocmXDdfjZv+6MhzVt9Bc93TGbBt67rPn2yQ
+         nAOttS16na6+YnfRTSm+2wszPiYCdRya3fdw9NbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        linux-samsung-soc@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/252] regulator: s5m8767: Bounds check id indexing into arrays
-Date:   Fri, 10 Mar 2023 14:38:25 +0100
-Message-Id: <20230310133722.887417444@linuxfoundation.org>
+        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 217/357] s390/kprobes: fix current_kprobe never cleared after kprobes reenter
+Date:   Fri, 10 Mar 2023 14:38:26 +0100
+Message-Id: <20230310133744.284882174@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,55 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit e314e15a0b58f9d051c00b25951073bcdae61953 ]
+commit cd57953936f2213dfaccce10d20f396956222c7d upstream.
 
-The compiler has no way to know if "id" is within the array bounds of
-the regulators array. Add a check for this and a build-time check that
-the regulators and reg_voltage_map arrays are sized the same. Seen with
-GCC 13:
+Recent test_kprobe_missed kprobes kunit test uncovers the following
+problem. Once kprobe is triggered from another kprobe (kprobe reenter),
+all future kprobes on this cpu are considered as kprobe reenter, thus
+pre_handler and post_handler are not being called and kprobes are counted
+as "missed".
 
-../drivers/regulator/s5m8767.c: In function 's5m8767_pmic_probe':
-../drivers/regulator/s5m8767.c:936:35: warning: array subscript [0, 36] is outside array bounds of 'struct regulator_desc[37]' [-Warray-bounds=]
-  936 |                         regulators[id].vsel_reg =
-      |                         ~~~~~~~~~~^~~~
+Commit b9599798f953 ("[S390] kprobes: activation and deactivation")
+introduced a simpler scheme for kprobes (de)activation and status
+tracking by using push_kprobe/pop_kprobe, which supposed to work for
+both initial kprobe entry as well as kprobe reentry and helps to avoid
+handling those two cases differently. The problem is that a sequence of
+calls in case of kprobes reenter:
+push_kprobe() <- NULL (current_kprobe)
+push_kprobe() <- kprobe1 (current_kprobe)
+pop_kprobe() -> kprobe1 (current_kprobe)
+pop_kprobe() -> kprobe1 (current_kprobe)
+leaves "kprobe1" as "current_kprobe" on this cpu, instead of setting it
+to NULL. In fact push_kprobe/pop_kprobe can only store a single state
+(there is just one prev_kprobe in kprobe_ctlblk). Which is a hack but
+sufficient, there is no need to have another prev_kprobe just to store
+NULL. To make a simple and backportable fix simply reset "prev_kprobe"
+when kprobe is poped from this "stack". No need to worry about
+"kprobe_status" in this case, because its value is only checked when
+current_kprobe != NULL.
 
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: linux-samsung-soc@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230128005358.never.313-kees@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: b9599798f953 ("[S390] kprobes: activation and deactivation")
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/s5m8767.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/s390/kernel/kprobes.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
-index 4818df3f8ec91..24c0c82b08a5d 100644
---- a/drivers/regulator/s5m8767.c
-+++ b/drivers/regulator/s5m8767.c
-@@ -922,10 +922,14 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -255,6 +255,7 @@ static void pop_kprobe(struct kprobe_ctl
+ {
+ 	__this_cpu_write(current_kprobe, kcb->prev_kprobe.kp);
+ 	kcb->kprobe_status = kcb->prev_kprobe.status;
++	kcb->prev_kprobe.kp = NULL;
+ }
+ NOKPROBE_SYMBOL(pop_kprobe);
  
- 	for (i = 0; i < pdata->num_regulators; i++) {
- 		const struct sec_voltage_desc *desc;
--		int id = pdata->regulators[i].id;
-+		unsigned int id = pdata->regulators[i].id;
- 		int enable_reg, enable_val;
- 		struct regulator_dev *rdev;
- 
-+		BUILD_BUG_ON(ARRAY_SIZE(regulators) != ARRAY_SIZE(reg_voltage_map));
-+		if (WARN_ON_ONCE(id >= ARRAY_SIZE(regulators)))
-+			continue;
-+
- 		desc = reg_voltage_map[id];
- 		if (desc) {
- 			regulators[id].n_voltages =
--- 
-2.39.2
-
 
 
