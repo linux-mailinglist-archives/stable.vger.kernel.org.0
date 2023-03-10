@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB3C66B4925
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 581456B4937
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233806AbjCJPKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:10:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41190 "EHLO
+        id S233963AbjCJPKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:10:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233944AbjCJPJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:09:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CBA124EA8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:02 -0800 (PST)
+        with ESMTP id S233964AbjCJPKX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67FFF13847D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84652B82325
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:02:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B43C433D2;
-        Fri, 10 Mar 2023 15:02:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D2FDB822C2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:02:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342F0C433EF;
+        Fri, 10 Mar 2023 15:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460521;
-        bh=zw0ud984ToxvO8ZuUPcsLQpD6kfo084/EMokdg0GKuo=;
+        s=korg; t=1678460553;
+        bh=j3uMb5TGfwkIElInFn2WVdoViw7VLToFNvcIgUad+6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxGCAdU+orA5zJvjMnYVlkidKO7z0y9BSyw992+8mOKXJiT8WFnki4utsctT4JIGT
-         9bdPbWhz64KYJVhPqMwN2QJYSL/wfUyvD0vz6pylvtFJIx7DV8przzL/nwNYe0akOG
-         q/IwyzgLiiezDOlfZKVOmqxwJfqQrLk3nJja+jLA=
+        b=oNPbWc+z54g2NtBdu4NXNIG1E+yvnJDETC/RxpPAxBNq0GeMhDhl1bz0hqGhDUa2M
+         D5B4DpGQ4912NP00mGeZXK0tNWlk7SFHAHWeRm3uR61XHnlb/DfQ7vvDeH8Pva/YWZ
+         QsJlG2sLx4oD/1rmySMEc8mQNmAp38c/VxXtTG/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Eric Biggers <ebiggers@google.com>, Tejun Heo <tj@kernel.org>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 345/529] f2fs: fix cgroup writeback accounting with fs-layer encryption
-Date:   Fri, 10 Mar 2023 14:38:08 +0100
-Message-Id: <20230310133820.992290970@linuxfoundation.org>
+        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.10 346/529] ocfs2: fix defrag path triggering jbd2 ASSERT
+Date:   Fri, 10 Mar 2023 14:38:09 +0100
+Message-Id: <20230310133821.041352706@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -45,8 +49,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,63 +59,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
 
-commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
+commit 60eed1e3d45045623e46944ebc7c42c30a4350f0 upstream.
 
-When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), f2fs encrypts the
-pagecache page into a bounce page, then writes the bounce page.
+code path:
 
-It also passes the bounce page to wbc_account_cgroup_owner().  That's
-incorrect, because the bounce page is a newly allocated temporary page
-that doesn't have the memory cgroup of the original pagecache page.
-This makes wbc_account_cgroup_owner() not account the I/O to the owner
-of the pagecache page as it should.
+ocfs2_ioctl_move_extents
+ ocfs2_move_extents
+  ocfs2_defrag_extent
+   __ocfs2_move_extent
+    + ocfs2_journal_access_di
+    + ocfs2_split_extent  //sub-paths call jbd2_journal_restart
+    + ocfs2_journal_dirty //crash by jbs2 ASSERT
 
-Fix this by always passing the pagecache page to
-wbc_account_cgroup_owner().
+crash stacks:
 
-Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
-Cc: stable@vger.kernel.org
-Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+PID: 11297  TASK: ffff974a676dcd00  CPU: 67  COMMAND: "defragfs.ocfs2"
+ #0 [ffffb25d8dad3900] machine_kexec at ffffffff8386fe01
+ #1 [ffffb25d8dad3958] __crash_kexec at ffffffff8395959d
+ #2 [ffffb25d8dad3a20] crash_kexec at ffffffff8395a45d
+ #3 [ffffb25d8dad3a38] oops_end at ffffffff83836d3f
+ #4 [ffffb25d8dad3a58] do_trap at ffffffff83833205
+ #5 [ffffb25d8dad3aa0] do_invalid_op at ffffffff83833aa6
+ #6 [ffffb25d8dad3ac0] invalid_op at ffffffff84200d18
+    [exception RIP: jbd2_journal_dirty_metadata+0x2ba]
+    RIP: ffffffffc09ca54a  RSP: ffffb25d8dad3b70  RFLAGS: 00010207
+    RAX: 0000000000000000  RBX: ffff9706eedc5248  RCX: 0000000000000000
+    RDX: 0000000000000001  RSI: ffff97337029ea28  RDI: ffff9706eedc5250
+    RBP: ffff9703c3520200   R8: 000000000f46b0b2   R9: 0000000000000000
+    R10: 0000000000000001  R11: 00000001000000fe  R12: ffff97337029ea28
+    R13: 0000000000000000  R14: ffff9703de59bf60  R15: ffff9706eedc5250
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffb25d8dad3ba8] ocfs2_journal_dirty at ffffffffc137fb95 [ocfs2]
+ #8 [ffffb25d8dad3be8] __ocfs2_move_extent at ffffffffc139a950 [ocfs2]
+ #9 [ffffb25d8dad3c80] ocfs2_defrag_extent at ffffffffc139b2d2 [ocfs2]
+
+Analysis
+
+This bug has the same root cause of 'commit 7f27ec978b0e ("ocfs2: call
+ocfs2_journal_access_di() before ocfs2_journal_dirty() in
+ocfs2_write_end_nolock()")'.  For this bug, jbd2_journal_restart() is
+called by ocfs2_split_extent() during defragmenting.
+
+How to fix
+
+For ocfs2_split_extent() can handle journal operations totally by itself.
+Caller doesn't need to call journal access/dirty pair, and caller only
+needs to call journal start/stop pair.  The fix method is to remove
+journal access/dirty from __ocfs2_move_extent().
+
+The discussion for this patch:
+https://oss.oracle.com/pipermail/ocfs2-devel/2023-February/000647.html
+
+Link: https://lkml.kernel.org/r/20230217003717.32469-1-heming.zhao@suse.com
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/data.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ocfs2/move_extents.c |   10 ----------
+ 1 file changed, 10 deletions(-)
 
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -721,7 +721,7 @@ int f2fs_submit_page_bio(struct f2fs_io_
+--- a/fs/ocfs2/move_extents.c
++++ b/fs/ocfs2/move_extents.c
+@@ -107,14 +107,6 @@ static int __ocfs2_move_extent(handle_t
+ 	 */
+ 	replace_rec.e_flags = ext_flags & ~OCFS2_EXT_REFCOUNTED;
+ 
+-	ret = ocfs2_journal_access_di(handle, INODE_CACHE(inode),
+-				      context->et.et_root_bh,
+-				      OCFS2_JOURNAL_ACCESS_WRITE);
+-	if (ret) {
+-		mlog_errno(ret);
+-		goto out;
+-	}
+-
+ 	ret = ocfs2_split_extent(handle, &context->et, path, index,
+ 				 &replace_rec, context->meta_ac,
+ 				 &context->dealloc);
+@@ -123,8 +115,6 @@ static int __ocfs2_move_extent(handle_t
+ 		goto out;
  	}
  
- 	if (fio->io_wbc && !is_read_io(fio->op))
--		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+-	ocfs2_journal_dirty(handle, context->et.et_root_bh);
+-
+ 	context->new_phys_cpos = new_p_cpos;
  
- 	__attach_io_flag(fio);
- 	bio_set_op_attrs(bio, fio->op, fio->op_flags);
-@@ -929,7 +929,7 @@ alloc_new:
- 	}
- 
- 	if (fio->io_wbc)
--		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	inc_page_count(fio->sbi, WB_DATA_TYPE(page));
- 
-@@ -1003,7 +1003,7 @@ alloc_new:
- 	}
- 
- 	if (fio->io_wbc)
--		wbc_account_cgroup_owner(fio->io_wbc, bio_page, PAGE_SIZE);
-+		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
- 
- 	io->last_block_in_bio = fio->new_blkaddr;
- 	f2fs_trace_ios(fio, 0);
+ 	/*
 
 
