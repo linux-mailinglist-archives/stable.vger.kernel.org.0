@@ -2,41 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 602766B3E51
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:47:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 304F36B3E5E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:50:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229914AbjCJLrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 06:47:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
+        id S229603AbjCJLub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 06:50:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229897AbjCJLrA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:47:00 -0500
+        with ESMTP id S229521AbjCJLua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:50:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D0011052F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:46:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4732DD2931;
+        Fri, 10 Mar 2023 03:50:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9555B82278
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:46:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09BEAC433EF;
-        Fri, 10 Mar 2023 11:46:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F35A0B8227D;
+        Fri, 10 Mar 2023 11:50:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2575FC433EF;
+        Fri, 10 Mar 2023 11:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678448808;
-        bh=mp1+iElC2jLk/oV19GjD59LzARhomJ+/i+a6Iid1ttg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=RlGxZjRqJTPVZs8BNySz+MCOT8XlKDVMQSSFWmdtYhtisV3oe0iIfSJzsFXRqu+Ln
-         Pn8Vwr0RKIA7TCwWSnzGWSCETFNUeIyngq4trIeRt20OIawtudu9oIh5Uley46UJaf
-         /HDaIoa9b6/hHwVrUYR9x0/gUm6Mkdd8NWJonHiA=
-Subject: FAILED: patch "[PATCH] drm/i915: Pick the backlight controller based on VBT on ICP+" failed to apply to 5.15-stable tree
-To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Mar 2023 12:46:35 +0100
-Message-ID: <167844879564163@kroah.com>
+        s=korg; t=1678449026;
+        bh=ShH9wDesH9cSa0+T/1FM84u8M0DlMaUCnHiJVbgwCxs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RVNQukfhdzZ+DIfAu93gX4IdJuNmQ9kkAUWvW750qXADAj1E+Fs6k6t84tS9zRSz7
+         iF8k8c5PI5Vmka4MkufRf3XoIa8OXEy9dbyQSl6QZlnKHuuqTdZlpEV2CieCB6050I
+         9oiukxnIT629hs68aRsiIxEwvjYPKJ1YHL9p9wf8=
+Date:   Fri, 10 Mar 2023 12:50:23 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Fedor Pchelkin <pchelkin@ispras.ru>
+Cc:     stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Nguyen Dinh Phi <phind.uet@gmail.com>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        lvc-project@linuxtesting.org,
+        syzbot+4c4ffd1e1094dae61035@syzkaller.appspotmail.com
+Subject: Re: [PATCH 4.14/4.19/5.4/5.10/5.15 1/1] Bluetooth: hci_sock: purge
+ socket queues in the destruct() callback
+Message-ID: <ZAsZf4BvErezNB7Z@kroah.com>
+References: <20230309181251.479447-1-pchelkin@ispras.ru>
+ <20230309181251.479447-2-pchelkin@ispras.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230309181251.479447-2-pchelkin@ispras.ru>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -47,105 +57,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Mar 09, 2023 at 09:12:51PM +0300, Fedor Pchelkin wrote:
+> From: Nguyen Dinh Phi <phind.uet@gmail.com>
+> 
+> commit 709fca500067524381e28a5f481882930eebac88 upstream.
+> 
+> The receive path may take the socket right before hci_sock_release(),
+> but it may enqueue the packets to the socket queues after the call to
+> skb_queue_purge(), therefore the socket can be destroyed without clear
+> its queues completely.
+> 
+> Moving these skb_queue_purge() to the hci_sock_destruct() will fix this
+> issue, because nothing is referencing the socket at this point.
+> 
+> Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+> Reported-by: syzbot+4c4ffd1e1094dae61035@syzkaller.appspotmail.com
+> Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+> Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+> ---
+>  net/bluetooth/hci_sock.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
+> index f1128c2134f0..3f92a21cabe8 100644
+> --- a/net/bluetooth/hci_sock.c
+> +++ b/net/bluetooth/hci_sock.c
+> @@ -888,10 +888,6 @@ static int hci_sock_release(struct socket *sock)
+>  	}
+>  
+>  	sock_orphan(sk);
+> -
+> -	skb_queue_purge(&sk->sk_receive_queue);
+> -	skb_queue_purge(&sk->sk_write_queue);
+> -
+>  	release_sock(sk);
+>  	sock_put(sk);
+>  	return 0;
+> @@ -2012,6 +2008,12 @@ static int hci_sock_getsockopt(struct socket *sock, int level, int optname,
+>  	return err;
+>  }
+>  
+> +static void hci_sock_destruct(struct sock *sk)
+> +{
+> +	skb_queue_purge(&sk->sk_receive_queue);
+> +	skb_queue_purge(&sk->sk_write_queue);
+> +}
+> +
+>  static const struct proto_ops hci_sock_ops = {
+>  	.family		= PF_BLUETOOTH,
+>  	.owner		= THIS_MODULE,
+> @@ -2065,6 +2067,7 @@ static int hci_sock_create(struct net *net, struct socket *sock, int protocol,
+>  
+>  	sock->state = SS_UNCONNECTED;
+>  	sk->sk_state = BT_OPEN;
+> +	sk->sk_destruct = hci_sock_destruct;
+>  
+>  	bt_sock_link(&hci_sk_list, sk);
+>  	return 0;
+> -- 
+> 2.34.1
+> 
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
-git checkout FETCH_HEAD
-git cherry-pick -x c90b155148e9632ae46e6778ee958c319457415f
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167844879564163@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
-
-Possible dependencies:
-
-c90b155148e9 ("drm/i915: Pick the backlight controller based on VBT on ICP+")
-6cc42fbeb150 ("drm/i915/backlight: extract backlight code to a separate file")
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From c90b155148e9632ae46e6778ee958c319457415f Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Tue, 7 Feb 2023 08:43:37 +0200
-Subject: [PATCH] drm/i915: Pick the backlight controller based on VBT on ICP+
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Use the second backlight controller on ICP+ if the VBT asks
-us to do so.
-
-On pre-MTP we also check the chicken bit to make sure the
-pins have been correctly muxed by the firmware.
-
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8016
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230207064337.18697-4-ville.syrjala@linux.intel.com
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit b33771546309b46b681388b3540b69a75a0e2e69)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_backlight.c b/drivers/gpu/drm/i915/display/intel_backlight.c
-index 5b7da72c95b8..a4e4b7f79e4d 100644
---- a/drivers/gpu/drm/i915/display/intel_backlight.c
-+++ b/drivers/gpu/drm/i915/display/intel_backlight.c
-@@ -1431,6 +1431,30 @@ bxt_setup_backlight(struct intel_connector *connector, enum pipe unused)
- 	return 0;
- }
- 
-+static int cnp_num_backlight_controllers(struct drm_i915_private *i915)
-+{
-+	if (INTEL_PCH_TYPE(i915) >= PCH_DG1)
-+		return 1;
-+
-+	if (INTEL_PCH_TYPE(i915) >= PCH_ICP)
-+		return 2;
-+
-+	return 1;
-+}
-+
-+static bool cnp_backlight_controller_is_valid(struct drm_i915_private *i915, int controller)
-+{
-+	if (controller < 0 || controller >= cnp_num_backlight_controllers(i915))
-+		return false;
-+
-+	if (controller == 1 &&
-+	    INTEL_PCH_TYPE(i915) >= PCH_ICP &&
-+	    INTEL_PCH_TYPE(i915) < PCH_MTP)
-+		return intel_de_read(i915, SOUTH_CHICKEN1) & ICP_SECOND_PPS_IO_SELECT;
-+
-+	return true;
-+}
-+
- static int
- cnp_setup_backlight(struct intel_connector *connector, enum pipe unused)
- {
-@@ -1440,10 +1464,14 @@ cnp_setup_backlight(struct intel_connector *connector, enum pipe unused)
- 
- 	/*
- 	 * CNP has the BXT implementation of backlight, but with only one
--	 * controller. TODO: ICP has multiple controllers but we only use
--	 * controller 0 for now.
-+	 * controller. ICP+ can have two controllers, depending on pin muxing.
- 	 */
--	panel->backlight.controller = 0;
-+	panel->backlight.controller = connector->panel.vbt.backlight.controller;
-+	if (!cnp_backlight_controller_is_valid(i915, panel->backlight.controller)) {
-+		drm_dbg_kms(&i915->drm, "Invalid backlight controller %d, assuming 0\n",
-+			    panel->backlight.controller);
-+		panel->backlight.controller = 0;
-+	}
- 
- 	pwm_ctl = intel_de_read(i915,
- 				BXT_BLC_PWM_CTL(panel->backlight.controller));
-
