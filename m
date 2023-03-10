@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8E86B49BF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64BBD6B498D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233995AbjCJPP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:15:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
+        id S233286AbjCJPN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:13:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234119AbjCJPOy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:54 -0500
+        with ESMTP id S234070AbjCJPNY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:13:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0061D22A36
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B0061324
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:04:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABBDE61A2D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:04:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9266C433EF;
-        Fri, 10 Mar 2023 15:04:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5EE961982
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:04:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8156C433D2;
+        Fri, 10 Mar 2023 15:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460689;
-        bh=KclkMe7vaJVc5/+HJPw2cV9wB6hnn3zz8dKfRHN8ok4=;
+        s=korg; t=1678460692;
+        bh=HBBANLzPKfhWUAiGFfjByYsZ5DIT3dmFSoXfsQDD4FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKTzwy9aFydX5XtZxBETKRRyhOVBI3STJfGSIGbGGBV3+U5vVq+wDVnqE1AnCgiwS
-         b3RrKsvbyFbBMxVRPWTqUYcEdCqNULuKYdHJQbo8vRDnp37lkPrARD97VshqjFjL/X
-         xS8SHYQzHBHES7wiZAmjctGzdWCgoPE4r/6GNbgA=
+        b=vR/cj/B4d/HCh6y+/fU2fsnMLVeG5B99iZzXYBo8lhe2GW9Puh3NsNTFh6HUYTe74
+         +7ohRGf8ToA/gdj7eajLHSaGRHkFmXB9DZaPglxfjeNotrOGqL7RkJHbz98dNTISXY
+         srnq69ShYhK7AYHj9nDQLssT32lVMsbeovh9bZZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>,
+        Anatoli Antonovitch <anatoli.antonovitch@amd.com>,
         Lukas Wunner <lukas@wunner.de>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [PATCH 5.10 419/529] PCI/PM: Observe reset delay irrespective of bridge_d3
-Date:   Fri, 10 Mar 2023 14:39:22 +0100
-Message-Id: <20230310133824.405130904@linuxfoundation.org>
+        Keith Busch <kbusch@kernel.org>
+Subject: [PATCH 5.10 420/529] PCI: hotplug: Allow marking devices as disconnected during bind/unbind
+Date:   Fri, 10 Mar 2023 14:39:23 +0100
+Message-Id: <20230310133824.455271642@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -60,55 +58,134 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit 8ef0217227b42e2c34a18de316cee3da16c9bf1e upstream.
+commit 74ff8864cc842be994853095dba6db48e716400a upstream.
 
-If a PCI bridge is suspended to D3cold upon entering system sleep,
-resuming it entails a Fundamental Reset per PCIe r6.0 sec 5.8.
+On surprise removal, pciehp_unconfigure_device() and acpiphp's
+trim_stale_devices() call pci_dev_set_disconnected() to mark removed
+devices as permanently offline.  Thereby, the PCI core and drivers know
+to skip device accesses.
 
-The delay prescribed after a Fundamental Reset in PCIe r6.0 sec 6.6.1
-is sought to be observed by:
+However pci_dev_set_disconnected() takes the device_lock and thus waits for
+a concurrent driver bind or unbind to complete.  As a result, the driver's
+->probe and ->remove hooks have no chance to learn that the device is gone.
 
-  pci_pm_resume_noirq()
-    pci_pm_bridge_power_up_actions()
-      pci_bridge_wait_for_secondary_bus()
+That doesn't make any sense, so drop the device_lock and instead use atomic
+xchg() and cmpxchg() operations to update the device state.
 
-However, pci_bridge_wait_for_secondary_bus() bails out if the bridge_d3
-flag is not set.  That flag indicates whether a bridge is allowed to
-suspend to D3cold at *runtime*.
+As a byproduct, an AB-BA deadlock reported by Anatoli is fixed which occurs
+on surprise removal with AER concurrently performing a bus reset.
 
-Hence *no* delay is observed on resume from system sleep if runtime
-D3cold is forbidden.  That doesn't make any sense, so drop the bridge_d3
-check from pci_bridge_wait_for_secondary_bus().
+AER bus reset:
 
-The purpose of the bridge_d3 check was probably to avoid delays if a
-bridge remained in D0 during suspend.  However the sole caller of
-pci_bridge_wait_for_secondary_bus(), pci_pm_bridge_power_up_actions(),
-is only invoked if the previous power state was D3cold.  Hence the
-additional bridge_d3 check seems superfluous.
+  INFO: task irq/26-aerdrv:95 blocked for more than 120 seconds.
+  Tainted: G        W          6.2.0-rc3-custom-norework-jan11+
+  schedule
+  rwsem_down_write_slowpath
+  down_write_nested
+  pciehp_reset_slot                      # acquires reset_lock
+  pci_reset_hotplug_slot
+  pci_slot_reset                         # acquires device_lock
+  pci_bus_error_reset
+  aer_root_reset
+  pcie_do_recovery
+  aer_process_err_devices
+  aer_isr
 
-Fixes: ad9001f2f411 ("PCI/PM: Add missing link delays required by the PCIe spec")
-Link: https://lore.kernel.org/r/eb37fa345285ec8bacabbf06b020b803f77bdd3d.1673769517.git.lukas@wunner.de
-Tested-by: Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>
+pciehp surprise removal:
+
+  INFO: task irq/26-pciehp:96 blocked for more than 120 seconds.
+  Tainted: G        W          6.2.0-rc3-custom-norework-jan11+
+  schedule_preempt_disabled
+  __mutex_lock
+  mutex_lock_nested
+  pci_dev_set_disconnected               # acquires device_lock
+  pci_walk_bus
+  pciehp_unconfigure_device
+  pciehp_disable_slot
+  pciehp_handle_presence_or_link_change
+  pciehp_ist                             # acquires reset_lock
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215590
+Fixes: a6bd101b8f84 ("PCI: Unify device inaccessible")
+Link: https://lore.kernel.org/r/3dc88ea82bdc0e37d9000e413d5ebce481cbd629.1674205689.git.lukas@wunner.de
+Reported-by: Anatoli Antonovitch <anatoli.antonovitch@amd.com>
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: stable@vger.kernel.org # v5.5+
+Cc: stable@vger.kernel.org # v4.20+
+Cc: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/pci.h |   43 +++++++++++++------------------------------
+ 1 file changed, 13 insertions(+), 30 deletions(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4808,7 +4808,7 @@ void pci_bridge_wait_for_secondary_bus(s
- 	if (pci_dev_is_disconnected(dev))
- 		return;
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -351,53 +351,36 @@ struct pci_sriov {
+  * @dev - pci device to set new error_state
+  * @new - the state we want dev to be in
+  *
+- * Must be called with device_lock held.
++ * If the device is experiencing perm_failure, it has to remain in that state.
++ * Any other transition is allowed.
+  *
+  * Returns true if state has been changed to the requested state.
+  */
+ static inline bool pci_dev_set_io_state(struct pci_dev *dev,
+ 					pci_channel_state_t new)
+ {
+-	bool changed = false;
++	pci_channel_state_t old;
  
--	if (!pci_is_bridge(dev) || !dev->bridge_d3)
-+	if (!pci_is_bridge(dev))
- 		return;
+-	device_lock_assert(&dev->dev);
+ 	switch (new) {
+ 	case pci_channel_io_perm_failure:
+-		switch (dev->error_state) {
+-		case pci_channel_io_frozen:
+-		case pci_channel_io_normal:
+-		case pci_channel_io_perm_failure:
+-			changed = true;
+-			break;
+-		}
+-		break;
++		xchg(&dev->error_state, pci_channel_io_perm_failure);
++		return true;
+ 	case pci_channel_io_frozen:
+-		switch (dev->error_state) {
+-		case pci_channel_io_frozen:
+-		case pci_channel_io_normal:
+-			changed = true;
+-			break;
+-		}
+-		break;
++		old = cmpxchg(&dev->error_state, pci_channel_io_normal,
++			      pci_channel_io_frozen);
++		return old != pci_channel_io_perm_failure;
+ 	case pci_channel_io_normal:
+-		switch (dev->error_state) {
+-		case pci_channel_io_frozen:
+-		case pci_channel_io_normal:
+-			changed = true;
+-			break;
+-		}
+-		break;
++		old = cmpxchg(&dev->error_state, pci_channel_io_frozen,
++			      pci_channel_io_normal);
++		return old != pci_channel_io_perm_failure;
++	default:
++		return false;
+ 	}
+-	if (changed)
+-		dev->error_state = new;
+-	return changed;
+ }
  
- 	down_read(&pci_bus_sem);
+ static inline int pci_dev_set_disconnected(struct pci_dev *dev, void *unused)
+ {
+-	device_lock(&dev->dev);
+ 	pci_dev_set_io_state(dev, pci_channel_io_perm_failure);
+-	device_unlock(&dev->dev);
+ 
+ 	return 0;
+ }
 
 
