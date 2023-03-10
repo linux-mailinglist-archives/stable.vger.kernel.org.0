@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5170E6B424D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:01:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B4D6B445A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231526AbjCJOBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:01:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50766 "EHLO
+        id S232282AbjCJOXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:23:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230406AbjCJOBn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:43 -0500
+        with ESMTP id S232164AbjCJOWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:45 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A565B1165F7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:01:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8442F5DCBD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B172B822BE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 935C7C4339B;
-        Fri, 10 Mar 2023 14:01:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D8A5B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84133C433D2;
+        Fri, 10 Mar 2023 14:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456898;
-        bh=gpUSKB3kC9G6mWSenLq1kBUG6QCbvz++Xvx6mViL4wU=;
+        s=korg; t=1678458123;
+        bh=dWaOxSTuuVnsoufbcY5U6XTajXN1PhzScfpEn9gN9EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWGXQKWFYvKXQv59DfZJ45PLBPS32uW0SnQtSssYHz+UfrXUCG6hvMcxjbwRjAKMq
-         PQ8+cC/IixHcQ0YmHijEuu5D5+laNfVN4Jud4WG9hFE2kvXjCWSM0lm7UcVD/eLCcN
-         8bfB/rb8+qWBOEoEVxGFqqs30p241rBe7w5VYkCk=
+        b=RnQgW53u88Tz8taqKRG6QpZguAevwnOU8sR6M6Y7XVsId9j+OQHh0OSPKy739YJzQ
+         07n+9OpUkvBlrF9bMDufhjSSyXE7EgbVXQ9UYChXa0RCL0Zb1e9FnDSY1qYSy5amBp
+         IrLhMkZYeRYE3jq7eE51cnKrTs8KJ4GbjnCnfve8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olav Kongas <ok@artecdesign.ee>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 162/211] USB: isp116x: fix memory leak with using debugfs_lookup()
+        patches@lists.linux.dev,
+        syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com,
+        stable@kernel.org, Jun Nie <jun.nie@linaro.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 172/252] ext4: refuse to create ea block when umounted
 Date:   Fri, 10 Mar 2023 14:39:02 +0100
-Message-Id: <20230310133723.690142299@linuxfoundation.org>
+Message-Id: <20230310133724.067471607@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jun Nie <jun.nie@linaro.org>
 
-[ Upstream commit a95f62d5813facbec20ec087472eb313ee5fa8af ]
+commit f31173c19901a96bb2ebf6bcfec8a08df7095c91 upstream.
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+The ea block expansion need to access s_root while it is
+already set as NULL when umount is triggered. Refuse this
+request to avoid panic.
 
-Cc: Olav Kongas <ok@artecdesign.ee>
-Link: https://lore.kernel.org/r/20230202153235.2412790-6-gregkh@linuxfoundation.org
+Reported-by: syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
+Link: https://lore.kernel.org/r/20230103014517.495275-3-jun.nie@linaro.org
+Cc: stable@kernel.org
+Signed-off-by: Jun Nie <jun.nie@linaro.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/isp116x-hcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/xattr.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/usb/host/isp116x-hcd.c b/drivers/usb/host/isp116x-hcd.c
-index 4f564d71bb0bc..49ae01487af4d 100644
---- a/drivers/usb/host/isp116x-hcd.c
-+++ b/drivers/usb/host/isp116x-hcd.c
-@@ -1205,7 +1205,7 @@ static void create_debug_file(struct isp116x *isp116x)
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1436,6 +1436,13 @@ static struct inode *ext4_xattr_inode_cr
+ 	uid_t owner[2] = { i_uid_read(inode), i_gid_read(inode) };
+ 	int err;
  
- static void remove_debug_file(struct isp116x *isp116x)
- {
--	debugfs_remove(debugfs_lookup(hcd_name, usb_debug_root));
-+	debugfs_lookup_and_remove(hcd_name, usb_debug_root);
- }
- 
- #else
--- 
-2.39.2
-
++	if (inode->i_sb->s_root == NULL) {
++		ext4_warning(inode->i_sb,
++			     "refuse to create EA inode when umounting");
++		WARN_ON(1);
++		return ERR_PTR(-EINVAL);
++	}
++
+ 	/*
+ 	 * Let the next inode be the goal, so we try and allocate the EA inode
+ 	 * in the same group, or nearby one.
 
 
