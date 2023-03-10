@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E9A6B4630
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6A016B4368
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232738AbjCJOlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:41:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57218 "EHLO
+        id S231955AbjCJOO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232754AbjCJOlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2623121B57
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:58 -0800 (PST)
+        with ESMTP id S231956AbjCJOOF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A9A4205
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59EDEB822DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7019C433D2;
-        Fri, 10 Mar 2023 14:40:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9385BB822CC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E936C4339E;
+        Fri, 10 Mar 2023 14:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459256;
-        bh=YSpk8JC3MkWwdM+fH9JynhG37P0r65IQRz2IccSai30=;
+        s=korg; t=1678457571;
+        bh=sUiRhxewCgC3dtqFzN+Sq11Vm+nXjivcxsoRaI+Rd/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lmcx+9zEkrvI8P9IDHIs/xZdZ6WHCw9IE+9USG4LMxeXWU6fD+VtCJyYHsh7RIpJz
-         NYWBEFoKF2VQUKWsE1HE6kv6mIoYwiozym5zi7WLnFHkbLYRUq9+DHP0MquFtqtz9j
-         kJMSgIfwGODYB6SJjC1J7Hbs+RSn3Iq0V1PKf7Mo=
+        b=CZNbz3yaMo4ne3ITBXukHp5d7XYxbe9J92m3/ZQF7adjheTUre7TT3+jNaYO0XjfZ
+         8PllXcEhtC+He3vjlQbf6+4seUviDjyaKt2+QjEtnlDbV19d05iadrq5OBa6Czwj5p
+         P/jizOtC3byuWfejprQ1x81r9rgW9Y7qBn0+jg1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 301/357] ubi: Fix possible null-ptr-deref in ubi_free_volume()
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.1 183/200] vDPA/ifcvf: decouple vq irq requester from the adapter
 Date:   Fri, 10 Mar 2023 14:39:50 +0100
-Message-Id: <20230310133748.017018699@linuxfoundation.org>
+Message-Id: <20230310133722.718669057@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,89 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit c15859bfd326c10230f09cb48a17f8a35f190342 ]
+commit f9a9ffb2e4dbde81090416fc51662441c2a7b73b upstream.
 
-It willl cause null-ptr-deref in the following case:
+This commit decouples the vq irq requester from the adapter,
+so that these functions can be invoked since probe.
 
-uif_init()
-  ubi_add_volume()
-    cdev_add() -> if it fails, call kill_volumes()
-    device_register()
-
-kill_volumes() -> if ubi_add_volume() fails call this function
-  ubi_free_volume()
-    cdev_del()
-    device_unregister() -> trying to delete a not added device,
-			   it causes null-ptr-deref
-
-So in ubi_free_volume(), it delete devices whether they are added
-or not, it will causes null-ptr-deref.
-
-Handle the error case whlie calling ubi_add_volume() to fix this
-problem. If add volume fails, set the corresponding vol to null,
-so it can not be accessed in kill_volumes() and release the
-resource in ubi_add_volume() error path.
-
-Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
-Suggested-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-7-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/build.c |  1 +
- drivers/mtd/ubi/vmt.c   | 12 ++++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c |   19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-index 6fd6c3e01f72f..13f8292ceea52 100644
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -467,6 +467,7 @@ static int uif_init(struct ubi_device *ubi)
- 			err = ubi_add_volume(ubi, ubi->volumes[i]);
- 			if (err) {
- 				ubi_err(ubi, "cannot add volume %d", i);
-+				ubi->volumes[i] = NULL;
- 				goto out_volumes;
- 			}
- 		}
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 2e5bd473e5e25..d79323e8ea29d 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -582,6 +582,7 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	if (err) {
- 		ubi_err(ubi, "cannot add character device for volume %d, error %d",
- 			vol_id, err);
-+		vol_release(&vol->dev);
- 		return err;
- 	}
- 
-@@ -592,15 +593,14 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	vol->dev.groups = volume_dev_groups;
- 	dev_set_name(&vol->dev, "%s_%d", ubi->ubi_name, vol->vol_id);
- 	err = device_register(&vol->dev);
--	if (err)
--		goto out_cdev;
-+	if (err) {
-+		cdev_del(&vol->cdev);
-+		put_device(&vol->dev);
-+		return err;
-+	}
- 
- 	self_check_volumes(ubi);
- 	return err;
--
--out_cdev:
--	cdev_del(&vol->cdev);
--	return err;
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -155,10 +155,9 @@ static int ifcvf_alloc_vectors(struct if
+ 	return ret;
  }
  
- /**
--- 
-2.39.2
-
+-static int ifcvf_request_per_vq_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_per_vq_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int i, vector, ret, irq;
+ 
+ 	vf->vqs_reused_irq = -EINVAL;
+@@ -190,10 +189,9 @@ err:
+ 	return -EFAULT;
+ }
+ 
+-static int ifcvf_request_vqs_reused_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_vqs_reused_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int i, vector, ret, irq;
+ 
+ 	vector = 0;
+@@ -266,15 +264,14 @@ err:
+ 
+ }
+ 
+-static int ifcvf_request_vq_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_vq_irq(struct ifcvf_hw *vf)
+ {
+-	struct ifcvf_hw *vf = &adapter->vf;
+ 	int ret;
+ 
+ 	if (vf->msix_vector_status == MSIX_VECTOR_PER_VQ_AND_CONFIG)
+-		ret = ifcvf_request_per_vq_irq(adapter);
++		ret = ifcvf_request_per_vq_irq(vf);
+ 	else
+-		ret = ifcvf_request_vqs_reused_irq(adapter);
++		ret = ifcvf_request_vqs_reused_irq(vf);
+ 
+ 	return ret;
+ }
+@@ -341,7 +338,7 @@ static int ifcvf_request_irq(struct ifcv
+ 		return ret;
+ 	}
+ 
+-	ret = ifcvf_request_vq_irq(adapter);
++	ret = ifcvf_request_vq_irq(vf);
+ 	if (ret)
+ 		return ret;
+ 
 
 
