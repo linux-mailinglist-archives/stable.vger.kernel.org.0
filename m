@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4696B448B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4228F6B448C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232370AbjCJOZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:25:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
+        id S232373AbjCJOZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232406AbjCJOYv (ORCPT
+        with ESMTP id S232412AbjCJOYv (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC60E387
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:49 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33E51C7FF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6464B82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A766C433D2;
-        Fri, 10 Mar 2023 14:23:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E472B8228E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D63FBC433EF;
+        Fri, 10 Mar 2023 14:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458226;
-        bh=ls1WHr+NDdpwY4I4HK+pOTbER55f6Fx0nziaxrJOC/8=;
+        s=korg; t=1678458229;
+        bh=vEtQuDi1vVl7+YtfoI2EAd0aBrx/HFxmKNxuhs98Uyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQgi5YcqFrEfLa7u0kN13A0+QDsks2Ytqd2G+pTIxXGal8/xDGI8It4FMOTyFeskN
-         gr84VUwl7ZNXqdojj1YfoPGE3wB3aX83Be/RQPo8qxPwL6VQvCPHBfp5kIaDi8tNlY
-         UhPzWm81Eua87216DAXurHIaUSeQS0KUMWQT7mKU=
+        b=YgxwJgAy6Spfya9fRQeUflY1jX+e1Pkd1A1cgvEUE55LPmjkERbUUFW11zSAsWT12
+         Gb+39sNBO6lZ/ZM0OSJcoP9kaSVfNXZsup8BAG3H28MptKcyCwlPmh5Sc42hhYM6mO
+         NlzLOnnxUq4kfF6qTZHB3kWutZJJL7iZhR0ymTjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 206/252] ubifs: Reserve one leb for each journal head while doing budget
-Date:   Fri, 10 Mar 2023 14:39:36 +0100
-Message-Id: <20230310133725.313538288@linuxfoundation.org>
+Subject: [PATCH 4.19 207/252] ubi: Fix use-after-free when volume resizing failed
+Date:   Fri, 10 Mar 2023 14:39:37 +0100
+Message-Id: <20230310133725.352078965@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
 References: <20230310133718.803482157@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,63 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit e874dcde1cbf82c786c0e7f2899811c02630cc52 ]
+[ Upstream commit 9af31d6ec1a4be4caab2550096c6bd2ba8fba472 ]
 
-UBIFS calculates available space by c->main_bytes - c->lst.total_used
-(which means non-index lebs' free and dirty space is accounted into
-total available), then index lebs and four lebs (one for gc_lnum, one
-for deletions, two for journal heads) are deducted.
-In following situation, ubifs may get -ENOSPC from make_reservation():
- LEB 84: DATAHD   free 122880 used 1920  dirty 2176  dark 6144
- LEB 110:DELETION free 126976 used 0     dirty 0     dark 6144 (empty)
- LEB 201:gc_lnum  free 126976 used 0     dirty 0     dark 6144
- LEB 272:GCHD     free 77824  used 47672 dirty 1480  dark 6144
- LEB 356:BASEHD   free 0      used 39776 dirty 87200 dark 6144
- OTHERS: index lebs, zero-available non-index lebs
+There is an use-after-free problem reported by KASAN:
+  ==================================================================
+  BUG: KASAN: use-after-free in ubi_eba_copy_table+0x11f/0x1c0 [ubi]
+  Read of size 8 at addr ffff888101eec008 by task ubirsvol/4735
 
-UBIFS calculates the available bytes is 6888 (How to calculate it:
-126976 * 5[remain main bytes] - 1920[used] - 47672[used] - 39776[used] -
-126976 * 1[deletions] - 126976 * 1[gc_lnum] - 126976 * 2[journal heads]
-- 6144 * 5[dark] = 6888) after doing budget, however UBIFS cannot use
-BASEHD's dirty space(87200), because UBIFS cannot find next BASEHD to
-reclaim current BASEHD. (c->bi.min_idx_lebs equals to c->lst.idx_lebs,
-the empty leb won't be found by ubifs_find_free_space(), and dirty index
-lebs won't be picked as gced lebs. All non-index lebs has dirty space
-less then c->dead_wm, non-index lebs won't be picked as gced lebs
-either. So new free lebs won't be produced.). See more details in Link.
+  CPU: 2 PID: 4735 Comm: ubirsvol
+  Not tainted 6.1.0-rc1-00003-g84fa3304a7fc-dirty #14
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+  BIOS 1.14.0-1.fc33 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   print_report+0x171/0x472
+   kasan_report+0xad/0x130
+   ubi_eba_copy_table+0x11f/0x1c0 [ubi]
+   ubi_resize_volume+0x4f9/0xbc0 [ubi]
+   ubi_cdev_ioctl+0x701/0x1850 [ubi]
+   __x64_sys_ioctl+0x11d/0x170
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+   </TASK>
 
-To fix it, reserve one leb for each journal head while doing budget.
+When ubi_change_vtbl_record() returns an error in ubi_resize_volume(),
+"new_eba_tbl" will be freed on error handing path, but it is holded
+by "vol->eba_tbl" in ubi_eba_replace_table(). It means that the liftcycle
+of "vol->eba_tbl" and "vol" are different, so when resizing volume in
+next time, it causing an use-after-free fault.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216562
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Fix it by not freeing "new_eba_tbl" after it replaced in
+ubi_eba_replace_table(), while will be freed in next volume resizing.
+
+Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/budget.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/mtd/ubi/vmt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/budget.c b/fs/ubifs/budget.c
-index 2971a2c140d57..30c7bd63c2ad1 100644
---- a/fs/ubifs/budget.c
-+++ b/fs/ubifs/budget.c
-@@ -224,11 +224,10 @@ long long ubifs_calc_available(const struct ubifs_info *c, int min_idx_lebs)
- 	subtract_lebs += 1;
- 
- 	/*
--	 * The GC journal head LEB is not really accessible. And since
--	 * different write types go to different heads, we may count only on
--	 * one head's space.
-+	 * Since different write types go to different heads, we should
-+	 * reserve one leb for each head.
- 	 */
--	subtract_lebs += c->jhead_cnt - 1;
-+	subtract_lebs += c->jhead_cnt;
- 
- 	/* We also reserve one LEB for deletions, which bypass budgeting */
- 	subtract_lebs += 1;
+diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
+index 9f6ffd340a3ef..525aa795f934d 100644
+--- a/drivers/mtd/ubi/vmt.c
++++ b/drivers/mtd/ubi/vmt.c
+@@ -477,7 +477,7 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
+ 		for (i = 0; i < -pebs; i++) {
+ 			err = ubi_eba_unmap_leb(ubi, vol, reserved_pebs + i);
+ 			if (err)
+-				goto out_acc;
++				goto out_free;
+ 		}
+ 		spin_lock(&ubi->volumes_lock);
+ 		ubi->rsvd_pebs += pebs;
+@@ -525,6 +525,8 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
+ 		ubi->avail_pebs += pebs;
+ 		spin_unlock(&ubi->volumes_lock);
+ 	}
++	return err;
++
+ out_free:
+ 	kfree(new_eba_tbl);
+ 	return err;
 -- 
 2.39.2
 
