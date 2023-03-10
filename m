@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB4D6B4A6B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7BAA6B4A8E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234188AbjCJPW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:22:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47772 "EHLO
+        id S234171AbjCJPYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:24:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234183AbjCJPW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:22:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0ACB113888
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:12:36 -0800 (PST)
+        with ESMTP id S234173AbjCJPX7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:23:59 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA3C1165FE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B022B822F4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD6EFC433D2;
-        Fri, 10 Mar 2023 15:12:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 99027CE2947
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:13:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750FCC433EF;
+        Fri, 10 Mar 2023 15:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461155;
-        bh=WQapwnlzvdlcuOSFjzemO+1KCgxp2nR0nblIBIOnKYE=;
+        s=korg; t=1678461187;
+        bh=7DHvn9zXh64o3pkxAJ+Fq/fggnxigBTWsWRlcq7ajIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RStFqk7K/6ukl214IQwcoq0SW3ki2k2sso3sInVTk/+ZLnkNzFJerIdvTgif/Rkpp
-         p1ebQl03T89fSPLyuMOdocyaRnVbt4KL2JMDdZNkkVWqNQi15KU3OSy5xhjFwWn/sN
-         TPtoSMH54wNNndvHVj5YTVreDnKFl3d30r3oUIzQ=
+        b=w4NrBNSlTpkb0Qodn/5P5uPilzSi/R/H56TxeunuXMigDZV9RuSWeR38ilp/OwgQ+
+         oI7P5fJqu2EJUKpoKhri6EeezYkqoh6GYOsQG2AkfE3YORG7NpKL2GAavCSnmhAdK8
+         bD0uujiBmZs8D3F3ruy0YvqnctPoD2CvnChw8BaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/136] ubi: fastmap: Fix missed fm_anchor PEB in wear-leveling after disabling fastmap
-Date:   Fri, 10 Mar 2023 14:42:28 +0100
-Message-Id: <20230310133707.770791449@linuxfoundation.org>
+Subject: [PATCH 5.15 027/136] ubi: Fix UAF wear-leveling entry in eraseblk_count_seq_show()
+Date:   Fri, 10 Mar 2023 14:42:29 +0100
+Message-Id: <20230310133707.807962105@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -56,59 +56,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 76f9476ece445a07aeb72df9d896cd563fb5b50f ]
+[ Upstream commit a240bc5c43130c6aa50831d7caaa02a1d84e1bce ]
 
-After disabling fastmap(ubi->fm_disabled = 1), fastmap won't be updated,
-fm_anchor PEB is missed being scheduled for erasing. Besides, fm_anchor
-PEB may have smallest erase count, it doesn't participate wear-leveling.
-The difference of erase count between fm_anchor PEB and other PEBs will
-be larger and larger later on.
+Wear-leveling entry could be freed in error path, which may be accessed
+again in eraseblk_count_seq_show(), for example:
 
-In which situation fastmap can be disabled? Initially, we have an UBI
-image with fastmap. Then the image will be atttached without module
-parameter 'fm_autoconvert', ubi turns to full scanning mode in one
-random attaching process(eg. bad fastmap caused by powercut), ubi
-fastmap is disabled since then.
+__erase_worker                eraseblk_count_seq_show
+                                wl = ubi->lookuptbl[*block_number]
+				if (wl)
+  wl_entry_destroy
+    ubi->lookuptbl[e->pnum] = NULL
+    kmem_cache_free(ubi_wl_entry_slab, e)
+		                   erase_count = wl->ec  // UAF!
 
-Fix it by not getting fm_anchor if fastmap is disabled in
-ubi_refill_pools().
+Wear-leveling entry updating/accessing in ubi->lookuptbl should be
+protected by ubi->wl_lock, fix it by adding ubi->wl_lock to serialize
+wl entry accessing between wl_entry_destroy() and
+eraseblk_count_seq_show().
 
 Fetch a reproducer in [Link].
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216341
-Fixes: 4b68bf9a69d22d ("ubi: Select fastmap anchor PEBs considering ...")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216305
+Fixes: 7bccd12d27b7e3 ("ubi: Add debugfs file for tracking PEB state")
+Fixes: 801c135ce73d5d ("UBI: Unsorted Block Images")
 Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/fastmap-wl.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/mtd/ubi/wl.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
-index 053ab52668e8b..69592be33adfc 100644
---- a/drivers/mtd/ubi/fastmap-wl.c
-+++ b/drivers/mtd/ubi/fastmap-wl.c
-@@ -146,13 +146,15 @@ void ubi_refill_pools(struct ubi_device *ubi)
- 	if (ubi->fm_anchor) {
- 		wl_tree_add(ubi->fm_anchor, &ubi->free);
- 		ubi->free_count++;
-+		ubi->fm_anchor = NULL;
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index afcdacb9d0e99..4a672e925d869 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -886,8 +886,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 
+ 	err = do_sync_erase(ubi, e1, vol_id, lnum, 0);
+ 	if (err) {
+-		if (e2)
++		if (e2) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e2);
++			spin_unlock(&ubi->wl_lock);
++		}
+ 		goto out_ro;
  	}
  
--	/*
--	 * All available PEBs are in ubi->free, now is the time to get
--	 * the best anchor PEBs.
--	 */
--	ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
-+	if (!ubi->fm_disabled)
-+		/*
-+		 * All available PEBs are in ubi->free, now is the time to get
-+		 * the best anchor PEBs.
-+		 */
-+		ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
+@@ -1120,14 +1123,18 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
+ 		/* Re-schedule the LEB for erasure */
+ 		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
+ 		if (err1) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e);
++			spin_unlock(&ubi->wl_lock);
+ 			err = err1;
+ 			goto out_ro;
+ 		}
+ 		return err;
+ 	}
  
- 	for (;;) {
- 		enough = 0;
++	spin_lock(&ubi->wl_lock);
+ 	wl_entry_destroy(ubi, e);
++	spin_unlock(&ubi->wl_lock);
+ 	if (err != -EIO)
+ 		/*
+ 		 * If this is not %-EIO, we have no idea what to do. Scheduling
 -- 
 2.39.2
 
