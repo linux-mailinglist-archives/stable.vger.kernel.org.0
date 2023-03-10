@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 033E96B4355
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:13:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CF46B415D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbjCJONa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:13:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S230519AbjCJNwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:52:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231968AbjCJONF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2DE4118829
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:11:59 -0800 (PST)
+        with ESMTP id S231154AbjCJNwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:52:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909EB115641
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8346B61958
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:11:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951AFC4339C;
-        Fri, 10 Mar 2023 14:11:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26341B822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58FB7C4339C;
+        Fri, 10 Mar 2023 13:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457499;
-        bh=jInNmx+MCkkRofWkRSrLIvknOQkG1kiRkMXoIROV4tw=;
+        s=korg; t=1678456320;
+        bh=j+Mz+/XiGVAQ1YTEftHlbb4QIF68gxtpTqpPuudJUnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fP+5O0xT4jfMDK7/RSk53DJbSYYNvf4bUxe821ch7mckUcLbWuIbO+7RQvpv/VWxB
-         RcJuSivKXuY4GbkqYGSs+xrFCXz7hadF8JPfsKTqS/5airLbd2sIXzSFdmiMvNZ21F
-         3TE760i9VOLi3dW1j9OJspidvVrG+lDHQnnqMsiU=
+        b=TUZshsd3YVkI7LSvl1bxx/3+lmPRlwFNFXhnfaGEBbWdkVKDrttgiFLH0io64ugYs
+         7RI3il2Fo/a48UEhBMqcc1DrLOHZlfsRpvERuiUzxI6RZDcQP9vXGAXB7mVcdZ2OIb
+         3Hg5+lugZ6rSXQN3AGSiKtt82LLzP87XLLyN7yK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 131/200] tty: fix out-of-bounds access in tty_driver_lookup_tty()
+Subject: [PATCH 4.14 156/193] ubi: Fix use-after-free when volume resizing failed
 Date:   Fri, 10 Mar 2023 14:38:58 +0100
-Message-Id: <20230310133721.144272978@linuxfoundation.org>
+Message-Id: <20230310133716.376518075@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,73 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit db4df8e9d79e7d37732c1a1b560958e8dadfefa1 ]
+[ Upstream commit 9af31d6ec1a4be4caab2550096c6bd2ba8fba472 ]
 
-When specifying an invalid console= device like console=tty3270,
-tty_driver_lookup_tty() returns the tty struct without checking
-whether index is a valid number.
+There is an use-after-free problem reported by KASAN:
+  ==================================================================
+  BUG: KASAN: use-after-free in ubi_eba_copy_table+0x11f/0x1c0 [ubi]
+  Read of size 8 at addr ffff888101eec008 by task ubirsvol/4735
 
-To reproduce:
+  CPU: 2 PID: 4735 Comm: ubirsvol
+  Not tainted 6.1.0-rc1-00003-g84fa3304a7fc-dirty #14
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+  BIOS 1.14.0-1.fc33 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   print_report+0x171/0x472
+   kasan_report+0xad/0x130
+   ubi_eba_copy_table+0x11f/0x1c0 [ubi]
+   ubi_resize_volume+0x4f9/0xbc0 [ubi]
+   ubi_cdev_ioctl+0x701/0x1850 [ubi]
+   __x64_sys_ioctl+0x11d/0x170
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+   </TASK>
 
-qemu-system-x86_64 -enable-kvm -nographic -serial mon:stdio \
--kernel ../linux-build-x86/arch/x86/boot/bzImage \
--append "console=ttyS0 console=tty3270"
+When ubi_change_vtbl_record() returns an error in ubi_resize_volume(),
+"new_eba_tbl" will be freed on error handing path, but it is holded
+by "vol->eba_tbl" in ubi_eba_replace_table(). It means that the liftcycle
+of "vol->eba_tbl" and "vol" are different, so when resizing volume in
+next time, it causing an use-after-free fault.
 
-This crashes with:
+Fix it by not freeing "new_eba_tbl" after it replaced in
+ubi_eba_replace_table(), while will be freed in next volume resizing.
 
-[    0.770599] BUG: kernel NULL pointer dereference, address: 00000000000000ef
-[    0.771265] #PF: supervisor read access in kernel mode
-[    0.771773] #PF: error_code(0x0000) - not-present page
-[    0.772609] Oops: 0000 [#1] PREEMPT SMP PTI
-[    0.774878] RIP: 0010:tty_open+0x268/0x6f0
-[    0.784013]  chrdev_open+0xbd/0x230
-[    0.784444]  ? cdev_device_add+0x80/0x80
-[    0.784920]  do_dentry_open+0x1e0/0x410
-[    0.785389]  path_openat+0xca9/0x1050
-[    0.785813]  do_filp_open+0xaa/0x150
-[    0.786240]  file_open_name+0x133/0x1b0
-[    0.786746]  filp_open+0x27/0x50
-[    0.787244]  console_on_rootfs+0x14/0x4d
-[    0.787800]  kernel_init_freeable+0x1e4/0x20d
-[    0.788383]  ? rest_init+0xc0/0xc0
-[    0.788881]  kernel_init+0x11/0x120
-[    0.789356]  ret_from_fork+0x22/0x30
-
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20221209112737.3222509-2-svens@linux.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_io.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/mtd/ubi/vmt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index de06c3c2ff70a..1ac6784ea1f92 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -1224,14 +1224,16 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
- {
- 	struct tty_struct *tty;
- 
--	if (driver->ops->lookup)
-+	if (driver->ops->lookup) {
- 		if (!file)
- 			tty = ERR_PTR(-EIO);
- 		else
- 			tty = driver->ops->lookup(driver, file, idx);
--	else
-+	} else {
-+		if (idx >= driver->num)
-+			return ERR_PTR(-EINVAL);
- 		tty = driver->ttys[idx];
--
-+	}
- 	if (!IS_ERR(tty))
- 		tty_kref_get(tty);
- 	return tty;
+diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
+index d32144c0098a9..bbf4b61733708 100644
+--- a/drivers/mtd/ubi/vmt.c
++++ b/drivers/mtd/ubi/vmt.c
+@@ -470,7 +470,7 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
+ 		for (i = 0; i < -pebs; i++) {
+ 			err = ubi_eba_unmap_leb(ubi, vol, reserved_pebs + i);
+ 			if (err)
+-				goto out_acc;
++				goto out_free;
+ 		}
+ 		spin_lock(&ubi->volumes_lock);
+ 		ubi->rsvd_pebs += pebs;
+@@ -518,6 +518,8 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
+ 		ubi->avail_pebs += pebs;
+ 		spin_unlock(&ubi->volumes_lock);
+ 	}
++	return err;
++
+ out_free:
+ 	kfree(new_eba_tbl);
+ 	return err;
 -- 
 2.39.2
 
