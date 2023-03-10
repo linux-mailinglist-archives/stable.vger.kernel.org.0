@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A456B45F9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 844716B4430
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232749AbjCJOjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:39:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51396 "EHLO
+        id S232240AbjCJOWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232747AbjCJOiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:55 -0500
+        with ESMTP id S232239AbjCJOV5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D77C97CE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A76FE192A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD69FB822E5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF1FC4339C;
-        Fri, 10 Mar 2023 14:38:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FEA8B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78FDFC433A0;
+        Fri, 10 Mar 2023 14:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459121;
-        bh=noPyn0pyVQ1GGu/VIZLDUb1HrmUSFyiFCC2K9CQ2CyM=;
+        s=korg; t=1678458040;
+        bh=j95px4RmMOWRLPV82zBFceW4dj7CDJ2h8JPTp71NRas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hY6BK81pVzeli0ZntFvp4+q+ZHp3kzftWwyqgbOT7NyGo1ayUeMMPXvpmoFAh9u1U
-         ACDXFNFJDtnoVuH8MGjbmuSYq31AizGpYKDsuBz4nWVU8UcUZGVF7YPjj067FWhzVU
-         Q46+JoRyseAf10oDqI3YUqftCrebVVqlMrzJ7CvY=
+        b=PCn7whgenW+s2lbrlBSGjai7GhlapskH1UP5U5Ir2V4+tziZbaJIvc/RYoH5FrOPu
+         /pze+z/oGVedyDH9+l6wpVUYrCWJiXsQvk7TWQ8O5oANnTzPSAqjmCOZbyyMUhsYcz
+         AsBYIBY/oijeV6pL7d4o8c64uPtON7ZZQCvhzBew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 224/357] ocfs2: fix non-auto defrag path not working issue
+        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 143/252] s390/kprobes: fix irq mask clobbering on kprobe reenter from post_handler
 Date:   Fri, 10 Mar 2023 14:38:33 +0100
-Message-Id: <20230310133744.637821085@linuxfoundation.org>
+Message-Id: <20230310133723.121930840@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,91 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 236b9254f8d1edc273ad88b420aa85fbd84f492d upstream.
+commit 42e19e6f04984088b6f9f0507c4c89a8152d9730 upstream.
 
-This fixes three issues on move extents ioctl without auto defrag:
+Recent test_kprobe_missed kprobes kunit test uncovers the following error
+(reported when CONFIG_DEBUG_ATOMIC_SLEEP is enabled):
 
-a) In ocfs2_find_victim_alloc_group(), we have to convert bits to block
-   first in case of global bitmap.
+BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
+in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 662, name: kunit_try_catch
+preempt_count: 0, expected: 0
+RCU nest depth: 0, expected: 0
+no locks held by kunit_try_catch/662.
+irq event stamp: 280
+hardirqs last  enabled at (279): [<00000003e60a3d42>] __do_pgm_check+0x17a/0x1c0
+hardirqs last disabled at (280): [<00000003e3bd774a>] kprobe_exceptions_notify+0x27a/0x318
+softirqs last  enabled at (0): [<00000003e3c5c890>] copy_process+0x14a8/0x4c80
+softirqs last disabled at (0): [<0000000000000000>] 0x0
+CPU: 46 PID: 662 Comm: kunit_try_catch Tainted: G                 N 6.2.0-173644-g44c18d77f0c0 #2
+Hardware name: IBM 3931 A01 704 (LPAR)
+Call Trace:
+ [<00000003e60a3a00>] dump_stack_lvl+0x120/0x198
+ [<00000003e3d02e82>] __might_resched+0x60a/0x668
+ [<00000003e60b9908>] __mutex_lock+0xc0/0x14e0
+ [<00000003e60bad5a>] mutex_lock_nested+0x32/0x40
+ [<00000003e3f7b460>] unregister_kprobe+0x30/0xd8
+ [<00000003e51b2602>] test_kprobe_missed+0xf2/0x268
+ [<00000003e51b5406>] kunit_try_run_case+0x10e/0x290
+ [<00000003e51b7dfa>] kunit_generic_run_threadfn_adapter+0x62/0xb8
+ [<00000003e3ce30f8>] kthread+0x2d0/0x398
+ [<00000003e3b96afa>] __ret_from_fork+0x8a/0xe8
+ [<00000003e60ccada>] ret_from_fork+0xa/0x40
 
-b) In ocfs2_probe_alloc_group(), when finding enough bits in block
-   group bitmap, we have to back off move_len to start pos as well,
-   otherwise it may corrupt filesystem.
+The reason for this error report is that kprobes handling code failed
+to restore irqs.
 
-c) In ocfs2_ioctl_move_extents(), set me_threshold both for non-auto
-   and auto defrag paths.  Otherwise it will set move_max_hop to 0 and
-   finally cause unexpectedly ENOSPC error.
+The problem is that when kprobe is triggered from another kprobe
+post_handler current sequence of enable_singlestep / disable_singlestep
+is the following:
+enable_singlestep  <- original kprobe (saves kprobe_saved_imask)
+enable_singlestep  <- kprobe triggered from post_handler (clobbers kprobe_saved_imask)
+disable_singlestep <- kprobe triggered from post_handler (restores kprobe_saved_imask)
+disable_singlestep <- original kprobe (restores wrong clobbered kprobe_saved_imask)
 
-Currently there are no tools triggering the above issues since
-defragfs.ocfs2 enables auto defrag by default.  Tested with manually
-changing defragfs.ocfs2 to run non auto defrag path.
+There is just one kprobe_ctlblk per cpu and both calls saves and
+loads irq mask to kprobe_saved_imask. To fix the problem simply move
+resume_execution (which calls disable_singlestep) before calling
+post_handler. This also fixes the problem that post_handler is called
+with pt_regs which were not yet adjusted after single-stepping.
 
-Link: https://lkml.kernel.org/r/20230220050526.22020-1-heming.zhao@suse.com
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 4ba069b802c2 ("[S390] add kprobes support.")
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/move_extents.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ arch/s390/kernel/kprobes.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/ocfs2/move_extents.c
-+++ b/fs/ocfs2/move_extents.c
-@@ -436,7 +436,7 @@ static int ocfs2_find_victim_alloc_group
- 			bg = (struct ocfs2_group_desc *)gd_bh->b_data;
+--- a/arch/s390/kernel/kprobes.c
++++ b/arch/s390/kernel/kprobes.c
+@@ -508,12 +508,11 @@ static int post_kprobe_handler(struct pt
+ 	if (!p)
+ 		return 0;
  
- 			if (vict_blkno < (le64_to_cpu(bg->bg_blkno) +
--						le16_to_cpu(bg->bg_bits))) {
-+						(le16_to_cpu(bg->bg_bits) << bits_per_unit))) {
- 
- 				*ret_bh = gd_bh;
- 				*vict_bit = (vict_blkno - blkno) >>
-@@ -551,6 +551,7 @@ static void ocfs2_probe_alloc_group(stru
- 			last_free_bits++;
- 
- 		if (last_free_bits == move_len) {
-+			i -= move_len;
- 			*goal_bit = i;
- 			*phys_cpos = base_cpos + i;
- 			break;
-@@ -1022,18 +1023,19 @@ int ocfs2_ioctl_move_extents(struct file
- 
- 	context->range = &range;
- 
-+	/*
-+	 * ok, the default theshold for the defragmentation
-+	 * is 1M, since our maximum clustersize was 1M also.
-+	 * any thought?
-+	 */
-+	if (!range.me_threshold)
-+		range.me_threshold = 1024 * 1024;
-+
-+	if (range.me_threshold > i_size_read(inode))
-+		range.me_threshold = i_size_read(inode);
-+
- 	if (range.me_flags & OCFS2_MOVE_EXT_FL_AUTO_DEFRAG) {
- 		context->auto_defrag = 1;
--		/*
--		 * ok, the default theshold for the defragmentation
--		 * is 1M, since our maximum clustersize was 1M also.
--		 * any thought?
--		 */
--		if (!range.me_threshold)
--			range.me_threshold = 1024 * 1024;
++	resume_execution(p, regs);
+ 	if (kcb->kprobe_status != KPROBE_REENTER && p->post_handler) {
+ 		kcb->kprobe_status = KPROBE_HIT_SSDONE;
+ 		p->post_handler(p, regs, 0);
+ 	}
 -
--		if (range.me_threshold > i_size_read(inode))
--			range.me_threshold = i_size_read(inode);
+-	resume_execution(p, regs);
+ 	pop_kprobe(kcb);
+ 	preempt_enable_no_resched();
  
- 		if (range.me_flags & OCFS2_MOVE_EXT_FL_PART_DEFRAG)
- 			context->partial = 1;
 
 
