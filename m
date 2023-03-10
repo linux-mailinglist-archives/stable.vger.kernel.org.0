@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 404A86B45AF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2117F6B42EB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232598AbjCJOgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:36:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45312 "EHLO
+        id S231474AbjCJOIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:08:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232599AbjCJOgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 773CC1D921
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:55 -0800 (PST)
+        with ESMTP id S231644AbjCJOI0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AC1113DC6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C55461380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BE94C433EF;
-        Fri, 10 Mar 2023 14:35:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADEEEB822C0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE25C433D2;
+        Fri, 10 Mar 2023 14:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458954;
-        bh=tdXJAVNre91BgWsJP2wJ/9GjJsfgW9QSCE0D/ekNS80=;
+        s=korg; t=1678457280;
+        bh=CjCi/aHlYU2pdzm3FvsJL7WNyrMwv3hLVX7hEXUJZZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=emUXnMaTP33DXheefWxsO0u7OPhDoToC0HLEhLRcs7EOdOz3r/VZw3xOkFWvQkt/S
-         bFDkjE26AfMhGEmeKbgJGFtZJsXjgO+GbNtti79ggDa1qlpbrZllLmEYGhTvMBgElX
-         fwVNTspVJZI1lb/cKWoKqs4U0skITLSFSF/azEBY=
+        b=LVyXEtjSptMir6pBkfkJQkQPF4jIDQincHc3Hwg6VvgIO42taNit0ntgNcN4Fq4WB
+         82eJmC464A4+Td+8J1ezjys+ycAZOshSDoD6zRwUKmwbQHQ3KCqiDm47590EWOTyOQ
+         9Cgjirg3yyWzMFJ+RzXVlFB//Hf713TOpLPyeEDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 200/357] drm/msm/dsi: Add missing check for alloc_ordered_workqueue
+Subject: [PATCH 6.1 082/200] net/mlx5e: Verify flow_source cap before using it
 Date:   Fri, 10 Mar 2023 14:38:09 +0100
-Message-Id: <20230310133743.552134752@linuxfoundation.org>
+Message-Id: <20230310133719.627588651@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,37 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit 115906ca7b535afb1fe7b5406c566ccd3873f82b ]
+[ Upstream commit 1bf8b0dae8dde6f02520a5ea34fdaa3b39342e69 ]
 
-Add check for the return value of alloc_ordered_workqueue as it may return
-NULL pointer and cause NULL pointer dereference.
+When adding send to vport rule verify flow_source matching is
+supported by checking the flow_source cap.
 
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/517646/
-Link: https://lore.kernel.org/r/20230110021651.12770-1-jiasheng@iscas.ac.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: d04442540372 ("net/mlx5: E-Switch, set flow source for send to uplink rule")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 743142e15b4c1..c59764f156f94 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -1877,6 +1877,9 @@ int msm_dsi_host_init(struct msm_dsi *msm_dsi)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index b4e263e8cfb87..235f6f0a70523 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -1043,7 +1043,8 @@ mlx5_eswitch_add_send_to_vport_rule(struct mlx5_eswitch *on_esw,
+ 	dest.vport.flags |= MLX5_FLOW_DEST_VPORT_VHCA_ID;
+ 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
  
- 	/* setup workqueue */
- 	msm_host->workqueue = alloc_ordered_workqueue("dsi_drm_work", 0);
-+	if (!msm_host->workqueue)
-+		return -ENOMEM;
-+
- 	INIT_WORK(&msm_host->err_work, dsi_err_worker);
- 	INIT_WORK(&msm_host->hpd_work, dsi_hpd_worker);
+-	if (rep->vport == MLX5_VPORT_UPLINK)
++	if (MLX5_CAP_ESW_FLOWTABLE(on_esw->dev, flow_source) &&
++	    rep->vport == MLX5_VPORT_UPLINK)
+ 		spec->flow_context.flow_source = MLX5_FLOW_CONTEXT_FLOW_SOURCE_LOCAL_VPORT;
  
+ 	flow_rule = mlx5_add_flow_rules(on_esw->fdb_table.offloads.slow_fdb,
 -- 
 2.39.2
 
