@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03EAF6B4172
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DAD36B45FA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231191AbjCJNxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:53:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57614 "EHLO
+        id S232772AbjCJOjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231192AbjCJNxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:04 -0500
+        with ESMTP id S232753AbjCJOi5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA7111565A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A7FEBDA9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3C65B822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15835C433D2;
-        Fri, 10 Mar 2023 13:52:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9E80B822DF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1815CC4339E;
+        Fri, 10 Mar 2023 14:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456369;
-        bh=+IP/fh65Tid+QFwQ/E/Xk79ipBaq6faNhxoE/8VcMMY=;
+        s=korg; t=1678459124;
+        bh=JmoJf5tf022gaLLU4Z4XjcOEbpo801s4JBIWpF+xgoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JFid29IOdHq2KZcp6IgFR1la4iXktXT15xUMsL7oS9Lb61jIpJ+U23EjsF2aEKYUV
-         HvTliXjY0sgyEyb+GxCwtF9sWtUdNnJGjEXZMuC9ldY2ff/zWBIgHF5E/V5/ptcR6Z
-         iJCg1xNsNR247+XeeQEyizDIJKlf4H0b3KS6qKeA=
+        b=Yeikld/uqtNJqdng+jctO2TpwqWJHlW3Oh2YbNOgH/LH1+InG2hHLXT4Zci7nndWp
+         +i4nY+V5L87TmPkn5gD2HANHJtR4GtqerNCnhFhNELPpjhD2dRrIePP+HcSLl5OZ4k
+         7Ue53wJGcO82AXNuKKfjDtCQ+Kf9tqvxilog7E3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.14 132/193] dm flakey: dont corrupt the zero page
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.4 225/357] udf: Truncate added extents on failed expansion
 Date:   Fri, 10 Mar 2023 14:38:34 +0100
-Message-Id: <20230310133715.626720845@linuxfoundation.org>
+Message-Id: <20230310133744.685420892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Jan Kara <jack@suse.cz>
 
-commit f50714b57aecb6b3dc81d578e295f86d9c73f078 upstream.
+commit 70bfb3a8d661d4fdc742afc061b88a7f3fc9f500 upstream.
 
-When we need to zero some range on a block device, the function
-__blkdev_issue_zero_pages submits a write bio with the bio vector pointing
-to the zero page. If we use dm-flakey with corrupt bio writes option, it
-will corrupt the content of the zero page which results in crashes of
-various userspace programs. Glibc assumes that memory returned by mmap is
-zeroed and it uses it for calloc implementation; if the newly mapped
-memory is not zeroed, calloc will return non-zeroed memory.
+When a file expansion failed because we didn't have enough space for
+indirect extents make sure we truncate extents created so far so that we
+don't leave extents beyond EOF.
 
-Fix this bug by testing if the page is equal to ZERO_PAGE(0) and
-avoiding the corruption in this case.
-
-Cc: stable@vger.kernel.org
-Fixes: a00f5276e266 ("dm flakey: Properly corrupt multi-page bios.")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-flakey.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/udf/inode.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-flakey.c
-+++ b/drivers/md/dm-flakey.c
-@@ -301,8 +301,11 @@ static void corrupt_bio_data(struct bio
- 	 */
- 	bio_for_each_segment(bvec, bio, iter) {
- 		if (bio_iter_len(bio, iter) > corrupt_bio_byte) {
--			char *segment = (page_address(bio_iter_page(bio, iter))
--					 + bio_iter_offset(bio, iter));
-+			char *segment;
-+			struct page *page = bio_iter_page(bio, iter);
-+			if (unlikely(page == ZERO_PAGE(0)))
-+				break;
-+			segment = (page_address(page) + bio_iter_offset(bio, iter));
- 			segment[corrupt_bio_byte] = fc->corrupt_bio_value;
- 			DMDEBUG("Corrupting data bio=%p by writing %u to byte %u "
- 				"(rw=%c bi_opf=%u bi_sector=%llu size=%u)\n",
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -528,8 +528,10 @@ static int udf_do_extend_file(struct ino
+ 	}
+ 
+ 	if (fake) {
+-		udf_add_aext(inode, last_pos, &last_ext->extLocation,
+-			     last_ext->extLength, 1);
++		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
++				   last_ext->extLength, 1);
++		if (err < 0)
++			goto out_err;
+ 		count++;
+ 	} else {
+ 		struct kernel_lb_addr tmploc;
+@@ -563,7 +565,7 @@ static int udf_do_extend_file(struct ino
+ 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
+ 				   last_ext->extLength, 1);
+ 		if (err)
+-			return err;
++			goto out_err;
+ 		count++;
+ 	}
+ 	if (new_block_bytes) {
+@@ -572,7 +574,7 @@ static int udf_do_extend_file(struct ino
+ 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
+ 				   last_ext->extLength, 1);
+ 		if (err)
+-			return err;
++			goto out_err;
+ 		count++;
+ 	}
+ 
+@@ -586,6 +588,11 @@ out:
+ 		return -EIO;
+ 
+ 	return count;
++out_err:
++	/* Remove extents we've created so far */
++	udf_clear_extent_cache(inode);
++	udf_truncate_extents(inode);
++	return err;
+ }
+ 
+ /* Extend the final block of the file to final_block_len bytes */
 
 
