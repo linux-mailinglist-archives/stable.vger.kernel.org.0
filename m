@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D7366B4277
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4696B448B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231652AbjCJODr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:03:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54406 "EHLO
+        id S232370AbjCJOZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231655AbjCJODU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0BC45A1BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:17 -0800 (PST)
+        with ESMTP id S232406AbjCJOYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC60E387
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EF8361771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EFA8C433D2;
-        Fri, 10 Mar 2023 14:03:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6464B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A766C433D2;
+        Fri, 10 Mar 2023 14:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456996;
-        bh=sUiRhxewCgC3dtqFzN+Sq11Vm+nXjivcxsoRaI+Rd/A=;
+        s=korg; t=1678458226;
+        bh=ls1WHr+NDdpwY4I4HK+pOTbER55f6Fx0nziaxrJOC/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsudtV2PypqNvmLqVjkLp1HhUHw4iPaQ7+zVXznzc7ZbueOJnUsYwzohZTjopduQl
-         ddDYqcGqgoobAt1ifj8n/Uhcsw5RN+o6A91jPlBPMO6aScaCWR7xiK8s8clc3U77c9
-         2oPNjnZc2ClytTt1VwuG1iJJJxVViqaI0XTaMvLo=
+        b=eQgi5YcqFrEfLa7u0kN13A0+QDsks2Ytqd2G+pTIxXGal8/xDGI8It4FMOTyFeskN
+         gr84VUwl7ZNXqdojj1YfoPGE3wB3aX83Be/RQPo8qxPwL6VQvCPHBfp5kIaDi8tNlY
+         UhPzWm81Eua87216DAXurHIaUSeQS0KUMWQT7mKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6.2 196/211] vDPA/ifcvf: decouple vq irq requester from the adapter
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 206/252] ubifs: Reserve one leb for each journal head while doing budget
 Date:   Fri, 10 Mar 2023 14:39:36 +0100
-Message-Id: <20230310133724.845601236@linuxfoundation.org>
+Message-Id: <20230310133725.313538288@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,77 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit f9a9ffb2e4dbde81090416fc51662441c2a7b73b upstream.
+[ Upstream commit e874dcde1cbf82c786c0e7f2899811c02630cc52 ]
 
-This commit decouples the vq irq requester from the adapter,
-so that these functions can be invoked since probe.
+UBIFS calculates available space by c->main_bytes - c->lst.total_used
+(which means non-index lebs' free and dirty space is accounted into
+total available), then index lebs and four lebs (one for gc_lnum, one
+for deletions, two for journal heads) are deducted.
+In following situation, ubifs may get -ENOSPC from make_reservation():
+ LEB 84: DATAHD   free 122880 used 1920  dirty 2176  dark 6144
+ LEB 110:DELETION free 126976 used 0     dirty 0     dark 6144 (empty)
+ LEB 201:gc_lnum  free 126976 used 0     dirty 0     dark 6144
+ LEB 272:GCHD     free 77824  used 47672 dirty 1480  dark 6144
+ LEB 356:BASEHD   free 0      used 39776 dirty 87200 dark 6144
+ OTHERS: index lebs, zero-available non-index lebs
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20221125145724.1129962-7-lingshan.zhu@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+UBIFS calculates the available bytes is 6888 (How to calculate it:
+126976 * 5[remain main bytes] - 1920[used] - 47672[used] - 39776[used] -
+126976 * 1[deletions] - 126976 * 1[gc_lnum] - 126976 * 2[journal heads]
+- 6144 * 5[dark] = 6888) after doing budget, however UBIFS cannot use
+BASEHD's dirty space(87200), because UBIFS cannot find next BASEHD to
+reclaim current BASEHD. (c->bi.min_idx_lebs equals to c->lst.idx_lebs,
+the empty leb won't be found by ubifs_find_free_space(), and dirty index
+lebs won't be picked as gced lebs. All non-index lebs has dirty space
+less then c->dead_wm, non-index lebs won't be picked as gced lebs
+either. So new free lebs won't be produced.). See more details in Link.
+
+To fix it, reserve one leb for each journal head while doing budget.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216562
+Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c |   19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+ fs/ubifs/budget.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -155,10 +155,9 @@ static int ifcvf_alloc_vectors(struct if
- 	return ret;
- }
+diff --git a/fs/ubifs/budget.c b/fs/ubifs/budget.c
+index 2971a2c140d57..30c7bd63c2ad1 100644
+--- a/fs/ubifs/budget.c
++++ b/fs/ubifs/budget.c
+@@ -224,11 +224,10 @@ long long ubifs_calc_available(const struct ubifs_info *c, int min_idx_lebs)
+ 	subtract_lebs += 1;
  
--static int ifcvf_request_per_vq_irq(struct ifcvf_adapter *adapter)
-+static int ifcvf_request_per_vq_irq(struct ifcvf_hw *vf)
- {
--	struct pci_dev *pdev = adapter->pdev;
--	struct ifcvf_hw *vf = &adapter->vf;
-+	struct pci_dev *pdev = vf->pdev;
- 	int i, vector, ret, irq;
+ 	/*
+-	 * The GC journal head LEB is not really accessible. And since
+-	 * different write types go to different heads, we may count only on
+-	 * one head's space.
++	 * Since different write types go to different heads, we should
++	 * reserve one leb for each head.
+ 	 */
+-	subtract_lebs += c->jhead_cnt - 1;
++	subtract_lebs += c->jhead_cnt;
  
- 	vf->vqs_reused_irq = -EINVAL;
-@@ -190,10 +189,9 @@ err:
- 	return -EFAULT;
- }
- 
--static int ifcvf_request_vqs_reused_irq(struct ifcvf_adapter *adapter)
-+static int ifcvf_request_vqs_reused_irq(struct ifcvf_hw *vf)
- {
--	struct pci_dev *pdev = adapter->pdev;
--	struct ifcvf_hw *vf = &adapter->vf;
-+	struct pci_dev *pdev = vf->pdev;
- 	int i, vector, ret, irq;
- 
- 	vector = 0;
-@@ -266,15 +264,14 @@ err:
- 
- }
- 
--static int ifcvf_request_vq_irq(struct ifcvf_adapter *adapter)
-+static int ifcvf_request_vq_irq(struct ifcvf_hw *vf)
- {
--	struct ifcvf_hw *vf = &adapter->vf;
- 	int ret;
- 
- 	if (vf->msix_vector_status == MSIX_VECTOR_PER_VQ_AND_CONFIG)
--		ret = ifcvf_request_per_vq_irq(adapter);
-+		ret = ifcvf_request_per_vq_irq(vf);
- 	else
--		ret = ifcvf_request_vqs_reused_irq(adapter);
-+		ret = ifcvf_request_vqs_reused_irq(vf);
- 
- 	return ret;
- }
-@@ -341,7 +338,7 @@ static int ifcvf_request_irq(struct ifcv
- 		return ret;
- 	}
- 
--	ret = ifcvf_request_vq_irq(adapter);
-+	ret = ifcvf_request_vq_irq(vf);
- 	if (ret)
- 		return ret;
- 
+ 	/* We also reserve one LEB for deletions, which bypass budgeting */
+ 	subtract_lebs += 1;
+-- 
+2.39.2
+
 
 
