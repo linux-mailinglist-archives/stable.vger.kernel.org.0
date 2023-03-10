@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF0C6B4246
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:01:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 033E96B4355
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:13:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231478AbjCJOBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:01:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50238 "EHLO
+        id S231775AbjCJONa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:13:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbjCJOBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 332881165EF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:01:21 -0800 (PST)
+        with ESMTP id S231968AbjCJONF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2DE4118829
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:11:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3AC3618BC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:01:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A62F2C4339C;
-        Fri, 10 Mar 2023 14:01:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8346B61958
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951AFC4339C;
+        Fri, 10 Mar 2023 14:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456880;
-        bh=FUCWLS/7vbF+P+R1E0PQ2GUZNu+Szjwa/c5dSR33D+I=;
+        s=korg; t=1678457499;
+        bh=jInNmx+MCkkRofWkRSrLIvknOQkG1kiRkMXoIROV4tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVujG9ggr498gUhOmWCU5YURGfxIM3riz3qS1AKze/o0QhRha2IEERkcHsQVJuarQ
-         ix5BEZjFupePRfGogqXqthwkQFV37BuKippCNIGJJp5U3TZi8j1ZJSaCYf/Hhzz4nS
-         HqrGOMTrY1W9bjJu+fEVb1L5Un0AcK28bldhQpkI=
+        b=fP+5O0xT4jfMDK7/RSk53DJbSYYNvf4bUxe821ch7mckUcLbWuIbO+7RQvpv/VWxB
+         RcJuSivKXuY4GbkqYGSs+xrFCXz7hadF8JPfsKTqS/5airLbd2sIXzSFdmiMvNZ21F
+         3TE760i9VOLi3dW1j9OJspidvVrG+lDHQnnqMsiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 157/211] USB: chipidea: fix memory leak with using debugfs_lookup()
-Date:   Fri, 10 Mar 2023 14:38:57 +0100
-Message-Id: <20230310133723.527573029@linuxfoundation.org>
+Subject: [PATCH 6.1 131/200] tty: fix out-of-bounds access in tty_driver_lookup_tty()
+Date:   Fri, 10 Mar 2023 14:38:58 +0100
+Message-Id: <20230310133721.144272978@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,34 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit ff35f3ea3baba5b81416ac02d005cfbf6dd182fa ]
+[ Upstream commit db4df8e9d79e7d37732c1a1b560958e8dadfefa1 ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+When specifying an invalid console= device like console=tty3270,
+tty_driver_lookup_tty() returns the tty struct without checking
+whether index is a valid number.
 
-Cc: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20230202153235.2412790-1-gregkh@linuxfoundation.org
+To reproduce:
+
+qemu-system-x86_64 -enable-kvm -nographic -serial mon:stdio \
+-kernel ../linux-build-x86/arch/x86/boot/bzImage \
+-append "console=ttyS0 console=tty3270"
+
+This crashes with:
+
+[    0.770599] BUG: kernel NULL pointer dereference, address: 00000000000000ef
+[    0.771265] #PF: supervisor read access in kernel mode
+[    0.771773] #PF: error_code(0x0000) - not-present page
+[    0.772609] Oops: 0000 [#1] PREEMPT SMP PTI
+[    0.774878] RIP: 0010:tty_open+0x268/0x6f0
+[    0.784013]  chrdev_open+0xbd/0x230
+[    0.784444]  ? cdev_device_add+0x80/0x80
+[    0.784920]  do_dentry_open+0x1e0/0x410
+[    0.785389]  path_openat+0xca9/0x1050
+[    0.785813]  do_filp_open+0xaa/0x150
+[    0.786240]  file_open_name+0x133/0x1b0
+[    0.786746]  filp_open+0x27/0x50
+[    0.787244]  console_on_rootfs+0x14/0x4d
+[    0.787800]  kernel_init_freeable+0x1e4/0x20d
+[    0.788383]  ? rest_init+0xc0/0xc0
+[    0.788881]  kernel_init+0x11/0x120
+[    0.789356]  ret_from_fork+0x22/0x30
+
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221209112737.3222509-2-svens@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/tty_io.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/chipidea/debug.c b/drivers/usb/chipidea/debug.c
-index faf6b078b6c44..bbc610e5bd69c 100644
---- a/drivers/usb/chipidea/debug.c
-+++ b/drivers/usb/chipidea/debug.c
-@@ -364,5 +364,5 @@ void dbg_create_files(struct ci_hdrc *ci)
-  */
- void dbg_remove_files(struct ci_hdrc *ci)
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index de06c3c2ff70a..1ac6784ea1f92 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -1224,14 +1224,16 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
  {
--	debugfs_remove(debugfs_lookup(dev_name(ci->dev), usb_debug_root));
-+	debugfs_lookup_and_remove(dev_name(ci->dev), usb_debug_root);
- }
+ 	struct tty_struct *tty;
+ 
+-	if (driver->ops->lookup)
++	if (driver->ops->lookup) {
+ 		if (!file)
+ 			tty = ERR_PTR(-EIO);
+ 		else
+ 			tty = driver->ops->lookup(driver, file, idx);
+-	else
++	} else {
++		if (idx >= driver->num)
++			return ERR_PTR(-EINVAL);
+ 		tty = driver->ttys[idx];
+-
++	}
+ 	if (!IS_ERR(tty))
+ 		tty_kref_get(tty);
+ 	return tty;
 -- 
 2.39.2
 
