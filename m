@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B98BD6B458C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3666B4415
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232457AbjCJOek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:34:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35646 "EHLO
+        id S232097AbjCJOVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:21:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232454AbjCJOee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:34:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CADCA334A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:34:33 -0800 (PST)
+        with ESMTP id S232100AbjCJOUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400A6120866
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:19:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E122AB822DF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:34:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6B0C433EF;
-        Fri, 10 Mar 2023 14:34:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2A9A618C9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:19:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4414C4339B;
+        Fri, 10 Mar 2023 14:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458870;
-        bh=l1IZyNiIIV2Vwuw43cWIspOq8wefSLI1BBbGPVV5RtM=;
+        s=korg; t=1678457973;
+        bh=/ZEPAqWSWrmyOv7ODG7U+jvTaRGVKBkNlip8bjX/8uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5oWPu6wYBDhwfDPuvEAsJmEbjjMhJ2/Cr246BeQ1Y8CKEv9sIiSm1B1YUWS0UP24
-         gBSFo4iz+62EsU/uFQTqOtHNfeHNyZw66wCfrAZ4kv1Lz1eDUxTXicyOlrudIe9AfI
-         Fl1MwthWeI/YOiE4XGrcEa8PI0ijpen+Soo+jxIg=
+        b=tDEl3HVERVJQeJho9Yq08Kboh5QKqVsQEJBVZzwoQJyI5JGwzkIjcSVOWLaKLj9f6
+         7SyuIX8L/VlNFTbL4GxglJSie8wVi5E3gtQ7Ekx3fPFxQWW+DA1uiGH1r1xsLGFHSz
+         CE2IhwGcLbWsLo65378c6fH2Mrd5LcTXYi+ZWv2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        David Howells <dhowells@redhat.com>,
+        Tom Talpey <tom@talpey.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 171/357] media: i2c: ov772x: Fix memleak in ov772x_probe()
-Date:   Fri, 10 Mar 2023 14:37:40 +0100
-Message-Id: <20230310133742.271710628@linuxfoundation.org>
+Subject: [PATCH 4.19 091/252] cifs: Fix lost destroy smbd connection when MR allocate failed
+Date:   Fri, 10 Mar 2023 14:37:41 +0100
+Message-Id: <20230310133721.577840715@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 7485edb2b6ca5960205c0a49bedfd09bba30e521 ]
+[ Upstream commit e9d3401d95d62a9531082cd2453ed42f2740e3fd ]
 
-A memory leak was reported when testing ov772x with bpf mock device:
+If the MR allocate failed, the smb direct connection info is NULL,
+then smbd_destroy() will directly return, then the connection info
+will be leaked.
 
-AssertionError: unreferenced object 0xffff888109afa7a8 (size 8):
-  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
-  hex dump (first 8 bytes):
-    80 22 88 15 81 88 ff ff                          ."......
-  backtrace:
-    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
-    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
-    [<00000000faf48134>] v4l2_ctrl_handler_init_class+0x11d/0x180 [videodev]
-    [<00000000da376937>] ov772x_probe+0x1c3/0x68c [ov772x]
-    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
-    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
-    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
-    [<0000000048370519>] driver_probe_device+0x49/0x120
-    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
-    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
-    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
-    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
-    [<00000000ee0f3046>] device_add+0x810/0x1130
-    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
-    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
-    [<00000000a9f2159d>] of_i2c_notify+0x100/0x160
-unreferenced object 0xffff888119825c00 (size 256):
-  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
-  hex dump (first 32 bytes):
-    00 b4 a5 17 81 88 ff ff 00 5e 82 19 81 88 ff ff  .........^......
-    10 5c 82 19 81 88 ff ff 10 5c 82 19 81 88 ff ff  .\.......\......
-  backtrace:
-    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
-    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
-    [<0000000073d88e0b>] v4l2_ctrl_new.cold+0x19b/0x86f [videodev]
-    [<00000000b1f576fb>] v4l2_ctrl_new_std+0x16f/0x210 [videodev]
-    [<00000000caf7ac99>] ov772x_probe+0x1fa/0x68c [ov772x]
-    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
-    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
-    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
-    [<0000000048370519>] driver_probe_device+0x49/0x120
-    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
-    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
-    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
-    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
-    [<00000000ee0f3046>] device_add+0x810/0x1130
-    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
-    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
+Let's set the smb direct connection info to the server before call
+smbd_destroy().
 
-The reason is that if priv->hdl.error is set, ov772x_probe() jumps to the
-error_mutex_destroy without doing v4l2_ctrl_handler_free(), and all
-resources allocated in v4l2_ctrl_handler_init() and v4l2_ctrl_new_std()
-are leaked.
-
-Fixes: 1112babde214 ("media: i2c: Copy ov772x soc_camera sensor driver")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: c7398583340a ("CIFS: SMBD: Implement RDMA memory registration")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov772x.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/cifs/smbdirect.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/i2c/ov772x.c b/drivers/media/i2c/ov772x.c
-index 2cc6a678069a2..5033950a48ab6 100644
---- a/drivers/media/i2c/ov772x.c
-+++ b/drivers/media/i2c/ov772x.c
-@@ -1397,7 +1397,7 @@ static int ov772x_probe(struct i2c_client *client)
- 	priv->subdev.ctrl_handler = &priv->hdl;
- 	if (priv->hdl.error) {
- 		ret = priv->hdl.error;
--		goto error_mutex_destroy;
-+		goto error_ctrl_free;
- 	}
+diff --git a/fs/cifs/smbdirect.c b/fs/cifs/smbdirect.c
+index 591cd5c704323..de11b52a04dee 100644
+--- a/fs/cifs/smbdirect.c
++++ b/fs/cifs/smbdirect.c
+@@ -1887,6 +1887,7 @@ static struct smbd_connection *_smbd_get_connection(
  
- 	priv->clk = clk_get(&client->dev, NULL);
-@@ -1446,7 +1446,6 @@ static int ov772x_probe(struct i2c_client *client)
- 	clk_put(priv->clk);
- error_ctrl_free:
- 	v4l2_ctrl_handler_free(&priv->hdl);
--error_mutex_destroy:
- 	mutex_destroy(&priv->lock);
+ allocate_mr_failed:
+ 	/* At this point, need to a full transport shutdown */
++	server->smbd_conn = info;
+ 	smbd_destroy(server);
+ 	return NULL;
  
- 	return ret;
 -- 
 2.39.2
 
