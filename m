@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85AE86B4284
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 330D46B4377
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231604AbjCJOEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:04:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54222 "EHLO
+        id S231874AbjCJOOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231688AbjCJOED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6FC7580D4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:47 -0800 (PST)
+        with ESMTP id S231920AbjCJOOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35FD327D53
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66DE6B822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D89F5C433EF;
-        Fri, 10 Mar 2023 14:03:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCF246193B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A9DC4339C;
+        Fri, 10 Mar 2023 14:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457025;
-        bh=HVBEpbmFeWEwfdNOHrtrFMFHxXtdlzwZ/HMrlECOqdc=;
+        s=korg; t=1678457555;
+        bh=n1i3NvaG2SxKt8zwZ2odSSgR4n2nDdNQC0cmgmpIHqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCbawo5CQDUBF5p1kQbOjvyfDYAskrwylGqP/Y1JB4OHXDpedN3fvdXYeZtI793se
-         WaNAlP+o7uj6MfwErogM8D7q5gW2F3BHVDkw4OHVd77oN5WPBZWTQuzQv4DL+BmcvC
-         O1THaeGEgS9DMYRcOoMAs5o6utINtZ34D4BuRA2w=
+        b=HqUKMhE9MVPKpi0ojLu0bRBj+LV5ntSjG8G+vgNFrs2EyeJ6r6uKyAhEv/bq5l/L8
+         yhHDLOzh8UrD+iQSviaLNu9JuEg9tAZFfRZEt2FpWlT546FHA3BxtJNzLcd8jyI1qD
+         p0ZBcraH9cdC8hCNFq3AJBxlpC0jlDTxmjFgGgC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
-        Wayne Lin <wayne.lin@amd.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Imre Deak <imre.deak@intel.com>
-Subject: [PATCH 6.2 205/211] drm/i915/dp_mst: Add the MST topology state for modesetted CRTCs
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.1 178/200] vDPA/ifcvf: decouple hw features manipulators from the adapter
 Date:   Fri, 10 Mar 2023 14:39:45 +0100
-Message-Id: <20230310133725.155073247@linuxfoundation.org>
+Message-Id: <20230310133722.568283132@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,139 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-commit 326b1e792ff08b4d8ecb9605aec98e4e5feef56e upstream.
+commit d59f633dd05940739b5f46f5d4403cafb91d2742 upstream.
 
-Add the MST topology for a CRTC to the atomic state if the driver
-needs to force a modeset on the CRTC after the encoder compute config
-functions are called.
+This commit gets rid of ifcvf_adapter in hw features related
+functions in ifcvf_base. Then these functions are more rubust
+and de-coupling from the ifcvf_adapter layer. So these
+functions could be invoded once the device is probed, even
+before the adapter is allocaed.
 
-Later the MST encoder's disable hook also adds the state, but that isn't
-guaranteed to work (since in that hook getting the state may fail, which
-can't be handled there). This should fix that, while a later patch fixes
-the use of the MST state in the disable hook.
-
-v2: Add missing forward struct declartions, caught by hdrtest.
-v3: Factor out intel_dp_mst_add_topology_state_for_connector() used
-    later in the patchset.
-
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: stable@vger.kernel.org # 6.1
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com> # v2
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Acked-by: Lyude Paul <lyude@redhat.com>
-Acked-by: Daniel Vetter <daniel@ffwll.ch>
-Acked-by: Wayne Lin <wayne.lin@amd.com>
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230206114856.2665066-1-imre.deak@intel.com
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-2-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_display.c |    4 +
- drivers/gpu/drm/i915/display/intel_dp_mst.c  |   61 +++++++++++++++++++++++++++
- drivers/gpu/drm/i915/display/intel_dp_mst.h  |    4 +
- 3 files changed, 69 insertions(+)
+ drivers/vdpa/ifcvf/ifcvf_base.c |    9 ++-------
+ drivers/vdpa/ifcvf/ifcvf_base.h |    1 +
+ drivers/vdpa/ifcvf/ifcvf_main.c |    1 +
+ 3 files changed, 4 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -5950,6 +5950,10 @@ int intel_modeset_all_pipes(struct intel
- 		if (ret)
- 			return ret;
+--- a/drivers/vdpa/ifcvf/ifcvf_base.c
++++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+@@ -220,10 +220,8 @@ u64 ifcvf_get_features(struct ifcvf_hw *
  
-+		ret = intel_dp_mst_add_topology_state_for_crtc(state, crtc);
-+		if (ret)
-+			return ret;
-+
- 		ret = intel_atomic_add_affected_planes(state, crtc);
- 		if (ret)
- 			return ret;
---- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-@@ -1018,3 +1018,64 @@ bool intel_dp_mst_is_slave_trans(const s
- 	return crtc_state->mst_master_transcoder != INVALID_TRANSCODER &&
- 	       crtc_state->mst_master_transcoder != crtc_state->cpu_transcoder;
- }
-+
-+/**
-+ * intel_dp_mst_add_topology_state_for_connector - add MST topology state for a connector
-+ * @state: atomic state
-+ * @connector: connector to add the state for
-+ * @crtc: the CRTC @connector is attached to
-+ *
-+ * Add the MST topology state for @connector to @state.
-+ *
-+ * Returns 0 on success, negative error code on failure.
-+ */
-+static int
-+intel_dp_mst_add_topology_state_for_connector(struct intel_atomic_state *state,
-+					      struct intel_connector *connector,
-+					      struct intel_crtc *crtc)
-+{
-+	struct drm_dp_mst_topology_state *mst_state;
-+
-+	if (!connector->mst_port)
-+		return 0;
-+
-+	mst_state = drm_atomic_get_mst_topology_state(&state->base,
-+						      &connector->mst_port->mst_mgr);
-+	if (IS_ERR(mst_state))
-+		return PTR_ERR(mst_state);
-+
-+	mst_state->pending_crtc_mask |= drm_crtc_mask(&crtc->base);
-+
-+	return 0;
-+}
-+
-+/**
-+ * intel_dp_mst_add_topology_state_for_crtc - add MST topology state for a CRTC
-+ * @state: atomic state
-+ * @crtc: CRTC to add the state for
-+ *
-+ * Add the MST topology state for @crtc to @state.
-+ *
-+ * Returns 0 on success, negative error code on failure.
-+ */
-+int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_state *state,
-+					     struct intel_crtc *crtc)
-+{
-+	struct drm_connector *_connector;
-+	struct drm_connector_state *conn_state;
-+	int i;
-+
-+	for_each_new_connector_in_state(&state->base, _connector, conn_state, i) {
-+		struct intel_connector *connector = to_intel_connector(_connector);
-+		int ret;
-+
-+		if (conn_state->crtc != &crtc->base)
-+			continue;
-+
-+		ret = intel_dp_mst_add_topology_state_for_connector(state, connector, crtc);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
---- a/drivers/gpu/drm/i915/display/intel_dp_mst.h
-+++ b/drivers/gpu/drm/i915/display/intel_dp_mst.h
-@@ -8,6 +8,8 @@
+ int ifcvf_verify_min_features(struct ifcvf_hw *hw, u64 features)
+ {
+-	struct ifcvf_adapter *ifcvf = vf_to_adapter(hw);
+-
+ 	if (!(features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM)) && features) {
+-		IFCVF_ERR(ifcvf->pdev, "VIRTIO_F_ACCESS_PLATFORM is not negotiated\n");
++		IFCVF_ERR(hw->pdev, "VIRTIO_F_ACCESS_PLATFORM is not negotiated\n");
+ 		return -EINVAL;
+ 	}
  
- #include <linux/types.h>
+@@ -301,14 +299,11 @@ static void ifcvf_set_features(struct if
  
-+struct intel_atomic_state;
-+struct intel_crtc;
- struct intel_crtc_state;
- struct intel_digital_port;
- struct intel_dp;
-@@ -18,5 +20,7 @@ int intel_dp_mst_encoder_active_links(st
- bool intel_dp_mst_is_master_trans(const struct intel_crtc_state *crtc_state);
- bool intel_dp_mst_is_slave_trans(const struct intel_crtc_state *crtc_state);
- bool intel_dp_mst_source_support(struct intel_dp *intel_dp);
-+int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_state *state,
-+					     struct intel_crtc *crtc);
+ static int ifcvf_config_features(struct ifcvf_hw *hw)
+ {
+-	struct ifcvf_adapter *ifcvf;
+-
+-	ifcvf = vf_to_adapter(hw);
+ 	ifcvf_set_features(hw, hw->req_features);
+ 	ifcvf_add_status(hw, VIRTIO_CONFIG_S_FEATURES_OK);
  
- #endif /* __INTEL_DP_MST_H__ */
+ 	if (!(ifcvf_get_status(hw) & VIRTIO_CONFIG_S_FEATURES_OK)) {
+-		IFCVF_ERR(ifcvf->pdev, "Failed to set FEATURES_OK status\n");
++		IFCVF_ERR(hw->pdev, "Failed to set FEATURES_OK status\n");
+ 		return -EIO;
+ 	}
+ 
+--- a/drivers/vdpa/ifcvf/ifcvf_base.h
++++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+@@ -89,6 +89,7 @@ struct ifcvf_hw {
+ 	u16 nr_vring;
+ 	/* VIRTIO_PCI_CAP_DEVICE_CFG size */
+ 	u32 cap_dev_config_size;
++	struct pci_dev *pdev;
+ };
+ 
+ struct ifcvf_adapter {
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -842,6 +842,7 @@ static int ifcvf_probe(struct pci_dev *p
+ 	vf = &adapter->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+ 	vf->base = pcim_iomap_table(pdev);
++	vf->pdev = pdev;
+ 
+ 	adapter->pdev = pdev;
+ 	adapter->vdpa.dma_dev = &pdev->dev;
 
 
