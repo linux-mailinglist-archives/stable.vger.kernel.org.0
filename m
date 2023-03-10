@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC6D6B4A37
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:20:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C43166B4A18
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233916AbjCJPUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:20:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42756 "EHLO
+        id S233988AbjCJPSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:18:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234117AbjCJPTp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:19:45 -0500
+        with ESMTP id S233897AbjCJPSZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:18:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7864125DBC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:10:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60DF2136891
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:09:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 442A961A38
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD84C433D2;
-        Fri, 10 Mar 2023 15:09:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 415276187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:09:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4128AC433D2;
+        Fri, 10 Mar 2023 15:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460964;
-        bh=SeEn6f+3/BbGp4/UdMZLC+n2s3vlSqlMJpBey+2Ae6w=;
+        s=korg; t=1678460967;
+        bh=zBUqozHxHstBRR7Ih0Jkut8w18pfYbHSzl7sT5zCGn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DwIS2/WdmilqGGFFwHW+ZPz0R5PZNm5YDFJG5ct55deEcG8GHKFWsNtTBncnYNwpS
-         IvlYBLLMWCo2kyHil1Jcm2xIZvexZJ6ZFOpknWVUO+PTcAS3Ri1SlHPHohulVJZbyj
-         NuPvYeJOmfagZxW+LHJwA3rQ5XaiayowNO/JcP4M=
+        b=ERSjhGs3TNU9pDttxUiuq2WbcdtyTsWZQPngdP3Yu/JVPbKv2G2E1Lq+8h2kLjXtn
+         DEyaoVMU5SztkXA8OUopN96ZSWMaFLziWjBRHhj0BH2BXmhlK26nbwXcjF5dSax9/W
+         ZAtZpaE5L3rIs4TpbxiIbP/h9UXr9j6ufStp0c0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 480/529] ASoC: zl38060 add gpiolib dependency
-Date:   Fri, 10 Mar 2023 14:40:23 +0100
-Message-Id: <20230310133827.086448064@linuxfoundation.org>
+Subject: [PATCH 5.10 481/529] thermal: intel: quark_dts: fix error pointer dereference
+Date:   Fri, 10 Mar 2023 14:40:24 +0100
+Message-Id: <20230310133827.138694261@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,42 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 0de2cc3707b6b6e2ad40bd24ce09a5c1f65d01e1 ]
+[ Upstream commit f1b930e740811d416de4d2074da48b6633a672c8 ]
 
-Without gpiolib, this driver fails to link:
+If alloc_soc_dts() fails, then we can just return.  Trying to free
+"soc_dts" will lead to an Oops.
 
-arm-linux-gnueabi-ld: sound/soc/codecs/zl38060.o: in function `chip_gpio_get':
-zl38060.c:(.text+0x30): undefined reference to `gpiochip_get_data'
-arm-linux-gnueabi-ld: sound/soc/codecs/zl38060.o: in function `zl38_spi_probe':
-zl38060.c:(.text+0xa18): undefined reference to `devm_gpiochip_add_data_with_key'
-
-This appears to have been in the driver since the start, but is hard to
-hit in randconfig testing since gpiolib is almost always selected by something
-else.
-
-Fixes: 52e8a94baf90 ("ASoC: Add initial ZL38060 driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20230227085850.2503725-1-arnd@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 8c1876939663 ("thermal: intel Quark SoC X1000 DTS thermal driver")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/thermal/intel/intel_quark_dts_thermal.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index a96f18a9479e8..f1c9e563994b2 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -1701,6 +1701,7 @@ config SND_SOC_WSA881X
- config SND_SOC_ZL38060
- 	tristate "Microsemi ZL38060 Connected Home Audio Processor"
- 	depends on SPI_MASTER
-+	depends on GPIOLIB
- 	select REGMAP
- 	help
- 	  Support for ZL38060 Connected Home Audio Processor from Microsemi,
+diff --git a/drivers/thermal/intel/intel_quark_dts_thermal.c b/drivers/thermal/intel/intel_quark_dts_thermal.c
+index 3eafc6b0e6c30..b43fbd5eaa6b4 100644
+--- a/drivers/thermal/intel/intel_quark_dts_thermal.c
++++ b/drivers/thermal/intel/intel_quark_dts_thermal.c
+@@ -415,22 +415,14 @@ MODULE_DEVICE_TABLE(x86cpu, qrk_thermal_ids);
+ 
+ static int __init intel_quark_thermal_init(void)
+ {
+-	int err = 0;
+-
+ 	if (!x86_match_cpu(qrk_thermal_ids) || !iosf_mbi_available())
+ 		return -ENODEV;
+ 
+ 	soc_dts = alloc_soc_dts();
+-	if (IS_ERR(soc_dts)) {
+-		err = PTR_ERR(soc_dts);
+-		goto err_free;
+-	}
++	if (IS_ERR(soc_dts))
++		return PTR_ERR(soc_dts);
+ 
+ 	return 0;
+-
+-err_free:
+-	free_soc_dts(soc_dts);
+-	return err;
+ }
+ 
+ static void __exit intel_quark_thermal_exit(void)
 -- 
 2.39.2
 
