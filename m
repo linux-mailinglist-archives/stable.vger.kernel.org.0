@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8966B40B1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DBBF6B41C7
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbjCJNpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:45:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43250 "EHLO
+        id S231312AbjCJN4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230164AbjCJNpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52258A17E7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:00 -0800 (PST)
+        with ESMTP id S231337AbjCJN4a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451F71151F1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:56:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9F83B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36EB0C433D2;
-        Fri, 10 Mar 2023 13:44:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A7F76187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46283C433EF;
+        Fri, 10 Mar 2023 13:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455897;
-        bh=pk3qzF1OV/MCZjzaK05pSMhS+9mJ3qR1xO4i/C2XVNU=;
+        s=korg; t=1678456564;
+        bh=mqR+W1Spb8Wbs1tqi686OAo9NQiSd+1DJo2tEzcrggk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUkOT4ULhbW14U0sAOC8WLgmZ5HrA3OYMk6bQOHgHfwvWPelJaMd7Fuyvu7mjAM/Y
-         C18T+kt9S77aWBAbWIHscVfeZZKwVD5e9uR2Qz9WpeURQVv8HO0qnLsuTUrz1mhW7v
-         NssOqWNYmM8lApjlBB9Rh871NgrXvup7lxNq9TO8=
+        b=a3nub41Esgwb2NzQO+tW8vILNOV4M4607u+96Yg3zENlc9UCMBXi6hsPcmdL0ZF8q
+         DeB36XfewikNeZa5IghQKP+gAjTePA7StuIFn95carl5XwnUxHxGWs6AS3/sFqRtjJ
+         /7fIIpfFNsiv+OkO/rEX3Am1sJJkab18mBbT2rR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 4.14 013/193] HID: asus: use spinlock to protect concurrent accesses
-Date:   Fri, 10 Mar 2023 14:36:35 +0100
-Message-Id: <20230310133711.376044251@linuxfoundation.org>
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 016/211] f2fs: clear atomic_write_task in f2fs_abort_atomic_write()
+Date:   Fri, 10 Mar 2023 14:36:36 +0100
+Message-Id: <20230310133719.232185993@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,98 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Chao Yu <chao@kernel.org>
 
-commit 315c537068a13f0b5681d33dd045a912f4bece6f upstream.
+[ Upstream commit 0e8d040bfa4c476d7d2a23119527c744c7de13cd ]
 
-asus driver has a worker that may access data concurrently.
-Proct the accesses using a spinlock.
+Otherwise, last .atomic_write_task will be remained in structure
+f2fs_inode_info, resulting in aborting atomic_write accidentally
+in race case. Meanwhile, clear original_i_size as well.
 
-Fixes: af22a610bc38 ("HID: asus: support backlight on USB keyboards")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-4-7860c5763c38@diag.uniroma1.it
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7a10f0177e11 ("f2fs: don't give partially written atomic data from process crash")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ fs/f2fs/segment.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -82,6 +82,7 @@ struct asus_kbd_leds {
- 	struct hid_device *hdev;
- 	struct work_struct work;
- 	unsigned int brightness;
-+	spinlock_t lock;
- 	bool removed;
- };
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index af3059236f542..cf430f34d1968 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -201,9 +201,12 @@ void f2fs_abort_atomic_write(struct inode *inode, bool clean)
+ 	clear_inode_flag(inode, FI_ATOMIC_FILE);
+ 	stat_dec_atomic_inode(inode);
  
-@@ -298,7 +299,12 @@ static void asus_kbd_backlight_set(struc
- {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
-+	unsigned long flags;
++	F2FS_I(inode)->atomic_write_task = NULL;
 +
-+	spin_lock_irqsave(&led->lock, flags);
- 	led->brightness = brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
-+
- 	schedule_work(&led->work);
- }
- 
-@@ -306,8 +312,14 @@ static enum led_brightness asus_kbd_back
- {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
-+	enum led_brightness brightness;
-+	unsigned long flags;
- 
--	return led->brightness;
-+	spin_lock_irqsave(&led->lock, flags);
-+	brightness = led->brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
-+
-+	return brightness;
- }
- 
- static void asus_kbd_backlight_work(struct work_struct *work)
-@@ -315,11 +327,14 @@ static void asus_kbd_backlight_work(stru
- 	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
- 	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
- 	int ret;
-+	unsigned long flags;
- 
- 	if (led->removed)
- 		return;
- 
-+	spin_lock_irqsave(&led->lock, flags);
- 	buf[4] = led->brightness;
-+	spin_unlock_irqrestore(&led->lock, flags);
- 
- 	ret = asus_kbd_set_report(led->hdev, buf, sizeof(buf));
- 	if (ret < 0)
-@@ -360,6 +375,7 @@ static int asus_kbd_register_leds(struct
- 	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
- 	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
- 	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
-+	spin_lock_init(&drvdata->kbd_backlight->lock);
- 
- 	ret = devm_led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
- 	if (ret < 0) {
-@@ -658,9 +674,13 @@ err_stop_hw:
- static void asus_remove(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	unsigned long flags;
- 
- 	if (drvdata->kbd_backlight) {
-+		spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
- 		drvdata->kbd_backlight->removed = true;
-+		spin_unlock_irqrestore(&drvdata->kbd_backlight->lock, flags);
-+
- 		cancel_work_sync(&drvdata->kbd_backlight->work);
+ 	if (clean) {
+ 		truncate_inode_pages_final(inode->i_mapping);
+ 		f2fs_i_size_write(inode, fi->original_i_size);
++		fi->original_i_size = 0;
  	}
+ }
  
+-- 
+2.39.2
+
 
 
