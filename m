@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CEC36B426D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A8076B4619
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231663AbjCJODX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:03:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S232720AbjCJOkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:40:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231567AbjCJODG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C93A158B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:58 -0800 (PST)
+        with ESMTP id S232733AbjCJOkH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 664FC5D445
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3119DB822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E870C433EF;
-        Fri, 10 Mar 2023 14:02:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97AC06187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7535C433D2;
+        Fri, 10 Mar 2023 14:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456975;
-        bh=dBTsLu//wPTCybYhpTArSJuGcrqFh0DTD/luHiHMvmQ=;
+        s=korg; t=1678459202;
+        bh=9NGX+tZCERSlXMEQimSbLKGyFWCrfYWtSx9ciOgQbr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RtLngo2DJCXveNfDUEJvcwW7thYuSE6f9eEa3gTTovHP2M23iW0GQ60Zt+vjo7puD
-         WD2IqKP9Dmoli9juqTBA30OtqiTc70k+51pnryprU0cgY1Mal1dFMQCs8aN60yc6hF
-         44Q8gMNPSOUSAEsD66sAjOj2aA9VUmbIH1YubsH8=
+        b=uTknzA52adhkOpGGPJBirxmHDemYtt5CUgkKZRuc18eblmg4IzZNVK3eg+AgwAirf
+         bW+b20v/AYoLkJs798dplVW7zsaBz6NMMQ5P7KaxqwatMLW3BKIEQzNdtBhnlDFJmC
+         tHRtdM2aSRrxzzfBKeuYhGOI7Lo9YOskhiLuqWO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephane Eranian <eranian@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Babu Moger <babu.moger@amd.com>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 6.2 190/211] x86/resctl: fix scheduler confusion with current
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.4 281/357] wifi: ath9k: use proper statements in conditionals
 Date:   Fri, 10 Mar 2023 14:39:30 +0100
-Message-Id: <20230310133724.634254262@linuxfoundation.org>
+Message-Id: <20230310133747.155917898@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,178 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 7fef099702527c3b2c5234a2ea6a24411485a13a upstream.
+commit b7dc753fe33a707379e2254317794a4dad6c0fe2 upstream.
 
-The implementation of 'current' on x86 is very intentionally special: it
-is a very common thing to look up, and it uses 'this_cpu_read_stable()'
-to get the current thread pointer efficiently from per-cpu storage.
+A previous cleanup patch accidentally broke some conditional
+expressions by replacing the safe "do {} while (0)" constructs
+with empty macros. gcc points this out when extra warnings
+are enabled:
 
-And the keyword in there is 'stable': the current thread pointer never
-changes as far as a single thread is concerned.  Even if when a thread
-is preempted, or moved to another CPU, or even across an explicit call
-'schedule()' that thread will still have the same value for 'current'.
+drivers/net/wireless/ath/ath9k/hif_usb.c: In function 'ath9k_skb_queue_complete':
+drivers/net/wireless/ath/ath9k/hif_usb.c:251:57: error: suggest braces around empty body in an 'else' statement [-Werror=empty-body]
+  251 |                         TX_STAT_INC(hif_dev, skb_failed);
 
-It is, after all, the kernel base pointer to thread-local storage.
-That's why it's stable to begin with, but it's also why it's important
-enough that we have that special 'this_cpu_read_stable()' access for it.
+Make both sets of macros proper expressions again.
 
-So this is all done very intentionally to allow the compiler to treat
-'current' as a value that never visibly changes, so that the compiler
-can do CSE and combine multiple different 'current' accesses into one.
-
-However, there is obviously one very special situation when the
-currently running thread does actually change: inside the scheduler
-itself.
-
-So the scheduler code paths are special, and do not have a 'current'
-thread at all.  Instead there are _two_ threads: the previous and the
-next thread - typically called 'prev' and 'next' (or prev_p/next_p)
-internally.
-
-So this is all actually quite straightforward and simple, and not all
-that complicated.
-
-Except for when you then have special code that is run in scheduler
-context, that code then has to be aware that 'current' isn't really a
-valid thing.  Did you mean 'prev'? Did you mean 'next'?
-
-In fact, even if then look at the code, and you use 'current' after the
-new value has been assigned to the percpu variable, we have explicitly
-told the compiler that 'current' is magical and always stable.  So the
-compiler is quite free to use an older (or newer) value of 'current',
-and the actual assignment to the percpu storage is not relevant even if
-it might look that way.
-
-Which is exactly what happened in the resctl code, that blithely used
-'current' in '__resctrl_sched_in()' when it really wanted the new
-process state (as implied by the name: we're scheduling 'into' that new
-resctl state).  And clang would end up just using the old thread pointer
-value at least in some configurations.
-
-This could have happened with gcc too, and purely depends on random
-compiler details.  Clang just seems to have been more aggressive about
-moving the read of the per-cpu current_task pointer around.
-
-The fix is trivial: just make the resctl code adhere to the scheduler
-rules of using the prev/next thread pointer explicitly, instead of using
-'current' in a situation where it just wasn't valid.
-
-That same code is then also used outside of the scheduler context (when
-a thread resctl state is explicitly changed), and then we will just pass
-in 'current' as that pointer, of course.  There is no ambiguity in that
-case.
-
-The fix may be trivial, but noticing and figuring out what went wrong
-was not.  The credit for that goes to Stephane Eranian.
-
-Reported-by: Stephane Eranian <eranian@google.com>
-Link: https://lore.kernel.org/lkml/20230303231133.1486085-1-eranian@google.com/
-Link: https://lore.kernel.org/lkml/alpine.LFD.2.01.0908011214330.3304@localhost.localdomain/
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Tony Luck <tony.luck@intel.com>
-Tested-by: Stephane Eranian <eranian@google.com>
-Tested-by: Babu Moger <babu.moger@amd.com>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d7fc76039b74 ("ath9k: htc: clean up statistics macros")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221215165553.1950307-1-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/resctrl.h         |   12 ++++++------
- arch/x86/kernel/cpu/resctrl/rdtgroup.c |    4 ++--
- arch/x86/kernel/process_32.c           |    2 +-
- arch/x86/kernel/process_64.c           |    2 +-
- 4 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc.h |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/resctrl.h
-+++ b/arch/x86/include/asm/resctrl.h
-@@ -49,7 +49,7 @@ DECLARE_STATIC_KEY_FALSE(rdt_mon_enable_
-  *   simple as possible.
-  * Must be called with preemption disabled.
-  */
--static void __resctrl_sched_in(void)
-+static inline void __resctrl_sched_in(struct task_struct *tsk)
- {
- 	struct resctrl_pqr_state *state = this_cpu_ptr(&pqr_state);
- 	u32 closid = state->default_closid;
-@@ -61,13 +61,13 @@ static void __resctrl_sched_in(void)
- 	 * Else use the closid/rmid assigned to this cpu.
- 	 */
- 	if (static_branch_likely(&rdt_alloc_enable_key)) {
--		tmp = READ_ONCE(current->closid);
-+		tmp = READ_ONCE(tsk->closid);
- 		if (tmp)
- 			closid = tmp;
- 	}
- 
- 	if (static_branch_likely(&rdt_mon_enable_key)) {
--		tmp = READ_ONCE(current->rmid);
-+		tmp = READ_ONCE(tsk->rmid);
- 		if (tmp)
- 			rmid = tmp;
- 	}
-@@ -88,17 +88,17 @@ static inline unsigned int resctrl_arch_
- 	return val * scale;
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -325,9 +325,9 @@ static inline struct ath9k_htc_tx_ctl *H
  }
  
--static inline void resctrl_sched_in(void)
-+static inline void resctrl_sched_in(struct task_struct *tsk)
- {
- 	if (static_branch_likely(&rdt_enable_key))
--		__resctrl_sched_in();
-+		__resctrl_sched_in(tsk);
- }
+ #ifdef CONFIG_ATH9K_HTC_DEBUGFS
+-#define __STAT_SAFE(hif_dev, expr)	((hif_dev)->htc_handle->drv_priv ? (expr) : 0)
+-#define CAB_STAT_INC(priv)		((priv)->debug.tx_stats.cab_queued++)
+-#define TX_QSTAT_INC(priv, q)		((priv)->debug.tx_stats.queue_stats[q]++)
++#define __STAT_SAFE(hif_dev, expr)	do { ((hif_dev)->htc_handle->drv_priv ? (expr) : 0); } while (0)
++#define CAB_STAT_INC(priv)		do { ((priv)->debug.tx_stats.cab_queued++); } while (0)
++#define TX_QSTAT_INC(priv, q)		do { ((priv)->debug.tx_stats.queue_stats[q]++); } while (0)
  
- void resctrl_cpu_detect(struct cpuinfo_x86 *c);
- 
+ #define TX_STAT_INC(hif_dev, c) \
+ 		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c++)
+@@ -376,10 +376,10 @@ void ath9k_htc_get_et_stats(struct ieee8
+ 			    struct ethtool_stats *stats, u64 *data);
  #else
  
--static inline void resctrl_sched_in(void) {}
-+static inline void resctrl_sched_in(struct task_struct *tsk) {}
- static inline void resctrl_cpu_detect(struct cpuinfo_x86 *c) {}
+-#define TX_STAT_INC(hif_dev, c)
+-#define TX_STAT_ADD(hif_dev, c, a)
+-#define RX_STAT_INC(hif_dev, c)
+-#define RX_STAT_ADD(hif_dev, c, a)
++#define TX_STAT_INC(hif_dev, c)		do { } while (0)
++#define TX_STAT_ADD(hif_dev, c, a)	do { } while (0)
++#define RX_STAT_INC(hif_dev, c)		do { } while (0)
++#define RX_STAT_ADD(hif_dev, c, a)	do { } while (0)
  
- #endif /* CONFIG_X86_CPU_RESCTRL */
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -314,7 +314,7 @@ static void update_cpu_closid_rmid(void
- 	 * executing task might have its own closid selected. Just reuse
- 	 * the context switch code.
- 	 */
--	resctrl_sched_in();
-+	resctrl_sched_in(current);
- }
- 
- /*
-@@ -535,7 +535,7 @@ static void _update_task_closid_rmid(voi
- 	 * Otherwise, the MSR is updated when the task is scheduled in.
- 	 */
- 	if (task == current)
--		resctrl_sched_in();
-+		resctrl_sched_in(task);
- }
- 
- static void update_task_closid_rmid(struct task_struct *t)
---- a/arch/x86/kernel/process_32.c
-+++ b/arch/x86/kernel/process_32.c
-@@ -212,7 +212,7 @@ __switch_to(struct task_struct *prev_p,
- 	switch_fpu_finish();
- 
- 	/* Load the Intel cache allocation PQR MSR. */
--	resctrl_sched_in();
-+	resctrl_sched_in(next_p);
- 
- 	return prev_p;
- }
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -656,7 +656,7 @@ __switch_to(struct task_struct *prev_p,
- 	}
- 
- 	/* Load the Intel cache allocation PQR MSR. */
--	resctrl_sched_in();
-+	resctrl_sched_in(next_p);
- 
- 	return prev_p;
- }
+ #define CAB_STAT_INC(priv)
+ #define TX_QSTAT_INC(priv, c)
 
 
