@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 611976B4877
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2886B4552
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233747AbjCJPCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:02:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44000 "EHLO
+        id S232500AbjCJOdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:33:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233691AbjCJPCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:02:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFCFF12699B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:41 -0800 (PST)
+        with ESMTP id S232421AbjCJOcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 188F01219EF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:31:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F7D9B822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:55:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E86C433EF;
-        Fri, 10 Mar 2023 14:55:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA4961745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:31:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F67EC433D2;
+        Fri, 10 Mar 2023 14:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460138;
-        bh=BpaCvjHstwohFKvmfRFHzfT7utRHAdkEdknYrjOxetE=;
+        s=korg; t=1678458713;
+        bh=RQPETC5tvn8MlrA+oxy7nQboBCDNsJ+PZOVv94SWQY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wK2N4SLdscI6mqesPIa05r0mwemsFeKSMBnmA4aH2QKR73sQa0f72rvZoFnlzMpn8
-         SFEu2u59Movz82aIcRGOtv1nv3TLn8x+2VA8WpYre/de4E2qFaWf9DtsIqfP85grEe
-         M/bTq0OG9Swg0lPa4Iqq4JrThOOk1b5ILNJznbxg=
+        b=rb5Dwow8ZZbMyczs4/vVY7NEW+p18U1Eb4rMQBqcYw5Thf9x0ls9dw7KmRdsgxAdp
+         r/ScdXhoAKTIW1uICRrnTa7/G3CtCPcPMJf5r6JUSwTmjnRKVdiy93RYRqgS5+wouM
+         ZECPNqxVqxo+gvBpnW1LebohSZBJgggbzLnPQScM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Shayne Chen <shayne.chen@mediatek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 235/529] Input: iqs269a - drop unused device node references
+Subject: [PATCH 5.4 089/357] wifi: mac80211: make rate u32 in sta_set_rate_info_rx()
 Date:   Fri, 10 Mar 2023 14:36:18 +0100
-Message-Id: <20230310133815.877991153@linuxfoundation.org>
+Message-Id: <20230310133737.927344973@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Shayne Chen <shayne.chen@mediatek.com>
 
-[ Upstream commit 59bc9cb3b80abaa42643abede0d5db8477901d9c ]
+[ Upstream commit 59336e07b287d91dc4ec265e07724e8f7e3d0209 ]
 
-Each call to device/fwnode_get_named_child_node() must be matched
-with a call to fwnode_handle_put() once the corresponding node is
-no longer in use. This ensures a reference count remains balanced
-in the case of dynamic device tree support.
+The value of last_rate in ieee80211_sta_rx_stats is degraded from u32 to
+u16 after being assigned to rate variable, which causes information loss
+in STA_STATS_FIELD_TYPE and later bitfields.
 
-Currently, the driver does not call fwnode_handle_put() on nested
-event nodes. This patch solves this problem by adding the missing
-instances of fwnode_handle_put().
-
-As part of this change, the logic which parses each channel's key
-code is gently refactored in order to reduce the number of places
-from which fwnode_handle_put() is called.
-
-Fixes: 04e49867fad1 ("Input: add support for Azoteq IQS269A")
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Link: https://lore.kernel.org/r/Y7Rsx68k/gvDVXAt@nixie71
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Link: https://lore.kernel.org/r/20230209110659.25447-1-shayne.chen@mediatek.com
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/iqs269a.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ net/mac80211/sta_info.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/iqs269a.c b/drivers/input/misc/iqs269a.c
-index a348247d3d38f..ea3c97c5f764f 100644
---- a/drivers/input/misc/iqs269a.c
-+++ b/drivers/input/misc/iqs269a.c
-@@ -694,6 +694,7 @@ static int iqs269_parse_chan(struct iqs269_private *iqs269,
- 				dev_err(&client->dev,
- 					"Invalid channel %u threshold: %u\n",
- 					reg, val);
-+				fwnode_handle_put(ev_node);
- 				return -EINVAL;
- 			}
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 7b2e8c890381a..4d6890250337d 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2121,7 +2121,7 @@ static void sta_stats_decode_rate(struct ieee80211_local *local, u32 rate,
  
-@@ -707,6 +708,7 @@ static int iqs269_parse_chan(struct iqs269_private *iqs269,
- 				dev_err(&client->dev,
- 					"Invalid channel %u hysteresis: %u\n",
- 					reg, val);
-+				fwnode_handle_put(ev_node);
- 				return -EINVAL;
- 			}
+ static int sta_set_rate_info_rx(struct sta_info *sta, struct rate_info *rinfo)
+ {
+-	u16 rate = READ_ONCE(sta_get_last_rx_stats(sta)->last_rate);
++	u32 rate = READ_ONCE(sta_get_last_rx_stats(sta)->last_rate);
  
-@@ -721,8 +723,16 @@ static int iqs269_parse_chan(struct iqs269_private *iqs269,
- 			}
- 		}
- 
--		if (fwnode_property_read_u32(ev_node, "linux,code", &val))
-+		error = fwnode_property_read_u32(ev_node, "linux,code", &val);
-+		fwnode_handle_put(ev_node);
-+		if (error == -EINVAL) {
- 			continue;
-+		} else if (error) {
-+			dev_err(&client->dev,
-+				"Failed to read channel %u code: %d\n", reg,
-+				error);
-+			return error;
-+		}
- 
- 		switch (reg) {
- 		case IQS269_CHx_HALL_ACTIVE:
+ 	if (rate == STA_STATS_RATE_INVALID)
+ 		return -EINVAL;
 -- 
 2.39.2
 
