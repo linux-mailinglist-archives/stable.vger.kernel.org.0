@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E5106B42CF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:07:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF4F36B41FB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231757AbjCJOHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:07:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
+        id S231389AbjCJN6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231760AbjCJOHB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F7410E597
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:31 -0800 (PST)
+        with ESMTP id S231443AbjCJN62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BFC86485A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 289AFB822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ED97C433D2;
-        Fri, 10 Mar 2023 14:06:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3755616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F730C4339B;
+        Fri, 10 Mar 2023 13:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457188;
-        bh=nptuSFR5rvt714xXu1z8V49GSSGOAgPCPPKXYPnBRck=;
+        s=korg; t=1678456704;
+        bh=gTzEVR3XXg2WghnyY8RBorOX4mRbHhYY2q1bR7+rKpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WF23U+MvngTCYYduJRrRbvdrhX5zVr8aMZIjbAkT+Iz7ZFpU5Vjq9QvGfTdOTM1xu
-         /BqIhZ8YcrF62gE8xo/K5sUJWwAPLbe2pwJu7EFBntvoTR8Hb/CNXEdFMC7LHGiDAp
-         OxbwjbO02vQWx/J62roy975DbhawOW8vM9RyuHwI=
+        b=JsK4aNhFXoHjsEmMLtzEEe0JCLB6oCv1uKFQP7Wf2jFCcZA2tM1brUs7ZO60i/6PN
+         li+4D9iDO7608SJx2tD18+Qy5fntOcNxql3ga7Mlqh5QoxI3M0XHPxKfk6PEk7hgYY
+         lnxhXAh53z9++9XovTA3AFb12yVhEDDDlowi3ylM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Berg <benjamin.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Matt Roper <matthew.d.roper@intel.com>,
+        Radhakrishna Sripada <radhakrishna.sripada@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 050/200] um: virtio_uml: mark device as unregistered when breaking it
+Subject: [PATCH 6.2 077/211] drm/i915/xelpmp: Consider GSI offset when doing MCR lookups
 Date:   Fri, 10 Mar 2023 14:37:37 +0100
-Message-Id: <20230310133718.642391516@linuxfoundation.org>
+Message-Id: <20230310133721.123059098@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Berg <benjamin.berg@intel.com>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-[ Upstream commit 8e9cd85139a2149d5a7c121b05e0cdb8287311f9 ]
+[ Upstream commit 33c25354939099b76ecb6c82d1c7c50400fbcca6 ]
 
-Mark the device as not registered anymore when scheduling the work to
-remove it. Otherwise we could end up scheduling the work multiple times
-in a row, including scheduling it while it is already running.
+MCR range tables use the final MMIO offset of a register (including the
+0x380000 GSI offset when applicable).  Since the i915_mcr_reg_t passed
+as a parameter during steering lookup does not include the GSI offset,
+we need to add it back in for GSI registers before searching the tables.
 
-Fixes: af9fb41ed315 ("um: virtio_uml: Fix broken device handling in time-travel")
-Signed-off-by: Benjamin Berg <benjamin.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: a7ec65fc7e83 ("drm/i915/xelpmp: Add multicast steering for media GT")
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Reviewed-by: Radhakrishna Sripada <radhakrishna.sripada@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230214001906.1477370-1-matthew.d.roper@intel.com
+(cherry picked from commit d6683bbe70d4cdbf3da6acecf7d569cc6f0b4382)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/virtio_uml.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_gt_mcr.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index 588930a0ced17..dcfd0ca534eef 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -168,6 +168,8 @@ static void vhost_user_check_reset(struct virtio_uml_device *vu_dev,
- 	if (!vu_dev->registered)
- 		return;
+diff --git a/drivers/gpu/drm/i915/gt/intel_gt_mcr.c b/drivers/gpu/drm/i915/gt/intel_gt_mcr.c
+index 58ea3325bbdaa..fa2b9c48f39b2 100644
+--- a/drivers/gpu/drm/i915/gt/intel_gt_mcr.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt_mcr.c
+@@ -464,12 +464,15 @@ static bool reg_needs_read_steering(struct intel_gt *gt,
+ 				    i915_mcr_reg_t reg,
+ 				    enum intel_steering_type type)
+ {
+-	const u32 offset = i915_mmio_reg_offset(reg);
++	u32 offset = i915_mmio_reg_offset(reg);
+ 	const struct intel_mmio_range *entry;
  
-+	vu_dev->registered = 0;
+ 	if (likely(!gt->steering_table[type]))
+ 		return false;
+ 
++	if (IS_GSI_REG(offset))
++		offset += gt->uncore->gsi_offset;
 +
- 	virtio_break_device(&vu_dev->vdev);
- 	schedule_work(&pdata->conn_broken_wk);
- }
+ 	for (entry = gt->steering_table[type]; entry->end; entry++) {
+ 		if (offset >= entry->start && offset <= entry->end)
+ 			return true;
 -- 
 2.39.2
 
