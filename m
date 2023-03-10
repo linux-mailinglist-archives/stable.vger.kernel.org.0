@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F1966B4325
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01BC26B4448
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231567AbjCJOK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37016 "EHLO
+        id S232213AbjCJOWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231878AbjCJOKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 250E411758B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:14 -0800 (PST)
+        with ESMTP id S231969AbjCJOWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81651D512
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD728617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B690BC433D2;
-        Fri, 10 Mar 2023 14:10:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 381C3B822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29BC8C433D2;
+        Fri, 10 Mar 2023 14:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457413;
-        bh=27YCleqUjTg3cu6L16iWgrj9g+J8Xmv6fZe8VvJvwjM=;
+        s=korg; t=1678458099;
+        bh=InHjlbWT79bv4wu0NpzWY9+/c2CQwkORqRuHqCxPxzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ld44vyABzeUDRHArs9wpPCKTN2NhGaSHkrP7Rvnc/L9n11CkTnKzag7IkBcNyRt7i
-         A+nt0cpVwwK6q/PTBe9W2B/EROZGMmlbzSjN2Xs3HJeilinCnUqByAMlwUlKPfEppg
-         AnryVK4k8Y+HaC3PcDRcRqkDOsDOLO3kzELoJhfU=
+        b=vLsQKzUzFGcUhAMyEAhIfiXonDa+JYygaSbezXLplGkJJZj9LhPfESDVHDZsvMA3W
+         javQuuSVo1Mq7Vwleh9gwwm2F8pLWy1iO3NOpESH/83VbjQYfq5DpS0o2jdGaCG8Tn
+         Z41RgPHljvaBRbkVP8yZMMeJWQhIUof9JHzCm9xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ionut_n2001@yahoo.com,
-        Kees Cook <keescook@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 127/200] media: uvcvideo: Silence memcpy() run-time false positive warnings
+        patches@lists.linux.dev,
+        =?UTF-8?q?Jos=C3=A9=20Oliveira?= <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>
+Subject: [PATCH 4.19 164/252] x86/speculation: Allow enabling STIBP with legacy IBRS
 Date:   Fri, 10 Mar 2023 14:38:54 +0100
-Message-Id: <20230310133721.028912700@linuxfoundation.org>
+Message-Id: <20230310133723.821913781@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +56,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: KP Singh <kpsingh@kernel.org>
 
-[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
+commit 6921ed9049bc7457f66c1596c5b78aec0dae4a9d upstream.
 
-The memcpy() in uvc_video_decode_meta() intentionally copies across the
-length and flags members and into the trailing buf flexible array.
-Split the copy so that the compiler can better reason about (the lack
-of) buffer overflows here. Avoid the run-time false positive warning:
+When plain IBRS is enabled (not enhanced IBRS), the logic in
+spectre_v2_user_select_mitigation() determines that STIBP is not needed.
 
-  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
+The IBRS bit implicitly protects against cross-thread branch target
+injection. However, with legacy IBRS, the IBRS bit is cleared on
+returning to userspace for performance reasons which leaves userspace
+threads vulnerable to cross-thread branch target injection against which
+STIBP protects.
 
-Additionally fix a typo in the documentation for struct uvc_meta_buf.
+Exclude IBRS from the spectre_v2_in_ibrs_mode() check to allow for
+enabling STIBP (through seccomp/prctl() by default or always-on, if
+selected by spectre_v2_user kernel cmdline parameter).
 
-Reported-by: ionut_n2001@yahoo.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  [ bp: Massage. ]
+
+Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
+Reported-by: José Oliveira <joseloliveira11@gmail.com>
+Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+Signed-off-by: KP Singh <kpsingh@kernel.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230220120127.1975241-1-kpsingh@kernel.org
+Link: https://lore.kernel.org/r/20230221184908.2349578-1-kpsingh@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_video.c | 4 +++-
- include/uapi/linux/uvcvideo.h     | 2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index 53ea225972478..0d3a3b697b2d8 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -1352,7 +1352,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
- 	if (has_scr)
- 		memcpy(stream->clock.last_scr, scr, 6);
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -983,14 +983,18 @@ spectre_v2_parse_user_cmdline(void)
+ 	return SPECTRE_V2_USER_CMD_AUTO;
+ }
  
--	memcpy(&meta->length, mem, length);
-+	meta->length = mem[0];
-+	meta->flags  = mem[1];
-+	memcpy(meta->buf, &mem[2], length - 2);
- 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
+-static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
++static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
+ {
+-	return mode == SPECTRE_V2_IBRS ||
+-	       mode == SPECTRE_V2_EIBRS ||
++	return mode == SPECTRE_V2_EIBRS ||
+ 	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
+ 	       mode == SPECTRE_V2_EIBRS_LFENCE;
+ }
  
- 	uvc_dbg(stream->dev, FRAME,
-diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
-index 8288137387c0d..a9d0a64007ba5 100644
---- a/include/uapi/linux/uvcvideo.h
-+++ b/include/uapi/linux/uvcvideo.h
-@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
-  * struct. The first two fields are added by the driver, they can be used for
-  * clock synchronisation. The rest is an exact copy of a UVC payload header.
-  * Only complete objects with complete buffers are included. Therefore it's
-- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
-+ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
-  */
- struct uvc_meta_buf {
- 	__u64 ns;
--- 
-2.39.2
-
++static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
++{
++	return spectre_v2_in_eibrs_mode(mode) || mode == SPECTRE_V2_IBRS;
++}
++
+ static void __init
+ spectre_v2_user_select_mitigation(void)
+ {
+@@ -1053,12 +1057,19 @@ spectre_v2_user_select_mitigation(void)
+ 	}
+ 
+ 	/*
+-	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
+-	 * STIBP is not required.
++	 * If no STIBP, enhanced IBRS is enabled, or SMT impossible, STIBP
++	 * is not required.
++	 *
++	 * Enhanced IBRS also protects against cross-thread branch target
++	 * injection in user-mode as the IBRS bit remains always set which
++	 * implicitly enables cross-thread protections.  However, in legacy IBRS
++	 * mode, the IBRS bit is set only on kernel entry and cleared on return
++	 * to userspace. This disables the implicit cross-thread protection,
++	 * so allow for STIBP to be selected in that case.
+ 	 */
+ 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+ 	    !smt_possible ||
+-	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+ 		return;
+ 
+ 	/*
+@@ -2110,7 +2121,7 @@ static ssize_t mmio_stale_data_show_stat
+ 
+ static char *stibp_state(void)
+ {
+-	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+ 		return "";
+ 
+ 	switch (spectre_v2_user_stibp) {
 
 
