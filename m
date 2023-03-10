@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C986B42A6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:05:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AED616B41DA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231635AbjCJOFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:05:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53196 "EHLO
+        id S231250AbjCJN5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231687AbjCJOEv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DBF724716
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:50 -0800 (PST)
+        with ESMTP id S231337AbjCJN5e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA4C115DE3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2260060D29
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29C84C433EF;
-        Fri, 10 Mar 2023 14:04:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB290B822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF00C433D2;
+        Fri, 10 Mar 2023 13:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457089;
-        bh=6EYrF6M0qUJmbvXb+T/4fpb0RDE97dt16mHUJG9yEEk=;
+        s=korg; t=1678456607;
+        bh=lL7iVy6tWYc7PyXd1xCbffPLP1SEh4mWveKhjOBcmr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjBZ5mF4LVbfxEyTFoFF/rfUP8L1VNXq9z0OkAdurPTyjqxXJZuRazo+BMHgcdSHn
-         iIoFUl9yEX9CTBBETbWYIAbbfq4uyFZzyfCONbU9hKzww7pCL1C+OEuF/dQKvzGcDE
-         l1Hw864RLZ74Nr0AdGKcCxmTJ56PS0rTQWmSDiQU=
+        b=r7u91NTIO67okt1wAfUxb4c9s8kF8WKmlzStqg0qZiEVZlsK2F8J661x4wwODa4b+
+         F+tcEDztmtgZwivtP9ptMvW5DSbz7t/CkmDOAVfH8FuXF2qjTna92fqP06GBgJNiA5
+         Gdg+VqDZgQ59OQp+kXSSyM73Syc+oys6MaVq5tLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roger Lu <roger.lu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 017/200] soc: mediatek: mtk-svs: restore default voltages when svs_init02() fail
+Subject: [PATCH 6.2 044/211] f2fs: fix to handle F2FS_IOC_START_ATOMIC_REPLACE in f2fs_compat_ioctl()
 Date:   Fri, 10 Mar 2023 14:37:04 +0100
-Message-Id: <20230310133717.570324751@linuxfoundation.org>
+Message-Id: <20230310133720.078101181@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,78 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Lu <roger.lu@mediatek.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit a0674cd237fc24b08c7dcb4f8e48df3ee769293a ]
+[ Upstream commit 933141e4eb49d8b48721e2377835063a1e8fb823 ]
 
-If svs init02 fail, it means we cannot rely on svs bank voltages anymore.
-We need to disable svs function and restore DVFS opp voltages back to the
-default voltages for making sure we have enough DVFS voltages.
+Otherwise, 32-bits binary call ioctl(F2FS_IOC_START_ATOMIC_REPLACE) will
+fail in 64-bits kernel.
 
-Fixes: 681a02e95000 ("soc: mediatek: SVS: introduce MTK SVS engine")
-Fixes: 0bbb09b2af9d ("soc: mediatek: SVS: add mt8192 SVS GPU driver")
-Signed-off-by: Roger Lu <roger.lu@mediatek.com>
-Link: https://lore.kernel.org/r/20230111074528.29354-2-roger.lu@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 41e8f85a75fc ("f2fs: introduce F2FS_IOC_START_ATOMIC_REPLACE")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-svs.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ fs/f2fs/file.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/mediatek/mtk-svs.c b/drivers/soc/mediatek/mtk-svs.c
-index 75b2f534aa9d0..9859e6cf6b8f9 100644
---- a/drivers/soc/mediatek/mtk-svs.c
-+++ b/drivers/soc/mediatek/mtk-svs.c
-@@ -1461,6 +1461,7 @@ static int svs_init02(struct svs_platform *svsp)
- {
- 	struct svs_bank *svsb;
- 	unsigned long flags, time_left;
-+	int ret;
- 	u32 idx;
- 
- 	for (idx = 0; idx < svsp->bank_max; idx++) {
-@@ -1479,7 +1480,8 @@ static int svs_init02(struct svs_platform *svsp)
- 							msecs_to_jiffies(5000));
- 		if (!time_left) {
- 			dev_err(svsb->dev, "init02 completion timeout\n");
--			return -EBUSY;
-+			ret = -EBUSY;
-+			goto out_of_init02;
- 		}
- 	}
- 
-@@ -1497,12 +1499,30 @@ static int svs_init02(struct svs_platform *svsp)
- 		if (svsb->type == SVSB_HIGH || svsb->type == SVSB_LOW) {
- 			if (svs_sync_bank_volts_from_opp(svsb)) {
- 				dev_err(svsb->dev, "sync volt fail\n");
--				return -EPERM;
-+				ret = -EPERM;
-+				goto out_of_init02;
- 			}
- 		}
- 	}
- 
- 	return 0;
-+
-+out_of_init02:
-+	for (idx = 0; idx < svsp->bank_max; idx++) {
-+		svsb = &svsp->banks[idx];
-+
-+		spin_lock_irqsave(&svs_lock, flags);
-+		svsp->pbank = svsb;
-+		svs_switch_bank(svsp);
-+		svs_writel_relaxed(svsp, SVSB_PTPEN_OFF, SVSEN);
-+		svs_writel_relaxed(svsp, SVSB_INTSTS_VAL_CLEAN, INTSTS);
-+		spin_unlock_irqrestore(&svs_lock, flags);
-+
-+		svsb->phase = SVSB_PHASE_ERROR;
-+		svs_adjust_pm_opp_volts(svsb);
-+	}
-+
-+	return ret;
- }
- 
- static void svs_mon_mode(struct svs_platform *svsp)
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 1aa21160a0614..63d468b1a9b82 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -4827,6 +4827,7 @@ long f2fs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	case F2FS_IOC32_MOVE_RANGE:
+ 		return f2fs_compat_ioc_move_range(file, arg);
+ 	case F2FS_IOC_START_ATOMIC_WRITE:
++	case F2FS_IOC_START_ATOMIC_REPLACE:
+ 	case F2FS_IOC_COMMIT_ATOMIC_WRITE:
+ 	case F2FS_IOC_START_VOLATILE_WRITE:
+ 	case F2FS_IOC_RELEASE_VOLATILE_WRITE:
 -- 
 2.39.2
 
