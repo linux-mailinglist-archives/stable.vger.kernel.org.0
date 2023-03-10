@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3819B6B459E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB1106B41E0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbjCJOfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44226 "EHLO
+        id S231349AbjCJN5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232542AbjCJOfQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97824F8288
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:15 -0800 (PST)
+        with ESMTP id S231347AbjCJN5i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC54F112DDC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 325D3617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C214C433EF;
-        Fri, 10 Mar 2023 14:35:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E03EB822BD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D5DC433D2;
+        Fri, 10 Mar 2023 13:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458914;
-        bh=62Va43WyIwFWayLo4X1uRfTfWTCYOcpNilVJO4COQEA=;
+        s=korg; t=1678456615;
+        bh=n1qF7fzpWNzZ5zZTD0zbhX1zKEYefHOlgum6rwpaJD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgz7AQEvYUuyyYUof1Bwj00UWJWnhST3P6q8Y+jnzPPYuJe6CDXQP+tr29SpEORja
-         SD0HECQveqMWZfQMAtdmpSFn8MoGb4W3mT7dr9a2yYbFItrh4yxev/tUoljdC5C1Ss
-         Mi+FbikDKxUDKnTyHv053WSiJ4/WgJqvc3vwKSuM=
+        b=p6256oIdC8ABzCIM6YM8yzsznZOjniD3xJoWI6PLjO/rc67nneH+ZzaqXx/d873xe
+         ByjT84aPael6zKfb9qmbTRCWqKnXKBOqNQmxDIpZVOhOMsEPM/hqFjGUnkGlwiQ58m
+         /ASxATQYMwHP1I7Z2z7eXNG90F1YDJW35EP44kWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Ellero <l.ellero@asem.it>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 155/357] Input: ads7846 - dont check penirq immediately for 7845
+Subject: [PATCH 6.2 064/211] watchdog: pcwd_usb: Fix attempting to access uninitialized memory
 Date:   Fri, 10 Mar 2023 14:37:24 +0100
-Message-Id: <20230310133741.551839434@linuxfoundation.org>
+Message-Id: <20230310133720.683151575@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ellero <l.ellero@asem.it>
+From: Li Hua <hucool.lihua@huawei.com>
 
-[ Upstream commit fa9f4275b20ec7b2a8fb05c66362d10b36f9efec ]
+[ Upstream commit 7d06c07c67100fd0f8e6b3ab7145ce789f788117 ]
 
-To discard false readings, one should use "ti,penirq-recheck-delay-usecs".
-Checking get_pendown_state() at the beginning, most of the time fails
-causing malfunctioning.
+The stack variable msb and lsb may be used uninitialized in function
+usb_pcwd_get_temperature and usb_pcwd_get_timeleft when usb card no response.
 
-Fixes: ffa458c1bd9b ("spi: ads7846 driver")
-Signed-off-by: Luca Ellero <l.ellero@asem.it>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20230126105227.47648-4-l.ellero@asem.it
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The build waring is:
+drivers/watchdog/pcwd_usb.c:336:22: error: ‘lsb’ is used uninitialized in this function [-Werror=uninitialized]
+  *temperature = (lsb * 9 / 5) + 32;
+                  ~~~~^~~
+drivers/watchdog/pcwd_usb.c:328:21: note: ‘lsb’ was declared here
+  unsigned char msb, lsb;
+                     ^~~
+cc1: all warnings being treated as errors
+scripts/Makefile.build:250: recipe for target 'drivers/watchdog/pcwd_usb.o' failed
+make[3]: *** [drivers/watchdog/pcwd_usb.o] Error 1
+
+Fixes: b7e04f8c61a4 ("mv watchdog tree under drivers")
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221116020706.70847-1-hucool.lihua@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/ads7846.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/watchdog/pcwd_usb.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index feaacd86d19e4..0506115211dd4 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -790,14 +790,8 @@ static void ads7846_report_state(struct ads7846 *ts)
- 	if (x == MAX_12BIT)
- 		x = 0;
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index 1bdaf17c1d38d..8202f0a6b0935 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -325,7 +325,8 @@ static int usb_pcwd_set_heartbeat(struct usb_pcwd_private *usb_pcwd, int t)
+ static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd,
+ 							int *temperature)
+ {
+-	unsigned char msb, lsb;
++	unsigned char msb = 0x00;
++	unsigned char lsb = 0x00;
  
--	if (ts->model == 7843) {
-+	if (ts->model == 7843 || ts->model == 7845) {
- 		Rt = ts->pressure_max / 2;
--	} else if (ts->model == 7845) {
--		if (get_pendown_state(ts))
--			Rt = ts->pressure_max / 2;
--		else
--			Rt = 0;
--		dev_vdbg(&ts->spi->dev, "x/y: %d/%d, PD %d\n", x, y, Rt);
- 	} else if (likely(x && z1)) {
- 		/* compute touch pressure resistance using equation #2 */
- 		Rt = z2;
+ 	usb_pcwd_send_command(usb_pcwd, CMD_READ_TEMP, &msb, &lsb);
+ 
+@@ -341,7 +342,8 @@ static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd,
+ static int usb_pcwd_get_timeleft(struct usb_pcwd_private *usb_pcwd,
+ 								int *time_left)
+ {
+-	unsigned char msb, lsb;
++	unsigned char msb = 0x00;
++	unsigned char lsb = 0x00;
+ 
+ 	/* Read the time that's left before rebooting */
+ 	/* Note: if the board is not yet armed then we will read 0xFFFF */
 -- 
 2.39.2
 
