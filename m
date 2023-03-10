@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB97C6B4576
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF56D6B42B5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232569AbjCJOeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:34:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57688 "EHLO
+        id S231622AbjCJOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232630AbjCJOdl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06CA91353F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:33 -0800 (PST)
+        with ESMTP id S231613AbjCJOGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:04 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C7CF1165F2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DB5AB822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4261C433EF;
-        Fri, 10 Mar 2023 14:33:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8CED1CE28EC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 872E3C433EF;
+        Fri, 10 Mar 2023 14:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458810;
-        bh=SIQjfbK/VPjSfRPCYTyYi/yXepEm4KYKcTmVziNAguU=;
+        s=korg; t=1678457127;
+        bh=sJZDY+aWkKUI3CILtPsReX7IbCQldm3Pb8oHvdYdd3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjuLZ0UFXLSLs25X7BYLkbN3UaHtJUNgRDf11I55dLT3ppk7UE+ZjrC4Hupk3Yb2h
-         IkjpOO+3deGDtSXzD/+dMtBQj/WIzZ3TaD2QDQ2g9B61V01+T7H9OAn7NAr93dIOA4
-         2vHAD+0dR5HBoWQI/pOGDCc7bcVgdEBfs13RskVA=
+        b=nV/iB/cdE5HQ74Ir7hO587KZ1wRNVHXKWc1KMVqxGiUe8t00lj2ZZLjj3zWB+TA/T
+         RKYRB+y0MNWgHDWVMxmvY5sF8gwbPOfxI4gPg5e1EzJ9ytomvofJMD9qsMJXn4AEfe
+         Gw6HU7+1qFXgtPPWciIQGiIiUC4NpOA0cVv1PKJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jonathan Cormier <jcormier@criticallink.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Michal Simek <michal.simek@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/357] hwmon: (ltc2945) Handle error case in ltc2945_value_store
+Subject: [PATCH 6.1 004/200] driver: soc: xilinx: fix memory leak in xlnx_add_cb_for_notify_event()
 Date:   Fri, 10 Mar 2023 14:36:51 +0100
-Message-Id: <20230310133740.046283839@linuxfoundation.org>
+Message-Id: <20230310133717.191068505@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,36 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cormier <jcormier@criticallink.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 178b01eccfb0b8149682f61388400bd3d903dddc ]
+[ Upstream commit 1bea534991b9b35c41848a397666ada436456beb ]
 
-ltc2945_val_to_reg errors were not being handled
-which would have resulted in register being set to
-0 (clamped) instead of being left alone.
+The kfree() should be called when memory fails to be allocated for
+cb_data in xlnx_add_cb_for_notify_event(), otherwise there will be
+a memory leak, so add kfree() to fix it.
 
-Fixes: 6700ce035f83 ("hwmon: Driver for Linear Technologies LTC2945")
-
-Signed-off-by: Jonathan Cormier <jcormier@criticallink.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 05e5ba40ea7a ("driver: soc: xilinx: Add support of multiple callbacks for same event in event management driver")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Link: https://lore.kernel.org/r/20221129010146.1026685-1-cuigaosheng1@huawei.com
+Signed-off-by: Michal Simek <michal.simek@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ltc2945.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/soc/xilinx/xlnx_event_manager.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/ltc2945.c b/drivers/hwmon/ltc2945.c
-index 2818276ed3d6b..a1dd1ef40b565 100644
---- a/drivers/hwmon/ltc2945.c
-+++ b/drivers/hwmon/ltc2945.c
-@@ -248,6 +248,8 @@ static ssize_t ltc2945_value_store(struct device *dev,
+diff --git a/drivers/soc/xilinx/xlnx_event_manager.c b/drivers/soc/xilinx/xlnx_event_manager.c
+index 2de082765befa..c76381899ef49 100644
+--- a/drivers/soc/xilinx/xlnx_event_manager.c
++++ b/drivers/soc/xilinx/xlnx_event_manager.c
+@@ -116,8 +116,10 @@ static int xlnx_add_cb_for_notify_event(const u32 node_id, const u32 event, cons
+ 		INIT_LIST_HEAD(&eve_data->cb_list_head);
  
- 	/* convert to register value, then clamp and write result */
- 	regval = ltc2945_val_to_reg(dev, reg, val);
-+	if (regval < 0)
-+		return regval;
- 	if (is_power_reg(reg)) {
- 		regval = clamp_val(regval, 0, 0xffffff);
- 		regbuf[0] = regval >> 16;
+ 		cb_data = kmalloc(sizeof(*cb_data), GFP_KERNEL);
+-		if (!cb_data)
++		if (!cb_data) {
++			kfree(eve_data);
+ 			return -ENOMEM;
++		}
+ 		cb_data->eve_cb = cb_fun;
+ 		cb_data->agent_data = data;
+ 
 -- 
 2.39.2
 
