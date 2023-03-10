@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0AF46B4349
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:12:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D59A46B418E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231864AbjCJOMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:12:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46796 "EHLO
+        id S231290AbjCJNyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:54:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231967AbjCJOL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:11:58 -0500
+        with ESMTP id S231273AbjCJNyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86D31194C8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:11:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5ABC212E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B9D86194B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:11:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4959DC4339B;
-        Fri, 10 Mar 2023 14:11:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 613CF618B8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D937C433D2;
+        Fri, 10 Mar 2023 13:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457469;
-        bh=gW9hhBL4labV5P1WI6TlslQ9dU66H3xQxzXCjD9Z0NU=;
+        s=korg; t=1678456443;
+        bh=tGZrE5RsUHxyVgFh8Oclc0pNwUCohNtA6FkoIdw5jDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BlDkRghGGWNg0WRdeI80REomatYF0Mm6UTTWpSNPghtTlpJFhjR054aq24unX5tDa
-         8SzjArw+0PF8uUTNoicZvFpgl6VdXWzTJsoNIQ6Wa2BP7KGu/lQRMKpPvOUV90OxDS
-         0vd2W6DxdkKPcvOy0BeVWQbYcWSZH7V/KMfYCrx0=
+        b=GWduGGQXrnMixpmhp0qGwMyqOX4ewzs1+bLAqu8XzrWTkaOMr12CXcpNz29pa95Ru
+         NOFoezWUZ0TzpVIvM3z1o+Ev0BJP4o9X7GXJbtlQ8m1nf8UmCzVvJEG7POQBPLpLWK
+         a9n7hgGFS3LtFpmdim3mGlfKOnQtscAzTsWaVFnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Frederick Lawler <fred@cloudflare.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 148/200] USB: fotg210: fix memory leak with using debugfs_lookup()
-Date:   Fri, 10 Mar 2023 14:39:15 +0100
-Message-Id: <20230310133721.674770828@linuxfoundation.org>
+Subject: [PATCH 4.14 174/193] tcp: tcp_check_req() can be called from process context
+Date:   Fri, 10 Mar 2023 14:39:16 +0100
+Message-Id: <20230310133716.908762655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 6b4040f452037a7e95472577891d57c6b18c89c5 ]
+[ Upstream commit 580f98cc33a260bb8c6a39ae2921b29586b84fdf ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+This is a follow up of commit 0a375c822497 ("tcp: tcp_rtx_synack()
+can be called from process context").
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20230202153235.2412790-5-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Frederick Lawler reported another "__this_cpu_add() in preemptible"
+warning caused by the same reason.
+
+In my former patch I took care of tcp_rtx_synack()
+but forgot that tcp_check_req() also contained some SNMP updates.
+
+Note that some parts of tcp_check_req() always run in BH context,
+I added a comment to clarify this.
+
+Fixes: 8336886f786f ("tcp: TCP Fast Open Server - support TFO listeners")
+Link: https://lore.kernel.org/netdev/8cd33923-a21d-397c-e46b-2a068c287b03@cloudflare.com/T/
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Frederick Lawler <fred@cloudflare.com>
+Tested-by: Frederick Lawler <fred@cloudflare.com>
+Link: https://lore.kernel.org/r/20230227083336.4153089-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/fotg210-hcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_minisocks.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
-index 3d1dbcf4c0732..c4c1fbc12b4cd 100644
---- a/drivers/usb/host/fotg210-hcd.c
-+++ b/drivers/usb/host/fotg210-hcd.c
-@@ -862,7 +862,7 @@ static inline void remove_debug_files(struct fotg210_hcd *fotg210)
- {
- 	struct usb_bus *bus = &fotg210_to_hcd(fotg210)->self;
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index 61584638dba7f..21fe6f6a0e4fe 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -557,6 +557,9 @@ EXPORT_SYMBOL(tcp_create_openreq_child);
+  * validation and inside tcp_v4_reqsk_send_ack(). Can we do better?
+  *
+  * We don't need to initialize tmp_opt.sack_ok as we don't use the results
++ *
++ * Note: If @fastopen is true, this can be called from process context.
++ *       Otherwise, this is from BH context.
+  */
  
--	debugfs_remove(debugfs_lookup(bus->bus_name, fotg210_debug_root));
-+	debugfs_lookup_and_remove(bus->bus_name, fotg210_debug_root);
- }
+ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+@@ -709,7 +712,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 					  &tcp_rsk(req)->last_oow_ack_time))
+ 			req->rsk_ops->send_ack(sk, skb, req);
+ 		if (paws_reject)
+-			__NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
++			NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
+ 		return NULL;
+ 	}
  
- /* handshake - spin reading hc until handshake completes or fails
+@@ -728,7 +731,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 	 *	   "fourth, check the SYN bit"
+ 	 */
+ 	if (flg & (TCP_FLAG_RST|TCP_FLAG_SYN)) {
+-		__TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
++		TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
+ 		goto embryonic_reset;
+ 	}
+ 
 -- 
 2.39.2
 
