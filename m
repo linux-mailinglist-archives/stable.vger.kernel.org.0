@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0596B41F7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 776966B42EA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231395AbjCJN6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:58:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
+        id S231761AbjCJOIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:08:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231421AbjCJN6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 981F45C9DD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:15 -0800 (PST)
+        with ESMTP id S231764AbjCJOIZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199F213D53
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4FE5B822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC70C433EF;
-        Fri, 10 Mar 2023 13:58:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01727B822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE59C433EF;
+        Fri, 10 Mar 2023 14:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456692;
-        bh=JHShmRp3tRLXch88m4N/oZrTogVoNcn63idwjNH2u4g=;
+        s=korg; t=1678457277;
+        bh=Sv95kdFySrsjl9+4w5/3YJcgN44/fRFjPuyWdpLD328=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C4fKL4azdW+vTjSMw3sfQYgUfyyX5Zl1HnkFMv0n07864C0YB51sjwwc6nTCXe/d6
-         /PMPntl5Uh4b+EFv7l6855cYs8hcd9reG7AQVIUYO4hRGXKY7t+eMowkNXOuAxaKsz
-         8YCkpNNSZp5FsgzA6xjA4KnuP2VNkVFvb40+tpuM=
+        b=gLir9VOpteI3rsZZBgzC19zya1UZN2w6q27QXy1V6U/W8JL08ICb1c7G7YQDXGyqs
+         WsGzu4qlk/BVqN2cs2L7/Jmu6e068lC7jFOD1siAz3RYme2xXxPmcTelnGuW6tWlbI
+         4uejc+ryQI97422WhU7VNn2nw8akXvvnVZerMmqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maor Dickman <maord@nvidia.com>,
-        Raed Salem <raeds@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 091/211] net/mlx5: Geneve, Fix handling of Geneve object id as error code
+Subject: [PATCH 6.1 064/200] netfilter: xt_length: use skb len to match in length_mt6
 Date:   Fri, 10 Mar 2023 14:37:51 +0100
-Message-Id: <20230310133721.548468188@linuxfoundation.org>
+Message-Id: <20230310133719.093455055@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,39 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit d28a06d7dbedc598a06bd1e53a28125f87ca5d0c ]
+[ Upstream commit 05c07c0c6cc8ec2278ace9871618c41f1365d1f5 ]
 
-On success, mlx5_geneve_tlv_option_create returns non negative
-Geneve object id. In case the object id is positive value the
-caller functions will handle it as an error (non zero) and
-will fail to offload the Geneve rule.
+For IPv6 Jumbo packets, the ipv6_hdr(skb)->payload_len is always 0,
+and its real payload_len ( > 65535) is saved in hbh exthdr. With 0
+length for the jumbo packets, it may mismatch.
 
-Fix this by changing caller function ,mlx5_geneve_tlv_option_add,
-to return 0 in case valid non negative object id was provided.
+To fix this, we can just use skb->len instead of parsing exthdrs, as
+the hbh exthdr parsing has been done before coming to length_mt6 in
+ip6_rcv_core() and br_validate_ipv6() and also the packet has been
+trimmed according to the correct IPv6 (ext)hdr length there, and skb
+len is trustable in length_mt6().
 
-Fixes: 0ccc171ea6a2 ("net/mlx5: Geneve, Manage Geneve TLV options")
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Note that this patch is especially needed after the IPv6 BIG TCP was
+supported in kernel, which is using IPv6 Jumbo packets. Besides, to
+match the packets greater than 65535 more properly, a v1 revision of
+xt_length may be needed to extend "min, max" to u32 in the future,
+and for now the IPv6 Jumbo packets can be matched by:
+
+  # ip6tables -m length ! --length 0:65535
+
+Fixes: 7c4e983c4f3c ("net: allow gso_max_size to exceed 65536")
+Fixes: 0fe79f28bfaf ("net: allow gro_max_size to exceed 65536")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/xt_length.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c
-index 23361a9ae4fa0..6dc83e871cd76 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/geneve.c
-@@ -105,6 +105,7 @@ int mlx5_geneve_tlv_option_add(struct mlx5_geneve *geneve, struct geneve_opt *op
- 		geneve->opt_type = opt->type;
- 		geneve->obj_id = res;
- 		geneve->refcount++;
-+		res = 0;
- 	}
+diff --git a/net/netfilter/xt_length.c b/net/netfilter/xt_length.c
+index 1873da3a945ab..9fbfad13176f0 100644
+--- a/net/netfilter/xt_length.c
++++ b/net/netfilter/xt_length.c
+@@ -30,8 +30,7 @@ static bool
+ length_mt6(const struct sk_buff *skb, struct xt_action_param *par)
+ {
+ 	const struct xt_length_info *info = par->matchinfo;
+-	const u_int16_t pktlen = ntohs(ipv6_hdr(skb)->payload_len) +
+-				 sizeof(struct ipv6hdr);
++	u32 pktlen = skb->len;
  
- unlock:
+ 	return (pktlen >= info->min && pktlen <= info->max) ^ info->invert;
+ }
 -- 
 2.39.2
 
