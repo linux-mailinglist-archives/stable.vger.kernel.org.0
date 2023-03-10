@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE3C6B44BE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 643E66B466A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:43:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232313AbjCJO1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:27:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52800 "EHLO
+        id S232848AbjCJOm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:42:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232237AbjCJO1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E42118BCC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:26:03 -0800 (PST)
+        with ESMTP id S232839AbjCJOms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:42:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A592C120E85
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:42:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9280B6187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C65C433EF;
-        Fri, 10 Mar 2023 14:26:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63331B822E4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:42:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADF82C433D2;
+        Fri, 10 Mar 2023 14:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458363;
-        bh=3/hLmWewTAnRQ3f5N1F3icsbR+2eZD1EpO5hvcYONSk=;
+        s=korg; t=1678459351;
+        bh=SkqUIv0L2Y5x0c+iT3trvX8liWL19Hhsc5SttTHGxSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mP/IxTQzHAkBxxnBP/hWotp8Tr7SkY0PkKC95FgsoJZPwf1ExAao0w5n3tEVbUZYK
-         Wch4UsrmcyOVdSX8+62iTkzE7+AbQwyGP8PUjDcjNsd9ZtUdKMs9lYlMru1WIXt6ls
-         pt4c+GBvbg8I0L0O/19LJ/D0WQ7rCK6FaJTWuwoI=
+        b=AYzNvUZEMCXGEw5V3k43U1bbPZtGA18IqC0s3in9C3G+DjiiPHS7MfF+asMk4jFJs
+         3CX9nOPeoMSoASuQGgwCKWN2w94Uxk/4sNCjS/hHJfxtFoNn/mLKLANSTp1lyJlvd+
+         N+F+B5cn4eblT4lcuywxzsnJxbizgkJGfiyMqKgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 252/252] thermal: intel: powerclamp: Fix cur_state for multi package system
+        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 333/357] media: uvcvideo: Handle errors from calls to usb_string
 Date:   Fri, 10 Mar 2023 14:40:22 +0100
-Message-Id: <20230310133727.289308752@linuxfoundation.org>
+Message-Id: <20230310133749.357361992@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 8e47363588377e1bdb65e2b020b409cfb44dd260 upstream.
+[ Upstream commit 4867bb590ae445bcfaa711a86b603c97e94574b3 ]
 
-The powerclamp cooling device cur_state shows actual idle observed by
-package C-state idle counters. But the implementation is not sufficient
-for multi package or multi die system. The cur_state value is incorrect.
-On these systems, these counters must be read from each package/die and
-somehow aggregate them. But there is no good method for aggregation.
+On a Webcam from Quanta, we see the following error.
 
-It was not a problem when explicit CPU model addition was required to
-enable intel powerclamp. In this way certain CPU models could have
-been avoided. But with the removal of CPU model check with the
-availability of Package C-state counters, the driver is loaded on most
-of the recent systems.
+usb 3-5: New USB device found, idVendor=0408, idProduct=30d2, bcdDevice= 0.03
+usb 3-5: New USB device strings: Mfr=3, Product=1, SerialNumber=2
+usb 3-5: Product: USB2.0 HD UVC WebCam
+usb 3-5: Manufacturer: Quanta
+usb 3-5: SerialNumber: 0x0001
+...
+uvcvideo: Found UVC 1.10 device USB2.0 HD UVC WebCam (0408:30d2)
+uvcvideo: Failed to initialize entity for entity 5
+uvcvideo: Failed to register entities (-22).
 
-For multi package/die systems, just show the actual target idle state,
-the system is trying to achieve. In powerclamp this is the user set
-state minus one.
+The Webcam reports an entity of type UVC_VC_EXTENSION_UNIT. It reports a
+string index of '7' associated with that entity. The attempt to read that
+string from the camera fails with error -32 (-EPIPE). usb_string() returns
+that error, but it is ignored. As result, the entity name is empty. This
+later causes v4l2_device_register_subdev() to return -EINVAL, and no
+entities are registered as result.
 
-Also there is no use of starting a worker thread for polling package
-C-state counters and applying any compensation for multiple package
-or multiple die systems.
+While this appears to be a firmware problem with the camera, the kernel
+should still handle the situation gracefully. To do that, check the return
+value from usb_string(). If it reports an error, assign the entity's
+default name.
 
-Fixes: b721ca0d1927 ("thermal/powerclamp: remove cpu whitelist")
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel_powerclamp.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/media/usb/uvc/uvc_driver.c | 48 ++++++++++++------------------
+ 1 file changed, 19 insertions(+), 29 deletions(-)
 
---- a/drivers/thermal/intel_powerclamp.c
-+++ b/drivers/thermal/intel_powerclamp.c
-@@ -72,6 +72,7 @@
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 40ca1d4e03483..f6c48f22c6724 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -1060,10 +1060,8 @@ static int uvc_parse_vendor_control(struct uvc_device *dev,
+ 					       + n;
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], 2*n);
  
- static unsigned int target_mwait;
- static struct dentry *debug_dir;
-+static bool poll_pkg_cstate_enable;
+-		if (buffer[24+p+2*n] != 0)
+-			usb_string(udev, buffer[24+p+2*n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[24+p+2*n] == 0 ||
++		    usb_string(udev, buffer[24+p+2*n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
  
- /* user selected target */
- static unsigned int set_target_ratio;
-@@ -280,6 +281,9 @@ static unsigned int get_compensation(int
- {
- 	unsigned int comp = 0;
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1188,15 +1186,15 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 			memcpy(term->media.bmTransportModes, &buffer[10+n], p);
+ 		}
  
-+	if (!poll_pkg_cstate_enable)
-+		return 0;
-+
- 	/* we only use compensation if all adjacent ones are good */
- 	if (ratio == 1 &&
- 		cal_data[ratio].confidence >= CONFIDENCE_OK &&
-@@ -552,7 +556,8 @@ static int start_power_clamp(void)
- 	control_cpu = cpumask_first(cpu_online_mask);
+-		if (buffer[7] != 0)
+-			usb_string(udev, buffer[7], term->name,
+-				   sizeof(term->name));
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
+-			sprintf(term->name, "Camera %u", buffer[3]);
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
+-			sprintf(term->name, "Media %u", buffer[3]);
+-		else
+-			sprintf(term->name, "Input %u", buffer[3]);
++		if (buffer[7] == 0 ||
++		    usb_string(udev, buffer[7], term->name, sizeof(term->name)) < 0) {
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
++				sprintf(term->name, "Camera %u", buffer[3]);
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
++				sprintf(term->name, "Media %u", buffer[3]);
++			else
++				sprintf(term->name, "Input %u", buffer[3]);
++		}
  
- 	clamping = true;
--	schedule_delayed_work(&poll_pkg_cstate_work, 0);
-+	if (poll_pkg_cstate_enable)
-+		schedule_delayed_work(&poll_pkg_cstate_work, 0);
+ 		list_add_tail(&term->list, &dev->entities);
+ 		break;
+@@ -1228,10 +1226,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
  
- 	/* start one kthread worker per online cpu */
- 	for_each_online_cpu(cpu) {
-@@ -621,11 +626,15 @@ static int powerclamp_get_max_state(stru
- static int powerclamp_get_cur_state(struct thermal_cooling_device *cdev,
- 				 unsigned long *state)
- {
--	if (true == clamping)
--		*state = pkg_cstate_ratio_cur;
--	else
-+	if (clamping) {
-+		if (poll_pkg_cstate_enable)
-+			*state = pkg_cstate_ratio_cur;
-+		else
-+			*state = set_target_ratio;
-+	} else {
- 		/* to save power, do not poll idle ratio while not clamping */
- 		*state = -1; /* indicates invalid state */
-+	}
+ 		memcpy(term->baSourceID, &buffer[7], 1);
  
- 	return 0;
- }
-@@ -770,6 +779,9 @@ static int __init powerclamp_init(void)
- 		goto exit_unregister;
- 	}
+-		if (buffer[8] != 0)
+-			usb_string(udev, buffer[8], term->name,
+-				   sizeof(term->name));
+-		else
++		if (buffer[8] == 0 ||
++		    usb_string(udev, buffer[8], term->name, sizeof(term->name)) < 0)
+ 			sprintf(term->name, "Output %u", buffer[3]);
  
-+	if (topology_max_packages() == 1)
-+		poll_pkg_cstate_enable = true;
-+
- 	cooling_dev = thermal_cooling_device_register("intel_powerclamp", NULL,
- 						&powerclamp_cooling_ops);
- 	if (IS_ERR(cooling_dev)) {
+ 		list_add_tail(&term->list, &dev->entities);
+@@ -1253,10 +1249,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 
+ 		memcpy(unit->baSourceID, &buffer[5], p);
+ 
+-		if (buffer[5+p] != 0)
+-			usb_string(udev, buffer[5+p], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[5+p] == 0 ||
++		    usb_string(udev, buffer[5+p], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Selector %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1286,10 +1280,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		if (dev->uvc_version >= 0x0110)
+ 			unit->processing.bmVideoStandards = buffer[9+n];
+ 
+-		if (buffer[8+n] != 0)
+-			usb_string(udev, buffer[8+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[8+n] == 0 ||
++		    usb_string(udev, buffer[8+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Processing %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1317,10 +1309,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		unit->extension.bmControls = (u8 *)unit + sizeof(*unit);
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], n);
+ 
+-		if (buffer[23+p+n] != 0)
+-			usb_string(udev, buffer[23+p+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[23+p+n] == 0 ||
++		    usb_string(udev, buffer[23+p+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+-- 
+2.39.2
+
 
 
