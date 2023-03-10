@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 384596B415A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D22356B4358
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:13:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbjCJNwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:52:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55714 "EHLO
+        id S231784AbjCJONt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:13:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230504AbjCJNvz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:55 -0500
+        with ESMTP id S231769AbjCJONW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69E3112580
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A41EC11CBF3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68BE6B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87FF6C433D2;
-        Fri, 10 Mar 2023 13:51:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4761AB822BC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96C4AC4339C;
+        Fri, 10 Mar 2023 14:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456312;
-        bh=VumySYn9VvVvcUJ8hyAd0aAkX+UoImhVuiQAN8vXG3s=;
+        s=korg; t=1678457530;
+        bh=F3Q4jKopnnXfzlnJ8qnU5EeFLtFycAZFH7iwqJimz+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxM7SoyTRFmBhPN1IkV8VOo5N/DpV/rVacSFcRW7DEvzjT0/VFFSmuHSqxNGQ0mKy
-         OlcoOV2isSpozvj4dSk505dALjXO93NMwcsUXUIktakrQw0UwC5FCh8vi+Hf8oSa1W
-         H0aMUKPHoE6YJMHwJtDNWFZ8aGyq4ehjUmjNIsRo=
+        b=prcU1ODHT13EuVY59i4pdM9xZiNDCvCBKtPh7IvQLQu/8kRyAJ8wJbmxIQWAHLB06
+         f9+yb4MI5iEqyvVhU7iHedVdZRqmENVt+kIrvc/w6pv5fTPTKZATHgjkju98GXHvyP
+         9EVQUrMVYoMhpphfsnXDiM947CvbjptAs83mduxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Jilin Yuan <yuanjilin@cdjrlc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 153/193] ubifs: Rectify space budget for ubifs_xrename()
+Subject: [PATCH 6.1 128/200] USB: fix memory leak with using debugfs_lookup()
 Date:   Fri, 10 Mar 2023 14:38:55 +0100
-Message-Id: <20230310133716.288876120@linuxfoundation.org>
+Message-Id: <20230310133721.057687050@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 1b2ba09060e41adb356b9ae58ef94a7390928004 ]
+[ Upstream commit 30374434edab20e25776f8ecb4bc9d1e54309487 ]
 
-There is no space budget for ubifs_xrename(). It may let
-make_reservation() return with -ENOSPC, which could turn
-ubifs to read-only mode in do_writepage() process.
-Fix it by adding space budget for ubifs_xrename().
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic at
+once.
 
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216569
-Fixes: 9ec64962afb170 ("ubifs: Implement RENAME_EXCHANGE")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jilin Yuan <yuanjilin@cdjrlc.com>
+Link: https://lore.kernel.org/r/20230106152828.3790902-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/core/usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 299611052bbf0..99e3692264aea 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1605,6 +1605,10 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
- 		return err;
- 	}
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 11b15d7b357ad..a415206cab043 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -998,7 +998,7 @@ static void usb_debugfs_init(void)
  
-+	err = ubifs_budget_space(c, &req);
-+	if (err)
-+		goto out;
-+
- 	lock_4_inodes(old_dir, new_dir, NULL, NULL);
+ static void usb_debugfs_cleanup(void)
+ {
+-	debugfs_remove(debugfs_lookup("devices", usb_debug_root));
++	debugfs_lookup_and_remove("devices", usb_debug_root);
+ }
  
- 	time = current_time(old_dir);
-@@ -1630,6 +1634,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
- 	unlock_4_inodes(old_dir, new_dir, NULL, NULL);
- 	ubifs_release_budget(c, &req);
- 
-+out:
- 	fscrypt_free_filename(&fst_nm);
- 	fscrypt_free_filename(&snd_nm);
- 	return err;
+ /*
 -- 
 2.39.2
 
