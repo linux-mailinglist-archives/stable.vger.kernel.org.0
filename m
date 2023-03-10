@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C966B421D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B6F6B42FC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231468AbjCJOAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47384 "EHLO
+        id S231690AbjCJOJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:09:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231459AbjCJN7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E55BF116BA3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:40 -0800 (PST)
+        with ESMTP id S231740AbjCJOJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5186823A6E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D873B822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1687C4339B;
-        Fri, 10 Mar 2023 13:59:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D44E617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33D8AC433D2;
+        Fri, 10 Mar 2023 14:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456778;
-        bh=rXFzxb7jhWiX/anZkxrUeOxUc2zSdHxJZmDQVP+y1lM=;
+        s=korg; t=1678457316;
+        bh=CpiyB0KE4oedlvZbYzeZxrtOK5jpCAYmfI3DsnQgxOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjSBDATfqpPk7GUc69eV7l4/Y/PMM71Bvcv/5/9t9tEHNeVhgojPIVdThso2b448L
-         /HHWiYrSlAndvmlMk6swSXm5OFduNnMm31KXAkJXRy1b9Rqh9PbeOHqAqOm9IkElxf
-         ySyFGhHL1gPNVZDOi5rDl1BWyG+Eh/QuU0Dr8klE=
+        b=qnJGcveoriEOmFIFcjupPbDDW1J/bmAuoqb3be6EybTWLDQsGiyqgUilHCrJq4sHn
+         ruG/F2rWfRjcAA1Xgd0J6Q//KOEnWxG2WY7su5VB8TCWHL2ItwYhyiEKww7MljJnTo
+         nK+dBg2cVbc3YDKgvhdkiK7UG0aa71iHhaGEC8Q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Trevor Wu <trevor.wu@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Jiri Slaby <jirislaby@kernel.org>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 121/211] ASoC: mediatek: mt8195: add missing initialization
+Subject: [PATCH 6.1 094/200] vc_screen: modify vcs_size() handling in vcs_read()
 Date:   Fri, 10 Mar 2023 14:38:21 +0100
-Message-Id: <20230310133722.412162068@linuxfoundation.org>
+Message-Id: <20230310133720.001890489@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,43 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trevor Wu <trevor.wu@mediatek.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit b56ec2992a2e43bc3e60d6db86849d31640e791f ]
+[ Upstream commit 46d733d0efc79bc8430d63b57ab88011806d5180 ]
 
-In etdm dai driver, dai_etdm_parse_of() function is used to parse dts
-properties to get parameters. There are two for-loops which are
-sepearately for all etdm and etdm input only cases. In etdm in only
-loop, dai_id is not initialized, so it keeps the value intiliazed in
-another loop.
+Restore the vcs_size() handling in vcs_read() to what
+it had been in previous version.
 
-In the patch, add the missing initialization to fix the unexpected
-parsing problem.
-
-Fixes: 1de9a54acafb ("ASoC: mediatek: mt8195: support etdm in platform driver")
-Signed-off-by: Trevor Wu <trevor.wu@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20230301110200.26177-3-trevor.wu@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 226fae124b2d ("vc_screen: move load of struct vc_data pointer in vcs_read() to avoid UAF")
+Suggested-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8195/mt8195-dai-etdm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/vt/vc_screen.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c b/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c
-index c2e268054773d..f2c9a1fdbe0d0 100644
---- a/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c
-+++ b/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c
-@@ -2567,6 +2567,9 @@ static void mt8195_dai_etdm_parse_of(struct mtk_base_afe *afe)
- 
- 	/* etdm in only */
- 	for (i = 0; i < 2; i++) {
-+		dai_id = ETDM_TO_DAI_ID(i);
-+		etdm_data = afe_priv->dai_priv[dai_id];
-+
- 		ret = snprintf(prop, sizeof(prop),
- 			       "mediatek,%s-chn-disabled",
- 			       of_afe_etdms[i].name);
+diff --git a/drivers/tty/vt/vc_screen.c b/drivers/tty/vt/vc_screen.c
+index 71e091f879f0e..1dc07f9214d57 100644
+--- a/drivers/tty/vt/vc_screen.c
++++ b/drivers/tty/vt/vc_screen.c
+@@ -415,10 +415,8 @@ vcs_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+ 		 */
+ 		size = vcs_size(vc, attr, uni_mode);
+ 		if (size < 0) {
+-			if (read)
+-				break;
+ 			ret = size;
+-			goto unlock_out;
++			break;
+ 		}
+ 		if (pos >= size)
+ 			break;
 -- 
 2.39.2
 
