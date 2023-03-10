@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2076B4387
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 067736B44A9
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231940AbjCJOPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:15:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46332 "EHLO
+        id S232391AbjCJO1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:27:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231963AbjCJOO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B42E2C46
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:51 -0800 (PST)
+        with ESMTP id S232253AbjCJO01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:26:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4CB9DF73C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4842961771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BF68C433A7;
-        Fri, 10 Mar 2023 14:13:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 65346CE2911
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 636F1C433D2;
+        Fri, 10 Mar 2023 14:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457630;
-        bh=i3ZJtE2xBZNxQFezLYZc+LxXAyj4rlWfptqIAIxNKa0=;
+        s=korg; t=1678458304;
+        bh=Sfd7ALKP9WVTrFRLUUekbWVSI++kG3TJ/aPrRBnTJJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYnO00kxrd49abwn4PG3T8r0LTy7ObG9R5iJ0C9VD55s+UhDJ0RwN2wuGWaX+8cIN
-         /va9Y9+HL5ymQec6rS1LJMIswFzHmHzV9Lki/5M8RWmOZlo3NZVN6cqRfMKLJvxvGm
-         6Ivtrnr9fMtq0b8BUnuY3MXCzts8DDKhhK7hK3aA=
+        b=A1eRNMt+ngvkWgBAqXnD3b+yLKhuhWJW2v2VKTgRkyO227AiSqdGSOvwWGZSJACFa
+         iPGfy99MYhvtSudMSODM3H6c/ScuhRPRwl3aEpTn1IAGnPjZv/fOo6kqqH1LS3BDuk
+         UgmADks7X4dcLbR+Mwbfw6LpJazW5K1mvM/gtKNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pierre Gondois <pierre.gondois@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 6.1 197/200] arm64: efi: Make efi_rt_lock a raw_spinlock
+        patches@lists.linux.dev, ionut_n2001@yahoo.com,
+        Kees Cook <keescook@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 234/252] media: uvcvideo: Silence memcpy() run-time false positive warnings
 Date:   Fri, 10 Mar 2023 14:40:04 +0100
-Message-Id: <20230310133723.132137926@linuxfoundation.org>
+Message-Id: <20230310133726.443568621@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,97 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre Gondois <pierre.gondois@arm.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 0e68b5517d3767562889f1d83fdb828c26adb24f upstream.
+[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
 
-Running a rt-kernel base on 6.2.0-rc3-rt1 on an Ampere Altra outputs
-the following:
-  BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:46
-  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 9, name: kworker/u320:0
-  preempt_count: 2, expected: 0
-  RCU nest depth: 0, expected: 0
-  3 locks held by kworker/u320:0/9:
-  #0: ffff3fff8c27d128 ((wq_completion)efi_rts_wq){+.+.}-{0:0}, at: process_one_work (./include/linux/atomic/atomic-long.h:41)
-  #1: ffff80000861bdd0 ((work_completion)(&efi_rts_work.work)){+.+.}-{0:0}, at: process_one_work (./include/linux/atomic/atomic-long.h:41)
-  #2: ffffdf7e1ed3e460 (efi_rt_lock){+.+.}-{3:3}, at: efi_call_rts (drivers/firmware/efi/runtime-wrappers.c:101)
-  Preemption disabled at:
-  efi_virtmap_load (./arch/arm64/include/asm/mmu_context.h:248)
-  CPU: 0 PID: 9 Comm: kworker/u320:0 Tainted: G        W          6.2.0-rc3-rt1
-  Hardware name: WIWYNN Mt.Jade Server System B81.03001.0005/Mt.Jade Motherboard, BIOS 1.08.20220218 (SCP: 1.08.20220218) 2022/02/18
-  Workqueue: efi_rts_wq efi_call_rts
-  Call trace:
-  dump_backtrace (arch/arm64/kernel/stacktrace.c:158)
-  show_stack (arch/arm64/kernel/stacktrace.c:165)
-  dump_stack_lvl (lib/dump_stack.c:107 (discriminator 4))
-  dump_stack (lib/dump_stack.c:114)
-  __might_resched (kernel/sched/core.c:10134)
-  rt_spin_lock (kernel/locking/rtmutex.c:1769 (discriminator 4))
-  efi_call_rts (drivers/firmware/efi/runtime-wrappers.c:101)
-  [...]
+The memcpy() in uvc_video_decode_meta() intentionally copies across the
+length and flags members and into the trailing buf flexible array.
+Split the copy so that the compiler can better reason about (the lack
+of) buffer overflows here. Avoid the run-time false positive warning:
 
-This seems to come from commit ff7a167961d1 ("arm64: efi: Execute
-runtime services from a dedicated stack") which adds a spinlock. This
-spinlock is taken through:
-efi_call_rts()
-\-efi_call_virt()
-  \-efi_call_virt_pointer()
-    \-arch_efi_call_virt_setup()
+  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
 
-Make 'efi_rt_lock' a raw_spinlock to avoid being preempted.
+Additionally fix a typo in the documentation for struct uvc_meta_buf.
 
-[ardb: The EFI runtime services are called with a different set of
-       translation tables, and are permitted to use the SIMD registers.
-       The context switch code preserves/restores neither, and so EFI
-       calls must be made with preemption disabled, rather than only
-       disabling migration.]
-
-Fixes: ff7a167961d1 ("arm64: efi: Execute runtime services from a dedicated stack")
-Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
-Cc: <stable@vger.kernel.org> # v6.1+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: ionut_n2001@yahoo.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/efi.h |    6 +++---
- arch/arm64/kernel/efi.c      |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/usb/uvc/uvc_video.c | 4 +++-
+ include/uapi/linux/uvcvideo.h     | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/efi.h
-+++ b/arch/arm64/include/asm/efi.h
-@@ -33,7 +33,7 @@ int efi_set_mapping_permissions(struct m
- ({									\
- 	efi_virtmap_load();						\
- 	__efi_fpsimd_begin();						\
--	spin_lock(&efi_rt_lock);					\
-+	raw_spin_lock(&efi_rt_lock);					\
- })
+diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
+index b431f06d5a1f5..1c0249df52566 100644
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -1278,7 +1278,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
+ 	if (has_scr)
+ 		memcpy(stream->clock.last_scr, scr, 6);
  
- #undef arch_efi_call_virt
-@@ -42,12 +42,12 @@ int efi_set_mapping_permissions(struct m
+-	memcpy(&meta->length, mem, length);
++	meta->length = mem[0];
++	meta->flags  = mem[1];
++	memcpy(meta->buf, &mem[2], length - 2);
+ 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
  
- #define arch_efi_call_virt_teardown()					\
- ({									\
--	spin_unlock(&efi_rt_lock);					\
-+	raw_spin_unlock(&efi_rt_lock);					\
- 	__efi_fpsimd_end();						\
- 	efi_virtmap_unload();						\
- })
- 
--extern spinlock_t efi_rt_lock;
-+extern raw_spinlock_t efi_rt_lock;
- extern u64 *efi_rt_stack_top;
- efi_status_t __efi_rt_asm_wrapper(void *, const char *, ...);
- 
---- a/arch/arm64/kernel/efi.c
-+++ b/arch/arm64/kernel/efi.c
-@@ -146,7 +146,7 @@ asmlinkage efi_status_t efi_handle_corru
- 	return s;
- }
- 
--DEFINE_SPINLOCK(efi_rt_lock);
-+DEFINE_RAW_SPINLOCK(efi_rt_lock);
- 
- asmlinkage u64 *efi_rt_stack_top __ro_after_init;
- 
+ 	uvc_trace(UVC_TRACE_FRAME,
+diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
+index f80f05b3c423f..2140923661934 100644
+--- a/include/uapi/linux/uvcvideo.h
++++ b/include/uapi/linux/uvcvideo.h
+@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
+  * struct. The first two fields are added by the driver, they can be used for
+  * clock synchronisation. The rest is an exact copy of a UVC payload header.
+  * Only complete objects with complete buffers are included. Therefore it's
+- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
++ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
+  */
+ struct uvc_meta_buf {
+ 	__u64 ns;
+-- 
+2.39.2
+
 
 
