@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 035356B43E6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:19:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D3F6B42C1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbjCJOTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:19:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58126 "EHLO
+        id S231785AbjCJOGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232040AbjCJOTT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:19 -0500
+        with ESMTP id S231707AbjCJOGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1239511941F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:17:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59543117865
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCCFEB822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:17:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D0BBC433D2;
-        Fri, 10 Mar 2023 14:17:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E87DEB822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 504A8C433D2;
+        Fri, 10 Mar 2023 14:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457851;
-        bh=PEYtR3k5ihRlOcnc7O2fQZPh+FS5KW/orCTC35TWCIk=;
+        s=korg; t=1678457163;
+        bh=rAVK09GvI0sZ+tjgMiU6r2EeyV9OP5l4Xml8V9iKA3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2VMzydr35ygO96/2CDx/NFhkttn9xr8DDFlq6+YpcThRyh+UXapkcvlzUGB0QO4f
-         gSp07JrcQzBBN/4BqjDs9LDQ7/L3K3CUNQOQRlSKtQhusP8oz2UueL8E6FJuEVC8b1
-         uT1VOVHDYX0SxKRacmblieQQXTEbCqyjhd/8AaXM=
+        b=pdMy7saLy5c3uVz8gFzaUdrfuROxkaV9U+FPy6Uugk38zVj7pFwWZ12s7RZk0IYg7
+         3xtY9U+FxxTXMd7bqGLD4ReNckCRBDAq94skN2AP1n5Qsz11tO51rtf6L4uBc5h+vB
+         RWi25EYzG29PTRzjZwedVrmdnPIpmPfTNWuL5d84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikko Perttunen <mperttunen@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 079/252] gpu: host1x: Dont skip assigning syncpoints to channels
+Subject: [PATCH 6.1 042/200] ubi: ubi_wl_put_peb: Fix infinite loop when wear-leveling work failed
 Date:   Fri, 10 Mar 2023 14:37:29 +0100
-Message-Id: <20230310133721.217199527@linuxfoundation.org>
+Message-Id: <20230310133718.371554047@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Perttunen <mperttunen@nvidia.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit eb258cc1fd458e584082be987dbc6ec42668c05e ]
+[ Upstream commit 4d57a7333e26040f2b583983e1970d9d460e56b0 ]
 
-The code to write the syncpoint channel assignment register
-incorrectly skips the write if hypervisor registers are not available.
+Following process will trigger an infinite loop in ubi_wl_put_peb():
 
-The register, however, is within the guest aperture so remove the
-check and assign syncpoints properly even on virtualized systems.
+	ubifs_bgt		ubi_bgt
+ubifs_leb_unmap
+  ubi_leb_unmap
+    ubi_eba_unmap_leb
+      ubi_wl_put_peb	wear_leveling_worker
+                          e1 = rb_entry(rb_first(&ubi->used)
+			  e2 = get_peb_for_wl(ubi)
+			  ubi_io_read_vid_hdr  // return err (flash fault)
+			  out_error:
+			    ubi->move_from = ubi->move_to = NULL
+			    wl_entry_destroy(ubi, e1)
+			      ubi->lookuptbl[e->pnum] = NULL
+      retry:
+        e = ubi->lookuptbl[pnum];	// return NULL
+	if (e == ubi->move_from) {	// NULL == NULL gets true
+	  goto retry;			// infinite loop !!!
 
-Fixes: c3f52220f276 ("gpu: host1x: Enable Tegra186 syncpoint protection")
-Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+$ top
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     COMMAND
+  7676 root     20   0       0      0      0 R 100.0  0.0  ubifs_bgt0_0
+
+Fix it by:
+ 1) Letting ubi_wl_put_peb() returns directly if wearl leveling entry has
+    been removed from 'ubi->lookuptbl'.
+ 2) Using 'ubi->wl_lock' protecting wl entry deletion to preventing an
+    use-after-free problem for wl entry in ubi_wl_put_peb().
+
+Fetch a reproducer in [Link].
+
+Fixes: 43f9b25a9cdd7b1 ("UBI: bugfix: protect from volume removal")
+Fixes: ee59ba8b064f692 ("UBI: Fix stale pointers in ubi->lookuptbl")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216111
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/hw/syncpt_hw.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/mtd/ubi/wl.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/host1x/hw/syncpt_hw.c b/drivers/gpu/host1x/hw/syncpt_hw.c
-index a23bb3352d029..b40a537884dde 100644
---- a/drivers/gpu/host1x/hw/syncpt_hw.c
-+++ b/drivers/gpu/host1x/hw/syncpt_hw.c
-@@ -113,9 +113,6 @@ static void syncpt_assign_to_channel(struct host1x_syncpt *sp,
- #if HOST1X_HW >= 6
- 	struct host1x *host = sp->host;
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index f45df3b773739..9e14319225c97 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -976,11 +976,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 	spin_lock(&ubi->wl_lock);
+ 	ubi->move_from = ubi->move_to = NULL;
+ 	ubi->move_to_put = ubi->wl_scheduled = 0;
++	wl_entry_destroy(ubi, e1);
++	wl_entry_destroy(ubi, e2);
+ 	spin_unlock(&ubi->wl_lock);
  
--	if (!host->hv_regs)
--		return;
--
- 	host1x_sync_writel(host,
- 			   HOST1X_SYNC_SYNCPT_CH_APP_CH(ch ? ch->id : 0xff),
- 			   HOST1X_SYNC_SYNCPT_CH_APP(sp->id));
+ 	ubi_free_vid_buf(vidb);
+-	wl_entry_destroy(ubi, e1);
+-	wl_entry_destroy(ubi, e2);
+ 
+ out_ro:
+ 	ubi_ro_mode(ubi);
+@@ -1260,6 +1260,18 @@ int ubi_wl_put_peb(struct ubi_device *ubi, int vol_id, int lnum,
+ retry:
+ 	spin_lock(&ubi->wl_lock);
+ 	e = ubi->lookuptbl[pnum];
++	if (!e) {
++		/*
++		 * This wl entry has been removed for some errors by other
++		 * process (eg. wear leveling worker), corresponding process
++		 * (except __erase_worker, which cannot concurrent with
++		 * ubi_wl_put_peb) will set ubi ro_mode at the same time,
++		 * just ignore this wl entry.
++		 */
++		spin_unlock(&ubi->wl_lock);
++		up_read(&ubi->fm_protect);
++		return 0;
++	}
+ 	if (e == ubi->move_from) {
+ 		/*
+ 		 * User is putting the physical eraseblock which was selected to
 -- 
 2.39.2
 
