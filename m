@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F52F6B4977
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8EB6B49A0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232012AbjCJPNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:13:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54982 "EHLO
+        id S233427AbjCJPOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:14:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233815AbjCJPMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:12:43 -0500
+        with ESMTP id S233340AbjCJPOL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC1351269B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:04:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA2D763D0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14A29B822E6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:49:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CFF5C433EF;
-        Fri, 10 Mar 2023 14:49:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86A96B822E3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB5F7C4339B;
+        Fri, 10 Mar 2023 14:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459787;
-        bh=8aI1Kx43VsT9SIAEXvdWkoQGd4Fp1pkiCBVLkFPD9Ng=;
+        s=korg; t=1678459760;
+        bh=FG13CUAL75KAN25BOQAHmETjCOd+JG96/UF35bdDbAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiDzKJmDxOs+yeFI8EhFM+SCaBRYdko8vXnCrjJDpoZTMSivw88xb8An/47wmMHDF
-         wiDR+vVU4xL0IVkg27lbcLGv5pH4SoUkR10xvkOm5g80qQcifKF13xMHUmH1rCIAOU
-         6BEJU9oyL6Cz/g2fzj4fEUDpHkV0R5iXc4Yy8P74=
+        b=zRSrRN90UHuGcLhgqrfPdviFvrfqm1S6nb++NgSjg4pRgNDdd24dIJikBnww+KRqW
+         86zBUZTm1dhBUQ0LCmi7/kxNYlQDHzsNszpPBROrdHFmiKUV9CyguQ48aBy+sNNkQV
+         +QhZPTsZmfV9rCX0vDXIxYskEZ7/gGXbXphLvjR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Johnson <quic_jjohnson@quicinc.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Wang Qing <wangqing@vivo.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 089/529] ath9k: htc: clean up statistics macros
-Date:   Fri, 10 Mar 2023 14:33:52 +0100
-Message-Id: <20230310133809.105832449@linuxfoundation.org>
+Subject: [PATCH 5.10 110/529] net: ethernet: ti: add missing of_node_put before return
+Date:   Fri, 10 Mar 2023 14:34:13 +0100
+Message-Id: <20230310133810.088199929@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -56,227 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Wang Qing <wangqing@vivo.com>
 
-[ Upstream commit d7fc76039b74ad37b7056d5607b05d7cb31a5404 ]
+[ Upstream commit be565ec71d1d59438bed0c7ed0a252a327e0b0ef ]
 
-I've changed *STAT_* macros a bit in previous patch and I seems like
-they become really unreadable. Align these macros definitions to make
-code cleaner and fix folllowing checkpatch warning
+Fix following coccicheck warning:
+WARNING: Function "for_each_child_of_node"
+should have of_node_put() before return.
 
-ERROR: Macros with complex values should be enclosed in parentheses
+Early exits from for_each_child_of_node should decrement the
+node reference counter.
 
-Also, statistics macros now accept an hif_dev as argument, since
-macros that depend on having a local variable with a magic name
-don't abide by the coding style.
-
-No functional change
-
-Suggested-by: Jeff Johnson <quic_jjohnson@quicinc.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/ebb2306d06a496cd1b032155ae52fdc5fa8cc2c5.1655145743.git.paskripkin@gmail.com
-Stable-dep-of: 0af54343a762 ("wifi: ath9k: hif_usb: clean up skbs if ath9k_hif_usb_rx_stream() fails")
+Signed-off-by: Wang Qing <wangqing@vivo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c      | 26 +++++++--------
- drivers/net/wireless/ath/ath9k/htc.h          | 32 +++++++++++--------
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 10 +++---
- 3 files changed, 36 insertions(+), 32 deletions(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 29 ++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index f54380fb6c9e5..1a2e0c7eeb023 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -244,11 +244,11 @@ static inline void ath9k_skb_queue_complete(struct hif_device_usb *hif_dev,
- 		ath9k_htc_txcompletion_cb(hif_dev->htc_handle,
- 					  skb, txok);
- 		if (txok) {
--			TX_STAT_INC(skb_success);
--			TX_STAT_ADD(skb_success_bytes, ln);
-+			TX_STAT_INC(hif_dev, skb_success);
-+			TX_STAT_ADD(hif_dev, skb_success_bytes, ln);
- 		}
- 		else
--			TX_STAT_INC(skb_failed);
-+			TX_STAT_INC(hif_dev, skb_failed);
- 	}
- }
- 
-@@ -302,7 +302,7 @@ static void hif_usb_tx_cb(struct urb *urb)
- 	hif_dev->tx.tx_buf_cnt++;
- 	if (!(hif_dev->tx.flags & HIF_USB_TX_STOP))
- 		__hif_usb_tx(hif_dev); /* Check for pending SKBs */
--	TX_STAT_INC(buf_completed);
-+	TX_STAT_INC(hif_dev, buf_completed);
- 	spin_unlock(&hif_dev->tx.tx_lock);
- }
- 
-@@ -353,7 +353,7 @@ static int __hif_usb_tx(struct hif_device_usb *hif_dev)
- 			tx_buf->len += tx_buf->offset;
- 
- 		__skb_queue_tail(&tx_buf->skb_queue, nskb);
--		TX_STAT_INC(skb_queued);
-+		TX_STAT_INC(hif_dev, skb_queued);
- 	}
- 
- 	usb_fill_bulk_urb(tx_buf->urb, hif_dev->udev,
-@@ -369,7 +369,7 @@ static int __hif_usb_tx(struct hif_device_usb *hif_dev)
- 		list_move_tail(&tx_buf->list, &hif_dev->tx.tx_buf);
- 		hif_dev->tx.tx_buf_cnt++;
- 	} else {
--		TX_STAT_INC(buf_queued);
-+		TX_STAT_INC(hif_dev, buf_queued);
- 	}
- 
- 	return ret;
-@@ -514,7 +514,7 @@ static void hif_usb_sta_drain(void *hif_handle, u8 idx)
- 			ath9k_htc_txcompletion_cb(hif_dev->htc_handle,
- 						  skb, false);
- 			hif_dev->tx.tx_skb_cnt--;
--			TX_STAT_INC(skb_failed);
-+			TX_STAT_INC(hif_dev, skb_failed);
- 		}
- 	}
- 
-@@ -585,14 +585,14 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 		pkt_tag = get_unaligned_le16(ptr + index + 2);
- 
- 		if (pkt_tag != ATH_USB_RX_STREAM_MODE_TAG) {
--			RX_STAT_INC(skb_dropped);
-+			RX_STAT_INC(hif_dev, skb_dropped);
- 			return;
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 5300e1439e1e5..4074310abcff4 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -1724,13 +1724,14 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+ 		if (ret < 0) {
+ 			dev_err(dev, "%pOF error reading port_id %d\n",
+ 				port_np, ret);
+-			return ret;
++			goto of_node_put;
  		}
  
- 		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
- 			dev_err(&hif_dev->udev->dev,
- 				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
--			RX_STAT_INC(skb_dropped);
-+			RX_STAT_INC(hif_dev, skb_dropped);
- 			return;
+ 		if (!port_id || port_id > common->port_num) {
+ 			dev_err(dev, "%pOF has invalid port_id %u %s\n",
+ 				port_np, port_id, port_np->name);
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto of_node_put;
  		}
  
-@@ -618,7 +618,7 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				goto err;
- 			}
- 			skb_reserve(nskb, 32);
--			RX_STAT_INC(skb_allocated);
-+			RX_STAT_INC(hif_dev, skb_allocated);
+ 		port = am65_common_get_port(common, port_id);
+@@ -1746,8 +1747,10 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+ 				(AM65_CPSW_NU_FRAM_PORT_OFFSET * (port_id - 1));
  
- 			memcpy(nskb->data, &(skb->data[chk_idx+4]),
- 			       hif_dev->rx_transfer_len);
-@@ -639,7 +639,7 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				goto err;
- 			}
- 			skb_reserve(nskb, 32);
--			RX_STAT_INC(skb_allocated);
-+			RX_STAT_INC(hif_dev, skb_allocated);
+ 		port->slave.mac_sl = cpsw_sl_get("am65", dev, port->port_base);
+-		if (IS_ERR(port->slave.mac_sl))
+-			return PTR_ERR(port->slave.mac_sl);
++		if (IS_ERR(port->slave.mac_sl)) {
++			ret = PTR_ERR(port->slave.mac_sl);
++			goto of_node_put;
++		}
  
- 			memcpy(nskb->data, &(skb->data[chk_idx+4]), pkt_len);
- 			skb_put(nskb, pkt_len);
-@@ -649,10 +649,10 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 		port->disabled = !of_device_is_available(port_np);
+ 		if (port->disabled)
+@@ -1758,7 +1761,7 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+ 			ret = PTR_ERR(port->slave.ifphy);
+ 			dev_err(dev, "%pOF error retrieving port phy: %d\n",
+ 				port_np, ret);
+-			return ret;
++			goto of_node_put;
+ 		}
  
- err:
- 	for (i = 0; i < pool_index; i++) {
--		RX_STAT_ADD(skb_completed_bytes, skb_pool[i]->len);
-+		RX_STAT_ADD(hif_dev, skb_completed_bytes, skb_pool[i]->len);
- 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb_pool[i],
- 				 skb_pool[i]->len, USB_WLAN_RX_PIPE);
--		RX_STAT_INC(skb_completed);
-+		RX_STAT_INC(hif_dev, skb_completed);
- 	}
- }
+ 		port->slave.mac_only =
+@@ -1767,10 +1770,12 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+ 		/* get phy/link info */
+ 		if (of_phy_is_fixed_link(port_np)) {
+ 			ret = of_phy_register_fixed_link(port_np);
+-			if (ret)
+-				return dev_err_probe(dev, ret,
++			if (ret) {
++				ret = dev_err_probe(dev, ret,
+ 						     "failed to register fixed-link phy %pOF\n",
+ 						     port_np);
++				goto of_node_put;
++			}
+ 			port->slave.phy_node = of_node_get(port_np);
+ 		} else {
+ 			port->slave.phy_node =
+@@ -1780,14 +1785,15 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+ 		if (!port->slave.phy_node) {
+ 			dev_err(dev,
+ 				"slave[%d] no phy found\n", port_id);
+-			return -ENODEV;
++			ret = -ENODEV;
++			goto of_node_put;
+ 		}
  
-diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
-index e3d546ef71ddc..30f0765fb9fd8 100644
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -327,14 +327,18 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
- }
+ 		ret = of_get_phy_mode(port_np, &port->slave.phy_if);
+ 		if (ret) {
+ 			dev_err(dev, "%pOF read phy-mode err %d\n",
+ 				port_np, ret);
+-			return ret;
++			goto of_node_put;
+ 		}
  
- #ifdef CONFIG_ATH9K_HTC_DEBUGFS
--#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
--#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
--#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
--#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
--#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
--#define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
--
--#define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
-+#define __STAT_SAFE(hif_dev, expr)	((hif_dev)->htc_handle->drv_priv ? (expr) : 0)
-+#define CAB_STAT_INC(priv)		((priv)->debug.tx_stats.cab_queued++)
-+#define TX_QSTAT_INC(priv, q)		((priv)->debug.tx_stats.queue_stats[q]++)
+ 		mac_addr = of_get_mac_address(port_np);
+@@ -1804,6 +1810,11 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
+ 	of_node_put(node);
+ 
+ 	return 0;
 +
-+#define TX_STAT_INC(hif_dev, c) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c++)
-+#define TX_STAT_ADD(hif_dev, c, a) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c += a)
-+#define RX_STAT_INC(hif_dev, c) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.skbrx_stats.c++)
-+#define RX_STAT_ADD(hif_dev, c, a) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.skbrx_stats.c += a)
++of_node_put:
++	of_node_put(port_np);
++	of_node_put(node);
++	return ret;
+ }
  
- void ath9k_htc_err_stat_rx(struct ath9k_htc_priv *priv,
- 			   struct ath_rx_status *rs);
-@@ -374,13 +378,13 @@ void ath9k_htc_get_et_stats(struct ieee80211_hw *hw,
- 			    struct ethtool_stats *stats, u64 *data);
- #else
- 
--#define TX_STAT_INC(c) do { } while (0)
--#define TX_STAT_ADD(c, a) do { } while (0)
--#define RX_STAT_INC(c) do { } while (0)
--#define RX_STAT_ADD(c, a) do { } while (0)
--#define CAB_STAT_INC   do { } while (0)
-+#define TX_STAT_INC(hif_dev, c)
-+#define TX_STAT_ADD(hif_dev, c, a)
-+#define RX_STAT_INC(hif_dev, c)
-+#define RX_STAT_ADD(hif_dev, c, a)
- 
--#define TX_QSTAT_INC(c) do { } while (0)
-+#define CAB_STAT_INC(priv)
-+#define TX_QSTAT_INC(priv, c)
- 
- static inline void ath9k_htc_err_stat_rx(struct ath9k_htc_priv *priv,
- 					 struct ath_rx_status *rs)
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 43a743ec9d9e0..622fc7f170402 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -106,20 +106,20 @@ static inline enum htc_endpoint_id get_htc_epid(struct ath9k_htc_priv *priv,
- 
- 	switch (qnum) {
- 	case 0:
--		TX_QSTAT_INC(IEEE80211_AC_VO);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_VO);
- 		epid = priv->data_vo_ep;
- 		break;
- 	case 1:
--		TX_QSTAT_INC(IEEE80211_AC_VI);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_VI);
- 		epid = priv->data_vi_ep;
- 		break;
- 	case 2:
--		TX_QSTAT_INC(IEEE80211_AC_BE);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_BE);
- 		epid = priv->data_be_ep;
- 		break;
- 	case 3:
- 	default:
--		TX_QSTAT_INC(IEEE80211_AC_BK);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_BK);
- 		epid = priv->data_bk_ep;
- 		break;
- 	}
-@@ -323,7 +323,7 @@ static void ath9k_htc_tx_data(struct ath9k_htc_priv *priv,
- 	memcpy(tx_fhdr, (u8 *) &tx_hdr, sizeof(tx_hdr));
- 
- 	if (is_cab) {
--		CAB_STAT_INC;
-+		CAB_STAT_INC(priv);
- 		tx_ctl->epid = priv->cab_ep;
- 		return;
- 	}
+ static void am65_cpsw_pcpu_stats_free(void *data)
 -- 
 2.39.2
 
