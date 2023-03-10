@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F0856B45E7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3332A6B422D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbjCJOik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
+        id S231459AbjCJOAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:00:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232713AbjCJOiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAA510247
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:00 -0800 (PST)
+        with ESMTP id S231454AbjCJOAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B3D112A4A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5C08B822DF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:37:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3620EC4339C;
-        Fri, 10 Mar 2023 14:37:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E8E1B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77AFDC4339C;
+        Fri, 10 Mar 2023 14:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459031;
-        bh=/icnbl99Xs46trCkoa5k/g+hdGUJKHc1Tncn333uBQ0=;
+        s=korg; t=1678456820;
+        bh=aFaLbQCDVyXQXY1B9O2X8SpnR7OiMYiu0IUvYlUqn70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7HKZT4bejDYzKnpMIntTPPYRKlQMOY7Y3Ly4FoMhGBdF06MWjqcqYBdkVT1zVvUs
-         x0i3t+x2AFoWlokbqk96zQYXYrxjxQDiE1bgfwjtqxv9sOHE81vdQkIJ7omfXKxMeW
-         7ipzkTSmqwtaX0v4v4tNsHsynt8bT67Gni3+5qQQ=
+        b=WrmhvRgVzBEVy6cIw0ufxeY/xGjD6z8QDbziMmsbIuNAAhIxjOM3B1s6rL5C0EELn
+         QF9BHZ70Rla21PtISV7fTnpjiOv9ivo9mKNMLFXPVAX7JbkXR0o2lCpAdvEpNZ+ZeY
+         5yzs4GUnrF+eBN9WzyBpqotNr5IbvwDIU/fQL+M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 226/357] udf: Do not bother merging very long extents
+        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 135/211] media: uvcvideo: Handle errors from calls to usb_string
 Date:   Fri, 10 Mar 2023 14:38:35 +0100
-Message-Id: <20230310133744.736727841@linuxfoundation.org>
+Message-Id: <20230310133722.843622993@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,52 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 53cafe1d6d8ef9f93318e5bfccc0d24f27d41ced upstream.
+[ Upstream commit 4867bb590ae445bcfaa711a86b603c97e94574b3 ]
 
-When merging very long extents we try to push as much length as possible
-to the first extent. However this is unnecessarily complicated and not
-really worth the trouble. Furthermore there was a bug in the logic
-resulting in corrupting extents in the file as syzbot reproducer shows.
-So just don't bother with the merging of extents that are too long
-together.
+On a Webcam from Quanta, we see the following error.
 
-CC: stable@vger.kernel.org
-Reported-by: syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+usb 3-5: New USB device found, idVendor=0408, idProduct=30d2, bcdDevice= 0.03
+usb 3-5: New USB device strings: Mfr=3, Product=1, SerialNumber=2
+usb 3-5: Product: USB2.0 HD UVC WebCam
+usb 3-5: Manufacturer: Quanta
+usb 3-5: SerialNumber: 0x0001
+...
+uvcvideo: Found UVC 1.10 device USB2.0 HD UVC WebCam (0408:30d2)
+uvcvideo: Failed to initialize entity for entity 5
+uvcvideo: Failed to register entities (-22).
+
+The Webcam reports an entity of type UVC_VC_EXTENSION_UNIT. It reports a
+string index of '7' associated with that entity. The attempt to read that
+string from the camera fails with error -32 (-EPIPE). usb_string() returns
+that error, but it is ignored. As result, the entity name is empty. This
+later causes v4l2_device_register_subdev() to return -EINVAL, and no
+entities are registered as result.
+
+While this appears to be a firmware problem with the camera, the kernel
+should still handle the situation gracefully. To do that, check the return
+value from usb_string(). If it reports an error, assign the entity's
+default name.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c |   19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ drivers/media/usb/uvc/uvc_driver.c | 48 ++++++++++++------------------
+ 1 file changed, 19 insertions(+), 29 deletions(-)
 
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -1096,23 +1096,8 @@ static void udf_merge_extents(struct ino
- 			blocksize - 1) >> blocksize_bits)))) {
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index d30f77d89598c..943ae2559448c 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -860,10 +860,8 @@ static int uvc_parse_vendor_control(struct uvc_device *dev,
+ 					       + n;
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], 2*n);
  
- 			if (((li->extLength & UDF_EXTENT_LENGTH_MASK) +
--				(lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
--				blocksize - 1) & ~UDF_EXTENT_LENGTH_MASK) {
--				lip1->extLength = (lip1->extLength -
--						  (li->extLength &
--						   UDF_EXTENT_LENGTH_MASK) +
--						   UDF_EXTENT_LENGTH_MASK) &
--							~(blocksize - 1);
--				li->extLength = (li->extLength &
--						 UDF_EXTENT_FLAG_MASK) +
--						(UDF_EXTENT_LENGTH_MASK + 1) -
--						blocksize;
--				lip1->extLocation.logicalBlockNum =
--					li->extLocation.logicalBlockNum +
--					((li->extLength &
--						UDF_EXTENT_LENGTH_MASK) >>
--						blocksize_bits);
--			} else {
-+			     (lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
-+			     blocksize - 1) <= UDF_EXTENT_LENGTH_MASK) {
- 				li->extLength = lip1->extLength +
- 					(((li->extLength &
- 						UDF_EXTENT_LENGTH_MASK) +
+-		if (buffer[24+p+2*n] != 0)
+-			usb_string(udev, buffer[24+p+2*n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[24+p+2*n] == 0 ||
++		    usb_string(udev, buffer[24+p+2*n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -987,15 +985,15 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 			memcpy(term->media.bmTransportModes, &buffer[10+n], p);
+ 		}
+ 
+-		if (buffer[7] != 0)
+-			usb_string(udev, buffer[7], term->name,
+-				   sizeof(term->name));
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
+-			sprintf(term->name, "Camera %u", buffer[3]);
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
+-			sprintf(term->name, "Media %u", buffer[3]);
+-		else
+-			sprintf(term->name, "Input %u", buffer[3]);
++		if (buffer[7] == 0 ||
++		    usb_string(udev, buffer[7], term->name, sizeof(term->name)) < 0) {
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
++				sprintf(term->name, "Camera %u", buffer[3]);
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
++				sprintf(term->name, "Media %u", buffer[3]);
++			else
++				sprintf(term->name, "Input %u", buffer[3]);
++		}
+ 
+ 		list_add_tail(&term->list, &dev->entities);
+ 		break;
+@@ -1028,10 +1026,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 
+ 		memcpy(term->baSourceID, &buffer[7], 1);
+ 
+-		if (buffer[8] != 0)
+-			usb_string(udev, buffer[8], term->name,
+-				   sizeof(term->name));
+-		else
++		if (buffer[8] == 0 ||
++		    usb_string(udev, buffer[8], term->name, sizeof(term->name)) < 0)
+ 			sprintf(term->name, "Output %u", buffer[3]);
+ 
+ 		list_add_tail(&term->list, &dev->entities);
+@@ -1053,10 +1049,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 
+ 		memcpy(unit->baSourceID, &buffer[5], p);
+ 
+-		if (buffer[5+p] != 0)
+-			usb_string(udev, buffer[5+p], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[5+p] == 0 ||
++		    usb_string(udev, buffer[5+p], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Selector %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1086,10 +1080,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		if (dev->uvc_version >= 0x0110)
+ 			unit->processing.bmVideoStandards = buffer[9+n];
+ 
+-		if (buffer[8+n] != 0)
+-			usb_string(udev, buffer[8+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[8+n] == 0 ||
++		    usb_string(udev, buffer[8+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Processing %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1117,10 +1109,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		unit->extension.bmControls = (u8 *)unit + sizeof(*unit);
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], n);
+ 
+-		if (buffer[23+p+n] != 0)
+-			usb_string(udev, buffer[23+p+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[23+p+n] == 0 ||
++		    usb_string(udev, buffer[23+p+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+-- 
+2.39.2
+
 
 
