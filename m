@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1B656B45E9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E11E6B446F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232715AbjCJOim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
+        id S232182AbjCJOYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:24:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232716AbjCJOiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:23 -0500
+        with ESMTP id S232185AbjCJOXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:23:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9682913513
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21C81CF5D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B81E6195C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 040D2C4339C;
-        Fri, 10 Mar 2023 14:38:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DDD2616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61D48C433EF;
+        Fri, 10 Mar 2023 14:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459082;
-        bh=9ARQWCSo96/xLE2giVBRsCVtXrpIn0cx+Gy9fhIVnl4=;
+        s=korg; t=1678458181;
+        bh=td9j31y/8yViev14YgL7FH2wEePfh5BObLNCd6u29Rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1Ys1TIxW9YxJFHFq1mogw5glBViOZ4flBxkW4I4juIck8Ed+WpkuIelfG3QtaZg7
-         UZJiLB4LqqBuAzUAZBYaINU601CSiMhAOAux96sZfdj8llMbMKlnR2iXt0KgCogEcT
-         NmE7NNaA6nVcCjC/HytuvkFAWkpQPfzy+vlijcDM=
+        b=tBrTJc0bk0+4m2SLaEtTBQkG0FwgBhIA1h/XePznKKizhUYcrOojC8k6yz3WWwatQ
+         dRmGJ6EAoUErPwyJfajFw/xjMgPXp7tvNRyyL594QEjkFzDl/7swXLf3XrilkRm1OD
+         i/hWzdXUVYJm/FS5b2q4GteR0R+l7g9qv/XCx8jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Jos=C3=A9=20Oliveira?= <joseloliveira11@gmail.com>,
-        Rodrigo Branco <rodrigo@kernelhacking.com>,
-        KP Singh <kpsingh@kernel.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 5.4 242/357] x86/speculation: Allow enabling STIBP with legacy IBRS
+        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
+Subject: [PATCH 4.19 161/252] x86/microcode/amd: Remove load_microcode_amd()s bsp parameter
 Date:   Fri, 10 Mar 2023 14:38:51 +0100
-Message-Id: <20230310133745.436195675@linuxfoundation.org>
+Message-Id: <20230310133723.713256658@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,93 +52,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KP Singh <kpsingh@kernel.org>
+From: Borislav Petkov (AMD) <bp@alien8.de>
 
-commit 6921ed9049bc7457f66c1596c5b78aec0dae4a9d upstream.
+commit 2355370cd941cbb20882cc3f34460f9f2b8f9a18 upstream.
 
-When plain IBRS is enabled (not enhanced IBRS), the logic in
-spectre_v2_user_select_mitigation() determines that STIBP is not needed.
+It is always the BSP.
 
-The IBRS bit implicitly protects against cross-thread branch target
-injection. However, with legacy IBRS, the IBRS bit is cleared on
-returning to userspace for performance reasons which leaves userspace
-threads vulnerable to cross-thread branch target injection against which
-STIBP protects.
+No functional changes.
 
-Exclude IBRS from the spectre_v2_in_ibrs_mode() check to allow for
-enabling STIBP (through seccomp/prctl() by default or always-on, if
-selected by spectre_v2_user kernel cmdline parameter).
-
-  [ bp: Massage. ]
-
-Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
-Reported-by: José Oliveira <joseloliveira11@gmail.com>
-Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
-Signed-off-by: KP Singh <kpsingh@kernel.org>
 Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230220120127.1975241-1-kpsingh@kernel.org
-Link: https://lore.kernel.org/r/20230221184908.2349578-1-kpsingh@kernel.org
+Link: https://lore.kernel.org/r/20230130161709.11615-2-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ arch/x86/kernel/cpu/microcode/amd.c |   17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -983,14 +983,18 @@ spectre_v2_parse_user_cmdline(void)
- 	return SPECTRE_V2_USER_CMD_AUTO;
+--- a/arch/x86/kernel/cpu/microcode/amd.c
++++ b/arch/x86/kernel/cpu/microcode/amd.c
+@@ -329,8 +329,7 @@ void load_ucode_amd_ap(unsigned int cpui
+ 	apply_microcode_early_amd(cpuid_1_eax, cp.data, cp.size, false);
  }
  
--static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
-+static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
+-static enum ucode_state
+-load_microcode_amd(bool save, u8 family, const u8 *data, size_t size);
++static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size);
+ 
+ int __init save_microcode_in_initrd_amd(unsigned int cpuid_1_eax)
  {
--	return mode == SPECTRE_V2_IBRS ||
--	       mode == SPECTRE_V2_EIBRS ||
-+	return mode == SPECTRE_V2_EIBRS ||
- 	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
- 	       mode == SPECTRE_V2_EIBRS_LFENCE;
+@@ -348,7 +347,7 @@ int __init save_microcode_in_initrd_amd(
+ 	if (!desc.mc)
+ 		return -EINVAL;
+ 
+-	ret = load_microcode_amd(true, x86_family(cpuid_1_eax), desc.data, desc.size);
++	ret = load_microcode_amd(x86_family(cpuid_1_eax), desc.data, desc.size);
+ 	if (ret > UCODE_UPDATED)
+ 		return -EINVAL;
+ 
+@@ -698,8 +697,7 @@ static enum ucode_state __load_microcode
+ 	return UCODE_OK;
  }
  
-+static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
-+{
-+	return spectre_v2_in_eibrs_mode(mode) || mode == SPECTRE_V2_IBRS;
-+}
-+
- static void __init
- spectre_v2_user_select_mitigation(void)
+-static enum ucode_state
+-load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
++static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
  {
-@@ -1053,12 +1057,19 @@ spectre_v2_user_select_mitigation(void)
+ 	struct ucode_patch *p;
+ 	enum ucode_state ret;
+@@ -723,10 +721,6 @@ load_microcode_amd(bool save, u8 family,
+ 		ret = UCODE_NEW;
  	}
  
- 	/*
--	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
--	 * STIBP is not required.
-+	 * If no STIBP, enhanced IBRS is enabled, or SMT impossible, STIBP
-+	 * is not required.
-+	 *
-+	 * Enhanced IBRS also protects against cross-thread branch target
-+	 * injection in user-mode as the IBRS bit remains always set which
-+	 * implicitly enables cross-thread protections.  However, in legacy IBRS
-+	 * mode, the IBRS bit is set only on kernel entry and cleared on return
-+	 * to userspace. This disables the implicit cross-thread protection,
-+	 * so allow for STIBP to be selected in that case.
- 	 */
- 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
- 	    !smt_possible ||
--	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
-+	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
- 		return;
+-	/* save BSP's matching patch for early load */
+-	if (!save)
+-		return ret;
+-
+ 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
+ 	memcpy(amd_ucode_patch, p->data, min_t(u32, ksize(p->data), PATCH_MAX_SIZE));
  
- 	/*
-@@ -2121,7 +2132,7 @@ static ssize_t mmio_stale_data_show_stat
- 
- static char *stibp_state(void)
+@@ -754,12 +748,11 @@ static enum ucode_state request_microcod
  {
--	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
-+	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
- 		return "";
+ 	char fw_name[36] = "amd-ucode/microcode_amd.bin";
+ 	struct cpuinfo_x86 *c = &cpu_data(cpu);
+-	bool bsp = c->cpu_index == boot_cpu_data.cpu_index;
+ 	enum ucode_state ret = UCODE_NFOUND;
+ 	const struct firmware *fw;
  
- 	switch (spectre_v2_user_stibp) {
+ 	/* reload ucode container only on the boot cpu */
+-	if (!refresh_fw || !bsp)
++	if (!refresh_fw)
+ 		return UCODE_OK;
+ 
+ 	if (c->x86 >= 0x15)
+@@ -776,7 +769,7 @@ static enum ucode_state request_microcod
+ 		goto fw_release;
+ 	}
+ 
+-	ret = load_microcode_amd(bsp, c->x86, fw->data, fw->size);
++	ret = load_microcode_amd(c->x86, fw->data, fw->size);
+ 
+  fw_release:
+ 	release_firmware(fw);
 
 
