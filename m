@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E9AB6B41C1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F02D96B429B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231273AbjCJN4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:56:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38562 "EHLO
+        id S231539AbjCJOE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:04:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbjCJN4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69B710F46D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:55 -0800 (PST)
+        with ESMTP id S231543AbjCJOEm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9E281091D7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59E81B822BF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE02BC4339B;
-        Fri, 10 Mar 2023 13:55:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62E1260D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE8CC4339E;
+        Fri, 10 Mar 2023 14:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456553;
-        bh=+9GtUFLrq2JWqwYfiSAIwqSNcX+otGgpJwthgRTfhlI=;
+        s=korg; t=1678457080;
+        bh=8ghZjGPY7u+3R5WbdEOWGAi4bKIDBJgWj9lAqmtjbDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eso1hc+7ykts+L2tweyMYVe2/yiPtheQMHozmVKjqDRak8xRD6Dw1ZhGlJv+hh2hY
-         fR7kMPnDfYO5AWM5n8dJj+k4edxPCdgaD5nH9XS5yokMMx/+B37lWs0lP/ZRqyJ5GR
-         AzqSIxjk5p2+81cQM/wgKisblYCH/6JmeDD/NtQ8=
+        b=MWSTKO+aHSbiH9TVQS5hL2Wci91ds+v9k+uHns5sfTgE5n/btJ4+O5z1ntgjgtqUY
+         erBBi88aAKi2VZDD8uHIn3oFhjMXIqUa0lH6jE707pNhdHb9deJh0agqa2X5hPV26U
+         oMeEIZCDCTI4a9i+uCTDglQfrX6UqMXdyQKoi1XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 041/211] ubi: fastmap: Fix missed fm_anchor PEB in wear-leveling after disabling fastmap
+Subject: [PATCH 6.1 014/200] f2fs: introduce trace_f2fs_replace_atomic_write_block
 Date:   Fri, 10 Mar 2023 14:37:01 +0100
-Message-Id: <20230310133719.981966513@linuxfoundation.org>
+Message-Id: <20230310133717.483050995@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,61 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 76f9476ece445a07aeb72df9d896cd563fb5b50f ]
+[ Upstream commit 2f3a9ae990a7881c9a57a073bb52ebe34fdc3160 ]
 
-After disabling fastmap(ubi->fm_disabled = 1), fastmap won't be updated,
-fm_anchor PEB is missed being scheduled for erasing. Besides, fm_anchor
-PEB may have smallest erase count, it doesn't participate wear-leveling.
-The difference of erase count between fm_anchor PEB and other PEBs will
-be larger and larger later on.
+Commit 3db1de0e582c ("f2fs: change the current atomic write way")
+removed old tracepoints, but it missed to add new one, this patch
+fixes to introduce trace_f2fs_replace_atomic_write_block to trace
+atomic_write commit flow.
 
-In which situation fastmap can be disabled? Initially, we have an UBI
-image with fastmap. Then the image will be atttached without module
-parameter 'fm_autoconvert', ubi turns to full scanning mode in one
-random attaching process(eg. bad fastmap caused by powercut), ubi
-fastmap is disabled since then.
-
-Fix it by not getting fm_anchor if fastmap is disabled in
-ubi_refill_pools().
-
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216341
-Fixes: 4b68bf9a69d22d ("ubi: Select fastmap anchor PEBs considering ...")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 3db1de0e582c ("f2fs: change the current atomic write way")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/fastmap-wl.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/f2fs/segment.c           |  3 +++
+ include/trace/events/f2fs.h | 37 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
 
-diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
-index 0ee452275578d..863f571f1adb5 100644
---- a/drivers/mtd/ubi/fastmap-wl.c
-+++ b/drivers/mtd/ubi/fastmap-wl.c
-@@ -146,13 +146,15 @@ void ubi_refill_pools(struct ubi_device *ubi)
- 	if (ubi->fm_anchor) {
- 		wl_tree_add(ubi->fm_anchor, &ubi->free);
- 		ubi->free_count++;
-+		ubi->fm_anchor = NULL;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index c1d0713666ee5..af9a3b7996b4d 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -250,6 +250,9 @@ static int __replace_atomic_write_block(struct inode *inode, pgoff_t index,
  	}
  
--	/*
--	 * All available PEBs are in ubi->free, now is the time to get
--	 * the best anchor PEBs.
--	 */
--	ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
-+	if (!ubi->fm_disabled)
-+		/*
-+		 * All available PEBs are in ubi->free, now is the time to get
-+		 * the best anchor PEBs.
-+		 */
-+		ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
+ 	f2fs_put_dnode(&dn);
++
++	trace_f2fs_replace_atomic_write_block(inode, F2FS_I(inode)->cow_inode,
++					index, *old_addr, new_addr, recover);
+ 	return 0;
+ }
  
- 	for (;;) {
- 		enough = 0;
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index ff57e7f9914cc..e57f867191ef1 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -1286,6 +1286,43 @@ DEFINE_EVENT(f2fs__page, f2fs_vm_page_mkwrite,
+ 	TP_ARGS(page, type)
+ );
+ 
++TRACE_EVENT(f2fs_replace_atomic_write_block,
++
++	TP_PROTO(struct inode *inode, struct inode *cow_inode, pgoff_t index,
++			block_t old_addr, block_t new_addr, bool recovery),
++
++	TP_ARGS(inode, cow_inode, index, old_addr, new_addr, recovery),
++
++	TP_STRUCT__entry(
++		__field(dev_t,	dev)
++		__field(ino_t,	ino)
++		__field(ino_t,	cow_ino)
++		__field(pgoff_t, index)
++		__field(block_t, old_addr)
++		__field(block_t, new_addr)
++		__field(bool, recovery)
++	),
++
++	TP_fast_assign(
++		__entry->dev		= inode->i_sb->s_dev;
++		__entry->ino		= inode->i_ino;
++		__entry->cow_ino	= cow_inode->i_ino;
++		__entry->index		= index;
++		__entry->old_addr	= old_addr;
++		__entry->new_addr	= new_addr;
++		__entry->recovery	= recovery;
++	),
++
++	TP_printk("dev = (%d,%d), ino = %lu, cow_ino = %lu, index = %lu, "
++			"old_addr = 0x%llx, new_addr = 0x%llx, recovery = %d",
++		show_dev_ino(__entry),
++		__entry->cow_ino,
++		(unsigned long)__entry->index,
++		(unsigned long long)__entry->old_addr,
++		(unsigned long long)__entry->new_addr,
++		__entry->recovery)
++);
++
+ TRACE_EVENT(f2fs_filemap_fault,
+ 
+ 	TP_PROTO(struct inode *inode, pgoff_t index, unsigned long ret),
 -- 
 2.39.2
 
