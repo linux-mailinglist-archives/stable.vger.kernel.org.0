@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9446B4238
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3546B45BA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231522AbjCJOAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47918 "EHLO
+        id S232629AbjCJOgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:36:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231414AbjCJOAq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E531114EF1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:45 -0800 (PST)
+        with ESMTP id S232655AbjCJOgZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C65E118BDD;
+        Fri, 10 Mar 2023 06:36:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F429B822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84937C433A0;
-        Fri, 10 Mar 2023 14:00:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01DCE61961;
+        Fri, 10 Mar 2023 14:36:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8FDC433EF;
+        Fri, 10 Mar 2023 14:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456842;
-        bh=LOYjDsy62Hb8HMECGXe/ToF4xlSzflh09K6bV4/KwfU=;
+        s=korg; t=1678458969;
+        bh=zTZax/p2rqalBvmPQFQzlm9KvkEQeTiAiqtImefjI6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMHhuGaELSKgZi1nRhakoaHQAKpfr1kEoOMGZf1F1JRMK04/cb5y3lyduhGYkqp3N
-         kt2DvxgGk5U9+0TymzcIJTfBP9tmKnaXr5XceH+O6qIpFmcWWZg/xArK9qpaT/zRWg
-         Umn0i2bnXjwul3CLzJmymG6atL04rKkl3B9ua6JI=
+        b=uoqU0nQtH7oTmqlFfx58lhW1wyXecxz+oY2qkOV71J82DCX+t6s1W2oRu4lWbNVHJ
+         IVC3l5EO6/492iYmixYIP3HYqqSYuxby3mZ6pFgGTdyHeeFsyPXVM/y8Idhs7zf9U2
+         kbIpXVWBIZroJ+xfUiXverxpx1LH1wUgrYhfagcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
         Mark Brown <broonie@kernel.org>,
+        linux-samsung-soc@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 113/211] ASoC: adau7118: dont disable regulators on device unbind
+Subject: [PATCH 5.4 204/357] regulator: s5m8767: Bounds check id indexing into arrays
 Date:   Fri, 10 Mar 2023 14:38:13 +0100
-Message-Id: <20230310133722.184522536@linuxfoundation.org>
+Message-Id: <20230310133743.717604527@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,61 +58,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit b5bfa7277ee7d944421e0ef193586c6e34d7492c ]
+[ Upstream commit e314e15a0b58f9d051c00b25951073bcdae61953 ]
 
-The regulators are supposed to be controlled through the
-set_bias_level() component callback. Moreover, the regulators are not
-enabled during probe and so, this would lead to a regulator unbalanced
-use count.
+The compiler has no way to know if "id" is within the array bounds of
+the regulators array. Add a check for this and a build-time check that
+the regulators and reg_voltage_map arrays are sized the same. Seen with
+GCC 13:
 
-Fixes: ca514c0f12b02 ("ASOC: Add ADAU7118 8 Channel PDM-to-I2S/TDM Converter driver")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20230224104551.1139981-1-nuno.sa@analog.com
+../drivers/regulator/s5m8767.c: In function 's5m8767_pmic_probe':
+../drivers/regulator/s5m8767.c:936:35: warning: array subscript [0, 36] is outside array bounds of 'struct regulator_desc[37]' [-Warray-bounds=]
+  936 |                         regulators[id].vsel_reg =
+      |                         ~~~~~~~~~~^~~~
+
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: linux-samsung-soc@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230128005358.never.313-kees@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/adau7118.c | 19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ drivers/regulator/s5m8767.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/adau7118.c b/sound/soc/codecs/adau7118.c
-index bbb0972498876..a663d37e57760 100644
---- a/sound/soc/codecs/adau7118.c
-+++ b/sound/soc/codecs/adau7118.c
-@@ -444,22 +444,6 @@ static const struct snd_soc_component_driver adau7118_component_driver = {
- 	.endianness		= 1,
- };
+diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
+index 1e9f03a2ea1cc..7ff480810cfa2 100644
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -924,10 +924,14 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
  
--static void adau7118_regulator_disable(void *data)
--{
--	struct adau7118_data *st = data;
--	int ret;
--	/*
--	 * If we fail to disable DVDD, don't bother in trying IOVDD. We
--	 * actually don't want to be left in the situation where DVDD
--	 * is enabled and IOVDD is disabled.
--	 */
--	ret = regulator_disable(st->dvdd);
--	if (ret)
--		return;
--
--	regulator_disable(st->iovdd);
--}
--
- static int adau7118_regulator_setup(struct adau7118_data *st)
- {
- 	st->iovdd = devm_regulator_get(st->dev, "iovdd");
-@@ -481,8 +465,7 @@ static int adau7118_regulator_setup(struct adau7118_data *st)
- 		regcache_cache_only(st->map, true);
- 	}
+ 	for (i = 0; i < pdata->num_regulators; i++) {
+ 		const struct sec_voltage_desc *desc;
+-		int id = pdata->regulators[i].id;
++		unsigned int id = pdata->regulators[i].id;
+ 		int enable_reg, enable_val;
+ 		struct regulator_dev *rdev;
  
--	return devm_add_action_or_reset(st->dev, adau7118_regulator_disable,
--					st);
-+	return 0;
- }
- 
- static int adau7118_parset_dt(const struct adau7118_data *st)
++		BUILD_BUG_ON(ARRAY_SIZE(regulators) != ARRAY_SIZE(reg_voltage_map));
++		if (WARN_ON_ONCE(id >= ARRAY_SIZE(regulators)))
++			continue;
++
+ 		desc = reg_voltage_map[id];
+ 		if (desc) {
+ 			regulators[id].n_voltages =
 -- 
 2.39.2
 
