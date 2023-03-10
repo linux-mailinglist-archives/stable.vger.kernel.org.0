@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 735876B417F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 637A76B4269
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231232AbjCJNxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:53:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59402 "EHLO
+        id S231579AbjCJODI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231236AbjCJNx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38BCA5CEEF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:22 -0800 (PST)
+        with ESMTP id S231580AbjCJOCv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06793117594
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9437FB822BF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE77C433EF;
-        Fri, 10 Mar 2023 13:53:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5037FCE28F7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E408C433EF;
+        Fri, 10 Mar 2023 14:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456400;
-        bh=bwC5HJgR07ZZG6q2HHF3Byask16j4MYZgOnEHyp4knA=;
+        s=korg; t=1678456966;
+        bh=tf7vzkLXAEOY4mHOq0SXQt+xIicFBgpYPcTbupABLN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qj67VGn0pY+MB20i1CrpU6+Pk6fA/iIKvMlHL+Tu/eOtdOX0s4OxVUFwX+AXGfwmD
-         TBL7/6PLXD4TCHNgO4jaaMMU52O83/64moBbeC1R9ZQdWr8qQdTwj6K+Xj/T44+QAu
-         9oR06K9rEQjBX8wM35b3GSsdPxwIim4Cm0kGJhoA=
+        b=odNOxpVV8XJAj2NUjIvxfWATprM55goBdLkYwFHuj3/8ByDU4pURczyzps7kn+62K
+         rPwMnxAmG/7dfj/VaowuV7mBR0uXS1XWJG/NAivAklTNc1uzowCKnM6WZ59YYL2R8j
+         cl0WJyGtait0AUCSY7P+MUEoPvp2q1h6EKiXKfMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mathias Nyman <mathias.nyman@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 185/193] usb: host: xhci: mvebu: Iterate over array indexes instead of using pointer math
+        patches@lists.linux.dev,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 187/211] soundwire: cadence: Drain the RX FIFO after an IO timeout
 Date:   Fri, 10 Mar 2023 14:39:27 +0100
-Message-Id: <20230310133717.230856748@linuxfoundation.org>
+Message-Id: <20230310133724.529460030@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,43 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 0fbd2cda92cdb00f72080665554a586f88bca821 ]
+[ Upstream commit 0603a47bd3a8f439d7844b841eee1819353063e0 ]
 
-Walking the dram->cs array was seen as accesses beyond the first array
-item by the compiler. Instead, use the array index directly. This allows
-for run-time bounds checking under CONFIG_UBSAN_BOUNDS as well. Seen
-with GCC 13 with -fstrict-flex-arrays:
+If wait_for_completion_timeout() times-out in _cdns_xfer_msg() it
+is possible that something could have been written to the RX FIFO.
+In this case, we should drain the RX FIFO so that anything in it
+doesn't carry over and mess up the next transfer.
 
-In function 'xhci_mvebu_mbus_config',
-    inlined from 'xhci_mvebu_mbus_init_quirk' at ../drivers/usb/host/xhci-mvebu.c:66:2:
-../drivers/usb/host/xhci-mvebu.c:37:28: warning: array subscript 0 is outside array bounds of 'const struct mbus_dram_window[0]' [-Warray-bounds=]
-   37 |                 writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
-      |                          ~~^~~~~~
+Obviously, if we got to this state something went wrong, and we
+don't really know the state of everything. The cleanup in this
+situation cannot be bullet-proof but we should attempt to avoid
+breaking future transaction, if only to reduce the amount of
+error noise when debugging the failure from a kernel log.
 
-Cc: Mathias Nyman <mathias.nyman@intel.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20230204183651.never.663-kees@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that this patch only implements the draining for blocking
+(non-deferred) transfers. The deferred API doesn't have any proper
+handling of error conditions and would need some re-design before
+implementing cleanup. That is a task for a separate patch...
+
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20221202161812.4186897-4-rf@opensource.cirrus.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mvebu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soundwire/cadence_master.c | 50 ++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-mvebu.c b/drivers/usb/host/xhci-mvebu.c
-index 85908a3ecb8f6..285a5f75fe048 100644
---- a/drivers/usb/host/xhci-mvebu.c
-+++ b/drivers/usb/host/xhci-mvebu.c
-@@ -34,7 +34,7 @@ static void xhci_mvebu_mbus_config(void __iomem *base,
+diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
+index a6635f7f350ef..5213873221458 100644
+--- a/drivers/soundwire/cadence_master.c
++++ b/drivers/soundwire/cadence_master.c
+@@ -555,6 +555,29 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
+ 	return SDW_CMD_OK;
+ }
  
- 	/* Program each DRAM CS in a seperate window */
- 	for (win = 0; win < dram->num_cs; win++) {
--		const struct mbus_dram_window *cs = dram->cs + win;
-+		const struct mbus_dram_window *cs = &dram->cs[win];
++static void cdns_read_response(struct sdw_cdns *cdns)
++{
++	u32 num_resp, cmd_base;
++	int i;
++
++	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
++	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
++
++	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
++	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
++	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
++		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
++		num_resp = ARRAY_SIZE(cdns->response_buf);
++	}
++
++	cmd_base = CDNS_MCP_CMD_BASE;
++
++	for (i = 0; i < num_resp; i++) {
++		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
++		cmd_base += CDNS_MCP_CMD_WORD_LEN;
++	}
++}
++
+ static enum sdw_command_response
+ _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
+ 	       int offset, int count, bool defer)
+@@ -596,6 +619,10 @@ _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
+ 		dev_err(cdns->dev, "IO transfer timed out, cmd %d device %d addr %x len %d\n",
+ 			cmd, msg->dev_num, msg->addr, msg->len);
+ 		msg->len = 0;
++
++		/* Drain anything in the RX_FIFO */
++		cdns_read_response(cdns);
++
+ 		return SDW_CMD_TIMEOUT;
+ 	}
  
- 		writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
- 		       (dram->mbus_dram_target_id << 4) | 1,
+@@ -769,29 +796,6 @@ EXPORT_SYMBOL(cdns_read_ping_status);
+  * IRQ handling
+  */
+ 
+-static void cdns_read_response(struct sdw_cdns *cdns)
+-{
+-	u32 num_resp, cmd_base;
+-	int i;
+-
+-	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
+-	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
+-
+-	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
+-	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
+-	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
+-		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
+-		num_resp = ARRAY_SIZE(cdns->response_buf);
+-	}
+-
+-	cmd_base = CDNS_MCP_CMD_BASE;
+-
+-	for (i = 0; i < num_resp; i++) {
+-		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
+-		cmd_base += CDNS_MCP_CMD_WORD_LEN;
+-	}
+-}
+-
+ static int cdns_update_slave_status(struct sdw_cdns *cdns,
+ 				    u64 slave_intstat)
+ {
 -- 
 2.39.2
 
