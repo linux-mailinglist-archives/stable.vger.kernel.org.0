@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 083736B40B3
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9F006B41CA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230181AbjCJNpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:45:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
+        id S231276AbjCJN4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230164AbjCJNpF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:05 -0500
+        with ESMTP id S231332AbjCJN4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526719F224
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2F710FBBC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:56:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF7B5617AF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:45:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD060C433EF;
-        Fri, 10 Mar 2023 13:45:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19BAD617D5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A0FAC433EF;
+        Fri, 10 Mar 2023 13:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455903;
-        bh=POcUt5lCiclXJ1VNntnaTdFfcYH/gbO0XR7A62cXd/8=;
+        s=korg; t=1678456570;
+        bh=BtpRRmAwmp+wle9T2F+1zMPKEBYiOKFCztRZkmdwxY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTUOBPTtiUYCEFYHqkl663a33GwOMVHmUYbmAhXRmhw1E2ikR9sRazQJWNtppkKhw
-         EbA9HRWxvu+Z26hoLvjscw06lBdihGQHr9A0r10VmfRKST6zt4SOaoHi4xwjzM5FJh
-         Tvz9FX2NLj+cletqRW6ba+HQwIENY9As00Ol3PBc=
+        b=tnZX29Nl2HMA3Pql0YQYZjYvhswTTv4vFXXnIP1arZ5HSaGZm2z+nMNh87jYBY8Hw
+         fboerDP53AF+gS2xTAmNt2r5kwZM6/vcl3egldvBak4aAW7LLIAArnpyVcHB1OR1vi
+         GertKBxsqpj6629MiC7zoCngDkWzAhjNvYbmoLiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Hui <judy.chenhui@huawei.com>,
-        Tony Lindgren <tony@atomide.com>,
+        patches@lists.linux.dev, Roger Lu <roger.lu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 015/193] ARM: OMAP2+: Fix memory leak in realtime_counter_init()
-Date:   Fri, 10 Mar 2023 14:36:37 +0100
-Message-Id: <20230310133711.440157049@linuxfoundation.org>
+Subject: [PATCH 6.2 018/211] soc: mediatek: mtk-svs: reset svs when svs_resume() fail
+Date:   Fri, 10 Mar 2023 14:36:38 +0100
+Message-Id: <20230310133719.290234390@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Hui <judy.chenhui@huawei.com>
+From: Roger Lu <roger.lu@mediatek.com>
 
-[ Upstream commit ed8167cbf65c2b6ff6faeb0f96ded4d6d581e1ac ]
+[ Upstream commit f4f8ad204a15d57c1a3e8ea7eca62157b44cbf59 ]
 
-The "sys_clk" resource is malloced by clk_get(),
-it is not released when the function return.
+Add svs reset when svs_resume() fail.
 
-Fixes: fa6d79d27614 ("ARM: OMAP: Add initialisation for the real-time counter.")
-Signed-off-by: Chen Hui <judy.chenhui@huawei.com>
-Message-Id: <20221108141917.46796-1-judy.chenhui@huawei.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: a825d72f74a3 ("soc: mediatek: fix missing clk_disable_unprepare() on err in svs_resume()")
+Signed-off-by: Roger Lu <roger.lu@mediatek.com>
+Link: https://lore.kernel.org/r/20230111074528.29354-3-roger.lu@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/timer.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/mediatek/mtk-svs.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/timer.c b/arch/arm/mach-omap2/timer.c
-index d61fbd7a2840a..c421d12b32038 100644
---- a/arch/arm/mach-omap2/timer.c
-+++ b/arch/arm/mach-omap2/timer.c
-@@ -562,6 +562,7 @@ static void __init realtime_counter_init(void)
- 	}
+diff --git a/drivers/soc/mediatek/mtk-svs.c b/drivers/soc/mediatek/mtk-svs.c
+index 9859e6cf6b8f9..e0b8aa75c84b6 100644
+--- a/drivers/soc/mediatek/mtk-svs.c
++++ b/drivers/soc/mediatek/mtk-svs.c
+@@ -1614,12 +1614,16 @@ static int svs_resume(struct device *dev)
  
- 	rate = clk_get_rate(sys_clk);
-+	clk_put(sys_clk);
+ 	ret = svs_init02(svsp);
+ 	if (ret)
+-		goto out_of_resume;
++		goto svs_resume_reset_assert;
  
- 	if (soc_is_dra7xx()) {
- 		/*
+ 	svs_mon_mode(svsp);
+ 
+ 	return 0;
+ 
++svs_resume_reset_assert:
++	dev_err(svsp->dev, "assert reset: %d\n",
++		reset_control_assert(svsp->rst));
++
+ out_of_resume:
+ 	clk_disable_unprepare(svsp->main_clk);
+ 	return ret;
 -- 
 2.39.2
 
