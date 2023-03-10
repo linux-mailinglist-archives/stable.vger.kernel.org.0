@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF05F6B4114
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 624446B42C7
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbjCJNtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:49:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51172 "EHLO
+        id S231687AbjCJOG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230410AbjCJNtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77EE185686
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:18 -0800 (PST)
+        with ESMTP id S231733AbjCJOGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B0511785E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 337EAB822B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A92C433D2;
-        Fri, 10 Mar 2023 13:49:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 52A34CE28F8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27FBBC433D2;
+        Fri, 10 Mar 2023 14:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456156;
-        bh=/Tq1KfffpsIyg77UJj94OUlHumQjg2M0xPQ9az5/zBA=;
+        s=korg; t=1678457169;
+        bh=6XUcGncTS9Qe8AaaVqGKkGa2F2qNA+Hb9sTapvYbQzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yhEj5//LxJfT7Q0UvUpHCoW7ikgVhALMx2bmYuwhPiBHJZVT9QkkI6xF3gb6xcxNx
-         akIYGU6noi8Uin5oVrVbSzwU/SVARYQuY91NGng5oIkwony0NpLSSI9gGOn4Dre2qr
-         YqXG5eZ09hxlU2SGNRNHWcMX/+BhxTG9xHnJONKU=
+        b=PUi32oEjXZJ7fDVAOMwyQxCa22451CrD/p9VhXBSF+i/2yoDu6GF6ro+YaY09UxRW
+         5v9b8QbG0dOMWT6PKk8kErIYdpdemA30r7G/xwDeR6aDgHqJVTfxwHKDjI9eb0QmvZ
+         YeY2eXvCGfu8/V8wBwRz74O+fNkA81hf47FqXwPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Jeffery <andrew@aj.id.au>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Matthias Kaehlcke <mka@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/193] powerpc/powernv/ioda: Skip unallocated resources when mapping to PE
+Subject: [PATCH 6.1 044/200] soc: qcom: stats: Populate all subsystem debugfs files
 Date:   Fri, 10 Mar 2023 14:37:31 +0100
-Message-Id: <20230310133713.337643962@linuxfoundation.org>
+Message-Id: <20230310133718.449359992@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Barrat <fbarrat@linux.ibm.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit e64e71056f323a1e178dccf04d4c0f032d84436c ]
+[ Upstream commit acdbf5f9b2c492505145f6e50c65418521a547c4 ]
 
-pnv_ioda_setup_pe_res() calls opal to map a resource with a PE. However,
-the code assumes the resource is allocated and it uses the resource
-address to find out the segment(s) which need to be mapped to the
-PE. In the unlikely case where the resource hasn't been allocated, the
-computation for the segment number is garbage, which can lead to
-invalid memory access and potentially a kernel crash, such as:
+This driver relies on SMEM to populate items for each subsystem before
+the device probes. The items in SMEM that are being looked for are
+populated by the subsystems lazily, and therefore may not exist until
+the device has booted. For example, if I build this driver into the
+kernel on Trogdor Lazor and boot up, I don't see a 'modem' debugfs file
+populated, because the modem boots and populates the SMEM item after
+this driver probes.
 
-[ ] pci_bus 0002:02: Configuring PE for bus
-[ ] pci 0002:02     : [PE# fc] Secondary bus 0x0000000000000002..0x0000000000000002 associated with PE#fc
-[ ] BUG: Kernel NULL pointer dereference on write at 0x00000000
-[ ] Faulting instruction address: 0xc00000000005eac4
-[ ] Oops: Kernel access of bad area, sig: 7 [#1]
-[ ] LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
-[ ] Modules linked in:
-[ ] CPU: 12 PID: 1 Comm: swapper/20 Not tainted 5.10.50-openpower1 #2
-[ ] NIP:  c00000000005eac4 LR: c00000000005ea44 CTR: 0000000030061b9c
-[ ] REGS: c000200007383650 TRAP: 0300   Not tainted  (5.10.50-openpower1)
-[ ] MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44000224  XER: 20040000
-[ ] CFAR: c00000000005eaa0 DAR: 0000000000000000 DSISR: 02080000 IRQMASK: 0
-[ ] GPR00: c00000000005dd98 c0002000073838e0 c00000000185de00 c000200fff018960
-[ ] GPR04: 00000000000000fc 0000000000000003 0000000000000000 0000000000000000
-[ ] GPR08: 0000000000000000 0000000000000000 0000000000000000 9000000000001033
-[ ] GPR12: 0000000031cb0000 c000000ffffe6a80 c000000000010a58 0000000000000000
-[ ] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[ ] GPR20: 0000000000000000 0000000000000000 0000000000000000 c00000000711e200
-[ ] GPR24: 0000000000000100 c000200009501120 c00020000cee2800 00000000000003ff
-[ ] GPR28: c000200fff018960 0000000000000000 c000200ffcb7fd00 0000000000000000
-[ ] NIP [c00000000005eac4] pnv_ioda_setup_pe_res+0x94/0x1a0
-[ ] LR [c00000000005ea44] pnv_ioda_setup_pe_res+0x14/0x1a0
-[ ] Call Trace:
-[ ] [c0002000073838e0] [c00000000005eb98] pnv_ioda_setup_pe_res+0x168/0x1a0 (unreliable)
-[ ] [c000200007383970] [c00000000005dd98] pnv_pci_ioda_dma_dev_setup+0x43c/0x970
-[ ] [c000200007383a60] [c000000000032cdc] pcibios_bus_add_device+0x78/0x18c
-[ ] [c000200007383aa0] [c00000000028f2bc] pci_bus_add_device+0x28/0xbc
-[ ] [c000200007383b10] [c00000000028f3a0] pci_bus_add_devices+0x50/0x7c
-[ ] [c000200007383b50] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
-[ ] [c000200007383b90] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
-[ ] [c000200007383bd0] [c00000000069ad0c] pcibios_init+0xf0/0x104
-[ ] [c000200007383c50] [c0000000000106d8] do_one_initcall+0x84/0x1c4
-[ ] [c000200007383d20] [c0000000006910b8] kernel_init_freeable+0x264/0x268
-[ ] [c000200007383dc0] [c000000000010a68] kernel_init+0x18/0x138
-[ ] [c000200007383e20] [c00000000000cbfc] ret_from_kernel_thread+0x5c/0x80
-[ ] Instruction dump:
-[ ] 7f89e840 409d000c 7fbbf840 409c000c 38210090 4848f448 809c002c e95e0120
-[ ] 7ba91764 38a00003 57a7043e 38c00000 <7c8a492e> 5484043e e87e0018 4bff23bd
+Always populate the files for the subsystems if they're in SMEM, and
+make the qcom_subsystem_sleep_stats_show() function return 0 if the SMEM
+items still isn't there. This way we can run a simple command like
 
-Hitting the problem is not that easy. It was seen with a (semi-bogus)
-PCI device with a class code of 0. The generic PCI framework doesn't
-allocate resources in such a case.
+	grep ^ /sys/kernel/debug/qcom_stats/*
 
-The patch is simply skipping resources which are still flagged with
-IORESOURCE_UNSET.
+and collect the subsystem sleep stats without interspersed errors or
+missing details entirely because this driver probed first.
 
-We don't have the problem with 64-bit mem resources, as the address of
-the resource is checked to be within the range of the 64-bit mmio
-window. See pnv_ioda_reserve_dev_m64_pe() and pnv_pci_is_m64().
-
-Reported-by: Andrew Jeffery <andrew@aj.id.au>
-Fixes: 23e79425fe7c ("powerpc/powernv: Simplify pnv_ioda_setup_pe_seg()")
-Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230120093215.19496-1-fbarrat@linux.ibm.com
+Fixes: 1d7724690344 ("soc: qcom: Add Sleep stats driver")
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230119032329.2909383-1-swboyd@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/pci-ioda.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/qcom_stats.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
-index 36ef504eeab32..58798ced4dbbf 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -3155,7 +3155,8 @@ static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
- 	int index;
- 	int64_t rc;
+diff --git a/drivers/soc/qcom/qcom_stats.c b/drivers/soc/qcom/qcom_stats.c
+index 121ea409fafcd..b252bedf0cf10 100644
+--- a/drivers/soc/qcom/qcom_stats.c
++++ b/drivers/soc/qcom/qcom_stats.c
+@@ -92,7 +92,7 @@ static int qcom_subsystem_sleep_stats_show(struct seq_file *s, void *unused)
+ 	/* Items are allocated lazily, so lookup pointer each time */
+ 	stat = qcom_smem_get(subsystem->pid, subsystem->smem_item, NULL);
+ 	if (IS_ERR(stat))
+-		return -EIO;
++		return 0;
  
--	if (!res || !res->flags || res->start > res->end)
-+	if (!res || !res->flags || res->start > res->end ||
-+	    res->flags & IORESOURCE_UNSET)
+ 	qcom_print_stats(s, stat);
+ 
+@@ -170,20 +170,14 @@ static void qcom_create_soc_sleep_stat_files(struct dentry *root, void __iomem *
+ static void qcom_create_subsystem_stat_files(struct dentry *root,
+ 					     const struct stats_config *config)
+ {
+-	const struct sleep_stats *stat;
+ 	int i;
+ 
+ 	if (!config->subsystem_stats_in_smem)
  		return;
  
- 	if (res->flags & IORESOURCE_IO) {
+-	for (i = 0; i < ARRAY_SIZE(subsystems); i++) {
+-		stat = qcom_smem_get(subsystems[i].pid, subsystems[i].smem_item, NULL);
+-		if (IS_ERR(stat))
+-			continue;
+-
++	for (i = 0; i < ARRAY_SIZE(subsystems); i++)
+ 		debugfs_create_file(subsystems[i].name, 0400, root, (void *)&subsystems[i],
+ 				    &qcom_subsystem_sleep_stats_fops);
+-	}
+ }
+ 
+ static int qcom_stats_probe(struct platform_device *pdev)
 -- 
 2.39.2
 
