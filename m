@@ -2,95 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 291736B4570
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F7C6B41B4
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232586AbjCJOds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35786 "EHLO
+        id S231315AbjCJNza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:55:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232192AbjCJOd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC8A11632A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:13 -0800 (PST)
+        with ESMTP id S231312AbjCJNzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300B110F46D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4287E61771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 568D0C433EF;
-        Fri, 10 Mar 2023 14:33:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C021B822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF7EC433EF;
+        Fri, 10 Mar 2023 13:55:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458792;
-        bh=l/FniHw1g8wp+kpJ/oUVeLoD0n4KfJUAxuxgQ/mmmcg=;
+        s=korg; t=1678456516;
+        bh=cS+DtdsVu+fYrOFvYk2bwSQL9yt3KSAJFFbJxu8sRaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3Gth3KPMh1Sc5+0P1hTfBHFCe/0V8jQEs/haxxldgCI4g/PzjLkPSx2Pux88N0KV
-         Ci4epcGxwuf83D8NMMlFIbU6dedx20gCHu7aOkoRa4A+/YgzuHBv/BG4oXO/jRkvTC
-         lG/ZIbStpolEpECEdFgRP1abtBsPULxPlr6lxeDw=
+        b=n8d/IDw5kselYH+zwE+Bnz5Ac7LYBXSj5PR7nYN38q0O54+48GMswe8dj1kNfltw5
+         g/DN3U1hYCU9OjpLo8cAo6MAIahUrkbgGKa+QXLZW0Z6Sw5X9R3MGzLi48wsRtJtQ7
+         gcjlxrkfyZUksG/Gl4Kyk3Q+IfMo4HuNMisiEAQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 119/357] drm/mediatek: Clean dangling pointer on bind error path
-Date:   Fri, 10 Mar 2023 14:36:48 +0100
-Message-Id: <20230310133739.914615665@linuxfoundation.org>
+Subject: [PATCH 6.2 029/211] ubifs: Rectify space budget for ubifs_xrename()
+Date:   Fri, 10 Mar 2023 14:36:49 +0100
+Message-Id: <20230310133719.618795716@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 36aa8c61af55675ed967900fbe5deb32d776f051 ]
+[ Upstream commit 1b2ba09060e41adb356b9ae58ef94a7390928004 ]
 
-mtk_drm_bind() can fail, in which case drm_dev_put() is called,
-destroying the drm_device object. However a pointer to it was still
-being held in the private object, and that pointer would be passed along
-to DRM in mtk_drm_sys_prepare() if a suspend were triggered at that
-point, resulting in a panic. Clean the pointer when destroying the
-object in the error path to prevent this from happening.
+There is no space budget for ubifs_xrename(). It may let
+make_reservation() return with -ENOSPC, which could turn
+ubifs to read-only mode in do_writepage() process.
+Fix it by adding space budget for ubifs_xrename().
 
-Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
-Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20221122143949.3493104-1-nfraprado@collabora.com/
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216569
+Fixes: 9ec64962afb170 ("ubifs: Implement RENAME_EXCHANGE")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ubifs/dir.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-index f98bb2e263723..5569454ad9e40 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-@@ -417,6 +417,7 @@ static int mtk_drm_bind(struct device *dev)
- err_deinit:
- 	mtk_drm_kms_deinit(drm);
- err_free:
-+	private->drm = NULL;
- 	drm_dev_put(drm);
- 	return ret;
- }
+diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+index aaff3f3f0aa3b..94634b872e382 100644
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1576,6 +1576,10 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
+ 		return err;
+ 	}
+ 
++	err = ubifs_budget_space(c, &req);
++	if (err)
++		goto out;
++
+ 	lock_4_inodes(old_dir, new_dir, NULL, NULL);
+ 
+ 	time = current_time(old_dir);
+@@ -1601,6 +1605,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
+ 	unlock_4_inodes(old_dir, new_dir, NULL, NULL);
+ 	ubifs_release_budget(c, &req);
+ 
++out:
+ 	fscrypt_free_filename(&fst_nm);
+ 	fscrypt_free_filename(&snd_nm);
+ 	return err;
 -- 
 2.39.2
 
