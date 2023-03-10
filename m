@@ -2,68 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDE96B3205
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 00:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49E066B3373
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 02:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231151AbjCIXUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 18:20:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
+        id S229655AbjCJBCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 20:02:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230467AbjCIXUR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 18:20:17 -0500
-Received: from mail-ua1-x932.google.com (mail-ua1-x932.google.com [IPv6:2607:f8b0:4864:20::932])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD06CF4B7F
-        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 15:20:15 -0800 (PST)
-Received: by mail-ua1-x932.google.com with SMTP id v48so2337278uad.6
-        for <stable@vger.kernel.org>; Thu, 09 Mar 2023 15:20:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1678404015;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=rnSlv/rmjMDZUxybeJVifkYNGPUHnfVxFIfeq1kf7IY=;
-        b=TQ5NV6TQGumFikTyM6kNsgCEnE/kyO78cIo3cAVUv/HKv4J7O37baiRyJHxsUo7hCw
-         tRFiaLvmu3NMfGPErd1v8EPJlT8xt578Uiir94fVnV/q/AQgDOs6eg3qWTubqy0nRaus
-         NN5eZDKE1pj9mqcod3O2Y9Z1mzdIPAFyFIV3YArBVY7x2SgJdVekt5YblIdbt5he4P9N
-         2q5he3O+/5KurruS1sk3fYNrh1NpcAmhTflSFM6WuFDgXCxoEZUJO1hRb0oJJOr+H10O
-         ugtZ/ASKtyBzsBNyMvEFytXAjXG7TbPd1yc4Sw9WF0WsFppIilsTCwFWjSCVH3vWqSye
-         0GPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678404015;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rnSlv/rmjMDZUxybeJVifkYNGPUHnfVxFIfeq1kf7IY=;
-        b=SCuoACedgRF+gymo+oc4uXljcnfeHKxrDU2o1p8LpFc9URx7VfPql4FVDBqjhr3KEQ
-         le3go+wXdGouZsUnVB3JHjOqXfvXMyAgQeMpHXM1tadJuyzkN1xeoVls0oBGdy41jzhA
-         zuT8NINmclLvdPgYnAT75wMzSfHDo4XZ6gVGyJviH+yUlymO0vQ3a6yENGAGIhNWWfgG
-         /5sfzo92sSjT84r8sC1mv4CiZFaygXbrpeSOEoqbULZscENqfBEXV6Ra/fgFoF7683kA
-         PMfN+jfAWq6sPrTeGr7Gsip9oZapDApnbKNJnFHMyeRD2JyV2hLPcHiQ/oK0b0L+NWoQ
-         neaw==
-X-Gm-Message-State: AO0yUKXQ9/fQznKOftAOTE+fwu5wD3FJrIkCOoTSJd2ZXwcoG2NOXCtk
-        7HUcY5nRHJrQJ+YwRN01m+7PhO3PudmfuyqZv9HgHA==
-X-Google-Smtp-Source: AK7set+L6zLR+gRS/iA552uIT6W/6f8DkT8CZtR7ZjTQsevZx3fGHENFeWF1CxlWZMz34NHLLJXGBQGdqI4W9iPwqfg=
-X-Received: by 2002:a9f:3001:0:b0:68b:817b:eec8 with SMTP id
- h1-20020a9f3001000000b0068b817beec8mr15421336uab.0.1678404014773; Thu, 09 Mar
- 2023 15:20:14 -0800 (PST)
+        with ESMTP id S229654AbjCJBCa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 20:02:30 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F306115B73;
+        Thu,  9 Mar 2023 17:02:26 -0800 (PST)
+Received: from dggpemm500005.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4PXnks5rRbznVNR;
+        Fri, 10 Mar 2023 08:59:33 +0800 (CST)
+Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
+ (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Fri, 10 Mar
+ 2023 09:02:24 +0800
+Subject: Re: [PATCH net] vmxnet3: use gro callback when UPT is enabled
+To:     Ronak Doshi <doshir@vmware.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Pv-drivers <Pv-drivers@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Guolin Yang <gyang@vmware.com>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20230308222504.25675-1-doshir@vmware.com>
+ <e3768ae9-6a2b-3b5e-9381-21407f96dd63@huawei.com>
+ <4DF8ED21-92C2-404F-9766-691AEA5C4E8B@vmware.com>
+From:   Yunsheng Lin <linyunsheng@huawei.com>
+Message-ID: <252026f5-f979-2c8d-90d9-7ba396d495c8@huawei.com>
+Date:   Fri, 10 Mar 2023 09:02:23 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.2.0
 MIME-Version: 1.0
-References: <20230309101752.2025459-1-elver@google.com> <510ecaa9-508c-4f85-b6aa-fc42d2a96254@paulmck-laptop>
-In-Reply-To: <510ecaa9-508c-4f85-b6aa-fc42d2a96254@paulmck-laptop>
-From:   Marco Elver <elver@google.com>
-Date:   Fri, 10 Mar 2023 00:19:35 +0100
-Message-ID: <CANpmjNOGbSsXLqM59HQJ04T4ueMWjQjzpt4QqyKpne=KbHWREg@mail.gmail.com>
-Subject: Re: [PATCH] kcsan: Avoid READ_ONCE() in read_instrumented_memory()
-To:     paulmck@kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Boqun Feng <boqun.feng@gmail.com>, kasan-dev@googlegroups.com,
-        linux-kernel@vger.kernel.org, Haibo Li <haibo.li@mediatek.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+In-Reply-To: <4DF8ED21-92C2-404F-9766-691AEA5C4E8B@vmware.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.69.30.204]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,86 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 9 Mar 2023 at 23:08, Paul E. McKenney <paulmck@kernel.org> wrote:
->
-> On Thu, Mar 09, 2023 at 11:17:52AM +0100, Marco Elver wrote:
-> > Haibo Li reported:
-> >
-> >  | Unable to handle kernel paging request at virtual address
-> >  |   ffffff802a0d8d7171
-> >  | Mem abort info:o:
-> >  |   ESR = 0x9600002121
-> >  |   EC = 0x25: DABT (current EL), IL = 32 bitsts
-> >  |   SET = 0, FnV = 0 0
-> >  |   EA = 0, S1PTW = 0 0
-> >  |   FSC = 0x21: alignment fault
-> >  | Data abort info:o:
-> >  |   ISV = 0, ISS = 0x0000002121
-> >  |   CM = 0, WnR = 0 0
-> >  | swapper pgtable: 4k pages, 39-bit VAs, pgdp=000000002835200000
-> >  | [ffffff802a0d8d71] pgd=180000005fbf9003, p4d=180000005fbf9003,
-> >  | pud=180000005fbf9003, pmd=180000005fbe8003, pte=006800002a0d8707
-> >  | Internal error: Oops: 96000021 [#1] PREEMPT SMP
-> >  | Modules linked in:
-> >  | CPU: 2 PID: 45 Comm: kworker/u8:2 Not tainted
-> >  |   5.15.78-android13-8-g63561175bbda-dirty #1
-> >  | ...
-> >  | pc : kcsan_setup_watchpoint+0x26c/0x6bc
-> >  | lr : kcsan_setup_watchpoint+0x88/0x6bc
-> >  | sp : ffffffc00ab4b7f0
-> >  | x29: ffffffc00ab4b800 x28: ffffff80294fe588 x27: 0000000000000001
-> >  | x26: 0000000000000019 x25: 0000000000000001 x24: ffffff80294fdb80
-> >  | x23: 0000000000000000 x22: ffffffc00a70fb68 x21: ffffff802a0d8d71
-> >  | x20: 0000000000000002 x19: 0000000000000000 x18: ffffffc00a9bd060
-> >  | x17: 0000000000000001 x16: 0000000000000000 x15: ffffffc00a59f000
-> >  | x14: 0000000000000001 x13: 0000000000000000 x12: ffffffc00a70faa0
-> >  | x11: 00000000aaaaaaab x10: 0000000000000054 x9 : ffffffc00839adf8
-> >  | x8 : ffffffc009b4cf00 x7 : 0000000000000000 x6 : 0000000000000007
-> >  | x5 : 0000000000000000 x4 : 0000000000000000 x3 : ffffffc00a70fb70
-> >  | x2 : 0005ff802a0d8d71 x1 : 0000000000000000 x0 : 0000000000000000
-> >  | Call trace:
-> >  |  kcsan_setup_watchpoint+0x26c/0x6bc
-> >  |  __tsan_read2+0x1f0/0x234
-> >  |  inflate_fast+0x498/0x750
-> >  |  zlib_inflate+0x1304/0x2384
-> >  |  __gunzip+0x3a0/0x45c
-> >  |  gunzip+0x20/0x30
-> >  |  unpack_to_rootfs+0x2a8/0x3fc
-> >  |  do_populate_rootfs+0xe8/0x11c
-> >  |  async_run_entry_fn+0x58/0x1bc
-> >  |  process_one_work+0x3ec/0x738
-> >  |  worker_thread+0x4c4/0x838
-> >  |  kthread+0x20c/0x258
-> >  |  ret_from_fork+0x10/0x20
-> >  | Code: b8bfc2a8 2a0803f7 14000007 d503249f (78bfc2a8) )
-> >  | ---[ end trace 613a943cb0a572b6 ]-----
-> >
-> > The reason for this is that on certain arm64 configuration since
-> > e35123d83ee3 ("arm64: lto: Strengthen READ_ONCE() to acquire when
-> > CONFIG_LTO=y"), READ_ONCE() may be promoted to a full atomic acquire
-> > instruction which cannot be used on unaligned addresses.
-> >
-> > Fix it by avoiding READ_ONCE() in read_instrumented_memory(), and simply
-> > forcing the compiler to do the required access by casting to the
-> > appropriate volatile type. In terms of generated code this currently
-> > only affects architectures that do not use the default READ_ONCE()
-> > implementation.
-> >
-> > The only downside is that we are not guaranteed atomicity of the access
-> > itself, although on most architectures a plain load up to machine word
-> > size should still be atomic (a fact the default READ_ONCE() still relies
-> > on itself).
-> >
-> > Reported-by: Haibo Li <haibo.li@mediatek.com>
-> > Tested-by: Haibo Li <haibo.li@mediatek.com>
-> > Cc: <stable@vger.kernel.org> # 5.17+
-> > Signed-off-by: Marco Elver <elver@google.com>
->
-> Queued, thank you!
->
-> This one looks like it might want to go into v6.4 rather than later.
+On 2023/3/10 6:50, Ronak Doshi wrote:
+> 
+> ﻿> > On 3/8/23, 4:34 PM, "Yunsheng Lin" <linyunsheng@huawei.com <mailto:linyunsheng@huawei.com>> wrote:
+>>>
+>>> - if (adapter->netdev->features & NETIF_F_LRO)
+>>> + /* Use GRO callback if UPT is enabled */
+>>> + if ((adapter->netdev->features & NETIF_F_LRO) && !rq->shared->updateRxProd)
+>>>
+>>>
+>> If UPT devicve does not support LRO, why not just clear the NETIF_F_LRO from
+>> adapter->netdev->features?
+>>
+>>
+>> With above change, it seems that LRO is supported for user' POV, but the GRO
+>> is actually being done.
+>>
+>>
+>> Also, if NETIF_F_LRO is set, do we need to clear the NETIF_F_GRO bit, so that
+>> there is no confusion for user?
+> 
+> We cannot clear LRO bit as the virtual nic can run in either emulation or UPT mode.
+> When the vnic switches the mode between UPT and emulation, the guest vm is not
+> notified. Hence, we use updateRxProd which is shared in datapath to check what mode
+> is being run.
 
-Yes, I think that'd be appropriate - thank you!
+So it is a run time thing? What happens if some LRO'ed packet is put in the rx queue,
+and the the vnic switches the mode to UPT, is it ok for those LRO'ed packets to go through
+the software GSO processing? If yes, why not just call napi_gro_receive() for LRO case too?
 
-Thanks,
--- Marco
+Looking closer, it seems vnic is implementing hw GRO from driver' view, as the driver is
+setting skb_shinfo(skb)->gso_* accordingly:
+
+https://elixir.bootlin.com/linux/latest/source/drivers/net/vmxnet3/vmxnet3_drv.c#L1665
+
+In that case, you may call napi_gro_receive() for those GRO'ed skb too, see:
+
+https://lore.kernel.org/netdev/166479721495.20474.5436625882203781290.git-patchwork-notify@kernel.org/T/
+
+> 
+> Also, we plan to add an event to notify the guest about this but that is for separate patch
+> and may take some time.
+> 
+> Thanks, 
+> Ronak 
+> 
