@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60FA96B4103
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 476D66B43F6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230281AbjCJNsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49806 "EHLO
+        id S232129AbjCJOUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:20:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230355AbjCJNsm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34539E380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:38 -0800 (PST)
+        with ESMTP id S232210AbjCJOTu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D3B32E6C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAB56B822B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32540C433D2;
-        Fri, 10 Mar 2023 13:48:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86FFAB822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8FDBC433EF;
+        Fri, 10 Mar 2023 14:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456115;
-        bh=2be9hLMf5Jyo7g/glPvkAOEN6lNYe4J/XgHuVFE4boQ=;
+        s=korg; t=1678457900;
+        bh=U3i1RJQwvFWKC+wTdZSVlgAf3c98rYi+a/wZUZmMj8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wiifdaNv9EFczPiDLdImaH5peqfBCBOm3TiWX+2FwuBgPNvcQD0QBAscht/PUeiA+
-         rINstKgI3rktAYwQS7yrVwqXhm9FyyoKmjw7UTIjeP4k2I3QL/++h6h7B8bqPcon5M
-         gGmsdRYVev2rUIgtLfO5K6JoF6e5iUghTedz3aSk=
+        b=ocKMJ352MIlsRs+qnjOqcdcJVKDjhDxHIhz8y0CNXO5hUw5HkkqqWVynxf2th3yKI
+         6ja517G/l6IySMpc027sn+hPlaxO2jpr0lFlvQxxgpy5NkVRffsZosVsh02MEWHdYo
+         +GrTMayiT1vQKCtbI16RlD3ouACoS3YZDF6SwGmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 085/193] net: bcmgenet: Add a check for oversized packets
+Subject: [PATCH 4.19 097/252] selftests/ftrace: Fix bash specific "==" operator
 Date:   Fri, 10 Mar 2023 14:37:47 +0100
-Message-Id: <20230310133713.936119663@linuxfoundation.org>
+Message-Id: <20230310133721.755940604@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,41 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit 5c0862c2c962052ed5055220a00ac1cefb92fbcd ]
+[ Upstream commit 1e6b485c922fbedf41d5a9f4e6449c5aeb923a32 ]
 
-Occasionnaly we may get oversized packets from the hardware which
-exceed the nomimal 2KiB buffer size we allocate SKBs with. Add an early
-check which drops the packet to avoid invoking skb_over_panic() and move
-on to processing the next packet.
+Since commit a1d6cd88c897 ("selftests/ftrace: event_triggers: wait
+longer for test_event_enable") introduced bash specific "=="
+comparation operator, that test will fail when we run it on a
+posix-shell. `checkbashisms` warned it as below.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+possible bashism in ftrace/func_event_triggers.tc line 45 (should be 'b = a'):
+        if [ "$e" == $val ]; then
+
+This replaces it with "=".
+
+Fixes: a1d6cd88c897 ("selftests/ftrace: event_triggers: wait longer for test_event_enable")
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../selftests/ftrace/test.d/ftrace/func_event_triggers.tc       | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 9bb398d058379..e5e52c0c39a55 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1799,6 +1799,14 @@ static unsigned int bcmgenet_desc_rx(struct bcmgenet_rx_ring *ring,
- 			  __func__, p_index, ring->c_index,
- 			  ring->read_ptr, dma_length_status);
+diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+index 79d614f1fe8e4..d620223a3f0f6 100644
+--- a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
++++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+@@ -49,7 +49,7 @@ test_event_enabled() {
  
-+		if (unlikely(len > RX_BUF_LENGTH)) {
-+			netif_err(priv, rx_status, dev, "oversized packet\n");
-+			dev->stats.rx_length_errors++;
-+			dev->stats.rx_errors++;
-+			dev_kfree_skb_any(skb);
-+			goto next;
-+		}
-+
- 		if (unlikely(!(dma_flag & DMA_EOP) || !(dma_flag & DMA_SOP))) {
- 			netif_err(priv, rx_status, dev,
- 				  "dropping fragmented packet!\n");
+     while [ $check_times -ne 0 ]; do
+ 	e=`cat $EVENT_ENABLE`
+-	if [ "$e" == $val ]; then
++	if [ "$e" = $val ]; then
+ 	    return 0
+ 	fi
+ 	sleep $SLEEP_TIME
 -- 
 2.39.2
 
