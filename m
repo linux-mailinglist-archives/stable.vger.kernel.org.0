@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 026686B4333
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:11:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D036B415C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbjCJOLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:11:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34224 "EHLO
+        id S230526AbjCJNwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:52:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbjCJOKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:52 -0500
+        with ESMTP id S231143AbjCJNwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:52:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 952F611A2E7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94A421138A2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09C64B822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB5FC433D2;
-        Fri, 10 Mar 2023 14:10:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39712B822B5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5975EC433D2;
+        Fri, 10 Mar 2023 13:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457435;
-        bh=0T9+8+7+BL7xXnvPFs6hZTxkcUV34Tqod1GgJ/+Aq6w=;
+        s=korg; t=1678456317;
+        bh=VpcG1AZ0emDEqJyoMMSnm9UG10t0qu8aLPPcDB2spek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+Rk1WWdqwpz78EKGlrdvvYacgVjXWyEHoG2ic6KcCEpLSrGJVn4Q7NBEnrZLp5Iq
-         +CUG55ugCD1Iq81wd5r6XMEmDLPZTYJWGVvAemnKrqUOBDhfzROAuys5Fq87F/O0ev
-         grUgPM0tguOls3nyecoJQ4RZVOWuKXj8HJTGbHPY=
+        b=nRd/XHyx7rO988NVK3GuHkTGsTTwfcaRVf/nK6mx8b3N3QONuxD/AJB185IjvUUr8
+         Mv2j5H7FC7oZxV/nDv576Z2iQtK1dzAHig7OfcPiMi7M+/Op07S1nshcb86FRaCmfy
+         gR6AHjlvm1/7uS2J4hV78x/Ejki9XBTNeaoSUrEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pierre Gondois <pierre.gondois@arm.com>,
-        Yong-Xuan Wang <yongxuan.wang@sifive.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 129/200] cacheinfo: Fix shared_cpu_map to handle shared caches at different levels
-Date:   Fri, 10 Mar 2023 14:38:56 +0100
-Message-Id: <20230310133721.086945297@linuxfoundation.org>
+Subject: [PATCH 4.14 155/193] ubifs: Reserve one leb for each journal head while doing budget
+Date:   Fri, 10 Mar 2023 14:38:57 +0100
+Message-Id: <20230310133716.347772914@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong-Xuan Wang <yongxuan.wang@sifive.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 198102c9103fc78d8478495971947af77edb05c1 ]
+[ Upstream commit e874dcde1cbf82c786c0e7f2899811c02630cc52 ]
 
-The cacheinfo sets up the shared_cpu_map by checking whether the caches
-with the same index are shared between CPUs. However, this will trigger
-slab-out-of-bounds access if the CPUs do not have the same cache hierarchy.
-Another problem is the mismatched shared_cpu_map when the shared cache does
-not have the same index between CPUs.
+UBIFS calculates available space by c->main_bytes - c->lst.total_used
+(which means non-index lebs' free and dirty space is accounted into
+total available), then index lebs and four lebs (one for gc_lnum, one
+for deletions, two for journal heads) are deducted.
+In following situation, ubifs may get -ENOSPC from make_reservation():
+ LEB 84: DATAHD   free 122880 used 1920  dirty 2176  dark 6144
+ LEB 110:DELETION free 126976 used 0     dirty 0     dark 6144 (empty)
+ LEB 201:gc_lnum  free 126976 used 0     dirty 0     dark 6144
+ LEB 272:GCHD     free 77824  used 47672 dirty 1480  dark 6144
+ LEB 356:BASEHD   free 0      used 39776 dirty 87200 dark 6144
+ OTHERS: index lebs, zero-available non-index lebs
 
-CPU0	I	D	L3
-index	0	1	2	x
-	^	^	^	^
-index	0	1	2	3
-CPU1	I	D	L2	L3
+UBIFS calculates the available bytes is 6888 (How to calculate it:
+126976 * 5[remain main bytes] - 1920[used] - 47672[used] - 39776[used] -
+126976 * 1[deletions] - 126976 * 1[gc_lnum] - 126976 * 2[journal heads]
+- 6144 * 5[dark] = 6888) after doing budget, however UBIFS cannot use
+BASEHD's dirty space(87200), because UBIFS cannot find next BASEHD to
+reclaim current BASEHD. (c->bi.min_idx_lebs equals to c->lst.idx_lebs,
+the empty leb won't be found by ubifs_find_free_space(), and dirty index
+lebs won't be picked as gced lebs. All non-index lebs has dirty space
+less then c->dead_wm, non-index lebs won't be picked as gced lebs
+either. So new free lebs won't be produced.). See more details in Link.
 
-This patch checks each cache is shared with all caches on other CPUs.
+To fix it, reserve one leb for each journal head while doing budget.
 
-Reviewed-by: Pierre Gondois <pierre.gondois@arm.com>
-Signed-off-by: Yong-Xuan Wang <yongxuan.wang@sifive.com>
-Link: https://lore.kernel.org/r/20230117105133.4445-2-yongxuan.wang@sifive.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216562
+Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/cacheinfo.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ fs/ubifs/budget.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/cacheinfo.c b/drivers/base/cacheinfo.c
-index 4b5cd08c5a657..f30256a524be6 100644
---- a/drivers/base/cacheinfo.c
-+++ b/drivers/base/cacheinfo.c
-@@ -251,7 +251,7 @@ static int cache_shared_cpu_map_setup(unsigned int cpu)
- {
- 	struct cpu_cacheinfo *this_cpu_ci = get_cpu_cacheinfo(cpu);
- 	struct cacheinfo *this_leaf, *sib_leaf;
--	unsigned int index;
-+	unsigned int index, sib_index;
- 	int ret = 0;
+diff --git a/fs/ubifs/budget.c b/fs/ubifs/budget.c
+index e6b5d61a4e203..a06f7f7870740 100644
+--- a/fs/ubifs/budget.c
++++ b/fs/ubifs/budget.c
+@@ -224,11 +224,10 @@ long long ubifs_calc_available(const struct ubifs_info *c, int min_idx_lebs)
+ 	subtract_lebs += 1;
  
- 	if (this_cpu_ci->cpu_map_populated)
-@@ -279,11 +279,13 @@ static int cache_shared_cpu_map_setup(unsigned int cpu)
+ 	/*
+-	 * The GC journal head LEB is not really accessible. And since
+-	 * different write types go to different heads, we may count only on
+-	 * one head's space.
++	 * Since different write types go to different heads, we should
++	 * reserve one leb for each head.
+ 	 */
+-	subtract_lebs += c->jhead_cnt - 1;
++	subtract_lebs += c->jhead_cnt;
  
- 			if (i == cpu || !sib_cpu_ci->info_list)
- 				continue;/* skip if itself or no cacheinfo */
--
--			sib_leaf = per_cpu_cacheinfo_idx(i, index);
--			if (cache_leaves_are_shared(this_leaf, sib_leaf)) {
--				cpumask_set_cpu(cpu, &sib_leaf->shared_cpu_map);
--				cpumask_set_cpu(i, &this_leaf->shared_cpu_map);
-+			for (sib_index = 0; sib_index < cache_leaves(i); sib_index++) {
-+				sib_leaf = per_cpu_cacheinfo_idx(i, sib_index);
-+				if (cache_leaves_are_shared(this_leaf, sib_leaf)) {
-+					cpumask_set_cpu(cpu, &sib_leaf->shared_cpu_map);
-+					cpumask_set_cpu(i, &this_leaf->shared_cpu_map);
-+					break;
-+				}
- 			}
- 		}
- 		/* record the maximum cache line size */
-@@ -297,7 +299,7 @@ static int cache_shared_cpu_map_setup(unsigned int cpu)
- static void cache_shared_cpu_map_remove(unsigned int cpu)
- {
- 	struct cacheinfo *this_leaf, *sib_leaf;
--	unsigned int sibling, index;
-+	unsigned int sibling, index, sib_index;
- 
- 	for (index = 0; index < cache_leaves(cpu); index++) {
- 		this_leaf = per_cpu_cacheinfo_idx(cpu, index);
-@@ -308,9 +310,14 @@ static void cache_shared_cpu_map_remove(unsigned int cpu)
- 			if (sibling == cpu || !sib_cpu_ci->info_list)
- 				continue;/* skip if itself or no cacheinfo */
- 
--			sib_leaf = per_cpu_cacheinfo_idx(sibling, index);
--			cpumask_clear_cpu(cpu, &sib_leaf->shared_cpu_map);
--			cpumask_clear_cpu(sibling, &this_leaf->shared_cpu_map);
-+			for (sib_index = 0; sib_index < cache_leaves(sibling); sib_index++) {
-+				sib_leaf = per_cpu_cacheinfo_idx(sibling, sib_index);
-+				if (cache_leaves_are_shared(this_leaf, sib_leaf)) {
-+					cpumask_clear_cpu(cpu, &sib_leaf->shared_cpu_map);
-+					cpumask_clear_cpu(sibling, &this_leaf->shared_cpu_map);
-+					break;
-+				}
-+			}
- 		}
- 		if (of_have_populated_dt())
- 			of_node_put(this_leaf->fw_token);
+ 	/* We also reserve one LEB for deletions, which bypass budgeting */
+ 	subtract_lebs += 1;
 -- 
 2.39.2
 
