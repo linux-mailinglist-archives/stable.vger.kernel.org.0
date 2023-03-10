@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FD36B42D2
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:07:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B98BD6B458C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231779AbjCJOHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:07:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
+        id S232457AbjCJOek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:34:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231563AbjCJOHG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:06 -0500
+        with ESMTP id S232454AbjCJOee (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:34:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A69E1184C6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CADCA334A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:34:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA1C7B822C0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E3B7C433EF;
-        Fri, 10 Mar 2023 14:06:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E122AB822DF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:34:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6B0C433EF;
+        Fri, 10 Mar 2023 14:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457197;
-        bh=g9InTsGkJbiAN5lVrdDqYy8CLaVfcwr1FVWKXnMIIA4=;
+        s=korg; t=1678458870;
+        bh=l1IZyNiIIV2Vwuw43cWIspOq8wefSLI1BBbGPVV5RtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVtGLlq9SO4BwAwfIfwtk/krwM8sU8xPI1ZHB6/sAIP03SuOAawdkeXiNE0rKxT5m
-         DA3idE0J97D26zhlxQXBRFq0K+vE27mGFkKqXoVazFnfWjgDu9QflpvUWSEKsgPRb4
-         uMCv/jKugaX5V6sYp6gb3N9LpVQFSnbX5tY2hoG8=
+        b=F5oWPu6wYBDhwfDPuvEAsJmEbjjMhJ2/Cr246BeQ1Y8CKEv9sIiSm1B1YUWS0UP24
+         gBSFo4iz+62EsU/uFQTqOtHNfeHNyZw66wCfrAZ4kv1Lz1eDUxTXicyOlrudIe9AfI
+         Fl1MwthWeI/YOiE4XGrcEa8PI0ijpen+Soo+jxIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+823000d23b3400619f7c@syzkaller.appspotmail.com,
-        Daeho Jeong <daehojeong@google.com>, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 053/200] f2fs: synchronize atomic write aborts
+Subject: [PATCH 5.4 171/357] media: i2c: ov772x: Fix memleak in ov772x_probe()
 Date:   Fri, 10 Mar 2023 14:37:40 +0100
-Message-Id: <20230310133718.743917087@linuxfoundation.org>
+Message-Id: <20230310133742.271710628@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,166 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daeho Jeong <daehojeong@google.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit a46bebd502fe1a3bd1d22f64cedd93e7e7702693 ]
+[ Upstream commit 7485edb2b6ca5960205c0a49bedfd09bba30e521 ]
 
-To fix a race condition between atomic write aborts, I use the inode
-lock and make COW inode to be re-usable thoroughout the whole
-atomic file inode lifetime.
+A memory leak was reported when testing ov772x with bpf mock device:
 
-Reported-by: syzbot+823000d23b3400619f7c@syzkaller.appspotmail.com
-Fixes: 3db1de0e582c ("f2fs: change the current atomic write way")
-Signed-off-by: Daeho Jeong <daehojeong@google.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+AssertionError: unreferenced object 0xffff888109afa7a8 (size 8):
+  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
+  hex dump (first 8 bytes):
+    80 22 88 15 81 88 ff ff                          ."......
+  backtrace:
+    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
+    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
+    [<00000000faf48134>] v4l2_ctrl_handler_init_class+0x11d/0x180 [videodev]
+    [<00000000da376937>] ov772x_probe+0x1c3/0x68c [ov772x]
+    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
+    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
+    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
+    [<0000000048370519>] driver_probe_device+0x49/0x120
+    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
+    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
+    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
+    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
+    [<00000000ee0f3046>] device_add+0x810/0x1130
+    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
+    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
+    [<00000000a9f2159d>] of_i2c_notify+0x100/0x160
+unreferenced object 0xffff888119825c00 (size 256):
+  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
+  hex dump (first 32 bytes):
+    00 b4 a5 17 81 88 ff ff 00 5e 82 19 81 88 ff ff  .........^......
+    10 5c 82 19 81 88 ff ff 10 5c 82 19 81 88 ff ff  .\.......\......
+  backtrace:
+    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
+    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
+    [<0000000073d88e0b>] v4l2_ctrl_new.cold+0x19b/0x86f [videodev]
+    [<00000000b1f576fb>] v4l2_ctrl_new_std+0x16f/0x210 [videodev]
+    [<00000000caf7ac99>] ov772x_probe+0x1fa/0x68c [ov772x]
+    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
+    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
+    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
+    [<0000000048370519>] driver_probe_device+0x49/0x120
+    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
+    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
+    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
+    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
+    [<00000000ee0f3046>] device_add+0x810/0x1130
+    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
+    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
+
+The reason is that if priv->hdl.error is set, ov772x_probe() jumps to the
+error_mutex_destroy without doing v4l2_ctrl_handler_free(), and all
+resources allocated in v4l2_ctrl_handler_init() and v4l2_ctrl_new_std()
+are leaked.
+
+Fixes: 1112babde214 ("media: i2c: Copy ov772x soc_camera sensor driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c    | 44 +++++++++++++++++++++++++++++---------------
- fs/f2fs/inode.c   | 11 +++++++++--
- fs/f2fs/segment.c |  3 ---
- fs/f2fs/super.c   |  2 --
- 4 files changed, 38 insertions(+), 22 deletions(-)
+ drivers/media/i2c/ov772x.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 8a576c004b72a..773b3ddc2cd72 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1865,7 +1865,10 @@ static int f2fs_release_file(struct inode *inode, struct file *filp)
- 			atomic_read(&inode->i_writecount) != 1)
- 		return 0;
- 
-+	inode_lock(inode);
- 	f2fs_abort_atomic_write(inode, true);
-+	inode_unlock(inode);
-+
- 	return 0;
- }
- 
-@@ -1880,8 +1883,12 @@ static int f2fs_file_flush(struct file *file, fl_owner_t id)
- 	 * before dropping file lock, it needs to do in ->flush.
- 	 */
- 	if (F2FS_I(inode)->atomic_write_task == current &&
--				(current->flags & PF_EXITING))
-+				(current->flags & PF_EXITING)) {
-+		inode_lock(inode);
- 		f2fs_abort_atomic_write(inode, true);
-+		inode_unlock(inode);
-+	}
-+
- 	return 0;
- }
- 
-@@ -2087,19 +2094,28 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
- 		goto out;
+diff --git a/drivers/media/i2c/ov772x.c b/drivers/media/i2c/ov772x.c
+index 2cc6a678069a2..5033950a48ab6 100644
+--- a/drivers/media/i2c/ov772x.c
++++ b/drivers/media/i2c/ov772x.c
+@@ -1397,7 +1397,7 @@ static int ov772x_probe(struct i2c_client *client)
+ 	priv->subdev.ctrl_handler = &priv->hdl;
+ 	if (priv->hdl.error) {
+ 		ret = priv->hdl.error;
+-		goto error_mutex_destroy;
++		goto error_ctrl_free;
  	}
  
--	/* Create a COW inode for atomic write */
--	pinode = f2fs_iget(inode->i_sb, fi->i_pino);
--	if (IS_ERR(pinode)) {
--		f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
--		ret = PTR_ERR(pinode);
--		goto out;
--	}
-+	/* Check if the inode already has a COW inode */
-+	if (fi->cow_inode == NULL) {
-+		/* Create a COW inode for atomic write */
-+		pinode = f2fs_iget(inode->i_sb, fi->i_pino);
-+		if (IS_ERR(pinode)) {
-+			f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
-+			ret = PTR_ERR(pinode);
-+			goto out;
-+		}
+ 	priv->clk = clk_get(&client->dev, NULL);
+@@ -1446,7 +1446,6 @@ static int ov772x_probe(struct i2c_client *client)
+ 	clk_put(priv->clk);
+ error_ctrl_free:
+ 	v4l2_ctrl_handler_free(&priv->hdl);
+-error_mutex_destroy:
+ 	mutex_destroy(&priv->lock);
  
--	ret = f2fs_get_tmpfile(mnt_userns, pinode, &fi->cow_inode);
--	iput(pinode);
--	if (ret) {
--		f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
--		goto out;
-+		ret = f2fs_get_tmpfile(mnt_userns, pinode, &fi->cow_inode);
-+		iput(pinode);
-+		if (ret) {
-+			f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
-+			goto out;
-+		}
-+
-+		set_inode_flag(fi->cow_inode, FI_COW_FILE);
-+		clear_inode_flag(fi->cow_inode, FI_INLINE_DATA);
-+	} else {
-+		/* Reuse the already created COW inode */
-+		f2fs_do_truncate_blocks(fi->cow_inode, 0, true);
- 	}
- 
- 	f2fs_write_inode(inode, NULL);
-@@ -2111,8 +2127,6 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
- 	stat_inc_atomic_inode(inode);
- 
- 	set_inode_flag(inode, FI_ATOMIC_FILE);
--	set_inode_flag(fi->cow_inode, FI_COW_FILE);
--	clear_inode_flag(fi->cow_inode, FI_INLINE_DATA);
- 	f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
- 
- 	f2fs_update_time(sbi, REQ_TIME);
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index e8413b080e0a7..229ddc2f7b079 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -764,11 +764,18 @@ int f2fs_write_inode(struct inode *inode, struct writeback_control *wbc)
- void f2fs_evict_inode(struct inode *inode)
- {
- 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
--	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
-+	struct f2fs_inode_info *fi = F2FS_I(inode);
-+	nid_t xnid = fi->i_xattr_nid;
- 	int err = 0;
- 
- 	f2fs_abort_atomic_write(inode, true);
- 
-+	if (fi->cow_inode) {
-+		clear_inode_flag(fi->cow_inode, FI_COW_FILE);
-+		iput(fi->cow_inode);
-+		fi->cow_inode = NULL;
-+	}
-+
- 	trace_f2fs_evict_inode(inode);
- 	truncate_inode_pages_final(&inode->i_data);
- 
-@@ -855,7 +862,7 @@ void f2fs_evict_inode(struct inode *inode)
- 	stat_dec_inline_inode(inode);
- 	stat_dec_compr_inode(inode);
- 	stat_sub_compr_blocks(inode,
--			atomic_read(&F2FS_I(inode)->i_compr_blocks));
-+			atomic_read(&fi->i_compr_blocks));
- 
- 	if (likely(!f2fs_cp_error(sbi) &&
- 				!is_sbi_flag_set(sbi, SBI_CP_DISABLED)))
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 63c6894099799..8d1e8c537daf0 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -192,9 +192,6 @@ void f2fs_abort_atomic_write(struct inode *inode, bool clean)
- 	if (!f2fs_is_atomic_file(inode))
- 		return;
- 
--	clear_inode_flag(fi->cow_inode, FI_COW_FILE);
--	iput(fi->cow_inode);
--	fi->cow_inode = NULL;
- 	release_atomic_write_cnt(inode);
- 	clear_inode_flag(inode, FI_ATOMIC_COMMITTED);
- 	clear_inode_flag(inode, FI_ATOMIC_FILE);
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index eaabb85cb4ddb..14c87399efea2 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1416,8 +1416,6 @@ static int f2fs_drop_inode(struct inode *inode)
- 			atomic_inc(&inode->i_count);
- 			spin_unlock(&inode->i_lock);
- 
--			f2fs_abort_atomic_write(inode, true);
--
- 			/* should remain fi->extent_tree for writepage */
- 			f2fs_destroy_extent_node(inode);
- 
+ 	return ret;
 -- 
 2.39.2
 
