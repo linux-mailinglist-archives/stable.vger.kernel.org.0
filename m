@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C19C36B43FB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DE356B410A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232098AbjCJOUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:20:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60656 "EHLO
+        id S230378AbjCJNs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:48:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232100AbjCJOUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE105F6E1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:38 -0800 (PST)
+        with ESMTP id S230388AbjCJNs5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04608856B5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1DDD61380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0551C433EF;
-        Fri, 10 Mar 2023 14:18:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61A7BB822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D3C2C4339E;
+        Fri, 10 Mar 2023 13:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457917;
-        bh=cdpHPIrBOnroxuNuHKOPyFdLgqB2mUZbUPFimmK80dw=;
+        s=korg; t=1678456133;
+        bh=tdpcl+jO1L8fobt/yCx27cx/Z728pRP5iMga+kBX+lI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njM9Oy5dUaLFOyXGJzHuZehW9D2KOHYjpEGEuqmbhzf8pgu4Isj3XyBaoLZ+/DtFS
-         ux+7d8MK0DMd7n9zxzNrtbIb8F4LJ9X0lZ6Hf/3XCuw9YJU2GJV9VnXyo08XIYUuxs
-         krtuM9KCBsRAZ+qU3vvTk8rmc6TDZ0WMW3oixjeQ=
+        b=ywUCVSWQa/AumaBYmrreNZMSi48vTRqAl7B90vn7gYTXUe82nX+0TECWEubUKCrXc
+         MjDKS+aQhmgFMLYzIVDZDqo22hU1h5C+L/5/jDVnd6fNHeWX/0MN8/QyiJsXnbREOD
+         cSYf+GaIYyW3cElQBngYWcM0cQlnwOQXGAIlFsxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 103/252] clk: Honor CLK_OPS_PARENT_ENABLE in clk_core_is_enabled()
+Subject: [PATCH 4.14 091/193] ASoC: kirkwood: Iterate over array indexes instead of using pointer math
 Date:   Fri, 10 Mar 2023 14:37:53 +0100
-Message-Id: <20230310133721.929690458@linuxfoundation.org>
+Message-Id: <20230310133714.219145643@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 79200d5851c8e7179f68a4a6f162d8f1bde4986f ]
+[ Upstream commit b3bcedc0402fcdc5c8624c433562d9d1882749d8 ]
 
-In the previous commits that added CLK_OPS_PARENT_ENABLE, support for
-this flag was only added to rate change operations (rate setting and
-reparent) and disabling unused subtree. It was not added to the
-clock gate related operations. Any hardware driver that needs it for
-these operations will either see bogus results, or worse, hang.
+Walking the dram->cs array was seen as accesses beyond the first array
+item by the compiler. Instead, use the array index directly. This allows
+for run-time bounds checking under CONFIG_UBSAN_BOUNDS as well. Seen
+with GCC 13 with -fstrict-flex-arrays:
 
-This has been seen on MT8192 and MT8195, where the imp_ii2_* clk
-drivers set this, but dumping debugfs clk_summary would cause it
-to hang.
+../sound/soc/kirkwood/kirkwood-dma.c: In function
+'kirkwood_dma_conf_mbus_windows.constprop':
+../sound/soc/kirkwood/kirkwood-dma.c:90:24: warning: array subscript 0 is outside array bounds of 'const struct mbus_dram_window[0]' [-Warray-bounds=]
+   90 |                 if ((cs->base & 0xffff0000) < (dma & 0xffff0000)) {
+      |                      ~~^~~~~~
 
-Prepare parent on prepare and enable parent on enable dependencies are
-already handled automatically by the core as part of its sequencing.
-Whether the case for "enable parent on prepare" should be supported by
-this flag or not is not clear, and thus ignored for now.
-
-This change solely fixes the handling of clk_core_is_enabled, i.e.
-enabling the parent clock when reading the hardware state. Unfortunately
-clk_core_is_enabled is called in a variety of places, sometimes with
-the enable clock already held. To avoid deadlocking, the core will
-ignore readouts and just return false if CLK_OPS_PARENT_ENABLE is set
-but the parent isn't currently enabled.
-
-Fixes: fc8726a2c021 ("clk: core: support clocks which requires parents enable (part 2)")
-Fixes: a4b3518d146f ("clk: core: support clocks which requires parents enable (part 1)")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Link: https://lore.kernel.org/r/20230103092330.494102-1-wenst@chromium.org
-Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: alsa-devel@alsa-project.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20230127224128.never.410-kees@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/soc/kirkwood/kirkwood-dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 53ac3a0e741d7..a8d68ac9d0dea 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -244,6 +244,17 @@ static bool clk_core_is_enabled(struct clk_core *core)
- 		}
- 	}
+diff --git a/sound/soc/kirkwood/kirkwood-dma.c b/sound/soc/kirkwood/kirkwood-dma.c
+index 35ca8e8bb5e52..9736fb36082fb 100644
+--- a/sound/soc/kirkwood/kirkwood-dma.c
++++ b/sound/soc/kirkwood/kirkwood-dma.c
+@@ -90,7 +90,7 @@ kirkwood_dma_conf_mbus_windows(void __iomem *base, int win,
  
-+	/*
-+	 * This could be called with the enable lock held, or from atomic
-+	 * context. If the parent isn't enabled already, we can't do
-+	 * anything here. We can also assume this clock isn't enabled.
-+	 */
-+	if ((core->flags & CLK_OPS_PARENT_ENABLE) && core->parent)
-+		if (!clk_core_is_enabled(core->parent)) {
-+			ret = false;
-+			goto done;
-+		}
-+
- 	ret = core->ops->is_enabled(core->hw);
- done:
- 	if (core->dev)
+ 	/* try to find matching cs for current dma address */
+ 	for (i = 0; i < dram->num_cs; i++) {
+-		const struct mbus_dram_window *cs = dram->cs + i;
++		const struct mbus_dram_window *cs = &dram->cs[i];
+ 		if ((cs->base & 0xffff0000) < (dma & 0xffff0000)) {
+ 			writel(cs->base & 0xffff0000,
+ 				base + KIRKWOOD_AUDIO_WIN_BASE_REG(win));
 -- 
 2.39.2
 
