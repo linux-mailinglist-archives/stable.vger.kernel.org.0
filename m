@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CB76B48DB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B34416B48BD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:06:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233892AbjCJPHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:07:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57024 "EHLO
+        id S233829AbjCJPG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:06:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233799AbjCJPGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:06:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3114E10F45B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:59:57 -0800 (PST)
+        with ESMTP id S233018AbjCJPFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:05:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1C76C6BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:59:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 090B66187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D60C433D2;
-        Fri, 10 Mar 2023 14:59:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E690DB82316
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:58:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5CB3C4339C;
+        Fri, 10 Mar 2023 14:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460384;
-        bh=MUpQCkImQicUPPTw5Fvoe8VdmhwyxyqB8BjHoTmU3o0=;
+        s=korg; t=1678460286;
+        bh=GOO+5daKcvgCJqX2TW7Ow94BY1PLOJrsyOhdMpXME5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGIUymDukU1EKDNNLiYIR7nZ+qg2ivlA4F6RHviBDtSdW/4z8Pcx81oO6xIA9oCZz
-         YWZlRYVY7jzQT+qsmqoIfG6NJJqvLQrBfej80ZQ5EwIU/ukX8p06ety67zz2oPfLrY
-         6iw8T58f6KjvGCAyIzK+3CbcjL9znwH0Wj63Kl/8=
+        b=O1vSOlF6tj9jNe72lfJD8rLhCTduE9XJKT3rfMc265tKcXiGrXNMM28LPzy6Gpw2v
+         JaDUDJQN0DeqE099cTte2GCL5m99EOiA0bXe7zVIKcY/hL53qV7jbc/ixBjr2RH0cP
+         brr4+qk+jvcXCLcXtLmAwf9zyLokYVDJf1/6+B+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
-        Sean Young <sean@mess.org>,
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 276/529] media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
-Date:   Fri, 10 Mar 2023 14:36:59 +0100
-Message-Id: <20230310133817.740900911@linuxfoundation.org>
+Subject: [PATCH 5.10 277/529] media: i2c: ov7670: 0 instead of -EINVAL was returned
+Date:   Fri, 10 Mar 2023 14:37:00 +0100
+Message-Id: <20230310133817.789339279@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,80 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 29b0589a865b6f66d141d79b2dd1373e4e50fe17 ]
+[ Upstream commit 6a4c664539e6de9b32b65ddcf767ec1bcc1d7f8a ]
 
-When the ene device is detaching, function ene_remove() will
-be called. But there is no function to cancel tx_sim_timer
-in ene_remove(), the timer handler ene_tx_irqsim() could race
-with ene_remove(). As a result, the UAF bugs could happen,
-the process is shown below.
+If the media bus is unsupported, then return -EINVAL. Instead it
+returned 'ret' which happened to be 0.
 
-    (cleanup routine)          |        (timer routine)
-                               | mod_timer(&dev->tx_sim_timer, ..)
-ene_remove()                   | (wait a time)
-                               | ene_tx_irqsim()
-                               |   dev->hw_lock //USE
-                               |   ene_tx_sample(dev) //USE
+This fixes a smatch warning:
 
-Fix by adding del_timer_sync(&dev->tx_sim_timer) in ene_remove(),
-The tx_sim_timer could stop before ene device is deallocated.
+ov7670.c:1843 ov7670_parse_dt() warn: missing error code? 'ret'
 
-What's more, The rc_unregister_device() and del_timer_sync()
-should be called first in ene_remove() and the deallocated
-functions such as free_irq(), release_region() and so on
-should be called behind them. Because the rc_unregister_device()
-is well synchronized. Otherwise, race conditions may happen. The
-situations that may lead to race conditions are shown below.
-
-Firstly, the rx receiver is disabled with ene_rx_disable()
-before rc_unregister_device() in ene_remove(), which means it
-can be enabled again if a process opens /dev/lirc0 between
-ene_rx_disable() and rc_unregister_device().
-
-Secondly, the irqaction descriptor is freed by free_irq()
-before the rc device is unregistered, which means irqaction
-descriptor may be accessed again after it is deallocated.
-
-Thirdly, the timer can call ene_tx_sample() that can write
-to the io ports, which means the io ports could be accessed
-again after they are deallocated by release_region().
-
-Therefore, the rc_unregister_device() and del_timer_sync()
-should be called first in ene_remove().
-
-Suggested by: Sean Young <sean@mess.org>
-
-Fixes: 9ea53b74df9c ("V4L/DVB: STAGING: remove lirc_ene0100 driver")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 01b8444828fc ("media: v4l2: i2c: ov7670: Implement OF mbus configuration")
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/ene_ir.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/i2c/ov7670.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
-index 6049e5c95394f..5aa3953cab82c 100644
---- a/drivers/media/rc/ene_ir.c
-+++ b/drivers/media/rc/ene_ir.c
-@@ -1106,6 +1106,8 @@ static void ene_remove(struct pnp_dev *pnp_dev)
- 	struct ene_device *dev = pnp_get_drvdata(pnp_dev);
- 	unsigned long flags;
+diff --git a/drivers/media/i2c/ov7670.c b/drivers/media/i2c/ov7670.c
+index 154776d0069ea..e47800cb6c0f7 100644
+--- a/drivers/media/i2c/ov7670.c
++++ b/drivers/media/i2c/ov7670.c
+@@ -1824,7 +1824,7 @@ static int ov7670_parse_dt(struct device *dev,
  
-+	rc_unregister_device(dev->rdev);
-+	del_timer_sync(&dev->tx_sim_timer);
- 	spin_lock_irqsave(&dev->hw_lock, flags);
- 	ene_rx_disable(dev);
- 	ene_rx_restore_hw_buffer(dev);
-@@ -1113,7 +1115,6 @@ static void ene_remove(struct pnp_dev *pnp_dev)
- 
- 	free_irq(dev->irq, dev);
- 	release_region(dev->hw_io, ENE_IO_SIZE);
--	rc_unregister_device(dev->rdev);
- 	kfree(dev);
- }
+ 	if (bus_cfg.bus_type != V4L2_MBUS_PARALLEL) {
+ 		dev_err(dev, "Unsupported media bus type\n");
+-		return ret;
++		return -EINVAL;
+ 	}
+ 	info->mbus_config = bus_cfg.bus.parallel.flags;
  
 -- 
 2.39.2
