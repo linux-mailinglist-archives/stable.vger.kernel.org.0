@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 242756B40FA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FD36B42D2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:07:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230333AbjCJNsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48376 "EHLO
+        id S231779AbjCJOHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:07:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbjCJNsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2797D15CA2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:13 -0800 (PST)
+        with ESMTP id S231563AbjCJOHG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A69E1184C6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 963C661866
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93E24C433D2;
-        Fri, 10 Mar 2023 13:48:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA1C7B822C0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E3B7C433EF;
+        Fri, 10 Mar 2023 14:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456092;
-        bh=pz6yQQNd9xtq2OrUdK2zAulDqp6UbzqhS797mEMq9u8=;
+        s=korg; t=1678457197;
+        bh=g9InTsGkJbiAN5lVrdDqYy8CLaVfcwr1FVWKXnMIIA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BIkmWpjrC43qe4KILV1fn8EE+iDarRTRXwQB/3pDel+Ng8agBjUtyW7TsLmOz8OaZ
-         9SOlPjpPBuIlJbgIbk2/IcsNB8L/fgTZNXQhjR3EdVNLC8kX74SS3H5Z52V4n217Wk
-         SgVTGVVFcYm4pJT1YsJEVO5ZnQE8ac5LUf+uObPs=
+        b=nVtGLlq9SO4BwAwfIfwtk/krwM8sU8xPI1ZHB6/sAIP03SuOAawdkeXiNE0rKxT5m
+         DA3idE0J97D26zhlxQXBRFq0K+vE27mGFkKqXoVazFnfWjgDu9QflpvUWSEKsgPRb4
+         uMCv/jKugaX5V6sYp6gb3N9LpVQFSnbX5tY2hoG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
-        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
-        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/193] wifi: brcmfmac: Fix potential stack-out-of-bounds in brcmf_c_preinit_dcmds()
+        patches@lists.linux.dev,
+        syzbot+823000d23b3400619f7c@syzkaller.appspotmail.com,
+        Daeho Jeong <daehojeong@google.com>, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 053/200] f2fs: synchronize atomic write aborts
 Date:   Fri, 10 Mar 2023 14:37:40 +0100
-Message-Id: <20230310133713.640832857@linuxfoundation.org>
+Message-Id: <20230310133718.743917087@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,156 +56,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+From: Daeho Jeong <daehojeong@google.com>
 
-[ Upstream commit 0a06cadcc2a0044e4a117cc0e61436fc3a0dad69 ]
+[ Upstream commit a46bebd502fe1a3bd1d22f64cedd93e7e7702693 ]
 
-This patch fixes a stack-out-of-bounds read in brcmfmac that occurs
-when 'buf' that is not null-terminated is passed as an argument of
-strsep() in brcmf_c_preinit_dcmds(). This buffer is filled with a firmware
-version string by memcpy() in brcmf_fil_iovar_data_get().
-The patch ensures buf is null-terminated.
+To fix a race condition between atomic write aborts, I use the inode
+lock and make COW inode to be re-usable thoroughout the whole
+atomic file inode lifetime.
 
-Found by a modified version of syzkaller.
-
-[   47.569679][ T1897] brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43236b for chip BCM43236/3
-[   47.582839][ T1897] brcmfmac: brcmf_c_process_clm_blob: no clm_blob available (err=-2), device may have limited channels available
-[   47.601565][ T1897] ==================================================================
-[   47.602574][ T1897] BUG: KASAN: stack-out-of-bounds in strsep+0x1b2/0x1f0
-[   47.603447][ T1897] Read of size 1 at addr ffffc90001f6f000 by task kworker/0:2/1897
-[   47.604336][ T1897]
-[   47.604621][ T1897] CPU: 0 PID: 1897 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #131
-[   47.605617][ T1897] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-[   47.606907][ T1897] Workqueue: usb_hub_wq hub_event
-[   47.607453][ T1897] Call Trace:
-[   47.607801][ T1897]  dump_stack_lvl+0x8e/0xd1
-[   47.608295][ T1897]  print_address_description.constprop.0.cold+0xf/0x334
-[   47.609009][ T1897]  ? strsep+0x1b2/0x1f0
-[   47.609434][ T1897]  ? strsep+0x1b2/0x1f0
-[   47.609863][ T1897]  kasan_report.cold+0x83/0xdf
-[   47.610366][ T1897]  ? strsep+0x1b2/0x1f0
-[   47.610882][ T1897]  strsep+0x1b2/0x1f0
-[   47.611300][ T1897]  ? brcmf_fil_iovar_data_get+0x3a/0xf0
-[   47.611883][ T1897]  brcmf_c_preinit_dcmds+0x995/0xc40
-[   47.612434][ T1897]  ? brcmf_c_set_joinpref_default+0x100/0x100
-[   47.613078][ T1897]  ? rcu_read_lock_sched_held+0xa1/0xd0
-[   47.613662][ T1897]  ? rcu_read_lock_bh_held+0xb0/0xb0
-[   47.614208][ T1897]  ? lock_acquire+0x19d/0x4e0
-[   47.614704][ T1897]  ? find_held_lock+0x2d/0x110
-[   47.615236][ T1897]  ? brcmf_usb_deq+0x1a7/0x260
-[   47.615741][ T1897]  ? brcmf_usb_rx_fill_all+0x5a/0xf0
-[   47.616288][ T1897]  brcmf_attach+0x246/0xd40
-[   47.616758][ T1897]  ? wiphy_new_nm+0x1703/0x1dd0
-[   47.617280][ T1897]  ? kmemdup+0x43/0x50
-[   47.617720][ T1897]  brcmf_usb_probe+0x12de/0x1690
-[   47.618244][ T1897]  ? brcmf_usbdev_qinit.constprop.0+0x470/0x470
-[   47.618901][ T1897]  usb_probe_interface+0x2aa/0x760
-[   47.619429][ T1897]  ? usb_probe_device+0x250/0x250
-[   47.619950][ T1897]  really_probe+0x205/0xb70
-[   47.620435][ T1897]  ? driver_allows_async_probing+0x130/0x130
-[   47.621048][ T1897]  __driver_probe_device+0x311/0x4b0
-[   47.621595][ T1897]  ? driver_allows_async_probing+0x130/0x130
-[   47.622209][ T1897]  driver_probe_device+0x4e/0x150
-[   47.622739][ T1897]  __device_attach_driver+0x1cc/0x2a0
-[   47.623287][ T1897]  bus_for_each_drv+0x156/0x1d0
-[   47.623796][ T1897]  ? bus_rescan_devices+0x30/0x30
-[   47.624309][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
-[   47.624907][ T1897]  ? trace_hardirqs_on+0x46/0x160
-[   47.625437][ T1897]  __device_attach+0x23f/0x3a0
-[   47.625924][ T1897]  ? device_bind_driver+0xd0/0xd0
-[   47.626433][ T1897]  ? kobject_uevent_env+0x287/0x14b0
-[   47.627057][ T1897]  bus_probe_device+0x1da/0x290
-[   47.627557][ T1897]  device_add+0xb7b/0x1eb0
-[   47.628027][ T1897]  ? wait_for_completion+0x290/0x290
-[   47.628593][ T1897]  ? __fw_devlink_link_to_suppliers+0x5a0/0x5a0
-[   47.629249][ T1897]  usb_set_configuration+0xf59/0x16f0
-[   47.629829][ T1897]  usb_generic_driver_probe+0x82/0xa0
-[   47.630385][ T1897]  usb_probe_device+0xbb/0x250
-[   47.630927][ T1897]  ? usb_suspend+0x590/0x590
-[   47.631397][ T1897]  really_probe+0x205/0xb70
-[   47.631855][ T1897]  ? driver_allows_async_probing+0x130/0x130
-[   47.632469][ T1897]  __driver_probe_device+0x311/0x4b0
-[   47.633002][ T1897]  ? usb_generic_driver_match+0x75/0x90
-[   47.633573][ T1897]  ? driver_allows_async_probing+0x130/0x130
-[   47.634170][ T1897]  driver_probe_device+0x4e/0x150
-[   47.634703][ T1897]  __device_attach_driver+0x1cc/0x2a0
-[   47.635248][ T1897]  bus_for_each_drv+0x156/0x1d0
-[   47.635748][ T1897]  ? bus_rescan_devices+0x30/0x30
-[   47.636271][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
-[   47.636881][ T1897]  ? trace_hardirqs_on+0x46/0x160
-[   47.637396][ T1897]  __device_attach+0x23f/0x3a0
-[   47.637904][ T1897]  ? device_bind_driver+0xd0/0xd0
-[   47.638426][ T1897]  ? kobject_uevent_env+0x287/0x14b0
-[   47.638985][ T1897]  bus_probe_device+0x1da/0x290
-[   47.639512][ T1897]  device_add+0xb7b/0x1eb0
-[   47.639977][ T1897]  ? __fw_devlink_link_to_suppliers+0x5a0/0x5a0
-[   47.640612][ T1897]  ? kfree+0x14a/0x6b0
-[   47.641055][ T1897]  ? __usb_get_extra_descriptor+0x116/0x160
-[   47.641679][ T1897]  usb_new_device.cold+0x49c/0x1029
-[   47.642245][ T1897]  ? hub_disconnect+0x450/0x450
-[   47.642756][ T1897]  ? rwlock_bug.part.0+0x90/0x90
-[   47.643273][ T1897]  ? _raw_spin_unlock_irq+0x24/0x30
-[   47.643822][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
-[   47.644445][ T1897]  hub_event+0x1c98/0x3950
-[   47.644939][ T1897]  ? hub_port_debounce+0x2e0/0x2e0
-[   47.645467][ T1897]  ? check_irq_usage+0x861/0xf20
-[   47.645975][ T1897]  ? drain_workqueue+0x280/0x360
-[   47.646506][ T1897]  ? lock_release+0x640/0x640
-[   47.646994][ T1897]  ? rcu_read_lock_sched_held+0xa1/0xd0
-[   47.647572][ T1897]  ? rcu_read_lock_bh_held+0xb0/0xb0
-[   47.648111][ T1897]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
-[   47.648735][ T1897]  process_one_work+0x92b/0x1460
-[   47.649262][ T1897]  ? pwq_dec_nr_in_flight+0x330/0x330
-[   47.649816][ T1897]  ? rwlock_bug.part.0+0x90/0x90
-[   47.650336][ T1897]  worker_thread+0x95/0xe00
-[   47.650830][ T1897]  ? __kthread_parkme+0x115/0x1e0
-[   47.651361][ T1897]  ? process_one_work+0x1460/0x1460
-[   47.651904][ T1897]  kthread+0x3a1/0x480
-[   47.652329][ T1897]  ? set_kthread_struct+0x120/0x120
-[   47.652878][ T1897]  ret_from_fork+0x1f/0x30
-[   47.653370][ T1897]
-[   47.653608][ T1897]
-[   47.653848][ T1897] addr ffffc90001f6f000 is located in stack of task kworker/0:2/1897 at offset 512 in frame:
-[   47.654891][ T1897]  brcmf_c_preinit_dcmds+0x0/0xc40
-[   47.655442][ T1897]
-[   47.655690][ T1897] this frame has 4 objects:
-[   47.656151][ T1897]  [48, 56) 'ptr'
-[   47.656159][ T1897]  [80, 148) 'revinfo'
-[   47.656534][ T1897]  [192, 210) 'eventmask'
-[   47.656953][ T1897]  [256, 512) 'buf'
-[   47.657410][ T1897]
-[   47.658035][ T1897] Memory state around the buggy address:
-[   47.658743][ T1897]  ffffc90001f6ef00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[   47.659577][ T1897]  ffffc90001f6ef80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[   47.660394][ T1897] >ffffc90001f6f000: f3 f3 f3 f3 f3 f3 f3 f3 00 00 00 00 00 00 00 00
-[   47.661199][ T1897]                    ^
-[   47.661625][ T1897]  ffffc90001f6f080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[   47.662455][ T1897]  ffffc90001f6f100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1
-[   47.663318][ T1897] ==================================================================
-[   47.664147][ T1897] Disabling lock debugging due to kernel taint
-
-Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
-Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
-Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Signed-off-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221115043458.37562-1-jisoo.jang@yonsei.ac.kr
+Reported-by: syzbot+823000d23b3400619f7c@syzkaller.appspotmail.com
+Fixes: 3db1de0e582c ("f2fs: change the current atomic write way")
+Signed-off-by: Daeho Jeong <daehojeong@google.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/file.c    | 44 +++++++++++++++++++++++++++++---------------
+ fs/f2fs/inode.c   | 11 +++++++++--
+ fs/f2fs/segment.c |  3 ---
+ fs/f2fs/super.c   |  2 --
+ 4 files changed, 38 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
-index 7a2b49587b4d3..b2f46685391c2 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
-@@ -157,6 +157,7 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
- 			  err);
- 		goto done;
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 8a576c004b72a..773b3ddc2cd72 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -1865,7 +1865,10 @@ static int f2fs_release_file(struct inode *inode, struct file *filp)
+ 			atomic_read(&inode->i_writecount) != 1)
+ 		return 0;
+ 
++	inode_lock(inode);
+ 	f2fs_abort_atomic_write(inode, true);
++	inode_unlock(inode);
++
+ 	return 0;
+ }
+ 
+@@ -1880,8 +1883,12 @@ static int f2fs_file_flush(struct file *file, fl_owner_t id)
+ 	 * before dropping file lock, it needs to do in ->flush.
+ 	 */
+ 	if (F2FS_I(inode)->atomic_write_task == current &&
+-				(current->flags & PF_EXITING))
++				(current->flags & PF_EXITING)) {
++		inode_lock(inode);
+ 		f2fs_abort_atomic_write(inode, true);
++		inode_unlock(inode);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -2087,19 +2094,28 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
+ 		goto out;
  	}
-+	buf[sizeof(buf) - 1] = '\0';
- 	ptr = (char *)buf;
- 	strsep(&ptr, "\n");
+ 
+-	/* Create a COW inode for atomic write */
+-	pinode = f2fs_iget(inode->i_sb, fi->i_pino);
+-	if (IS_ERR(pinode)) {
+-		f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
+-		ret = PTR_ERR(pinode);
+-		goto out;
+-	}
++	/* Check if the inode already has a COW inode */
++	if (fi->cow_inode == NULL) {
++		/* Create a COW inode for atomic write */
++		pinode = f2fs_iget(inode->i_sb, fi->i_pino);
++		if (IS_ERR(pinode)) {
++			f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
++			ret = PTR_ERR(pinode);
++			goto out;
++		}
+ 
+-	ret = f2fs_get_tmpfile(mnt_userns, pinode, &fi->cow_inode);
+-	iput(pinode);
+-	if (ret) {
+-		f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
+-		goto out;
++		ret = f2fs_get_tmpfile(mnt_userns, pinode, &fi->cow_inode);
++		iput(pinode);
++		if (ret) {
++			f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
++			goto out;
++		}
++
++		set_inode_flag(fi->cow_inode, FI_COW_FILE);
++		clear_inode_flag(fi->cow_inode, FI_INLINE_DATA);
++	} else {
++		/* Reuse the already created COW inode */
++		f2fs_do_truncate_blocks(fi->cow_inode, 0, true);
+ 	}
+ 
+ 	f2fs_write_inode(inode, NULL);
+@@ -2111,8 +2127,6 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
+ 	stat_inc_atomic_inode(inode);
+ 
+ 	set_inode_flag(inode, FI_ATOMIC_FILE);
+-	set_inode_flag(fi->cow_inode, FI_COW_FILE);
+-	clear_inode_flag(fi->cow_inode, FI_INLINE_DATA);
+ 	f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
+ 
+ 	f2fs_update_time(sbi, REQ_TIME);
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index e8413b080e0a7..229ddc2f7b079 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -764,11 +764,18 @@ int f2fs_write_inode(struct inode *inode, struct writeback_control *wbc)
+ void f2fs_evict_inode(struct inode *inode)
+ {
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+-	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
++	struct f2fs_inode_info *fi = F2FS_I(inode);
++	nid_t xnid = fi->i_xattr_nid;
+ 	int err = 0;
+ 
+ 	f2fs_abort_atomic_write(inode, true);
+ 
++	if (fi->cow_inode) {
++		clear_inode_flag(fi->cow_inode, FI_COW_FILE);
++		iput(fi->cow_inode);
++		fi->cow_inode = NULL;
++	}
++
+ 	trace_f2fs_evict_inode(inode);
+ 	truncate_inode_pages_final(&inode->i_data);
+ 
+@@ -855,7 +862,7 @@ void f2fs_evict_inode(struct inode *inode)
+ 	stat_dec_inline_inode(inode);
+ 	stat_dec_compr_inode(inode);
+ 	stat_sub_compr_blocks(inode,
+-			atomic_read(&F2FS_I(inode)->i_compr_blocks));
++			atomic_read(&fi->i_compr_blocks));
+ 
+ 	if (likely(!f2fs_cp_error(sbi) &&
+ 				!is_sbi_flag_set(sbi, SBI_CP_DISABLED)))
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 63c6894099799..8d1e8c537daf0 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -192,9 +192,6 @@ void f2fs_abort_atomic_write(struct inode *inode, bool clean)
+ 	if (!f2fs_is_atomic_file(inode))
+ 		return;
+ 
+-	clear_inode_flag(fi->cow_inode, FI_COW_FILE);
+-	iput(fi->cow_inode);
+-	fi->cow_inode = NULL;
+ 	release_atomic_write_cnt(inode);
+ 	clear_inode_flag(inode, FI_ATOMIC_COMMITTED);
+ 	clear_inode_flag(inode, FI_ATOMIC_FILE);
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index eaabb85cb4ddb..14c87399efea2 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1416,8 +1416,6 @@ static int f2fs_drop_inode(struct inode *inode)
+ 			atomic_inc(&inode->i_count);
+ 			spin_unlock(&inode->i_lock);
+ 
+-			f2fs_abort_atomic_write(inode, true);
+-
+ 			/* should remain fi->extent_tree for writepage */
+ 			f2fs_destroy_extent_node(inode);
  
 -- 
 2.39.2
