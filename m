@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 743446B4356
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:13:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCAB06B4268
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231990AbjCJONq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:13:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
+        id S230406AbjCJODG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231889AbjCJONU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A5011CBEA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:09 -0800 (PST)
+        with ESMTP id S231531AbjCJOCq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E55117239
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A88A7618A6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:11:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FF74C4339B;
-        Fri, 10 Mar 2023 14:11:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DE32617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20CBBC433EF;
+        Fri, 10 Mar 2023 14:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457506;
-        bh=A/crVSRZXWfcucn7uPO0pYPF+/PRImbksZJ+WhCUuNk=;
+        s=korg; t=1678456963;
+        bh=efSu9qO0KE2SDyHLMjSfHUgimsNFTJBvJP/gCLcuA9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnmDl9bG7mHGi07MLsJVOs51hUeGUEK6j+qUgry5zKkXUQhA38SjFyfeHHZWNT1fT
-         AQZfJTXkJlTHScQXO6FCotR5K3pgvVFkRJekIXiW+VPGdf94ErcAXofz0n6LRm3BwD
-         /RI14Z6k/kjnOxwZAFEKdvn8sYcwJkeeMoStRry4=
+        b=Cy8XUnIeCjSlM06Y+XPF/4CAMwgM8AVWD57cspx6Eh+otLvTXD6QO7a4Wbrmjfic8
+         mwZLUHJDKNQF8e98jO8jVjoT321NiDkiv3J7BB7/1iqVTFFzJwIq6JKX6VzW3zeJw0
+         DQCXqNjHOaConJiLtJUuiBmrEgP/rToI7n7JJZfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 159/200] usb: gadget: uvc: Make bSourceID read/write
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 186/211] soundwire: cadence: Remove wasted space in response_buf
 Date:   Fri, 10 Mar 2023 14:39:26 +0100
-Message-Id: <20230310133722.001819531@linuxfoundation.org>
+Message-Id: <20230310133724.492441613@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,111 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit b3c839bd8a07d303bc59a900d55dd35c7826562c ]
+[ Upstream commit 827c32d0df4bbe0d1c47d79f6a5eabfe9ac75216 ]
 
-At the moment, the UVC function graph is hardcoded IT -> PU -> OT.
-To add XU support we need the ability to insert the XU descriptors
-into the chain. To facilitate that, make the output terminal's
-bSourceID attribute writeable so that we can configure its source.
+The response_buf was declared much larger (128 entries) than the number
+of responses that could ever be written into it. The Cadence IP is
+configurable up to a maximum of 32 entries, and the datasheet says
+that RX_FIFO_AVAIL can be 2 larger than this. So allow up to 34
+responses.
 
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Link: https://lore.kernel.org/r/20230206161802.892954-2-dan.scally@ideasonboard.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also add checking in cdns_read_response() to prevent overflowing
+reponse_buf if RX_FIFO_AVAIL contains an unexpectedly large number.
+
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20221202161812.4186897-3-rf@opensource.cirrus.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ABI/testing/configfs-usb-gadget-uvc       |  2 +-
- drivers/usb/gadget/function/uvc_configfs.c    | 59 ++++++++++++++++++-
- 2 files changed, 59 insertions(+), 2 deletions(-)
+ drivers/soundwire/cadence_master.c |  7 +++++++
+ drivers/soundwire/cadence_master.h | 13 ++++++++++++-
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/ABI/testing/configfs-usb-gadget-uvc b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-index 611b23e6488d9..feb3f2cc0c167 100644
---- a/Documentation/ABI/testing/configfs-usb-gadget-uvc
-+++ b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-@@ -52,7 +52,7 @@ Date:		Dec 2014
- KernelVersion:	4.0
- Description:	Default output terminal descriptors
+diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
+index 27699f341f2c5..a6635f7f350ef 100644
+--- a/drivers/soundwire/cadence_master.c
++++ b/drivers/soundwire/cadence_master.c
+@@ -774,8 +774,15 @@ static void cdns_read_response(struct sdw_cdns *cdns)
+ 	u32 num_resp, cmd_base;
+ 	int i;
  
--		All attributes read only:
-+		All attributes read only except bSourceID:
++	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
++	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
++
+ 	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
+ 	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
++	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
++		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
++		num_resp = ARRAY_SIZE(cdns->response_buf);
++	}
  
- 		==============	=============================================
- 		iTerminal	index of string descriptor
-diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
-index 4303a3283ba0a..832565730d224 100644
---- a/drivers/usb/gadget/function/uvc_configfs.c
-+++ b/drivers/usb/gadget/function/uvc_configfs.c
-@@ -483,11 +483,68 @@ UVC_ATTR_RO(uvcg_default_output_, cname, aname)
- UVCG_DEFAULT_OUTPUT_ATTR(b_terminal_id, bTerminalID, 8);
- UVCG_DEFAULT_OUTPUT_ATTR(w_terminal_type, wTerminalType, 16);
- UVCG_DEFAULT_OUTPUT_ATTR(b_assoc_terminal, bAssocTerminal, 8);
--UVCG_DEFAULT_OUTPUT_ATTR(b_source_id, bSourceID, 8);
- UVCG_DEFAULT_OUTPUT_ATTR(i_terminal, iTerminal, 8);
+ 	cmd_base = CDNS_MCP_CMD_BASE;
  
- #undef UVCG_DEFAULT_OUTPUT_ATTR
+diff --git a/drivers/soundwire/cadence_master.h b/drivers/soundwire/cadence_master.h
+index 0434d70d4b1f5..e0a64b28c6b9c 100644
+--- a/drivers/soundwire/cadence_master.h
++++ b/drivers/soundwire/cadence_master.h
+@@ -8,6 +8,12 @@
+ #define SDW_CADENCE_GSYNC_KHZ		4 /* 4 kHz */
+ #define SDW_CADENCE_GSYNC_HZ		(SDW_CADENCE_GSYNC_KHZ * 1000)
  
-+static ssize_t uvcg_default_output_b_source_id_show(struct config_item *item,
-+						    char *page)
-+{
-+	struct config_group *group = to_config_group(item);
-+	struct f_uvc_opts *opts;
-+	struct config_item *opts_item;
-+	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
-+	struct uvc_output_terminal_descriptor *cd;
-+	int result;
++/*
++ * The Cadence IP supports up to 32 entries in the FIFO, though implementations
++ * can configure the IP to have a smaller FIFO.
++ */
++#define CDNS_MCP_IP_MAX_CMD_LEN		32
 +
-+	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
+ /**
+  * struct sdw_cdns_pdi: PDI (Physical Data Interface) instance
+  *
+@@ -117,7 +123,12 @@ struct sdw_cdns {
+ 	struct sdw_bus bus;
+ 	unsigned int instance;
+ 
+-	u32 response_buf[0x80];
++	/*
++	 * The datasheet says the RX FIFO AVAIL can be 2 entries more
++	 * than the FIFO capacity, so allow for this.
++	 */
++	u32 response_buf[CDNS_MCP_IP_MAX_CMD_LEN + 2];
 +
-+	opts_item = group->cg_item.ci_parent->ci_parent->
-+			ci_parent->ci_parent;
-+	opts = to_f_uvc_opts(opts_item);
-+	cd = &opts->uvc_output_terminal;
-+
-+	mutex_lock(&opts->lock);
-+	result = sprintf(page, "%u\n", le8_to_cpu(cd->bSourceID));
-+	mutex_unlock(&opts->lock);
-+
-+	mutex_unlock(su_mutex);
-+
-+	return result;
-+}
-+
-+static ssize_t uvcg_default_output_b_source_id_store(struct config_item *item,
-+						     const char *page, size_t len)
-+{
-+	struct config_group *group = to_config_group(item);
-+	struct f_uvc_opts *opts;
-+	struct config_item *opts_item;
-+	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
-+	struct uvc_output_terminal_descriptor *cd;
-+	int result;
-+	u8 num;
-+
-+	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
-+
-+	opts_item = group->cg_item.ci_parent->ci_parent->
-+			ci_parent->ci_parent;
-+	opts = to_f_uvc_opts(opts_item);
-+	cd = &opts->uvc_output_terminal;
-+
-+	result = kstrtou8(page, 0, &num);
-+	if (result)
-+		return result;
-+
-+	mutex_lock(&opts->lock);
-+	cd->bSourceID = num;
-+	mutex_unlock(&opts->lock);
-+
-+	mutex_unlock(su_mutex);
-+
-+	return len;
-+}
-+UVC_ATTR(uvcg_default_output_, b_source_id, bSourceID);
-+
- static struct configfs_attribute *uvcg_default_output_attrs[] = {
- 	&uvcg_default_output_attr_b_terminal_id,
- 	&uvcg_default_output_attr_w_terminal_type,
+ 	struct completion tx_complete;
+ 	struct sdw_defer *defer;
+ 
 -- 
 2.39.2
 
