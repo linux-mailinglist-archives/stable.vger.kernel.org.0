@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4CCC6B4495
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E8B6B4174
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232369AbjCJOZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:25:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
+        id S231205AbjCJNxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:53:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232367AbjCJOZV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:21 -0500
+        with ESMTP id S231199AbjCJNxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F11F2210B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED8A67D94
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9C2661745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C5EDC433EF;
-        Fri, 10 Mar 2023 14:24:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83F7B61946
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C5A7C433EF;
+        Fri, 10 Mar 2023 13:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458256;
-        bh=Ql70Ve5xOZXA/OXw71/B5BP8IYcmUQnvdKy0mlXpHeA=;
+        s=korg; t=1678456378;
+        bh=kH6AnnRV6w6c0S0NoITbfcwZB2dF9DDXWRuGqA3ne5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWQS1ufF5Qq3ko9V9cj4NbdgwWqHEqC25ZUV3KYbw+PzR+lmYZWviVIyGpyali/RH
-         jp6GYP3/ZU2P02UqMlOtfOwddTV41ShUMIiylNeo6CZRt8Bv4KZWycbeY0LynGjjP7
-         afIoZT8Ha3U3C0bEgVToViFHZxCUL18z6/4fd2gI=
+        b=ccXqwkrDGlTaNPGngsTJEJSCuwA/0oP9WbMAXaM2Uc2eJrej5cYCSGwOeEZgn3yWZ
+         XMTWCTJmJHPYIBBDsCvlVHN1ZXYDocZj5BcCoSU/juOyqXnsKIqP+FW5szgMumdxAb
+         NTpsdKOz7nsXC2WsnHFCR6wETKJnsVj3wtcstYbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 189/252] scsi: ses: Fix slab-out-of-bounds in ses_enclosure_data_process()
+        patches@lists.linux.dev, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 177/193] tracing: Add NULL checks for buffer in ring_buffer_free_read_page()
 Date:   Fri, 10 Mar 2023 14:39:19 +0100
-Message-Id: <20230310133724.664316055@linuxfoundation.org>
+Message-Id: <20230310133716.997314854@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-commit 9b4f5028e493cb353a5c8f5c45073eeea0303abd upstream.
+[ Upstream commit 3e4272b9954094907f16861199728f14002fcaf6 ]
 
-A fix for:
+In a previous commit 7433632c9ff6, buffer, buffer->buffers and
+buffer->buffers[cpu] in ring_buffer_wake_waiters() can be NULL,
+and thus the related checks are added.
 
-BUG: KASAN: slab-out-of-bounds in ses_enclosure_data_process+0x949/0xe30 [ses]
-Read of size 1 at addr ffff88a1b043a451 by task systemd-udevd/3271
+However, in the same call stack, these variables are also used in
+ring_buffer_free_read_page():
 
-Checking after (and before in next loop) addl_desc_ptr[1] is sufficient, we
-expect the size to be sanitized before first access to addl_desc_ptr[1].
-Make sure we don't walk beyond end of page.
+tracing_buffers_release()
+  ring_buffer_wake_waiters(iter->array_buffer->buffer)
+    cpu_buffer = buffer->buffers[cpu] -> Add checks by previous commit
+  ring_buffer_free_read_page(iter->array_buffer->buffer)
+    cpu_buffer = buffer->buffers[cpu] -> No check
 
-Link: https://lore.kernel.org/r/20230202162451.15346-2-thenzl@redhat.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Thus, to avod possible null-pointer derefernces, the related checks
+should be added.
+
+These results are reported by a static tool designed by myself.
+
+Link: https://lkml.kernel.org/r/20230113125501.760324-1-baijiaju1990@gmail.com
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ses.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/trace/ring_buffer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -619,9 +619,11 @@ static void ses_enclosure_data_process(s
- 			     /* these elements are optional */
- 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_TARGET_PORT ||
- 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_INITIATOR_PORT ||
--			     type_ptr[0] == ENCLOSURE_COMPONENT_CONTROLLER_ELECTRONICS))
-+			     type_ptr[0] == ENCLOSURE_COMPONENT_CONTROLLER_ELECTRONICS)) {
- 				addl_desc_ptr += addl_desc_ptr[1] + 2;
--
-+				if (addl_desc_ptr + 1 >= ses_dev->page10 + ses_dev->page10_len)
-+					addl_desc_ptr = NULL;
-+			}
- 		}
- 	}
- 	kfree(buf);
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 999dae39f12e5..a7808f8b6f56a 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -4554,11 +4554,16 @@ EXPORT_SYMBOL_GPL(ring_buffer_alloc_read_page);
+  */
+ void ring_buffer_free_read_page(struct ring_buffer *buffer, int cpu, void *data)
+ {
+-	struct ring_buffer_per_cpu *cpu_buffer = buffer->buffers[cpu];
++	struct ring_buffer_per_cpu *cpu_buffer;
+ 	struct buffer_data_page *bpage = data;
+ 	struct page *page = virt_to_page(bpage);
+ 	unsigned long flags;
+ 
++	if (!buffer || !buffer->buffers || !buffer->buffers[cpu])
++		return;
++
++	cpu_buffer = buffer->buffers[cpu];
++
+ 	/* If the page is still in use someplace else, we can't reuse it */
+ 	if (page_ref_count(page) > 1)
+ 		goto out;
+-- 
+2.39.2
+
 
 
