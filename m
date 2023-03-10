@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D416B4370
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDB86B427C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231863AbjCJOOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46350 "EHLO
+        id S231623AbjCJOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232003AbjCJOOU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF392212E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:03 -0800 (PST)
+        with ESMTP id S231625AbjCJODk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B696A432
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EE11B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17E67C4339C;
-        Fri, 10 Mar 2023 14:12:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 122FEB822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B106C433D2;
+        Fri, 10 Mar 2023 14:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457541;
-        bh=NqyLywQdr+GjqxAN5/Ok/tyfg5uViJIHxKLt5nmQYBs=;
+        s=korg; t=1678457007;
+        bh=3K4fMajgtqarFNGP+3HuePl4MWLnaJTPjuUnR3fXFic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boCwXBHrprpq9ZfXSQi3R/3MAScFHBQ5eKnfPbzKTr8xbEfXp9md9tWs7KTQrwA6L
-         RFS8vHDuD3UKB/O6yylWL/bYhS8U8bL/KpiSdI6OlFdaEqJMI+H8O3/cwBEAEYF++Y
-         0S0U4P5B9Cg3hq5+SVlG0f7pRj/7y7T41uUShxoM=
+        b=ZItkdBqhginwWW/bLigp0jDq+7rBYmZJah0GUtKXDRvhz4dls+eujH5jbKi5TQpOG
+         vmXmZArqac6Pcla5hdEbd7Ym4QJS4tbVlIqA9CV+ocKY/hRPh7gf48iUCdNWKJLsNc
+         GpBPYukjZXGTx8n+XmmNhr8RJaXEiPLlj9/GY2Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lu Baolu <baolu.lu@linux.intel.com>,
-        Matt Fagnani <matt.fagnani@bell.net>,
-        Vasant Hegde <vasant.hegde@amd.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 173/200] iommu: Attach device group to old domain in error path
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.2 200/211] vDPA/ifcvf: allocate the adapter in dev_add()
 Date:   Fri, 10 Mar 2023 14:39:40 +0100
-Message-Id: <20230310133722.414436375@linuxfoundation.org>
+Message-Id: <20230310133724.976545882@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,76 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <vasant.hegde@amd.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit 2cc73c5712f97de98c38c2fafc1f288354a9f3c3 ]
+commit 93139037b582134deb1ed894bbc4bc1d34ff35e7 upstream.
 
-iommu_attach_group() attaches all devices in a group to domain and then
-sets group domain (group->domain). Current code (__iommu_attach_group())
-does not handle error path. This creates problem as devices to domain
-attachment is in inconsistent state.
+The adapter is the container of the vdpa_device,
+this commits allocate the adapter in dev_add()
+rather than in probe(). So that the vdpa_device()
+could be re-created when the userspace creates
+the vdpa device, and free-ed in dev_del()
 
-Flow:
-  - During boot iommu attach devices to default domain
-  - Later some device driver (like amd/iommu_v2 or vfio) tries to attach
-    device to new domain.
-  - In iommu_attach_group() path we detach device from current domain.
-    Then it tries to attach devices to new domain.
-  - If it fails to attach device to new domain then device to domain link
-    is broken.
-  - iommu_attach_group() returns error.
-  - At this stage iommu_attach_group() caller thinks, attaching device to
-    new domain failed and devices are still attached to old domain.
-  - But in reality device to old domain link is broken. It will result
-    in all sort of failures (like IO page fault) later.
-
-To recover from this situation, we need to attach all devices back to the
-old domain. Also log warning if it fails attach device back to old domain.
-
-Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reported-by: Matt Fagnani <matt.fagnani@bell.net>
-Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Tested-by: Matt Fagnani <matt.fagnani@bell.net>
-Link: https://lore.kernel.org/r/20230215052642.6016-1-vasant.hegde@amd.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216865
-Link: https://lore.kernel.org/lkml/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-11-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/iommu.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c |   34 +++++++++++++---------------------
+ 1 file changed, 13 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index fd8c8aeb3c504..bfb2f163c6914 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2089,8 +2089,22 @@ static int __iommu_attach_group(struct iommu_domain *domain,
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -746,12 +746,20 @@ static int ifcvf_vdpa_dev_add(struct vdp
+ 	int ret;
  
- 	ret = __iommu_group_for_each_dev(group, domain,
- 					 iommu_group_do_attach_device);
--	if (ret == 0)
-+	if (ret == 0) {
- 		group->domain = domain;
-+	} else {
-+		/*
-+		 * To recover from the case when certain device within the
-+		 * group fails to attach to the new domain, we need force
-+		 * attaching all devices back to the old domain. The old
-+		 * domain is compatible for all devices in the group,
-+		 * hence the iommu driver should always return success.
-+		 */
-+		struct iommu_domain *old_domain = group->domain;
-+
-+		group->domain = NULL;
-+		WARN(__iommu_group_set_domain(group, old_domain),
-+		     "iommu driver failed to attach a compatible domain");
+ 	ifcvf_mgmt_dev = container_of(mdev, struct ifcvf_vdpa_mgmt_dev, mdev);
+-	if (!ifcvf_mgmt_dev->adapter)
+-		return -EOPNOTSUPP;
++	vf = &ifcvf_mgmt_dev->vf;
++	pdev = vf->pdev;
++	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
++				    &pdev->dev, &ifc_vdpa_ops, 1, 1, NULL, false);
++	if (IS_ERR(adapter)) {
++		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
++		return PTR_ERR(adapter);
 +	}
  
- 	return ret;
+-	adapter = ifcvf_mgmt_dev->adapter;
+-	vf = adapter->vf;
+-	pdev = adapter->pdev;
++	ifcvf_mgmt_dev->adapter = adapter;
++	adapter->pdev = pdev;
++	adapter->vdpa.dma_dev = &pdev->dev;
++	adapter->vdpa.mdev = mdev;
++	adapter->vf = vf;
+ 	vdpa_dev = &adapter->vdpa;
+ 
+ 	if (name)
+@@ -769,7 +777,6 @@ static int ifcvf_vdpa_dev_add(struct vdp
+ 	return 0;
  }
--- 
-2.39.2
-
+ 
+-
+ static void ifcvf_vdpa_dev_del(struct vdpa_mgmt_dev *mdev, struct vdpa_device *dev)
+ {
+ 	struct ifcvf_vdpa_mgmt_dev *ifcvf_mgmt_dev;
+@@ -788,7 +795,6 @@ static int ifcvf_probe(struct pci_dev *p
+ {
+ 	struct ifcvf_vdpa_mgmt_dev *ifcvf_mgmt_dev;
+ 	struct device *dev = &pdev->dev;
+-	struct ifcvf_adapter *adapter;
+ 	struct ifcvf_hw *vf;
+ 	u32 dev_type;
+ 	int ret, i;
+@@ -825,24 +831,10 @@ static int ifcvf_probe(struct pci_dev *p
+ 		return -ENOMEM;
+ 	}
+ 
+-	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
+-				    dev, &ifc_vdpa_ops, 1, 1, NULL, false);
+-	if (IS_ERR(adapter)) {
+-		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
+-		ret = PTR_ERR(adapter);
+-		goto err;
+-	}
+-
+-	adapter->pdev = pdev;
+-	adapter->vdpa.dma_dev = &pdev->dev;
+-	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
+-	ifcvf_mgmt_dev->adapter = adapter;
+-
+ 	vf = &ifcvf_mgmt_dev->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+ 	vf->base = pcim_iomap_table(pdev);
+ 	vf->pdev = pdev;
+-	adapter->vf = vf;
+ 
+ 	ret = ifcvf_init_hw(vf, pdev);
+ 	if (ret) {
 
 
