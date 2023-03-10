@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A6906B499F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:14:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0820F6B4A5D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:22:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234025AbjCJPOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:14:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54084 "EHLO
+        id S233897AbjCJPWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:22:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233854AbjCJPOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5054B65C4A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:30 -0800 (PST)
+        with ESMTP id S234042AbjCJPVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:21:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852AC94F4E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:12:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD2F8B82315
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:04:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 118AAC433EF;
-        Fri, 10 Mar 2023 15:04:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70AE461A36
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:06:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BA60C433EF;
+        Fri, 10 Mar 2023 15:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460658;
-        bh=fq8ArX5XJf2iYIoI/4WeKo1Rl7tL3QXnwEECDEkCM8o=;
+        s=korg; t=1678460776;
+        bh=SvPNXhxvzIQ9HUI1qxe8JlFbSpONuJU6zUPZIRFNgeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19VePUqXnZgdqcNjiAJAq1xgKK+22jM4iRyvB8j65q4FzxH4Rbt90ol9hTJ3VAsOL
-         S4ax/6s4tAKNqHzfuizIMKjeQSRqBH5ImXb3xskM3AsAbARw31QZJguhup/x4H4Fvc
-         Q762T887dvy8V7ASocFUZ2Km9jd2WFAXvm97IlGc=
+        b=Z7HLA2jNTe5MntVoU51LwoA4l1hDaVOlAoRoEhbyLGA4qkNPBJG80dpO1Ac2U5StA
+         fsTh+6GtYwy3+h84wQbcRrRRtOuWZIQGzcr+bJrRLlsj2BTYPXRbv2kOWqvW9Pkwje
+         4rMf2x7IvR9g9ZN05qsaDS2Qyrmezsq2/ML2umZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.10 407/529] ktest.pl: Fix missing "end_monitor" when machine check fails
-Date:   Fri, 10 Mar 2023 14:39:10 +0100
-Message-Id: <20230310133823.852143710@linuxfoundation.org>
+Subject: [PATCH 5.10 408/529] ktest.pl: Add RUN_TIMEOUT option with default unlimited
+Date:   Fri, 10 Mar 2023 14:39:11 +0100
+Message-Id: <20230310133823.898225171@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,36 +54,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt <rostedt@goodmis.org>
 
-commit e8bf9b98d40dbdf4e39362e3b85a70c61da68cb7 upstream.
+commit 4e7d2a8f0b52abf23b1dc13b3d88bc0923383cd5 upstream.
 
-In the "reboot" command, it does a check of the machine to see if it is
-still alive with a simple "ssh echo" command. If it fails, it will assume
-that a normal "ssh reboot" is not possible and force a power cycle.
+There is a disconnect between the run_command function and the
+wait_for_input. The wait_for_input has a default timeout of 2 minutes. But
+if that happens, the run_command loop will exit out to the waitpid() of
+the executing command. This fails in that it no longer monitors the
+command, and also, the ssh to the test box can hang when its finished, as
+it's waiting for the pipe it's writing to to flush, but the loop that
+reads that pipe has already exited, leaving the command stuck, and the
+test hangs.
 
-In this case, the "start_monitor" is executed, but the "end_monitor" is
-not, and this causes the screen will not be given back to the console. That
-is, after the test, a "reset" command needs to be performed, as "echo" is
-turned off.
+Instead, make the default "wait_for_input" of the run_command infinite,
+and allow the user to override it if they want with a default timeout
+option "RUN_TIMEOUT".
+
+But this fixes the hang that happens when the pipe is full and the ssh
+session never exits.
 
 Cc: stable@vger.kernel.org
-Fixes: 6474ace999edd ("ktest.pl: Powercycle the box on reboot if no connection can be made")
+Fixes: 6e98d1b4415fe ("ktest: Add timeout to ssh command")
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/ktest/ktest.pl |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/ktest/ktest.pl    |   20 ++++++++++++++++----
+ tools/testing/ktest/sample.conf |    5 +++++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
 --- a/tools/testing/ktest/ktest.pl
 +++ b/tools/testing/ktest/ktest.pl
-@@ -1433,7 +1433,8 @@ sub reboot {
+@@ -178,6 +178,7 @@ my $store_failures;
+ my $store_successes;
+ my $test_name;
+ my $timeout;
++my $run_timeout;
+ my $connect_timeout;
+ my $config_bisect_exec;
+ my $booted_timeout;
+@@ -340,6 +341,7 @@ my %option_map = (
+     "STORE_SUCCESSES"		=> \$store_successes,
+     "TEST_NAME"			=> \$test_name,
+     "TIMEOUT"			=> \$timeout,
++    "RUN_TIMEOUT"		=> \$run_timeout,
+     "CONNECT_TIMEOUT"		=> \$connect_timeout,
+     "CONFIG_BISECT_EXEC"	=> \$config_bisect_exec,
+     "BOOTED_TIMEOUT"		=> \$booted_timeout,
+@@ -1800,6 +1802,14 @@ sub run_command {
+     $command =~ s/\$SSH_USER/$ssh_user/g;
+     $command =~ s/\$MACHINE/$machine/g;
  
- 	# Still need to wait for the reboot to finish
- 	wait_for_monitor($time, $reboot_success_line);
--
++    if (!defined($timeout)) {
++	$timeout = $run_timeout;
 +    }
-+    if ($powercycle || $time) {
- 	end_monitor;
++
++    if (!defined($timeout)) {
++	$timeout = -1; # tell wait_for_input to wait indefinitely
++    }
++
+     doprint("$command ... ");
+     $start_time = time;
+ 
+@@ -1826,13 +1836,10 @@ sub run_command {
+ 
+     while (1) {
+ 	my $fp = \*CMD;
+-	if (defined($timeout)) {
+-	    doprint "timeout = $timeout\n";
+-	}
+ 	my $line = wait_for_input($fp, $timeout);
+ 	if (!defined($line)) {
+ 	    my $now = time;
+-	    if (defined($timeout) && (($now - $start_time) >= $timeout)) {
++	    if ($timeout >= 0 && (($now - $start_time) >= $timeout)) {
+ 		doprint "Hit timeout of $timeout, killing process\n";
+ 		$hit_timeout = 1;
+ 		kill 9, $pid;
+@@ -2005,6 +2012,11 @@ sub wait_for_input
+ 	$time = $timeout;
      }
- }
+ 
++    if ($time < 0) {
++	# Negative number means wait indefinitely
++	undef $time;
++    }
++
+     $rin = '';
+     vec($rin, fileno($fp), 1) = 1;
+     vec($rin, fileno(\*STDIN), 1) = 1;
+--- a/tools/testing/ktest/sample.conf
++++ b/tools/testing/ktest/sample.conf
+@@ -809,6 +809,11 @@
+ # is issued instead of a reboot.
+ # CONNECT_TIMEOUT = 25
+ 
++# The timeout in seconds for how long to wait for any running command
++# to timeout. If not defined, it will let it go indefinitely.
++# (default undefined)
++#RUN_TIMEOUT = 600
++
+ # In between tests, a reboot of the box may occur, and this
+ # is the time to wait for the console after it stops producing
+ # output. Some machines may not produce a large lag on reboot
 
 
