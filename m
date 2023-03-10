@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1A3D6B4849
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:01:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 248B06B44F8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233010AbjCJPBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:01:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44030 "EHLO
+        id S232399AbjCJOaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233525AbjCJPA5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:00:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B726C13597C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:37 -0800 (PST)
+        with ESMTP id S232474AbjCJO3b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A7B2213D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7651A61A46
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C1BC4339C;
-        Fri, 10 Mar 2023 14:53:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA06CB822BD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1423DC433EF;
+        Fri, 10 Mar 2023 14:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459999;
-        bh=LkumEGLyq7Agf4+7BZiCzim0DiYzDSomuxljgVM2yqg=;
+        s=korg; t=1678458492;
+        bh=P5yQ3VUnehOZ+XENumY+MCae5nfVvVOCGErurM1jULo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHJYpAb3UsGu6W8NF03iiaCrV+Np5PhOUuUyxnwXMEe3SHJ4JgWSH8LHNA8VBZrGF
-         WUf17+9w/r0pA2Kkibp+cybckXHSzSZNOa5BF/Xoinclspk+Ld0N00qlKU8s96BJd2
-         m8Ssl2kovEWvCogbmBOBCXTaH0WfbK0jrl274+ss=
+        b=cvZ4OtkMpAoCSO+0VOgmsbItJZ3d3rYmgBrCULXOY/3oa6VYR/EcbEhPs5fuInJbl
+         5PYfnYx/tgVQEnKDfY0KIw6SjD51l1vLAP6CUdtc4auKbF7irA6Lyf+VUSxnz0SxlR
+         3KrA6V6L8QGQTTp8g7LdUUIRG5Cvq7aQe8Cwr3zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 190/529] ASoC: soc-compress.c: fixup private_data on snd_soc_new_compress()
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 044/357] wifi: brcmfmac: fix potential memory leak in brcmf_netdev_start_xmit()
 Date:   Fri, 10 Mar 2023 14:35:33 +0100
-Message-Id: <20230310133813.787306982@linuxfoundation.org>
+Message-Id: <20230310133735.931814533@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,39 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit ffe4c0f0bfaa571a676a0e946d4a6a0607f94294 ]
+[ Upstream commit 212fde3fe76e962598ce1d47b97cc78afdfc71b3 ]
 
-commit d3268a40d4b19f ("ASoC: soc-compress.c: fix NULL dereference")
-enables DPCM capture, but it should independent from playback.
-This patch fixup it.
+The brcmf_netdev_start_xmit() returns NETDEV_TX_OK without freeing skb
+in case of pskb_expand_head() fails, add dev_kfree_skb() to fix it.
+Compile tested only.
 
-Fixes: d3268a40d4b1 ("ASoC: soc-compress.c: fix NULL dereference")
-Link: https://lore.kernel.org/r/87tu0i6j7j.wl-kuninori.morimoto.gx@renesas.com
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/871qnkvo1s.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 270a6c1f65fe ("brcmfmac: rework headroom check in .start_xmit()")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1668684782-47422-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-compress.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
-index d0f3ff8edd904..8f4ebb189e019 100644
---- a/sound/soc/soc-compress.c
-+++ b/sound/soc/soc-compress.c
-@@ -822,7 +822,7 @@ int snd_soc_new_compress(struct snd_soc_pcm_runtime *rtd, int num)
- 		rtd->fe_compr = 1;
- 		if (rtd->dai_link->dpcm_playback)
- 			be_pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream->private_data = rtd;
--		else if (rtd->dai_link->dpcm_capture)
-+		if (rtd->dai_link->dpcm_capture)
- 			be_pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream->private_data = rtd;
- 		memcpy(compr->ops, &soc_compr_dyn_ops, sizeof(soc_compr_dyn_ops));
- 	} else {
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index 5b7c1b99273d5..4907a667f963c 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -333,6 +333,7 @@ static netdev_tx_t brcmf_netdev_start_xmit(struct sk_buff *skb,
+ 			bphy_err(drvr, "%s: failed to expand headroom\n",
+ 				 brcmf_ifname(ifp));
+ 			atomic_inc(&drvr->bus_if->stats.pktcow_failed);
++			dev_kfree_skb(skb);
+ 			goto done;
+ 		}
+ 	}
 -- 
 2.39.2
 
