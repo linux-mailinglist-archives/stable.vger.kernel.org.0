@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDE36B48A8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:05:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 051DA6B49C1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233673AbjCJPFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:05:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56114 "EHLO
+        id S234022AbjCJPP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:15:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233823AbjCJPEx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:04:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2144260402
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:58:09 -0800 (PST)
+        with ESMTP id S234125AbjCJPOz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7FF129720
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A69460F55
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8108EC433D2;
-        Fri, 10 Mar 2023 14:57:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2040BB822EA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 726A3C433D2;
+        Fri, 10 Mar 2023 14:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460256;
-        bh=xPuCJui7Z3eCuRsGgKo0bI2BrNxdGzxbiF2XaOaH83U=;
+        s=korg; t=1678460261;
+        bh=nmGpkPzSADV+CpFECU9s/I5AvOFORyLFcmBB2tBb/P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lti2u45AFukHFFBhyeGnd4c58k+TGRq6JvkOYXCHqffWbB8s0YvhXxIebjJtfr7In
-         D8RX4F/8ElR5cnuEBZJ91c4WNSZwvEkn8P7j1XzCVJjtG1wi8HBicwU0qX2ObHXfPP
-         yqI6f7I5AcINNNsBz+n7VoeL5V9h1Q+SqVhQFiBQ=
+        b=CVP5tnGcnthG/X2wmaMAEekqfYYJ80s0l3fH1xefinwN/sd1hIaX2NkKJNzir5l+r
+         dn1OlZTJvM6KOIvHh+6iB+2VyIlqO/JHZ9or1A4AoZdvkc9IDrghE6nv+xxb5jD4ur
+         +vI57/NpnJtuSd5935LMmbom+WuF3C1/9fuVxRgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adam Ford <aford173@gmail.com>,
+        patches@lists.linux.dev, Jai Luthra <j-luthra@ti.com>,
         Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 274/529] media: i2c: imx219: Split common registers from mode tables
-Date:   Fri, 10 Mar 2023 14:36:57 +0100
-Message-Id: <20230310133817.662417854@linuxfoundation.org>
+Subject: [PATCH 5.10 275/529] media: i2c: imx219: Fix binning for RAW8 capture
+Date:   Fri, 10 Mar 2023 14:36:58 +0100
+Message-Id: <20230310133817.702618268@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -46,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,312 +56,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Jai Luthra <j-luthra@ti.com>
 
-[ Upstream commit 8508455961d5a9e8907bcfd8dcd58f19d9b6ce47 ]
+[ Upstream commit ef86447e775fb1f2ced00d4c7fff2c0a1c63f165 ]
 
-There are four modes, and each mode has a table of registers.
-Some of the registers are common to all modes, so create new
-tables for these common registers to reduce duplicate code.
+2x2 binning works fine for RAW10 capture, but for RAW8 1232p mode it
+leads to corrupted frames [1][2].
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
+Using the special 2x2 analog binning mode fixes the issue, but causes
+artefacts for RAW10 1232p capture. So here we choose the binning mode
+depending upon the frame format selected.
+
+As both binning modes work fine for 480p RAW8 and RAW10 capture, it can
+share the same code path as 1232p for selecting binning mode.
+
+[1] https://forums.raspberrypi.com/viewtopic.php?t=332103
+[2] https://github.com/raspberrypi/libcamera-apps/issues/281
+
+Fixes: 22da1d56e982 ("media: i2c: imx219: Add support for RAW8 bit bayer format")
+Signed-off-by: Jai Luthra <j-luthra@ti.com>
 Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Stable-dep-of: ef86447e775f ("media: i2c: imx219: Fix binning for RAW8 capture")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx219.c | 206 +++++++++++--------------------------
- 1 file changed, 59 insertions(+), 147 deletions(-)
+ drivers/media/i2c/imx219.c | 57 ++++++++++++++++++++++++++++++++------
+ 1 file changed, 49 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
-index cad0a8df203ed..a28926069b82b 100644
+index a28926069b82b..b975636d94401 100644
 --- a/drivers/media/i2c/imx219.c
 +++ b/drivers/media/i2c/imx219.c
-@@ -145,23 +145,61 @@ struct imx219_mode {
+@@ -89,6 +89,12 @@
+ 
+ #define IMX219_REG_ORIENTATION		0x0172
+ 
++/* Binning  Mode */
++#define IMX219_REG_BINNING_MODE		0x0174
++#define IMX219_BINNING_NONE		0x0000
++#define IMX219_BINNING_2X2		0x0101
++#define IMX219_BINNING_2X2_ANALOG	0x0303
++
+ /* Test Pattern Control */
+ #define IMX219_REG_TEST_PATTERN		0x0600
+ #define IMX219_TEST_PATTERN_DISABLE	0
+@@ -143,6 +149,9 @@ struct imx219_mode {
+ 
+ 	/* Default register values */
  	struct imx219_reg_list reg_list;
++
++	/* 2x2 binning is used */
++	bool binning;
  };
  
--/*
-- * Register sets lifted off the i2C interface from the Raspberry Pi firmware
-- * driver.
-- * 3280x2464 = mode 2, 1920x1080 = mode 1, 1640x1232 = mode 4, 640x480 = mode 7.
-- */
--static const struct imx219_reg mode_3280x2464_regs[] = {
--	{0x0100, 0x00},
-+static const struct imx219_reg imx219_common_regs[] = {
-+	{0x0100, 0x00},	/* Mode Select */
-+
-+	/* To Access Addresses 3000-5fff, send the following commands */
- 	{0x30eb, 0x0c},
- 	{0x30eb, 0x05},
- 	{0x300a, 0xff},
- 	{0x300b, 0xff},
- 	{0x30eb, 0x05},
- 	{0x30eb, 0x09},
--	{0x0114, 0x01},
--	{0x0128, 0x00},
--	{0x012a, 0x18},
-+
-+	/* PLL Clock Table */
-+	{0x0301, 0x05},	/* VTPXCK_DIV */
-+	{0x0303, 0x01},	/* VTSYSCK_DIV */
-+	{0x0304, 0x03},	/* PREPLLCK_VT_DIV 0x03 = AUTO set */
-+	{0x0305, 0x03}, /* PREPLLCK_OP_DIV 0x03 = AUTO set */
-+	{0x0306, 0x00},	/* PLL_VT_MPY */
-+	{0x0307, 0x39},
-+	{0x030b, 0x01},	/* OP_SYS_CLK_DIV */
-+	{0x030c, 0x00},	/* PLL_OP_MPY */
-+	{0x030d, 0x72},
-+
-+	/* Undocumented registers */
-+	{0x455e, 0x00},
-+	{0x471e, 0x4b},
-+	{0x4767, 0x0f},
-+	{0x4750, 0x14},
-+	{0x4540, 0x00},
-+	{0x47b4, 0x14},
-+	{0x4713, 0x30},
-+	{0x478b, 0x10},
-+	{0x478f, 0x10},
-+	{0x4793, 0x10},
-+	{0x4797, 0x0e},
-+	{0x479b, 0x0e},
-+
-+	/* Frame Bank Register Group "A" */
-+	{0x0162, 0x0d},	/* Line_Length_A */
-+	{0x0163, 0x78},
-+	{0x0170, 0x01}, /* X_ODD_INC_A */
-+	{0x0171, 0x01}, /* Y_ODD_INC_A */
-+
-+	/* Output setup registers */
-+	{0x0114, 0x01},	/* CSI 2-Lane Mode */
-+	{0x0128, 0x00},	/* DPHY Auto Mode */
-+	{0x012a, 0x18},	/* EXCK_Freq */
- 	{0x012b, 0x00},
-+};
-+
-+/*
-+ * Register sets lifted off the i2C interface from the Raspberry Pi firmware
-+ * driver.
-+ * 3280x2464 = mode 2, 1920x1080 = mode 1, 1640x1232 = mode 4, 640x480 = mode 7.
-+ */
-+static const struct imx219_reg mode_3280x2464_regs[] = {
- 	{0x0164, 0x00},
- 	{0x0165, 0x00},
- 	{0x0166, 0x0c},
-@@ -174,53 +212,15 @@ static const struct imx219_reg mode_3280x2464_regs[] = {
+ static const struct imx219_reg imx219_common_regs[] = {
+@@ -212,8 +221,6 @@ static const struct imx219_reg mode_3280x2464_regs[] = {
  	{0x016d, 0xd0},
  	{0x016e, 0x09},
  	{0x016f, 0xa0},
--	{0x0170, 0x01},
--	{0x0171, 0x01},
--	{0x0174, 0x00},
-+	{0x0174, 0x00},	/* No-Binning */
- 	{0x0175, 0x00},
--	{0x0301, 0x05},
--	{0x0303, 0x01},
--	{0x0304, 0x03},
--	{0x0305, 0x03},
--	{0x0306, 0x00},
--	{0x0307, 0x39},
--	{0x030b, 0x01},
--	{0x030c, 0x00},
--	{0x030d, 0x72},
+-	{0x0174, 0x00},	/* No-Binning */
+-	{0x0175, 0x00},
  	{0x0624, 0x0c},
  	{0x0625, 0xd0},
  	{0x0626, 0x09},
- 	{0x0627, 0xa0},
--	{0x455e, 0x00},
--	{0x471e, 0x4b},
--	{0x4767, 0x0f},
--	{0x4750, 0x14},
--	{0x4540, 0x00},
--	{0x47b4, 0x14},
--	{0x4713, 0x30},
--	{0x478b, 0x10},
--	{0x478f, 0x10},
--	{0x4793, 0x10},
--	{0x4797, 0x0e},
--	{0x479b, 0x0e},
--	{0x0162, 0x0d},
--	{0x0163, 0x78},
- };
- 
- static const struct imx219_reg mode_1920_1080_regs[] = {
--	{0x0100, 0x00},
--	{0x30eb, 0x05},
--	{0x30eb, 0x0c},
--	{0x300a, 0xff},
--	{0x300b, 0xff},
--	{0x30eb, 0x05},
--	{0x30eb, 0x09},
--	{0x0114, 0x01},
--	{0x0128, 0x00},
--	{0x012a, 0x18},
--	{0x012b, 0x00},
--	{0x0162, 0x0d},
--	{0x0163, 0x78},
- 	{0x0164, 0x02},
- 	{0x0165, 0xa8},
- 	{0x0166, 0x0a},
-@@ -233,49 +233,15 @@ static const struct imx219_reg mode_1920_1080_regs[] = {
+@@ -233,8 +240,6 @@ static const struct imx219_reg mode_1920_1080_regs[] = {
  	{0x016d, 0x80},
  	{0x016e, 0x04},
  	{0x016f, 0x38},
--	{0x0170, 0x01},
--	{0x0171, 0x01},
--	{0x0174, 0x00},
-+	{0x0174, 0x00},	/* No-Binning */
- 	{0x0175, 0x00},
--	{0x0301, 0x05},
--	{0x0303, 0x01},
--	{0x0304, 0x03},
--	{0x0305, 0x03},
--	{0x0306, 0x00},
--	{0x0307, 0x39},
--	{0x030b, 0x01},
--	{0x030c, 0x00},
--	{0x030d, 0x72},
+-	{0x0174, 0x00},	/* No-Binning */
+-	{0x0175, 0x00},
  	{0x0624, 0x07},
  	{0x0625, 0x80},
  	{0x0626, 0x04},
- 	{0x0627, 0x38},
--	{0x455e, 0x00},
--	{0x471e, 0x4b},
--	{0x4767, 0x0f},
--	{0x4750, 0x14},
--	{0x4540, 0x00},
--	{0x47b4, 0x14},
--	{0x4713, 0x30},
--	{0x478b, 0x10},
--	{0x478f, 0x10},
--	{0x4793, 0x10},
--	{0x4797, 0x0e},
--	{0x479b, 0x0e},
- };
- 
- static const struct imx219_reg mode_1640_1232_regs[] = {
--	{0x0100, 0x00},
--	{0x30eb, 0x0c},
--	{0x30eb, 0x05},
--	{0x300a, 0xff},
--	{0x300b, 0xff},
--	{0x30eb, 0x05},
--	{0x30eb, 0x09},
--	{0x0114, 0x01},
--	{0x0128, 0x00},
--	{0x012a, 0x18},
--	{0x012b, 0x00},
- 	{0x0164, 0x00},
- 	{0x0165, 0x00},
- 	{0x0166, 0x0c},
-@@ -288,53 +254,15 @@ static const struct imx219_reg mode_1640_1232_regs[] = {
+@@ -254,8 +259,6 @@ static const struct imx219_reg mode_1640_1232_regs[] = {
  	{0x016d, 0x68},
  	{0x016e, 0x04},
  	{0x016f, 0xd0},
--	{0x0170, 0x01},
--	{0x0171, 0x01},
--	{0x0174, 0x01},
-+	{0x0174, 0x01},	/* x2-Binning */
- 	{0x0175, 0x01},
--	{0x0301, 0x05},
--	{0x0303, 0x01},
--	{0x0304, 0x03},
--	{0x0305, 0x03},
--	{0x0306, 0x00},
--	{0x0307, 0x39},
--	{0x030b, 0x01},
--	{0x030c, 0x00},
--	{0x030d, 0x72},
+-	{0x0174, 0x01},	/* x2-Binning */
+-	{0x0175, 0x01},
  	{0x0624, 0x06},
  	{0x0625, 0x68},
  	{0x0626, 0x04},
- 	{0x0627, 0xd0},
--	{0x455e, 0x00},
--	{0x471e, 0x4b},
--	{0x4767, 0x0f},
--	{0x4750, 0x14},
--	{0x4540, 0x00},
--	{0x47b4, 0x14},
--	{0x4713, 0x30},
--	{0x478b, 0x10},
--	{0x478f, 0x10},
--	{0x4793, 0x10},
--	{0x4797, 0x0e},
--	{0x479b, 0x0e},
--	{0x0162, 0x0d},
--	{0x0163, 0x78},
- };
- 
- static const struct imx219_reg mode_640_480_regs[] = {
--	{0x0100, 0x00},
--	{0x30eb, 0x05},
--	{0x30eb, 0x0c},
--	{0x300a, 0xff},
--	{0x300b, 0xff},
--	{0x30eb, 0x05},
--	{0x30eb, 0x09},
--	{0x0114, 0x01},
--	{0x0128, 0x00},
--	{0x012a, 0x18},
--	{0x012b, 0x00},
--	{0x0162, 0x0d},
--	{0x0163, 0x78},
- 	{0x0164, 0x03},
- 	{0x0165, 0xe8},
- 	{0x0166, 0x08},
-@@ -347,35 +275,12 @@ static const struct imx219_reg mode_640_480_regs[] = {
+@@ -275,8 +278,6 @@ static const struct imx219_reg mode_640_480_regs[] = {
  	{0x016d, 0x80},
  	{0x016e, 0x01},
  	{0x016f, 0xe0},
--	{0x0170, 0x01},
--	{0x0171, 0x01},
--	{0x0174, 0x03},
-+	{0x0174, 0x03},	/* x2-analog binning */
- 	{0x0175, 0x03},
--	{0x0301, 0x05},
--	{0x0303, 0x01},
--	{0x0304, 0x03},
--	{0x0305, 0x03},
--	{0x0306, 0x00},
--	{0x0307, 0x39},
--	{0x030b, 0x01},
--	{0x030c, 0x00},
--	{0x030d, 0x72},
+-	{0x0174, 0x03},	/* x2-analog binning */
+-	{0x0175, 0x03},
  	{0x0624, 0x06},
  	{0x0625, 0x68},
  	{0x0626, 0x04},
- 	{0x0627, 0xd0},
--	{0x455e, 0x00},
--	{0x471e, 0x4b},
--	{0x4767, 0x0f},
--	{0x4750, 0x14},
--	{0x4540, 0x00},
--	{0x47b4, 0x14},
--	{0x4713, 0x30},
--	{0x478b, 0x10},
--	{0x478f, 0x10},
--	{0x4793, 0x10},
--	{0x4797, 0x0e},
--	{0x479b, 0x0e},
+@@ -386,6 +387,7 @@ static const struct imx219_mode supported_modes[] = {
+ 			.num_of_regs = ARRAY_SIZE(mode_3280x2464_regs),
+ 			.regs = mode_3280x2464_regs,
+ 		},
++		.binning = false,
+ 	},
+ 	{
+ 		/* 1080P 30fps cropped */
+@@ -402,6 +404,7 @@ static const struct imx219_mode supported_modes[] = {
+ 			.num_of_regs = ARRAY_SIZE(mode_1920_1080_regs),
+ 			.regs = mode_1920_1080_regs,
+ 		},
++		.binning = false,
+ 	},
+ 	{
+ 		/* 2x2 binned 30fps mode */
+@@ -418,6 +421,7 @@ static const struct imx219_mode supported_modes[] = {
+ 			.num_of_regs = ARRAY_SIZE(mode_1640_1232_regs),
+ 			.regs = mode_1640_1232_regs,
+ 		},
++		.binning = true,
+ 	},
+ 	{
+ 		/* 640x480 30fps mode */
+@@ -434,6 +438,7 @@ static const struct imx219_mode supported_modes[] = {
+ 			.num_of_regs = ARRAY_SIZE(mode_640_480_regs),
+ 			.regs = mode_640_480_regs,
+ 		},
++		.binning = true,
+ 	},
  };
  
- static const struct imx219_reg raw8_framefmt_regs[] = {
-@@ -1030,6 +935,13 @@ static int imx219_start_streaming(struct imx219 *imx219)
- 		return ret;
+@@ -872,6 +877,35 @@ static int imx219_set_framefmt(struct imx219 *imx219)
+ 	return -EINVAL;
+ }
+ 
++static int imx219_set_binning(struct imx219 *imx219)
++{
++	if (!imx219->mode->binning) {
++		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
++					IMX219_REG_VALUE_16BIT,
++					IMX219_BINNING_NONE);
++	}
++
++	switch (imx219->fmt.code) {
++	case MEDIA_BUS_FMT_SRGGB8_1X8:
++	case MEDIA_BUS_FMT_SGRBG8_1X8:
++	case MEDIA_BUS_FMT_SGBRG8_1X8:
++	case MEDIA_BUS_FMT_SBGGR8_1X8:
++		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
++					IMX219_REG_VALUE_16BIT,
++					IMX219_BINNING_2X2_ANALOG);
++
++	case MEDIA_BUS_FMT_SRGGB10_1X10:
++	case MEDIA_BUS_FMT_SGRBG10_1X10:
++	case MEDIA_BUS_FMT_SGBRG10_1X10:
++	case MEDIA_BUS_FMT_SBGGR10_1X10:
++		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
++					IMX219_REG_VALUE_16BIT,
++					IMX219_BINNING_2X2);
++	}
++
++	return -EINVAL;
++}
++
+ static const struct v4l2_rect *
+ __imx219_get_pad_crop(struct imx219 *imx219, struct v4l2_subdev_pad_config *cfg,
+ 		      unsigned int pad, enum v4l2_subdev_format_whence which)
+@@ -957,6 +991,13 @@ static int imx219_start_streaming(struct imx219 *imx219)
+ 		goto err_rpm_put;
  	}
  
-+	/* Send all registers that are common to all modes */
-+	ret = imx219_write_regs(imx219, imx219_common_regs, ARRAY_SIZE(imx219_common_regs));
++	ret = imx219_set_binning(imx219);
 +	if (ret) {
-+		dev_err(&client->dev, "%s failed to send mfg header\n", __func__);
++		dev_err(&client->dev, "%s failed to set binning: %d\n",
++			__func__, ret);
 +		goto err_rpm_put;
 +	}
 +
- 	/* Apply default values of current mode */
- 	reg_list = &imx219->mode->reg_list;
- 	ret = imx219_write_regs(imx219, reg_list->regs, reg_list->num_of_regs);
+ 	/* Apply customized values from user */
+ 	ret =  __v4l2_ctrl_handler_setup(imx219->sd.ctrl_handler);
+ 	if (ret)
 -- 
 2.39.2
 
