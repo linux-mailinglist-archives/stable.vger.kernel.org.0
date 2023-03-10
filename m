@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A30CF6B4650
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDCAA6B4278
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232854AbjCJOmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:42:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58718 "EHLO
+        id S231655AbjCJODt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232830AbjCJOl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2C3711F634
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:51 -0800 (PST)
+        with ESMTP id S231659AbjCJODX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F89A1042A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAFBEB822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DDDC4339C;
-        Fri, 10 Mar 2023 14:41:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD3E8617D5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFCA7C433D2;
+        Fri, 10 Mar 2023 14:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459308;
-        bh=FYccJEXC129+lYzQPsHq224q5RlxDj0WuYo8eE9I/zo=;
+        s=korg; t=1678456999;
+        bh=SEZ/R9orBYO/45C+iXUWeTh6D4Q6EKotYYe2Q8noFKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P7Ln0XulouGDQsTZx8jDlZMELW6Ko8uWXdOmNE9utiN4byH4SHIaMY2/Ab9m+ufHx
-         QHeDTdRfBp/u5OtRbwOKjsT2s3a/w8HvCGNZGuSgMXYIojZ7TmvHSJwsvbmFI96l6t
-         owwMTfpGMm4CP1AjlTMh/cckgIYCA4k6OWicGees=
+        b=yS0zmeI9S7AB/pKmTNBFimWlTgasiU7Mnzyzp5ALpWACenAN+LjxJAMLdk5TqaDRK
+         oPyxETaSxMx7jb06ntLLokxDIS2Iay5klf2LqA3Wkqi9DsBg8emmkwG1/hqns/WvY1
+         z/U9tnJAc4KBu6cAUuIUpJ5tYDTm6U/xpfmIKvE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 288/357] f2fs: use memcpy_{to,from}_page() where possible
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.2 197/211] vDPA/ifcvf: decouple config/dev IRQ requester and vectors allocator from the adapter
 Date:   Fri, 10 Mar 2023 14:39:37 +0100
-Message-Id: <20230310133747.458269223@linuxfoundation.org>
+Message-Id: <20230310133724.879817697@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,158 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit b87846bd61c7c09560617da416208a5454530d57 ]
+commit a70d833e696e538a0feff5e539086c74a90ddf90 upstream.
 
-This is simpler, and as a side effect it replaces several uses of
-kmap_atomic() with its recommended replacement kmap_local_page().
+This commit decouples the config irq requester, the device
+shared irq requester and the MSI vectors allocator from
+the adapter. So they can be safely invoked since probe
+before the adapter is allocated.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Stable-dep-of: b1b9896718bc ("fs: f2fs: initialize fsdata in pagecache_write()")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-8-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/inline.c | 15 ++++-----------
- fs/f2fs/super.c  | 11 ++---------
- fs/f2fs/verity.c | 10 ++--------
- 3 files changed, 8 insertions(+), 28 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c |   21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index 58b77f0b0a05a..a700df05cd182 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -43,7 +43,6 @@ bool f2fs_may_inline_dentry(struct inode *inode)
- void f2fs_do_read_inline_data(struct page *page, struct page *ipage)
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -132,10 +132,9 @@ static void ifcvf_free_irq(struct ifcvf_
+  * It returns the number of allocated vectors, negative
+  * return value when fails.
+  */
+-static int ifcvf_alloc_vectors(struct ifcvf_adapter *adapter)
++static int ifcvf_alloc_vectors(struct ifcvf_hw *vf)
  {
- 	struct inode *inode = page->mapping->host;
--	void *src_addr, *dst_addr;
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int max_intr, ret;
  
- 	if (PageUptodate(page))
- 		return;
-@@ -53,11 +52,8 @@ void f2fs_do_read_inline_data(struct page *page, struct page *ipage)
- 	zero_user_segment(page, MAX_INLINE_DATA(inode), PAGE_SIZE);
- 
- 	/* Copy the whole inline data block */
--	src_addr = inline_data_addr(inode, ipage);
--	dst_addr = kmap_atomic(page);
--	memcpy(dst_addr, src_addr, MAX_INLINE_DATA(inode));
--	flush_dcache_page(page);
--	kunmap_atomic(dst_addr);
-+	memcpy_to_page(page, 0, inline_data_addr(inode, ipage),
-+		       MAX_INLINE_DATA(inode));
- 	if (!PageUptodate(page))
- 		SetPageUptodate(page);
+ 	/* all queues and config interrupt  */
+@@ -222,10 +221,9 @@ err:
+ 	return -EFAULT;
  }
-@@ -224,7 +220,6 @@ int f2fs_convert_inline_inode(struct inode *inode)
  
- int f2fs_write_inline_data(struct inode *inode, struct page *page)
+-static int ifcvf_request_dev_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_dev_irq(struct ifcvf_hw *vf)
  {
--	void *src_addr, *dst_addr;
- 	struct dnode_of_data dn;
- 	int err;
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int i, vector, ret, irq;
  
-@@ -241,10 +236,8 @@ int f2fs_write_inline_data(struct inode *inode, struct page *page)
- 	f2fs_bug_on(F2FS_I_SB(inode), page->index);
+ 	vector = 0;
+@@ -276,10 +274,9 @@ static int ifcvf_request_vq_irq(struct i
+ 	return ret;
+ }
  
- 	f2fs_wait_on_page_writeback(dn.inode_page, NODE, true, true);
--	src_addr = kmap_atomic(page);
--	dst_addr = inline_data_addr(inode, dn.inode_page);
--	memcpy(dst_addr, src_addr, MAX_INLINE_DATA(inode));
--	kunmap_atomic(src_addr);
-+	memcpy_from_page(inline_data_addr(inode, dn.inode_page),
-+			 page, 0, MAX_INLINE_DATA(inode));
- 	set_page_dirty(dn.inode_page);
+-static int ifcvf_request_config_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_config_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int config_vector, ret;
  
- 	f2fs_clear_page_cache_dirty_tag(page);
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 3f2fe60346401..401bc0e7f6eb0 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1824,7 +1824,6 @@ static ssize_t f2fs_quota_read(struct super_block *sb, int type, char *data,
- 	size_t toread;
- 	loff_t i_size = i_size_read(inode);
- 	struct page *page;
--	char *kaddr;
+ 	if (vf->msix_vector_status == MSIX_VECTOR_PER_VQ_AND_CONFIG)
+@@ -322,7 +319,7 @@ static int ifcvf_request_irq(struct ifcv
+ 	struct ifcvf_hw *vf = &adapter->vf;
+ 	int nvectors, ret, max_intr;
  
- 	if (off > i_size)
- 		return 0;
-@@ -1857,9 +1856,7 @@ static ssize_t f2fs_quota_read(struct super_block *sb, int type, char *data,
- 			return -EIO;
- 		}
+-	nvectors = ifcvf_alloc_vectors(adapter);
++	nvectors = ifcvf_alloc_vectors(vf);
+ 	if (nvectors <= 0)
+ 		return -EFAULT;
  
--		kaddr = kmap_atomic(page);
--		memcpy(data, kaddr + offset, tocopy);
--		kunmap_atomic(kaddr);
-+		memcpy_from_page(data, page, offset, tocopy);
- 		f2fs_put_page(page, 1);
+@@ -333,7 +330,7 @@ static int ifcvf_request_irq(struct ifcv
  
- 		offset = 0;
-@@ -1881,7 +1878,6 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
- 	size_t towrite = len;
- 	struct page *page;
- 	void *fsdata = NULL;
--	char *kaddr;
- 	int err = 0;
- 	int tocopy;
+ 	if (nvectors == 1) {
+ 		vf->msix_vector_status = MSIX_VECTOR_DEV_SHARED;
+-		ret = ifcvf_request_dev_irq(adapter);
++		ret = ifcvf_request_dev_irq(vf);
  
-@@ -1900,10 +1896,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
- 			break;
- 		}
+ 		return ret;
+ 	}
+@@ -342,7 +339,7 @@ static int ifcvf_request_irq(struct ifcv
+ 	if (ret)
+ 		return ret;
  
--		kaddr = kmap_atomic(page);
--		memcpy(kaddr + offset, data, tocopy);
--		kunmap_atomic(kaddr);
--		flush_dcache_page(page);
-+		memcpy_to_page(page, offset, data, tocopy);
+-	ret = ifcvf_request_config_irq(adapter);
++	ret = ifcvf_request_config_irq(vf);
  
- 		a_ops->write_end(NULL, mapping, off, tocopy, tocopy,
- 						page, fsdata);
-diff --git a/fs/f2fs/verity.c b/fs/f2fs/verity.c
-index 7944a08a3977e..e5a47782a97ef 100644
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -45,16 +45,13 @@ static int pagecache_read(struct inode *inode, void *buf, size_t count,
- 		size_t n = min_t(size_t, count,
- 				 PAGE_SIZE - offset_in_page(pos));
- 		struct page *page;
--		void *addr;
- 
- 		page = read_mapping_page(inode->i_mapping, pos >> PAGE_SHIFT,
- 					 NULL);
- 		if (IS_ERR(page))
- 			return PTR_ERR(page);
- 
--		addr = kmap_atomic(page);
--		memcpy(buf, addr + offset_in_page(pos), n);
--		kunmap_atomic(addr);
-+		memcpy_from_page(buf, page, offset_in_page(pos), n);
- 
- 		put_page(page);
- 
-@@ -80,7 +77,6 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
- 				 PAGE_SIZE - offset_in_page(pos));
- 		struct page *page;
- 		void *fsdata;
--		void *addr;
- 		int res;
- 
- 		res = pagecache_write_begin(NULL, inode->i_mapping, pos, n, 0,
-@@ -88,9 +84,7 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
- 		if (res)
- 			return res;
- 
--		addr = kmap_atomic(page);
--		memcpy(addr + offset_in_page(pos), buf, n);
--		kunmap_atomic(addr);
-+		memcpy_to_page(page, offset_in_page(pos), buf, n);
- 
- 		res = pagecache_write_end(NULL, inode->i_mapping, pos, n, n,
- 					  page, fsdata);
--- 
-2.39.2
-
+ 	if (ret)
+ 		return ret;
 
 
