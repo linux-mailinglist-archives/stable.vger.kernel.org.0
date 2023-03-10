@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D32D6B459F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F020C6B41DB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232577AbjCJOfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44540 "EHLO
+        id S231292AbjCJN5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232602AbjCJOfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:25 -0500
+        with ESMTP id S231284AbjCJN5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB784EFF6D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4ECA112DF0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75E6961745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE50C433EF;
-        Fri, 10 Mar 2023 14:35:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C925617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80966C433D2;
+        Fri, 10 Mar 2023 13:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458920;
-        bh=/5qzUNehwR6VOaUQTzxrEyfDJdliRzDYisWRPDqXMk0=;
+        s=korg; t=1678456622;
+        bh=6u0ePQZ+YiBDfRz2rvDVDPqI5rsE7kLJA+yOsD1wlK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SH7kJe1jmJ1pxL2XjeAxMX8va7HZWlnALqn4iTaKEUa8XmTNGIimnWuZPndQiLIhd
-         urPe8xa7W1cBscLDUuaTtEh36tpWuiY6CvJd7XBT5fTv2y396Wb2BlnyiZ1KSCH4Rl
-         x9dwi5uLwweO9lAr0CStBPHOuB2uMeFiC1rvvFqM=
+        b=d6Lw3E3/M2pIOynIGGm5oB40QI81dcfDGlYlJnVHWny5ulOJKmmRjEL/zV7i29F70
+         eTATL3tDPOA/i6JQlfRW1+1BOS+M0neO/d7MxBwM3GqvxbTE8nkXvax+wlGa/WeCAw
+         swaYjwTn2FyCyKwNfeBO1tQXF5u/tB82VzA1CtLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Jeffery <andrew@aj.id.au>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/357] powerpc/powernv/ioda: Skip unallocated resources when mapping to PE
+Subject: [PATCH 6.2 066/211] netfilter: ctnetlink: fix possible refcount leak in ctnetlink_create_conntrack()
 Date:   Fri, 10 Mar 2023 14:37:26 +0100
-Message-Id: <20230310133741.635948839@linuxfoundation.org>
+Message-Id: <20230310133720.760669020@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Barrat <fbarrat@linux.ibm.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit e64e71056f323a1e178dccf04d4c0f032d84436c ]
+[ Upstream commit ac4893980bbe79ce383daf9a0885666a30fe4c83 ]
 
-pnv_ioda_setup_pe_res() calls opal to map a resource with a PE. However,
-the code assumes the resource is allocated and it uses the resource
-address to find out the segment(s) which need to be mapped to the
-PE. In the unlikely case where the resource hasn't been allocated, the
-computation for the segment number is garbage, which can lead to
-invalid memory access and potentially a kernel crash, such as:
+nf_ct_put() needs to be called to put the refcount got by
+nf_conntrack_find_get() to avoid refcount leak when
+nf_conntrack_hash_check_insert() fails.
 
-[ ] pci_bus 0002:02: Configuring PE for bus
-[ ] pci 0002:02     : [PE# fc] Secondary bus 0x0000000000000002..0x0000000000000002 associated with PE#fc
-[ ] BUG: Kernel NULL pointer dereference on write at 0x00000000
-[ ] Faulting instruction address: 0xc00000000005eac4
-[ ] Oops: Kernel access of bad area, sig: 7 [#1]
-[ ] LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
-[ ] Modules linked in:
-[ ] CPU: 12 PID: 1 Comm: swapper/20 Not tainted 5.10.50-openpower1 #2
-[ ] NIP:  c00000000005eac4 LR: c00000000005ea44 CTR: 0000000030061b9c
-[ ] REGS: c000200007383650 TRAP: 0300   Not tainted  (5.10.50-openpower1)
-[ ] MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44000224  XER: 20040000
-[ ] CFAR: c00000000005eaa0 DAR: 0000000000000000 DSISR: 02080000 IRQMASK: 0
-[ ] GPR00: c00000000005dd98 c0002000073838e0 c00000000185de00 c000200fff018960
-[ ] GPR04: 00000000000000fc 0000000000000003 0000000000000000 0000000000000000
-[ ] GPR08: 0000000000000000 0000000000000000 0000000000000000 9000000000001033
-[ ] GPR12: 0000000031cb0000 c000000ffffe6a80 c000000000010a58 0000000000000000
-[ ] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[ ] GPR20: 0000000000000000 0000000000000000 0000000000000000 c00000000711e200
-[ ] GPR24: 0000000000000100 c000200009501120 c00020000cee2800 00000000000003ff
-[ ] GPR28: c000200fff018960 0000000000000000 c000200ffcb7fd00 0000000000000000
-[ ] NIP [c00000000005eac4] pnv_ioda_setup_pe_res+0x94/0x1a0
-[ ] LR [c00000000005ea44] pnv_ioda_setup_pe_res+0x14/0x1a0
-[ ] Call Trace:
-[ ] [c0002000073838e0] [c00000000005eb98] pnv_ioda_setup_pe_res+0x168/0x1a0 (unreliable)
-[ ] [c000200007383970] [c00000000005dd98] pnv_pci_ioda_dma_dev_setup+0x43c/0x970
-[ ] [c000200007383a60] [c000000000032cdc] pcibios_bus_add_device+0x78/0x18c
-[ ] [c000200007383aa0] [c00000000028f2bc] pci_bus_add_device+0x28/0xbc
-[ ] [c000200007383b10] [c00000000028f3a0] pci_bus_add_devices+0x50/0x7c
-[ ] [c000200007383b50] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
-[ ] [c000200007383b90] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
-[ ] [c000200007383bd0] [c00000000069ad0c] pcibios_init+0xf0/0x104
-[ ] [c000200007383c50] [c0000000000106d8] do_one_initcall+0x84/0x1c4
-[ ] [c000200007383d20] [c0000000006910b8] kernel_init_freeable+0x264/0x268
-[ ] [c000200007383dc0] [c000000000010a68] kernel_init+0x18/0x138
-[ ] [c000200007383e20] [c00000000000cbfc] ret_from_kernel_thread+0x5c/0x80
-[ ] Instruction dump:
-[ ] 7f89e840 409d000c 7fbbf840 409c000c 38210090 4848f448 809c002c e95e0120
-[ ] 7ba91764 38a00003 57a7043e 38c00000 <7c8a492e> 5484043e e87e0018 4bff23bd
-
-Hitting the problem is not that easy. It was seen with a (semi-bogus)
-PCI device with a class code of 0. The generic PCI framework doesn't
-allocate resources in such a case.
-
-The patch is simply skipping resources which are still flagged with
-IORESOURCE_UNSET.
-
-We don't have the problem with 64-bit mem resources, as the address of
-the resource is checked to be within the range of the 64-bit mmio
-window. See pnv_ioda_reserve_dev_m64_pe() and pnv_pci_is_m64().
-
-Reported-by: Andrew Jeffery <andrew@aj.id.au>
-Fixes: 23e79425fe7c ("powerpc/powernv: Simplify pnv_ioda_setup_pe_seg()")
-Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230120093215.19496-1-fbarrat@linux.ibm.com
+Fixes: 7d367e06688d ("netfilter: ctnetlink: fix soft lockup when netlink adds new entries (v2)")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/pci-ioda.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_netlink.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
-index 058223233088e..df4457e743d33 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -3008,7 +3008,8 @@ static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
- 	int index;
- 	int64_t rc;
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 1286ae7d46096..ca4d5bb1ea524 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -2375,12 +2375,15 @@ ctnetlink_create_conntrack(struct net *net,
  
--	if (!res || !res->flags || res->start > res->end)
-+	if (!res || !res->flags || res->start > res->end ||
-+	    res->flags & IORESOURCE_UNSET)
- 		return;
+ 	err = nf_conntrack_hash_check_insert(ct);
+ 	if (err < 0)
+-		goto err2;
++		goto err3;
  
- 	if (res->flags & IORESOURCE_IO) {
+ 	rcu_read_unlock();
+ 
+ 	return ct;
+ 
++err3:
++	if (ct->master)
++		nf_ct_put(ct->master);
+ err2:
+ 	rcu_read_unlock();
+ err1:
 -- 
 2.39.2
 
