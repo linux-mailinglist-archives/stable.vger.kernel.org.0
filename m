@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C46B26B42A0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:05:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F197A6B41CB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231633AbjCJOE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:04:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53758 "EHLO
+        id S231335AbjCJN4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231668AbjCJOEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:50 -0500
+        with ESMTP id S231354AbjCJN4q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305F31499B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BC7510F444
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:56:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB2BEB822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B0BFC4339E;
-        Fri, 10 Mar 2023 14:04:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30819B822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE86C4339C;
+        Fri, 10 Mar 2023 13:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457086;
-        bh=q9SXpEIEJ7CN0EDtwiiA2258JISseLm5FqIEvlREOMo=;
+        s=korg; t=1678456576;
+        bh=rAVK09GvI0sZ+tjgMiU6r2EeyV9OP5l4Xml8V9iKA3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfMay3uRZbbhISJlPyjbnE2zAvkg7t6XKgEAirrL/v928phWXNmXPW0iv2FmlXESU
-         Dw4ynerxBl8bpIdGV/hrcSNTS+GtNbszRAGeOAXnndYa/O7YXQez91dGIANWtblzF8
-         IKrfkS1cvpdbCR0BhtZ35IxWy7QjEUD6SL8buAps=
+        b=ZYbOgGihkYfqGcgoVR2RtkoVO3mXyV1KXqZZSePMP9Mapnf7DvR2YEXWybjx3E/tj
+         /o5JrkBOcaQT1eaEt85sKr5sYsgadA4caZHEclHw2MZeBsFh4/TZ1Z+e/FW+R1J0/l
+         Wky02y8X8Q9ViXky/p8vuSy1HY/vuqBlCHCXqUfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 016/200] f2fs: clear atomic_write_task in f2fs_abort_atomic_write()
+Subject: [PATCH 6.2 043/211] ubi: ubi_wl_put_peb: Fix infinite loop when wear-leveling work failed
 Date:   Fri, 10 Mar 2023 14:37:03 +0100
-Message-Id: <20230310133717.541462441@linuxfoundation.org>
+Message-Id: <20230310133720.049335531@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 0e8d040bfa4c476d7d2a23119527c744c7de13cd ]
+[ Upstream commit 4d57a7333e26040f2b583983e1970d9d460e56b0 ]
 
-Otherwise, last .atomic_write_task will be remained in structure
-f2fs_inode_info, resulting in aborting atomic_write accidentally
-in race case. Meanwhile, clear original_i_size as well.
+Following process will trigger an infinite loop in ubi_wl_put_peb():
 
-Fixes: 7a10f0177e11 ("f2fs: don't give partially written atomic data from process crash")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+	ubifs_bgt		ubi_bgt
+ubifs_leb_unmap
+  ubi_leb_unmap
+    ubi_eba_unmap_leb
+      ubi_wl_put_peb	wear_leveling_worker
+                          e1 = rb_entry(rb_first(&ubi->used)
+			  e2 = get_peb_for_wl(ubi)
+			  ubi_io_read_vid_hdr  // return err (flash fault)
+			  out_error:
+			    ubi->move_from = ubi->move_to = NULL
+			    wl_entry_destroy(ubi, e1)
+			      ubi->lookuptbl[e->pnum] = NULL
+      retry:
+        e = ubi->lookuptbl[pnum];	// return NULL
+	if (e == ubi->move_from) {	// NULL == NULL gets true
+	  goto retry;			// infinite loop !!!
+
+$ top
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     COMMAND
+  7676 root     20   0       0      0      0 R 100.0  0.0  ubifs_bgt0_0
+
+Fix it by:
+ 1) Letting ubi_wl_put_peb() returns directly if wearl leveling entry has
+    been removed from 'ubi->lookuptbl'.
+ 2) Using 'ubi->wl_lock' protecting wl entry deletion to preventing an
+    use-after-free problem for wl entry in ubi_wl_put_peb().
+
+Fetch a reproducer in [Link].
+
+Fixes: 43f9b25a9cdd7b1 ("UBI: bugfix: protect from volume removal")
+Fixes: ee59ba8b064f692 ("UBI: Fix stale pointers in ubi->lookuptbl")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216111
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mtd/ubi/wl.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 60d79e427f988..63c6894099799 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -200,9 +200,12 @@ void f2fs_abort_atomic_write(struct inode *inode, bool clean)
- 	clear_inode_flag(inode, FI_ATOMIC_FILE);
- 	stat_dec_atomic_inode(inode);
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index f45df3b773739..9e14319225c97 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -976,11 +976,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 	spin_lock(&ubi->wl_lock);
+ 	ubi->move_from = ubi->move_to = NULL;
+ 	ubi->move_to_put = ubi->wl_scheduled = 0;
++	wl_entry_destroy(ubi, e1);
++	wl_entry_destroy(ubi, e2);
+ 	spin_unlock(&ubi->wl_lock);
  
-+	F2FS_I(inode)->atomic_write_task = NULL;
-+
- 	if (clean) {
- 		truncate_inode_pages_final(inode->i_mapping);
- 		f2fs_i_size_write(inode, fi->original_i_size);
-+		fi->original_i_size = 0;
- 	}
- }
+ 	ubi_free_vid_buf(vidb);
+-	wl_entry_destroy(ubi, e1);
+-	wl_entry_destroy(ubi, e2);
  
+ out_ro:
+ 	ubi_ro_mode(ubi);
+@@ -1260,6 +1260,18 @@ int ubi_wl_put_peb(struct ubi_device *ubi, int vol_id, int lnum,
+ retry:
+ 	spin_lock(&ubi->wl_lock);
+ 	e = ubi->lookuptbl[pnum];
++	if (!e) {
++		/*
++		 * This wl entry has been removed for some errors by other
++		 * process (eg. wear leveling worker), corresponding process
++		 * (except __erase_worker, which cannot concurrent with
++		 * ubi_wl_put_peb) will set ubi ro_mode at the same time,
++		 * just ignore this wl entry.
++		 */
++		spin_unlock(&ubi->wl_lock);
++		up_read(&ubi->fm_protect);
++		return 0;
++	}
+ 	if (e == ubi->move_from) {
+ 		/*
+ 		 * User is putting the physical eraseblock which was selected to
 -- 
 2.39.2
 
