@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 033226B41BF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97DDF6B40ED
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231268AbjCJN4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:56:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38452 "EHLO
+        id S229652AbjCJNrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:47:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231274AbjCJN4P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20731151C5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:49 -0800 (PST)
+        with ESMTP id S230310AbjCJNrl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760D228E7C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5BCCB822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F9B6C433D2;
-        Fri, 10 Mar 2023 13:55:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1220F617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC475C4339E;
+        Fri, 10 Mar 2023 13:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456547;
-        bh=f6u2J5NWjV8c4KTosZEvfTBzhiZcVzUNJVqIcEqQBNU=;
+        s=korg; t=1678456059;
+        bh=5AqFIXHo3XPoCCjNXubvIOZGKq2Wd7n5trrl0V2l9lY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xIaG7br6KD4CFebP8oynNeulqQsyygrAy6Q1MzdJKsiQaA0f0xniMaVYZw7kNH/hE
-         K34uxDa7lnNOPh20EXK2IY4sqaOj33Su0Ln1P0KjYWH941bbEbu400GR+ur28+809I
-         kTJJa8fRL3wi4ouyMGTAjK+RL8HEHbhEVTtF9g/Q=
+        b=12j9nDu2khT2N3k7fLjVtGuJLufDGmj/Rp3Wk0fYGnICUalyuRPQJpQAWcmv+4id8
+         +7NP9deZYc4/yGEOotFOXsibd+oHGHgYC1/5KV1/qwGFXP0+ouwNPl3PvMl5KIqCdm
+         XI4LMHlZb0PAAxoq+DtfIPWxucEHmAJDUh6M3/AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev,
+        syzbot+e008dccab31bd3647609@syzkaller.appspotmail.com,
+        syzbot+6692c72009680f7c4eb2@syzkaller.appspotmail.com,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 039/211] ubifs: ubifs_writepage: Mark page dirty after writing inode failed
+Subject: [PATCH 4.14 037/193] wifi: ath9k: htc_hst: free skb in ath9k_htc_rx_msg() if there is no callback function
 Date:   Fri, 10 Mar 2023 14:36:59 +0100
-Message-Id: <20230310133719.921195169@linuxfoundation.org>
+Message-Id: <20230310133712.195210343@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,112 +59,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit fb8bc4c74ae4526d9489362ab2793a936d072b84 ]
+[ Upstream commit 9b25e3985477ac3f02eca5fc1e0cc6850a3f7e69 ]
 
-There are two states for ubifs writing pages:
-1. Dirty, Private
-2. Not Dirty, Not Private
+It is stated that ath9k_htc_rx_msg() either frees the provided skb or
+passes its management to another callback function. However, the skb is
+not freed in case there is no another callback function, and Syzkaller was
+able to cause a memory leak. Also minor comment fix.
 
-There is a third possibility which maybe related to [1] that page is
-private but not dirty caused by following process:
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
 
-          PA
-lock(page)
-ubifs_write_end
-  attach_page_private		// set Private
-    __set_page_dirty_nobuffers	// set Dirty
-unlock(page)
-
-write_cache_pages
-  lock(page)
-  clear_page_dirty_for_io(page)	// clear Dirty
-  ubifs_writepage
-    write_inode
-    // fail, goto out, following codes are not executed
-    // do_writepage
-    //   set_page_writeback 	// set Writeback
-    //   detach_page_private	// clear Private
-    //   end_page_writeback 	// clear Writeback
-    out:
-    unlock(page)		// Private, Not Dirty
-
-                                       PB
-				ksys_fadvise64_64
-				  generic_fadvise
-				     invalidate_inode_page
-				     // page is neither Dirty nor Writeback
-				       invalidate_complete_page
-				       // page_has_private is true
-					 try_to_release_page
-					   ubifs_releasepage
-					     ubifs_assert(c, 0) !!!
-
-Then we may get following assertion failed:
-  UBIFS error (ubi0:0 pid 1492): ubifs_assert_failed [ubifs]:
-  UBIFS assert failed: 0, in fs/ubifs/file.c:1499
-  UBIFS warning (ubi0:0 pid 1492): ubifs_ro_mode [ubifs]:
-  switched to read-only mode, error -22
-  CPU: 2 PID: 1492 Comm: aa Not tainted 5.16.0-rc2-00012-g7bb767dee0ba-dirty
-  Call Trace:
-    dump_stack+0x13/0x1b
-    ubifs_ro_mode+0x54/0x60 [ubifs]
-    ubifs_assert_failed+0x4b/0x80 [ubifs]
-    ubifs_releasepage+0x7e/0x1e0 [ubifs]
-    try_to_release_page+0x57/0xe0
-    invalidate_inode_page+0xfb/0x130
-    invalidate_mapping_pagevec+0x12/0x20
-    generic_fadvise+0x303/0x3c0
-    vfs_fadvise+0x35/0x40
-    ksys_fadvise64_64+0x4c/0xb0
-
-Jump [2] to find a reproducer.
-
-[1] https://linux-mtd.infradead.narkive.com/NQoBeT1u/patch-rfc-ubifs-fix-assert-failed-in-ubifs-set-page-dirty
-[2] https://bugzilla.kernel.org/show_bug.cgi?id=215357
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Reported-by: syzbot+e008dccab31bd3647609@syzkaller.appspotmail.com
+Reported-by: syzbot+6692c72009680f7c4eb2@syzkaller.appspotmail.com
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20230104123546.51427-1-pchelkin@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_hst.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index f2353dd676ef0..1f429260a85fc 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -1032,7 +1032,7 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
- 		if (page->index >= synced_i_size >> PAGE_SHIFT) {
- 			err = inode->i_sb->s_op->write_inode(inode, NULL);
- 			if (err)
--				goto out_unlock;
-+				goto out_redirty;
- 			/*
- 			 * The inode has been written, but the write-buffer has
- 			 * not been synchronized, so in case of an unclean
-@@ -1060,11 +1060,17 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
- 	if (i_size > synced_i_size) {
- 		err = inode->i_sb->s_op->write_inode(inode, NULL);
- 		if (err)
--			goto out_unlock;
-+			goto out_redirty;
+diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
+index 6d69cf69fd86e..6331c98088e03 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_hst.c
++++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
+@@ -394,7 +394,7 @@ static void ath9k_htc_fw_panic_report(struct htc_target *htc_handle,
+  * HTC Messages are handled directly here and the obtained SKB
+  * is freed.
+  *
+- * Service messages (Data, WMI) passed to the corresponding
++ * Service messages (Data, WMI) are passed to the corresponding
+  * endpoint RX handlers, which have to free the SKB.
+  */
+ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
+@@ -481,6 +481,8 @@ void ath9k_htc_rx_msg(struct htc_target *htc_handle,
+ 		if (endpoint->ep_callbacks.rx)
+ 			endpoint->ep_callbacks.rx(endpoint->ep_callbacks.priv,
+ 						  skb, epid);
++		else
++			goto invalid;
  	}
+ }
  
- 	return do_writepage(page, len);
--
-+out_redirty:
-+	/*
-+	 * redirty_page_for_writepage() won't call ubifs_dirty_inode() because
-+	 * it passes I_DIRTY_PAGES flag while calling __mark_inode_dirty(), so
-+	 * there is no need to do space budget for dirty inode.
-+	 */
-+	redirty_page_for_writepage(wbc, page);
- out_unlock:
- 	unlock_page(page);
- 	return err;
 -- 
 2.39.2
 
