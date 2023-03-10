@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9977E6B4832
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:00:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 231FF6B44CF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:28:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233614AbjCJPAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:00:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43500 "EHLO
+        id S232410AbjCJO2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:28:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233801AbjCJPAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:00:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFB912A15A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:07 -0800 (PST)
+        with ESMTP id S232336AbjCJO2O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:28:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3E51219E9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:26:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F5BCB82319
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E70BC4339B;
-        Fri, 10 Mar 2023 14:53:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2795618C9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F89C433EF;
+        Fri, 10 Mar 2023 14:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459991;
-        bh=j4dhwgA5xZjOPJ0nEmKi2TKM4YNjfbgUPLwKoQdEXHU=;
+        s=korg; t=1678458391;
+        bh=FnEjlfM+HJPaL9Ti65gx3wHrSUMMCljaV2xMvVKQTEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDbAIyWTliix6tsTv59szEi816kYeowUMRJDpvBBZ/lK4pOTnD6ar0XPYWzN+Hym+
-         aoyulwOf7IwTCxSXcfCE/4a3fpjX3g0HJUYG2kVnbXEaQ+3CsJS41Ew/83bA45nfbL
-         BRFy7bWpRIyb+UiFtEHwpk53F1YGyDruyiCmKnJg=
+        b=vNxzMb5Axz47mZhSCEW/sfQeC4tbT2oTHomipWZOBqPY4pr2ZI6/nTEmDnChXbUaL
+         kxBIcjJ+sWHTOayU3RIsjUEuVjqjCAJO+XaBHKihUwQthf3ZX27UG/Jhplaq73YDGu
+         pWDyFu+5ym+CQIwWXW6a3iW7euOZ+wvk50noSfh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        patches@lists.linux.dev, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 156/529] gpu: ipu-v3: common: Add of_node_put() for reference returned by of_graph_get_port_by_id()
-Date:   Fri, 10 Mar 2023 14:34:59 +0100
-Message-Id: <20230310133812.179357301@linuxfoundation.org>
+Subject: [PATCH 5.4 011/357] ARM: OMAP1: call platform_device_put() in error case in omap1_dm_timer_init()
+Date:   Fri, 10 Mar 2023 14:35:00 +0100
+Message-Id: <20230310133734.482340885@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9afdf98cfdfa2ba8ec068cf08c5fcdc1ed8daf3f ]
+[ Upstream commit 0414a100d6ab32721efa70ab55524540fdfe0ede ]
 
-In ipu_add_client_devices(), we need to call of_node_put() for
-reference returned by of_graph_get_port_by_id() in fail path.
+If platform_device_add() is not called or failed, it should call
+platform_device_put() in error case.
 
-Fixes: 17e052175039 ("gpu: ipu-v3: Do not bail out on missing optional port nodes")
-Signed-off-by: Liang He <windhl@126.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220720152227.1288413-1-windhl@126.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220720152227.1288413-1-windhl@126.com
+Fixes: 97933d6ced60 ("ARM: OMAP1: dmtimer: conversion to platform devices")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Message-Id: <20220701094602.2365099-1-yangyingliang@huawei.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/ipu-v3/ipu-common.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-omap1/timer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-common.c b/drivers/gpu/ipu-v3/ipu-common.c
-index d166ee262ce43..22dae3f510517 100644
---- a/drivers/gpu/ipu-v3/ipu-common.c
-+++ b/drivers/gpu/ipu-v3/ipu-common.c
-@@ -1168,6 +1168,7 @@ static int ipu_add_client_devices(struct ipu_soc *ipu, unsigned long ipu_base)
- 		pdev = platform_device_alloc(reg->name, id++);
- 		if (!pdev) {
- 			ret = -ENOMEM;
-+			of_node_put(of_node);
- 			goto err_register;
- 		}
+diff --git a/arch/arm/mach-omap1/timer.c b/arch/arm/mach-omap1/timer.c
+index 4447210c9b0d8..291bc376d30e8 100644
+--- a/arch/arm/mach-omap1/timer.c
++++ b/arch/arm/mach-omap1/timer.c
+@@ -165,7 +165,7 @@ static int __init omap1_dm_timer_init(void)
+ 	kfree(pdata);
  
+ err_free_pdev:
+-	platform_device_unregister(pdev);
++	platform_device_put(pdev);
+ 
+ 	return ret;
+ }
 -- 
 2.39.2
 
