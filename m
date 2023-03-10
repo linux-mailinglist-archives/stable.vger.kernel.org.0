@@ -2,104 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5114D6B4DA0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 17:51:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 768836B4DA3
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 17:52:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231467AbjCJQv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 11:51:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40286 "EHLO
+        id S230520AbjCJQv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 11:51:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231791AbjCJQuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 11:50:37 -0500
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE28311F4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 08:47:52 -0800 (PST)
-Received: by mail-oi1-x243.google.com with SMTP id e21so4721544oie.1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 08:47:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678466872;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RE5l1VpxCufAhFhvUtJmOdSBkyXi7tvoVHorDEIVEKk=;
-        b=oWoDqohMRN6/T5RDoxArM6zaZFwxbm+UPooz0vDCVP1jf85j1ny8luUMCkwbw1U0G9
-         n9gE8MghXCeXkovHaRlTjE+j32K01oFpepLUrZ3GkSPZgewKNT3/hRxW6YW6p3reDkmR
-         gU8Mle/uknwNWzX1icGJlY6lc9TcrJYRlhScm8Cel8nSFX2gGkKBbHWfHud2knmYMdim
-         2nDSYkh2nOBcUkOP740jal4Ve3Zb7C0lQfn55x4ThVZIQ7QTKWb9f3CM8ta/+M3ht/4u
-         he8G7Ky/qwHZaVfCB78ZLoHLXqiiwTad3zFaTnCRY+qAYQXRMacAnsOy7OGEoiqz8Rju
-         TLyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678466872;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RE5l1VpxCufAhFhvUtJmOdSBkyXi7tvoVHorDEIVEKk=;
-        b=knvRMOe5ahMEHGMeIxsfqSI97q2uQMQ6igtnmyDqGCNszDvM5VK7V7ixKxyJVGrqXO
-         mdxqG3jdEMNhpCcbEjlMxiGjXxqnQv/XANXcaWntD8s3je7I/QgjgO8X2MD+aLImCii5
-         1oy8HqIhaOdmSgi9iRm4KXLoquFDF5AVycUfnA/MQSv1+bJi+/Ru/JTtq1H/DCd5fldF
-         Ruav6FlgDUG6St/9F/2Pham0bT+8FpXzbR/SqsH/S8N5zZAQjeVLUWx3vhw+vPbBL7zZ
-         urN4+2fQ+SnOMLuIlJi8NcmzMmD6MwI192NCa7Z9dA62gMJCFG1UzrvGahLIg8YaIcZR
-         7isg==
-X-Gm-Message-State: AO0yUKUrV0jsndwe67NynwFuXOid63KB7rVkreDNFo50QUnO3elPJyKM
-        /ocm+FcsPZdMZV0zl1E4hvqSifyJESJuAWh8t7M=
-X-Google-Smtp-Source: AK7set9afx2LL0F11CE5d/xezodymCLN7BZA0Lxvo8AlPJf6xvMwS0gl7iYfMjcsVUvxyfOZ5R0TSTQ6uvoNGHPROfQ=
-X-Received: by 2002:aca:650b:0:b0:384:3e58:672a with SMTP id
- m11-20020aca650b000000b003843e58672amr8769546oim.10.1678466872170; Fri, 10
- Mar 2023 08:47:52 -0800 (PST)
+        with ESMTP id S230526AbjCJQvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 11:51:39 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E1F0763C2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 08:48:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678466898; x=1710002898;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=y1BIGZuvsiTUQZyUIGha39u4IVeDwFUA9ZldRq/rR0k=;
+  b=AutAgHzzupcxedP14toXqI4oMQl0v3oKMFA/vSnK9rXDvwpQehTqx0vY
+   dEdDNxm/Xr2Qw6JFYzTf3E51C0ZXskMnHBplWyS4rPEhwoRtsaBfXJd0B
+   HrJD21We5iZgpFmZ8gBPraXTxt2EM/XE0YSR029WVFjMykHXk96sMeunL
+   FYjhb1vJnb1iEPfn06+3iwA5ZhVDq106Q6LyfNe1cq4LB27OUVlzaaz1l
+   ZN9ZKO7xX0jKbBfLxlOk0QohJJhgT1lX6rdms/UXevMFYNHNvZC4ZCgJn
+   Fp5/5GAOVdO33FDphZzTPKO6zwDu2vzvqDqr7kCR9n8YcAUGrmKsilAhZ
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10645"; a="399371644"
+X-IronPort-AV: E=Sophos;i="5.98,250,1673942400"; 
+   d="scan'208";a="399371644"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2023 08:48:14 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10645"; a="671145703"
+X-IronPort-AV: E=Sophos;i="5.98,250,1673942400"; 
+   d="scan'208";a="671145703"
+Received: from nirmoyda-mobl.ger.corp.intel.com (HELO [10.252.59.175]) ([10.252.59.175])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2023 08:48:12 -0800
+Message-ID: <242c2634-1c38-351d-7198-cba3ec1ad4f2@linux.intel.com>
+Date:   Fri, 10 Mar 2023 17:48:10 +0100
 MIME-Version: 1.0
-Received: by 2002:a05:6358:9ac3:b0:f6:b41a:8514 with HTTP; Fri, 10 Mar 2023
- 08:47:51 -0800 (PST)
-Reply-To: bintu37999@gmail.com
-From:   Bintu Felicia <bimmtu@gmail.com>
-Date:   Fri, 10 Mar 2023 16:47:51 +0000
-Message-ID: <CAAF5RuwoacHHcoPRF8ySur1LDja0hEGHgkTjhVUiQFANaapPZA@mail.gmail.com>
-Subject: HELLO,.....
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.7 required=5.0 tests=BAYES_99,BAYES_999,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/active: Fix missing debug object
+ activation
+Content-Language: en-US
+To:     Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Nirmoy Das <nirmoy.das@intel.com>,
+        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas.hellstrom@intel.com>,
+        stable@vger.kernel.org, Chris Wilson <chris.p.wilson@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+References: <20230310141138.6592-1-nirmoy.das@intel.com>
+ <2135859.irdbgypaU6@jkrzyszt-mobl1.ger.corp.intel.com>
+From:   "Das, Nirmoy" <nirmoy.das@linux.intel.com>
+In-Reply-To: <2135859.irdbgypaU6@jkrzyszt-mobl1.ger.corp.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:243 listed in]
-        [list.dnswl.org]
-        *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
-        *      [score: 1.0000]
-        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
-        *      [score: 1.0000]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [bimmtu[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [bintu37999[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-How are you today? I hope you are fine. My name is Miss
-Bintu Felicia . l am single looking for honest and nice
-person whom i can partner with . I don't care about
-your color, ethnicity, Status or Sex. Upon your reply to
-this mail I will tell you more about myself and send you
-more of my picture .I am sending you this beautiful mail,
-with a wish for much happiness.
+Hi Janusz,
 
-Warm regards,
+On 3/10/2023 4:19 PM, Janusz Krzysztofik wrote:
+> Hi Nirmoy,
+>
+> On Friday, 10 March 2023 15:11:38 CET Nirmoy Das wrote:
+>> debug_active_activate() expected ref->count to be zero
+>> which is not true anymore as __i915_active_activate() calls
+>> debug_active_activate() after incrementing the count.
+>>
+>> Fixes: 04240e30ed06 ("drm/i915: Skip taking acquire mutex for no ref->active
+> callback")
+>> Cc: Chris Wilson <chris@chris-wilson.co.uk>
+>> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+>> Cc: Thomas Hellström <thomas.hellstrom@intel.com>
+>> Cc: Andi Shyti <andi.shyti@linux.intel.com>
+>> Cc: intel-gfx@lists.freedesktop.org
+>> Cc: <stable@vger.kernel.org> # v5.10+
+>> Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+>> ---
+>>   drivers/gpu/drm/i915/i915_active.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/
+> i915_active.c
+>> index a9fea115f2d2..1c3066eb359a 100644
+>> --- a/drivers/gpu/drm/i915/i915_active.c
+>> +++ b/drivers/gpu/drm/i915/i915_active.c
+>> @@ -92,7 +92,7 @@ static void debug_active_init(struct i915_active *ref)
+>>   static void debug_active_activate(struct i915_active *ref)
+>>   {
+>>   	lockdep_assert_held(&ref->tree_lock);
+>> -	if (!atomic_read(&ref->count)) /* before the first inc */
+>> +	if (atomic_read(&ref->count) == 1) /* after the first inc */
+> While that's obviously better than never calling debug_active_activate(), I'm
+> wondering how likely we can still miss it because the counter being
+> incremented, e.g. via i915_active_acquire_if_busy(), by a concurrent thread.
+> Since __i915_active_activate() is the only user and its decision making step
+> is serialized against itself with a spinlock, couldn't we better call
+> debug_object_activate() unconditionally here?
 
-Felicia Bintu
+
+Yes, we can call debug_object_activate() without checking ref->count. 
+Also we can remove the ref-count check for
+
+debug_active_deactivate() as this is wrapped with 
+"atomic_dec_and_lock_irqsave(&ref->count, &ref->tree_lock, flags)".
+
+
+I think it makes sense to keep this patch as it is so it can be 
+backported easily. I can add another patch to remove
+
+unnecessary ref->count  checks.
+
+
+Regards,
+
+Nirmoy
+
+
+>
+> Thanks,
+> Janusz
+>
+>>   		debug_object_activate(ref, &active_debug_desc);
+>>   }
+>>   
+>>
+>
+>
+>
