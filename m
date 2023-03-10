@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38C466B453B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CAF66B40CC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:46:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232574AbjCJOcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52818 "EHLO
+        id S229801AbjCJNqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:46:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232270AbjCJObn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4CA17CE6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:57 -0800 (PST)
+        with ESMTP id S230202AbjCJNqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:46:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24AFF10B1E4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:46:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F09C618C9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65968C433EF;
-        Fri, 10 Mar 2023 14:30:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3DEE617D5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:46:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA355C4339B;
+        Fri, 10 Mar 2023 13:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458656;
-        bh=RmXnX4O5gi5wdoQMcgShlUdW8JUpiGkDCnDglZCJ81M=;
+        s=korg; t=1678455975;
+        bh=gwi6LtZ1h1v23El38qFw3x1lxt0PK5PLOyxHzfj8DWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1Bv+RwIvqbKnMn8RcTETlvQB2NBTIfkeclKAfxOeRrGKx25T+OYmWCQGvEE0fokd
-         7Q0GLoD+ZvN19UZ4YHAlOlko8ppxkEAuv2f18EOa5GwSyuOacEjwqOgYg23NnriHuM
-         yvSFsZgqKH9ib2HY3Jxo26LImXlVTReSUHKB7Ajg=
+        b=sogUchKVPH43hqJf2DHWWsaCsT7PY2QcOJx3PUQaxbZd6Dh2C9H2hQVmwM42G817V
+         tV9LMq1pH1GhJeTKHbtgtCM6efWge2dcJQGMwPMuwP7dFwWMbORZvDQqAkyLa7YfC8
+         aZomA4V6kp0lEpgOlBwLsu9YMxTvWXPqZIYOoZRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 101/357] gpu: ipu-v3: common: Add of_node_put() for reference returned by of_graph_get_port_by_id()
-Date:   Fri, 10 Mar 2023 14:36:30 +0100
-Message-Id: <20230310133738.461992021@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Vinod Koul <vkoul@kernel.org>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.14 009/193] dmaengine: sh: rcar-dmac: Check for error num after dma_set_max_seg_size
+Date:   Fri, 10 Mar 2023 14:36:31 +0100
+Message-Id: <20230310133711.240144387@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,38 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 9afdf98cfdfa2ba8ec068cf08c5fcdc1ed8daf3f ]
+commit da2ad87fba0891576aadda9161b8505fde81a84d upstream.
 
-In ipu_add_client_devices(), we need to call of_node_put() for
-reference returned by of_graph_get_port_by_id() in fail path.
+As the possible failure of the dma_set_max_seg_size(), it should be
+better to check the return value of the dma_set_max_seg_size().
 
-Fixes: 17e052175039 ("gpu: ipu-v3: Do not bail out on missing optional port nodes")
-Signed-off-by: Liang He <windhl@126.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220720152227.1288413-1-windhl@126.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220720152227.1288413-1-windhl@126.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 97d49c59e219 ("dmaengine: rcar-dmac: set scatter/gather max segment size")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220111011239.452837-1-jiasheng@iscas.ac.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
- drivers/gpu/ipu-v3/ipu-common.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/sh/rcar-dmac.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-common.c b/drivers/gpu/ipu-v3/ipu-common.c
-index b3dae9ec1a38b..528812bf84da7 100644
---- a/drivers/gpu/ipu-v3/ipu-common.c
-+++ b/drivers/gpu/ipu-v3/ipu-common.c
-@@ -1235,6 +1235,7 @@ static int ipu_add_client_devices(struct ipu_soc *ipu, unsigned long ipu_base)
- 		pdev = platform_device_alloc(reg->name, id++);
- 		if (!pdev) {
- 			ret = -ENOMEM;
-+			of_node_put(of_node);
- 			goto err_register;
- 		}
- 
--- 
-2.39.2
-
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1766,7 +1766,10 @@ static int rcar_dmac_probe(struct platfo
+ 	dmac->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, dmac);
+ 	dmac->dev->dma_parms = &dmac->parms;
+-	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
++	ret = dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
++	if (ret)
++		return ret;
++
+ 	ret = dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
+ 	if (ret)
+ 		return ret;
 
 
