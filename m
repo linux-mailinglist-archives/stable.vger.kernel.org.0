@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A7D16B41B7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A30906B42B4
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231346AbjCJNzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:55:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
+        id S231605AbjCJOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231375AbjCJNzi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A062010F475
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:27 -0800 (PST)
+        with ESMTP id S231676AbjCJOGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D1314233
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DE77B822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86656C433EF;
-        Fri, 10 Mar 2023 13:55:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D518617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E09FC433D2;
+        Fri, 10 Mar 2023 14:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456524;
-        bh=NP4P2s9LfI66JnA7bcRK68Z6EJWM1pEy3e3+6m3epxg=;
+        s=korg; t=1678457130;
+        bh=V/cX8kh6Yf+9u6fvnRURvuOx4GM5pfroYORCzuxND04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1clLjv8sQKM7qLovOxG67aKHF3RZDNTuUZKZGAXQiamlyP/EIv54Ktq3yNa0awaEY
-         1VpQn3cC2P2GrP/GVlv8xs1EHD50CCRI4L93OZTVBc/WUrGOO75qDcXoJaOyvA/olU
-         ELYqOfMaWuFq+oHEhhLkn6gaujTMS8QqCIsLPcsA=
+        b=EYz1AIQ9Dnb2oLEZiT3v5eGl5uXyinKSj9CvrtXIIvgBBxZiUHX3w1QTas8MTYQn+
+         SufijpooH3OC1LaZ/iqgL7OcGCrblhZRgm59ClDZ4HPZBXke11h5pMU1NF5jTEtUpF
+         /yjATgIHRq4IqkY2DP11HcwVG2x1AwpamBWwEQFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 032/211] ubifs: Reserve one leb for each journal head while doing budget
+Subject: [PATCH 6.1 005/200] f2fs: dont rely on F2FS_MAP_* in f2fs_iomap_begin
 Date:   Fri, 10 Mar 2023 14:36:52 +0100
-Message-Id: <20230310133719.715136713@linuxfoundation.org>
+Message-Id: <20230310133717.220240433@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit e874dcde1cbf82c786c0e7f2899811c02630cc52 ]
+[ Upstream commit 8d3c1fa3fa5eacfd14f5b018eddb6c1a91c57783 ]
 
-UBIFS calculates available space by c->main_bytes - c->lst.total_used
-(which means non-index lebs' free and dirty space is accounted into
-total available), then index lebs and four lebs (one for gc_lnum, one
-for deletions, two for journal heads) are deducted.
-In following situation, ubifs may get -ENOSPC from make_reservation():
- LEB 84: DATAHD   free 122880 used 1920  dirty 2176  dark 6144
- LEB 110:DELETION free 126976 used 0     dirty 0     dark 6144 (empty)
- LEB 201:gc_lnum  free 126976 used 0     dirty 0     dark 6144
- LEB 272:GCHD     free 77824  used 47672 dirty 1480  dark 6144
- LEB 356:BASEHD   free 0      used 39776 dirty 87200 dark 6144
- OTHERS: index lebs, zero-available non-index lebs
+When testing with a mixed zoned / convention device combination, there
+are regular but not 100% reproducible failures in xfstests generic/113
+where the __is_valid_data_blkaddr assert hits due to finding a hole.
 
-UBIFS calculates the available bytes is 6888 (How to calculate it:
-126976 * 5[remain main bytes] - 1920[used] - 47672[used] - 39776[used] -
-126976 * 1[deletions] - 126976 * 1[gc_lnum] - 126976 * 2[journal heads]
-- 6144 * 5[dark] = 6888) after doing budget, however UBIFS cannot use
-BASEHD's dirty space(87200), because UBIFS cannot find next BASEHD to
-reclaim current BASEHD. (c->bi.min_idx_lebs equals to c->lst.idx_lebs,
-the empty leb won't be found by ubifs_find_free_space(), and dirty index
-lebs won't be picked as gced lebs. All non-index lebs has dirty space
-less then c->dead_wm, non-index lebs won't be picked as gced lebs
-either. So new free lebs won't be produced.). See more details in Link.
+This seems to be because f2fs_map_blocks can set this flag on a hole
+when it was found in the extent cache.
 
-To fix it, reserve one leb for each journal head while doing budget.
+Rework f2fs_iomap_begin to just check the special block numbers directly.
+This has the added benefits of the WARN_ON showing which invalid block
+address we found, and being properly error out on delalloc blocks that
+are confusingly called unwritten but not actually suitable for direct
+I/O.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216562
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 1517c1a7a445 ("f2fs: implement iomap operations")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/budget.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/f2fs/data.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/fs/ubifs/budget.c b/fs/ubifs/budget.c
-index 986e6e4081c76..d76eb7b39f564 100644
---- a/fs/ubifs/budget.c
-+++ b/fs/ubifs/budget.c
-@@ -209,11 +209,10 @@ long long ubifs_calc_available(const struct ubifs_info *c, int min_idx_lebs)
- 	subtract_lebs += 1;
- 
- 	/*
--	 * The GC journal head LEB is not really accessible. And since
--	 * different write types go to different heads, we may count only on
--	 * one head's space.
-+	 * Since different write types go to different heads, we should
-+	 * reserve one leb for each head.
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 5f4519af98214..f92899bfcbd5e 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -4138,20 +4138,24 @@ static int f2fs_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
  	 */
--	subtract_lebs += c->jhead_cnt - 1;
-+	subtract_lebs += c->jhead_cnt;
+ 	map.m_len = fscrypt_limit_io_blocks(inode, map.m_lblk, map.m_len);
  
- 	/* We also reserve one LEB for deletions, which bypass budgeting */
- 	subtract_lebs += 1;
+-	if (map.m_flags & (F2FS_MAP_MAPPED | F2FS_MAP_UNWRITTEN)) {
+-		iomap->length = blks_to_bytes(inode, map.m_len);
+-		if (map.m_flags & F2FS_MAP_MAPPED) {
+-			iomap->type = IOMAP_MAPPED;
+-			iomap->flags |= IOMAP_F_MERGED;
+-		} else {
+-			iomap->type = IOMAP_UNWRITTEN;
+-		}
+-		if (WARN_ON_ONCE(!__is_valid_data_blkaddr(map.m_pblk)))
+-			return -EINVAL;
++	/*
++	 * We should never see delalloc or compressed extents here based on
++	 * prior flushing and checks.
++	 */
++	if (WARN_ON_ONCE(map.m_pblk == NEW_ADDR))
++		return -EINVAL;
++	if (WARN_ON_ONCE(map.m_pblk == COMPRESS_ADDR))
++		return -EINVAL;
+ 
++	if (map.m_pblk != NULL_ADDR) {
++		iomap->length = blks_to_bytes(inode, map.m_len);
++		iomap->type = IOMAP_MAPPED;
++		iomap->flags |= IOMAP_F_MERGED;
+ 		iomap->bdev = map.m_bdev;
+ 		iomap->addr = blks_to_bytes(inode, map.m_pblk);
+ 	} else {
++		if (flags & IOMAP_WRITE)
++			return -ENOTBLK;
+ 		iomap->length = blks_to_bytes(inode, next_pgofs) -
+ 				iomap->offset;
+ 		iomap->type = IOMAP_HOLE;
 -- 
 2.39.2
 
