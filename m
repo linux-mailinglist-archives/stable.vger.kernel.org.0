@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 657D36B4428
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DC96B421E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231995AbjCJOWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58366 "EHLO
+        id S231433AbjCJOAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:00:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232198AbjCJOVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:39 -0500
+        with ESMTP id S231492AbjCJN7z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B22367EF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A251115DF1;
+        Fri, 10 Mar 2023 05:59:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E530461745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A05C4339B;
-        Fri, 10 Mar 2023 14:20:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1431D61552;
+        Fri, 10 Mar 2023 13:59:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26464C433EF;
+        Fri, 10 Mar 2023 13:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458017;
-        bh=A7IRnukhHXspiMg9l31IM0CQm2/H6bC3kecCt3X3HNo=;
+        s=korg; t=1678456792;
+        bh=QUVyWcpNPiRRb0YcbMLuwPP4ifg6zlz8Ly/SlacKjmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8H9TBolIWaAGvPWtSSkyJheWuhR6WTMUxx1ceo0IJ+u8QLZGAvGOUd7Is2OuGY32
-         1gT8imuEjD4MTP+C+X/IUcuOhQOZWmfuM66bi37dIcwaGTCaZjOfPLg/IGgx+F1ZSZ
-         1eEZSy7KEdyKu1KSWIu294MFVenNbK+Fq7/1v3xA=
+        b=EiATd6AAeocnQCAiRswg+oMqifYdZGhRuFyA5BD6PcQURRZhQ/Cls1T9HZJ2pzJS/
+         VB2w1DKzi4r31pZMp+divYSdikLbZ2a/lZC0OCnDZkgBa2v2bTLpUIVf9Ad0UUAQY2
+         gWEBuQ9mXnXiWOa1jByN4rSuHxgwlgZm0TYs2ryQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 136/252] pinctrl: at91: use devm_kasprintf() to avoid potential leaks
+        patches@lists.linux.dev, Chris Down <chris@chrisdown.name>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        John Ogness <john.ogness@linutronix.de>,
+        linux-kernel@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 126/211] kernel/printk/index.c: fix memory leak with using debugfs_lookup()
 Date:   Fri, 10 Mar 2023 14:38:26 +0100
-Message-Id: <20230310133722.916027856@linuxfoundation.org>
+Message-Id: <20230310133722.564658451@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 1c4e5c470a56f7f7c649c0c70e603abc1eab15c4 ]
+[ Upstream commit 55bf243c514553e907efcf2bda92ba090eca8c64 ]
 
-Use devm_kasprintf() instead of kasprintf() to avoid any potential
-leaks. At the moment drivers have no remove functionality thus
-there is no need for fixes tag.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230203132714.1931596-1-claudiu.beznea@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Chris Down <chris@chrisdown.name>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: John Ogness <john.ogness@linutronix.de>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20230202151411.2308576-1-gregkh@linuxfoundation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-at91-pio4.c | 4 ++--
- drivers/pinctrl/pinctrl-at91.c      | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ kernel/printk/index.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
-index 9e2f3738bf3ec..89d88e447d44f 100644
---- a/drivers/pinctrl/pinctrl-at91-pio4.c
-+++ b/drivers/pinctrl/pinctrl-at91-pio4.c
-@@ -1022,8 +1022,8 @@ static int atmel_pinctrl_probe(struct platform_device *pdev)
+diff --git a/kernel/printk/index.c b/kernel/printk/index.c
+index c85be186a7832..a6b27526baaf6 100644
+--- a/kernel/printk/index.c
++++ b/kernel/printk/index.c
+@@ -145,7 +145,7 @@ static void pi_create_file(struct module *mod)
+ #ifdef CONFIG_MODULES
+ static void pi_remove_file(struct module *mod)
+ {
+-	debugfs_remove(debugfs_lookup(pi_get_module_name(mod), dfs_index));
++	debugfs_lookup_and_remove(pi_get_module_name(mod), dfs_index);
+ }
  
- 		pin_desc[i].number = i;
- 		/* Pin naming convention: P(bank_name)(bank_pin_number). */
--		pin_desc[i].name = kasprintf(GFP_KERNEL, "P%c%d",
--					     bank + 'A', line);
-+		pin_desc[i].name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "P%c%d",
-+						  bank + 'A', line);
- 
- 		group->name = group_names[i] = pin_desc[i].name;
- 		group->pin = pin_desc[i].number;
-diff --git a/drivers/pinctrl/pinctrl-at91.c b/drivers/pinctrl/pinctrl-at91.c
-index fad0e132ead84..ad01cc5798232 100644
---- a/drivers/pinctrl/pinctrl-at91.c
-+++ b/drivers/pinctrl/pinctrl-at91.c
-@@ -1782,7 +1782,7 @@ static int at91_gpio_probe(struct platform_device *pdev)
- 	}
- 
- 	for (i = 0; i < chip->ngpio; i++)
--		names[i] = kasprintf(GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
-+		names[i] = devm_kasprintf(&pdev->dev, GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
- 
- 	chip->names = (const char *const *)names;
- 
+ static int pi_module_notify(struct notifier_block *nb, unsigned long op,
 -- 
 2.39.2
 
