@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC4C6B3E28
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:40:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B16C6B3E29
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbjCJLkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 06:40:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40354 "EHLO
+        id S230477AbjCJLkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 06:40:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbjCJLkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:40:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55838F6B55
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:40:17 -0800 (PST)
+        with ESMTP id S230464AbjCJLkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:40:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0755FCFBB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:40:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 031F3B82269
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:40:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 754B7C433D2;
-        Fri, 10 Mar 2023 11:40:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F1C9613F7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:40:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50449C433EF;
+        Fri, 10 Mar 2023 11:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678448414;
-        bh=Ps31yDj5PJ3Ca+i/W+LrQUXljYy3KFvX4IM7pIIvob8=;
+        s=korg; t=1678448417;
+        bh=KwhfXNRK8B0MaRMH/lH1C3psYDVeIMONOWmZZdvIZ5c=;
         h=Subject:To:Cc:From:Date:From;
-        b=m0BllfxL1ExlFkQl0BvhWvfTgE6wujUQQL7ZEK40Wfj11++rTnSGOaR3VXqTRNclR
-         2cPdSBA4DNyhSzxAfpFOVXCkUeLs6DkqDDO3Qjahvs1atA6t9M8zTnvHD9bq+9udhG
-         21T546yniLBBf4Lhe28jnmEGR+Z2GAzxY4aoCQkM=
-Subject: FAILED: patch "[PATCH] drm/i915: Populate encoder->devdata for DSI on icl+" failed to apply to 6.1-stable tree
+        b=kEzNmFb02T4G/qopFCBQURz6rU0lbMY8a63IyXeUz2JP/BokEDnx3496rnXT4S31K
+         4e9Nmio3PUkYmTtiuAxbTBQ5rilTbwZDq6TzF+Tif0stka4PgHHZtKvUSDx1Gn0PuS
+         6cCEb9ho1HEdEQo4zwiVEztQ5wZ+Y46NbkoH5f6k=
+Subject: FAILED: patch "[PATCH] drm/i915: Populate encoder->devdata for DSI on icl+" failed to apply to 5.15-stable tree
 To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Mar 2023 12:40:03 +0100
-Message-ID: <167844840315031@kroah.com>
+Date:   Fri, 10 Mar 2023 12:40:04 +0100
+Message-ID: <167844840476206@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -48,25 +48,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
 git checkout FETCH_HEAD
 git cherry-pick -x 14e591a1930c2790fe862af5b01ee3ca587f752f
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167844840315031@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167844840476206@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
 
 Possible dependencies:
 
 14e591a1930c ("drm/i915: Populate encoder->devdata for DSI on icl+")
 3f9ffce5765d ("drm/i915: Do panel VBT init early if the VBT declares an explicit panel type")
 f70f8153e364 ("drm/i915: Introduce intel_panel_init_alloc()")
+6434cf630086 ("drm/i915/bios: calculate panel type as per child device index in VBT")
+0256ea13d169 ("drm/i915/bios: Move panel_type stuff out of parse_panel_options()")
+8d2ba05b099a ("drm/i915/bios: split ddi port parsing and debug printing")
+c78783f3227f ("drm/i915/bios: no need to pass i915 to parse_ddi_port()")
+c518a775a843 ("drm/i915/bios: Determine panel type via PNPID match")
+3cf050762534 ("drm/i915/bios: Split VBT data into per-panel vs. global parts")
+c2fdb424d322 ("drm/i915/bios: Split VBT parsing to global vs. panel specific parts")
+c3fbcf60bc74 ("drm/i915/bios: Split parse_driver_features() into two parts")
+75bd0d5e4ead ("drm/i915/pps: Split pps_init_delays() into distinct parts")
+822e5ae701af ("drm/i915: Extract intel_edp_fixup_vbt_bpp()")
+949665a6e237 ("drm/i915: Respect VBT seamless DRRS min refresh rate")
+790b45f1bc67 ("drm/i915/bios: Parse the seamless DRRS min refresh rate")
+cc589f2deeb4 ("drm/i915/bios: Refactor panel_type code")
+719f4c51e2c9 ("drm/i915/bios: Extract get_panel_type()")
+4d1b21605d39 ("drm/i915/bios: Assume panel_type==0 if the VBT has bogus data")
+901a0cad2ab8 ("drm/i915/bios: Get access to the tail end of the LFP data block")
+13367132a7ad ("drm/i915/bios: Reorder panel DTD parsing")
 
 thanks,
 
