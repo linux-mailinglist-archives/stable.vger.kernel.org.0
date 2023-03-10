@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE4C6B45F5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E6C6B4452
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232771AbjCJOjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:39:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49574 "EHLO
+        id S232139AbjCJOXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:23:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232741AbjCJOis (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:48 -0500
+        with ESMTP id S232138AbjCJOWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A357B61522
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F18719F28
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1C9AB822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08377C4339B;
-        Fri, 10 Mar 2023 14:38:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2530DB822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70427C433D2;
+        Fri, 10 Mar 2023 14:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459106;
-        bh=V8YMFZj9ADcpt4n8RBkijL2UUcdV7hBbknhK5smue10=;
+        s=korg; t=1678458111;
+        bh=AMksfwmXEZjXFbV0sB/JyyiKtnuTDieqkx6bR2oc2yA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CzB17wlenDUorcRNSw0HpknKjHuXs6PUSir+cvdDdax0H68PXJKPs30UqanqGkIyN
-         Y3hx1Yj47VS2ZDYH+fJTRnpQcOIgBHmS/zYIGbF6Y9oG7IGNItjf154CGjuTJlg23R
-         G2hOoCJynY3MZdZ+oyZe0k6nW5MZpJcTrxQ1nxb0=
+        b=mMLDOBvq6kPG3tJq7zEO6fgKZidM7YJ5hWYO/7X5E/5v9eFxiEbg9zPn/F/nKKXmq
+         Ssr85Op5jQ7GhfGbouAPpk/VcpPbP0y/niFV1oHGx7r3DvRbTGQXMgLDQH6oSOrrx5
+         0MutFlNGy1hNsjIvzuD94uPKm8gpmKek3mD23PVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 249/357] ALSA: hda/realtek: Add quirk for HP EliteDesk 800 G6 Tower PC
+        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 168/252] irqdomain: Fix disassociation race
 Date:   Fri, 10 Mar 2023 14:38:58 +0100
-Message-Id: <20230310133745.744372062@linuxfoundation.org>
+Message-Id: <20230310133723.938802509@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Stelmach <l.stelmach@samsung.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit ea24b9953bcd3889f77a66e7f1d7e86e995dd9c3 upstream.
+commit 3f883c38f5628f46b30bccf090faec054088e262 upstream.
 
-HP EliteDesk 800 G6 Tower PC (103c:870c) requires a quirk for enabling
-headset-mic.
+The global irq_domain_mutex is held when mapping interrupts from
+non-hierarchical domains but currently not when disposing them.
 
-Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217008
-Link: https://lore.kernel.org/r/20230223074749.1026060-1-l.stelmach@samsung.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This specifically means that updates of the domain mapcount is racy
+(currently only used for statistics in debugfs).
+
+Make sure to hold the global irq_domain_mutex also when disposing
+mappings from non-hierarchical domains.
+
+Fixes: 9dc6be3d4193 ("genirq/irqdomain: Add map counter")
+Cc: stable@vger.kernel.org      # 4.13
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-3-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/irq/irqdomain.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -10339,6 +10339,7 @@ static const struct snd_pci_quirk alc662
- 	SND_PCI_QUIRK(0x1028, 0x0698, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x069f, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1632, "HP RP5800", ALC662_FIXUP_HP_RP5800),
-+	SND_PCI_QUIRK(0x103c, 0x870c, "HP", ALC897_FIXUP_HP_HSMIC_VERB),
- 	SND_PCI_QUIRK(0x103c, 0x8719, "HP", ALC897_FIXUP_HP_HSMIC_VERB),
- 	SND_PCI_QUIRK(0x103c, 0x873e, "HP", ALC671_FIXUP_HP_HEADSET_MIC2),
- 	SND_PCI_QUIRK(0x103c, 0x877e, "HP 288 Pro G6", ALC671_FIXUP_HP_HEADSET_MIC2),
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -494,6 +494,9 @@ void irq_domain_disassociate(struct irq_
+ 		return;
+ 
+ 	hwirq = irq_data->hwirq;
++
++	mutex_lock(&irq_domain_mutex);
++
+ 	irq_set_status_flags(irq, IRQ_NOREQUEST);
+ 
+ 	/* remove chip and handler */
+@@ -513,6 +516,8 @@ void irq_domain_disassociate(struct irq_
+ 
+ 	/* Clear reverse map for this hwirq */
+ 	irq_domain_clear_mapping(domain, hwirq);
++
++	mutex_unlock(&irq_domain_mutex);
+ }
+ 
+ static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
 
 
