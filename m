@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2506B492E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D75806B4935
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233634AbjCJPK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:10:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44648 "EHLO
+        id S233989AbjCJPKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:10:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233676AbjCJPKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B95BA125DBE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:25 -0800 (PST)
+        with ESMTP id S233953AbjCJPKT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1FF912D40A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 948F961662
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:02:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E62C433EF;
-        Fri, 10 Mar 2023 15:02:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29523B8233C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:02:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89351C433EF;
+        Fri, 10 Mar 2023 15:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460545;
-        bh=CQnMZogIqCQ+drBQiE7cvJVwmeXGWP5ICIBhBpD0yDc=;
+        s=korg; t=1678460547;
+        bh=cf7Y2M9VYQEyJ+TV0DCwDQW351JEYE2Da3ijU/YZfIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jhl+y5hzOxuob9d83309/1u1pnj3j5JQ7pWGcUuMGYFQFiVWfR11w48jsSniEa6dv
-         5d8xll9nQi4hs86EDmBtw5G6tIPvN/g+qTB3IvBCbx1kFHxuHWFSyEu/OaB02zFsyD
-         BH0D5uaLvt8XiRlvs999KNijILLljZT49+3sNSgU=
+        b=yLfOIfFmqKyZXu9Fd0RrX916MVVuHl6a/t8RKyMXm+pOoLTafCZpt73LJTB6ZvXjm
+         TbSCfIw3QNliq5bSxQRj4QEy+qhP+em5PWO88j5KPTgod047x+ouTY9idcGNeXXPtW
+         4ZC54vdq6mPwNW4kPwO3oDUyTOW/Al8RXgkAI3iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
         Johan Hovold <johan+linaro@kernel.org>,
         Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 370/529] irqdomain: Fix association race
-Date:   Fri, 10 Mar 2023 14:38:33 +0100
-Message-Id: <20230310133822.142885166@linuxfoundation.org>
+Subject: [PATCH 5.10 371/529] irqdomain: Fix disassociation race
+Date:   Fri, 10 Mar 2023 14:38:34 +0100
+Message-Id: <20230310133822.178907750@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -57,81 +57,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan+linaro@kernel.org>
 
-commit b06730a571a9ff1ba5bd6b20bf9e50e5a12f1ec6 upstream.
+commit 3f883c38f5628f46b30bccf090faec054088e262 upstream.
 
-The sanity check for an already mapped virq is done outside of the
-irq_domain_mutex-protected section which means that an (unlikely) racing
-association may not be detected.
+The global irq_domain_mutex is held when mapping interrupts from
+non-hierarchical domains but currently not when disposing them.
 
-Fix this by factoring out the association implementation, which will
-also be used in a follow-on change to fix a shared-interrupt mapping
-race.
+This specifically means that updates of the domain mapcount is racy
+(currently only used for statistics in debugfs).
 
-Fixes: ddaf144c61da ("irqdomain: Refactor irq_domain_associate_many()")
-Cc: stable@vger.kernel.org      # 3.11
+Make sure to hold the global irq_domain_mutex also when disposing
+mappings from non-hierarchical domains.
+
+Fixes: 9dc6be3d4193 ("genirq/irqdomain: Add map counter")
+Cc: stable@vger.kernel.org      # 4.13
 Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
 Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-2-johan+linaro@kernel.org
+Link: https://lore.kernel.org/r/20230213104302.17307-3-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/irqdomain.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ kernel/irq/irqdomain.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
 --- a/kernel/irq/irqdomain.c
 +++ b/kernel/irq/irqdomain.c
-@@ -516,8 +516,8 @@ void irq_domain_disassociate(struct irq_
- 	irq_domain_clear_mapping(domain, hwirq);
- }
+@@ -495,6 +495,9 @@ void irq_domain_disassociate(struct irq_
+ 		return;
  
--int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
--			 irq_hw_number_t hwirq)
-+static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
-+				       irq_hw_number_t hwirq)
- {
- 	struct irq_data *irq_data = irq_get_irq_data(virq);
- 	int ret;
-@@ -530,7 +530,6 @@ int irq_domain_associate(struct irq_doma
- 	if (WARN(irq_data->domain, "error: virq%i is already associated", virq))
- 		return -EINVAL;
- 
--	mutex_lock(&irq_domain_mutex);
- 	irq_data->hwirq = hwirq;
- 	irq_data->domain = domain;
- 	if (domain->ops->map) {
-@@ -547,7 +546,6 @@ int irq_domain_associate(struct irq_doma
- 			}
- 			irq_data->domain = NULL;
- 			irq_data->hwirq = 0;
--			mutex_unlock(&irq_domain_mutex);
- 			return ret;
- 		}
- 
-@@ -558,12 +556,23 @@ int irq_domain_associate(struct irq_doma
- 
- 	domain->mapcount++;
- 	irq_domain_set_mapping(domain, hwirq, irq_data);
--	mutex_unlock(&irq_domain_mutex);
- 
- 	irq_clear_status_flags(virq, IRQ_NOREQUEST);
- 
- 	return 0;
- }
-+
-+int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
-+			 irq_hw_number_t hwirq)
-+{
-+	int ret;
+ 	hwirq = irq_data->hwirq;
 +
 +	mutex_lock(&irq_domain_mutex);
-+	ret = irq_domain_associate_locked(domain, virq, hwirq);
-+	mutex_unlock(&irq_domain_mutex);
 +
-+	return ret;
-+}
- EXPORT_SYMBOL_GPL(irq_domain_associate);
+ 	irq_set_status_flags(irq, IRQ_NOREQUEST);
  
- void irq_domain_associate_many(struct irq_domain *domain, unsigned int irq_base,
+ 	/* remove chip and handler */
+@@ -514,6 +517,8 @@ void irq_domain_disassociate(struct irq_
+ 
+ 	/* Clear reverse map for this hwirq */
+ 	irq_domain_clear_mapping(domain, hwirq);
++
++	mutex_unlock(&irq_domain_mutex);
+ }
+ 
+ static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
 
 
