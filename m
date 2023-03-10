@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 624446B42C7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B55616B41E5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231687AbjCJOG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:06:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34442 "EHLO
+        id S231337AbjCJN5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbjCJOGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B0511785E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:17 -0800 (PST)
+        with ESMTP id S231361AbjCJN5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 941B515553
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 52A34CE28F8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27FBBC433D2;
-        Fri, 10 Mar 2023 14:06:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 770D3B822C0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2CA9C433EF;
+        Fri, 10 Mar 2023 13:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457169;
-        bh=6XUcGncTS9Qe8AaaVqGKkGa2F2qNA+Hb9sTapvYbQzY=;
+        s=korg; t=1678456638;
+        bh=5RsrH0SoHdPRpxsqEvjNXkQpPKlHdLmZcp2Ggcc96dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUi32oEjXZJ7fDVAOMwyQxCa22451CrD/p9VhXBSF+i/2yoDu6GF6ro+YaY09UxRW
-         5v9b8QbG0dOMWT6PKk8kErIYdpdemA30r7G/xwDeR6aDgHqJVTfxwHKDjI9eb0QmvZ
-         YeY2eXvCGfu8/V8wBwRz74O+fNkA81hf47FqXwPo=
+        b=CBPFZCHi9CXxYyE+bE2ZtkE933PzM5fFW+x9OXgVMaZa3EDPasCwZoSKdI9FPlu5G
+         22rSGl+6QhNCOcAqca54ntyrYgCWwhD7KJPOVIoPdytR3fMJS5b4DYoKxjMcr2Rtfc
+         Ab2iZCBjSEN9CcAlfHwv/4Ll3UttLpC2fglrL1VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Bryce Kahle <bryce.kahle@datadoghq.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 044/200] soc: qcom: stats: Populate all subsystem debugfs files
+Subject: [PATCH 6.2 071/211] netfilter: ctnetlink: make event listener tracking global
 Date:   Fri, 10 Mar 2023 14:37:31 +0100
-Message-Id: <20230310133718.449359992@linuxfoundation.org>
+Message-Id: <20230310133720.931217240@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +55,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit acdbf5f9b2c492505145f6e50c65418521a547c4 ]
+[ Upstream commit fdf6491193e411087ae77bcbc6468e3e1cff99ed ]
 
-This driver relies on SMEM to populate items for each subsystem before
-the device probes. The items in SMEM that are being looked for are
-populated by the subsystems lazily, and therefore may not exist until
-the device has booted. For example, if I build this driver into the
-kernel on Trogdor Lazor and boot up, I don't see a 'modem' debugfs file
-populated, because the modem boots and populates the SMEM item after
-this driver probes.
+pernet tracking doesn't work correctly because other netns might have
+set NETLINK_LISTEN_ALL_NSID on its event socket.
 
-Always populate the files for the subsystems if they're in SMEM, and
-make the qcom_subsystem_sleep_stats_show() function return 0 if the SMEM
-items still isn't there. This way we can run a simple command like
+In this case its expected that events originating in other net
+namespaces are also received.
 
-	grep ^ /sys/kernel/debug/qcom_stats/*
+Making pernet-tracking work while also honoring NETLINK_LISTEN_ALL_NSID
+requires much more intrusive changes both in netlink and nfnetlink,
+f.e. adding a 'setsockopt' callback that lets nfnetlink know that the
+event socket entered (or left) ALL_NSID mode.
 
-and collect the subsystem sleep stats without interspersed errors or
-missing details entirely because this driver probed first.
+Move to global tracking instead: if there is an event socket anywhere
+on the system, all net namespaces which have conntrack enabled and
+use autobind mode will allocate the ecache extension.
 
-Fixes: 1d7724690344 ("soc: qcom: Add Sleep stats driver")
-Cc: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230119032329.2909383-1-swboyd@chromium.org
+netlink_has_listeners() returns false only if the given group has no
+subscribers in any net namespace, the 'net' argument passed to
+nfnetlink_has_listeners is only used to derive the protocol (nfnetlink),
+it has no other effect.
+
+For proper NETLINK_LISTEN_ALL_NSID-aware pernet tracking of event
+listeners a new netlink_has_net_listeners() is also needed.
+
+Fixes: 90d1daa45849 ("netfilter: conntrack: add nf_conntrack_events autodetect mode")
+Reported-by: Bryce Kahle <bryce.kahle@datadoghq.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/qcom_stats.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ include/linux/netfilter.h           | 5 +++++
+ include/net/netns/conntrack.h       | 1 -
+ net/netfilter/core.c                | 3 +++
+ net/netfilter/nf_conntrack_ecache.c | 2 +-
+ net/netfilter/nfnetlink.c           | 9 +++++----
+ 5 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/soc/qcom/qcom_stats.c b/drivers/soc/qcom/qcom_stats.c
-index 121ea409fafcd..b252bedf0cf10 100644
---- a/drivers/soc/qcom/qcom_stats.c
-+++ b/drivers/soc/qcom/qcom_stats.c
-@@ -92,7 +92,7 @@ static int qcom_subsystem_sleep_stats_show(struct seq_file *s, void *unused)
- 	/* Items are allocated lazily, so lookup pointer each time */
- 	stat = qcom_smem_get(subsystem->pid, subsystem->smem_item, NULL);
- 	if (IS_ERR(stat))
--		return -EIO;
-+		return 0;
+diff --git a/include/linux/netfilter.h b/include/linux/netfilter.h
+index d8817d381c14b..bef8db9d6c085 100644
+--- a/include/linux/netfilter.h
++++ b/include/linux/netfilter.h
+@@ -488,4 +488,9 @@ extern const struct nfnl_ct_hook __rcu *nfnl_ct_hook;
+  */
+ DECLARE_PER_CPU(bool, nf_skb_duplicated);
  
- 	qcom_print_stats(s, stat);
++/**
++ * Contains bitmask of ctnetlink event subscribers, if any.
++ * Can't be pernet due to NETLINK_LISTEN_ALL_NSID setsockopt flag.
++ */
++extern u8 nf_ctnetlink_has_listener;
+ #endif /*__LINUX_NETFILTER_H*/
+diff --git a/include/net/netns/conntrack.h b/include/net/netns/conntrack.h
+index e1290c159184a..1f463b3957c78 100644
+--- a/include/net/netns/conntrack.h
++++ b/include/net/netns/conntrack.h
+@@ -95,7 +95,6 @@ struct nf_ip_net {
  
-@@ -170,20 +170,14 @@ static void qcom_create_soc_sleep_stat_files(struct dentry *root, void __iomem *
- static void qcom_create_subsystem_stat_files(struct dentry *root,
- 					     const struct stats_config *config)
- {
--	const struct sleep_stats *stat;
- 	int i;
+ struct netns_ct {
+ #ifdef CONFIG_NF_CONNTRACK_EVENTS
+-	u8 ctnetlink_has_listener;
+ 	bool ecache_dwork_pending;
+ #endif
+ 	u8			sysctl_log_invalid; /* Log invalid packets */
+diff --git a/net/netfilter/core.c b/net/netfilter/core.c
+index 5a6705a0e4ecf..6e80f0f6149ea 100644
+--- a/net/netfilter/core.c
++++ b/net/netfilter/core.c
+@@ -669,6 +669,9 @@ const struct nf_ct_hook __rcu *nf_ct_hook __read_mostly;
+ EXPORT_SYMBOL_GPL(nf_ct_hook);
  
- 	if (!config->subsystem_stats_in_smem)
- 		return;
+ #if IS_ENABLED(CONFIG_NF_CONNTRACK)
++u8 nf_ctnetlink_has_listener;
++EXPORT_SYMBOL_GPL(nf_ctnetlink_has_listener);
++
+ const struct nf_nat_hook __rcu *nf_nat_hook __read_mostly;
+ EXPORT_SYMBOL_GPL(nf_nat_hook);
  
--	for (i = 0; i < ARRAY_SIZE(subsystems); i++) {
--		stat = qcom_smem_get(subsystems[i].pid, subsystems[i].smem_item, NULL);
--		if (IS_ERR(stat))
--			continue;
--
-+	for (i = 0; i < ARRAY_SIZE(subsystems); i++)
- 		debugfs_create_file(subsystems[i].name, 0400, root, (void *)&subsystems[i],
- 				    &qcom_subsystem_sleep_stats_fops);
--	}
- }
+diff --git a/net/netfilter/nf_conntrack_ecache.c b/net/netfilter/nf_conntrack_ecache.c
+index 8698b34246460..69948e1d6974e 100644
+--- a/net/netfilter/nf_conntrack_ecache.c
++++ b/net/netfilter/nf_conntrack_ecache.c
+@@ -309,7 +309,7 @@ bool nf_ct_ecache_ext_add(struct nf_conn *ct, u16 ctmask, u16 expmask, gfp_t gfp
+ 			break;
+ 		return true;
+ 	case 2: /* autodetect: no event listener, don't allocate extension. */
+-		if (!READ_ONCE(net->ct.ctnetlink_has_listener))
++		if (!READ_ONCE(nf_ctnetlink_has_listener))
+ 			return true;
+ 		fallthrough;
+ 	case 1:
+diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
+index 6d18fb3468683..81c7737c803a6 100644
+--- a/net/netfilter/nfnetlink.c
++++ b/net/netfilter/nfnetlink.c
+@@ -29,6 +29,7 @@
  
- static int qcom_stats_probe(struct platform_device *pdev)
+ #include <net/netlink.h>
+ #include <net/netns/generic.h>
++#include <linux/netfilter.h>
+ #include <linux/netfilter/nfnetlink.h>
+ 
+ MODULE_LICENSE("GPL");
+@@ -685,12 +686,12 @@ static void nfnetlink_bind_event(struct net *net, unsigned int group)
+ 	group_bit = (1 << group);
+ 
+ 	spin_lock(&nfnl_grp_active_lock);
+-	v = READ_ONCE(net->ct.ctnetlink_has_listener);
++	v = READ_ONCE(nf_ctnetlink_has_listener);
+ 	if ((v & group_bit) == 0) {
+ 		v |= group_bit;
+ 
+ 		/* read concurrently without nfnl_grp_active_lock held. */
+-		WRITE_ONCE(net->ct.ctnetlink_has_listener, v);
++		WRITE_ONCE(nf_ctnetlink_has_listener, v);
+ 	}
+ 
+ 	spin_unlock(&nfnl_grp_active_lock);
+@@ -744,12 +745,12 @@ static void nfnetlink_unbind(struct net *net, int group)
+ 
+ 	spin_lock(&nfnl_grp_active_lock);
+ 	if (!nfnetlink_has_listeners(net, group)) {
+-		u8 v = READ_ONCE(net->ct.ctnetlink_has_listener);
++		u8 v = READ_ONCE(nf_ctnetlink_has_listener);
+ 
+ 		v &= ~group_bit;
+ 
+ 		/* read concurrently without nfnl_grp_active_lock held. */
+-		WRITE_ONCE(net->ct.ctnetlink_has_listener, v);
++		WRITE_ONCE(nf_ctnetlink_has_listener, v);
+ 	}
+ 	spin_unlock(&nfnl_grp_active_lock);
+ #endif
 -- 
 2.39.2
 
