@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADFB36B4557
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B356B41A8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232354AbjCJOdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
+        id S231262AbjCJNzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:55:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232307AbjCJOcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7841122CCD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:08 -0800 (PST)
+        with ESMTP id S231250AbjCJNzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78EBC10F44E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8477B61948
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F754C4339E;
-        Fri, 10 Mar 2023 14:32:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D568B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F904C433D2;
+        Fri, 10 Mar 2023 13:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458728;
-        bh=s8yHcZVaOQAgNvPpDAMqPZSYcjHwohxvjb96+RbeQL4=;
+        s=korg; t=1678456504;
+        bh=oMLcx12sWEjXpPr5YpO+2Fz1fSNsEvWR0NIPbwauhtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aGslZ2nR0GyGHpBHE8/d9NfwDpmiLF2ecSnwnmw3UdbSqvTutpWsrPaq5N+kZB8Bo
-         6t2Z2bdKLcHSNIw4n9d5833lmVMRxKVwANp0GTg8EHaWF12MfqIs4dMrAxWSIiNBis
-         LxoizxikfagTRsT2mya/i6dLtoXt5gCTcXYZmcXE=
+        b=Lxi3NX/JuCi7Tst/Cl9NbpIJkU+DxSY4zZgGw/4PbK5WOfLXWfLKrLIjIpBGRotq3
+         Y9RTLNFjVK/rrwHktPND9M2iKQkxwJjbwvxHUpEh92hoZR5qKz8kfmGS7KanSkD2Kq
+         9PKK8wA5M7JVFVYdVGIO+pxCj0206QBp9moRxtTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 117/357] drm/mediatek: Use NULL instead of 0 for NULL pointer
+Subject: [PATCH 6.2 026/211] ubifs: Fix build errors as symbol undefined
 Date:   Fri, 10 Mar 2023 14:36:46 +0100
-Message-Id: <20230310133739.837032905@linuxfoundation.org>
+Message-Id: <20230310133719.519693483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,35 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Li Hua <hucool.lihua@huawei.com>
 
-[ Upstream commit 4744cde06f57dd6fbaac468663b1fe2f653eaa16 ]
+[ Upstream commit aa6d148e6d6270274e3d5a529b71c54cd329d17f ]
 
-Use NULL for NULL pointer to fix the following sparse warning:
-drivers/gpu/drm/mediatek/mtk_drm_gem.c:265:27: sparse: warning: Using plain integer as NULL pointer
+With CONFIG_UBIFS_FS_AUTHENTICATION not set, the compiler can assume that
+ubifs_node_check_hash() is never true and drops the call to ubifs_bad_hash().
+Is CONFIG_CC_OPTIMIZE_FOR_SIZE enabled this optimization does not happen anymore.
 
-Fixes: 3df64d7b0a4f ("drm/mediatek: Implement gem prime vmap/vunmap function")
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://patchwork.kernel.org/project/linux-mediatek/patch/20230111024443.24559-1-miles.chen@mediatek.com/
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+So When CONFIG_UBIFS_FS and CONFIG_CC_OPTIMIZE_FOR_SIZE is enabled but
+CONFIG_UBIFS_FS_AUTHENTICATION is not set, the build errors is as followd:
+    ERROR: modpost: "ubifs_bad_hash" [fs/ubifs/ubifs.ko] undefined!
+
+Fix it by add no-op ubifs_bad_hash() for the CONFIG_UBIFS_FS_AUTHENTICATION=n case.
+
+Fixes: 16a26b20d2af ("ubifs: authentication: Add hashes to index nodes")
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_gem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ubifs/ubifs.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_gem.c b/drivers/gpu/drm/mediatek/mtk_drm_gem.c
-index b04a3c2b111e0..7ff6de44a9fa8 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_gem.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_gem.c
-@@ -284,6 +284,6 @@ void mtk_drm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
- 		return;
- 
- 	vunmap(vaddr);
--	mtk_gem->kvaddr = 0;
-+	mtk_gem->kvaddr = NULL;
- 	kfree(mtk_gem->pages);
+diff --git a/fs/ubifs/ubifs.h b/fs/ubifs/ubifs.h
+index 478bbbb5382f8..2f1f315810949 100644
+--- a/fs/ubifs/ubifs.h
++++ b/fs/ubifs/ubifs.h
+@@ -1623,8 +1623,13 @@ static inline int ubifs_check_hmac(const struct ubifs_info *c,
+ 	return crypto_memneq(expected, got, c->hmac_desc_len);
  }
+ 
++#ifdef CONFIG_UBIFS_FS_AUTHENTICATION
+ void ubifs_bad_hash(const struct ubifs_info *c, const void *node,
+ 		    const u8 *hash, int lnum, int offs);
++#else
++static inline void ubifs_bad_hash(const struct ubifs_info *c, const void *node,
++				  const u8 *hash, int lnum, int offs) {};
++#endif
+ 
+ int __ubifs_node_check_hash(const struct ubifs_info *c, const void *buf,
+ 			  const u8 *expected);
 -- 
 2.39.2
 
