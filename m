@@ -2,74 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEDD6B4DE5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 18:02:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D9D6B4DF6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 18:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231145AbjCJRCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 12:02:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57354 "EHLO
+        id S231719AbjCJRGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 12:06:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230184AbjCJRCF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 12:02:05 -0500
-Received: from mail.antaris-organics.com (mail.antaris-organics.com [91.227.220.155])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8EB41117F;
-        Fri, 10 Mar 2023 09:00:08 -0800 (PST)
-Date:   Fri, 10 Mar 2023 17:59:24 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mareichelt.com;
-        s=202107; t=1678467570;
-        bh=1XkA2pFPCekG7SW1u/IzTz7HJiS543v3cVcYXFm439M=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=FxF9ujnZAviKanmbeXjaVbGcPYun8NmfyaNiGvb01H+6SmswONpi/ldJqAaJ3tX/E
-         rN+TMiHu/tkImH30uhPXr8GiPb3UCnN2tGspATx3mGquAq175NKNI/rqg1fV/etKzz
-         ZbTZBT++RQ2P3majyHCXzh98h91Ne+pHU3DgzyRYXvDwwsRni0/LcSbgyVrvnfEwqN
-         FplPujSKqneRzUiwJeKt8h8mobIIzlIMcALBBGl83+RbxQZ66BrytxjaDGH4WZYRM8
-         da+XrRnH9v9AtjVIf//66Dqe5h23NfQUGR0CAuk2PKaCKOsXtVu+w/vNQjYuKY5b7E
-         ZNZLcl0Vk2k9Q==
-From:   Markus Reichelt <lkt+2023@mareichelt.com>
-To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6.2 000/211] 6.2.4-rc1 review
-Message-ID: <20230310165924.GB2619@pc21.mareichelt.com>
-Mail-Followup-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230310133718.689332661@linuxfoundation.org>
+        with ESMTP id S231741AbjCJRFv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 12:05:51 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ABAE118832;
+        Fri, 10 Mar 2023 09:04:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1678467852; i=rwarsow@gmx.de;
+        bh=LVEe43p1DZGreUdOI7jkyx9NOPhcDp29kL4ynw7ZWUc=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=S3uGyhCyJ3F3AWj67f7WNoR2Pbue9WWwuvbikUK1W6f6rQ8ruBcW3Dt8Xca4qH123
+         VYCwO0MQHvE5dl5ypvSXA7bmGGf+z6GPae8Fm3gyABSoQoqonBEnVuVIHhfSpg5D4R
+         U22/WiriG8za2qa2/pSDZg6qjPTZ5EAgNxUzT5po5OCozs3YEUwUQqX3KB3rRJZyRo
+         M1Sb9lvY60SNHLGv02A8NRICNI7gOBYweXqQlFgpod+w6f7tDjQv34P+0mHBkGBaey
+         6Zh8o2liMYl5+8nYzeK70D8kyTAl+jFg88LR6yToW057y0bWf9IIvXA1Mavup3R3Mo
+         gCq3X5rifeTdA==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.100.20] ([46.142.33.170]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MeCtZ-1qAI5z18QZ-00bH53; Fri, 10
+ Mar 2023 18:04:12 +0100
+Message-ID: <51c4f004-134c-f238-d696-549f2f8bc576@gmx.de>
+Date:   Fri, 10 Mar 2023 18:04:11 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-Organization: still stuck in reorganization mode
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Subject: Re: [PATCH 6.2 000/211] 6.2.4-rc1 review
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:3kVbuptqkGacsY/s/Hm9EZ4ZAOW3NnhztE1yBVJx667GNSfgvT3
+ eSVhxOLRHsYcTePlsYFHnJvS1SqxFrMV9SNaM1xYoTSpUkzD4YcraDlZEYmAU4au5lyfQCu
+ WbPmu0XnMsv0TS3bk9duNeC0N1Yhm3LX00tN5JK56yVgy+6arcpjkYFEJK+DUol/yQdIZeX
+ XQEZcfNjBm4GaHbKwKuVA==
+UI-OutboundReport: notjunk:1;M01:P0:vZ876JNR8o4=;80HgzLfsMQBe9UAx0Td2vcshuI9
+ R6R6rgzn0cLytEnurKPvtJB6lE8EUIBnEHFKkzbGTjOZNpbz17clI8mhSde7RDgiMM2f6NtfQ
+ YZW0aeLg+5LXn0bRdRK0/1nED71uqydne6tvLZJGadaMXbUyum0qDPzj4Bn1TkEt8Ax3XHEj+
+ NjQOxP3xcojIsBm4SXvfupMMxCq34Vn9AI/lO92TNxsklbnGaRa0XdxVMUOwvu1i4uS4ENcIk
+ SJsIqZKGm9wHXMuRxlOhFDt7oYe7UrQLNcevEgmKyDx/byOHcpOcgQBGk6TTH3myfIfqepb8K
+ GwkxBG460QgvJz2CVdFwTlw6szbBnhtvSqSBCVbsGUjnPLvv/G+Gdx/gBG6zkHG/GaoPVAifs
+ UjT8csuzZtuU/PvKfXSwJqLbvDaAOqHJLms+4wLrYFObPrTxwQsqaLjHS+17ZBppYZ2cFjrde
+ iYLWpgdzIT5z5doxqEAwGt1WyXQABqcqW/LDJfjrfzuZsgVx6VCEWy7glvnwXXtZh24QTBdUb
+ aq77mVrRblEBnOVTmk51yU9tmrZ+efPKDHLYgMhYhWx2AXLz/1gwCvfKMDhlLMiU/WFiL9Vb4
+ ACn1Isy1b1yLu5BGy2hhD0W1/t1+nzTwj1czAEs4gOEn2vvOtxF+js/+eVC4sufDG6W9EjYuV
+ JAzKCEeXZCcuzOYFEUGCTUDD7iOMHSyQLnk6dotb4VA8x/u8pZhXrb7C2j/YM7hv+X6kEtpxA
+ l0t9z5r+F8MTW+SUcQIG8Qk1shaHNTjH5iHSV5ptw2fhrhklwYCLpa8JqEMwSEVJlRyeBt8Vn
+ pENw7QeizsQ/9BLBR5ZWSzF6QY41t8wlCG6LOGD+CoOt/O0HLLIBtvXymmW8RFt47kACjnGmM
+ L6AajKoh2JwgtXpqVTfKo2ywithRohbSkihheZ4MbVd0GMoQEE43xDqSlWuq9H7+9BqSgU+BD
+ zNKKpMhnxP2656VkQNDy8UmECT4=
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-
-> This is the start of the stable review cycle for the 6.2.4 release.
-> There are 211 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 12 Mar 2023 13:36:38 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-
 Hi Greg
 
 6.2.4-rc1
 
 compiles, boots and runs here on x86_64
-(AMD Ryzen 5 PRO 4650G, Slackware64-15.0)
+(Intel i5-11400, Fedora 37)
 
-Tested-by: Markus Reichelt <lkt+2023@mareichelt.com>
+Thanks
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+
