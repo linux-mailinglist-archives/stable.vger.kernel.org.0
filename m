@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E4A16B4218
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9883D6B45C2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231304AbjCJN7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:59:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47044 "EHLO
+        id S232578AbjCJOg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:36:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231434AbjCJN7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99E1115DE3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:30 -0800 (PST)
+        with ESMTP id S232688AbjCJOgq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD661118BDA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F8C360D29
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F964C4339B;
-        Fri, 10 Mar 2023 13:59:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6F97B822DE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B4B4C433EF;
+        Fri, 10 Mar 2023 14:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456769;
-        bh=bUIzCqwq+n2+tYcPNfaXq7TtMeamf3nTUQAXN31hIgk=;
+        s=korg; t=1678458986;
+        bh=5niFoL15P094P2WgJGlCsCP3P5IB1IMtVXII38xavVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bfhIRDNy4NbrVyrOIbVA6rb5cxqlLI/W6eob/TrmzqwFMNv2t716JvpznBBP745Zl
-         oj2/ZxSOONTlopdhz+a+cV/I8J7g9fqDNL3TjGFd4Hmo9u+AO1rjPT/c5TrnJGG5Ce
-         80jlZpynaK+uMsJ+EZwWBYDytOBdLS1cRxT5Bv/g=
+        b=IpVyST2kgwuYKdS/PtA5TS+m/PqWlT77XkWRWl/odiZl/TYlF1Cfx76DrHoHLtIRg
+         qrr8hGyzAHx34k5K9To0HUaXRpujkVqm5gMWq+S56JYgjNT5zbL9pi1ETTo004SG64
+         O9dgcFKf9czWV6AInD1RunD29YBqDGBd5bNBF5mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Martin Belanger <martin.belanger@dell.com>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 118/211] nvme-tcp: dont access released socket during error recovery
-Date:   Fri, 10 Mar 2023 14:38:18 +0100
-Message-Id: <20230310133722.326065888@linuxfoundation.org>
+Subject: [PATCH 5.4 210/357] nfsd: zero out pointers after putting nfsd_files on COPY setup error
+Date:   Fri, 10 Mar 2023 14:38:19 +0100
+Message-Id: <20230310133743.982714704@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,51 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 76d54bf20cdcc1ed7569a89885e09636e9a8d71d ]
+[ Upstream commit 1f0001d43d0c0ac2a19a34a914f6595ad97cbc1d ]
 
-While the error recovery work is temporarily failing reconnect attempts,
-running the 'nvme list' command causes a kernel NULL pointer dereference
-by calling getsockname() with a released socket.
+At first, I thought this might be a source of nfsd_file overputs, but
+the current callers seem to avoid an extra put when nfsd4_verify_copy
+returns an error.
 
-During error recovery work, the nvme tcp socket is released and a new one
-created, so it is not safe to access the socket without proper check.
+Still, it's "bad form" to leave the pointers filled out when we don't
+have a reference to them anymore, and that might lead to bugs later.
+Zero them out as a defensive coding measure.
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Fixes: 02c57a82c008 ("nvme-tcp: print actual source IP address through sysfs "address" attr")
-Reviewed-by: Martin Belanger <martin.belanger@dell.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/nfsd/nfs4proc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 8cedc1ef496c7..1ca52ac163c2f 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -2486,6 +2486,10 @@ static int nvme_tcp_get_address(struct nvme_ctrl *ctrl, char *buf, int size)
- 
- 	len = nvmf_get_address(ctrl, buf, size);
- 
-+	mutex_lock(&queue->queue_lock);
-+
-+	if (!test_bit(NVME_TCP_Q_LIVE, &queue->flags))
-+		goto done;
- 	ret = kernel_getsockname(queue->sock, (struct sockaddr *)&src_addr);
- 	if (ret > 0) {
- 		if (len > 0)
-@@ -2493,6 +2497,8 @@ static int nvme_tcp_get_address(struct nvme_ctrl *ctrl, char *buf, int size)
- 		len += scnprintf(buf + len, size - len, "%ssrc_addr=%pISc\n",
- 				(len) ? "," : "", &src_addr);
- 	}
-+done:
-+	mutex_unlock(&queue->queue_lock);
- 
- 	return len;
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 452ed633a2c76..bd7846758947b 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1059,8 +1059,10 @@ nfsd4_verify_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	return status;
+ out_put_dst:
+ 	nfsd_file_put(*dst);
++	*dst = NULL;
+ out_put_src:
+ 	nfsd_file_put(*src);
++	*src = NULL;
+ 	goto out;
  }
+ 
 -- 
 2.39.2
 
