@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB9B06B40DE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 453856B41BC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229952AbjCJNrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45282 "EHLO
+        id S231221AbjCJN4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230310AbjCJNrM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C4528E4F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:46:56 -0800 (PST)
+        with ESMTP id S231270AbjCJN4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCC51151C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 504E5B822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:46:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B47CC4339C;
-        Fri, 10 Mar 2023 13:46:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3C82618BC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA70C433EF;
+        Fri, 10 Mar 2023 13:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456014;
-        bh=kd/SeC9jIRhLgozTPhc7Y7tsg4XYWE5Fr9tTqQgpTjw=;
+        s=korg; t=1678456539;
+        bh=0x/+WmQzqu8GiFGj5lbXFO2fyb5nHNBnxZJqnBAU9jY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xZY0bXf1vQuYgg+OO6MQd/EuCZiZqDSUVkC0wiAD2w83gnsfvO4HWOSFmFUYSAqOv
-         qLuby9Aue9PJ/nYAW+6QOOt1FJj9PM4IxvYkzBKPEH3qjyXT34MSgObxxRisi9XQnP
-         bLtjVtuh/Cc9Rq2O9CCnOQA2dQN4BpGbzQYR40Js=
+        b=LcDaeKld3L9FS5yKLKckfp+eUOV2uU7lqs/4tlUF2jGRQEP1/COISxs1i9cdr4Z08
+         Q+BkkppYb2YmWukceMS5ZG3QjpRFPapEN3di6sbi+AYHolfRH+FUxGMaFrt31k+Hpo
+         kiXWmBPizYDWdhw2oI7IUs5128BjhLDj/9q8qiRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 034/193] lib/mpi: Fix buffer overrun when SG is too long
-Date:   Fri, 10 Mar 2023 14:36:56 +0100
-Message-Id: <20230310133712.076304590@linuxfoundation.org>
+Subject: [PATCH 6.2 037/211] ubifs: Re-statistic cleaned znode count if commit failed
+Date:   Fri, 10 Mar 2023 14:36:57 +0100
+Message-Id: <20230310133719.862845494@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,39 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 7361d1bc307b926cbca214ab67b641123c2d6357 ]
+[ Upstream commit 944e096aa24071d3fe22822f6249d3ae309e39ea ]
 
-The helper mpi_read_raw_from_sgl sets the number of entries in
-the SG list according to nbytes.  However, if the last entry
-in the SG list contains more data than nbytes, then it may overrun
-the buffer because it only allocates enough memory for nbytes.
+Dirty znodes will be written on flash in committing process with
+following states:
 
-Fixes: 2d4d1eea540b ("lib/mpi: Add mpi sgl helpers")
-Reported-by: Roberto Sassu <roberto.sassu@huaweicloud.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+	      process A			|  znode state
+------------------------------------------------------
+do_commit				| DIRTY_ZNODE
+  ubifs_tnc_start_commit		| DIRTY_ZNODE
+   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
+    layout_commit			| DIRTY_ZNODE | COW_ZNODE
+     fill_gap                           | 0
+  write master				| 0 or OBSOLETE_ZNODE
+
+	      process B			|  znode state
+------------------------------------------------------
+do_commit				| DIRTY_ZNODE[1]
+  ubifs_tnc_start_commit		| DIRTY_ZNODE
+   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
+  ubifs_tnc_end_commit			| DIRTY_ZNODE | COW_ZNODE
+   write_index                          | 0
+  write master				| 0 or OBSOLETE_ZNODE[2] or
+					| DIRTY_ZNODE[3]
+
+[1] znode is dirtied without concurrent committing process
+[2] znode is copied up (re-dirtied by other process) before cleaned
+    up in committing process
+[3] znode is re-dirtied after cleaned up in committing process
+
+Currently, the clean znode count is updated in free_obsolete_znodes(),
+which is called only in normal path. If do_commit failed, clean znode
+count won't be updated, which triggers a failure ubifs assertion[4] in
+ubifs_tnc_close():
+ ubifs_assert_failed [ubifs]: UBIFS assert failed: freed == n
+
+[4] Commit 380347e9ca7682 ("UBIFS: Add an assertion for clean_zn_cnt").
+
+Fix it by re-statisticing cleaned znode count in tnc_destroy_cnext().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216704
+Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/mpicoder.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ubifs/tnc.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/lib/mpi/mpicoder.c b/lib/mpi/mpicoder.c
-index eead4b3394668..4f73db248009e 100644
---- a/lib/mpi/mpicoder.c
-+++ b/lib/mpi/mpicoder.c
-@@ -397,7 +397,8 @@ MPI mpi_read_raw_from_sgl(struct scatterlist *sgl, unsigned int nbytes)
+diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
+index 488f3da7a6c6c..2df56bbc68657 100644
+--- a/fs/ubifs/tnc.c
++++ b/fs/ubifs/tnc.c
+@@ -3053,6 +3053,21 @@ static void tnc_destroy_cnext(struct ubifs_info *c)
+ 		cnext = cnext->cnext;
+ 		if (ubifs_zn_obsolete(znode))
+ 			kfree(znode);
++		else if (!ubifs_zn_cow(znode)) {
++			/*
++			 * Don't forget to update clean znode count after
++			 * committing failed, because ubifs will check this
++			 * count while closing tnc. Non-obsolete znode could
++			 * be re-dirtied during committing process, so dirty
++			 * flag is untrustable. The flag 'COW_ZNODE' is set
++			 * for each dirty znode before committing, and it is
++			 * cleared as long as the znode become clean, so we
++			 * can statistic clean znode count according to this
++			 * flag.
++			 */
++			atomic_long_inc(&c->clean_zn_cnt);
++			atomic_long_inc(&ubifs_clean_zn_cnt);
++		}
+ 	} while (cnext && cnext != c->cnext);
+ }
  
- 	while (sg_miter_next(&miter)) {
- 		buff = miter.addr;
--		len = miter.length;
-+		len = min_t(unsigned, miter.length, nbytes);
-+		nbytes -= len;
- 
- 		for (x = 0; x < len; x++) {
- 			a <<= 8;
 -- 
 2.39.2
 
