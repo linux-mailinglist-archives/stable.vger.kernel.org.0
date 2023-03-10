@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D286B4389
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3914C6B468E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231952AbjCJOPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:15:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45420 "EHLO
+        id S232938AbjCJOoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:44:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232007AbjCJOPE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:15:04 -0500
+        with ESMTP id S232871AbjCJOns (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:43:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6438DF26B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB45635257
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:43:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20F2760D29
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B32DC433D2;
-        Fri, 10 Mar 2023 14:13:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67EDD61745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:43:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A523C4339B;
+        Fri, 10 Mar 2023 14:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457636;
-        bh=2oINvL1ZqkSayJ6Hx4HjcWWrCFaBKh6yTMLAaPP2+4I=;
+        s=korg; t=1678459425;
+        bh=5c8AitNH/yphUC4ws+qyz6mZb6RsWvB5aetFQpQbIhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onKXlOxCIS3fEJ9isiAxhvpzMqAOhi3hccXfqyLpWtoB3iwaFyhfDeXCb0O5VLpT8
-         w4YLZ9L/5qxcHeftTRGyt8YnGTtKDUT1fZLsaR80PLqP6k/PaoTMzgIw/7M2wqR81s
-         rtQ8+Uldox5xpIQIfVN+z9Z+hWXGzUXFMZlOdDBw=
+        b=mZMRYmc2rg0EeLWBrxUmcpz3RleBmR71dT06aEbvYrDXlXi7IA7oZYuVcSWBDHV7A
+         SJ13F714aoX9iLx7dNhfigiR1DrxkCGQVIXHZnWsLTFB/gw64KrriUUWlXdfPRvSVb
+         YVIlguhxZUuy8g5veO/5msxuZAUaTHEoCsU6wWSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Collingbourne <pcc@google.com>,
-        =?UTF-8?q?Kuan-Ying=20Lee=20 ?= <Kuan-Ying.Lee@mediatek.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 6.1 199/200] arm64: Reset KASAN tag in copy_highpage with HW tags only
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 317/357] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
 Date:   Fri, 10 Mar 2023 14:40:06 +0100
-Message-Id: <20230310133723.189654176@linuxfoundation.org>
+Message-Id: <20230310133748.682707645@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-commit e74a68468062d7ebd8ce17069e12ccc64cc6a58c upstream.
+[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
 
-During page migration, the copy_highpage function is used to copy the
-page data to the target page. If the source page is a userspace page
-with MTE tags, the KASAN tag of the target page must have the match-all
-tag in order to avoid tag check faults during subsequent accesses to the
-page by the kernel. However, the target page may have been allocated in
-a number of ways, some of which will use the KASAN allocator and will
-therefore end up setting the KASAN tag to a non-match-all tag. Therefore,
-update the target page's KASAN tag to match the source page.
+When down_interruptible() or ib_post_send() failed in rdma_request(),
+receive dma buffer is not unmapped. Add unmap action to error path.
+Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
+Add unmap action to error path.
 
-We ended up unintentionally fixing this issue as a result of a bad
-merge conflict resolution between commit e059853d14ca ("arm64: mte:
-Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm64:
-kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
-preserved a tag reset for PG_mte_tagged pages which was considered to be
-unnecessary at the time. Because SW tags KASAN uses separate tag storage,
-update the code to only reset the tags when HW tags KASAN is enabled.
-
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Link: https://linux-review.googlesource.com/id/If303d8a709438d3ff5af5fd85706505830f52e0c
-Reported-by: "Kuan-Ying Lee (李冠穎)" <Kuan-Ying.Lee@mediatek.com>
-Cc: <stable@vger.kernel.org> # 6.1
-Fixes: 20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags"")
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Link: https://lore.kernel.org/r/20230215050911.1433132-1-pcc@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
+Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/copypage.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/9p/trans_rdma.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -22,7 +22,8 @@ void copy_highpage(struct page *to, stru
- 	copy_page(kto, kfrom);
+diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
+index b21c3c2098159..c00e965c082bf 100644
+--- a/net/9p/trans_rdma.c
++++ b/net/9p/trans_rdma.c
+@@ -385,6 +385,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
+ 	struct p9_trans_rdma *rdma = client->trans;
+ 	struct ib_recv_wr wr;
+ 	struct ib_sge sge;
++	int ret;
  
- 	if (system_supports_mte() && page_mte_tagged(from)) {
--		page_kasan_tag_reset(to);
-+		if (kasan_hw_tags_enabled())
-+			page_kasan_tag_reset(to);
- 		mte_copy_page_tags(kto, kfrom);
- 		set_page_mte_tagged(to);
+ 	c->busa = ib_dma_map_single(rdma->cm_id->device,
+ 				    c->rc.sdata, client->msize,
+@@ -402,7 +403,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
+ 	wr.wr_cqe = &c->cqe;
+ 	wr.sg_list = &sge;
+ 	wr.num_sge = 1;
+-	return ib_post_recv(rdma->qp, &wr, NULL);
++
++	ret = ib_post_recv(rdma->qp, &wr, NULL);
++	if (ret)
++		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
++				    client->msize, DMA_FROM_DEVICE);
++	return ret;
+ 
+  error:
+ 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
+@@ -499,7 +505,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 
+ 	if (down_interruptible(&rdma->sq_sem)) {
+ 		err = -EINTR;
+-		goto send_error;
++		goto dma_unmap;
  	}
+ 
+ 	/* Mark request as `sent' *before* we actually send it,
+@@ -509,11 +515,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 	req->status = REQ_STATUS_SENT;
+ 	err = ib_post_send(rdma->qp, &wr, NULL);
+ 	if (err)
+-		goto send_error;
++		goto dma_unmap;
+ 
+ 	/* Success */
+ 	return 0;
+ 
++dma_unmap:
++	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
++			    c->req->tc.size, DMA_TO_DEVICE);
+  /* Handle errors that happened during or while preparing the send: */
+  send_error:
+ 	req->status = REQ_STATUS_ERROR;
+-- 
+2.39.2
+
 
 
