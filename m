@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7BAA6B4A8E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:24:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FAF66B4A95
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:24:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234171AbjCJPYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:24:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46350 "EHLO
+        id S233842AbjCJPYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:24:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234173AbjCJPX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:23:59 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA3C1165FE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:52 -0800 (PST)
+        with ESMTP id S233821AbjCJPYI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:24:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695411165F5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:14:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 99027CE2947
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750FCC433EF;
-        Fri, 10 Mar 2023 15:13:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D82E3B822F3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:13:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E63EC433EF;
+        Fri, 10 Mar 2023 15:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461187;
-        bh=7DHvn9zXh64o3pkxAJ+Fq/fggnxigBTWsWRlcq7ajIw=;
+        s=korg; t=1678461199;
+        bh=rLWiCETR7DLdPDV5hE63q9oyGNn+uqL0W9kDx5oLStg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w4NrBNSlTpkb0Qodn/5P5uPilzSi/R/H56TxeunuXMigDZV9RuSWeR38ilp/OwgQ+
-         oI7P5fJqu2EJUKpoKhri6EeezYkqoh6GYOsQG2AkfE3YORG7NpKL2GAavCSnmhAdK8
-         bD0uujiBmZs8D3F3ruy0YvqnctPoD2CvnChw8BaU=
+        b=qXY3uRv89crQynKIchOJq8trrxuelvDKQQjlbTW0y8jzbeStH2zsOMcynDA4feFwY
+         nOXDqkb0gOtO8+HvG3jAgbDZaAcUWmg67igOi4tYVhF20yOKE4ppD1gDG/kcgigSOj
+         tlyR/v9pmGHDbehRGFuIS06EOw7MzEQlerLf1x4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/136] ubi: Fix UAF wear-leveling entry in eraseblk_count_seq_show()
-Date:   Fri, 10 Mar 2023 14:42:29 +0100
-Message-Id: <20230310133707.807962105@linuxfoundation.org>
+Subject: [PATCH 5.15 028/136] ubi: ubi_wl_put_peb: Fix infinite loop when wear-leveling work failed
+Date:   Fri, 10 Mar 2023 14:42:30 +0100
+Message-Id: <20230310133707.847348712@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -56,72 +56,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit a240bc5c43130c6aa50831d7caaa02a1d84e1bce ]
+[ Upstream commit 4d57a7333e26040f2b583983e1970d9d460e56b0 ]
 
-Wear-leveling entry could be freed in error path, which may be accessed
-again in eraseblk_count_seq_show(), for example:
+Following process will trigger an infinite loop in ubi_wl_put_peb():
 
-__erase_worker                eraseblk_count_seq_show
-                                wl = ubi->lookuptbl[*block_number]
-				if (wl)
-  wl_entry_destroy
-    ubi->lookuptbl[e->pnum] = NULL
-    kmem_cache_free(ubi_wl_entry_slab, e)
-		                   erase_count = wl->ec  // UAF!
+	ubifs_bgt		ubi_bgt
+ubifs_leb_unmap
+  ubi_leb_unmap
+    ubi_eba_unmap_leb
+      ubi_wl_put_peb	wear_leveling_worker
+                          e1 = rb_entry(rb_first(&ubi->used)
+			  e2 = get_peb_for_wl(ubi)
+			  ubi_io_read_vid_hdr  // return err (flash fault)
+			  out_error:
+			    ubi->move_from = ubi->move_to = NULL
+			    wl_entry_destroy(ubi, e1)
+			      ubi->lookuptbl[e->pnum] = NULL
+      retry:
+        e = ubi->lookuptbl[pnum];	// return NULL
+	if (e == ubi->move_from) {	// NULL == NULL gets true
+	  goto retry;			// infinite loop !!!
 
-Wear-leveling entry updating/accessing in ubi->lookuptbl should be
-protected by ubi->wl_lock, fix it by adding ubi->wl_lock to serialize
-wl entry accessing between wl_entry_destroy() and
-eraseblk_count_seq_show().
+$ top
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     COMMAND
+  7676 root     20   0       0      0      0 R 100.0  0.0  ubifs_bgt0_0
+
+Fix it by:
+ 1) Letting ubi_wl_put_peb() returns directly if wearl leveling entry has
+    been removed from 'ubi->lookuptbl'.
+ 2) Using 'ubi->wl_lock' protecting wl entry deletion to preventing an
+    use-after-free problem for wl entry in ubi_wl_put_peb().
 
 Fetch a reproducer in [Link].
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216305
-Fixes: 7bccd12d27b7e3 ("ubi: Add debugfs file for tracking PEB state")
-Fixes: 801c135ce73d5d ("UBI: Unsorted Block Images")
+Fixes: 43f9b25a9cdd7b1 ("UBI: bugfix: protect from volume removal")
+Fixes: ee59ba8b064f692 ("UBI: Fix stale pointers in ubi->lookuptbl")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216111
 Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/wl.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/mtd/ubi/wl.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
-index afcdacb9d0e99..4a672e925d869 100644
+index 4a672e925d869..2ee0e60c43c2e 100644
 --- a/drivers/mtd/ubi/wl.c
 +++ b/drivers/mtd/ubi/wl.c
-@@ -886,8 +886,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+@@ -972,11 +972,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 	spin_lock(&ubi->wl_lock);
+ 	ubi->move_from = ubi->move_to = NULL;
+ 	ubi->move_to_put = ubi->wl_scheduled = 0;
++	wl_entry_destroy(ubi, e1);
++	wl_entry_destroy(ubi, e2);
+ 	spin_unlock(&ubi->wl_lock);
  
- 	err = do_sync_erase(ubi, e1, vol_id, lnum, 0);
- 	if (err) {
--		if (e2)
-+		if (e2) {
-+			spin_lock(&ubi->wl_lock);
- 			wl_entry_destroy(ubi, e2);
-+			spin_unlock(&ubi->wl_lock);
-+		}
- 		goto out_ro;
- 	}
+ 	ubi_free_vid_buf(vidb);
+-	wl_entry_destroy(ubi, e1);
+-	wl_entry_destroy(ubi, e2);
  
-@@ -1120,14 +1123,18 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
- 		/* Re-schedule the LEB for erasure */
- 		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
- 		if (err1) {
-+			spin_lock(&ubi->wl_lock);
- 			wl_entry_destroy(ubi, e);
-+			spin_unlock(&ubi->wl_lock);
- 			err = err1;
- 			goto out_ro;
- 		}
- 		return err;
- 	}
- 
-+	spin_lock(&ubi->wl_lock);
- 	wl_entry_destroy(ubi, e);
-+	spin_unlock(&ubi->wl_lock);
- 	if (err != -EIO)
+ out_ro:
+ 	ubi_ro_mode(ubi);
+@@ -1250,6 +1250,18 @@ int ubi_wl_put_peb(struct ubi_device *ubi, int vol_id, int lnum,
+ retry:
+ 	spin_lock(&ubi->wl_lock);
+ 	e = ubi->lookuptbl[pnum];
++	if (!e) {
++		/*
++		 * This wl entry has been removed for some errors by other
++		 * process (eg. wear leveling worker), corresponding process
++		 * (except __erase_worker, which cannot concurrent with
++		 * ubi_wl_put_peb) will set ubi ro_mode at the same time,
++		 * just ignore this wl entry.
++		 */
++		spin_unlock(&ubi->wl_lock);
++		up_read(&ubi->fm_protect);
++		return 0;
++	}
+ 	if (e == ubi->move_from) {
  		/*
- 		 * If this is not %-EIO, we have no idea what to do. Scheduling
+ 		 * User is putting the physical eraseblock which was selected to
 -- 
 2.39.2
 
