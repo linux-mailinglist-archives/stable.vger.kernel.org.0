@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A36106B4548
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAA66B43CA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232446AbjCJOcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35788 "EHLO
+        id S232126AbjCJOSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:18:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232484AbjCJOc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11FDF15C82
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:31:25 -0800 (PST)
+        with ESMTP id S232102AbjCJORp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:17:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AFF373398
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E280661745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:31:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFAEAC4339B;
-        Fri, 10 Mar 2023 14:31:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05059617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1689AC433EF;
+        Fri, 10 Mar 2023 14:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458684;
-        bh=ILhp9S1UVvgreZ8RR1lU25VNZdOmPTZWl8fs9Pw82ZY=;
+        s=korg; t=1678457792;
+        bh=H1KQT47QQ4AuzrxyTvDF7wUC4H2W4gp6dVZ2BViqDUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WyOfLbr01DDjAmA51YDvDZuaTEdd2nsGDXXgKU6hU/2J3r3lItA5RWkbbKuKtXKo9
-         0yoH1Slk1n3FJpntEA2Mmv9l3Pfg+vEG2HNUa5iyCcFhhh5hcTzSC5kv39YBf6sGbi
-         JgZO+fFC8r5Bh26ktDJQAclQo7kjylHkKcqUahNU=
+        b=ftTxuvcP7bmx2427dNzQtPG6TmBZsPCDVozt3gnEjeXtjlCVh/M+EK55VlwJQWITd
+         xscq7wXt9QAb7lUDMtHKtrvFGfIvS/1gXTDpBUWl95j8/i8OuN9uz+tujcUiAxbY0k
+         JACkhFDijJjx6wT11xQP9BWMpP4+3oXpEix58BgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/357] drm/exynos: Dont reset bridge->next
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 029/252] wifi: brcmfmac: unmap dma buffer in brcmf_msgbuf_alloc_pktid()
 Date:   Fri, 10 Mar 2023 14:36:39 +0100
-Message-Id: <20230310133739.506125222@linuxfoundation.org>
+Message-Id: <20230310133719.706623778@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,39 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit bd19c4527056b3e42e8c286136660aa14d0b6c90 ]
+[ Upstream commit b9f420032f2ba1e634b22ca7b433e5c40ea663af ]
 
-bridge->next is only points to the new bridge if drm_bridge_attach()
-succeeds. No need to reset it manually here.
+After the DMA buffer is mapped to a physical address, address is stored
+in pktids in brcmf_msgbuf_alloc_pktid(). Then, pktids is parsed in
+brcmf_msgbuf_get_pktid()/brcmf_msgbuf_release_array() to obtain physaddr
+and later unmap the DMA buffer. But when count is always equal to
+pktids->array_size, physaddr isn't stored in pktids and the DMA buffer
+will not be unmapped anyway.
 
-Note that this change is part of the attempt to make the bridge chain
-a double-linked list. In order to do that we must patch all drivers
-manipulating the bridge->next field.
-
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Acked-by: Inki Dae <inki.dae@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191023154512.9762-3-boris.brezillon@collabora.com
-Stable-dep-of: 13fcfcb2a9a4 ("drm/msm/mdp5: Add check for kzalloc")
+Fixes: 9a1bb60250d2 ("brcmfmac: Adding msgbuf protocol.")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207013114.1748936-1-shaozhengchao@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_dp.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_dp.c b/drivers/gpu/drm/exynos/exynos_dp.c
-index e0cfae744afc9..01c5fbf9083a0 100644
---- a/drivers/gpu/drm/exynos/exynos_dp.c
-+++ b/drivers/gpu/drm/exynos/exynos_dp.c
-@@ -109,7 +109,6 @@ static int exynos_dp_bridge_attach(struct analogix_dp_plat_data *plat_data,
- 		if (ret) {
- 			DRM_DEV_ERROR(dp->dev,
- 				      "Failed to attach bridge to drm\n");
--			bridge->next = NULL;
- 			return ret;
- 		}
- 	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+index 768a99c15c08b..e81e892ddacc5 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
+@@ -339,8 +339,11 @@ brcmf_msgbuf_alloc_pktid(struct device *dev,
+ 		count++;
+ 	} while (count < pktids->array_size);
+ 
+-	if (count == pktids->array_size)
++	if (count == pktids->array_size) {
++		dma_unmap_single(dev, *physaddr, skb->len - data_offset,
++				 pktids->direction);
+ 		return -ENOMEM;
++	}
+ 
+ 	array[*idx].data_offset = data_offset;
+ 	array[*idx].physaddr = *physaddr;
 -- 
 2.39.2
 
