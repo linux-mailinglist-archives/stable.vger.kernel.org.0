@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF9676B4289
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 866E76B4176
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231576AbjCJOEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:04:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51512 "EHLO
+        id S231217AbjCJNxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:53:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231618AbjCJOEO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC3F910D74A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:56 -0800 (PST)
+        with ESMTP id S231210AbjCJNxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF988125A3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 486B5B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76609C433EF;
-        Fri, 10 Mar 2023 14:03:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42D0961771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E836C433EF;
+        Fri, 10 Mar 2023 13:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457033;
-        bh=42NXa3rkxB0hPj2cneXedkTKdbGvXlgJG/EirB3pMUY=;
+        s=korg; t=1678456380;
+        bh=DebMMl5JVaCccNPwj0VWexdoM2ZHUJyfI0s2IbXJf2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obbi5e9jWLHS8ukfs5dpMAdqeIxFfcboMeplOb9f/THC7ABr62khmMh/7lhoe7fSq
-         nTGvMA5gwdwuhR+J1+fdmGvCKhyEAMQ+EdNM/SjYWDG7fwk/fzYCqqfEnhMLxDRIXT
-         8mYUFEL7hyln0r7nk0Q3yCzGZ/omztVZJ1uRLGeU=
+        b=sA4AKfHaFuBakOCX49RzWjsM9yrOOQ2xMkK3PSR+AZHeBvYjYKkJtwz9DrIBmMmpz
+         XvOLim2FXD2irKlSnQPxPCkMwLIzT1dHxXA9cLBJkW1AUIU7ADluehPehsZ74mybbF
+         /qypbukiR12Lh4c/s09AE9Yr8qJIJ5qu7buyIU8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev,
+        Darrell Kavanagh <darrell.kavanagh@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 180/211] kernel/fail_function: fix memory leak with using debugfs_lookup()
+Subject: [PATCH 4.14 178/193] firmware/efi sysfb_efi: Add quirk for Lenovo IdeaPad Duet 3
 Date:   Fri, 10 Mar 2023 14:39:20 +0100
-Message-Id: <20230310133724.295714313@linuxfoundation.org>
+Message-Id: <20230310133717.027777586@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,40 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
 
-[ Upstream commit 2bb3669f576559db273efe49e0e69f82450efbca ]
+[ Upstream commit e1d447157f232c650e6f32c9fb89ff3d0207c69a ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+Another Lenovo convertable which reports a landscape resolution of
+1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
+has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20230202151633.2310897-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fail_function.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/x86/kernel/sysfb_efi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/fail_function.c b/kernel/fail_function.c
-index a7ccd2930c5f4..d971a01893197 100644
---- a/kernel/fail_function.c
-+++ b/kernel/fail_function.c
-@@ -163,10 +163,7 @@ static void fei_debugfs_add_attr(struct fei_attr *attr)
+diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
+index 897da526e40e6..dd8d7636c5420 100644
+--- a/arch/x86/kernel/sysfb_efi.c
++++ b/arch/x86/kernel/sysfb_efi.c
+@@ -265,6 +265,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
+ 					"Lenovo ideapad D330-10IGM"),
+ 		},
+ 	},
++	{
++		/* Lenovo IdeaPad Duet 3 10IGL5 with 1200x1920 portrait screen */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"IdeaPad Duet 3 10IGL5"),
++		},
++	},
+ 	{},
+ };
  
- static void fei_debugfs_remove_attr(struct fei_attr *attr)
- {
--	struct dentry *dir;
--
--	dir = debugfs_lookup(attr->kp.symbol_name, fei_debugfs_dir);
--	debugfs_remove_recursive(dir);
-+	debugfs_lookup_and_remove(attr->kp.symbol_name, fei_debugfs_dir);
- }
- 
- static int fei_kprobe_handler(struct kprobe *kp, struct pt_regs *regs)
 -- 
 2.39.2
 
