@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2060E6B4694
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:44:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 731686B4695
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232920AbjCJOoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:44:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34454 "EHLO
+        id S232900AbjCJOoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:44:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232856AbjCJOoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:44:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDD4104AC5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:43:58 -0800 (PST)
+        with ESMTP id S232902AbjCJOoF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:44:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F9AEF92F3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:44:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7551B618B8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D864C4339C;
-        Fri, 10 Mar 2023 14:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76D9E616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:44:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A8FC4339E;
+        Fri, 10 Mar 2023 14:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459437;
-        bh=dKf0h10ST3n70oz29LN+kzV44Xt0PSozuaISTzZRFyY=;
+        s=korg; t=1678459440;
+        bh=MIbt3APg5iNz8T4F+mWpefPk9jD8nkK0fU0Zo6TzF3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QljNVAsXWnprWiOHI4A+JoMP0weHh2IEFRhDmOnA23W9zdb3CS81tEPLMsyJl3xV4
-         ql92GyQgwGZviI/l9KAufKrLRiqF1fs+oxpXld+fUY6Q4Q39zOMTG+6BtUnqeAW1/i
-         qbIriPIXOTIULcmFc7EaOEk71/Z3ECLh5IDwEm8U=
+        b=ty7zzAIskjHCxy/Rkr+sMOj0zw+UfdYqJ7s9Loe/oO5gKjXQaolpJrbRk+7YOBkFy
+         94GfyGd7lrkBLtpdVHxQ9lF9k3vYWzVs5eMV+YmpBSSFujL2sX3DbsgpIJxMQqvcG4
+         UFZkTcKqwLCq8KfDtSxoA9lIzNQstHqvoCkEt1XE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 354/357] media: uvcvideo: Provide sync and async uvc_ctrl_status_event
-Date:   Fri, 10 Mar 2023 14:40:43 +0100
-Message-Id: <20230310133750.288346286@linuxfoundation.org>
+        patches@lists.linux.dev, Yunke Cao <yunkec@chromium.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 5.4 355/357] media: uvcvideo: Fix race condition with usb_kill_urb
+Date:   Fri, 10 Mar 2023 14:40:44 +0100
+Message-Id: <20230310133750.332449022@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,105 +56,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit d9c8763e61295be0a21dc04ad9c379d5d17c3d86 upstream.
+commit 619d9b710cf06f7a00a17120ca92333684ac45a8 upstream.
 
-Split the functionality of void uvc_ctrl_status_event_work in two, so it
-can be called by functions outside interrupt context and not part of an
-URB.
+usb_kill_urb warranties that all the handlers are finished when it
+returns, but does not protect against threads that might be handling
+asynchronously the urb.
 
+For UVC, the function uvc_ctrl_status_event_async() takes care of
+control changes asynchronously.
+
+If the code is executed in the following order:
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+uvc_ctrl_status_event_work()
+					uvc_status_start() -> FAIL
+
+Then uvc_status_start will keep failing and this error will be shown:
+
+<4>[    5.540139] URB 0000000000000000 submitted while active
+drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
+
+Let's improve the current situation, by not re-submiting the urb if
+we are stopping the status event. Also process the queued work
+(if any) during stop.
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+					uvc_status_start()
+uvc_ctrl_status_event_work() -> FAIL
+
+Hopefully, with the usb layer protection this should be enough to cover
+all the cases.
+
+Cc: stable@vger.kernel.org
+Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
+Reviewed-by: Yunke Cao <yunkec@chromium.org>
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_ctrl.c   |   25 +++++++++++++++----------
- drivers/media/usb/uvc/uvc_status.c |    3 ++-
- drivers/media/usb/uvc/uvcvideo.h   |    4 +++-
- 3 files changed, 20 insertions(+), 12 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c   |    5 +++++
+ drivers/media/usb/uvc/uvc_status.c |   37 +++++++++++++++++++++++++++++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |    1 +
+ 3 files changed, 43 insertions(+)
 
 --- a/drivers/media/usb/uvc/uvc_ctrl.c
 +++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -1275,17 +1275,12 @@ static void uvc_ctrl_send_slave_event(st
- 	uvc_ctrl_send_event(chain, handle, ctrl, mapping, val, changes);
- }
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
  
--static void uvc_ctrl_status_event_work(struct work_struct *work)
-+void uvc_ctrl_status_event(struct uvc_video_chain *chain,
-+			   struct uvc_control *ctrl, const u8 *data)
- {
--	struct uvc_device *dev = container_of(work, struct uvc_device,
--					      async_ctrl.work);
--	struct uvc_ctrl_work *w = &dev->async_ctrl;
--	struct uvc_video_chain *chain = w->chain;
- 	struct uvc_control_mapping *mapping;
--	struct uvc_control *ctrl = w->ctrl;
- 	struct uvc_fh *handle;
- 	unsigned int i;
--	int ret;
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -1318,6 +1319,10 @@ static void uvc_ctrl_status_event_work(s
  
- 	mutex_lock(&chain->ctrl_mutex);
+ 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
  
-@@ -1293,7 +1288,7 @@ static void uvc_ctrl_status_event_work(s
- 	ctrl->handle = NULL;
- 
- 	list_for_each_entry(mapping, &ctrl->info.mappings, list) {
--		s32 value = __uvc_ctrl_get_value(mapping, w->data);
-+		s32 value = __uvc_ctrl_get_value(mapping, data);
- 
- 		/*
- 		 * handle may be NULL here if the device sends auto-update
-@@ -1312,6 +1307,16 @@ static void uvc_ctrl_status_event_work(s
- 	}
- 
- 	mutex_unlock(&chain->ctrl_mutex);
-+}
++	/* The barrier is needed to synchronize with uvc_status_stop(). */
++	if (smp_load_acquire(&dev->flush_status))
++		return;
 +
-+static void uvc_ctrl_status_event_work(struct work_struct *work)
-+{
-+	struct uvc_device *dev = container_of(work, struct uvc_device,
-+					      async_ctrl.work);
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+	int ret;
-+
-+	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
  	/* Resubmit the URB. */
  	w->urb->interval = dev->int_ep->desc.bInterval;
-@@ -1321,8 +1326,8 @@ static void uvc_ctrl_status_event_work(s
- 			   ret);
- }
- 
--bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
--			   struct uvc_control *ctrl, const u8 *data)
-+bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
-+				 struct uvc_control *ctrl, const u8 *data)
- {
- 	struct uvc_device *dev = chain->dev;
- 	struct uvc_ctrl_work *w = &dev->async_ctrl;
+ 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
 --- a/drivers/media/usb/uvc/uvc_status.c
 +++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -179,7 +179,8 @@ static bool uvc_event_control(struct urb
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
  
- 	switch (status->bAttribute) {
- 	case UVC_CTRL_VALUE_CHANGE:
--		return uvc_ctrl_status_event(urb, chain, ctrl, status->bValue);
-+		return uvc_ctrl_status_event_async(urb, chain, ctrl,
-+						   status->bValue);
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+@@ -310,5 +311,41 @@ int uvc_status_start(struct uvc_device *
  
- 	case UVC_CTRL_INFO_CHANGE:
- 	case UVC_CTRL_FAILURE_CHANGE:
+ void uvc_status_stop(struct uvc_device *dev)
+ {
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++
++	/*
++	 * Prevent the asynchronous control handler from requeing the URB. The
++	 * barrier is needed so the flush_status change is visible to other
++	 * CPUs running the asynchronous handler before usb_kill_urb() is
++	 * called below.
++	 */
++	smp_store_release(&dev->flush_status, true);
++
++	/*
++	 * Cancel any pending asynchronous work. If any status event was queued,
++	 * process it synchronously.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/* Kill the urb. */
+ 	usb_kill_urb(dev->int_urb);
++
++	/*
++	 * The URB completion handler may have queued asynchronous work. This
++	 * won't resubmit the URB as flush_status is set, but it needs to be
++	 * cancelled before returning or it could then race with a future
++	 * uvc_status_start() call.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/*
++	 * From this point, there are no events on the queue and the status URB
++	 * is dead. No events will be queued until uvc_status_start() is called.
++	 * The barrier is needed to make sure that flush_status is visible to
++	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
++	 * again.
++	 */
++	smp_store_release(&dev->flush_status, false);
+ }
 --- a/drivers/media/usb/uvc/uvcvideo.h
 +++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -833,7 +833,9 @@ int uvc_ctrl_add_mapping(struct uvc_vide
- int uvc_ctrl_init_device(struct uvc_device *dev);
- void uvc_ctrl_cleanup_device(struct uvc_device *dev);
- int uvc_ctrl_restore_values(struct uvc_device *dev);
--bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
-+bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
-+				 struct uvc_control *ctrl, const u8 *data);
-+void uvc_ctrl_status_event(struct uvc_video_chain *chain,
- 			   struct uvc_control *ctrl, const u8 *data);
- 
- int uvc_ctrl_begin(struct uvc_video_chain *chain);
+@@ -664,6 +664,7 @@ struct uvc_device {
+ 	/* Status Interrupt Endpoint */
+ 	struct usb_host_endpoint *int_ep;
+ 	struct urb *int_urb;
++	bool flush_status;
+ 	u8 *status;
+ 	struct input_dev *input;
+ 	char input_phys[64];
 
 
