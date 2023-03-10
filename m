@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C2E6B4183
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1B536B447D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbjCJNxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:53:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
+        id S232128AbjCJOYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:24:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231261AbjCJNxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FEBAEAB88
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:34 -0800 (PST)
+        with ESMTP id S232172AbjCJOYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5851ABEF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5431B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32ABCC433EF;
-        Fri, 10 Mar 2023 13:53:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF20A6192E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF6AEC4339C;
+        Fri, 10 Mar 2023 14:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456411;
-        bh=8ivhV4rIQF8V0NQSfq3Oi8356Odb3PPcz9Le8tPxjMI=;
+        s=korg; t=1678458206;
+        bh=femLk/G21cWkDK85w7A/7MbapcoWiK8uWhe6w1wRuoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LBwp6jxB551+5CKeACZRo5fLe82gnA+VoB7HFeu4ICb4D577Qzq2SDZOtvb4pLf1
-         bNJ3/eUmlj+xlfXP8Spu9w9A2f4ux2UTZ1LrzMqcA+udLfXEEKuUEM59u+NENOxHn+
-         3QrT/ThmERoH2iXtpl0Q9Vjr9qAKwqKxqK9QKC90=
+        b=AJI/Wf13dZCgnpDdP8O+ZBj2/AxcmYhrl+AeMlff/ozJeDLTE36WI3TS8zN9mvaK3
+         MHfg2iFPSgTcrhNx5wk24mccFsIERhKc7CwGtj9JII/MpNMdLUYYateTogkyA+8AKL
+         hleL/f+kntgCADSIdDejrq+MA5Gr3GLaXcktEtfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 188/193] phy: rockchip-typec: Fix unsigned comparison with less than zero
+        patches@lists.linux.dev, Xiang Yang <xiangyang3@huawei.com>,
+        Anton Ivanov <anton.ivanov@kot-begemot.co.uk>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 200/252] um: vector: Fix memory leak in vector_config
 Date:   Fri, 10 Mar 2023 14:39:30 +0100
-Message-Id: <20230310133717.317682286@linuxfoundation.org>
+Message-Id: <20230310133725.095607138@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Xiang Yang <xiangyang3@huawei.com>
 
-[ Upstream commit f765c59c5a72546a2d74a92ae5d0eb0329d8e247 ]
+[ Upstream commit 8f88c73afe481f93d40801596927e8c0047b6d96 ]
 
-The dp and ufp are defined as bool type, the return value type of
-function extcon_get_state should be int, so the type of dp and ufp
-are modified to int.
+If the return value of the uml_parse_vector_ifspec function is NULL,
+we should call kfree(params) to prevent memory leak.
 
-./drivers/phy/rockchip/phy-rockchip-typec.c:827:12-14: WARNING: Unsigned expression compared with zero: dp > 0.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3962
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230213035709.99027-1-jiapeng.chong@linux.alibaba.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 49da7e64f33e ("High Performance UML Vector Network Driver")
+Signed-off-by: Xiang Yang <xiangyang3@huawei.com>
+Acked-By: Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-typec.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/um/drivers/vector_kern.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/phy/rockchip/phy-rockchip-typec.c
-+++ b/drivers/phy/rockchip/phy-rockchip-typec.c
-@@ -645,9 +645,8 @@ static int tcphy_get_mode(struct rockchi
- 	struct extcon_dev *edev = tcphy->extcon;
- 	union extcon_property_value property;
- 	unsigned int id;
--	bool ufp, dp;
- 	u8 mode;
--	int ret;
-+	int ret, ufp, dp;
+diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
+index 50ee3bb5a63a9..b0b124025b486 100644
+--- a/arch/um/drivers/vector_kern.c
++++ b/arch/um/drivers/vector_kern.c
+@@ -741,6 +741,7 @@ static int vector_config(char *str, char **error_out)
  
- 	ufp = extcon_get_state(edev, EXTCON_USB);
- 	dp = extcon_get_state(edev, EXTCON_DISP_DP);
+ 	if (parsed == NULL) {
+ 		*error_out = "vector_config failed to parse parameters";
++		kfree(params);
+ 		return -EINVAL;
+ 	}
+ 
+-- 
+2.39.2
+
 
 
