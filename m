@@ -2,55 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11BDB6B4438
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5A896B45D8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232194AbjCJOWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40472 "EHLO
+        id S232680AbjCJOiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:38:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231963AbjCJOWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 500471184E8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:02 -0800 (PST)
+        with ESMTP id S232683AbjCJOhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:37:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23448119F8C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:37:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C517661771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F67C433D2;
-        Fri, 10 Mar 2023 14:21:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E34FB822BF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 124B9C4339B;
+        Fri, 10 Mar 2023 14:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458061;
-        bh=SPh9Cr0VLqWYefx9jhcVnscVgtjzDfdP9eEjl8T4Ftc=;
+        s=korg; t=1678459046;
+        bh=bkH/MSHh1vG3qxFVj3SFFzY6BLBc2XZzTikb04xmBFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKsBcQgG+/L/Bdqbg4Lv7anH2IeNNqL2wm1WGEbxGD4pDOLV13FgaV94x9SqoLg3S
-         RjpgsgeGBxIY8Vt31u0/7XplcSpvA/Z/OdVvJi8UB2YhZZ1QFpj6j1psiycR1BA22C
-         wkGIachh0mP18IPimU2HiYgHz/eBiXCAmc9bFFpw=
+        b=1Pa7slcMimq0ZdNgmserumNs6jWNRJwQ6x7QQEG1vLvzM6LY1Pz/7uKv8ytFILEu/
+         6JcwUO/rzoxZAa1nKnRGF+N3r1kroNclqxbOnp4gKsV4ZEjTUjFECxbu/pEs8KMOsY
+         Vknq7s2j5mDJTyE3OOZkb5ZyiDHhuGQfzqQ3aYTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 149/252] ocfs2: fix defrag path triggering jbd2 ASSERT
-Date:   Fri, 10 Mar 2023 14:38:39 +0100
-Message-Id: <20230310133723.300672885@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?=E6=9F=B3=E8=8F=81=E5=B3=B0?= <liujingfeng@qianxin.com>,
+        Michal Luczaj <mhal@rbox.co>,
+        Sean Christopherson <seanjc@google.com>
+Subject: [PATCH 5.4 231/357] KVM: Destroy target device if coalesced MMIO unregistration fails
+Date:   Fri, 10 Mar 2023 14:38:40 +0100
+Message-Id: <20230310133744.958874705@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,100 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 60eed1e3d45045623e46944ebc7c42c30a4350f0 upstream.
+commit b1cb1fac22abf102ffeb29dd3eeca208a3869d54 upstream.
 
-code path:
+Destroy and free the target coalesced MMIO device if unregistering said
+device fails.  As clearly noted in the code, kvm_io_bus_unregister_dev()
+does not destroy the target device.
 
-ocfs2_ioctl_move_extents
- ocfs2_move_extents
-  ocfs2_defrag_extent
-   __ocfs2_move_extent
-    + ocfs2_journal_access_di
-    + ocfs2_split_extent  //sub-paths call jbd2_journal_restart
-    + ocfs2_journal_dirty //crash by jbs2 ASSERT
+  BUG: memory leak
+  unreferenced object 0xffff888112a54880 (size 64):
+    comm "syz-executor.2", pid 5258, jiffies 4297861402 (age 14.129s)
+    hex dump (first 32 bytes):
+      38 c7 67 15 00 c9 ff ff 38 c7 67 15 00 c9 ff ff  8.g.....8.g.....
+      e0 c7 e1 83 ff ff ff ff 00 30 67 15 00 c9 ff ff  .........0g.....
+    backtrace:
+      [<0000000006995a8a>] kmalloc include/linux/slab.h:556 [inline]
+      [<0000000006995a8a>] kzalloc include/linux/slab.h:690 [inline]
+      [<0000000006995a8a>] kvm_vm_ioctl_register_coalesced_mmio+0x8e/0x3d0 arch/x86/kvm/../../../virt/kvm/coalesced_mmio.c:150
+      [<00000000022550c2>] kvm_vm_ioctl+0x47d/0x1600 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3323
+      [<000000008a75102f>] vfs_ioctl fs/ioctl.c:46 [inline]
+      [<000000008a75102f>] file_ioctl fs/ioctl.c:509 [inline]
+      [<000000008a75102f>] do_vfs_ioctl+0xbab/0x1160 fs/ioctl.c:696
+      [<0000000080e3f669>] ksys_ioctl+0x76/0xa0 fs/ioctl.c:713
+      [<0000000059ef4888>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+      [<0000000059ef4888>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+      [<0000000059ef4888>] __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
+      [<000000006444fa05>] do_syscall_64+0x9f/0x4e0 arch/x86/entry/common.c:290
+      [<000000009a4ed50b>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-crash stacks:
+  BUG: leak checking failed
 
-PID: 11297  TASK: ffff974a676dcd00  CPU: 67  COMMAND: "defragfs.ocfs2"
- #0 [ffffb25d8dad3900] machine_kexec at ffffffff8386fe01
- #1 [ffffb25d8dad3958] __crash_kexec at ffffffff8395959d
- #2 [ffffb25d8dad3a20] crash_kexec at ffffffff8395a45d
- #3 [ffffb25d8dad3a38] oops_end at ffffffff83836d3f
- #4 [ffffb25d8dad3a58] do_trap at ffffffff83833205
- #5 [ffffb25d8dad3aa0] do_invalid_op at ffffffff83833aa6
- #6 [ffffb25d8dad3ac0] invalid_op at ffffffff84200d18
-    [exception RIP: jbd2_journal_dirty_metadata+0x2ba]
-    RIP: ffffffffc09ca54a  RSP: ffffb25d8dad3b70  RFLAGS: 00010207
-    RAX: 0000000000000000  RBX: ffff9706eedc5248  RCX: 0000000000000000
-    RDX: 0000000000000001  RSI: ffff97337029ea28  RDI: ffff9706eedc5250
-    RBP: ffff9703c3520200   R8: 000000000f46b0b2   R9: 0000000000000000
-    R10: 0000000000000001  R11: 00000001000000fe  R12: ffff97337029ea28
-    R13: 0000000000000000  R14: ffff9703de59bf60  R15: ffff9706eedc5250
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb25d8dad3ba8] ocfs2_journal_dirty at ffffffffc137fb95 [ocfs2]
- #8 [ffffb25d8dad3be8] __ocfs2_move_extent at ffffffffc139a950 [ocfs2]
- #9 [ffffb25d8dad3c80] ocfs2_defrag_extent at ffffffffc139b2d2 [ocfs2]
-
-Analysis
-
-This bug has the same root cause of 'commit 7f27ec978b0e ("ocfs2: call
-ocfs2_journal_access_di() before ocfs2_journal_dirty() in
-ocfs2_write_end_nolock()")'.  For this bug, jbd2_journal_restart() is
-called by ocfs2_split_extent() during defragmenting.
-
-How to fix
-
-For ocfs2_split_extent() can handle journal operations totally by itself.
-Caller doesn't need to call journal access/dirty pair, and caller only
-needs to call journal start/stop pair.  The fix method is to remove
-journal access/dirty from __ocfs2_move_extent().
-
-The discussion for this patch:
-https://oss.oracle.com/pipermail/ocfs2-devel/2023-February/000647.html
-
-Link: https://lkml.kernel.org/r/20230217003717.32469-1-heming.zhao@suse.com
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 5d3c4c79384a ("KVM: Stop looking for coalesced MMIO zones if the bus is destroyed")
+Cc: stable@vger.kernel.org
+Reported-by: 柳菁峰 <liujingfeng@qianxin.com>
+Reported-by: Michal Luczaj <mhal@rbox.co>
+Link: https://lore.kernel.org/r/20221219171924.67989-1-seanjc@google.com
+Link: https://lore.kernel.org/all/20230118220003.1239032-1-mhal@rbox.co
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/move_extents.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ virt/kvm/coalesced_mmio.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/ocfs2/move_extents.c
-+++ b/fs/ocfs2/move_extents.c
-@@ -115,14 +115,6 @@ static int __ocfs2_move_extent(handle_t
- 	 */
- 	replace_rec.e_flags = ext_flags & ~OCFS2_EXT_REFCOUNTED;
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -191,15 +191,17 @@ int kvm_vm_ioctl_unregister_coalesced_mm
+ 			r = kvm_io_bus_unregister_dev(kvm,
+ 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
  
--	ret = ocfs2_journal_access_di(handle, INODE_CACHE(inode),
--				      context->et.et_root_bh,
--				      OCFS2_JOURNAL_ACCESS_WRITE);
--	if (ret) {
--		mlog_errno(ret);
--		goto out;
--	}
--
- 	ret = ocfs2_split_extent(handle, &context->et, path, index,
- 				 &replace_rec, context->meta_ac,
- 				 &context->dealloc);
-@@ -131,8 +123,6 @@ static int __ocfs2_move_extent(handle_t
- 		goto out;
++			kvm_iodevice_destructor(&dev->dev);
++
+ 			/*
+ 			 * On failure, unregister destroys all devices on the
+ 			 * bus _except_ the target device, i.e. coalesced_zones
+-			 * has been modified.  No need to restart the walk as
+-			 * there aren't any zones left.
++			 * has been modified.  Bail after destroying the target
++			 * device, there's no need to restart the walk as there
++			 * aren't any zones left.
+ 			 */
+ 			if (r)
+ 				break;
+-			kvm_iodevice_destructor(&dev->dev);
+ 		}
  	}
  
--	ocfs2_journal_dirty(handle, context->et.et_root_bh);
--
- 	context->new_phys_cpos = new_p_cpos;
- 
- 	/*
 
 
