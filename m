@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3EA6B457D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B15C6B42C0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232536AbjCJOeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:34:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35656 "EHLO
+        id S231673AbjCJOGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbjCJOdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F66733AB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:53 -0800 (PST)
+        with ESMTP id S231734AbjCJOGT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE62D136FA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CE8F6187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7271C433D2;
-        Fri, 10 Mar 2023 14:33:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 369CC618B8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D416C433EF;
+        Fri, 10 Mar 2023 14:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458832;
-        bh=K/TNsjSbTqs8WuGfJGRvTtS2yLAwUX7UwXJL/DoOStg=;
+        s=korg; t=1678457160;
+        bh=90SnIkXiXLtPgScPIiujRElaF67OYzpDYWxkuwAPR5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRYXjZTSgl0B5TqRIWfO3gRohqKGycxzasAaENVDAutf6MMWE3v9xBrLxY7/qXa07
-         dGfm7GzDoaXH/ejMU3ncTvIcpxtZTVbEJ9YA6YfdOAfD2W+Baf7ehXxTDRgZSfmIMP
-         nKiI+ucfI+TpYUoSjoJKS7U3+kg3O936YQaBfKtw=
+        b=nSi/SnWn3SCPdx/qU/iQY97yZQHtM0sRIi+G4vLYV56HBUCGN1A1T4HzBqe+6/AB/
+         rxKPq2jjnjuTKriyVJqXnKgYXj7R5xOib9X3OC1nLwbApv/6KiY4S5OmO4VaJNAjXc
+         Cfcbi7uVUpWUNQQK0MaCQvd6Hb0kpn/UBUMBKE+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/357] powerpc/pseries/lpar: add missing RTAS retry status handling
+Subject: [PATCH 6.1 041/200] ubi: Fix UAF wear-leveling entry in eraseblk_count_seq_show()
 Date:   Fri, 10 Mar 2023 14:37:28 +0100
-Message-Id: <20230310133741.728297352@linuxfoundation.org>
+Message-Id: <20230310133718.331798865@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,65 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit daa8ab59044610aa8ef2ee45a6c157b5e11635e9 ]
+[ Upstream commit a240bc5c43130c6aa50831d7caaa02a1d84e1bce ]
 
-The ibm,get-system-parameter RTAS function may return -2 or 990x,
-which indicate that the caller should try again.
+Wear-leveling entry could be freed in error path, which may be accessed
+again in eraseblk_count_seq_show(), for example:
 
-pseries_lpar_read_hblkrm_characteristics() ignores this, making it
-possible to incorrectly detect TLB block invalidation characteristics
-at boot.
+__erase_worker                eraseblk_count_seq_show
+                                wl = ubi->lookuptbl[*block_number]
+				if (wl)
+  wl_entry_destroy
+    ubi->lookuptbl[e->pnum] = NULL
+    kmem_cache_free(ubi_wl_entry_slab, e)
+		                   erase_count = wl->ec  // UAF!
 
-Move the RTAS call into a coventional rtas_busy_delay()-based loop.
+Wear-leveling entry updating/accessing in ubi->lookuptbl should be
+protected by ubi->wl_lock, fix it by adding ubi->wl_lock to serialize
+wl entry accessing between wl_entry_destroy() and
+eraseblk_count_seq_show().
 
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Fixes: 1211ee61b4a8 ("powerpc/pseries: Read TLB Block Invalidate Characteristics")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230125-b4-powerpc-rtas-queue-v3-3-26929c8cce78@linux.ibm.com
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216305
+Fixes: 7bccd12d27b7e3 ("ubi: Add debugfs file for tracking PEB state")
+Fixes: 801c135ce73d5d ("UBI: Unsorted Block Images")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/lpar.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/mtd/ubi/wl.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
-index c93b9a3bf237e..55af0e4cf355b 100644
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -1416,22 +1416,22 @@ static inline void __init check_lp_set_hblkrm(unsigned int lp,
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 68eb0f21b3fe2..f45df3b773739 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -890,8 +890,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
  
- void __init pseries_lpar_read_hblkrm_characteristics(void)
- {
-+	const s32 token = rtas_token("ibm,get-system-parameter");
- 	unsigned char local_buffer[SPLPAR_TLB_BIC_MAXLENGTH];
- 	int call_status, len, idx, bpsize;
+ 	err = do_sync_erase(ubi, e1, vol_id, lnum, 0);
+ 	if (err) {
+-		if (e2)
++		if (e2) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e2);
++			spin_unlock(&ubi->wl_lock);
++		}
+ 		goto out_ro;
+ 	}
  
- 	if (!firmware_has_feature(FW_FEATURE_BLOCK_REMOVE))
- 		return;
+@@ -1130,14 +1133,18 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
+ 		/* Re-schedule the LEB for erasure */
+ 		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
+ 		if (err1) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e);
++			spin_unlock(&ubi->wl_lock);
+ 			err = err1;
+ 			goto out_ro;
+ 		}
+ 		return err;
+ 	}
  
--	spin_lock(&rtas_data_buf_lock);
--	memset(rtas_data_buf, 0, RTAS_DATA_BUF_SIZE);
--	call_status = rtas_call(rtas_token("ibm,get-system-parameter"), 3, 1,
--				NULL,
--				SPLPAR_TLB_BIC_TOKEN,
--				__pa(rtas_data_buf),
--				RTAS_DATA_BUF_SIZE);
--	memcpy(local_buffer, rtas_data_buf, SPLPAR_TLB_BIC_MAXLENGTH);
--	local_buffer[SPLPAR_TLB_BIC_MAXLENGTH - 1] = '\0';
--	spin_unlock(&rtas_data_buf_lock);
-+	do {
-+		spin_lock(&rtas_data_buf_lock);
-+		memset(rtas_data_buf, 0, RTAS_DATA_BUF_SIZE);
-+		call_status = rtas_call(token, 3, 1, NULL, SPLPAR_TLB_BIC_TOKEN,
-+					__pa(rtas_data_buf), RTAS_DATA_BUF_SIZE);
-+		memcpy(local_buffer, rtas_data_buf, SPLPAR_TLB_BIC_MAXLENGTH);
-+		local_buffer[SPLPAR_TLB_BIC_MAXLENGTH - 1] = '\0';
-+		spin_unlock(&rtas_data_buf_lock);
-+	} while (rtas_busy_delay(call_status));
- 
- 	if (call_status != 0) {
- 		pr_warn("%s %s Error calling get-system-parameter (0x%x)\n",
++	spin_lock(&ubi->wl_lock);
+ 	wl_entry_destroy(ubi, e);
++	spin_unlock(&ubi->wl_lock);
+ 	if (err != -EIO)
+ 		/*
+ 		 * If this is not %-EIO, we have no idea what to do. Scheduling
 -- 
 2.39.2
 
