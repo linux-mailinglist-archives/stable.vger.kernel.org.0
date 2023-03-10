@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF666B465A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A6F6B4484
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232844AbjCJOme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:42:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59988 "EHLO
+        id S232255AbjCJOZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232859AbjCJOmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:42:25 -0500
+        with ESMTP id S232258AbjCJOYm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3490120EBC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:42:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5948AF68E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 481F261771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:42:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E90C433EF;
-        Fri, 10 Mar 2023 14:42:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 517FC617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413CAC433D2;
+        Fri, 10 Mar 2023 14:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459326;
-        bh=gqroH3tA5sDEgMCfGKeMPazNlRijwCEdoLxVVlCed20=;
+        s=korg; t=1678458214;
+        bh=tKXc9PD8kMdRNHG7iiu0WcI/VFuH20BQFz0w364ybGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUSJAiR0v9NCQ41IpM0G0UPTPzGS/tUQ0dQLm0QXAyj92fn7/8scW25ZN9E6QP686
-         hu2f+sL1ezj+zupb7WhOjmskiXpW79xVBZYFO4Z7p17jsAfWGNg7HW0b0RmJuVVtib
-         sT+72lU/S44xlzOgnY+0q4gsRTRPsQy8HwBmetPo=
+        b=e3H4VgN7fBxhya/zD8KWc4dzfpuwCe/V9I1lsjqOvIrSglwvlNPC7XjHAn0QjvzQb
+         S9Mn6Ms7y4USkr48/uVpBIZHd9ZUi1Z8290LEYbWf1CgV1aaSZFu11UHYrs+LC4IAu
+         yLDC3V3V89Zcfs6/p0Gkc+eDpWFUCrU+7W1Rasio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+0be96567042453c0c820@syzkaller.appspotmail.com,
-        Liu Shixin <liushixin2@huawei.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 284/357] fs/jfs: fix shift exponent db_agl2size negative
+Subject: [PATCH 4.19 203/252] ubifs: Rectify space budget for ubifs_xrename()
 Date:   Fri, 10 Mar 2023 14:39:33 +0100
-Message-Id: <20230310133747.293452588@linuxfoundation.org>
+Message-Id: <20230310133725.209267834@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin via Jfs-discussion <jfs-discussion@lists.sourceforge.net>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit fad376fce0af58deebc5075b8539dc05bf639af3 ]
+[ Upstream commit 1b2ba09060e41adb356b9ae58ef94a7390928004 ]
 
-As a shift exponent, db_agl2size can not be less than 0. Add the missing
-check to fix the shift-out-of-bounds bug reported by syzkaller:
+There is no space budget for ubifs_xrename(). It may let
+make_reservation() return with -ENOSPC, which could turn
+ubifs to read-only mode in do_writepage() process.
+Fix it by adding space budget for ubifs_xrename().
 
- UBSAN: shift-out-of-bounds in fs/jfs/jfs_dmap.c:2227:15
- shift exponent -744642816 is negative
+Fetch a reproducer in [Link].
 
-Reported-by: syzbot+0be96567042453c0c820@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216569
+Fixes: 9ec64962afb170 ("ubifs: Implement RENAME_EXCHANGE")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ubifs/dir.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index aa4643854f947..cc1fed285b2d6 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -193,7 +193,8 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
- 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
- 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
--	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
-+	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG ||
-+	    bmp->db_agl2size < 0) {
- 		err = -EINVAL;
- 		goto err_release_metapage;
+diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+index f054c12a0f939..89c5c2abc0faf 100644
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1549,6 +1549,10 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
+ 		return err;
  	}
+ 
++	err = ubifs_budget_space(c, &req);
++	if (err)
++		goto out;
++
+ 	lock_4_inodes(old_dir, new_dir, NULL, NULL);
+ 
+ 	time = current_time(old_dir);
+@@ -1574,6 +1578,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
+ 	unlock_4_inodes(old_dir, new_dir, NULL, NULL);
+ 	ubifs_release_budget(c, &req);
+ 
++out:
+ 	fscrypt_free_filename(&fst_nm);
+ 	fscrypt_free_filename(&snd_nm);
+ 	return err;
 -- 
 2.39.2
 
