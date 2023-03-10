@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A06D96B49E6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E8D6B49E5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:16:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233869AbjCJPQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:16:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55566 "EHLO
+        id S233557AbjCJPQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:16:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233877AbjCJPQY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:16:24 -0500
+        with ESMTP id S233842AbjCJPQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:16:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D540413D1FD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:07:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3F7513D1E1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:07:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA02FB8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:06:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45AE3C433D2;
-        Fri, 10 Mar 2023 15:06:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEFB5B822DE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3628BC433EF;
+        Fri, 10 Mar 2023 15:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460782;
-        bh=BiTlZ0t+9vOyhxEWctkJitM66twrlqdki/NzHsji7UI=;
+        s=korg; t=1678460785;
+        bh=BEzS6ZKP3APJpV2OTupwswSSJhdFKbbwtdlWTisIMlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n08zDlIxZdwccP6zQFjRrNheAmb6sufCBexsWzEXWmKJRfxbS8lXwPVeFEqEDfW+f
-         jNAr0pVuk2zBH5zq7+p1hNVbLjr/blgKCOBPWTM2DBou1K0VH9xZEp5yHA9giVnYrt
-         gMaj/5CbEuHO64KR3XQyA8cVAQ9TSq7I/JNNdsPw=
+        b=BwTeqBlY9pcpXeiJT7FxmTvwKuJAvEOVgZ3gnqmTaewdJ0fd3TZ+D0aptsnbcYycT
+         E6PHeZI6EuO8cxkBbq1eC8OZJKRs3DM8or+HGXPfGX1weu4fPrMkQ3lMGpeBLhjjDx
+         n1fRnJot9RRi643lI0Wy5nDECCNMuKlyz0X1TiJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 450/529] ubi: Fix possible null-ptr-deref in ubi_free_volume()
-Date:   Fri, 10 Mar 2023 14:39:53 +0100
-Message-Id: <20230310133825.751230817@linuxfoundation.org>
+Subject: [PATCH 5.10 451/529] ubifs: Re-statistic cleaned znode count if commit failed
+Date:   Fri, 10 Mar 2023 14:39:54 +0100
+Message-Id: <20230310133825.789098922@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,87 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit c15859bfd326c10230f09cb48a17f8a35f190342 ]
+[ Upstream commit 944e096aa24071d3fe22822f6249d3ae309e39ea ]
 
-It willl cause null-ptr-deref in the following case:
+Dirty znodes will be written on flash in committing process with
+following states:
 
-uif_init()
-  ubi_add_volume()
-    cdev_add() -> if it fails, call kill_volumes()
-    device_register()
+	      process A			|  znode state
+------------------------------------------------------
+do_commit				| DIRTY_ZNODE
+  ubifs_tnc_start_commit		| DIRTY_ZNODE
+   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
+    layout_commit			| DIRTY_ZNODE | COW_ZNODE
+     fill_gap                           | 0
+  write master				| 0 or OBSOLETE_ZNODE
 
-kill_volumes() -> if ubi_add_volume() fails call this function
-  ubi_free_volume()
-    cdev_del()
-    device_unregister() -> trying to delete a not added device,
-			   it causes null-ptr-deref
+	      process B			|  znode state
+------------------------------------------------------
+do_commit				| DIRTY_ZNODE[1]
+  ubifs_tnc_start_commit		| DIRTY_ZNODE
+   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
+  ubifs_tnc_end_commit			| DIRTY_ZNODE | COW_ZNODE
+   write_index                          | 0
+  write master				| 0 or OBSOLETE_ZNODE[2] or
+					| DIRTY_ZNODE[3]
 
-So in ubi_free_volume(), it delete devices whether they are added
-or not, it will causes null-ptr-deref.
+[1] znode is dirtied without concurrent committing process
+[2] znode is copied up (re-dirtied by other process) before cleaned
+    up in committing process
+[3] znode is re-dirtied after cleaned up in committing process
 
-Handle the error case whlie calling ubi_add_volume() to fix this
-problem. If add volume fails, set the corresponding vol to null,
-so it can not be accessed in kill_volumes() and release the
-resource in ubi_add_volume() error path.
+Currently, the clean znode count is updated in free_obsolete_znodes(),
+which is called only in normal path. If do_commit failed, clean znode
+count won't be updated, which triggers a failure ubifs assertion[4] in
+ubifs_tnc_close():
+ ubifs_assert_failed [ubifs]: UBIFS assert failed: freed == n
 
-Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
-Suggested-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+[4] Commit 380347e9ca7682 ("UBIFS: Add an assertion for clean_zn_cnt").
+
+Fix it by re-statisticing cleaned znode count in tnc_destroy_cnext().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216704
+Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c |  1 +
- drivers/mtd/ubi/vmt.c   | 12 ++++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ fs/ubifs/tnc.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-index 8747569e793d4..e45fdc1bf66a4 100644
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -467,6 +467,7 @@ static int uif_init(struct ubi_device *ubi)
- 			err = ubi_add_volume(ubi, ubi->volumes[i]);
- 			if (err) {
- 				ubi_err(ubi, "cannot add volume %d", i);
-+				ubi->volumes[i] = NULL;
- 				goto out_volumes;
- 			}
- 		}
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 2e5bd473e5e25..d79323e8ea29d 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -582,6 +582,7 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	if (err) {
- 		ubi_err(ubi, "cannot add character device for volume %d, error %d",
- 			vol_id, err);
-+		vol_release(&vol->dev);
- 		return err;
- 	}
- 
-@@ -592,15 +593,14 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	vol->dev.groups = volume_dev_groups;
- 	dev_set_name(&vol->dev, "%s_%d", ubi->ubi_name, vol->vol_id);
- 	err = device_register(&vol->dev);
--	if (err)
--		goto out_cdev;
-+	if (err) {
-+		cdev_del(&vol->cdev);
-+		put_device(&vol->dev);
-+		return err;
-+	}
- 
- 	self_check_volumes(ubi);
- 	return err;
--
--out_cdev:
--	cdev_del(&vol->cdev);
--	return err;
+diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
+index 894f1ab14616e..7c36b66774301 100644
+--- a/fs/ubifs/tnc.c
++++ b/fs/ubifs/tnc.c
+@@ -3053,6 +3053,21 @@ static void tnc_destroy_cnext(struct ubifs_info *c)
+ 		cnext = cnext->cnext;
+ 		if (ubifs_zn_obsolete(znode))
+ 			kfree(znode);
++		else if (!ubifs_zn_cow(znode)) {
++			/*
++			 * Don't forget to update clean znode count after
++			 * committing failed, because ubifs will check this
++			 * count while closing tnc. Non-obsolete znode could
++			 * be re-dirtied during committing process, so dirty
++			 * flag is untrustable. The flag 'COW_ZNODE' is set
++			 * for each dirty znode before committing, and it is
++			 * cleared as long as the znode become clean, so we
++			 * can statistic clean znode count according to this
++			 * flag.
++			 */
++			atomic_long_inc(&c->clean_zn_cnt);
++			atomic_long_inc(&ubifs_clean_zn_cnt);
++		}
+ 	} while (cnext && cnext != c->cnext);
  }
  
- /**
 -- 
 2.39.2
 
