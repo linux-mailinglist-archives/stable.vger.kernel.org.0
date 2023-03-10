@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7736B42C2
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 784866B41E3
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231710AbjCJOGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33770 "EHLO
+        id S231342AbjCJN5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231714AbjCJOGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B5D112DDE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:07 -0800 (PST)
+        with ESMTP id S231337AbjCJN5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CDAE115DF5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 406AF6193B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F37DC4339C;
-        Fri, 10 Mar 2023 14:06:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC704B822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C516C433EF;
+        Fri, 10 Mar 2023 13:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457166;
-        bh=gLsH/uL6Z+svyRgcK+yjXGRB5bC9JgA2SJY6tUyB6Cc=;
+        s=korg; t=1678456635;
+        bh=Sv95kdFySrsjl9+4w5/3YJcgN44/fRFjPuyWdpLD328=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsW+gSTGklrs3yAF0ClB7dXyZnO1ruJas9TN0GkzWml5OC3UWE/0LrvLKwVrS+CDM
-         iDCaZRBvrQ70iWwubqyj+RSg5l4gsKNQshik/PVy6s22YoXTxsO6TxTRDXPn6OwUbn
-         9El1nFjPDp9RbaootBgJAClA3YPGajdXjUCgYgT0=
+        b=QUEmUQYmTqaO0Xj+lR1c7nH+BqDMer9nWOxQYmRbW23gslkFUlreGMI+8qUmLBD31
+         rZXnZc/GuXnZuBvHaIp+VH5uy3wiDN8WllQ9hgalE9oQi2zJxpG/tp0wO6CJ15X3aP
+         dw4ra5m4zX/s/BDMZgY9mZIaV/O2ceGqpaHcDdFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Yangtao Li <frank.li@vivo.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 043/200] f2fs: fix to avoid potential memory corruption in __update_iostat_latency()
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 070/211] netfilter: xt_length: use skb len to match in length_mt6
 Date:   Fri, 10 Mar 2023 14:37:30 +0100
-Message-Id: <20230310133718.414667642@linuxfoundation.org>
+Message-Id: <20230310133720.893429228@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <frank.li@vivo.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 0dbbf0fb38d5ec5d4138d1aeaeb43d9217b9a592 ]
+[ Upstream commit 05c07c0c6cc8ec2278ace9871618c41f1365d1f5 ]
 
-Add iotype sanity check to avoid potential memory corruption.
-This is to fix the compile error below:
+For IPv6 Jumbo packets, the ipv6_hdr(skb)->payload_len is always 0,
+and its real payload_len ( > 65535) is saved in hbh exthdr. With 0
+length for the jumbo packets, it may mismatch.
 
-fs/f2fs/iostat.c:231 __update_iostat_latency() error: buffer overflow
-'io_lat->peak_lat[type]' 3 <= 3
+To fix this, we can just use skb->len instead of parsing exthdrs, as
+the hbh exthdr parsing has been done before coming to length_mt6 in
+ip6_rcv_core() and br_validate_ipv6() and also the packet has been
+trimmed according to the correct IPv6 (ext)hdr length there, and skb
+len is trustable in length_mt6().
 
-vim +228 fs/f2fs/iostat.c
+Note that this patch is especially needed after the IPv6 BIG TCP was
+supported in kernel, which is using IPv6 Jumbo packets. Besides, to
+match the packets greater than 65535 more properly, a v1 revision of
+xt_length may be needed to extend "min, max" to u32 in the future,
+and for now the IPv6 Jumbo packets can be matched by:
 
-  211  static inline void __update_iostat_latency(struct bio_iostat_ctx
-	*iostat_ctx,
-  212					enum iostat_lat_type type)
-  213  {
-  214		unsigned long ts_diff;
-  215		unsigned int page_type = iostat_ctx->type;
-  216		struct f2fs_sb_info *sbi = iostat_ctx->sbi;
-  217		struct iostat_lat_info *io_lat = sbi->iostat_io_lat;
-  218		unsigned long flags;
-  219
-  220		if (!sbi->iostat_enable)
-  221			return;
-  222
-  223		ts_diff = jiffies - iostat_ctx->submit_ts;
-  224		if (page_type >= META_FLUSH)
-                                 ^^^^^^^^^^
+  # ip6tables -m length ! --length 0:65535
 
-  225			page_type = META;
-  226
-  227		spin_lock_irqsave(&sbi->iostat_lat_lock, flags);
- @228		io_lat->sum_lat[type][page_type] += ts_diff;
-                                      ^^^^^^^^^
-Mixup between META_FLUSH and NR_PAGE_TYPE leads to memory corruption.
-
-Fixes: a4b6817625e7 ("f2fs: introduce periodic iostat io latency traces")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Suggested-by: Chao Yu <chao@kernel.org>
-Suggested-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Yangtao Li <frank.li@vivo.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 7c4e983c4f3c ("net: allow gso_max_size to exceed 65536")
+Fixes: 0fe79f28bfaf ("net: allow gro_max_size to exceed 65536")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/iostat.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/netfilter/xt_length.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/iostat.c b/fs/f2fs/iostat.c
-index 3166a8939ed4f..02393c95c9f86 100644
---- a/fs/f2fs/iostat.c
-+++ b/fs/f2fs/iostat.c
-@@ -227,8 +227,12 @@ static inline void __update_iostat_latency(struct bio_iostat_ctx *iostat_ctx,
- 		return;
+diff --git a/net/netfilter/xt_length.c b/net/netfilter/xt_length.c
+index 1873da3a945ab..9fbfad13176f0 100644
+--- a/net/netfilter/xt_length.c
++++ b/net/netfilter/xt_length.c
+@@ -30,8 +30,7 @@ static bool
+ length_mt6(const struct sk_buff *skb, struct xt_action_param *par)
+ {
+ 	const struct xt_length_info *info = par->matchinfo;
+-	const u_int16_t pktlen = ntohs(ipv6_hdr(skb)->payload_len) +
+-				 sizeof(struct ipv6hdr);
++	u32 pktlen = skb->len;
  
- 	ts_diff = jiffies - iostat_ctx->submit_ts;
--	if (iotype >= META_FLUSH)
-+	if (iotype == META_FLUSH) {
- 		iotype = META;
-+	} else if (iotype >= NR_PAGE_TYPE) {
-+		f2fs_warn(sbi, "%s: %d over NR_PAGE_TYPE", __func__, iotype);
-+		return;
-+	}
- 
- 	if (rw == 0) {
- 		idx = READ_IO;
+ 	return (pktlen >= info->min && pktlen <= info->max) ^ info->invert;
+ }
 -- 
 2.39.2
 
