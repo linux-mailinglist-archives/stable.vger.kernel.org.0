@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E290D6B46B9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD356B46BC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232867AbjCJOqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:46:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37560 "EHLO
+        id S232792AbjCJOqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:46:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232967AbjCJOpg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:45:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D11FF105568
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:45:34 -0800 (PST)
+        with ESMTP id S232814AbjCJOpj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:45:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED52910556E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:45:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 924DBB822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0907C4339B;
-        Fri, 10 Mar 2023 14:45:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 824976195B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:45:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B88C4339E;
+        Fri, 10 Mar 2023 14:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459532;
-        bh=iaE5AMR1s4xCcv9A7OF8oAI1+5GeNpIqZ1XPFo5A7QQ=;
+        s=korg; t=1678459538;
+        bh=7oZSva1FA8vGWD1d9KPqPQNdfebha4lMmOuTYN6uq6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSna5mAPImGMZPgej1TsNN4WmW7jcuJVTudgS/ubKD0dd+Do/I060+xl+LH4TlIyX
-         L01UQOdu++GWBhshUUqaj0l+JuYmfm7eGgBL4kUZeHxUkj0TbbV0cH7f7N9TWguLoa
-         uOo6pwuipKzxZJQxHe571oyemuinnY/DQg28QbXs=
+        b=EBEn7HoYJeHEDmGLdk3vLIpxvxK8iq24RlA+CGPjEP0QhRfOhbW7VZc6ioxHjWtCf
+         JM9sTymaFxJ4rUOL4abzQ5cAKkgBjXcbbwXHy8fBwEWSzOQEfSGJVMZ8Cs4I5JBzTl
+         HOb0TJf0fbtla8G2758LG/HuXIsw9kREn88OhdQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Adam Ford <aford173@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/529] arm64: dts: amlogic: meson-gxbb-kii-pro: fix led node name
-Date:   Fri, 10 Mar 2023 14:32:58 +0100
-Message-Id: <20230310133806.611624600@linuxfoundation.org>
+Subject: [PATCH 5.10 036/529] arm64: dts: renesas: beacon-renesom: Fix gpio expander reference
+Date:   Fri, 10 Mar 2023 14:32:59 +0100
+Message-Id: <20230310133806.661685442@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,33 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <neil.armstrong@linaro.org>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit afdef3b188c934f79ad4b0a7bd8c692742f9b5af ]
+[ Upstream commit d7f9492dfc03153ac56ab59066a196558748f575 ]
 
-Fixes:
-leds: status: {...} is not of type 'array'
+The board used to originally introduce the Beacon Embedded RZ/G2[M/N/H]
+boards had a GPIO expander with address 20, but this was changed when
+the final board went to production.
 
-Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-13-44351528957e@linaro.org
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+The production boards changed both the part itself and the address.
+With the incorrect address, the LCD cannot come up.  If the LCD fails,
+the rcar-du driver fails to come up, and that also breaks HDMI.
+
+Pre-release board were not shipped to the general public, so it should
+be safe to push this as a fix.  Anyone with a production board would
+have video fail due to this GPIO expander change.
+
+Fixes: a1d8a344f1ca ("arm64: dts: renesas: Introduce r8a774a1-beacon-rzg2m-kit")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20230114225647.227972-1-aford173@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../dts/renesas/beacon-renesom-baseboard.dtsi | 24 ++++++++-----------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-index e8394a8269ee1..802faf7e4e3cb 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-@@ -16,7 +16,7 @@ / {
+diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
+index 53e1d43cbecf8..663adf79471bc 100644
+--- a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
++++ b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
+@@ -399,20 +399,6 @@ wm8962_endpoint: endpoint {
+ 		};
+ 	};
  
- 	leds {
- 		compatible = "gpio-leds";
--		status {
-+		led {
- 			gpios = <&gpio_ao GPIOAO_13 GPIO_ACTIVE_LOW>;
- 			default-state = "off";
- 			color = <LED_COLOR_ID_RED>;
+-	/* 0 - lcd_reset */
+-	/* 1 - lcd_pwr */
+-	/* 2 - lcd_select */
+-	/* 3 - backlight-enable */
+-	/* 4 - Touch_shdwn */
+-	/* 5 - LCD_H_pol */
+-	/* 6 - lcd_V_pol */
+-	gpio_exp1: gpio@20 {
+-		compatible = "onnn,pca9654";
+-		reg = <0x20>;
+-		gpio-controller;
+-		#gpio-cells = <2>;
+-	};
+-
+ 	touchscreen@26 {
+ 		compatible = "ilitek,ili2117";
+ 		reg = <0x26>;
+@@ -445,6 +431,16 @@ hd3ss3220_ep: endpoint {
+ 			};
+ 		};
+ 	};
++
++	gpio_exp1: gpio@70 {
++		compatible = "nxp,pca9538";
++		reg = <0x70>;
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "lcd_reset", "lcd_pwr", "lcd_select",
++				  "backlight-enable", "Touch_shdwn",
++				  "LCD_H_pol", "lcd_V_pol";
++	};
+ };
+ 
+ &lvds0 {
 -- 
 2.39.2
 
