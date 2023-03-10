@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1336B431D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB6076B414D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231820AbjCJOKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34156 "EHLO
+        id S230494AbjCJNvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:51:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231826AbjCJOKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65691112A4C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:55 -0800 (PST)
+        with ESMTP id S230493AbjCJNva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A204F10D75C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 177EAB822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B45FC4339B;
-        Fri, 10 Mar 2023 14:09:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E515616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45371C433EF;
+        Fri, 10 Mar 2023 13:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457392;
-        bh=qoUPov/LwG4fTq+fCprYQLwZsufLMu3JpSfvfCBm0hE=;
+        s=korg; t=1678456288;
+        bh=TtKbn2e9CFuUkS5JFXCWdRWYBluM9Pd8iPd2Lv1bLbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCRltpmVm9ZR/Y+ScNWJYCRL0XSg5IMsjhpICtSuc+tMOV8Nuc5Pytd2Qf+wUpS4r
-         QXhw38VjRgySBpanDxvjnC0PDuDfJxOo/U5B9sdY/L11ALJ1wLFFftQVXluP3PRQZg
-         lFDrrUliVQiddGmSejyVU3o/MagnE9Va2deKVXLo=
+        b=M7aISb9kFndfcC0wNyD0/hXatr6hz4mduc8d+P7nS0tNYgbs/kw1P+hp21xGzYILm
+         OEbqs9NhBPXHv+p60nJMAAqaZAMWx9byxIqITqcIDiXCPSIWjNJ8TtBmY9VBuZ+CUY
+         rXfGot3cPyh4sWsniDeqQzmRSHk4FZhzsje0GpKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matt Fagnani <matt.fagnani@bell.net>,
-        Vasant Hegde <vasant.hegde@amd.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 121/200] iommu/amd: Fix error handling for pdev_pri_ats_enable()
+        patches@lists.linux.dev, Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 146/193] PCI: Avoid FLR for AMD FCH AHCI adapters
 Date:   Fri, 10 Mar 2023 14:38:48 +0100
-Message-Id: <20230310133720.833980298@linuxfoundation.org>
+Message-Id: <20230310133716.082326076@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <vasant.hegde@amd.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 080920e52148b4fbbf9360d5345fdcd7846e4841 ]
+commit 63ba51db24ed1b8f8088a897290eb6c036c5435d upstream.
 
-Current code throws kernel warning if it fails to enable pasid/pri [1].
-Do not call pci_disable_[pasid/pri] if pci_enable_[pasid/pri] failed.
+PCI passthrough to VMs does not work with AMD FCH AHCI adapters: the guest
+OS fails to correctly probe devices attached to the controller due to FIS
+communication failures:
 
-[1] https://lore.kernel.org/linux-iommu/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
+  ata4: softreset failed (1st FIS failed)
+  ...
+  ata4.00: qc timeout after 5000 msecs (cmd 0xec)
+  ata4.00: failed to IDENTIFY (I/O error, err_mask=0x4)
 
-Reported-by: Matt Fagnani <matt.fagnani@bell.net>
-Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
-Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/20230111121503.5931-1-vasant.hegde@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Forcing the "bus" reset method before unbinding & binding the adapter to
+the vfio-pci driver solves this issue, e.g.:
+
+  echo "bus" > /sys/bus/pci/devices/<ID>/reset_method
+
+gives a working guest OS, indicating that the default FLR reset method
+doesn't work correctly.
+
+Apply quirk_no_flr() to AMD FCH AHCI devices to work around this issue.
+
+Link: https://lore.kernel.org/r/20230128013951.523247-1-damien.lemoal@opensource.wdc.com
+Reported-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd/iommu.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/pci/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index 968e5e6668b26..20adb9b323d82 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -1712,27 +1712,29 @@ static int pdev_pri_ats_enable(struct pci_dev *pdev)
- 	/* Only allow access to user-accessible pages */
- 	ret = pci_enable_pasid(pdev, 0);
- 	if (ret)
--		goto out_err;
-+		return ret;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5064,6 +5064,7 @@ static void quirk_no_flr(struct pci_dev
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x1487, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x148c, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x149c, quirk_no_flr);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x7901, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
  
- 	/* First reset the PRI state of the device */
- 	ret = pci_reset_pri(pdev);
- 	if (ret)
--		goto out_err;
-+		goto out_err_pasid;
- 
- 	/* Enable PRI */
- 	/* FIXME: Hardcode number of outstanding requests for now */
- 	ret = pci_enable_pri(pdev, 32);
- 	if (ret)
--		goto out_err;
-+		goto out_err_pasid;
- 
- 	ret = pci_enable_ats(pdev, PAGE_SHIFT);
- 	if (ret)
--		goto out_err;
-+		goto out_err_pri;
- 
- 	return 0;
- 
--out_err:
-+out_err_pri:
- 	pci_disable_pri(pdev);
-+
-+out_err_pasid:
- 	pci_disable_pasid(pdev);
- 
- 	return ret;
--- 
-2.39.2
-
 
 
