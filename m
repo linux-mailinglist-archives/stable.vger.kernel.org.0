@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C4B6B4161
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2BB16B445C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231129AbjCJNw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:52:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56166 "EHLO
+        id S232315AbjCJOXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:23:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231143AbjCJNwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:52:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25486113F68
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:13 -0800 (PST)
+        with ESMTP id S231745AbjCJOWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EB561BAC0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF83961774
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C716BC433EF;
-        Fri, 10 Mar 2023 13:52:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24DB0B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B6E2C433EF;
+        Fri, 10 Mar 2023 14:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456332;
-        bh=UAUPl9AJpD3+bESpazGPh8x5h/nQp5bOsQJrj00x5Es=;
+        s=korg; t=1678458129;
+        bh=AupI8DZLa6c/BV/RNHMnzl3sW9pXeR1CABduRzjM2Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvWdR0WfOeity1KHgIZEcStsKDqnj6iAK6WOm4dpZJbhRQe/2l8z4MWN0Kg4qCPFZ
-         /OpDVhVnU1zcTUElfelIgXXjZNzvYIQJtjpGqmtWH8sifcAwydD+XSXPl4qk/A3tDt
-         jwRKrTm5yKffwmWZ01Dy9VChHZ/1LQKFcueYSg4I=
+        b=GXBubnuItKGNVFPgKu/b7wSezVx3sGeQnXFAKwfKBRNMFhQErP+cP1RBVonGptH+I
+         /UzNNtE08YMMadpOk3Crk8v5ZBvlR+DOdEuPBtSoo9kIQ4NQPRVd7QGsEWJ4Sv53fu
+         MdOg4qVVRLz5Ft4LaK1j+Fx1g1H5t3ckS5owsjSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 160/193] ubifs: dirty_cow_znode: Fix memleak in error handling path
-Date:   Fri, 10 Mar 2023 14:39:02 +0100
-Message-Id: <20230310133716.493945564@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.19 173/252] wifi: rtl8xxxu: Use a longer retry limit of 48
+Date:   Fri, 10 Mar 2023 14:39:03 +0100
+Message-Id: <20230310133724.097252891@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit 122deabfe1428bffe95e2bf364ff8a5059bdf089 ]
+commit 2a86aa9a1892d60ef2e3f310f5b42b8b05546d65 upstream.
 
-Following process will cause a memleak for copied up znode:
+The Realtek rate control algorithm goes back and forth a lot between
+the highest and the lowest rate it's allowed to use. This is due to
+a lot of frames being dropped because the retry limits set by
+IEEE80211_CONF_CHANGE_RETRY_LIMITS are too low. (Experimentally, they
+are 4 for long frames and 7 for short frames.)
 
-dirty_cow_znode
-  zn = copy_znode(c, znode);
-  err = insert_old_idx(c, zbr->lnum, zbr->offs);
-  if (unlikely(err))
-     return ERR_PTR(err);   // No one refers to zn.
+The vendor drivers hardcode the value 48 for both retry limits (for
+station mode), which makes dropped frames very rare and thus the rate
+control is more stable.
 
-Fix it by adding copied znode back to tnc, then it will be freed
-by ubifs_destroy_tnc_subtree() while closing tnc.
+Because most Realtek chips handle the rate control in the firmware,
+which can't be modified, ignore the limits set by
+IEEE80211_CONF_CHANGE_RETRY_LIMITS and use the value 48 (set during
+chip initialisation), same as the vendor drivers.
 
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216705
-Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/477d745b-6bac-111d-403c-487fc19aa30d@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/tnc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
-index 20b70e178c4fa..6c4af1cfce346 100644
---- a/fs/ubifs/tnc.c
-+++ b/fs/ubifs/tnc.c
-@@ -279,11 +279,18 @@ static struct ubifs_znode *dirty_cow_znode(struct ubifs_info *c,
- 	if (zbr->len) {
- 		err = insert_old_idx(c, zbr->lnum, zbr->offs);
- 		if (unlikely(err))
--			return ERR_PTR(err);
-+			/*
-+			 * Obsolete znodes will be freed by tnc_destroy_cnext()
-+			 * or free_obsolete_znodes(), copied up znodes should
-+			 * be added back to tnc and freed by
-+			 * ubifs_destroy_tnc_subtree().
-+			 */
-+			goto out;
- 		err = add_idx_dirt(c, zbr->lnum, zbr->len);
- 	} else
- 		err = 0;
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -5500,7 +5500,6 @@ static int rtl8xxxu_config(struct ieee80
+ {
+ 	struct rtl8xxxu_priv *priv = hw->priv;
+ 	struct device *dev = &priv->udev->dev;
+-	u16 val16;
+ 	int ret = 0, channel;
+ 	bool ht40;
  
-+out:
- 	zbr->znode = zn;
- 	zbr->lnum = 0;
- 	zbr->offs = 0;
--- 
-2.39.2
-
+@@ -5510,14 +5509,6 @@ static int rtl8xxxu_config(struct ieee80
+ 			 __func__, hw->conf.chandef.chan->hw_value,
+ 			 changed, hw->conf.chandef.width);
+ 
+-	if (changed & IEEE80211_CONF_CHANGE_RETRY_LIMITS) {
+-		val16 = ((hw->conf.long_frame_max_tx_count <<
+-			  RETRY_LIMIT_LONG_SHIFT) & RETRY_LIMIT_LONG_MASK) |
+-			((hw->conf.short_frame_max_tx_count <<
+-			  RETRY_LIMIT_SHORT_SHIFT) & RETRY_LIMIT_SHORT_MASK);
+-		rtl8xxxu_write16(priv, REG_RETRY_LIMIT, val16);
+-	}
+-
+ 	if (changed & IEEE80211_CONF_CHANGE_CHANNEL) {
+ 		switch (hw->conf.chandef.width) {
+ 		case NL80211_CHAN_WIDTH_20_NOHT:
 
 
