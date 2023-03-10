@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E72E86B44D1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:28:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA7F6B4817
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232073AbjCJO2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:28:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53148 "EHLO
+        id S233441AbjCJO6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:58:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232386AbjCJO2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:28:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535D911CD50
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:26:42 -0800 (PST)
+        with ESMTP id S233688AbjCJO6X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:58:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E998199FA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:52:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54D08B822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A4DC433D2;
-        Fri, 10 Mar 2023 14:26:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA8061A3F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:51:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B09C8C4339B;
+        Fri, 10 Mar 2023 14:51:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458400;
-        bh=eEoDYbAIAKjQfyD8VO5SVsbF3KkPr4TaArExoYBmqvQ=;
+        s=korg; t=1678459910;
+        bh=w6I0Ahw7N3n3owk0E9rDfYRjrCTD4QtJza2PGRmidfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsYJntNtZMlJ9/We1n7aEEISdMJlJTU3vJ1HmLCIPwqB9KfWvQBxaXrTgc82G4aJX
-         OJquonzZWEomJLZ2hFl3tenBKKZRKSypjvuIgjSPFatpfSVD6dlFFbO1HJybETvMBE
-         YogzE0IGaNTkF7tWSR8KkhqKz0jvESOwMu1sUlOU=
+        b=dK3hCypRF2I239zP6Cr7hMKobi8JN7THPuAdhC0jGlq6kJzo83EzcG36r9gOGo5wb
+         Of6aQy9kYXziKs8AReD2Zo5lQw+wqCK4qg1W9qj7uOgJFbXkBkGgH4coVA5NFoUDR4
+         8qmim0U7Qt0qEyXWtOZpOshNsv2e1H73EMFLRP70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, Heiko Stuebner <heiko@sntech.de>,
+        Jianqun Xu <jay.xu@rock-chips.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/357] arm64: dts: amlogic: meson-gx: fix SCPI clock dvfs node name
-Date:   Fri, 10 Mar 2023 14:35:03 +0100
-Message-Id: <20230310133734.611994032@linuxfoundation.org>
+Subject: [PATCH 5.10 161/529] pinctrl: rockchip: do coding style for mux route struct
+Date:   Fri, 10 Mar 2023 14:35:04 +0100
+Message-Id: <20230310133812.418451374@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,760 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <neil.armstrong@linaro.org>
+From: Jianqun Xu <jay.xu@rock-chips.com>
 
-[ Upstream commit 127f79212b07c5d9a6657a87e3eafdd889335814 ]
+[ Upstream commit fe202ea8e5b170ef7b3741da885e8cb7bae1106e ]
 
-Fixes:
-scpi: clocks: 'clock-controller' does not match any of the regexes: '^clocks-[0-9a-f]+$', 'pinctrl-[0-9]+'
+The mux route tables take many lines for each SoC, and it will be more
+instances for newly SoC, that makes the file size increase larger.
 
-Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-1-44351528957e@linaro.org
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+This patch only do coding style for mux route struct, by adding a new
+definition and replace the structs by script which supplied by
+huangtao@rock-chips.com
+
+sed -i -e "
+/static struct rockchip_mux_route_data /bcheck
+b
+:append-next-line
+N
+:check
+/^[^;]*$/bappend-next-line
+s/[[:blank:]]*.bank_num = \([[:digit:]]*,\)\n/\tRK_MUXROUTE_SAME(\1/g
+s/[[:blank:]]*.pin =[[:blank:]]*0,\n/ RK_PA0,/g
+s/[[:blank:]]*.pin =[[:blank:]]*1,\n/ RK_PA1,/g
+s/[[:blank:]]*.pin =[[:blank:]]*2,\n/ RK_PA2,/g
+s/[[:blank:]]*.pin =[[:blank:]]*3,\n/ RK_PA3,/g
+s/[[:blank:]]*.pin =[[:blank:]]*4,\n/ RK_PA4,/g
+s/[[:blank:]]*.pin =[[:blank:]]*5,\n/ RK_PA5,/g
+s/[[:blank:]]*.pin =[[:blank:]]*6,\n/ RK_PA6,/g
+s/[[:blank:]]*.pin =[[:blank:]]*7,\n/ RK_PA7,/g
+s/[[:blank:]]*.pin =[[:blank:]]*8,\n/ RK_PB0,/g
+s/[[:blank:]]*.pin =[[:blank:]]*9,\n/ RK_PB1,/g
+s/[[:blank:]]*.pin =[[:blank:]]*10,\n/ RK_PB2,/g
+s/[[:blank:]]*.pin =[[:blank:]]*11,\n/ RK_PB3,/g
+s/[[:blank:]]*.pin =[[:blank:]]*12,\n/ RK_PB4,/g
+s/[[:blank:]]*.pin =[[:blank:]]*13,\n/ RK_PB5,/g
+s/[[:blank:]]*.pin =[[:blank:]]*14,\n/ RK_PB6,/g
+s/[[:blank:]]*.pin =[[:blank:]]*15,\n/ RK_PB7,/g
+s/[[:blank:]]*.pin =[[:blank:]]*16,\n/ RK_PC0,/g
+s/[[:blank:]]*.pin =[[:blank:]]*17,\n/ RK_PC1,/g
+s/[[:blank:]]*.pin =[[:blank:]]*18,\n/ RK_PC2,/g
+s/[[:blank:]]*.pin =[[:blank:]]*19,\n/ RK_PC3,/g
+s/[[:blank:]]*.pin =[[:blank:]]*20,\n/ RK_PC4,/g
+s/[[:blank:]]*.pin =[[:blank:]]*21,\n/ RK_PC5,/g
+s/[[:blank:]]*.pin =[[:blank:]]*22,\n/ RK_PC6,/g
+s/[[:blank:]]*.pin =[[:blank:]]*23,\n/ RK_PC7,/g
+s/[[:blank:]]*.pin =[[:blank:]]*24,\n/ RK_PD0,/g
+s/[[:blank:]]*.pin =[[:blank:]]*25,\n/ RK_PD1,/g
+s/[[:blank:]]*.pin =[[:blank:]]*26,\n/ RK_PD2,/g
+s/[[:blank:]]*.pin =[[:blank:]]*27,\n/ RK_PD3,/g
+s/[[:blank:]]*.pin =[[:blank:]]*28,\n/ RK_PD4,/g
+s/[[:blank:]]*.pin =[[:blank:]]*29,\n/ RK_PD5,/g
+s/[[:blank:]]*.pin =[[:blank:]]*30,\n/ RK_PD6,/g
+s/[[:blank:]]*.pin =[[:blank:]]*31,\n/ RK_PD7,/g
+s/[[:blank:]]*.func = \([[:digit:]]*,\)\n/ \1/g
+s/[[:blank:]]*.route_location =[[:blank:]]*\([[:print:]]*,\)\n//g
+s/[[:blank:]]*.route_offset = \(0x[[:xdigit:]]*,\)\n/ \1/g
+s/[[:blank:]]*.route_val =[[:blank:]]*\([[:print:]]*\),\n/ \1),/g
+s/\t{\n//g
+s/\t}, {\n//g
+s/\t},//g
+s/[[:blank:]]*\(\/\*[[:print:]]*\*\/\)\n[[:blank:]]*RK_MUXROUTE_SAME(\([[:print:]]*\)),\n/\tRK_MUXROUTE_SAME(\2), \1\n/g
+s/[[:blank:]]*\(\/\*[[:print:]]*\*\/\)\n[[:blank:]]*RK_MUXROUTE_SAME(\([[:print:]]*\)),/\tRK_MUXROUTE_SAME(\2), \1\n/g
+" drivers/pinctrl/pinctrl-rockchip.c
+
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Jianqun Xu <jay.xu@rock-chips.com>
+Link: https://lore.kernel.org/r/20210420091240.1246429-1-jay.xu@rock-chips.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Stable-dep-of: c818ae563bf9 ("pinctrl: rockchip: Fix refcount leak in rockchip_pinctrl_parse_groups")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-rockchip.c | 650 ++++-------------------------
+ 1 file changed, 80 insertions(+), 570 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index 0e9784f3980d3..c923715222580 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -189,7 +189,7 @@ scpi {
- 		scpi_clocks: clocks {
- 			compatible = "arm,scpi-clocks";
+diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
+index 38ea70f49cb07..944c7254f672b 100644
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -844,597 +844,107 @@ static void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
+ }
  
--			scpi_dvfs: clock-controller {
-+			scpi_dvfs: clocks-0 {
- 				compatible = "arm,scpi-dvfs-clocks";
- 				#clock-cells = <1>;
- 				clock-indices = <0>;
+ static struct rockchip_mux_route_data px30_mux_route_data[] = {
+-	{
+-		/* cif-d2m0 */
+-		.bank_num = 2,
+-		.pin = 0,
+-		.func = 1,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 7),
+-	}, {
+-		/* cif-d2m1 */
+-		.bank_num = 3,
+-		.pin = 3,
+-		.func = 3,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 7) | BIT(7),
+-	}, {
+-		/* pdm-m0 */
+-		.bank_num = 3,
+-		.pin = 22,
+-		.func = 2,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 8),
+-	}, {
+-		/* pdm-m1 */
+-		.bank_num = 2,
+-		.pin = 22,
+-		.func = 1,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 8) | BIT(8),
+-	}, {
+-		/* uart2-rxm0 */
+-		.bank_num = 1,
+-		.pin = 27,
+-		.func = 2,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 10),
+-	}, {
+-		/* uart2-rxm1 */
+-		.bank_num = 2,
+-		.pin = 14,
+-		.func = 2,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 10) | BIT(10),
+-	}, {
+-		/* uart3-rxm0 */
+-		.bank_num = 0,
+-		.pin = 17,
+-		.func = 2,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 9),
+-	}, {
+-		/* uart3-rxm1 */
+-		.bank_num = 1,
+-		.pin = 15,
+-		.func = 2,
+-		.route_offset = 0x184,
+-		.route_val = BIT(16 + 9) | BIT(9),
+-	},
++	RK_MUXROUTE_SAME(2, RK_PA0, 1, 0x184, BIT(16 + 7)), /* cif-d2m0 */
++	RK_MUXROUTE_SAME(3, RK_PA3, 3, 0x184, BIT(16 + 7) | BIT(7)), /* cif-d2m1 */
++	RK_MUXROUTE_SAME(3, RK_PC6, 2, 0x184, BIT(16 + 8)), /* pdm-m0 */
++	RK_MUXROUTE_SAME(2, RK_PC6, 1, 0x184, BIT(16 + 8) | BIT(8)), /* pdm-m1 */
++	RK_MUXROUTE_SAME(1, RK_PD3, 2, 0x184, BIT(16 + 10)), /* uart2-rxm0 */
++	RK_MUXROUTE_SAME(2, RK_PB6, 2, 0x184, BIT(16 + 10) | BIT(10)), /* uart2-rxm1 */
++	RK_MUXROUTE_SAME(0, RK_PC1, 2, 0x184, BIT(16 + 9)), /* uart3-rxm0 */
++	RK_MUXROUTE_SAME(1, RK_PB7, 2, 0x184, BIT(16 + 9) | BIT(9)), /* uart3-rxm1 */
+ };
+ 
+ static struct rockchip_mux_route_data rk3128_mux_route_data[] = {
+-	{
+-		/* spi-0 */
+-		.bank_num = 1,
+-		.pin = 10,
+-		.func = 1,
+-		.route_offset = 0x144,
+-		.route_val = BIT(16 + 3) | BIT(16 + 4),
+-	}, {
+-		/* spi-1 */
+-		.bank_num = 1,
+-		.pin = 27,
+-		.func = 3,
+-		.route_offset = 0x144,
+-		.route_val = BIT(16 + 3) | BIT(16 + 4) | BIT(3),
+-	}, {
+-		/* spi-2 */
+-		.bank_num = 0,
+-		.pin = 13,
+-		.func = 2,
+-		.route_offset = 0x144,
+-		.route_val = BIT(16 + 3) | BIT(16 + 4) | BIT(4),
+-	}, {
+-		/* i2s-0 */
+-		.bank_num = 1,
+-		.pin = 5,
+-		.func = 1,
+-		.route_offset = 0x144,
+-		.route_val = BIT(16 + 5),
+-	}, {
+-		/* i2s-1 */
+-		.bank_num = 0,
+-		.pin = 14,
+-		.func = 1,
+-		.route_offset = 0x144,
+-		.route_val = BIT(16 + 5) | BIT(5),
+-	}, {
+-		/* emmc-0 */
+-		.bank_num = 1,
+-		.pin = 22,
+-		.func = 2,
+-		.route_offset = 0x144,
+-		.route_val = BIT(16 + 6),
+-	}, {
+-		/* emmc-1 */
+-		.bank_num = 2,
+-		.pin = 4,
+-		.func = 2,
+-		.route_offset = 0x144,
+-		.route_val = BIT(16 + 6) | BIT(6),
+-	},
++	RK_MUXROUTE_SAME(1, RK_PB2, 1, 0x144, BIT(16 + 3) | BIT(16 + 4)), /* spi-0 */
++	RK_MUXROUTE_SAME(1, RK_PD3, 3, 0x144, BIT(16 + 3) | BIT(16 + 4) | BIT(3)), /* spi-1 */
++	RK_MUXROUTE_SAME(0, RK_PB5, 2, 0x144, BIT(16 + 3) | BIT(16 + 4) | BIT(4)), /* spi-2 */
++	RK_MUXROUTE_SAME(1, RK_PA5, 1, 0x144, BIT(16 + 5)), /* i2s-0 */
++	RK_MUXROUTE_SAME(0, RK_PB6, 1, 0x144, BIT(16 + 5) | BIT(5)), /* i2s-1 */
++	RK_MUXROUTE_SAME(1, RK_PC6, 2, 0x144, BIT(16 + 6)), /* emmc-0 */
++	RK_MUXROUTE_SAME(2, RK_PA4, 2, 0x144, BIT(16 + 6) | BIT(6)), /* emmc-1 */
+ };
+ 
+ static struct rockchip_mux_route_data rk3188_mux_route_data[] = {
+-	{
+-		/* non-iomuxed emmc/flash pins on flash-dqs */
+-		.bank_num = 0,
+-		.pin = 24,
+-		.func = 1,
+-		.route_location = ROCKCHIP_ROUTE_GRF,
+-		.route_offset = 0xa0,
+-		.route_val = BIT(16 + 11),
+-	}, {
+-		/* non-iomuxed emmc/flash pins on emmc-clk */
+-		.bank_num = 0,
+-		.pin = 24,
+-		.func = 2,
+-		.route_location = ROCKCHIP_ROUTE_GRF,
+-		.route_offset = 0xa0,
+-		.route_val = BIT(16 + 11) | BIT(11),
+-	},
++	RK_MUXROUTE_SAME(0, RK_PD0, 1, 0xa0, BIT(16 + 11)), /* non-iomuxed emmc/flash pins on flash-dqs */
++	RK_MUXROUTE_SAME(0, RK_PD0, 2, 0xa0, BIT(16 + 11) | BIT(11)), /* non-iomuxed emmc/flash pins on emmc-clk */
+ };
+ 
+ static struct rockchip_mux_route_data rk3228_mux_route_data[] = {
+-	{
+-		/* pwm0-0 */
+-		.bank_num = 0,
+-		.pin = 26,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16),
+-	}, {
+-		/* pwm0-1 */
+-		.bank_num = 3,
+-		.pin = 21,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16) | BIT(0),
+-	}, {
+-		/* pwm1-0 */
+-		.bank_num = 0,
+-		.pin = 27,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 1),
+-	}, {
+-		/* pwm1-1 */
+-		.bank_num = 0,
+-		.pin = 30,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 1) | BIT(1),
+-	}, {
+-		/* pwm2-0 */
+-		.bank_num = 0,
+-		.pin = 28,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 2),
+-	}, {
+-		/* pwm2-1 */
+-		.bank_num = 1,
+-		.pin = 12,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 2) | BIT(2),
+-	}, {
+-		/* pwm3-0 */
+-		.bank_num = 3,
+-		.pin = 26,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 3),
+-	}, {
+-		/* pwm3-1 */
+-		.bank_num = 1,
+-		.pin = 11,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 3) | BIT(3),
+-	}, {
+-		/* sdio-0_d0 */
+-		.bank_num = 1,
+-		.pin = 1,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 4),
+-	}, {
+-		/* sdio-1_d0 */
+-		.bank_num = 3,
+-		.pin = 2,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 4) | BIT(4),
+-	}, {
+-		/* spi-0_rx */
+-		.bank_num = 0,
+-		.pin = 13,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 5),
+-	}, {
+-		/* spi-1_rx */
+-		.bank_num = 2,
+-		.pin = 0,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 5) | BIT(5),
+-	}, {
+-		/* emmc-0_cmd */
+-		.bank_num = 1,
+-		.pin = 22,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 7),
+-	}, {
+-		/* emmc-1_cmd */
+-		.bank_num = 2,
+-		.pin = 4,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 7) | BIT(7),
+-	}, {
+-		/* uart2-0_rx */
+-		.bank_num = 1,
+-		.pin = 19,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 8),
+-	}, {
+-		/* uart2-1_rx */
+-		.bank_num = 1,
+-		.pin = 10,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 8) | BIT(8),
+-	}, {
+-		/* uart1-0_rx */
+-		.bank_num = 1,
+-		.pin = 10,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 11),
+-	}, {
+-		/* uart1-1_rx */
+-		.bank_num = 3,
+-		.pin = 13,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 11) | BIT(11),
+-	},
++	RK_MUXROUTE_SAME(0, RK_PD2, 1, 0x50, BIT(16)), /* pwm0-0 */
++	RK_MUXROUTE_SAME(3, RK_PC5, 1, 0x50, BIT(16) | BIT(0)), /* pwm0-1 */
++	RK_MUXROUTE_SAME(0, RK_PD3, 1, 0x50, BIT(16 + 1)), /* pwm1-0 */
++	RK_MUXROUTE_SAME(0, RK_PD6, 2, 0x50, BIT(16 + 1) | BIT(1)), /* pwm1-1 */
++	RK_MUXROUTE_SAME(0, RK_PD4, 1, 0x50, BIT(16 + 2)), /* pwm2-0 */
++	RK_MUXROUTE_SAME(1, RK_PB4, 2, 0x50, BIT(16 + 2) | BIT(2)), /* pwm2-1 */
++	RK_MUXROUTE_SAME(3, RK_PD2, 1, 0x50, BIT(16 + 3)), /* pwm3-0 */
++	RK_MUXROUTE_SAME(1, RK_PB3, 2, 0x50, BIT(16 + 3) | BIT(3)), /* pwm3-1 */
++	RK_MUXROUTE_SAME(1, RK_PA1, 1, 0x50, BIT(16 + 4)), /* sdio-0_d0 */
++	RK_MUXROUTE_SAME(3, RK_PA2, 1, 0x50, BIT(16 + 4) | BIT(4)), /* sdio-1_d0 */
++	RK_MUXROUTE_SAME(0, RK_PB5, 2, 0x50, BIT(16 + 5)), /* spi-0_rx */
++	RK_MUXROUTE_SAME(2, RK_PA0, 2, 0x50, BIT(16 + 5) | BIT(5)), /* spi-1_rx */
++	RK_MUXROUTE_SAME(1, RK_PC6, 2, 0x50, BIT(16 + 7)), /* emmc-0_cmd */
++	RK_MUXROUTE_SAME(2, RK_PA4, 2, 0x50, BIT(16 + 7) | BIT(7)), /* emmc-1_cmd */
++	RK_MUXROUTE_SAME(1, RK_PC3, 2, 0x50, BIT(16 + 8)), /* uart2-0_rx */
++	RK_MUXROUTE_SAME(1, RK_PB2, 2, 0x50, BIT(16 + 8) | BIT(8)), /* uart2-1_rx */
++	RK_MUXROUTE_SAME(1, RK_PB2, 1, 0x50, BIT(16 + 11)), /* uart1-0_rx */
++	RK_MUXROUTE_SAME(3, RK_PB5, 1, 0x50, BIT(16 + 11) | BIT(11)), /* uart1-1_rx */
+ };
+ 
+ static struct rockchip_mux_route_data rk3288_mux_route_data[] = {
+-	{
+-		/* edphdmi_cecinoutt1 */
+-		.bank_num = 7,
+-		.pin = 16,
+-		.func = 2,
+-		.route_offset = 0x264,
+-		.route_val = BIT(16 + 12) | BIT(12),
+-	}, {
+-		/* edphdmi_cecinout */
+-		.bank_num = 7,
+-		.pin = 23,
+-		.func = 4,
+-		.route_offset = 0x264,
+-		.route_val = BIT(16 + 12),
+-	},
++	RK_MUXROUTE_SAME(7, RK_PC0, 2, 0x264, BIT(16 + 12) | BIT(12)), /* edphdmi_cecinoutt1 */
++	RK_MUXROUTE_SAME(7, RK_PC7, 4, 0x264, BIT(16 + 12)), /* edphdmi_cecinout */
+ };
+ 
+ static struct rockchip_mux_route_data rk3308_mux_route_data[] = {
+-	{
+-		/* rtc_clk */
+-		.bank_num = 0,
+-		.pin = 19,
+-		.func = 1,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 0) | BIT(0),
+-	}, {
+-		/* uart2_rxm0 */
+-		.bank_num = 1,
+-		.pin = 22,
+-		.func = 2,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 2) | BIT(16 + 3),
+-	}, {
+-		/* uart2_rxm1 */
+-		.bank_num = 4,
+-		.pin = 26,
+-		.func = 2,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 2) | BIT(16 + 3) | BIT(2),
+-	}, {
+-		/* i2c3_sdam0 */
+-		.bank_num = 0,
+-		.pin = 15,
+-		.func = 2,
+-		.route_offset = 0x608,
+-		.route_val = BIT(16 + 8) | BIT(16 + 9),
+-	}, {
+-		/* i2c3_sdam1 */
+-		.bank_num = 3,
+-		.pin = 12,
+-		.func = 2,
+-		.route_offset = 0x608,
+-		.route_val = BIT(16 + 8) | BIT(16 + 9) | BIT(8),
+-	}, {
+-		/* i2c3_sdam2 */
+-		.bank_num = 2,
+-		.pin = 0,
+-		.func = 3,
+-		.route_offset = 0x608,
+-		.route_val = BIT(16 + 8) | BIT(16 + 9) | BIT(9),
+-	}, {
+-		/* i2s-8ch-1-sclktxm0 */
+-		.bank_num = 1,
+-		.pin = 3,
+-		.func = 2,
+-		.route_offset = 0x308,
+-		.route_val = BIT(16 + 3),
+-	}, {
+-		/* i2s-8ch-1-sclkrxm0 */
+-		.bank_num = 1,
+-		.pin = 4,
+-		.func = 2,
+-		.route_offset = 0x308,
+-		.route_val = BIT(16 + 3),
+-	}, {
+-		/* i2s-8ch-1-sclktxm1 */
+-		.bank_num = 1,
+-		.pin = 13,
+-		.func = 2,
+-		.route_offset = 0x308,
+-		.route_val = BIT(16 + 3) | BIT(3),
+-	}, {
+-		/* i2s-8ch-1-sclkrxm1 */
+-		.bank_num = 1,
+-		.pin = 14,
+-		.func = 2,
+-		.route_offset = 0x308,
+-		.route_val = BIT(16 + 3) | BIT(3),
+-	}, {
+-		/* pdm-clkm0 */
+-		.bank_num = 1,
+-		.pin = 4,
+-		.func = 3,
+-		.route_offset = 0x308,
+-		.route_val =  BIT(16 + 12) | BIT(16 + 13),
+-	}, {
+-		/* pdm-clkm1 */
+-		.bank_num = 1,
+-		.pin = 14,
+-		.func = 4,
+-		.route_offset = 0x308,
+-		.route_val = BIT(16 + 12) | BIT(16 + 13) | BIT(12),
+-	}, {
+-		/* pdm-clkm2 */
+-		.bank_num = 2,
+-		.pin = 6,
+-		.func = 2,
+-		.route_offset = 0x308,
+-		.route_val = BIT(16 + 12) | BIT(16 + 13) | BIT(13),
+-	}, {
+-		/* pdm-clkm-m2 */
+-		.bank_num = 2,
+-		.pin = 4,
+-		.func = 3,
+-		.route_offset = 0x600,
+-		.route_val = BIT(16 + 2) | BIT(2),
+-	}, {
+-		/* spi1_miso */
+-		.bank_num = 3,
+-		.pin = 10,
+-		.func = 3,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 9),
+-	}, {
+-		/* spi1_miso_m1 */
+-		.bank_num = 2,
+-		.pin = 4,
+-		.func = 2,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 9) | BIT(9),
+-	}, {
+-		/* owire_m0 */
+-		.bank_num = 0,
+-		.pin = 11,
+-		.func = 3,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 10) | BIT(16 + 11),
+-	}, {
+-		/* owire_m1 */
+-		.bank_num = 1,
+-		.pin = 22,
+-		.func = 7,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 10) | BIT(16 + 11) | BIT(10),
+-	}, {
+-		/* owire_m2 */
+-		.bank_num = 2,
+-		.pin = 2,
+-		.func = 5,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 10) | BIT(16 + 11) | BIT(11),
+-	}, {
+-		/* can_rxd_m0 */
+-		.bank_num = 0,
+-		.pin = 11,
+-		.func = 2,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 12) | BIT(16 + 13),
+-	}, {
+-		/* can_rxd_m1 */
+-		.bank_num = 1,
+-		.pin = 22,
+-		.func = 5,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 12) | BIT(16 + 13) | BIT(12),
+-	}, {
+-		/* can_rxd_m2 */
+-		.bank_num = 2,
+-		.pin = 2,
+-		.func = 4,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 12) | BIT(16 + 13) | BIT(13),
+-	}, {
+-		/* mac_rxd0_m0 */
+-		.bank_num = 1,
+-		.pin = 20,
+-		.func = 3,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 14),
+-	}, {
+-		/* mac_rxd0_m1 */
+-		.bank_num = 4,
+-		.pin = 2,
+-		.func = 2,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 14) | BIT(14),
+-	}, {
+-		/* uart3_rx */
+-		.bank_num = 3,
+-		.pin = 12,
+-		.func = 4,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 15),
+-	}, {
+-		/* uart3_rx_m1 */
+-		.bank_num = 0,
+-		.pin = 17,
+-		.func = 3,
+-		.route_offset = 0x314,
+-		.route_val = BIT(16 + 15) | BIT(15),
+-	},
++	RK_MUXROUTE_SAME(0, RK_PC3, 1, 0x314, BIT(16 + 0) | BIT(0)), /* rtc_clk */
++	RK_MUXROUTE_SAME(1, RK_PC6, 2, 0x314, BIT(16 + 2) | BIT(16 + 3)), /* uart2_rxm0 */
++	RK_MUXROUTE_SAME(4, RK_PD2, 2, 0x314, BIT(16 + 2) | BIT(16 + 3) | BIT(2)), /* uart2_rxm1 */
++	RK_MUXROUTE_SAME(0, RK_PB7, 2, 0x608, BIT(16 + 8) | BIT(16 + 9)), /* i2c3_sdam0 */
++	RK_MUXROUTE_SAME(3, RK_PB4, 2, 0x608, BIT(16 + 8) | BIT(16 + 9) | BIT(8)), /* i2c3_sdam1 */
++	RK_MUXROUTE_SAME(2, RK_PA0, 3, 0x608, BIT(16 + 8) | BIT(16 + 9) | BIT(9)), /* i2c3_sdam2 */
++	RK_MUXROUTE_SAME(1, RK_PA3, 2, 0x308, BIT(16 + 3)), /* i2s-8ch-1-sclktxm0 */
++	RK_MUXROUTE_SAME(1, RK_PA4, 2, 0x308, BIT(16 + 3)), /* i2s-8ch-1-sclkrxm0 */
++	RK_MUXROUTE_SAME(1, RK_PB5, 2, 0x308, BIT(16 + 3) | BIT(3)), /* i2s-8ch-1-sclktxm1 */
++	RK_MUXROUTE_SAME(1, RK_PB6, 2, 0x308, BIT(16 + 3) | BIT(3)), /* i2s-8ch-1-sclkrxm1 */
++	RK_MUXROUTE_SAME(1, RK_PA4, 3, 0x308, BIT(16 + 12) | BIT(16 + 13)), /* pdm-clkm0 */
++	RK_MUXROUTE_SAME(1, RK_PB6, 4, 0x308, BIT(16 + 12) | BIT(16 + 13) | BIT(12)), /* pdm-clkm1 */
++	RK_MUXROUTE_SAME(2, RK_PA6, 2, 0x308, BIT(16 + 12) | BIT(16 + 13) | BIT(13)), /* pdm-clkm2 */
++	RK_MUXROUTE_SAME(2, RK_PA4, 3, 0x600, BIT(16 + 2) | BIT(2)), /* pdm-clkm-m2 */
++	RK_MUXROUTE_SAME(3, RK_PB2, 3, 0x314, BIT(16 + 9)), /* spi1_miso */
++	RK_MUXROUTE_SAME(2, RK_PA4, 2, 0x314, BIT(16 + 9) | BIT(9)), /* spi1_miso_m1 */
++	RK_MUXROUTE_SAME(0, RK_PB3, 3, 0x314, BIT(16 + 10) | BIT(16 + 11)), /* owire_m0 */
++	RK_MUXROUTE_SAME(1, RK_PC6, 7, 0x314, BIT(16 + 10) | BIT(16 + 11) | BIT(10)), /* owire_m1 */
++	RK_MUXROUTE_SAME(2, RK_PA2, 5, 0x314, BIT(16 + 10) | BIT(16 + 11) | BIT(11)), /* owire_m2 */
++	RK_MUXROUTE_SAME(0, RK_PB3, 2, 0x314, BIT(16 + 12) | BIT(16 + 13)), /* can_rxd_m0 */
++	RK_MUXROUTE_SAME(1, RK_PC6, 5, 0x314, BIT(16 + 12) | BIT(16 + 13) | BIT(12)), /* can_rxd_m1 */
++	RK_MUXROUTE_SAME(2, RK_PA2, 4, 0x314, BIT(16 + 12) | BIT(16 + 13) | BIT(13)), /* can_rxd_m2 */
++	RK_MUXROUTE_SAME(1, RK_PC4, 3, 0x314, BIT(16 + 14)), /* mac_rxd0_m0 */
++	RK_MUXROUTE_SAME(4, RK_PA2, 2, 0x314, BIT(16 + 14) | BIT(14)), /* mac_rxd0_m1 */
++	RK_MUXROUTE_SAME(3, RK_PB4, 4, 0x314, BIT(16 + 15)), /* uart3_rx */
++	RK_MUXROUTE_SAME(0, RK_PC1, 3, 0x314, BIT(16 + 15) | BIT(15)), /* uart3_rx_m1 */
+ };
+ 
+ static struct rockchip_mux_route_data rk3328_mux_route_data[] = {
+-	{
+-		/* uart2dbg_rxm0 */
+-		.bank_num = 1,
+-		.pin = 1,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16) | BIT(16 + 1),
+-	}, {
+-		/* uart2dbg_rxm1 */
+-		.bank_num = 2,
+-		.pin = 1,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16) | BIT(16 + 1) | BIT(0),
+-	}, {
+-		/* gmac-m1_rxd0 */
+-		.bank_num = 1,
+-		.pin = 11,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 2) | BIT(2),
+-	}, {
+-		/* gmac-m1-optimized_rxd3 */
+-		.bank_num = 1,
+-		.pin = 14,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 10) | BIT(10),
+-	}, {
+-		/* pdm_sdi0m0 */
+-		.bank_num = 2,
+-		.pin = 19,
+-		.func = 2,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 3),
+-	}, {
+-		/* pdm_sdi0m1 */
+-		.bank_num = 1,
+-		.pin = 23,
+-		.func = 3,
+-		.route_offset = 0x50,
+-		.route_val =  BIT(16 + 3) | BIT(3),
+-	}, {
+-		/* spi_rxdm2 */
+-		.bank_num = 3,
+-		.pin = 2,
+-		.func = 4,
+-		.route_offset = 0x50,
+-		.route_val =  BIT(16 + 4) | BIT(16 + 5) | BIT(5),
+-	}, {
+-		/* i2s2_sdim0 */
+-		.bank_num = 1,
+-		.pin = 24,
+-		.func = 1,
+-		.route_offset = 0x50,
+-		.route_val = BIT(16 + 6),
+-	}, {
+-		/* i2s2_sdim1 */
+-		.bank_num = 3,
+-		.pin = 2,
+-		.func = 6,
+-		.route_offset = 0x50,
+-		.route_val =  BIT(16 + 6) | BIT(6),
+-	}, {
+-		/* card_iom1 */
+-		.bank_num = 2,
+-		.pin = 22,
+-		.func = 3,
+-		.route_offset = 0x50,
+-		.route_val =  BIT(16 + 7) | BIT(7),
+-	}, {
+-		/* tsp_d5m1 */
+-		.bank_num = 2,
+-		.pin = 16,
+-		.func = 3,
+-		.route_offset = 0x50,
+-		.route_val =  BIT(16 + 8) | BIT(8),
+-	}, {
+-		/* cif_data5m1 */
+-		.bank_num = 2,
+-		.pin = 16,
+-		.func = 4,
+-		.route_offset = 0x50,
+-		.route_val =  BIT(16 + 9) | BIT(9),
+-	},
++	RK_MUXROUTE_SAME(1, RK_PA1, 2, 0x50, BIT(16) | BIT(16 + 1)), /* uart2dbg_rxm0 */
++	RK_MUXROUTE_SAME(2, RK_PA1, 1, 0x50, BIT(16) | BIT(16 + 1) | BIT(0)), /* uart2dbg_rxm1 */
++	RK_MUXROUTE_SAME(1, RK_PB3, 2, 0x50, BIT(16 + 2) | BIT(2)), /* gmac-m1_rxd0 */
++	RK_MUXROUTE_SAME(1, RK_PB6, 2, 0x50, BIT(16 + 10) | BIT(10)), /* gmac-m1-optimized_rxd3 */
++	RK_MUXROUTE_SAME(2, RK_PC3, 2, 0x50, BIT(16 + 3)), /* pdm_sdi0m0 */
++	RK_MUXROUTE_SAME(1, RK_PC7, 3, 0x50, BIT(16 + 3) | BIT(3)), /* pdm_sdi0m1 */
++	RK_MUXROUTE_SAME(3, RK_PA2, 4, 0x50, BIT(16 + 4) | BIT(16 + 5) | BIT(5)), /* spi_rxdm2 */
++	RK_MUXROUTE_SAME(1, RK_PD0, 1, 0x50, BIT(16 + 6)), /* i2s2_sdim0 */
++	RK_MUXROUTE_SAME(3, RK_PA2, 6, 0x50, BIT(16 + 6) | BIT(6)), /* i2s2_sdim1 */
++	RK_MUXROUTE_SAME(2, RK_PC6, 3, 0x50, BIT(16 + 7) | BIT(7)), /* card_iom1 */
++	RK_MUXROUTE_SAME(2, RK_PC0, 3, 0x50, BIT(16 + 8) | BIT(8)), /* tsp_d5m1 */
++	RK_MUXROUTE_SAME(2, RK_PC0, 4, 0x50, BIT(16 + 9) | BIT(9)), /* cif_data5m1 */
+ };
+ 
+ static struct rockchip_mux_route_data rk3399_mux_route_data[] = {
+-	{
+-		/* uart2dbga_rx */
+-		.bank_num = 4,
+-		.pin = 8,
+-		.func = 2,
+-		.route_offset = 0xe21c,
+-		.route_val = BIT(16 + 10) | BIT(16 + 11),
+-	}, {
+-		/* uart2dbgb_rx */
+-		.bank_num = 4,
+-		.pin = 16,
+-		.func = 2,
+-		.route_offset = 0xe21c,
+-		.route_val = BIT(16 + 10) | BIT(16 + 11) | BIT(10),
+-	}, {
+-		/* uart2dbgc_rx */
+-		.bank_num = 4,
+-		.pin = 19,
+-		.func = 1,
+-		.route_offset = 0xe21c,
+-		.route_val = BIT(16 + 10) | BIT(16 + 11) | BIT(11),
+-	}, {
+-		/* pcie_clkreqn */
+-		.bank_num = 2,
+-		.pin = 26,
+-		.func = 2,
+-		.route_offset = 0xe21c,
+-		.route_val = BIT(16 + 14),
+-	}, {
+-		/* pcie_clkreqnb */
+-		.bank_num = 4,
+-		.pin = 24,
+-		.func = 1,
+-		.route_offset = 0xe21c,
+-		.route_val = BIT(16 + 14) | BIT(14),
+-	},
++	RK_MUXROUTE_SAME(4, RK_PB0, 2, 0xe21c, BIT(16 + 10) | BIT(16 + 11)), /* uart2dbga_rx */
++	RK_MUXROUTE_SAME(4, RK_PC0, 2, 0xe21c, BIT(16 + 10) | BIT(16 + 11) | BIT(10)), /* uart2dbgb_rx */
++	RK_MUXROUTE_SAME(4, RK_PC3, 1, 0xe21c, BIT(16 + 10) | BIT(16 + 11) | BIT(11)), /* uart2dbgc_rx */
++	RK_MUXROUTE_SAME(2, RK_PD2, 2, 0xe21c, BIT(16 + 14)), /* pcie_clkreqn */
++	RK_MUXROUTE_SAME(4, RK_PD0, 1, 0xe21c, BIT(16 + 14) | BIT(14)), /* pcie_clkreqnb */
+ };
+ 
+ static struct rockchip_mux_route_data rk3568_mux_route_data[] = {
 -- 
 2.39.2
 
