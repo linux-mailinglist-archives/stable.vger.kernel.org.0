@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDB2A6B43C3
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9AB6B41C1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232088AbjCJORd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:17:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58366 "EHLO
+        id S231273AbjCJN4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232014AbjCJORO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:17:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750641188E1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:15 -0800 (PST)
+        with ESMTP id S231274AbjCJN4U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69B710F46D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA4C1B822BC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093B7C433EF;
-        Fri, 10 Mar 2023 14:16:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59E81B822BF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE02BC4339B;
+        Fri, 10 Mar 2023 13:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457772;
-        bh=xNXfbujEGb1VgDQlUtdjO9NkELFni8YXSWdLmdWro3o=;
+        s=korg; t=1678456553;
+        bh=+9GtUFLrq2JWqwYfiSAIwqSNcX+otGgpJwthgRTfhlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efZgegaRI1WPv2Rz4laCE8jfM2NDoNtR2HwdRbHWH9FI9CnNipG31WJ3b6axcNqtu
-         wJJ5X9k+gG2Iug7RWf3GulUEPQrqC/LWbTYVHX/sjWw26+tQmXePMBgxinWc95cHbM
-         3WAzxaY5rMbZ2q1qmy2WdXoXA/9pmj7ebuPI+QAI=
+        b=Eso1hc+7ykts+L2tweyMYVe2/yiPtheQMHozmVKjqDRak8xRD6Dw1ZhGlJv+hh2hY
+         fR7kMPnDfYO5AWM5n8dJj+k4edxPCdgaD5nH9XS5yokMMx/+B37lWs0lP/ZRqyJ5GR
+         AzqSIxjk5p2+81cQM/wgKisblYCH/6JmeDD/NtQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Coffin <alex.coffin@matician.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/252] Bluetooth: L2CAP: Fix potential user-after-free
+Subject: [PATCH 6.2 041/211] ubi: fastmap: Fix missed fm_anchor PEB in wear-leveling after disabling fastmap
 Date:   Fri, 10 Mar 2023 14:37:01 +0100
-Message-Id: <20230310133720.356578288@linuxfoundation.org>
+Message-Id: <20230310133719.981966513@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,91 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit df5703348813235874d851934e957c3723d71644 ]
+[ Upstream commit 76f9476ece445a07aeb72df9d896cd563fb5b50f ]
 
-This fixes all instances of which requires to allocate a buffer calling
-alloc_skb which may release the chan lock and reacquire later which
-makes it possible that the chan is disconnected in the meantime.
+After disabling fastmap(ubi->fm_disabled = 1), fastmap won't be updated,
+fm_anchor PEB is missed being scheduled for erasing. Besides, fm_anchor
+PEB may have smallest erase count, it doesn't participate wear-leveling.
+The difference of erase count between fm_anchor PEB and other PEBs will
+be larger and larger later on.
 
-Fixes: a6a5568c03c4 ("Bluetooth: Lock the L2CAP channel when sending")
-Reported-by: Alexander Coffin <alex.coffin@matician.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+In which situation fastmap can be disabled? Initially, we have an UBI
+image with fastmap. Then the image will be atttached without module
+parameter 'fm_autoconvert', ubi turns to full scanning mode in one
+random attaching process(eg. bad fastmap caused by powercut), ubi
+fastmap is disabled since then.
+
+Fix it by not getting fm_anchor if fastmap is disabled in
+ubi_refill_pools().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216341
+Fixes: 4b68bf9a69d22d ("ubi: Select fastmap anchor PEBs considering ...")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 24 ------------------------
- net/bluetooth/l2cap_sock.c |  8 ++++++++
- 2 files changed, 8 insertions(+), 24 deletions(-)
+ drivers/mtd/ubi/fastmap-wl.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index fd95631205a6a..0e034925e3601 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -2517,14 +2517,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
- 		if (IS_ERR(skb))
- 			return PTR_ERR(skb);
- 
--		/* Channel lock is released before requesting new skb and then
--		 * reacquired thus we need to recheck channel state.
--		 */
--		if (chan->state != BT_CONNECTED) {
--			kfree_skb(skb);
--			return -ENOTCONN;
--		}
--
- 		l2cap_do_send(chan, skb);
- 		return len;
+diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
+index 0ee452275578d..863f571f1adb5 100644
+--- a/drivers/mtd/ubi/fastmap-wl.c
++++ b/drivers/mtd/ubi/fastmap-wl.c
+@@ -146,13 +146,15 @@ void ubi_refill_pools(struct ubi_device *ubi)
+ 	if (ubi->fm_anchor) {
+ 		wl_tree_add(ubi->fm_anchor, &ubi->free);
+ 		ubi->free_count++;
++		ubi->fm_anchor = NULL;
  	}
-@@ -2568,14 +2560,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
- 		if (IS_ERR(skb))
- 			return PTR_ERR(skb);
  
--		/* Channel lock is released before requesting new skb and then
--		 * reacquired thus we need to recheck channel state.
--		 */
--		if (chan->state != BT_CONNECTED) {
--			kfree_skb(skb);
--			return -ENOTCONN;
--		}
--
- 		l2cap_do_send(chan, skb);
- 		err = len;
- 		break;
-@@ -2596,14 +2580,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
- 		 */
- 		err = l2cap_segment_sdu(chan, &seg_queue, msg, len);
+-	/*
+-	 * All available PEBs are in ubi->free, now is the time to get
+-	 * the best anchor PEBs.
+-	 */
+-	ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
++	if (!ubi->fm_disabled)
++		/*
++		 * All available PEBs are in ubi->free, now is the time to get
++		 * the best anchor PEBs.
++		 */
++		ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
  
--		/* The channel could have been closed while segmenting,
--		 * check that it is still connected.
--		 */
--		if (chan->state != BT_CONNECTED) {
--			__skb_queue_purge(&seg_queue);
--			err = -ENOTCONN;
--		}
--
- 		if (err)
- 			break;
- 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index d938311c58a8d..1c6d01a27e0e8 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1414,6 +1414,14 @@ static struct sk_buff *l2cap_sock_alloc_skb_cb(struct l2cap_chan *chan,
- 	if (!skb)
- 		return ERR_PTR(err);
- 
-+	/* Channel lock is released before requesting new skb and then
-+	 * reacquired thus we need to recheck channel state.
-+	 */
-+	if (chan->state != BT_CONNECTED) {
-+		kfree_skb(skb);
-+		return ERR_PTR(-ENOTCONN);
-+	}
-+
- 	skb->priority = sk->sk_priority;
- 
- 	bt_cb(skb)->l2cap.chan = chan;
+ 	for (;;) {
+ 		enough = 0;
 -- 
 2.39.2
 
