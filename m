@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A2B6B43F8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD5966B4597
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232161AbjCJOUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:20:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
+        id S232597AbjCJOfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:35:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232241AbjCJOTz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F76F1A964
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:26 -0800 (PST)
+        with ESMTP id S232606AbjCJOfE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B198BEFF6D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AE3D61771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EFB9C4339B;
-        Fri, 10 Mar 2023 14:18:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 667E4B822DD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C630EC433A0;
+        Fri, 10 Mar 2023 14:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457905;
-        bh=fTvMYjHSrKeOLYyPL6cibvRcB37xx1eXLzePgAPQ7FU=;
+        s=korg; t=1678458900;
+        bh=uVzkbQnU8y61ZlIBt9r8EbfrInfDtktuAPbEq3+6eG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjfyPjN/rQUXD/hwKtriMoAra1OG1zc/bHWbc3p+DLCO5lOibihLdG2moM9YbSv/h
-         FzK53lIvgrdDFG9nGMxgCRwJIcJxtZgS81KK6urcQtHPeiHWcZT/SPONrpaDMYomTO
-         IE7ZJxwKiZX313XLYvjEQWvprpPMn9ggaYUU9UfQ=
+        b=loK87V97xIvtuntPmqy2zj1qhKkLCGEfYrQ1HTrNELbYZMuiClwNQhvWGXrsvwDlN
+         zGYJzEWhkqSOe3jEOOqmplaB13c/LG52OChVFy45CnGwg97Z9zzKIZjCIzsThYoTVD
+         f4TCfo7Q0Ql8rVG1dn1vkJOeQxiUSml9sbVs20RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
-        Dhruva Gole <d-gole@ti.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 099/252] mtd: rawnand: sunxi: Fix the size of the last OOB region
+Subject: [PATCH 5.4 180/357] rcu: Suppress smp_processor_id() complaint in synchronize_rcu_expedited_wait()
 Date:   Fri, 10 Mar 2023 14:37:49 +0100
-Message-Id: <20230310133721.813198306@linuxfoundation.org>
+Message-Id: <20230310133742.695638135@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,35 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit 34569d869532b54d6e360d224a0254dcdd6a1785 ]
+[ Upstream commit 2d7f00b2f01301d6e41fd4a28030dab0442265be ]
 
-The previous code assigned to the wrong structure member.
+The normal grace period's RCU CPU stall warnings are invoked from the
+scheduling-clock interrupt handler, and can thus invoke smp_processor_id()
+with impunity, which allows them to directly invoke dump_cpu_task().
+In contrast, the expedited grace period's RCU CPU stall warnings are
+invoked from process context, which causes the dump_cpu_task() function's
+calls to smp_processor_id() to complain bitterly in debug kernels.
 
-Fixes: c66811e6d350 ("mtd: nand: sunxi: switch to mtd_ooblayout_ops")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-By: Dhruva Gole <d-gole@ti.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221229181526.53766-6-samuel@sholland.org
+This commit therefore causes synchronize_rcu_expedited_wait() to disable
+preemption around its call to dump_cpu_task().
+
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/sunxi_nand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/rcu/tree_exp.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mtd/nand/raw/sunxi_nand.c b/drivers/mtd/nand/raw/sunxi_nand.c
-index 88075e420f907..fe7bfcdf7c69c 100644
---- a/drivers/mtd/nand/raw/sunxi_nand.c
-+++ b/drivers/mtd/nand/raw/sunxi_nand.c
-@@ -1670,7 +1670,7 @@ static int sunxi_nand_ooblayout_free(struct mtd_info *mtd, int section,
- 	if (section < ecc->steps)
- 		oobregion->length = 4;
- 	else
--		oobregion->offset = mtd->oobsize - oobregion->offset;
-+		oobregion->length = mtd->oobsize - oobregion->offset;
- 
- 	return 0;
- }
+diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
+index 173e3ce607900..eca3df7f041c5 100644
+--- a/kernel/rcu/tree_exp.h
++++ b/kernel/rcu/tree_exp.h
+@@ -523,7 +523,9 @@ static void synchronize_sched_expedited_wait(void)
+ 				mask = leaf_node_cpu_bit(rnp, cpu);
+ 				if (!(READ_ONCE(rnp->expmask) & mask))
+ 					continue;
++				preempt_disable(); // For smp_processor_id() in dump_cpu_task().
+ 				dump_cpu_task(cpu);
++				preempt_enable();
+ 			}
+ 		}
+ 		jiffies_stall = 3 * rcu_jiffies_till_stall_check() + 3;
 -- 
 2.39.2
 
