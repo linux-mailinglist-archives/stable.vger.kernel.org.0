@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB9F6B4182
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1746B4480
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231252AbjCJNxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:53:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60776 "EHLO
+        id S232238AbjCJOY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:24:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231267AbjCJNxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 681BA2BF07
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:31 -0800 (PST)
+        with ESMTP id S232227AbjCJOYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F0E94ECF2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F6C5B822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A69C433D2;
-        Fri, 10 Mar 2023 13:53:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDBB46187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C385EC433D2;
+        Fri, 10 Mar 2023 14:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456408;
-        bh=MK2d23DoXbgShlYQVPK7sKeaRL9k6MseUOKmcmmdE8M=;
+        s=korg; t=1678458203;
+        bh=iKVQPWO1uRe7XlP+pAt0xGPjBWMrnU1CzF1f5lNF7qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LjpVePHwN90hyqfGy+qrmkbI/T9jeKVhFT87ZfD28PPdg9mtTSiownivYOtALWDyi
-         0zN5Ikv+Q5pUeT9UGlILV7Gl++4AIH4dj6CBmwIQIsyWLGf4i7RTrnFY6RMEUyABHO
-         cbUWYTSwex4wgsYMmUf+fcbIko2O2dJeYI6EQkg4=
+        b=jaHtwcGfFcg/vbB2W89+yQLyEoOfbyJhJLS3A/jQM1383D1Ubgba0aIzzAy6P6ELE
+         FQnbyatT1gKYl1adztkYMqQ15vXFWhk2p3fNXazDYVW2xwnXXjCdw/KjAxBZxOPJwf
+         ATQMBIfiNqCEfhhXqW/9wrtJVN+ezyChd4y19KNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Daniel Scally <dan.scally@ideasonboard.com>,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 187/193] usb: uvc: Enumerate valid values for color matching
+Subject: [PATCH 4.19 199/252] pwm: stm32-lp: fix the check on arr and cmp registers update
 Date:   Fri, 10 Mar 2023 14:39:29 +0100
-Message-Id: <20230310133717.288164080@linuxfoundation.org>
+Message-Id: <20230310133725.046754774@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,65 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-[ Upstream commit e16cab9c1596e251761d2bfb5e1467950d616963 ]
+[ Upstream commit 3066bc2d58be31275afb51a589668f265e419c37 ]
 
-The color matching descriptors defined in the UVC Specification
-contain 3 fields with discrete numeric values representing particular
-settings. Enumerate those values so that later code setting them can
-be more readable.
+The ARR (auto reload register) and CMP (compare) registers are
+successively written. The status bits to check the update of these
+registers are polled together with regmap_read_poll_timeout().
+The condition to end the loop may become true, even if one of the
+register isn't correctly updated.
+So ensure both status bits are set before clearing them.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Link: https://lore.kernel.org/r/20230202114142.300858-2-dan.scally@ideasonboard.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e70a540b4e02 ("pwm: Add STM32 LPTimer PWM driver")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/usb/video.h | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ drivers/pwm/pwm-stm32-lp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/usb/video.h b/include/uapi/linux/usb/video.h
-index ff6cc6cb4227c..0c5087c39a9fe 100644
---- a/include/uapi/linux/usb/video.h
-+++ b/include/uapi/linux/usb/video.h
-@@ -179,6 +179,36 @@
- #define UVC_CONTROL_CAP_AUTOUPDATE			(1 << 3)
- #define UVC_CONTROL_CAP_ASYNCHRONOUS			(1 << 4)
+diff --git a/drivers/pwm/pwm-stm32-lp.c b/drivers/pwm/pwm-stm32-lp.c
+index e92a140074221..7c8c2bb8f6a28 100644
+--- a/drivers/pwm/pwm-stm32-lp.c
++++ b/drivers/pwm/pwm-stm32-lp.c
+@@ -126,7 +126,7 @@ static int stm32_pwm_lp_apply(struct pwm_chip *chip, struct pwm_device *pwm,
  
-+/* 3.9.2.6 Color Matching Descriptor Values */
-+enum uvc_color_primaries_values {
-+	UVC_COLOR_PRIMARIES_UNSPECIFIED,
-+	UVC_COLOR_PRIMARIES_BT_709_SRGB,
-+	UVC_COLOR_PRIMARIES_BT_470_2_M,
-+	UVC_COLOR_PRIMARIES_BT_470_2_B_G,
-+	UVC_COLOR_PRIMARIES_SMPTE_170M,
-+	UVC_COLOR_PRIMARIES_SMPTE_240M,
-+};
-+
-+enum uvc_transfer_characteristics_values {
-+	UVC_TRANSFER_CHARACTERISTICS_UNSPECIFIED,
-+	UVC_TRANSFER_CHARACTERISTICS_BT_709,
-+	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_M,
-+	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_B_G,
-+	UVC_TRANSFER_CHARACTERISTICS_SMPTE_170M,
-+	UVC_TRANSFER_CHARACTERISTICS_SMPTE_240M,
-+	UVC_TRANSFER_CHARACTERISTICS_LINEAR,
-+	UVC_TRANSFER_CHARACTERISTICS_SRGB,
-+};
-+
-+enum uvc_matrix_coefficients {
-+	UVC_MATRIX_COEFFICIENTS_UNSPECIFIED,
-+	UVC_MATRIX_COEFFICIENTS_BT_709,
-+	UVC_MATRIX_COEFFICIENTS_FCC,
-+	UVC_MATRIX_COEFFICIENTS_BT_470_2_B_G,
-+	UVC_MATRIX_COEFFICIENTS_SMPTE_170M,
-+	UVC_MATRIX_COEFFICIENTS_SMPTE_240M,
-+};
-+
- /* ------------------------------------------------------------------------
-  * UVC structures
-  */
+ 	/* ensure CMP & ARR registers are properly written */
+ 	ret = regmap_read_poll_timeout(priv->regmap, STM32_LPTIM_ISR, val,
+-				       (val & STM32_LPTIM_CMPOK_ARROK),
++				       (val & STM32_LPTIM_CMPOK_ARROK) == STM32_LPTIM_CMPOK_ARROK,
+ 				       100, 1000);
+ 	if (ret) {
+ 		dev_err(priv->chip.dev, "ARR/CMP registers write issue\n");
 -- 
 2.39.2
 
