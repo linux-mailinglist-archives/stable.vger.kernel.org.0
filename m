@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B786B44C9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34BF16B4294
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231963AbjCJO2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:28:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42584 "EHLO
+        id S231527AbjCJOEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:04:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232371AbjCJO14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A32121413
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:26:25 -0800 (PST)
+        with ESMTP id S231544AbjCJOEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4254B836
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DB4FB8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C964C433EF;
-        Fri, 10 Mar 2023 14:26:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A452B617C7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B30E3C433D2;
+        Fri, 10 Mar 2023 14:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458383;
-        bh=aKafg4amWM7IRKIC5i95X0nN1iEROJ/OpQ8u/vqawmQ=;
+        s=korg; t=1678457060;
+        bh=4BwReLaZ5wA1dlh0zI2K26R9S3JhYUDjXUIbnw+0Rtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCpL2LcJpqM1OiEVxP7rzOqtt9Po+Z6aRi+ICMy3hn0zt9D7PldXJY7j/6rJXjntM
-         dT4uHwTpEcUzw+/rNCJawhksAFdLkPH+zUwW4vuJ37P/sRLBNuAW69X5oZuo5U4u88
-         MkiBI2lR+j3bZ15nQQ9rlPPebnqJPVOR1L/54xdI=
+        b=xLiezcd03eyLVBxeyP5E+mBdIV4UpoaQaoQKzWaUT5qnvi7fsE5s07/Vqg7dcd+AM
+         HicCsUJUBA4BraVqClDNTvMbqRn+UZ5McJAANLr7GCyeBkbrJHlaHD15pMTkEjzXXY
+         ahl4xcBE5VpSFriXuHwE7YCFjvM3/feWUxZvRCyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 221/252] 9p/xen: fix version parsing
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>
+Subject: [PATCH 6.2 211/211] usb: gadget: uvc: fix missing mutex_unlock() if kstrtou8() fails
 Date:   Fri, 10 Mar 2023 14:39:51 +0100
-Message-Id: <20230310133725.899039083@linuxfoundation.org>
+Message-Id: <20230310133725.372920037@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,63 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f1956f4ec15195ec60976d9b5625326285ab102e ]
+commit 7ebb605d2283fb2647b4fa82030307ce00bee436 upstream.
 
-When connecting the Xen 9pfs frontend to the backend, the "versions"
-Xenstore entry written by the backend is parsed in a wrong way.
+If kstrtou8() fails, the mutex_unlock() is missed, move kstrtou8()
+before mutex_lock() to fix it up.
 
-The "versions" entry is defined to contain the versions supported by
-the backend separated by commas (e.g. "1,2"). Today only version "1"
-is defined. Unfortunately the frontend doesn't look for "1" being
-listed in the entry, but it is expecting the entry to have the value
-"1".
-
-This will result in failure as soon as the backend will support e.g.
-versions "1" and "2".
-
-Fix that by scanning the entry correctly.
-
-Link: https://lkml.kernel.org/r/20230130113036.7087-2-jgross@suse.com
-Fixes: 71ebd71921e4 ("xen/9pfs: connect to the backend")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0525210c9840 ("usb: gadget: uvc: Allow definition of XUs in configfs")
+Fixes: b3c839bd8a07 ("usb: gadget: uvc: Make bSourceID read/write")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20230213070926.776447-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_xen.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/uvc_configfs.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index 6459c2356ff9f..c4aea1e3134c2 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -395,13 +395,19 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
- 	int ret, i;
- 	struct xenbus_transaction xbt;
- 	struct xen_9pfs_front_priv *priv = NULL;
--	char *versions;
-+	char *versions, *v;
- 	unsigned int max_rings, max_ring_order, len = 0;
+--- a/drivers/usb/gadget/function/uvc_configfs.c
++++ b/drivers/usb/gadget/function/uvc_configfs.c
+@@ -524,6 +524,10 @@ static ssize_t uvcg_default_output_b_sou
+ 	int result;
+ 	u8 num;
  
- 	versions = xenbus_read(XBT_NIL, dev->otherend, "versions", &len);
- 	if (IS_ERR(versions))
- 		return PTR_ERR(versions);
--	if (strcmp(versions, "1")) {
-+	for (v = versions; *v; v++) {
-+		if (simple_strtoul(v, &v, 10) == 1) {
-+			v = NULL;
-+			break;
-+		}
-+	}
-+	if (v) {
- 		kfree(versions);
- 		return -EINVAL;
- 	}
--- 
-2.39.2
-
++	result = kstrtou8(page, 0, &num);
++	if (result)
++		return result;
++
+ 	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
+ 
+ 	opts_item = group->cg_item.ci_parent->ci_parent->
+@@ -531,10 +535,6 @@ static ssize_t uvcg_default_output_b_sou
+ 	opts = to_f_uvc_opts(opts_item);
+ 	cd = &opts->uvc_output_terminal;
+ 
+-	result = kstrtou8(page, 0, &num);
+-	if (result)
+-		return result;
+-
+ 	mutex_lock(&opts->lock);
+ 	cd->bSourceID = num;
+ 	mutex_unlock(&opts->lock);
 
 
