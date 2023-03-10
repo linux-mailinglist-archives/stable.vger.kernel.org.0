@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 560736B414F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C41B06B4262
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230496AbjCJNvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:51:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55362 "EHLO
+        id S231542AbjCJOCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:02:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230493AbjCJNvj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:39 -0500
+        with ESMTP id S231614AbjCJOCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F40E510DE5E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61C511784D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5832B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B1BCC433D2;
-        Fri, 10 Mar 2023 13:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B243B822AB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2ED7C433EF;
+        Fri, 10 Mar 2023 14:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456294;
-        bh=67Q2YPk65wzm91ieI5uoY53IAZu4XDX5tCVRjcnvYwg=;
+        s=korg; t=1678456949;
+        bh=1tYfkklAt84DLqXG8UKW3jbjYmFY+1EiJ+dj4OS2AJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nswVys8ujiukVZjnLz3VG8AESFszGHEoQ4ykT87nbV+tKVGaykNBjVYiELZBTItNd
-         4l/NVKWIe1Ke9P243jhmKLgrXFCuCLGwBRPYa9d0igMbtCroXw0DtZDYOD2RKXWQ3e
-         X7ZLhnBDXnk3BKa3oQqTEsDBUpAVrRRacF8RVHxc=
+        b=mohCzkX6dZFJ7JO3rf/KCExVvpffqonS97AP/srJOBV8TUmE1vuLBZxjT+YBMe9P0
+         has/0Kh1I1gbUhDHHTj72U8hSNaJmyfQKQ66WzLm5JqmWfrYcUWHglHYN3rp16SfKH
+         XFpgW0n8DmlF1Id9N4MEas4UJpNBW2eQGKFzYO/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Palus <jpalus+gnu@fastmail.com>,
-        Dmitry Goncharov <dgoncharov@users.sf.net>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.14 148/193] kbuild: Port silent mode detection to future gnu make.
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 150/211] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_config_word()
 Date:   Fri, 10 Mar 2023 14:38:50 +0100
-Message-Id: <20230310133716.141105120@linuxfoundation.org>
+Message-Id: <20230310133723.294441618@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Goncharov <dgoncharov@users.sf.net>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-commit 4bf73588165ba7d32131a043775557a54b6e1db5 upstream.
+[ Upstream commit 64a68158738ec8f520347144352f7a09bdb9e169 ]
 
-Port silent mode detection to the future (post make-4.4) versions of gnu make.
+Smatch Warns:
+drivers/iio/accel/mma9551_core.c:299
+	mma9551_read_config_word() error: uninitialized symbol 'v'.
 
-Makefile contains the following piece of make code to detect if option -s is
-specified on the command line.
+When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
+without 'v' being initialized, so check for the error and return.
 
-ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
+Note: No actual bug as caller checks the return value and does not
+use the parameter in the problem case.
 
-This code is executed by make at parse time and assumes that MAKEFLAGS
-does not contain command line variable definitions.
-Currently if the user defines a=s on the command line, then at build only
-time MAKEFLAGS contains " -- a=s".
-However, starting with commit dc2d963989b96161472b2cd38cef5d1f4851ea34
-MAKEFLAGS contains command line definitions at both parse time and
-build time.
-
-This '-s' detection code then confuses a command line variable
-definition which contains letter 's' with option -s.
-
-$ # old make
-$ make net/wireless/ocb.o a=s
-  CALL    scripts/checksyscalls.sh
-  DESCEND objtool
-$ # this a new make which defines makeflags at parse time
-$ ~/src/gmake/make/l64/make net/wireless/ocb.o a=s
-$
-
-We can see here that the letter 's' from 'a=s' was confused with -s.
-
-This patch checks for presence of -s using a method recommended by the
-make manual here
-https://www.gnu.org/software/make/manual/make.html#Testing-Flags.
-
-Link: https://lists.gnu.org/archive/html/bug-make/2022-11/msg00190.html
-Reported-by: Jan Palus <jpalus+gnu@fastmail.com>
-Signed-off-by: Dmitry Goncharov <dgoncharov@users.sf.net>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20230126153610.3586243-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/iio/accel/mma9551_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -88,10 +88,17 @@ endif
+diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
+index 86437ddc5ca18..b898f865fb875 100644
+--- a/drivers/iio/accel/mma9551_core.c
++++ b/drivers/iio/accel/mma9551_core.c
+@@ -296,9 +296,12 @@ int mma9551_read_config_word(struct i2c_client *client, u8 app_id,
  
- # If the user is running make -s (silent mode), suppress echoing of
- # commands
-+# make-4.0 (and later) keep single letter options in the 1st word of MAKEFLAGS.
- 
--ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
--  quiet=silent_
--  tools_silent=s
-+ifeq ($(filter 3.%,$(MAKE_VERSION)),)
-+silence:=$(findstring s,$(firstword -$(MAKEFLAGS)))
-+else
-+silence:=$(findstring s,$(filter-out --%,$(MAKEFLAGS)))
-+endif
+ 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_CONFIG,
+ 			       reg, NULL, 0, (u8 *)&v, 2);
++	if (ret < 0)
++		return ret;
 +
-+ifeq ($(silence),s)
-+quiet=silent_
-+tools_silent=s
- endif
+ 	*val = be16_to_cpu(v);
  
- export quiet Q KBUILD_VERBOSE
+-	return ret;
++	return 0;
+ }
+ EXPORT_SYMBOL_NS(mma9551_read_config_word, IIO_MMA9551);
+ 
+-- 
+2.39.2
+
 
 
