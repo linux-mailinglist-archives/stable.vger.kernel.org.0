@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F806B462E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D40426B4499
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232741AbjCJOky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57060 "EHLO
+        id S232263AbjCJOZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232738AbjCJOky (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:54 -0500
+        with ESMTP id S232149AbjCJOZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8ADD121B50
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70044118BE3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CD73B822DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1591C4339C;
-        Fri, 10 Mar 2023 14:40:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1406BB82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D2E5C433EF;
+        Fri, 10 Mar 2023 14:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459250;
-        bh=u47g8HaZ8/+aKmcIUyutp4zgaeAjYshSn4tTDmA2i3g=;
+        s=korg; t=1678458264;
+        bh=KL9hPz71IEo7VOzGZ1i6diJVLiusUUuBVhlIbiv0BLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0ztlIesoeAapyNFeNzWkECJLIJOktpT8YAWGt+TiyUZvGLxMDvGtT9XILgOFpJHe
-         46A+CferFZhk4f2fMSI/v/c1Q95uP0viRvtI2QUjJ0CweI6dpiPY30q9lkgRPELded
-         Ax0ieaB6ZeUb6JtjncXbyNUI+1B2vVcDoRStaP/g=
+        b=AE8TkQLy+0BJa3S93NdB9l1YszVeHXCm2EHyWoY5gFb615ybujjM1Jk8ymfQmd+oW
+         HaabMI8V7XJFsrQRhfOoDoNJjYrTbGzND1qIThmgamYB5e0pUpCR4RBnLcZg5dQRZr
+         /bLJVWWgoxFypVNaB69wSLzWoVNWX/VD6yDvDu3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 299/357] ubi: Fix unreferenced object reported by kmemleak in ubi_resize_volume()
+Subject: [PATCH 4.19 218/252] watchdog: pcwd_usb: Fix attempting to access uninitialized memory
 Date:   Fri, 10 Mar 2023 14:39:48 +0100
-Message-Id: <20230310133747.941849268@linuxfoundation.org>
+Message-Id: <20230310133725.783514938@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Li Hua <hucool.lihua@huawei.com>
 
-[ Upstream commit 1e591ea072df7211f64542a09482b5f81cb3ad27 ]
+[ Upstream commit 7d06c07c67100fd0f8e6b3ab7145ce789f788117 ]
 
-There is a memory leaks problem reported by kmemleak:
+The stack variable msb and lsb may be used uninitialized in function
+usb_pcwd_get_temperature and usb_pcwd_get_timeleft when usb card no response.
 
-unreferenced object 0xffff888102007a00 (size 128):
-  comm "ubirsvol", pid 32090, jiffies 4298464136 (age 2361.231s)
-  hex dump (first 32 bytes):
-ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-  backtrace:
-[<ffffffff8176cecd>] __kmalloc+0x4d/0x150
-[<ffffffffa02a9a36>] ubi_eba_create_table+0x76/0x170 [ubi]
-[<ffffffffa029764e>] ubi_resize_volume+0x1be/0xbc0 [ubi]
-[<ffffffffa02a3321>] ubi_cdev_ioctl+0x701/0x1850 [ubi]
-[<ffffffff81975d2d>] __x64_sys_ioctl+0x11d/0x170
-[<ffffffff83c142a5>] do_syscall_64+0x35/0x80
-[<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+The build waring is:
+drivers/watchdog/pcwd_usb.c:336:22: error: ‘lsb’ is used uninitialized in this function [-Werror=uninitialized]
+  *temperature = (lsb * 9 / 5) + 32;
+                  ~~~~^~~
+drivers/watchdog/pcwd_usb.c:328:21: note: ‘lsb’ was declared here
+  unsigned char msb, lsb;
+                     ^~~
+cc1: all warnings being treated as errors
+scripts/Makefile.build:250: recipe for target 'drivers/watchdog/pcwd_usb.o' failed
+make[3]: *** [drivers/watchdog/pcwd_usb.o] Error 1
 
-This is due to a mismatch between create and destroy interfaces, and
-in detail that "new_eba_tbl" created by ubi_eba_create_table() but
-destroyed by kfree(), while will causing "new_eba_tbl->entries" not
-freed.
-
-Fix it by replacing kfree(new_eba_tbl) with
-ubi_eba_destroy_table(new_eba_tbl)
-
-Fixes: 799dca34ac54 ("UBI: hide EBA internals")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: b7e04f8c61a4 ("mv watchdog tree under drivers")
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221116020706.70847-1-hucool.lihua@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/vmt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/pcwd_usb.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 6c7822c1cc451..2e5bd473e5e25 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -515,7 +515,7 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
- 	return err;
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index 4d02f26156f9c..b7b9d562da137 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -329,7 +329,8 @@ static int usb_pcwd_set_heartbeat(struct usb_pcwd_private *usb_pcwd, int t)
+ static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd,
+ 							int *temperature)
+ {
+-	unsigned char msb, lsb;
++	unsigned char msb = 0x00;
++	unsigned char lsb = 0x00;
  
- out_free:
--	kfree(new_eba_tbl);
-+	ubi_eba_destroy_table(new_eba_tbl);
- 	return err;
- }
+ 	usb_pcwd_send_command(usb_pcwd, CMD_READ_TEMP, &msb, &lsb);
  
+@@ -345,7 +346,8 @@ static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd,
+ static int usb_pcwd_get_timeleft(struct usb_pcwd_private *usb_pcwd,
+ 								int *time_left)
+ {
+-	unsigned char msb, lsb;
++	unsigned char msb = 0x00;
++	unsigned char lsb = 0x00;
+ 
+ 	/* Read the time that's left before rebooting */
+ 	/* Note: if the board is not yet armed then we will read 0xFFFF */
 -- 
 2.39.2
 
