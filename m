@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A17F6B4237
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 117EF6B4314
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231503AbjCJOAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47382 "EHLO
+        id S231873AbjCJOKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231472AbjCJN7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4191F115DED
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:49 -0800 (PST)
+        with ESMTP id S231985AbjCJOKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B77864B15
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1310B822BF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42779C433EF;
-        Fri, 10 Mar 2023 13:59:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA2B860D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF856C4339B;
+        Fri, 10 Mar 2023 14:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456786;
-        bh=9HOBJ1TxNXYuQBwhsHcBeEMK8IuCImffiBxY3RwP/JI=;
+        s=korg; t=1678457372;
+        bh=qgBWcSuqsd86vyiJtME/EBTG/dZrfhB4LIYVvAuMZL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPUbq/PQmk/9jO6JGJOJJuInFOjwDUsmlVGY0pcSlwmqUyt0u4SxWcRpWy83d9A8P
-         Wa2uwLqPie1kjK5RgRBBWEnzyc8NZbhDf8Fn/xRrPEOn495U+WsTv29kyEMJRuBxcx
-         ogqRzrNPjO4GB7gbJgGNBQgLXfwW0bXx3s+O4dc8=
+        b=doUDJQckr0+mKi9gnqRZWr6TyTiW9XDdhRu2H7UGL4zAG+3o58ZljztyBQnC2sDOf
+         H7t74tb9zJN/MAcrLgHyjdJ8ngLPcN1Lrnjfp4xE5iBN4vJMRRVuy0x0HgUrNufTn6
+         W4IwOIeLV6hqAY34WITbRZFWK/LuSvq1GvyR6Vog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Eric Curtin <ecurtin@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 124/211] cpufreq: apple-soc: Fix an IS_ERR() vs NULL check
+Subject: [PATCH 6.1 097/200] genirq/ipi: Fix NULL pointer deref in irq_data_get_affinity_mask()
 Date:   Fri, 10 Mar 2023 14:38:24 +0100
-Message-Id: <20230310133722.498544116@linuxfoundation.org>
+Message-Id: <20230310133720.093864809@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit f43523620f646c89ffd8ada840a0068290e51266 ]
+[ Upstream commit feabecaff5902f896531dde90646ca5dfa9d4f7d ]
 
-The of_iomap() function returns NULL if it fails.  It never returns
-error pointers.  Fix the check accordingly.
+If ipi_send_{mask|single}() is called with an invalid interrupt number, all
+the local variables there will be NULL. ipi_send_verify() which is invoked
+from these functions does verify its 'data' parameter, resulting in a
+kernel oops in irq_data_get_affinity_mask() as the passed NULL pointer gets
+dereferenced.
 
-Fixes: 6286bbb40576 ("cpufreq: apple-soc: Add new driver to control Apple SoC CPU P-states")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Eric Curtin <ecurtin@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Add a missing NULL pointer check in ipi_send_verify()...
+
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
+
+Fixes: 3b8e29a82dd1 ("genirq: Implement ipi_send_mask/single()")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/b541232d-c2b6-1fe9-79b4-a7129459e4d0@omp.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/apple-soc-cpufreq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/irq/ipi.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/apple-soc-cpufreq.c b/drivers/cpufreq/apple-soc-cpufreq.c
-index c11d22fd84c37..021f423705e1b 100644
---- a/drivers/cpufreq/apple-soc-cpufreq.c
-+++ b/drivers/cpufreq/apple-soc-cpufreq.c
-@@ -189,8 +189,8 @@ static int apple_soc_cpufreq_find_cluster(struct cpufreq_policy *policy,
- 	*info = match->data;
+diff --git a/kernel/irq/ipi.c b/kernel/irq/ipi.c
+index bbd945bacef08..961d4af76af37 100644
+--- a/kernel/irq/ipi.c
++++ b/kernel/irq/ipi.c
+@@ -188,9 +188,9 @@ EXPORT_SYMBOL_GPL(ipi_get_hwirq);
+ static int ipi_send_verify(struct irq_chip *chip, struct irq_data *data,
+ 			   const struct cpumask *dest, unsigned int cpu)
+ {
+-	const struct cpumask *ipimask = irq_data_get_affinity_mask(data);
++	const struct cpumask *ipimask;
  
- 	*reg_base = of_iomap(args.np, 0);
--	if (IS_ERR(*reg_base))
--		return PTR_ERR(*reg_base);
-+	if (!*reg_base)
-+		return -ENOMEM;
+-	if (!chip || !ipimask)
++	if (!chip || !data)
+ 		return -EINVAL;
  
- 	return 0;
- }
+ 	if (!chip->ipi_send_single && !chip->ipi_send_mask)
+@@ -199,6 +199,10 @@ static int ipi_send_verify(struct irq_chip *chip, struct irq_data *data,
+ 	if (cpu >= nr_cpu_ids)
+ 		return -EINVAL;
+ 
++	ipimask = irq_data_get_affinity_mask(data);
++	if (!ipimask)
++		return -EINVAL;
++
+ 	if (dest) {
+ 		if (!cpumask_subset(dest, ipimask))
+ 			return -EINVAL;
 -- 
 2.39.2
 
