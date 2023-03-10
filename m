@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B76E6B4537
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 862736B4198
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232508AbjCJOcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57750 "EHLO
+        id S231216AbjCJNyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:54:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232565AbjCJObf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319DBF6C5D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:48 -0800 (PST)
+        with ESMTP id S231214AbjCJNyj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD18A10FB9C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B711E61745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA583C433EF;
-        Fri, 10 Mar 2023 14:30:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D6BAB822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC116C433EF;
+        Fri, 10 Mar 2023 13:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458647;
-        bh=HPD4wT44TXc6FJkK6bysETcJ69toq5QgoIfAwP/SNOM=;
+        s=korg; t=1678456476;
+        bh=++Tar65/IL/mM1cxN7n/aRBBTvtuMvpPnoG6fWLHT/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGCdpiRjQRDZY6TFXuq8tF0Qw/lTHNV57YV/J63szMgoF3XNJv65OrOULy9bdZQ2/
-         rz3DRUO2rhjW0d7lbLr6YHVbCvM6eC0Gcsodg/hzfVvVXuj9+1tNm+Z+h6S/66J27q
-         iT6UsdROX3qM+Z+ag+WvlQgPEqiQ4fCxH3umaXmk=
+        b=Z+sKHKxTndhmv83V+WQr01oDHzfQL/rSSrIfn8y1DxdaXbUBb2hUcM7tT1xaLiRJ+
+         FojYmpF0YQoOzSuJ9RMiKktKjFkbFacaX4qov37Mxi2oOKspSc4HLxdCt7YZN4msEI
+         v63AsIPs8ytJK0qKRBM27tFTKRwUc0gDfp5aOjs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Ian Ray <ian.ray@ge.com>, Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev, Tinghan Shen <tinghan.shen@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/357] drm/bridge: megachips: Fix error handling in i2c_register_driver()
-Date:   Fri, 10 Mar 2023 14:36:27 +0100
-Message-Id: <20230310133738.328326637@linuxfoundation.org>
+Subject: [PATCH 6.2 008/211] soc: mediatek: mtk-pm-domains: Allow mt8186 ADSP default power on
+Date:   Fri, 10 Mar 2023 14:36:28 +0100
+Message-Id: <20230310133718.982096506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,62 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Tinghan Shen <tinghan.shen@mediatek.com>
 
-[ Upstream commit 4ecff954c370b82bce45bdca2846c5c5563e8a8a ]
+[ Upstream commit 0d08c56d97a614f56d74f490d693faf8038db125 ]
 
-A problem about insmod megachips-stdpxxxx-ge-b850v3-fw.ko failed is
-triggered with the following log given:
+In the use case of configuring the access permissions of the ADSP core,
+the mt8186 SoC ADSP power will be switched on in the bootloader because
+the permission control registers are located in the ADSP subsys.
 
-[ 4497.981497] Error: Driver 'stdp4028-ge-b850v3-fw' is already registered, aborting...
-insmod: ERROR: could not insert module megachips-stdpxxxx-ge-b850v3-fw.ko: Device or resource busy
-
-The reason is that stdpxxxx_ge_b850v3_init() returns i2c_add_driver()
-directly without checking its return value, if i2c_add_driver() failed,
-it returns without calling i2c_del_driver() on the previous i2c driver,
-resulting the megachips-stdpxxxx-ge-b850v3-fw can never be installed
-later.
-A simple call graph is shown as below:
-
- stdpxxxx_ge_b850v3_init()
-   i2c_add_driver(&stdp4028_ge_b850v3_fw_driver)
-   i2c_add_driver(&stdp2690_ge_b850v3_fw_driver)
-     i2c_register_driver()
-       driver_register()
-         bus_add_driver()
-           priv = kzalloc(...) # OOM happened
-   # return without delete stdp4028_ge_b850v3_fw_driver
-
-Fix by calling i2c_del_driver() on stdp4028_ge_b850v3_fw_driver when
-i2c_add_driver() returns error.
-
-Fixes: fcfa0ddc18ed ("drm/bridge: Drivers for megachips-stdpxxxx-ge-b850v3-fw (LVDS-DP++)")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Tested-by: Ian Ray <ian.ray@ge.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221108091226.114524-1-yuancan@huawei.com
+Signed-off-by: Tinghan Shen <tinghan.shen@mediatek.com>
+Fixes: 88590cbc1703 ("soc: mediatek: pm-domains: Add support for mt8186")
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221012075434.30009-1-tinghan.shen@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/soc/mediatek/mt8186-pm-domains.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index b72f6f541d4ef..14d578fce09f9 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -426,7 +426,11 @@ static int __init stdpxxxx_ge_b850v3_init(void)
- 	if (ret)
- 		return ret;
- 
--	return i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	ret = i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	if (ret)
-+		i2c_del_driver(&stdp4028_ge_b850v3_fw_driver);
-+
-+	return ret;
- }
- module_init(stdpxxxx_ge_b850v3_init);
+diff --git a/drivers/soc/mediatek/mt8186-pm-domains.h b/drivers/soc/mediatek/mt8186-pm-domains.h
+index 108af61854a38..fce86f79c5055 100644
+--- a/drivers/soc/mediatek/mt8186-pm-domains.h
++++ b/drivers/soc/mediatek/mt8186-pm-domains.h
+@@ -304,7 +304,6 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
+ 		.ctl_offs = 0x9FC,
+ 		.pwr_sta_offs = 0x16C,
+ 		.pwr_sta2nd_offs = 0x170,
+-		.caps = MTK_SCPD_KEEP_DEFAULT_OFF,
+ 	},
+ 	[MT8186_POWER_DOMAIN_ADSP_INFRA] = {
+ 		.name = "adsp_infra",
+@@ -312,7 +311,6 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
+ 		.ctl_offs = 0x9F8,
+ 		.pwr_sta_offs = 0x16C,
+ 		.pwr_sta2nd_offs = 0x170,
+-		.caps = MTK_SCPD_KEEP_DEFAULT_OFF,
+ 	},
+ 	[MT8186_POWER_DOMAIN_ADSP_TOP] = {
+ 		.name = "adsp_top",
+@@ -332,7 +330,7 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
+ 				MT8186_TOP_AXI_PROT_EN_3_CLR,
+ 				MT8186_TOP_AXI_PROT_EN_3_STA),
+ 		},
+-		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_KEEP_DEFAULT_OFF | MTK_SCPD_ACTIVE_WAKEUP,
++		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_ACTIVE_WAKEUP,
+ 	},
+ };
  
 -- 
 2.39.2
