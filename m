@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3A76B41B9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59B056B457A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbjCJNz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:55:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37314 "EHLO
+        id S232642AbjCJOeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:34:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbjCJNzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39CD112DFA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:31 -0800 (PST)
+        with ESMTP id S232494AbjCJOdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E996F301A1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40108617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5917DC433EF;
-        Fri, 10 Mar 2023 13:55:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 970D0B822DD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7135C433EF;
+        Fri, 10 Mar 2023 14:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456530;
-        bh=+0gThIHyZBEUYHQ/4qVHTDMAbmenVVT/8tL5NhFFXkM=;
+        s=korg; t=1678458819;
+        bh=X9muFobbJ5iF3u727r51X5LG+R6ss726qfLGGiQtbZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9ZqYHUxT8zjJbYcWpRd8AhHEZGCrRq9/oxBxK5SnWD15GYVFR+3pfSELk6R4mIuw
-         jPi9aBRwUXUdUPZh5RrXtiX7Hk4t+TZcsqHoDFgKkcSaRd3dVmZOLUmKnmWIp0pXJP
-         5GKH/b2qlNApyy+KFEbt8Xu5N2Qxis4o2WcRyi9A=
+        b=ETfzO2xe9PueNLkjuEL0abRotK5DT6+cU2Ognxs9opGaMDhcgUblQ6tg39TuJf0Qm
+         MZr0hxaTbhtjWcJDkZOlyDoos34p6UNn0Wx6qh8bx0kb2+ROd8Gc0c1UVsUFwINssm
+         MkNskjTJDNTuyJOCUYo+nUtK+mjmUegxe1tF12Mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev,
+        William Zhang <william.zhang@broadcom.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 034/211] ubi: Fix unreferenced object reported by kmemleak in ubi_resize_volume()
+Subject: [PATCH 5.4 125/357] spi: bcm63xx-hsspi: Fix multi-bit mode setting
 Date:   Fri, 10 Mar 2023 14:36:54 +0100
-Message-Id: <20230310133719.773919547@linuxfoundation.org>
+Message-Id: <20230310133740.180722489@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,56 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: William Zhang <william.zhang@broadcom.com>
 
-[ Upstream commit 1e591ea072df7211f64542a09482b5f81cb3ad27 ]
+[ Upstream commit 811ff802aaf878ebbbaeac0307a0164fa21e7d40 ]
 
-There is a memory leaks problem reported by kmemleak:
+Currently the driver always sets the controller to dual data bit mode
+for both tx and rx data in the profile mode control register even for
+single data bit transfer. Luckily the opcode is set correctly according
+to SPI transfer data bit width so it does not actually cause issues.
 
-unreferenced object 0xffff888102007a00 (size 128):
-  comm "ubirsvol", pid 32090, jiffies 4298464136 (age 2361.231s)
-  hex dump (first 32 bytes):
-ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-  backtrace:
-[<ffffffff8176cecd>] __kmalloc+0x4d/0x150
-[<ffffffffa02a9a36>] ubi_eba_create_table+0x76/0x170 [ubi]
-[<ffffffffa029764e>] ubi_resize_volume+0x1be/0xbc0 [ubi]
-[<ffffffffa02a3321>] ubi_cdev_ioctl+0x701/0x1850 [ubi]
-[<ffffffff81975d2d>] __x64_sys_ioctl+0x11d/0x170
-[<ffffffff83c142a5>] do_syscall_64+0x35/0x80
-[<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+This change fixes the problem by setting tx and rx data bit mode field
+correctly according to the actual SPI transfer tx and rx data bit width.
 
-This is due to a mismatch between create and destroy interfaces, and
-in detail that "new_eba_tbl" created by ubi_eba_create_table() but
-destroyed by kfree(), while will causing "new_eba_tbl->entries" not
-freed.
-
-Fix it by replacing kfree(new_eba_tbl) with
-ubi_eba_destroy_table(new_eba_tbl)
-
-Fixes: 799dca34ac54 ("UBI: hide EBA internals")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 142168eba9dc ("spi: bcm63xx-hsspi: add bcm63xx HSSPI driver")
+Signed-off-by: William Zhang <william.zhang@broadcom.com>
+Link: https://lore.kernel.org/r/20230209200246.141520-11-william.zhang@broadcom.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/vmt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-bcm63xx-hsspi.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 74637575346e8..9fbc64b997cef 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -515,7 +515,7 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
- 	return err;
+diff --git a/drivers/spi/spi-bcm63xx-hsspi.c b/drivers/spi/spi-bcm63xx-hsspi.c
+index b2b6ae4749568..3fe41c7de99ba 100644
+--- a/drivers/spi/spi-bcm63xx-hsspi.c
++++ b/drivers/spi/spi-bcm63xx-hsspi.c
+@@ -163,6 +163,7 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
+ 	int step_size = HSSPI_BUFFER_LEN;
+ 	const u8 *tx = t->tx_buf;
+ 	u8 *rx = t->rx_buf;
++	u32 val = 0;
  
- out_free:
--	kfree(new_eba_tbl);
-+	ubi_eba_destroy_table(new_eba_tbl);
- 	return err;
- }
+ 	bcm63xx_hsspi_set_clk(bs, spi, t->speed_hz);
+ 	bcm63xx_hsspi_set_cs(bs, spi->chip_select, true);
+@@ -178,11 +179,16 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
+ 		step_size -= HSSPI_OPCODE_LEN;
  
+ 	if ((opcode == HSSPI_OP_READ && t->rx_nbits == SPI_NBITS_DUAL) ||
+-	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL))
++	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL)) {
+ 		opcode |= HSSPI_OP_MULTIBIT;
+ 
+-	__raw_writel(1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT |
+-		     1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT | 0xff,
++		if (t->rx_nbits == SPI_NBITS_DUAL)
++			val |= 1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT;
++		if (t->tx_nbits == SPI_NBITS_DUAL)
++			val |= 1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT;
++	}
++
++	__raw_writel(val | 0xff,
+ 		     bs->regs + HSSPI_PROFILE_MODE_CTRL_REG(chip_select));
+ 
+ 	while (pending > 0) {
 -- 
 2.39.2
 
