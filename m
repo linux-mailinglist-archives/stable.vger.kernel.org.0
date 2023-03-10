@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD7586B44CB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:28:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C8C6B4834
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232420AbjCJO2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:28:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52690 "EHLO
+        id S233654AbjCJPAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:00:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232421AbjCJO2A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:28:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9873121410
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:26:26 -0800 (PST)
+        with ESMTP id S233826AbjCJPAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:00:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712C812C415
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 453B261745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CDB8C433D2;
-        Fri, 10 Mar 2023 14:26:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B7AEB82311
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 908BAC433D2;
+        Fri, 10 Mar 2023 14:53:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458385;
-        bh=Hkl0kH2ZsrSdEvxHTvDGejYCViHJZBIih8sIVzWye0w=;
+        s=korg; t=1678459994;
+        bh=rRqT4sTQiNed9OlkwDuUhMGxqgepJRtp62VqDS6nLIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cR0QhAgq3vK6sqWs+u74gsuRJ3anY7TH0kSt2f0MvT+ip8kXFvvdehi5Qx3++4TYR
-         bEdJW+oq0DbptSegZe8JbWww0UR+Lnhg2ToClHmkHWxHaSJKMwGITz3lwmYhQU9FSA
-         Er4kDvTpAt323IqJ14MLEFQua5XzJjl0W0ioSsAQ=
+        b=TWDRveEX+HuA8sQdV8h0X/mLxZWXFbV5mSJ+YcIYfbfNvexVkcfAF0aw/62nHxado
+         PoKAqaW1h2ANMqy6b/lugXVi66QAz9ZGVh+NqqfqUIn/frid7FH1FGZ7k3mn4j9iqu
+         oME1jHUWPizZ+BdMqmeof5yVwWTMev/uDNrCmZsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luke D Jones <luke@ljones.dev>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 5.4 001/357] HID: asus: Remove check for same LED brightness on set
+        patches@lists.linux.dev, Amir Tzin <amirtz@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 147/529] sefltests: netdevsim: wait for devlink instance after netns removal
 Date:   Fri, 10 Mar 2023 14:34:50 +0100
-Message-Id: <20230310133734.043877873@linuxfoundation.org>
+Message-Id: <20230310133811.764179335@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,35 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Jiri Pirko <jiri@nvidia.com>
 
-commit 3fdcf7cdfc229346d028242e73562704ad644dd0 upstream.
+[ Upstream commit f922c7b1c1c45740d329bf248936fdb78c0cff6e ]
 
-Remove the early return on LED brightness set so that any controller
-application, daemon, or desktop may set the same brightness at any stage.
+When devlink instance is put into network namespace and that network
+namespace gets deleted, devlink instance is moved back into init_ns.
+This is done as a part of cleanup_net() routine. Since cleanup_net()
+is called asynchronously from workqueue, there is no guarantee that
+the devlink instance move is done after "ip netns del" returns.
 
-This is required because many ASUS ROG keyboards will default to max
-brightness on laptop resume if the LEDs were set to off before sleep.
+So fix this race by making sure that the devlink instance is present
+before any other operation.
 
-Signed-off-by: Luke D Jones <luke@ljones.dev>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Amir Tzin <amirtz@nvidia.com>
+Fixes: b74c37fd35a2 ("selftests: netdevsim: add tests for devlink reload with resources")
+Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Link: https://lore.kernel.org/r/20230220132336.198597-1-jiri@resnulli.us
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c |    3 ---
- 1 file changed, 3 deletions(-)
+ .../selftests/drivers/net/netdevsim/devlink.sh | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -351,9 +351,6 @@ static void asus_kbd_backlight_set(struc
+diff --git a/tools/testing/selftests/drivers/net/netdevsim/devlink.sh b/tools/testing/selftests/drivers/net/netdevsim/devlink.sh
+index 16d2de18591d3..2c81e01c30b31 100755
+--- a/tools/testing/selftests/drivers/net/netdevsim/devlink.sh
++++ b/tools/testing/selftests/drivers/net/netdevsim/devlink.sh
+@@ -16,6 +16,18 @@ SYSFS_NET_DIR=/sys/bus/netdevsim/devices/$DEV_NAME/net/
+ DEBUGFS_DIR=/sys/kernel/debug/netdevsim/$DEV_NAME/
+ DL_HANDLE=netdevsim/$DEV_NAME
+ 
++wait_for_devlink()
++{
++	"$@" | grep -q $DL_HANDLE
++}
++
++devlink_wait()
++{
++	local timeout=$1
++
++	busywait "$timeout" wait_for_devlink devlink dev
++}
++
+ fw_flash_test()
  {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
--	if (led->brightness == brightness)
--		return;
--
- 	led->brightness = brightness;
- 	schedule_work(&led->work);
+ 	RET=0
+@@ -255,6 +267,9 @@ netns_reload_test()
+ 	ip netns del testns2
+ 	ip netns del testns1
+ 
++	# Wait until netns async cleanup is done.
++	devlink_wait 2000
++
+ 	log_test "netns reload test"
  }
+ 
+@@ -347,6 +362,9 @@ resource_test()
+ 	ip netns del testns2
+ 	ip netns del testns1
+ 
++	# Wait until netns async cleanup is done.
++	devlink_wait 2000
++
+ 	log_test "resource test"
+ }
+ 
+-- 
+2.39.2
+
 
 
