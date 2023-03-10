@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55F956B41C6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8966B40B1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231296AbjCJN4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:56:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38642 "EHLO
+        id S230155AbjCJNpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:45:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231297AbjCJN42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:28 -0500
+        with ESMTP id S230164AbjCJNpC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B33010F449
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:56:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52258A17E7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D69CAB822BC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CD0FC433EF;
-        Fri, 10 Mar 2023 13:56:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9F83B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:44:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36EB0C433D2;
+        Fri, 10 Mar 2023 13:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456561;
-        bh=zFpMjgN9/rxReBjHoThTpqpBbPpHJaVOsFGnKepwRhw=;
+        s=korg; t=1678455897;
+        bh=pk3qzF1OV/MCZjzaK05pSMhS+9mJ3qR1xO4i/C2XVNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10PNb95pfvmL1CS4CF0PLrCCBEyp4TMs6F1U3Hs6vH/w4TrySQS3EYi3CSNRoTF1X
-         DBbhvEyEfj0ho8DcInocuvUgqgLa5OYw6z4MqWB7N/9wxi60JRRgfM/7srcJ4hy1VQ
-         IJ2gIKN2ZKM+un0k8T5CZYssm4wZzLOHemsIVswQ=
+        b=zUkOT4ULhbW14U0sAOC8WLgmZ5HrA3OYMk6bQOHgHfwvWPelJaMd7Fuyvu7mjAM/Y
+         C18T+kt9S77aWBAbWIHscVfeZZKwVD5e9uR2Qz9WpeURQVv8HO0qnLsuTUrz1mhW7v
+         NssOqWNYmM8lApjlBB9Rh871NgrXvup7lxNq9TO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 015/211] f2fs: introduce trace_f2fs_replace_atomic_write_block
+        patches@lists.linux.dev,
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Stefan Ghinea <stefan.ghinea@windriver.com>
+Subject: [PATCH 4.14 013/193] HID: asus: use spinlock to protect concurrent accesses
 Date:   Fri, 10 Mar 2023 14:36:35 +0100
-Message-Id: <20230310133719.198136719@linuxfoundation.org>
+Message-Id: <20230310133711.376044251@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,88 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 2f3a9ae990a7881c9a57a073bb52ebe34fdc3160 ]
+commit 315c537068a13f0b5681d33dd045a912f4bece6f upstream.
 
-Commit 3db1de0e582c ("f2fs: change the current atomic write way")
-removed old tracepoints, but it missed to add new one, this patch
-fixes to introduce trace_f2fs_replace_atomic_write_block to trace
-atomic_write commit flow.
+asus driver has a worker that may access data concurrently.
+Proct the accesses using a spinlock.
 
-Fixes: 3db1de0e582c ("f2fs: change the current atomic write way")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: af22a610bc38 ("HID: asus: support backlight on USB keyboards")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-4-7860c5763c38@diag.uniroma1.it
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/segment.c           |  3 +++
- include/trace/events/f2fs.h | 37 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+)
+ drivers/hid/hid-asus.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index b019f63fd5403..af3059236f542 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -255,6 +255,9 @@ static int __replace_atomic_write_block(struct inode *inode, pgoff_t index,
- 	}
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -82,6 +82,7 @@ struct asus_kbd_leds {
+ 	struct hid_device *hdev;
+ 	struct work_struct work;
+ 	unsigned int brightness;
++	spinlock_t lock;
+ 	bool removed;
+ };
  
- 	f2fs_put_dnode(&dn);
+@@ -298,7 +299,12 @@ static void asus_kbd_backlight_set(struc
+ {
+ 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+ 						 cdev);
++	unsigned long flags;
 +
-+	trace_f2fs_replace_atomic_write_block(inode, F2FS_I(inode)->cow_inode,
-+					index, *old_addr, new_addr, recover);
- 	return 0;
++	spin_lock_irqsave(&led->lock, flags);
+ 	led->brightness = brightness;
++	spin_unlock_irqrestore(&led->lock, flags);
++
+ 	schedule_work(&led->work);
  }
  
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index 31d994e6b4ca9..35ecb3118c7d5 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -1293,6 +1293,43 @@ DEFINE_EVENT(f2fs__page, f2fs_vm_page_mkwrite,
- 	TP_ARGS(page, type)
- );
+@@ -306,8 +312,14 @@ static enum led_brightness asus_kbd_back
+ {
+ 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+ 						 cdev);
++	enum led_brightness brightness;
++	unsigned long flags;
  
-+TRACE_EVENT(f2fs_replace_atomic_write_block,
+-	return led->brightness;
++	spin_lock_irqsave(&led->lock, flags);
++	brightness = led->brightness;
++	spin_unlock_irqrestore(&led->lock, flags);
 +
-+	TP_PROTO(struct inode *inode, struct inode *cow_inode, pgoff_t index,
-+			block_t old_addr, block_t new_addr, bool recovery),
-+
-+	TP_ARGS(inode, cow_inode, index, old_addr, new_addr, recovery),
-+
-+	TP_STRUCT__entry(
-+		__field(dev_t,	dev)
-+		__field(ino_t,	ino)
-+		__field(ino_t,	cow_ino)
-+		__field(pgoff_t, index)
-+		__field(block_t, old_addr)
-+		__field(block_t, new_addr)
-+		__field(bool, recovery)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->dev		= inode->i_sb->s_dev;
-+		__entry->ino		= inode->i_ino;
-+		__entry->cow_ino	= cow_inode->i_ino;
-+		__entry->index		= index;
-+		__entry->old_addr	= old_addr;
-+		__entry->new_addr	= new_addr;
-+		__entry->recovery	= recovery;
-+	),
-+
-+	TP_printk("dev = (%d,%d), ino = %lu, cow_ino = %lu, index = %lu, "
-+			"old_addr = 0x%llx, new_addr = 0x%llx, recovery = %d",
-+		show_dev_ino(__entry),
-+		__entry->cow_ino,
-+		(unsigned long)__entry->index,
-+		(unsigned long long)__entry->old_addr,
-+		(unsigned long long)__entry->new_addr,
-+		__entry->recovery)
-+);
-+
- TRACE_EVENT(f2fs_filemap_fault,
++	return brightness;
+ }
  
- 	TP_PROTO(struct inode *inode, pgoff_t index, unsigned long ret),
--- 
-2.39.2
-
+ static void asus_kbd_backlight_work(struct work_struct *work)
+@@ -315,11 +327,14 @@ static void asus_kbd_backlight_work(stru
+ 	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
+ 	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
+ 	int ret;
++	unsigned long flags;
+ 
+ 	if (led->removed)
+ 		return;
+ 
++	spin_lock_irqsave(&led->lock, flags);
+ 	buf[4] = led->brightness;
++	spin_unlock_irqrestore(&led->lock, flags);
+ 
+ 	ret = asus_kbd_set_report(led->hdev, buf, sizeof(buf));
+ 	if (ret < 0)
+@@ -360,6 +375,7 @@ static int asus_kbd_register_leds(struct
+ 	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
+ 	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
+ 	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
++	spin_lock_init(&drvdata->kbd_backlight->lock);
+ 
+ 	ret = devm_led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
+ 	if (ret < 0) {
+@@ -658,9 +674,13 @@ err_stop_hw:
+ static void asus_remove(struct hid_device *hdev)
+ {
+ 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	unsigned long flags;
+ 
+ 	if (drvdata->kbd_backlight) {
++		spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
+ 		drvdata->kbd_backlight->removed = true;
++		spin_unlock_irqrestore(&drvdata->kbd_backlight->lock, flags);
++
+ 		cancel_work_sync(&drvdata->kbd_backlight->work);
+ 	}
+ 
 
 
