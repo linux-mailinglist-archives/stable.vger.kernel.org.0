@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 058BF6B4530
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C9C6B40B8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232466AbjCJObp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:31:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53314 "EHLO
+        id S230185AbjCJNpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:45:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232554AbjCJOba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E9A4F8290
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:41 -0800 (PST)
+        with ESMTP id S230180AbjCJNpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB657A616E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C451CB822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C39C433D2;
-        Fri, 10 Mar 2023 14:30:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A529617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:45:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6C2C4339B;
+        Fri, 10 Mar 2023 13:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458638;
-        bh=Bf55X8+gsvIs72BtaogHGyQPCnqaSXX1aDuXTdi5k/c=;
+        s=korg; t=1678455917;
+        bh=/o5aTQCwWvTFLqNoUWpmBlA6hFO2Voqtey/ttM49cGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v5F4clvPwGWAS/Z4LxHRFwsm+NPhnA3qXOkL//773QTScra1tSTrfriv9JprBl4ps
-         nrtvmiLeUaOLgJ3W5x4Xjx/nyyF236u78tF9BzBGHxitV100Vu8oOhcNTlt9/tPs1m
-         GJrsv+1j351IGMK+ktl0SU9ZRX2GnK8pQjVc+OP0=
+        b=xxM4XxXJGo+W5BrLaBD94d/n3vJky3ZkgNJVKSWzuFJTvfMulL88k7ixLq+T00nmO
+         CWOcNrhtjCPIjAP5FJPtNIye7x5LttkQm3n3/Km1ZAXvzjOmGVF7UMJ5XGu/X+BlKM
+         t5n8asRQ9AeoOrvTiMuG+Xpo687tTcJAwo10BcZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Roxana Nicolescu <roxana.nicolescu@canonical.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        syzbot+4376a9a073770c173269@syzkaller.appspotmail.com,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/357] selftest: fib_tests: Always cleanup before exit
+Subject: [PATCH 4.14 002/193] btrfs: send: limit number of clones and allocated memory size
 Date:   Fri, 10 Mar 2023 14:36:24 +0100
-Message-Id: <20230310133738.196010755@linuxfoundation.org>
+Message-Id: <20230310133711.003021137@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roxana Nicolescu <roxana.nicolescu@canonical.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit b60417a9f2b890a8094477b2204d4f73c535725e ]
+[ Upstream commit 33e17b3f5ab74af12aca58c515bc8424ff69a343 ]
 
-Usage of `set -e` before executing a command causes immediate exit
-on failure, without cleanup up the resources allocated at setup.
-This can affect the next tests that use the same resources,
-leading to a chain of failures.
+The arg->clone_sources_count is u64 and can trigger a warning when a
+huge value is passed from user space and a huge array is allocated.
+Limit the allocated memory to 8MiB (can be increased if needed), which
+in turn limits the number of clone sources to 8M / sizeof(struct
+clone_root) = 8M / 40 = 209715.  Real world number of clones is from
+tens to hundreds, so this is future proof.
 
-A simple fix is to always call cleanup function when the script exists.
-This approach is already used by other existing tests.
-
-Fixes: 1056691b2680 ("selftests: fib_tests: Make test results more verbose")
-Signed-off-by: Roxana Nicolescu <roxana.nicolescu@canonical.com>
-Link: https://lore.kernel.org/r/20230220110400.26737-2-roxana.nicolescu@canonical.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reported-by: syzbot+4376a9a073770c173269@syzkaller.appspotmail.com
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fib_tests.sh | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/send.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/net/fib_tests.sh b/tools/testing/selftests/net/fib_tests.sh
-index 6986086035d6c..24d67fa66d037 100644
---- a/tools/testing/selftests/net/fib_tests.sh
-+++ b/tools/testing/selftests/net/fib_tests.sh
-@@ -1662,6 +1662,8 @@ EOF
- ################################################################################
- # main
- 
-+trap cleanup EXIT
-+
- while getopts :t:pPhv o
- do
- 	case $o in
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index efab9446eac87..b08e7fcd8c34d 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -6646,10 +6646,10 @@ long btrfs_ioctl_send(struct file *mnt_file, void __user *arg_)
+ 	/*
+ 	 * Check that we don't overflow at later allocations, we request
+ 	 * clone_sources_count + 1 items, and compare to unsigned long inside
+-	 * access_ok.
++	 * access_ok. Also set an upper limit for allocation size so this can't
++	 * easily exhaust memory. Max number of clone sources is about 200K.
+ 	 */
+-	if (arg->clone_sources_count >
+-	    ULONG_MAX / sizeof(struct clone_root) - 1) {
++	if (arg->clone_sources_count > SZ_8M / sizeof(struct clone_root)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 -- 
-2.39.2
+2.39.0
 
 
 
