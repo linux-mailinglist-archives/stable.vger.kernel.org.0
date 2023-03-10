@@ -2,65 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9446B3EA7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:05:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C57B96B3EC9
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:10:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229814AbjCJMFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 07:05:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52700 "EHLO
+        id S229654AbjCJMKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 07:10:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbjCJMFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:05:32 -0500
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B587EBAD8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:05:31 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id x3so19430590edb.10
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:05:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1678449929;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=e5t2HzhmRNzeUhHIxj1KPkIvBdaFiX69AKAulg47IkI=;
-        b=f6PMkWp+jLC4Jffy02L1QojKEDpnbM5+9aMdRjVnUtIoWqCoSskZExcOsB0xFG/Bl7
-         /vj2M2Kz+7ZgN9p7TV4cbeEbPd8U+eH+UvB4tEhrri45uaLw7rmNuhiSvHDCNBJFZC1p
-         ouUl2DgZPOwX4RhEh9EueQh9H3iKK6lVijUig=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678449929;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=e5t2HzhmRNzeUhHIxj1KPkIvBdaFiX69AKAulg47IkI=;
-        b=uschjMCQ6zh/PbF1nbHvocD3mrKwUWdivpEGxIMrbL4vJJzGeVEgGoptOTWurl/try
-         /VkUY9QI4MLUNkGkbs7WSqSUb6eJQGUess7E02Lct+ETqnwMkGk26q3jn3ngLr8KiKls
-         eryYhSU+U399SSMFyPONjY+VCKOEV1X+B5/qI+xL2UJ8XxACCMfIv0vedq7f1nk/YJR6
-         D/R5PRpNfQ/q3R0UiOk9BDWzXCKFtsxgN8J6Zrsmq0XVj0QQy5pBAuYehbpQGzRz8xOD
-         75i6XPklTBfFUYYm868CAv3g2bUhUvHWs8lTFnEf+0wANNr6FCCoIGzxZrfTZPz58KMw
-         BA5A==
-X-Gm-Message-State: AO0yUKWNK0GA9mQqW32NFhX+UO611b1U21Awgvq7zjy23/aErLcMfDrE
-        WR0IwX3/VBss6dRq8Anipb6GL9TFHKBfRHq1q98=
-X-Google-Smtp-Source: AK7set/KNbq6SaLnoo2JzMENcZGFIvasnoZakMeTCJGTIpMbADKSwkUAQJ9OYq5FMjE4Hu1pvPZJrw==
-X-Received: by 2002:aa7:d355:0:b0:4ad:7c30:25a3 with SMTP id m21-20020aa7d355000000b004ad7c3025a3mr21419679edr.1.1678449929384;
-        Fri, 10 Mar 2023 04:05:29 -0800 (PST)
-Received: from alco.corp.google.com ([2620:0:1059:10:e8d1:757a:19c3:a0cf])
-        by smtp.gmail.com with ESMTPSA id i23-20020a508717000000b004db52bf06e1sm755652edb.46.2023.03.10.04.05.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Mar 2023 04:05:29 -0800 (PST)
-From:   Ricardo Ribalda <ribalda@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>,
-        Yunke Cao <yunkec@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [PATCH 6.2.y] media: uvcvideo: Fix race condition with usb_kill_urb
-Date:   Fri, 10 Mar 2023 13:05:26 +0100
-Message-Id: <20230310120526.545158-1-ribalda@chromium.org>
-X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
-In-Reply-To: <16781002113959@kroah.com>
-References: <16781002113959@kroah.com>
+        with ESMTP id S229584AbjCJMJO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:09:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 430D42FCCD;
+        Fri, 10 Mar 2023 04:08:12 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EECC76130C;
+        Fri, 10 Mar 2023 12:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED2DAC433EF;
+        Fri, 10 Mar 2023 12:07:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1678450053;
+        bh=di2j3nQbkXRg2ckj9GOfhfAoU2Sqk7XeV5n5iWf9XCM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ez83VQzmNe6Ghgmg5skqmKhAgrh72ajFWeZEVj9PVQ/t/cb/PRyfpklhJQfnkwb6T
+         N38JZhvwiWtmvGEm0qm8udenPMBb4Am3xl5P9t8p4LcfDcsEPed2XzoBJahE2cFC0g
+         HUGccem8IOCBKwemr7mtckYztsZgW5KVaNJn2mYQ=
+Date:   Fri, 10 Mar 2023 13:07:30 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        stable@vger.kernel.org, kraxel@redhat.com,
+        linux-kernel@vger.kernel.org, emil.l.velikov@gmail.com,
+        airlied@linux.ie, error27@gmail.com, darren.kenny@oracle.com,
+        vegard.nossum@oracle.com
+Subject: Re: [PATCH 5.15.y] drm/virtio: Fix error code in
+ virtio_gpu_object_shmem_init()
+Message-ID: <ZAsdguMTwKIRdVBn@kroah.com>
+References: <20230302172538.3508747-1-harshit.m.mogalapalli@oracle.com>
+ <d2cf9564-3b0c-b9e4-6066-8e8e6eb854f0@collabora.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d2cf9564-3b0c-b9e4-6066-8e8e6eb854f0@collabora.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -69,144 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-usb_kill_urb warranties that all the handlers are finished when it
-returns, but does not protect against threads that might be handling
-asynchronously the urb.
+On Sat, Mar 04, 2023 at 12:32:22AM +0300, Dmitry Osipenko wrote:
+> On 3/2/23 20:25, Harshit Mogalapalli wrote:
+> > In virtio_gpu_object_shmem_init() we are passing NULL to PTR_ERR, which
+> > is returning 0/success.
+> > 
+> > Fix this by storing error value in 'ret' variable before assigning
+> > shmem->pages to NULL.
+> > 
+> > Found using static analysis with Smatch.
+> > 
+> > Fixes: 64b88afbd92f ("drm/virtio: Correct drm_gem_shmem_get_sg_table() error handling")
+> > Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+> > ---
+> > Only compile tested.
+> > 
+> > Upstream commit b5c9ed70d1a9 ("drm/virtio: Improve DMA API usage for shmem BOs")
+> > deleted this code, so this patch is not necessary in linux-6.1.y and
+> > linux-6.2.y.
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_object.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+> > index 7e75fb0fc7bd..25d399b00404 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> > @@ -169,8 +169,9 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+> >  	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base);
+> >  	if (IS_ERR(shmem->pages)) {
+> >  		drm_gem_shmem_unpin(&bo->base);
+> > +		ret = PTR_ERR(shmem->pages);
+> >  		shmem->pages = NULL;
+> > -		return PTR_ERR(shmem->pages);
+> > +		return ret;
+> >  	}
+> >  
+> >  	if (use_dma_api) {
+> 
+> Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-For UVC, the function uvc_ctrl_status_event_async() takes care of
-control changes asynchronously.
+Both fixes now queued up, thanks.
 
-If the code is executed in the following order:
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-uvc_ctrl_status_event_work()
-					uvc_status_start() -> FAIL
-
-Then uvc_status_start will keep failing and this error will be shown:
-
-<4>[    5.540139] URB 0000000000000000 submitted while active
-drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
-
-Let's improve the current situation, by not re-submiting the urb if
-we are stopping the status event. Also process the queued work
-(if any) during stop.
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-					uvc_status_start()
-uvc_ctrl_status_event_work() -> FAIL
-
-Hopefully, with the usb layer protection this should be enough to cover
-all the cases.
-
-Cc: stable@vger.kernel.org
-Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-Reviewed-by: Yunke Cao <yunkec@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-(cherry picked from commit 619d9b710cf06f7a00a17120ca92333684ac45a8)
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
----
- drivers/media/usb/uvc/uvc_ctrl.c   |  5 ++++
- drivers/media/usb/uvc/uvc_status.c | 37 ++++++++++++++++++++++++++++++
- drivers/media/usb/uvc/uvcvideo.h   |  1 +
- 3 files changed, 43 insertions(+)
-
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index 44b0cfb8ee1c..067b43a1cb3e 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/bitops.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
-@@ -1509,6 +1510,10 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 
- 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
-+	/* The barrier is needed to synchronize with uvc_status_stop(). */
-+	if (smp_load_acquire(&dev->flush_status))
-+		return;
-+
- 	/* Resubmit the URB. */
- 	w->urb->interval = dev->int_ep->desc.bInterval;
- 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
-diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
-index 7518ffce22ed..4a92c989cf33 100644
---- a/drivers/media/usb/uvc/uvc_status.c
-+++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/kernel.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-@@ -309,5 +310,41 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
- 
- void uvc_status_stop(struct uvc_device *dev)
- {
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+
-+	/*
-+	 * Prevent the asynchronous control handler from requeing the URB. The
-+	 * barrier is needed so the flush_status change is visible to other
-+	 * CPUs running the asynchronous handler before usb_kill_urb() is
-+	 * called below.
-+	 */
-+	smp_store_release(&dev->flush_status, true);
-+
-+	/*
-+	 * Cancel any pending asynchronous work. If any status event was queued,
-+	 * process it synchronously.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/* Kill the urb. */
- 	usb_kill_urb(dev->int_urb);
-+
-+	/*
-+	 * The URB completion handler may have queued asynchronous work. This
-+	 * won't resubmit the URB as flush_status is set, but it needs to be
-+	 * cancelled before returning or it could then race with a future
-+	 * uvc_status_start() call.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/*
-+	 * From this point, there are no events on the queue and the status URB
-+	 * is dead. No events will be queued until uvc_status_start() is called.
-+	 * The barrier is needed to make sure that flush_status is visible to
-+	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
-+	 * again.
-+	 */
-+	smp_store_release(&dev->flush_status, false);
- }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index 1227ae63f85b..864eef81174a 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -560,6 +560,7 @@ struct uvc_device {
- 	struct usb_host_endpoint *int_ep;
- 	struct urb *int_urb;
- 	u8 *status;
-+	bool flush_status;
- 	struct input_dev *input;
- 	char input_phys[64];
- 
--- 
-2.40.0.rc1.284.g88254d51c5-goog
-
+greg k-h
