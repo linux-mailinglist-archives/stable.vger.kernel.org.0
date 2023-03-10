@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3266B49D2
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 600596B49BA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbjCJPQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:16:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
+        id S233905AbjCJPPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:15:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233897AbjCJPPW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:15:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA6312B95A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:39 -0800 (PST)
+        with ESMTP id S232006AbjCJPOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745301241CA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 257E56187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:05:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30EEFC4339B;
-        Fri, 10 Mar 2023 15:05:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F53761AEA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:05:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02923C433D2;
+        Fri, 10 Mar 2023 15:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460749;
-        bh=QbIrpss5qE2Z+/U8AMOEQ3D0lXgfkkKb3SuKvfXCgCE=;
+        s=korg; t=1678460758;
+        bh=DQ5UxYLeTP7NrfUspdajFITjFCvX8P/LXBHnt9i89zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntp+hE5Jatgbx9Jsd53TL5f9AOo9pLb1cU6VuueYbtLphW57UkFD3ygyH5BaRaNdn
-         b+Ej8e04xuJ1ZEYpxMdML0IG/ryL+C+0C8wHHcQ1zCe+tV05PLOJyTXe1kbOH734E7
-         wZxvPWDfZEKOrUYFqfp2F8DsKcPTWyDvZ6J9i/ek=
+        b=o90Ax+h6Fcmjr6ExbyXUEISAW0OHSo/X/Lq1BTap1VIkjPaPhRRLHaxVKFRIlEPXT
+         w0B3EDCGhj2n6qf7oS+7WiEzXBP78mbsB01mGo8DZYalhMWLvmlmxlhaPStl4KpK27
+         IcOGgCclbUAM/00aVOauEpcf2E9VIQhuccR064Ns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arun Easi <aeasi@marvell.com>,
+        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 411/529] scsi: qla2xxx: Fix DMA-API call trace on NVMe LS requests
-Date:   Fri, 10 Mar 2023 14:39:14 +0100
-Message-Id: <20230310133824.042299200@linuxfoundation.org>
+Subject: [PATCH 5.10 412/529] scsi: qla2xxx: Fix erroneous link down
+Date:   Fri, 10 Mar 2023 14:39:15 +0100
+Message-Id: <20230310133824.093116635@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,87 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit c75e6aef5039830cce5d4cf764dd204522f89e6b upstream.
+commit 3fbc74feb642deb688cc97f76d40b7287ddd4cb1 upstream.
 
-The following message and call trace was seen with debug kernels:
+If after an adapter reset the appearance of link is not recovered, the
+devices are not rediscovered.  This is result of a race condition between
+adapter reset (abort_isp) and the topology scan.  During adapter reset, the
+ABORT_ISP_ACTIVE flag is set.  Topology scan usually occurred after adapter
+reset.  In this case, the topology scan came earlier than usual where it
+ran into problem due to ABORT_ISP_ACTIVE flag was still set.
 
-DMA-API: qla2xxx 0000:41:00.0: device driver failed to check map
-error [device address=0x00000002a3ff38d8] [size=1024 bytes] [mapped as
-single]
-WARNING: CPU: 0 PID: 2930 at kernel/dma/debug.c:1017
-	 check_unmap+0xf42/0x1990
+kernel: qla2xxx [0000:13:00.0]-1005:1: Cmd 0x6a aborted with timeout since ISP Abort is pending
+kernel: qla2xxx [0000:13:00.0]-28a0:1: MBX_GET_PORT_NAME failed, No FL Port.
+kernel: qla2xxx [0000:13:00.0]-286b:1: qla2x00_configure_loop: exiting normally. local port wwpn 51402ec0123d9a80 id 012300)
+kernel: qla2xxx [0000:13:00.0]-8017:1: ADAPTER RESET SUCCEEDED nexus=1:0:15.
 
-Call Trace:
-	debug_dma_unmap_page+0xc9/0x100
-	qla_nvme_ls_unmap+0x141/0x210 [qla2xxx]
+Allow adapter reset to complete before any scan can start.
 
-Remove DMA mapping from the driver altogether, as it is already done by FC
-layer. This prevents the warning.
-
-Fixes: c85ab7d9e27a ("scsi: qla2xxx: Fix missed DMA unmap for NVMe ls requests")
 Cc: stable@vger.kernel.org
-Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_nvme.c |   19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -165,18 +165,6 @@ out:
- 	qla2xxx_rel_qpair_sp(sp->qpair, sp);
- }
- 
--static void qla_nvme_ls_unmap(struct srb *sp, struct nvmefc_ls_req *fd)
--{
--	if (sp->flags & SRB_DMA_VALID) {
--		struct srb_iocb *nvme = &sp->u.iocb_cmd;
--		struct qla_hw_data *ha = sp->fcport->vha->hw;
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -6899,9 +6899,12 @@ qla2x00_do_dpc(void *data)
+ 			}
+ 		}
+ loop_resync_check:
+-		if (test_and_clear_bit(LOOP_RESYNC_NEEDED,
++		if (!qla2x00_reset_active(base_vha) &&
++		    test_and_clear_bit(LOOP_RESYNC_NEEDED,
+ 		    &base_vha->dpc_flags)) {
 -
--		dma_unmap_single(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
--				 fd->rqstlen, DMA_TO_DEVICE);
--		sp->flags &= ~SRB_DMA_VALID;
--	}
--}
--
- static void qla_nvme_release_ls_cmd_kref(struct kref *kref)
- {
- 	struct srb *sp = container_of(kref, struct srb, cmd_kref);
-@@ -194,7 +182,6 @@ static void qla_nvme_release_ls_cmd_kref
++			/*
++			 * Allow abort_isp to complete before moving on to scanning.
++			 */
+ 			ql_dbg(ql_dbg_dpc, base_vha, 0x400f,
+ 			    "Loop resync scheduled.\n");
  
- 	fd = priv->fd;
- 
--	qla_nvme_ls_unmap(sp, fd);
- 	fd->done(fd, priv->comp_status);
- out:
- 	qla2x00_rel_sp(sp);
-@@ -336,13 +323,10 @@ static int qla_nvme_ls_req(struct nvme_f
- 	nvme->u.nvme.rsp_len = fd->rsplen;
- 	nvme->u.nvme.rsp_dma = fd->rspdma;
- 	nvme->u.nvme.timeout_sec = fd->timeout;
--	nvme->u.nvme.cmd_dma = dma_map_single(&ha->pdev->dev, fd->rqstaddr,
--	    fd->rqstlen, DMA_TO_DEVICE);
-+	nvme->u.nvme.cmd_dma = fd->rqstdma;
- 	dma_sync_single_for_device(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
- 	    fd->rqstlen, DMA_TO_DEVICE);
- 
--	sp->flags |= SRB_DMA_VALID;
--
- 	rval = qla2x00_start_sp(sp);
- 	if (rval != QLA_SUCCESS) {
- 		ql_log(ql_log_warn, vha, 0x700e,
-@@ -350,7 +334,6 @@ static int qla_nvme_ls_req(struct nvme_f
- 		wake_up(&sp->nvme_ls_waitq);
- 		sp->priv = NULL;
- 		priv->sp = NULL;
--		qla_nvme_ls_unmap(sp, fd);
- 		qla2x00_rel_sp(sp);
- 		return rval;
- 	}
 
 
