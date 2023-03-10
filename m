@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC326B4456
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34FED6B435E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232306AbjCJOXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:23:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40722 "EHLO
+        id S231939AbjCJON7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:13:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232250AbjCJOWi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F31523A78
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:59 -0800 (PST)
+        with ESMTP id S231941AbjCJONi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1500611997D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99F4A617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 937A9C433EF;
-        Fri, 10 Mar 2023 14:21:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AE49B822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82867C433D2;
+        Fri, 10 Mar 2023 14:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458118;
-        bh=n1jKkHfRjRG8GVzq653B5zAVJuxcG56uPlJAZuaqCLc=;
+        s=korg; t=1678457518;
+        bh=3AsKTklElxrj8jzVatyMMQ1X0qrgas46ohe94SC+duU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsTPd+uO5TeWo7szbVpidbsjVioBrjrXXKt7uMfHFrlruHov9k8ELEZqkRTWrP15y
-         2SAjwdgp6VWhqLxfMCJoAfIQujFNqnFmacYt2sr5AEO6LryFdaohlSk5qG6sJ5FbWi
-         vlLBdvfMdGWKyCOu7B21YEazUysxIKQyzQa5FE68=
+        b=b4xPzHKeW4Fmnjja2g32hGEKj2AjHqxWRgGUMD2f7TisGD85Lmzu9u+6ph8ieumXM
+         jG1iMhXNucNr+4GXlmVWbbU4fkN/xmM+Z21EoGuU3qDe+EFFkbIDE0EuZZ7r/XMcNx
+         vwJmb+/J/x66dh8qJv7VLWE2jhKkevQl08kdtV+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dmitry Fomin <fomindmitriyfoma@mail.ru>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 170/252] ALSA: ice1712: Do not left ice->gpio_mutex locked in aureon_add_controls()
-Date:   Fri, 10 Mar 2023 14:39:00 +0100
-Message-Id: <20230310133723.999567411@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 134/200] mei: bus-fixup:upon error print return values of send and receive
+Date:   Fri, 10 Mar 2023 14:39:01 +0100
+Message-Id: <20230310133721.241410841@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Fomin <fomindmitriyfoma@mail.ru>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 951606a14a8901e3551fe4d8d3cedd73fe954ce1 upstream.
+[ Upstream commit 4b8659e2c258e4fdac9ccdf06cc20c0677894ef9 ]
 
-If snd_ctl_add() fails in aureon_add_controls(), it immediately returns
-and leaves ice->gpio_mutex locked. ice->gpio_mutex locks in
-snd_ice1712_save_gpio_status and unlocks in
-snd_ice1712_restore_gpio_status(ice).
+For easier debugging, upon error, print also return values
+from __mei_cl_recv() and __mei_cl_send() functions.
 
-It seems that the mutex is required only for aureon_cs8415_get(),
-so snd_ice1712_restore_gpio_status(ice) can be placed
-just after that. Compile tested only.
-
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Dmitry Fomin <fomindmitriyfoma@mail.ru>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230225184322.6286-1-fomindmitriyfoma@mail.ru
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20221212214933.275434-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/ice1712/aureon.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/mei/bus-fixup.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/pci/ice1712/aureon.c
-+++ b/sound/pci/ice1712/aureon.c
-@@ -1906,6 +1906,7 @@ static int aureon_add_controls(struct sn
- 		unsigned char id;
- 		snd_ice1712_save_gpio_status(ice);
- 		id = aureon_cs8415_get(ice, CS8415_ID);
-+		snd_ice1712_restore_gpio_status(ice);
- 		if (id != 0x41)
- 			dev_info(ice->card->dev,
- 				 "No CS8415 chip. Skipping CS8415 controls.\n");
-@@ -1923,7 +1924,6 @@ static int aureon_add_controls(struct sn
- 					kctl->id.device = ice->pcm->device;
- 			}
- 		}
--		snd_ice1712_restore_gpio_status(ice);
+diff --git a/drivers/misc/mei/bus-fixup.c b/drivers/misc/mei/bus-fixup.c
+index 71fbf0bc84532..5eeb4d04c0962 100644
+--- a/drivers/misc/mei/bus-fixup.c
++++ b/drivers/misc/mei/bus-fixup.c
+@@ -151,7 +151,7 @@ static int mei_fwver(struct mei_cl_device *cldev)
+ 	ret = __mei_cl_send(cldev->cl, (u8 *)&req, sizeof(req), 0,
+ 			    MEI_CL_IO_TX_BLOCKING);
+ 	if (ret < 0) {
+-		dev_err(&cldev->dev, "Could not send ReqFWVersion cmd\n");
++		dev_err(&cldev->dev, "Could not send ReqFWVersion cmd ret = %d\n", ret);
+ 		return ret;
  	}
  
- 	return 0;
+@@ -163,7 +163,7 @@ static int mei_fwver(struct mei_cl_device *cldev)
+ 		 * Should be at least one version block,
+ 		 * error out if nothing found
+ 		 */
+-		dev_err(&cldev->dev, "Could not read FW version\n");
++		dev_err(&cldev->dev, "Could not read FW version ret = %d\n", bytes_recv);
+ 		return -EIO;
+ 	}
+ 
+@@ -376,7 +376,7 @@ static int mei_nfc_if_version(struct mei_cl *cl,
+ 	ret = __mei_cl_send(cl, (u8 *)&cmd, sizeof(cmd), 0,
+ 			    MEI_CL_IO_TX_BLOCKING);
+ 	if (ret < 0) {
+-		dev_err(bus->dev, "Could not send IF version cmd\n");
++		dev_err(bus->dev, "Could not send IF version cmd ret = %d\n", ret);
+ 		return ret;
+ 	}
+ 
+@@ -391,7 +391,7 @@ static int mei_nfc_if_version(struct mei_cl *cl,
+ 	bytes_recv = __mei_cl_recv(cl, (u8 *)reply, if_version_length, &vtag,
+ 				   0, 0);
+ 	if (bytes_recv < 0 || (size_t)bytes_recv < if_version_length) {
+-		dev_err(bus->dev, "Could not read IF version\n");
++		dev_err(bus->dev, "Could not read IF version ret = %d\n", bytes_recv);
+ 		ret = -EIO;
+ 		goto err;
+ 	}
+-- 
+2.39.2
+
 
 
