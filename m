@@ -2,94 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D9B96B40F9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C343D6B435D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230325AbjCJNsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47926 "EHLO
+        id S231935AbjCJON7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:13:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbjCJNsN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:13 -0500
-Received: from sp13.canonet.ne.jp (sp13.canonet.ne.jp [210.134.168.90])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CB9BF9754
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:09 -0800 (PST)
-Received: from csp13.canonet.ne.jp (unknown [172.21.160.133])
-        by sp13.canonet.ne.jp (Postfix) with ESMTP id 365701E063D;
-        Fri, 10 Mar 2023 22:48:08 +0900 (JST)
-Received: from echeck13.canonet.ne.jp ([172.21.160.123])
-        by csp3 with ESMTP
-        id ad6Op6NMXxJr5ad6OpoTaa; Fri, 10 Mar 2023 22:48:08 +0900
-X-CNT-CMCheck-Reason: "undefined", "v=2.4 cv=S49nfKgP c=1 sm=1 tr=0
- ts=640b3518 cx=g_jp:t_eml p=ISLhRirdagkA:10 a=c8wCX2VJ6RehaN9m5YqYzw==:117
- a=yr9NA9NbXb0B05yJHQEWeQ==:17 a=PlGk70OYzacA:10 a=kj9zAlcOel0A:10
- a=k__wU0fu6RkA:10 a=x7bEGLp0ZPQA:10 a=w-HL7bUrXO_Tk3ELfWAA:9
- a=CjuIK1q_8ugA:10"
-X-CNT-CMCheck-Score: 100.00
-Received: from echeck13.canonet.ne.jp (localhost [127.0.0.1])
-        by esets.canonet.ne.jp (Postfix) with ESMTP id E3E831C0250;
-        Fri, 10 Mar 2023 22:48:07 +0900 (JST)
-X-Virus-Scanner: This message was checked by ESET Mail Security
-        for Linux/BSD. For more information on ESET Mail Security,
-        please, visit our website: http://www.eset.com/.
-Received: from smtp13.canonet.ne.jp (unknown [172.21.160.103])
-        by echeck13.canonet.ne.jp (Postfix) with ESMTP id 90DE81C026B;
-        Fri, 10 Mar 2023 22:48:07 +0900 (JST)
-Received: from nishisan.co.jp (webmail.canonet.ne.jp [210.134.169.250])
-        by smtp13.canonet.ne.jp (Postfix) with ESMTPA id 5B63A15F962;
-        Fri, 10 Mar 2023 22:48:06 +0900 (JST)
+        with ESMTP id S231936AbjCJONi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:38 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81FC0119978
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678457542; x=1709993542;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=i6ItQ63j+Yxjwed91mU6bmJf4zav9uIxwHbyZs+qIsE=;
+  b=VJ1MBePcNrWdg4JZbVeE00mqnvybcyv28qCZXFhbFnEfJbIZARlYLDq1
+   iGIbpzZQqCNTtIZQP07KYLu7BFafQ4ykX8bPRX+Oidch4LTz61JXZKI0d
+   Zk4P2WFbgwdz40BXJ3WNmEQu55r/adnod/mwOF5kxUmMwoKsKqwPyaVd5
+   MXxgyWSycFlKdfTb+tFv02LGZDWpEnIOMm7YX0/r2qKOuZsUWxHL2X1KT
+   UBy6GlfMWGgzYuxL93eiZq/h6byvkigvdV/JNM4Es5a8AndtRv7Ca45hr
+   ITsWjUjRuEPu3FISBJLEke5H4KUawUcXt90K+w2nV4zocG7n/vT+nqVK4
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10645"; a="336753658"
+X-IronPort-AV: E=Sophos;i="5.98,249,1673942400"; 
+   d="scan'208";a="336753658"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2023 06:11:59 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10645"; a="923701871"
+X-IronPort-AV: E=Sophos;i="5.98,249,1673942400"; 
+   d="scan'208";a="923701871"
+Received: from nirmoyda-desk.igk.intel.com ([10.102.42.231])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2023 06:11:58 -0800
+From:   Nirmoy Das <nirmoy.das@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Nirmoy Das <nirmoy.das@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>, stable@vger.kernel.org
+Subject: [PATCH] drm/i915/active: Fix missing debug object activation
+Date:   Fri, 10 Mar 2023 15:11:38 +0100
+Message-Id: <20230310141138.6592-1-nirmoy.das@intel.com>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Message-ID: <20230310134806.000035F6.0177@nishisan.co.jp>
-Date:   Fri, 10 Mar 2023 22:48:06 +0900
-From:   "Mr. Chaoxiang Genghis" <nishinihon@nishisan.co.jp>
-To:     <cgcgcgc@cg.cg>
-Reply-To: <c-genghis0@yandex.com>
-Subject: Hi Best Regards...,
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-ORGANIZATION: SCB Bank
-X-MAILER: Active! mail
-X-EsetResult: clean, %VIRUSNAME%
-X-ESET-AS: R=SPAM;S=100;OP=CALC;TIME=1678456088;VERSION=7947;MC=252352769;TRN=15;CRV=0;IPC=210.134.169.250;SP=4;SIPS=1;PI=5;F=0
-X-I-ESET-AS: RN=442,624:0;RNP=c-genghis0@yandex.com
-X-ESET-Antispam: SPAM
-X-Spam-Status: Yes, score=6.7 required=5.0 tests=BAYES_50,
-        FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,HK_NAME_MR_MRS,
-        RCVD_IN_MSPIKE_H2,RCVD_IN_VALIDITY_RPBL,SPF_HELO_NONE,SPF_PASS,
-        UNRESOLVED_TEMPLATE autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  1.3 RCVD_IN_VALIDITY_RPBL RBL: Relay in Validity RPBL,
-        *      https://senderscore.org/blocklistlookup/
-        *      [210.134.168.90 listed in bl.score.senderscore.com]
-        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
-        *      [210.134.168.90 listed in wl.mailspike.net]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  1.3 UNRESOLVED_TEMPLATE Headers contain an unresolved template
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [c-genghis0[at]yandex.com]
-        *  1.0 HK_NAME_MR_MRS No description available.
-        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
-X-Spam-Level: ******
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel Deutschland GmbH, Registered Address: Am Campeon 10, 85579 Neubiberg, Germany, Commercial Register: Amtsgericht Muenchen HRB 186928 
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+debug_active_activate() expected ref->count to be zero
+which is not true anymore as __i915_active_activate() calls
+debug_active_activate() after incrementing the count.
 
-Hi Best Regards...,
+Fixes: 04240e30ed06 ("drm/i915: Skip taking acquire mutex for no ref->active callback")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@intel.com>
+Cc: Andi Shyti <andi.shyti@linux.intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+---
+ drivers/gpu/drm/i915/i915_active.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-How are you doing today?
-
-I hope this email finds you in good health. You have not responded to my previous emails to you regarding Mr. Husson. Kindly acknowledge my proposal and let me know what your decisions are, if you are taking the offer.
-
-Kindly get back to me as soon as possible for more details.
-
-Best regards,
-Mr. Chaoxiang Genghis.
-
+diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/i915_active.c
+index a9fea115f2d2..1c3066eb359a 100644
+--- a/drivers/gpu/drm/i915/i915_active.c
++++ b/drivers/gpu/drm/i915/i915_active.c
+@@ -92,7 +92,7 @@ static void debug_active_init(struct i915_active *ref)
+ static void debug_active_activate(struct i915_active *ref)
+ {
+ 	lockdep_assert_held(&ref->tree_lock);
+-	if (!atomic_read(&ref->count)) /* before the first inc */
++	if (atomic_read(&ref->count) == 1) /* after the first inc */
+ 		debug_object_activate(ref, &active_debug_desc);
+ }
+ 
+-- 
+2.39.0
 
