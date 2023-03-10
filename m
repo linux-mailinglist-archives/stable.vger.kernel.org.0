@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C28856B4522
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7116B486F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232558AbjCJObS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:31:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53326 "EHLO
+        id S233844AbjCJPCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:02:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232421AbjCJOa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 510E3121405
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:59 -0800 (PST)
+        with ESMTP id S233099AbjCJPCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:02:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83FC312C716
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC15A6195C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB6D5C433EF;
-        Fri, 10 Mar 2023 14:29:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8A8B822EB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:55:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8108CC433D2;
+        Fri, 10 Mar 2023 14:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458598;
-        bh=AMTNLbKu3mTpJ10XBUDvWgsu9qwR0xPi015YckndyLE=;
+        s=korg; t=1678460108;
+        bh=5TjZXxZx++20B/0zTVo7iGIgmESD7Zr9sAb4G7+FNTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOVkwMx9NDM2MDX+OyiT1FJI2ETd3aDVBEVASKROnIT6xVUpZp6uwEHXg3tWl93WR
-         JmrETzITr6v+Z3M2MgbMmkIlCHyYyYQnceKgnR2ivHKv/jStwlNaWTjcSaeawVWS08
-         LOl9LEe8A3af6zFnZhYTCpmz6FsfJTdUG319wUI4=
+        b=lexzwk2iuUTfuac4lPYD/TUzuzaGVTEGPvj2COVIbqkWbzpomdVLrVxNGFw52LxBZ
+         G/MlGkEb/q7UHt9A2+hUguo9ATc91cHGlljT6l+fiMwUVGH6wCR96VQptVUwmW7cfi
+         Al/7kbl2IyBkxlLy18jww1J6c8IeA3ip5VQGMsdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sam Ravnborg <sam@ravnborg.org>,
         "David S. Miller" <davem@davemloft.net>,
+        Kirill Tkhai <tkhai@yandex.ru>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 079/357] rds: rds_rm_zerocopy_callback() correct order for list_add_tail()
-Date:   Fri, 10 Mar 2023 14:36:08 +0100
-Message-Id: <20230310133737.469811356@linuxfoundation.org>
+Subject: [PATCH 5.10 226/529] sparc: allow PM configs for sparc32 COMPILE_TEST
+Date:   Fri, 10 Mar 2023 14:36:09 +0100
+Message-Id: <20230310133815.474374900@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,36 +57,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 68762148d1b011d47bc2ceed7321739b5aea1e63 ]
+[ Upstream commit 7be6a87c2473957090995b7eb541e31d57a2c801 ]
 
-rds_rm_zerocopy_callback() uses list_add_tail() with swapped
-arguments. This links the list head with the new entry, losing
-the references to the remaining part of the list.
+When doing randconfig builds for sparc32 with COMPILE_TEST, some
+(non-Sparc) drivers cause kconfig warnings with the Kconfig symbols PM,
+PM_GENERIC_DOMAINS, or PM_GENERIC_DOMAINS_OF.
 
-Fixes: 9426bbc6de99 ("rds: use list structure to track information for zerocopy completion notification")
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is due to arch/sparc/Kconfig not using the PM Kconfig for
+Sparc32:
+
+  if SPARC64
+  source "kernel/power/Kconfig"
+  endif
+
+Arnd suggested adding "|| COMPILE_TEST" to the conditional,
+instead of trying to track down every driver that selects
+any of these PM symbols.
+
+Fixes the following kconfig warnings:
+
+WARNING: unmet direct dependencies detected for PM
+  Depends on [n]: SPARC64 [=n]
+  Selected by [y]:
+  - SUN20I_PPU [=y] && (ARCH_SUNXI || COMPILE_TEST [=y])
+
+WARNING: unmet direct dependencies detected for PM
+  Depends on [n]: SPARC64 [=n]
+  Selected by [y]:
+  - SUN20I_PPU [=y] && (ARCH_SUNXI || COMPILE_TEST [=y])
+
+WARNING: unmet direct dependencies detected for PM_GENERIC_DOMAINS
+  Depends on [n]: SPARC64 [=n] && PM [=y]
+  Selected by [y]:
+  - QCOM_GDSC [=y] && COMMON_CLK [=y] && PM [=y]
+  - SUN20I_PPU [=y] && (ARCH_SUNXI || COMPILE_TEST [=y])
+  - MESON_GX_PM_DOMAINS [=y] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
+  - BCM2835_POWER [=y] && (ARCH_BCM2835 || COMPILE_TEST [=y] && OF [=y]) && PM [=y]
+  - BCM_PMB [=y] && (ARCH_BCMBCA || COMPILE_TEST [=y] && OF [=y]) && PM [=y]
+  - ROCKCHIP_PM_DOMAINS [=y] && (ARCH_ROCKCHIP || COMPILE_TEST [=y]) && PM [=y]
+  Selected by [m]:
+  - ARM_SCPI_POWER_DOMAIN [=m] && (ARM_SCPI_PROTOCOL [=m] || COMPILE_TEST [=y] && OF [=y]) && PM [=y]
+  - MESON_EE_PM_DOMAINS [=m] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
+  - QCOM_AOSS_QMP [=m] && (ARCH_QCOM || COMPILE_TEST [=y]) && MAILBOX [=y] && COMMON_CLK [=y] && PM [=y]
+
+WARNING: unmet direct dependencies detected for PM_GENERIC_DOMAINS_OF
+  Depends on [n]: SPARC64 [=n] && PM_GENERIC_DOMAINS [=y] && OF [=y]
+  Selected by [y]:
+  - MESON_GX_PM_DOMAINS [=y] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
+  Selected by [m]:
+  - MESON_EE_PM_DOMAINS [=m] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
+
+Link: https://lkml.kernel.org/r/20230205004357.29459-1-rdunlap@infradead.org
+Fixes: bdde6b3c8ba4 ("sparc64: Hibernation support")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Kirill Tkhai <tkhai@yandex.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/message.c | 2 +-
+ arch/sparc/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/rds/message.c b/net/rds/message.c
-index be6a0a073b12a..75043742d243c 100644
---- a/net/rds/message.c
-+++ b/net/rds/message.c
-@@ -118,7 +118,7 @@ static void rds_rm_zerocopy_callback(struct rds_sock *rs,
- 	ck = &info->zcookies;
- 	memset(ck, 0, sizeof(*ck));
- 	WARN_ON(!rds_zcookie_add(info, cookie));
--	list_add_tail(&q->zcookie_head, &info->rs_zcookie_next);
-+	list_add_tail(&info->rs_zcookie_next, &q->zcookie_head);
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index 530b7ec5d3ca9..b5ed893420591 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -293,7 +293,7 @@ config FORCE_MAX_ZONEORDER
+ 	  This config option is actually maximum order plus one. For example,
+ 	  a value of 13 means that the largest free memory block is 2^12 pages.
  
- 	spin_unlock_irqrestore(&q->lock, flags);
- 	/* caller invokes rds_wake_sk_sleep() */
+-if SPARC64
++if SPARC64 || COMPILE_TEST
+ source "kernel/power/Kconfig"
+ endif
+ 
 -- 
 2.39.2
 
