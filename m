@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0986B45F4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B3B6B413B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbjCJOjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:39:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49566 "EHLO
+        id S230450AbjCJNut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:50:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232739AbjCJOir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAC66FFDB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:33 -0800 (PST)
+        with ESMTP id S230462AbjCJNur (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 367A115CB5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38CA86187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0379BC433A1;
-        Fri, 10 Mar 2023 14:38:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E36C1B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DE33C433EF;
+        Fri, 10 Mar 2023 13:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459112;
-        bh=iR2RtzUfFs0qnZrwWCs/8P61EVOIzFIGIofU02+s0Ok=;
+        s=korg; t=1678456243;
+        bh=g9Lv4qTeLQdX9C55kCFkrGGrESf4pXX0d1ZWauN1kUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=un2VnrA/B9hXXX4oiYz/fgk1xKBpfyiQVRj8cc96a6dkks7vPF9XNm/v7tKF6SvSz
-         r3LZeUOS5Ntt5/Yvs8rf98N6wtWxEiCi3iosOQ7JZhGcEoLE0Lwsm9gQh0vEGyCUuv
-         iTfvrSdUOoOzCFhX+atUlSr+bX4f/8JZfiLoKnpg=
+        b=NHYfNPcdj2T9RJxTiDWXKdDjc/494gvqm1lQhipIyWYh4wSXz2YwxeUjDNGjXj7Oj
+         PYzcMFda/HWKJYHGxRsXf53h4r8gwg98hIUFchSpqsHcUsCLZ+CZA1UqqTgo5aoE6E
+         rlPx2MHGL4KQ4ta0lCT9Wb1DUQX/id1IFrnmD8bY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 221/357] f2fs: fix information leak in f2fs_move_inline_dirents()
+        patches@lists.linux.dev,
+        syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com,
+        stable@kernel.org, Jun Nie <jun.nie@linaro.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 128/193] ext4: refuse to create ea block when umounted
 Date:   Fri, 10 Mar 2023 14:38:30 +0100
-Message-Id: <20230310133744.486241228@linuxfoundation.org>
+Message-Id: <20230310133715.502156354@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Jun Nie <jun.nie@linaro.org>
 
-commit 9a5571cff4ffcfc24847df9fd545cc5799ac0ee5 upstream.
+commit f31173c19901a96bb2ebf6bcfec8a08df7095c91 upstream.
 
-When converting an inline directory to a regular one, f2fs is leaking
-uninitialized memory to disk because it doesn't initialize the entire
-directory block.  Fix this by zero-initializing the block.
+The ea block expansion need to access s_root while it is
+already set as NULL when umount is triggered. Refuse this
+request to avoid panic.
 
-This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
-initializing when converting inline dentry"), which didn't consider the
-security implications of leaking uninitialized memory to disk.
-
-This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
-
-Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
-Cc: <stable@vger.kernel.org> # v4.3+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: syzbot+2dacb8f015bf1420155f@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=3613786cb88c93aa1c6a279b1df6a7b201347d08
+Link: https://lore.kernel.org/r/20230103014517.495275-3-jun.nie@linaro.org
+Cc: stable@kernel.org
+Signed-off-by: Jun Nie <jun.nie@linaro.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/inline.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/ext4/xattr.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -402,18 +402,17 @@ static int f2fs_move_inline_dirents(stru
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1426,6 +1426,13 @@ static struct inode *ext4_xattr_inode_cr
+ 	uid_t owner[2] = { i_uid_read(inode), i_gid_read(inode) };
+ 	int err;
  
- 	dentry_blk = page_address(page);
- 
-+	/*
-+	 * Start by zeroing the full block, to ensure that all unused space is
-+	 * zeroed and no uninitialized memory is leaked to disk.
-+	 */
-+	memset(dentry_blk, 0, F2FS_BLKSIZE);
++	if (inode->i_sb->s_root == NULL) {
++		ext4_warning(inode->i_sb,
++			     "refuse to create EA inode when umounting");
++		WARN_ON(1);
++		return ERR_PTR(-EINVAL);
++	}
 +
- 	make_dentry_ptr_inline(dir, &src, inline_dentry);
- 	make_dentry_ptr_block(dir, &dst, dentry_blk);
- 
- 	/* copy data from inline dentry block to new dentry block */
- 	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
--	memset(dst.bitmap + src.nr_bitmap, 0, dst.nr_bitmap - src.nr_bitmap);
--	/*
--	 * we do not need to zero out remainder part of dentry and filename
--	 * field, since we have used bitmap for marking the usage status of
--	 * them, besides, we can also ignore copying/zeroing reserved space
--	 * of dentry block, because them haven't been used so far.
--	 */
- 	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
- 	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
- 
+ 	/*
+ 	 * Let the next inode be the goal, so we try and allocate the EA inode
+ 	 * in the same group, or nearby one.
 
 
