@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A15566B4866
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF4F6B4506
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233766AbjCJPCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:02:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55078 "EHLO
+        id S232355AbjCJOaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233525AbjCJPBn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:43 -0500
+        with ESMTP id S232515AbjCJOaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B6D125D85
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C046EC97D8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5AF66196E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:54:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B83B4C4339B;
-        Fri, 10 Mar 2023 14:54:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F126618C9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CD08C43442;
+        Fri, 10 Mar 2023 14:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460048;
-        bh=Uqe88ZOiTAMwGWY9SJd3pNnDcjxhEl+vnrYP76spxsk=;
+        s=korg; t=1678458533;
+        bh=Cbfnipa5jg+QyfwfolkbGlJbbRZ+80Q5TGRkp8LJTvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfkCPyfl7xf8JhJlrf2cu12ZDyCOMz+Maa2IF8eFfNWf0XY+dSBw1mQL1BXFpT4VA
-         gu5bQqArdNnCCfHPWpiHlLhOeJZ2uAOPfO/oS4okChgLQYZoSTTkwle6SgO24n9oJh
-         SXnwIXG9+OrRN+ONsE0XpannJKrMeSE21VyIBQAA=
+        b=ePP4GX5L3Zhux7MJ+K64bQSsGPof6Y5uInfA6mrJzPKooeQw+nW1ke4pQYLOLPmW9
+         w4GqWgdv4SHaZO4ZXw2Hd1jpcSxF/qbgUH+r/E6sXK4ETaHcvKEJ3BegUNC8pInYPx
+         tzBwdNRbbgfUYQlyNLQqJyhr/bHbggQ2PzrW6IW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        William Zhang <william.zhang@broadcom.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Jeff Johnson <quic_jjohnson@quicinc.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 205/529] spi: bcm63xx-hsspi: Fix multi-bit mode setting
+Subject: [PATCH 5.4 059/357] ath9k: htc: clean up statistics macros
 Date:   Fri, 10 Mar 2023 14:35:48 +0100
-Message-Id: <20230310133814.504294249@linuxfoundation.org>
+Message-Id: <20230310133736.575165762@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +56,227 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Zhang <william.zhang@broadcom.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 811ff802aaf878ebbbaeac0307a0164fa21e7d40 ]
+[ Upstream commit d7fc76039b74ad37b7056d5607b05d7cb31a5404 ]
 
-Currently the driver always sets the controller to dual data bit mode
-for both tx and rx data in the profile mode control register even for
-single data bit transfer. Luckily the opcode is set correctly according
-to SPI transfer data bit width so it does not actually cause issues.
+I've changed *STAT_* macros a bit in previous patch and I seems like
+they become really unreadable. Align these macros definitions to make
+code cleaner and fix folllowing checkpatch warning
 
-This change fixes the problem by setting tx and rx data bit mode field
-correctly according to the actual SPI transfer tx and rx data bit width.
+ERROR: Macros with complex values should be enclosed in parentheses
 
-Fixes: 142168eba9dc ("spi: bcm63xx-hsspi: add bcm63xx HSSPI driver")
-Signed-off-by: William Zhang <william.zhang@broadcom.com>
-Link: https://lore.kernel.org/r/20230209200246.141520-11-william.zhang@broadcom.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Also, statistics macros now accept an hif_dev as argument, since
+macros that depend on having a local variable with a magic name
+don't abide by the coding style.
+
+No functional change
+
+Suggested-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/ebb2306d06a496cd1b032155ae52fdc5fa8cc2c5.1655145743.git.paskripkin@gmail.com
+Stable-dep-of: 0af54343a762 ("wifi: ath9k: hif_usb: clean up skbs if ath9k_hif_usb_rx_stream() fails")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm63xx-hsspi.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c      | 26 +++++++--------
+ drivers/net/wireless/ath/ath9k/htc.h          | 32 +++++++++++--------
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 10 +++---
+ 3 files changed, 36 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm63xx-hsspi.c b/drivers/spi/spi-bcm63xx-hsspi.c
-index a74345ed0e2ff..9ec33745c1472 100644
---- a/drivers/spi/spi-bcm63xx-hsspi.c
-+++ b/drivers/spi/spi-bcm63xx-hsspi.c
-@@ -163,6 +163,7 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
- 	int step_size = HSSPI_BUFFER_LEN;
- 	const u8 *tx = t->tx_buf;
- 	u8 *rx = t->rx_buf;
-+	u32 val = 0;
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index 15c8b512a1d9f..f68e47f9b01e2 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -244,11 +244,11 @@ static inline void ath9k_skb_queue_complete(struct hif_device_usb *hif_dev,
+ 		ath9k_htc_txcompletion_cb(hif_dev->htc_handle,
+ 					  skb, txok);
+ 		if (txok) {
+-			TX_STAT_INC(skb_success);
+-			TX_STAT_ADD(skb_success_bytes, ln);
++			TX_STAT_INC(hif_dev, skb_success);
++			TX_STAT_ADD(hif_dev, skb_success_bytes, ln);
+ 		}
+ 		else
+-			TX_STAT_INC(skb_failed);
++			TX_STAT_INC(hif_dev, skb_failed);
+ 	}
+ }
  
- 	bcm63xx_hsspi_set_clk(bs, spi, t->speed_hz);
- 	bcm63xx_hsspi_set_cs(bs, spi->chip_select, true);
-@@ -178,11 +179,16 @@ static int bcm63xx_hsspi_do_txrx(struct spi_device *spi, struct spi_transfer *t)
- 		step_size -= HSSPI_OPCODE_LEN;
+@@ -302,7 +302,7 @@ static void hif_usb_tx_cb(struct urb *urb)
+ 	hif_dev->tx.tx_buf_cnt++;
+ 	if (!(hif_dev->tx.flags & HIF_USB_TX_STOP))
+ 		__hif_usb_tx(hif_dev); /* Check for pending SKBs */
+-	TX_STAT_INC(buf_completed);
++	TX_STAT_INC(hif_dev, buf_completed);
+ 	spin_unlock(&hif_dev->tx.tx_lock);
+ }
  
- 	if ((opcode == HSSPI_OP_READ && t->rx_nbits == SPI_NBITS_DUAL) ||
--	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL))
-+	    (opcode == HSSPI_OP_WRITE && t->tx_nbits == SPI_NBITS_DUAL)) {
- 		opcode |= HSSPI_OP_MULTIBIT;
+@@ -353,7 +353,7 @@ static int __hif_usb_tx(struct hif_device_usb *hif_dev)
+ 			tx_buf->len += tx_buf->offset;
  
--	__raw_writel(1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT |
--		     1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT | 0xff,
-+		if (t->rx_nbits == SPI_NBITS_DUAL)
-+			val |= 1 << MODE_CTRL_MULTIDATA_RD_SIZE_SHIFT;
-+		if (t->tx_nbits == SPI_NBITS_DUAL)
-+			val |= 1 << MODE_CTRL_MULTIDATA_WR_SIZE_SHIFT;
-+	}
+ 		__skb_queue_tail(&tx_buf->skb_queue, nskb);
+-		TX_STAT_INC(skb_queued);
++		TX_STAT_INC(hif_dev, skb_queued);
+ 	}
+ 
+ 	usb_fill_bulk_urb(tx_buf->urb, hif_dev->udev,
+@@ -369,7 +369,7 @@ static int __hif_usb_tx(struct hif_device_usb *hif_dev)
+ 		list_move_tail(&tx_buf->list, &hif_dev->tx.tx_buf);
+ 		hif_dev->tx.tx_buf_cnt++;
+ 	} else {
+-		TX_STAT_INC(buf_queued);
++		TX_STAT_INC(hif_dev, buf_queued);
+ 	}
+ 
+ 	return ret;
+@@ -514,7 +514,7 @@ static void hif_usb_sta_drain(void *hif_handle, u8 idx)
+ 			ath9k_htc_txcompletion_cb(hif_dev->htc_handle,
+ 						  skb, false);
+ 			hif_dev->tx.tx_skb_cnt--;
+-			TX_STAT_INC(skb_failed);
++			TX_STAT_INC(hif_dev, skb_failed);
+ 		}
+ 	}
+ 
+@@ -585,14 +585,14 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 		pkt_tag = get_unaligned_le16(ptr + index + 2);
+ 
+ 		if (pkt_tag != ATH_USB_RX_STREAM_MODE_TAG) {
+-			RX_STAT_INC(skb_dropped);
++			RX_STAT_INC(hif_dev, skb_dropped);
+ 			return;
+ 		}
+ 
+ 		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
+ 			dev_err(&hif_dev->udev->dev,
+ 				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
+-			RX_STAT_INC(skb_dropped);
++			RX_STAT_INC(hif_dev, skb_dropped);
+ 			return;
+ 		}
+ 
+@@ -618,7 +618,7 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 				goto err;
+ 			}
+ 			skb_reserve(nskb, 32);
+-			RX_STAT_INC(skb_allocated);
++			RX_STAT_INC(hif_dev, skb_allocated);
+ 
+ 			memcpy(nskb->data, &(skb->data[chk_idx+4]),
+ 			       hif_dev->rx_transfer_len);
+@@ -639,7 +639,7 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 				goto err;
+ 			}
+ 			skb_reserve(nskb, 32);
+-			RX_STAT_INC(skb_allocated);
++			RX_STAT_INC(hif_dev, skb_allocated);
+ 
+ 			memcpy(nskb->data, &(skb->data[chk_idx+4]), pkt_len);
+ 			skb_put(nskb, pkt_len);
+@@ -649,10 +649,10 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 
+ err:
+ 	for (i = 0; i < pool_index; i++) {
+-		RX_STAT_ADD(skb_completed_bytes, skb_pool[i]->len);
++		RX_STAT_ADD(hif_dev, skb_completed_bytes, skb_pool[i]->len);
+ 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb_pool[i],
+ 				 skb_pool[i]->len, USB_WLAN_RX_PIPE);
+-		RX_STAT_INC(skb_completed);
++		RX_STAT_INC(hif_dev, skb_completed);
+ 	}
+ }
+ 
+diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
+index 81107100e3682..655238a59ee03 100644
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -325,14 +325,18 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
+ }
+ 
+ #ifdef CONFIG_ATH9K_HTC_DEBUGFS
+-#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
+-#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
+-#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
+-#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
+-#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
+-#define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
+-
+-#define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
++#define __STAT_SAFE(hif_dev, expr)	((hif_dev)->htc_handle->drv_priv ? (expr) : 0)
++#define CAB_STAT_INC(priv)		((priv)->debug.tx_stats.cab_queued++)
++#define TX_QSTAT_INC(priv, q)		((priv)->debug.tx_stats.queue_stats[q]++)
 +
-+	__raw_writel(val | 0xff,
- 		     bs->regs + HSSPI_PROFILE_MODE_CTRL_REG(chip_select));
++#define TX_STAT_INC(hif_dev, c) \
++		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c++)
++#define TX_STAT_ADD(hif_dev, c, a) \
++		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c += a)
++#define RX_STAT_INC(hif_dev, c) \
++		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.skbrx_stats.c++)
++#define RX_STAT_ADD(hif_dev, c, a) \
++		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.skbrx_stats.c += a)
  
- 	while (pending > 0) {
+ void ath9k_htc_err_stat_rx(struct ath9k_htc_priv *priv,
+ 			   struct ath_rx_status *rs);
+@@ -372,13 +376,13 @@ void ath9k_htc_get_et_stats(struct ieee80211_hw *hw,
+ 			    struct ethtool_stats *stats, u64 *data);
+ #else
+ 
+-#define TX_STAT_INC(c) do { } while (0)
+-#define TX_STAT_ADD(c, a) do { } while (0)
+-#define RX_STAT_INC(c) do { } while (0)
+-#define RX_STAT_ADD(c, a) do { } while (0)
+-#define CAB_STAT_INC   do { } while (0)
++#define TX_STAT_INC(hif_dev, c)
++#define TX_STAT_ADD(hif_dev, c, a)
++#define RX_STAT_INC(hif_dev, c)
++#define RX_STAT_ADD(hif_dev, c, a)
+ 
+-#define TX_QSTAT_INC(c) do { } while (0)
++#define CAB_STAT_INC(priv)
++#define TX_QSTAT_INC(priv, c)
+ 
+ static inline void ath9k_htc_err_stat_rx(struct ath9k_htc_priv *priv,
+ 					 struct ath_rx_status *rs)
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index eeaf63de71bfd..ee021738bef02 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -106,20 +106,20 @@ static inline enum htc_endpoint_id get_htc_epid(struct ath9k_htc_priv *priv,
+ 
+ 	switch (qnum) {
+ 	case 0:
+-		TX_QSTAT_INC(IEEE80211_AC_VO);
++		TX_QSTAT_INC(priv, IEEE80211_AC_VO);
+ 		epid = priv->data_vo_ep;
+ 		break;
+ 	case 1:
+-		TX_QSTAT_INC(IEEE80211_AC_VI);
++		TX_QSTAT_INC(priv, IEEE80211_AC_VI);
+ 		epid = priv->data_vi_ep;
+ 		break;
+ 	case 2:
+-		TX_QSTAT_INC(IEEE80211_AC_BE);
++		TX_QSTAT_INC(priv, IEEE80211_AC_BE);
+ 		epid = priv->data_be_ep;
+ 		break;
+ 	case 3:
+ 	default:
+-		TX_QSTAT_INC(IEEE80211_AC_BK);
++		TX_QSTAT_INC(priv, IEEE80211_AC_BK);
+ 		epid = priv->data_bk_ep;
+ 		break;
+ 	}
+@@ -323,7 +323,7 @@ static void ath9k_htc_tx_data(struct ath9k_htc_priv *priv,
+ 	memcpy(tx_fhdr, (u8 *) &tx_hdr, sizeof(tx_hdr));
+ 
+ 	if (is_cab) {
+-		CAB_STAT_INC;
++		CAB_STAT_INC(priv);
+ 		tx_ctl->epid = priv->cab_ep;
+ 		return;
+ 	}
 -- 
 2.39.2
 
