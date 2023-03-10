@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6D86B40FB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7A716B458E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230336AbjCJNsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48542 "EHLO
+        id S232484AbjCJOel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:34:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbjCJNsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:18 -0500
+        with ESMTP id S232492AbjCJOei (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:34:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A782F15C8F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA5B19C62
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:34:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58D48B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C9DC4339B;
-        Fri, 10 Mar 2023 13:48:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A207B822DE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:34:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34443C4339B;
+        Fri, 10 Mar 2023 14:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456095;
-        bh=/Jg1Ow9y9u9RUDidlEYTdcSt8/m2ETYSirfek+m1lx4=;
+        s=korg; t=1678458873;
+        bh=j/AmNwOcqyKgy3LRyY2AjAKoXVuPdv4jM5pV4OYKOeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCgbfPdxOoKfDxYl8tDk1oy6FVuvG43MffPCp9vMa7r7itp9WxwHwEFGqlSd3CGys
-         30O/Jk6Qz4RRsAvIf450ZWB/v4yZctFv8iiigIOwwTeu74enhM9iK9zckqC/zCnmZi
-         ipAnJj8rP+UpE22w3zcgBWtsTK7pMd0FuDe7jqk0=
+        b=EW6XopR+BOwCd91S3FHPCEVQWlqjI7cmXSMHf2Pfnj1g/z96PKnpJIxRrx8AGeGq0
+         ncjUgwS8HnVjKLQ7U5LqkSsYU/Kk0K5N8lQfmbN1KPxFdWWKpwBR15Q6MnyDwdyk1n
+         rtd1RcS4jM0YD5/UzsFT3wzdnFIilUtFUHOMQ8ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 079/193] rcu: Suppress smp_processor_id() complaint in synchronize_rcu_expedited_wait()
+Subject: [PATCH 5.4 172/357] media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
 Date:   Fri, 10 Mar 2023 14:37:41 +0100
-Message-Id: <20230310133713.680236803@linuxfoundation.org>
+Message-Id: <20230310133742.317980493@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 2d7f00b2f01301d6e41fd4a28030dab0442265be ]
+[ Upstream commit 29b0589a865b6f66d141d79b2dd1373e4e50fe17 ]
 
-The normal grace period's RCU CPU stall warnings are invoked from the
-scheduling-clock interrupt handler, and can thus invoke smp_processor_id()
-with impunity, which allows them to directly invoke dump_cpu_task().
-In contrast, the expedited grace period's RCU CPU stall warnings are
-invoked from process context, which causes the dump_cpu_task() function's
-calls to smp_processor_id() to complain bitterly in debug kernels.
+When the ene device is detaching, function ene_remove() will
+be called. But there is no function to cancel tx_sim_timer
+in ene_remove(), the timer handler ene_tx_irqsim() could race
+with ene_remove(). As a result, the UAF bugs could happen,
+the process is shown below.
 
-This commit therefore causes synchronize_rcu_expedited_wait() to disable
-preemption around its call to dump_cpu_task().
+    (cleanup routine)          |        (timer routine)
+                               | mod_timer(&dev->tx_sim_timer, ..)
+ene_remove()                   | (wait a time)
+                               | ene_tx_irqsim()
+                               |   dev->hw_lock //USE
+                               |   ene_tx_sample(dev) //USE
 
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fix by adding del_timer_sync(&dev->tx_sim_timer) in ene_remove(),
+The tx_sim_timer could stop before ene device is deallocated.
+
+What's more, The rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove() and the deallocated
+functions such as free_irq(), release_region() and so on
+should be called behind them. Because the rc_unregister_device()
+is well synchronized. Otherwise, race conditions may happen. The
+situations that may lead to race conditions are shown below.
+
+Firstly, the rx receiver is disabled with ene_rx_disable()
+before rc_unregister_device() in ene_remove(), which means it
+can be enabled again if a process opens /dev/lirc0 between
+ene_rx_disable() and rc_unregister_device().
+
+Secondly, the irqaction descriptor is freed by free_irq()
+before the rc device is unregistered, which means irqaction
+descriptor may be accessed again after it is deallocated.
+
+Thirdly, the timer can call ene_tx_sample() that can write
+to the io ports, which means the io ports could be accessed
+again after they are deallocated by release_region().
+
+Therefore, the rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove().
+
+Suggested by: Sean Young <sean@mess.org>
+
+Fixes: 9ea53b74df9c ("V4L/DVB: STAGING: remove lirc_ene0100 driver")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/rc/ene_ir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index f90d10c1c3c8d..843399e98bb37 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -498,7 +498,9 @@ static void synchronize_sched_expedited_wait(struct rcu_state *rsp)
- 				mask = leaf_node_cpu_bit(rnp, cpu);
- 				if (!(rnp->expmask & mask))
- 					continue;
-+				preempt_disable(); // For smp_processor_id() in dump_cpu_task().
- 				dump_cpu_task(cpu);
-+				preempt_enable();
- 			}
- 		}
- 		jiffies_stall = 3 * rcu_jiffies_till_stall_check() + 3;
+diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
+index 82867a2a60b0e..20cadff242cf9 100644
+--- a/drivers/media/rc/ene_ir.c
++++ b/drivers/media/rc/ene_ir.c
+@@ -1106,6 +1106,8 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 	struct ene_device *dev = pnp_get_drvdata(pnp_dev);
+ 	unsigned long flags;
+ 
++	rc_unregister_device(dev->rdev);
++	del_timer_sync(&dev->tx_sim_timer);
+ 	spin_lock_irqsave(&dev->hw_lock, flags);
+ 	ene_rx_disable(dev);
+ 	ene_rx_restore_hw_buffer(dev);
+@@ -1113,7 +1115,6 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 
+ 	free_irq(dev->irq, dev);
+ 	release_region(dev->hw_io, ENE_IO_SIZE);
+-	rc_unregister_device(dev->rdev);
+ 	kfree(dev);
+ }
+ 
 -- 
 2.39.2
 
