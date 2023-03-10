@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B21176B461C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9050E6B4483
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbjCJOkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50396 "EHLO
+        id S231178AbjCJOY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:24:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232727AbjCJOkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 182141219C0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:05 -0800 (PST)
+        with ESMTP id S232347AbjCJOYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F38F4ECB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 876B3618B8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77A25C433D2;
-        Fri, 10 Mar 2023 14:40:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07D21B822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F630C433EF;
+        Fri, 10 Mar 2023 14:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459204;
-        bh=61ysLNg1WME2nuIRcdNo/JyX1oNHIovtnm9eDNfF/+o=;
+        s=korg; t=1678458208;
+        bh=J4ygZUZu1iTKkJDW7VY5xdGN1qfouFBaNo6oSVCFQHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MuVTIOT51iY7OITcc41xrgtIUcftntaOHPkPVdT2BJ/S9h0Alas7ASUjK0+Sm2wDP
-         qAuHxUtV1sk8cGgFrhvZfNS5fLnUkicZ8qdVwiv+7oyomLsFVKhU0F7kyb3pKOg2mb
-         0FhBR7cmziERqb91dWwDIRWy1fUn+A6+IA23vY9o=
+        b=Pi+xgEMzoW2I1iN32x0VyxLwOl9KfFiQm0nVYugcPi1eoAL7VniaHGfDIcP39SmjO
+         9qDIb+zvg//pb61yPbbTiEpcd6YYQxjyC9uPoVM3MV4HDZy15Bzd/WHS4vjzTZZ5Cb
+         Y8a1z6Za1tZj4uvUd48Pu78NHYIs4/cAoP2yDuaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Palus <jpalus+gnu@fastmail.com>,
-        Dmitry Goncharov <dgoncharov@users.sf.net>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.4 282/357] kbuild: Port silent mode detection to future gnu make.
+        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 201/252] ubi: ensure that VID header offset + VID header size <= alloc, size
 Date:   Fri, 10 Mar 2023 14:39:31 +0100
-Message-Id: <20230310133747.204665499@linuxfoundation.org>
+Message-Id: <20230310133725.137406289@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Goncharov <dgoncharov@users.sf.net>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 4bf73588165ba7d32131a043775557a54b6e1db5 upstream.
+[ Upstream commit 1b42b1a36fc946f0d7088425b90d491b4257ca3e ]
 
-Port silent mode detection to the future (post make-4.4) versions of gnu make.
+Ensure that the VID header offset + VID header size does not exceed
+the allocated area to avoid slab OOB.
 
-Makefile contains the following piece of make code to detect if option -s is
-specified on the command line.
+BUG: KASAN: slab-out-of-bounds in crc32_body lib/crc32.c:111 [inline]
+BUG: KASAN: slab-out-of-bounds in crc32_le_generic lib/crc32.c:179 [inline]
+BUG: KASAN: slab-out-of-bounds in crc32_le_base+0x58c/0x626 lib/crc32.c:197
+Read of size 4 at addr ffff88802bb36f00 by task syz-executor136/1555
 
-ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
+CPU: 2 PID: 1555 Comm: syz-executor136 Tainted: G        W
+6.0.0-1868 #1
+Hardware name: Red Hat KVM, BIOS 1.13.0-2.module+el8.3.0+7860+a7792d29
+04/01/2014
+Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x85/0xad lib/dump_stack.c:106
+  print_address_description mm/kasan/report.c:317 [inline]
+  print_report.cold.13+0xb6/0x6bb mm/kasan/report.c:433
+  kasan_report+0xa7/0x11b mm/kasan/report.c:495
+  crc32_body lib/crc32.c:111 [inline]
+  crc32_le_generic lib/crc32.c:179 [inline]
+  crc32_le_base+0x58c/0x626 lib/crc32.c:197
+  ubi_io_write_vid_hdr+0x1b7/0x472 drivers/mtd/ubi/io.c:1067
+  create_vtbl+0x4d5/0x9c4 drivers/mtd/ubi/vtbl.c:317
+  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
+  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
+  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
+  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
+  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
+  vfs_ioctl fs/ioctl.c:51 [inline]
+  __do_sys_ioctl fs/ioctl.c:870 [inline]
+  __se_sys_ioctl fs/ioctl.c:856 [inline]
+  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0x0
+RIP: 0033:0x7f96d5cf753d
+Code:
+RSP: 002b:00007fffd72206f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f96d5cf753d
+RDX: 0000000020000080 RSI: 0000000040186f40 RDI: 0000000000000003
+RBP: 0000000000400cd0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000400be0
+R13: 00007fffd72207e0 R14: 0000000000000000 R15: 0000000000000000
+  </TASK>
 
-This code is executed by make at parse time and assumes that MAKEFLAGS
-does not contain command line variable definitions.
-Currently if the user defines a=s on the command line, then at build only
-time MAKEFLAGS contains " -- a=s".
-However, starting with commit dc2d963989b96161472b2cd38cef5d1f4851ea34
-MAKEFLAGS contains command line definitions at both parse time and
-build time.
+Allocated by task 1555:
+  kasan_save_stack+0x20/0x3d mm/kasan/common.c:38
+  kasan_set_track mm/kasan/common.c:45 [inline]
+  set_alloc_info mm/kasan/common.c:437 [inline]
+  ____kasan_kmalloc mm/kasan/common.c:516 [inline]
+  __kasan_kmalloc+0x88/0xa3 mm/kasan/common.c:525
+  kasan_kmalloc include/linux/kasan.h:234 [inline]
+  __kmalloc+0x138/0x257 mm/slub.c:4429
+  kmalloc include/linux/slab.h:605 [inline]
+  ubi_alloc_vid_buf drivers/mtd/ubi/ubi.h:1093 [inline]
+  create_vtbl+0xcc/0x9c4 drivers/mtd/ubi/vtbl.c:295
+  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
+  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
+  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
+  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
+  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
+  vfs_ioctl fs/ioctl.c:51 [inline]
+  __do_sys_ioctl fs/ioctl.c:870 [inline]
+  __se_sys_ioctl fs/ioctl.c:856 [inline]
+  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0x0
 
-This '-s' detection code then confuses a command line variable
-definition which contains letter 's' with option -s.
+The buggy address belongs to the object at ffff88802bb36e00
+  which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 0 bytes to the right of
+  256-byte region [ffff88802bb36e00, ffff88802bb36f00)
 
-$ # old make
-$ make net/wireless/ocb.o a=s
-  CALL    scripts/checksyscalls.sh
-  DESCEND objtool
-$ # this a new make which defines makeflags at parse time
-$ ~/src/gmake/make/l64/make net/wireless/ocb.o a=s
-$
+The buggy address belongs to the physical page:
+page:00000000ea4d1263 refcount:1 mapcount:0 mapping:0000000000000000
+index:0x0 pfn:0x2bb36
+head:00000000ea4d1263 order:1 compound_mapcount:0 compound_pincount:0
+flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc0010200 ffffea000066c300 dead000000000003 ffff888100042b40
+raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
 
-We can see here that the letter 's' from 'a=s' was confused with -s.
+Memory state around the buggy address:
+  ffff88802bb36e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff88802bb36e80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff88802bb36f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                    ^
+  ffff88802bb36f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff88802bb37000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
 
-This patch checks for presence of -s using a method recommended by the
-make manual here
-https://www.gnu.org/software/make/manual/make.html#Testing-Flags.
-
-Link: https://lists.gnu.org/archive/html/bug-make/2022-11/msg00190.html
-Reported-by: Jan Palus <jpalus+gnu@fastmail.com>
-Signed-off-by: Dmitry Goncharov <dgoncharov@users.sf.net>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/mtd/ubi/build.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -89,9 +89,16 @@ endif
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index 1ea3a4977c618..bb3a87cbebf5e 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -656,6 +656,12 @@ static int io_init(struct ubi_device *ubi, int max_beb_per1024)
+ 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
+ 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
  
- # If the user is running make -s (silent mode), suppress echoing of
- # commands
-+# make-4.0 (and later) keep single letter options in the 1st word of MAKEFLAGS.
- 
--ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
--  quiet=silent_
-+ifeq ($(filter 3.%,$(MAKE_VERSION)),)
-+silence:=$(findstring s,$(firstword -$(MAKEFLAGS)))
-+else
-+silence:=$(findstring s,$(filter-out --%,$(MAKEFLAGS)))
-+endif
++	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
++	    ubi->vid_hdr_alsize)) {
++		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
++		return -EINVAL;
++	}
 +
-+ifeq ($(silence),s)
-+quiet=silent_
- endif
- 
- export quiet Q KBUILD_VERBOSE
+ 	dbg_gen("min_io_size      %d", ubi->min_io_size);
+ 	dbg_gen("max_write_size   %d", ubi->max_write_size);
+ 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
+-- 
+2.39.2
+
 
 
