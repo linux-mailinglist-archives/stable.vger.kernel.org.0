@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBC96B459B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 286C36B41D7
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232550AbjCJOfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44068 "EHLO
+        id S231295AbjCJN5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232577AbjCJOfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A80F92C0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:11 -0800 (PST)
+        with ESMTP id S231340AbjCJN5b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35E3515553
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0966CB822DD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40117C433EF;
-        Fri, 10 Mar 2023 14:35:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02E2361771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 149FFC433D2;
+        Fri, 10 Mar 2023 13:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458908;
-        bh=SN17yhwHimO7JkDWEsgkh/QkmuX9cZvgy1sK2bZejzE=;
+        s=korg; t=1678456610;
+        bh=9NJBLsx4qiq15RUbJYGha3cnPvyqWDhaEgc5KV9Rns0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWYLvw6UcyXLmd444dl2SztuTMAizEsUULCiRda5EzO5/B0w6EHc2RInCJ3osi8Jj
-         isdqsdHIhkCwCuOVpmSruuYV0f56BLu3Pu6iuXsxlg+49+3moYcUXYyJcL8VQytTJG
-         jRhvgj2zkp3mdLTNKEgnY1FYFoGp6rRrSjPvMp3k=
+        b=vvBbqlPkn4yZu+wKNhXTqGd4eymukSC24rrgI57ZkK++kDe/pBd+7Z6aBWbba9oU2
+         QBoWtx28k8rMiQFWl7xJIju/uKwcQvGu4+wvzX7jjixAEv6wWuCi0H4IkZqejyC2sZ
+         y7QhYsOntr/dGpS6d9F3ghvPDBxet4LaZorYgw20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 153/357] clk: renesas: cpg-mssr: Remove superfluous check in resume code
+Subject: [PATCH 6.2 062/211] watchdog: at91sam9_wdt: use devm_request_irq to avoid missing free_irq() in error path
 Date:   Fri, 10 Mar 2023 14:37:22 +0100
-Message-Id: <20230310133741.469445179@linuxfoundation.org>
+Message-Id: <20230310133720.614848811@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit 1c052043c79af5f70e80e2acd4dd70904ae08666 ]
+[ Upstream commit 07bec0e09c1afbab4c5674fd2341f4f52d594f30 ]
 
-When the code flow arrives at printing the error message in
-cpg_mssr_resume_noirq(), we know for sure that we are not running on an
-RZ/A Soc, as the code checked for that before.
+free_irq() is missing in case of error in at91_wdt_init(), use
+devm_request_irq to fix that.
 
-Fixes: ace342097768e35f ("clk: renesas: cpg-mssr: Fix STBCR suspend/resume handling")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/144a3e66d748c0c17f3524ac8fa6ece5bf5b6f1e.1673425314.git.geert+renesas@glider.be
+Fixes: 5161b31dc39a ("watchdog: at91sam9_wdt: better watchdog support")
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221116094950.3141943-1-ruanjinjie@huawei.com
+[groeck: Adjust multi-line alignment]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/renesas-cpg-mssr.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/watchdog/at91sam9_wdt.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
-index fd9ca86cc60f6..d0ccb52b02703 100644
---- a/drivers/clk/renesas/renesas-cpg-mssr.c
-+++ b/drivers/clk/renesas/renesas-cpg-mssr.c
-@@ -862,9 +862,8 @@ static int cpg_mssr_resume_noirq(struct device *dev)
- 		}
+diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
+index 292b5a1ca8318..fed7be2464420 100644
+--- a/drivers/watchdog/at91sam9_wdt.c
++++ b/drivers/watchdog/at91sam9_wdt.c
+@@ -206,10 +206,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
+ 			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
  
- 		if (!i)
--			dev_warn(dev, "Failed to enable %s%u[0x%x]\n",
--				 priv->reg_layout == CLK_REG_LAYOUT_RZ_A ?
--				 "STB" : "SMSTP", reg, oldval & mask);
-+			dev_warn(dev, "Failed to enable SMSTP%u[0x%x]\n", reg,
-+				 oldval & mask);
+ 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
+-		err = request_irq(wdt->irq, wdt_interrupt,
+-				  IRQF_SHARED | IRQF_IRQPOLL |
+-				  IRQF_NO_SUSPEND,
+-				  pdev->name, wdt);
++		err = devm_request_irq(dev, wdt->irq, wdt_interrupt,
++				       IRQF_SHARED | IRQF_IRQPOLL | IRQF_NO_SUSPEND,
++				       pdev->name, wdt);
+ 		if (err)
+ 			return err;
  	}
- 
- 	return 0;
 -- 
 2.39.2
 
