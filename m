@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 331156B3E03
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:37:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A48796B3E04
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:37:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229601AbjCJLhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 06:37:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34312 "EHLO
+        id S229584AbjCJLhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 06:37:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbjCJLhE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:37:04 -0500
+        with ESMTP id S230000AbjCJLhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:37:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52FCD12CDE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:37:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515F612CFF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:37:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E398E6137F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:37:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 001F7C433EF;
-        Fri, 10 Mar 2023 11:37:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB0DA6130C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:37:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFD0AC433D2;
+        Fri, 10 Mar 2023 11:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678448222;
-        bh=iW+T/RXScFh9fmedRQAUNl1VEWi5Rb4pzTwnu7dbc4o=;
+        s=korg; t=1678448225;
+        bh=28WLhIEuY+sUp9Y4nZ8z9LabtX/p0GLoYX/pQjwwOZ4=;
         h=Subject:To:Cc:From:Date:From;
-        b=vQwJnG4T4Yb7eFVrAc/vGkPtQLLcLGrgOcYjVWW9LfjEI+aku4R9kvOIdhAcqy6e5
-         3q9GAzbOjGdIJfszoH0/WeyVS7e8zJh60lZqZqWxi6g76o0dUqUmb1IkiRELDV9Lpx
-         f6V+19o7JRXVu5d42dEKzedMp1KEaCd73x/ddXc8=
-Subject: FAILED: patch "[PATCH] drm/amdgpu/display/mst: limit payload to be updated one by" failed to apply to 6.2-stable tree
+        b=ec38eiAVMOSAHrvqcO/lc/3GN+0SNRdvElpyZzUZJMyDJqj0rEkuCBOB+RYUkwhzQ
+         CHbUbsh+uwwMKrMYt1ChbJYDzBb9GSzQtSE903tq+/eyHsDvBujzbj/mGd+kkvbD3J
+         lKcBmiGDtWcfhYpc/grh2foM6nwT8xdSr0YdhAn8=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/display/mst: update mst_mgr relevant variable when" failed to apply to 6.1-stable tree
 To:     Wayne.Lin@amd.com, alexander.deucher@amd.com,
         harry.wentland@amd.com, lyude@redhat.com, odyx@debian.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Mar 2023 12:36:54 +0100
-Message-ID: <1678448214180227@kroah.com>
+Date:   Fri, 10 Mar 2023 12:36:59 +0100
+Message-ID: <167844821923752@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,23 +49,23 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.2-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.2.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-6.1.y
 git checkout FETCH_HEAD
-git cherry-pick -x ea38dd57b0a65a7d434a7d9528c7b0445a5ea3ed
+git cherry-pick -x 2daeb74b7d66362de8e15b983e310e85f01930e5
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678448214180227@kroah.com' --subject-prefix 'PATCH 6.2.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167844821923752@kroah.com' --subject-prefix 'PATCH 6.1.y' HEAD^..
 
 Possible dependencies:
 
-ea38dd57b0a6 ("drm/amdgpu/display/mst: limit payload to be updated one by one")
+2daeb74b7d66 ("drm/amdgpu/display/mst: update mst_mgr relevant variable when long HPD")
 
 thanks,
 
@@ -73,22 +73,18 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ea38dd57b0a65a7d434a7d9528c7b0445a5ea3ed Mon Sep 17 00:00:00 2001
+From 2daeb74b7d66362de8e15b983e310e85f01930e5 Mon Sep 17 00:00:00 2001
 From: Wayne Lin <Wayne.Lin@amd.com>
-Date: Fri, 9 Dec 2022 19:05:33 +0800
-Subject: [PATCH] drm/amdgpu/display/mst: limit payload to be updated one by
- one
+Date: Mon, 12 Dec 2022 15:41:18 +0800
+Subject: [PATCH] drm/amdgpu/display/mst: update mst_mgr relevant variable when
+ long HPD
 
-[Why]
-amdgpu expects to update payload table for one stream one time
-by calling dm_helpers_dp_mst_write_payload_allocation_table().
-Currently, it get modified to try to update HW payload table
-at once by referring mst_state.
-
-[How]
-This is just a quick workaround. Should find way to remove the
-temporary struct dc_dp_mst_stream_allocation_table later if set
-struct link_mst_stream_allocatio directly is possible.
+[Why & How]
+Now the vc_start_slot is controlled at drm side. When we
+service a long HPD, we still need to run
+dm_helpers_dp_mst_write_payload_allocation_table() to update
+drm mst_mgr's relevant variable. Otherwise, on the next plug-in,
+payload will get assigned with a wrong start slot.
 
 Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2171
 Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
@@ -100,79 +96,51 @@ Reviewed-by: Lyude Paul <lyude@redhat.com>
 Tested-by: Didier Raboud <odyx@debian.org>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-index f8882c324ba6..0b1d1bb8cbc7 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
-@@ -123,23 +123,50 @@ enum dc_edid_status dm_helpers_parse_edid_caps(
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index d9e490eca10f..bf5a31e2be8a 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -3999,10 +3999,13 @@ static enum dc_status deallocate_mst_payload(struct pipe_ctx *pipe_ctx)
+ 	struct fixed31_32 avg_time_slots_per_mtp = dc_fixpt_from_int(0);
+ 	int i;
+ 	bool mst_mode = (link->type == dc_connection_mst_branch);
++	/* adjust for drm changes*/
++	bool update_drm_mst_state = true;
+ 	const struct link_hwss *link_hwss = get_link_hwss(link, &pipe_ctx->link_res);
+ 	const struct dc_link_settings empty_link_settings = {0};
+ 	DC_LOGGER_INIT(link->ctx->logger);
  
- static void
--fill_dc_mst_payload_table_from_drm(struct drm_dp_mst_topology_state *mst_state,
--				   struct amdgpu_dm_connector *aconnector,
-+fill_dc_mst_payload_table_from_drm(struct dc_link *link,
-+				   bool enable,
-+				   struct drm_dp_mst_atomic_payload *target_payload,
- 				   struct dc_dp_mst_stream_allocation_table *table)
- {
- 	struct dc_dp_mst_stream_allocation_table new_table = { 0 };
- 	struct dc_dp_mst_stream_allocation *sa;
--	struct drm_dp_mst_atomic_payload *payload;
-+	struct link_mst_stream_allocation_table copy_of_link_table =
-+										link->mst_stream_alloc_table;
++
+ 	/* deallocate_mst_payload is called before disable link. When mode or
+ 	 * disable/enable monitor, new stream is created which is not in link
+ 	 * stream[] yet. For this, payload is not allocated yet, so de-alloc
+@@ -4018,7 +4021,7 @@ static enum dc_status deallocate_mst_payload(struct pipe_ctx *pipe_ctx)
+ 				&empty_link_settings,
+ 				avg_time_slots_per_mtp);
  
--	/* Fill payload info*/
--	list_for_each_entry(payload, &mst_state->payloads, next) {
--		if (payload->delete)
--			continue;
-+	int i;
-+	int current_hw_table_stream_cnt = copy_of_link_table.stream_count;
-+	struct link_mst_stream_allocation *dc_alloc;
-+
-+	/* TODO: refactor to set link->mst_stream_alloc_table directly if possible.*/
-+	if (enable) {
-+		dc_alloc =
-+		&copy_of_link_table.stream_allocations[current_hw_table_stream_cnt];
-+		dc_alloc->vcp_id = target_payload->vcpi;
-+		dc_alloc->slot_count = target_payload->time_slots;
-+	} else {
-+		for (i = 0; i < copy_of_link_table.stream_count; i++) {
-+			dc_alloc =
-+			&copy_of_link_table.stream_allocations[i];
-+
-+			if (dc_alloc->vcp_id == target_payload->vcpi) {
-+				dc_alloc->vcp_id = 0;
-+				dc_alloc->slot_count = 0;
-+				break;
-+			}
-+		}
-+		ASSERT(i != copy_of_link_table.stream_count);
+-	if (mst_mode) {
++	if (mst_mode || update_drm_mst_state) {
+ 		/* when link is in mst mode, reply on mst manager to remove
+ 		 * payload
+ 		 */
+@@ -4081,11 +4084,18 @@ static enum dc_status deallocate_mst_payload(struct pipe_ctx *pipe_ctx)
+ 			stream->ctx,
+ 			stream);
+ 
++		if (!update_drm_mst_state)
++			dm_helpers_dp_mst_send_payload_allocation(
++				stream->ctx,
++				stream,
++				false);
 +	}
++
++	if (update_drm_mst_state)
+ 		dm_helpers_dp_mst_send_payload_allocation(
+ 			stream->ctx,
+ 			stream,
+ 			false);
+-	}
  
--		sa = &new_table.stream_allocations[new_table.stream_count];
--		sa->slot_count = payload->time_slots;
--		sa->vcp_id = payload->vcpi;
--		new_table.stream_count++;
-+	/* Fill payload info*/
-+	for (i = 0; i < MAX_CONTROLLER_NUM; i++) {
-+		dc_alloc =
-+			&copy_of_link_table.stream_allocations[i];
-+		if (dc_alloc->vcp_id > 0 && dc_alloc->slot_count > 0) {
-+			sa = &new_table.stream_allocations[new_table.stream_count];
-+			sa->slot_count = dc_alloc->slot_count;
-+			sa->vcp_id = dc_alloc->vcp_id;
-+			new_table.stream_count++;
-+		}
- 	}
- 
- 	/* Overwrite the old table */
-@@ -188,7 +215,7 @@ bool dm_helpers_dp_mst_write_payload_allocation_table(
- 	 * AUX message. The sequence is slot 1-63 allocated sequence for each
- 	 * stream. AMD ASIC stream slot allocation should follow the same
- 	 * sequence. copy DRM MST allocation to dc */
--	fill_dc_mst_payload_table_from_drm(mst_state, aconnector, proposed_table);
-+	fill_dc_mst_payload_table_from_drm(stream->link, enable, payload, proposed_table);
- 
- 	return true;
+ 	return DC_OK;
  }
 
