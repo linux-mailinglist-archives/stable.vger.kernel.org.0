@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F64D6B4852
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:01:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8AEC6B4514
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233790AbjCJPBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:01:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43174 "EHLO
+        id S232385AbjCJOaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233650AbjCJPBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:04 -0500
+        with ESMTP id S232429AbjCJOa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2909C124E84
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC76811CD64
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17967B822EB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65F71C4339B;
-        Fri, 10 Mar 2023 14:53:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88C8BB822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECFEEC433D2;
+        Fri, 10 Mar 2023 14:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460020;
-        bh=tQxWUhMtGZocqdaH3OUsIoDn8rImwPUraypacRo3TnA=;
+        s=korg; t=1678458563;
+        bh=srnYXKVQGL4eQmTKQ2dZ85S1S3iTRp/WOpi5E4Ac76s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qa0hRmCSNFlM7b5yyAVNG/pXy0iuVcmhs43tnIiTnOEV0uq0A/0wrRpw+APc6etfb
-         JrQNODIo/gwRzo+R8qdmwsxofYqhvWn/5OohREZruODeTQbp518zpMmVwdMLXhhjvF
-         SXFIVMImD2ie7shPqeEG/z6frWzQihtfRlplIC2c=
+        b=Byjc12bRcJ7Nl+cB6ju0MX7TlpnREnzOJmd8IBiA87QeLovYUDG1v4WS0G+JN4tt/
+         Z2br/FBEj8lS8F2leIqTt8nQk4Zflj3xVHefc9SzOTjFEuKpxSy/1md3e2AOsiwTUu
+         +TWMK8Q9Vlv0bogbQeSfUWhfsJc2tSHtaCxXY8Nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 197/529] ASoC: mchp-spdifrx: disable all interrupts in mchp_spdifrx_dai_remove()
+Subject: [PATCH 5.4 051/357] crypto: x86/ghash - fix unaligned access in ghash_setkey()
 Date:   Fri, 10 Mar 2023 14:35:40 +0100
-Message-Id: <20230310133814.126188807@linuxfoundation.org>
+Message-Id: <20230310133736.220636840@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit aaecdc32b7e35b4f9b457fb3509414aa9a932589 ]
+[ Upstream commit 116db2704c193fff6d73ea6c2219625f0c9bdfc8 ]
 
-CSC interrupts which might be used in controls are on bits 8 and 9 of
-SPDIFRX_IDR register. Thus disable all the interrupts that are exported
-by driver.
+The key can be unaligned, so use the unaligned memory access helpers.
 
-Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230130120647.638049-5-claudiu.beznea@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 8ceee72808d1 ("crypto: ghash-clmulni-intel - use C implementation for setkey()")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-spdifrx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/crypto/ghash-clmulni-intel_glue.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
-index eb1b8724e11f4..03b7037239b85 100644
---- a/sound/soc/atmel/mchp-spdifrx.c
-+++ b/sound/soc/atmel/mchp-spdifrx.c
-@@ -921,7 +921,7 @@ static int mchp_spdifrx_dai_remove(struct snd_soc_dai *dai)
- 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
+diff --git a/arch/x86/crypto/ghash-clmulni-intel_glue.c b/arch/x86/crypto/ghash-clmulni-intel_glue.c
+index 04d72a5a8ce98..c9864ac9c0149 100644
+--- a/arch/x86/crypto/ghash-clmulni-intel_glue.c
++++ b/arch/x86/crypto/ghash-clmulni-intel_glue.c
+@@ -19,6 +19,7 @@
+ #include <crypto/internal/simd.h>
+ #include <asm/cpu_device_id.h>
+ #include <asm/simd.h>
++#include <asm/unaligned.h>
  
- 	/* Disable interrupts */
--	regmap_write(dev->regmap, SPDIFRX_IDR, 0xFF);
-+	regmap_write(dev->regmap, SPDIFRX_IDR, GENMASK(14, 0));
+ #define GHASH_BLOCK_SIZE	16
+ #define GHASH_DIGEST_SIZE	16
+@@ -54,7 +55,6 @@ static int ghash_setkey(struct crypto_shash *tfm,
+ 			const u8 *key, unsigned int keylen)
+ {
+ 	struct ghash_ctx *ctx = crypto_shash_ctx(tfm);
+-	be128 *x = (be128 *)key;
+ 	u64 a, b;
  
- 	clk_disable_unprepare(dev->pclk);
+ 	if (keylen != GHASH_BLOCK_SIZE) {
+@@ -63,8 +63,8 @@ static int ghash_setkey(struct crypto_shash *tfm,
+ 	}
  
+ 	/* perform multiplication by 'x' in GF(2^128) */
+-	a = be64_to_cpu(x->a);
+-	b = be64_to_cpu(x->b);
++	a = get_unaligned_be64(key);
++	b = get_unaligned_be64(key + 8);
+ 
+ 	ctx->shash.a = (b << 1) | (a >> 63);
+ 	ctx->shash.b = (a << 1) | (b >> 63);
 -- 
 2.39.2
 
