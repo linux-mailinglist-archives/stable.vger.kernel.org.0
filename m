@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B03BB6B4885
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:03:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B856B4966
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233666AbjCJPD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:03:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57720 "EHLO
+        id S234060AbjCJPMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:12:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233770AbjCJPDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:03:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 333B31269A8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:56:17 -0800 (PST)
+        with ESMTP id S234015AbjCJPLe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:11:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B20D5ADC8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:03:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 010E7B82313
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:54:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A182C433D2;
-        Fri, 10 Mar 2023 14:54:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 756D861A14
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D35BC433D2;
+        Fri, 10 Mar 2023 14:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460089;
-        bh=lssHBwqmJobg0XY5nzpDezDIh372OW3kFyjCLmrzHWk=;
+        s=korg; t=1678460029;
+        bh=oTSow6FCAKzLfUrmVjJtF59hjAUxCDXRS2TyAVf0SlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXgSZsyV0khtoLa9LSYi/2YBNpHqi/PwaEt6D3fpkTrM5ixagfMRssV98KJwvcRtK
-         5lz5Jf8L8QGFjT+7SH9AwIYwUqtacmV/LOfdJM5VSTOXy1ne65ZwqssT1YeKvFSLjH
-         q1Q7s9rGrg6PyjFs9sSsW2je0SXcGQGb4WnSl0ms=
+        b=RLWp6h2Ugj6WQGMMjMPJS7+LTOgyd5+D1iKYJNNuwBX5+MXuW0w5a0R1Y8125Oreh
+         z3Gl5BdxFtMMLbgEan/mhxYk7QjEBJtSQqiiHBaYJy/x+CIXy5+ww6D84w0q5XZIFn
+         VGDz8/hl/LOZ25J1dLwsdagaQ4YGdukiSbcrdWK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Guodong Liu <Guodong.Liu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 180/529] drm/msm/mdp5: Add check for kzalloc
-Date:   Fri, 10 Mar 2023 14:35:23 +0100
-Message-Id: <20230310133813.289287686@linuxfoundation.org>
+Subject: [PATCH 5.10 182/529] pinctrl: mediatek: Initialize variable pullen and pullup to zero
+Date:   Fri, 10 Mar 2023 14:35:25 +0100
+Message-Id: <20230310133813.389849254@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,41 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Guodong Liu <Guodong.Liu@mediatek.com>
 
-[ Upstream commit 13fcfcb2a9a4787fe4e49841d728f6f2e9fa6911 ]
+[ Upstream commit a298c70a10c604a6b3df5a0aa56597b705ba0f6b ]
 
-As kzalloc may fail and return NULL pointer,
-it should be better to check the return value
-in order to avoid the NULL pointer dereference.
+Coverity spotted that pullen and pullup is not initialized to zero in
+mtk_pctrl_show_one_pin. The uninitialized variable pullen is used in
+assignment statement "rsel = pullen;" in mtk_pctrl_show_one_pin, and
+Uninitialized variable pullup is used when calling scnprintf. Fix this
+coverity by initializing pullen and pullup as zero.
 
-Fixes: 1cff7440a86e ("drm/msm: Convert to using __drm_atomic_helper_crtc_reset() for reset.")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/514154/
-Link: https://lore.kernel.org/r/20221206074819.18134-1-jiasheng@iscas.ac.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 184d8e13f9b1 ("pinctrl: mediatek: Add support for pin configuration dump via debugfs.")
+Signed-off-by: Guodong Liu <Guodong.Liu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20230118062036.26258-2-Guodong.Liu@mediatek.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pinctrl/mediatek/pinctrl-paris.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-index ff4f207cbdeaf..60e7371cd0e0d 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-@@ -1124,7 +1124,10 @@ static void mdp5_crtc_reset(struct drm_crtc *crtc)
- 	if (crtc->state)
- 		mdp5_crtc_destroy_state(crtc, crtc->state);
+diff --git a/drivers/pinctrl/mediatek/pinctrl-paris.c b/drivers/pinctrl/mediatek/pinctrl-paris.c
+index d0a4ebbe1e7e6..2a9d2801388d7 100644
+--- a/drivers/pinctrl/mediatek/pinctrl-paris.c
++++ b/drivers/pinctrl/mediatek/pinctrl-paris.c
+@@ -574,7 +574,7 @@ static int mtk_hw_get_value_wrap(struct mtk_pinctrl *hw, unsigned int gpio, int
+ ssize_t mtk_pctrl_show_one_pin(struct mtk_pinctrl *hw,
+ 	unsigned int gpio, char *buf, unsigned int bufLen)
+ {
+-	int pinmux, pullup, pullen, len = 0, r1 = -1, r0 = -1;
++	int pinmux, pullup = 0, pullen = 0, len = 0, r1 = -1, r0 = -1;
+ 	const struct mtk_pin_desc *desc;
  
--	__drm_atomic_helper_crtc_reset(crtc, &mdp5_cstate->base);
-+	if (mdp5_cstate)
-+		__drm_atomic_helper_crtc_reset(crtc, &mdp5_cstate->base);
-+	else
-+		__drm_atomic_helper_crtc_reset(crtc, NULL);
- }
- 
- static const struct drm_crtc_funcs mdp5_crtc_no_lm_cursor_funcs = {
+ 	if (gpio >= hw->soc->npins)
 -- 
 2.39.2
 
