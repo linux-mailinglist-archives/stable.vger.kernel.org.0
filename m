@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8EB6B49A0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:14:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 760E96B49FB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:17:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233427AbjCJPOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:14:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56952 "EHLO
+        id S234141AbjCJPR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:17:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233340AbjCJPOL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA2D763D0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:31 -0800 (PST)
+        with ESMTP id S234108AbjCJPRJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:17:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A1F13BD9D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:08:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86A96B822E3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:49:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB5F7C4339B;
-        Fri, 10 Mar 2023 14:49:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E1561A2A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:51:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17323C433D2;
+        Fri, 10 Mar 2023 14:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459760;
-        bh=FG13CUAL75KAN25BOQAHmETjCOd+JG96/UF35bdDbAo=;
+        s=korg; t=1678459891;
+        bh=4vDGlHjjAZ7lkA9qagRZTFX/d5ouXNPzzQJxDo+ctmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRSrRN90UHuGcLhgqrfPdviFvrfqm1S6nb++NgSjg4pRgNDdd24dIJikBnww+KRqW
-         86zBUZTm1dhBUQ0LCmi7/kxNYlQDHzsNszpPBROrdHFmiKUV9CyguQ48aBy+sNNkQV
-         +QhZPTsZmfV9rCX0vDXIxYskEZ7/gGXbXphLvjR0=
+        b=Ne9AH65XEqdvqRxWnGxW3w3yTHtxJKZXyausHlJgyo0jhzlLQUh4iUz8jTSmKqJvl
+         YV5xJtJ8LuxGR2eG16wSA2/MC6wp+TRSKUl3ZE+DfCtE00Jsy+syFvATqaatjpZix4
+         vH4lylMP1KJL4/40s/VtJAnkl6j0NzNN8XPsosMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Qing <wangqing@vivo.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 110/529] net: ethernet: ti: add missing of_node_put before return
-Date:   Fri, 10 Mar 2023 14:34:13 +0100
-Message-Id: <20230310133810.088199929@linuxfoundation.org>
+Subject: [PATCH 5.10 114/529] crypto: ccp - Flush the SEV-ES TMR memory before giving it to firmware
+Date:   Fri, 10 Mar 2023 14:34:17 +0100
+Message-Id: <20230310133810.279427252@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,112 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit be565ec71d1d59438bed0c7ed0a252a327e0b0ef ]
+[ Upstream commit 46a334a98f585ef78d51d8f5736596887bdd7f54 ]
 
-Fix following coccicheck warning:
-WARNING: Function "for_each_child_of_node"
-should have of_node_put() before return.
+Perform a cache flush on the SEV-ES TMR memory after allocation to prevent
+any possibility of the firmware encountering an error should dirty cache
+lines be present. Use clflush_cache_range() to flush the SEV-ES TMR memory.
 
-Early exits from for_each_child_of_node should decrement the
-node reference counter.
-
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 97f9ac3db661 ("crypto: ccp - Add support for SEV-ES to the PSP driver")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 29 ++++++++++++++++--------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/crypto/ccp/sev-dev.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 5300e1439e1e5..4074310abcff4 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -1724,13 +1724,14 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
- 		if (ret < 0) {
- 			dev_err(dev, "%pOF error reading port_id %d\n",
- 				port_np, ret);
--			return ret;
-+			goto of_node_put;
- 		}
+diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
+index 8a900226d73a3..856d867f46ebb 100644
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -23,6 +23,7 @@
+ #include <linux/gfp.h>
  
- 		if (!port_id || port_id > common->port_num) {
- 			dev_err(dev, "%pOF has invalid port_id %u %s\n",
- 				port_np, port_id, port_np->name);
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto of_node_put;
- 		}
+ #include <asm/smp.h>
++#include <asm/cacheflush.h>
  
- 		port = am65_common_get_port(common, port_id);
-@@ -1746,8 +1747,10 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
- 				(AM65_CPSW_NU_FRAM_PORT_OFFSET * (port_id - 1));
+ #include "psp-dev.h"
+ #include "sev-dev.h"
+@@ -1067,7 +1068,10 @@ void sev_pci_init(void)
  
- 		port->slave.mac_sl = cpsw_sl_get("am65", dev, port->port_base);
--		if (IS_ERR(port->slave.mac_sl))
--			return PTR_ERR(port->slave.mac_sl);
-+		if (IS_ERR(port->slave.mac_sl)) {
-+			ret = PTR_ERR(port->slave.mac_sl);
-+			goto of_node_put;
-+		}
+ 	/* Obtain the TMR memory area for SEV-ES use */
+ 	sev_es_tmr = sev_fw_alloc(SEV_ES_TMR_SIZE);
+-	if (!sev_es_tmr)
++	if (sev_es_tmr)
++		/* Must flush the cache before giving it to the firmware */
++		clflush_cache_range(sev_es_tmr, SEV_ES_TMR_SIZE);
++	else
+ 		dev_warn(sev->dev,
+ 			 "SEV: TMR allocation failed, SEV-ES support unavailable\n");
  
- 		port->disabled = !of_device_is_available(port_np);
- 		if (port->disabled)
-@@ -1758,7 +1761,7 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
- 			ret = PTR_ERR(port->slave.ifphy);
- 			dev_err(dev, "%pOF error retrieving port phy: %d\n",
- 				port_np, ret);
--			return ret;
-+			goto of_node_put;
- 		}
- 
- 		port->slave.mac_only =
-@@ -1767,10 +1770,12 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
- 		/* get phy/link info */
- 		if (of_phy_is_fixed_link(port_np)) {
- 			ret = of_phy_register_fixed_link(port_np);
--			if (ret)
--				return dev_err_probe(dev, ret,
-+			if (ret) {
-+				ret = dev_err_probe(dev, ret,
- 						     "failed to register fixed-link phy %pOF\n",
- 						     port_np);
-+				goto of_node_put;
-+			}
- 			port->slave.phy_node = of_node_get(port_np);
- 		} else {
- 			port->slave.phy_node =
-@@ -1780,14 +1785,15 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
- 		if (!port->slave.phy_node) {
- 			dev_err(dev,
- 				"slave[%d] no phy found\n", port_id);
--			return -ENODEV;
-+			ret = -ENODEV;
-+			goto of_node_put;
- 		}
- 
- 		ret = of_get_phy_mode(port_np, &port->slave.phy_if);
- 		if (ret) {
- 			dev_err(dev, "%pOF read phy-mode err %d\n",
- 				port_np, ret);
--			return ret;
-+			goto of_node_put;
- 		}
- 
- 		mac_addr = of_get_mac_address(port_np);
-@@ -1804,6 +1810,11 @@ static int am65_cpsw_nuss_init_slave_ports(struct am65_cpsw_common *common)
- 	of_node_put(node);
- 
- 	return 0;
-+
-+of_node_put:
-+	of_node_put(port_np);
-+	of_node_put(node);
-+	return ret;
- }
- 
- static void am65_cpsw_pcpu_stats_free(void *data)
 -- 
 2.39.2
 
