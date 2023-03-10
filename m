@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 629E16B450D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6ED56B485F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232400AbjCJOal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:30:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53408 "EHLO
+        id S233813AbjCJPB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:01:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232316AbjCJOaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D1DDF601F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:08 -0800 (PST)
+        with ESMTP id S233674AbjCJPB2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B033512A17B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA3D6B822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26020C4339B;
-        Fri, 10 Mar 2023 14:29:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E07A3B82317
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:54:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41457C4339B;
+        Fri, 10 Mar 2023 14:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458545;
-        bh=mgUoHvibDgXBk10kzDRSATtYB+0KIf2h3FzsJ0JreAM=;
+        s=korg; t=1678460065;
+        bh=UM/bUg3u7jw5KzIim48Z2bxrtB08curykIV3qGVj2a0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXnTFa+LZUlZ53+ybpPlxyR+N6YPjiCPQdkNzvvbhwTwoLg694djXO5vZ5TB4H6NB
-         yRFtS7VmdjVY5zphFk9RNGLMfUa3NeeWcP1J4ubiE2KvzbeYxesGXgBVoNrVYzmMnu
-         hYCzeUTaCjz/eyuLJFWZfwbv03TFQ7mAnsHCeYjE=
+        b=Y2zfXbbOcy6REdHPgPKJwrbnX0SgJ2959ERQygQWgEY3YUKqiA6awlKEfgE49lqQF
+         X7EqPW/nH5w8kLj7KNW0qDqEPtagHvn8mieRLyHbPuy7vcm7vWBB4BaxzxqQqt4IGg
+         lKN3rynN6gDyqir2JJQ0cYK11IPAKcnVFM6tREYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladis Dronov <vdronov@redhat.com>,
-        Koba Ko <koba.ko@canonical.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/357] crypto: ccp - Failure on re-initialization due to duplicate sysfs filename
-Date:   Fri, 10 Mar 2023 14:35:52 +0100
-Message-Id: <20230310133736.762512154@linuxfoundation.org>
+Subject: [PATCH 5.10 210/529] NFSv4: keep state manager thread active if swap is enabled
+Date:   Fri, 10 Mar 2023 14:35:53 +0100
+Message-Id: <20230310133814.737827951@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,112 +54,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koba Ko <koba.taiwan@gmail.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 299bf602b3f92f1456aef59c6413591fb02e762a ]
+[ Upstream commit 4dc73c679114a2f408567e2e44770ed934190db2 ]
 
-The following warning appears during the CCP module re-initialization:
+If we are swapping over NFSv4, we may not be able to allocate memory to
+start the state-manager thread at the time when we need it.
+So keep it always running when swap is enabled, and just signal it to
+start.
 
-[  140.965403] sysfs: cannot create duplicate filename
-'/devices/pci0000:00/0000:00:07.1/0000:03:00.2/dma/dma0chan0'
-[  140.975736] CPU: 0 PID: 388 Comm: kworker/0:2 Kdump: loaded Not
-tainted 6.2.0-0.rc2.18.eln124.x86_64 #1
-[  140.985185] Hardware name: HPE ProLiant DL325 Gen10/ProLiant DL325
-Gen10, BIOS A41 07/17/2020
-[  140.993761] Workqueue: events work_for_cpu_fn
-[  140.998151] Call Trace:
-[  141.000613]  <TASK>
-[  141.002726]  dump_stack_lvl+0x33/0x46
-[  141.006415]  sysfs_warn_dup.cold+0x17/0x23
-[  141.010542]  sysfs_create_dir_ns+0xba/0xd0
-[  141.014670]  kobject_add_internal+0xba/0x260
-[  141.018970]  kobject_add+0x81/0xb0
-[  141.022395]  device_add+0xdc/0x7e0
-[  141.025822]  ? complete_all+0x20/0x90
-[  141.029510]  __dma_async_device_channel_register+0xc9/0x130
-[  141.035119]  dma_async_device_register+0x19e/0x3b0
-[  141.039943]  ccp_dmaengine_register+0x334/0x3f0 [ccp]
-[  141.045042]  ccp5_init+0x662/0x6a0 [ccp]
-[  141.049000]  ? devm_kmalloc+0x40/0xd0
-[  141.052688]  ccp_dev_init+0xbb/0xf0 [ccp]
-[  141.056732]  ? __pci_set_master+0x56/0xd0
-[  141.060768]  sp_init+0x70/0x90 [ccp]
-[  141.064377]  sp_pci_probe+0x186/0x1b0 [ccp]
-[  141.068596]  local_pci_probe+0x41/0x80
-[  141.072374]  work_for_cpu_fn+0x16/0x20
-[  141.076145]  process_one_work+0x1c8/0x380
-[  141.080181]  worker_thread+0x1ab/0x380
-[  141.083953]  ? __pfx_worker_thread+0x10/0x10
-[  141.088250]  kthread+0xda/0x100
-[  141.091413]  ? __pfx_kthread+0x10/0x10
-[  141.095185]  ret_from_fork+0x2c/0x50
-[  141.098788]  </TASK>
-[  141.100996] kobject_add_internal failed for dma0chan0 with -EEXIST,
-don't try to register things with the same name in the same directory.
-[  141.113703] ccp 0000:03:00.2: ccp initialization failed
+This requires updating and testing the cl_swapper count on the root
+rpc_clnt after following all ->cl_parent links.
 
-The /dma/dma0chan0 sysfs file is not removed since dma_chan object
-has been released in ccp_dma_release() before releasing dma device.
-A correct procedure would be: release dma channels first => unregister
-dma device => release ccp dma object.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216888
-Fixes: 68dbe80f5b51 ("crypto: ccp - Release dma channels before dmaengine unrgister")
-Tested-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Koba Ko <koba.ko@canonical.com>
-Reviewed-by: Vladis Dronov <vdronov@redhat.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Stable-dep-of: b46d80bd2d6e ("nfs4trace: fix state manager flag printing")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/ccp-dmaengine.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ fs/nfs/file.c           | 15 ++++++++++++---
+ fs/nfs/nfs4_fs.h        |  1 +
+ fs/nfs/nfs4proc.c       | 20 ++++++++++++++++++++
+ fs/nfs/nfs4state.c      | 40 +++++++++++++++++++++++++++++++++-------
+ include/linux/nfs_xdr.h |  2 ++
+ net/sunrpc/clnt.c       |  2 ++
+ 6 files changed, 70 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
-index b9299defb431d..e416456b2b8aa 100644
---- a/drivers/crypto/ccp/ccp-dmaengine.c
-+++ b/drivers/crypto/ccp/ccp-dmaengine.c
-@@ -643,14 +643,26 @@ static void ccp_dma_release(struct ccp_device *ccp)
- 		chan = ccp->ccp_dma_chan + i;
- 		dma_chan = &chan->dma_chan;
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index ad856b7b9a46c..7be1a7f7fcb2a 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -487,8 +487,9 @@ static int nfs_swap_activate(struct swap_info_struct *sis, struct file *file,
+ {
+ 	unsigned long blocks;
+ 	long long isize;
+-	struct rpc_clnt *clnt = NFS_CLIENT(file->f_mapping->host);
+-	struct inode *inode = file->f_mapping->host;
++	struct inode *inode = file_inode(file);
++	struct rpc_clnt *clnt = NFS_CLIENT(inode);
++	struct nfs_client *cl = NFS_SERVER(inode)->nfs_client;
  
--		if (dma_chan->client_count)
--			dma_release_channel(dma_chan);
--
- 		tasklet_kill(&chan->cleanup_tasklet);
- 		list_del_rcu(&dma_chan->device_node);
- 	}
+ 	spin_lock(&inode->i_lock);
+ 	blocks = inode->i_blocks;
+@@ -501,14 +502,22 @@ static int nfs_swap_activate(struct swap_info_struct *sis, struct file *file,
+ 
+ 	*span = sis->pages;
+ 
++
++	if (cl->rpc_ops->enable_swap)
++		cl->rpc_ops->enable_swap(inode);
++
+ 	return rpc_clnt_swap_activate(clnt);
  }
  
-+static void ccp_dma_release_channels(struct ccp_device *ccp)
+ static void nfs_swap_deactivate(struct file *file)
+ {
+-	struct rpc_clnt *clnt = NFS_CLIENT(file->f_mapping->host);
++	struct inode *inode = file_inode(file);
++	struct rpc_clnt *clnt = NFS_CLIENT(inode);
++	struct nfs_client *cl = NFS_SERVER(inode)->nfs_client;
+ 
+ 	rpc_clnt_swap_deactivate(clnt);
++	if (cl->rpc_ops->disable_swap)
++		cl->rpc_ops->disable_swap(file_inode(file));
+ }
+ 
+ const struct address_space_operations nfs_file_aops = {
+diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
+index 6d916563356ef..8b41c0b8624e3 100644
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -42,6 +42,7 @@ enum nfs4_client_state {
+ 	NFS4CLNT_LEASE_MOVED,
+ 	NFS4CLNT_DELEGATION_EXPIRED,
+ 	NFS4CLNT_RUN_MANAGER,
++	NFS4CLNT_MANAGER_AVAILABLE,
+ 	NFS4CLNT_RECALL_RUNNING,
+ 	NFS4CLNT_RECALL_ANY_LAYOUT_READ,
+ 	NFS4CLNT_RECALL_ANY_LAYOUT_RW,
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index ee46ab09e3306..8f502e2ac34fd 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -10385,6 +10385,24 @@ static ssize_t nfs4_listxattr(struct dentry *dentry, char *list, size_t size)
+ 	return error + error2 + error3;
+ }
+ 
++static void nfs4_enable_swap(struct inode *inode)
 +{
-+	struct ccp_dma_chan *chan;
-+	struct dma_chan *dma_chan;
-+	unsigned int i;
++	/* The state manager thread must always be running.
++	 * It will notice the client is a swapper, and stay put.
++	 */
++	struct nfs_client *clp = NFS_SERVER(inode)->nfs_client;
 +
-+	for (i = 0; i < ccp->cmd_q_count; i++) {
-+		chan = ccp->ccp_dma_chan + i;
-+		dma_chan = &chan->dma_chan;
-+
-+		if (dma_chan->client_count)
-+			dma_release_channel(dma_chan);
-+	}
++	nfs4_schedule_state_manager(clp);
 +}
 +
- int ccp_dmaengine_register(struct ccp_device *ccp)
++static void nfs4_disable_swap(struct inode *inode)
++{
++	/* The state manager thread will now exit once it is
++	 * woken.
++	 */
++	wake_up_var(&NFS_SERVER(inode)->nfs_client->cl_state);
++}
++
+ static const struct inode_operations nfs4_dir_inode_operations = {
+ 	.create		= nfs_create,
+ 	.lookup		= nfs_lookup,
+@@ -10461,6 +10479,8 @@ const struct nfs_rpc_ops nfs_v4_clientops = {
+ 	.free_client	= nfs4_free_client,
+ 	.create_server	= nfs4_create_server,
+ 	.clone_server	= nfs_clone_server,
++	.enable_swap	= nfs4_enable_swap,
++	.disable_swap	= nfs4_disable_swap,
+ };
+ 
+ static const struct xattr_handler nfs4_xattr_nfs4_acl_handler = {
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 175b2e064003e..628e030f8e3ba 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1208,10 +1208,17 @@ void nfs4_schedule_state_manager(struct nfs_client *clp)
  {
- 	struct ccp_dma_chan *chan;
-@@ -771,8 +783,9 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
- 	if (!dmaengine)
+ 	struct task_struct *task;
+ 	char buf[INET6_ADDRSTRLEN + sizeof("-manager") + 1];
++	struct rpc_clnt *cl = clp->cl_rpcclient;
++
++	while (cl != cl->cl_parent)
++		cl = cl->cl_parent;
+ 
+ 	set_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state);
+-	if (test_and_set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) != 0)
++	if (test_and_set_bit(NFS4CLNT_MANAGER_AVAILABLE, &clp->cl_state) != 0) {
++		wake_up_var(&clp->cl_state);
  		return;
++	}
++	set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state);
+ 	__module_get(THIS_MODULE);
+ 	refcount_inc(&clp->cl_count);
  
--	ccp_dma_release(ccp);
-+	ccp_dma_release_channels(ccp);
- 	dma_async_device_unregister(dma_dev);
-+	ccp_dma_release(ccp);
+@@ -1229,6 +1236,7 @@ void nfs4_schedule_state_manager(struct nfs_client *clp)
+ 		if (!nfs_client_init_is_complete(clp))
+ 			nfs_mark_client_ready(clp, PTR_ERR(task));
+ 		nfs4_clear_state_manager_bit(clp);
++		clear_bit(NFS4CLNT_MANAGER_AVAILABLE, &clp->cl_state);
+ 		nfs_put_client(clp);
+ 		module_put(THIS_MODULE);
+ 	}
+@@ -2680,12 +2688,8 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ 			clear_bit(NFS4CLNT_RECALL_RUNNING, &clp->cl_state);
+ 		}
  
- 	kmem_cache_destroy(ccp->dma_desc_cache);
- 	kmem_cache_destroy(ccp->dma_cmd_cache);
+-		/* Did we race with an attempt to give us more work? */
+-		if (!test_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state))
+-			return;
+-		if (test_and_set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) != 0)
+-			return;
+-		memflags = memalloc_nofs_save();
++		return;
++
+ 	} while (refcount_read(&clp->cl_count) > 1 && !signalled());
+ 	goto out_drain;
+ 
+@@ -2706,9 +2710,31 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ static int nfs4_run_state_manager(void *ptr)
+ {
+ 	struct nfs_client *clp = ptr;
++	struct rpc_clnt *cl = clp->cl_rpcclient;
++
++	while (cl != cl->cl_parent)
++		cl = cl->cl_parent;
+ 
+ 	allow_signal(SIGKILL);
++again:
++	set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state);
+ 	nfs4_state_manager(clp);
++	if (atomic_read(&cl->cl_swapper)) {
++		wait_var_event_interruptible(&clp->cl_state,
++					     test_bit(NFS4CLNT_RUN_MANAGER,
++						      &clp->cl_state));
++		if (atomic_read(&cl->cl_swapper) &&
++		    test_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state))
++			goto again;
++		/* Either no longer a swapper, or were signalled */
++	}
++	clear_bit(NFS4CLNT_MANAGER_AVAILABLE, &clp->cl_state);
++
++	if (refcount_read(&clp->cl_count) > 1 && !signalled() &&
++	    test_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state) &&
++	    !test_and_set_bit(NFS4CLNT_MANAGER_AVAILABLE, &clp->cl_state))
++		goto again;
++
+ 	nfs_put_client(clp);
+ 	module_put_and_exit(0);
+ 	return 0;
+diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
+index 5491ad5f48a94..33442fd018a06 100644
+--- a/include/linux/nfs_xdr.h
++++ b/include/linux/nfs_xdr.h
+@@ -1789,6 +1789,8 @@ struct nfs_rpc_ops {
+ 	struct nfs_server *(*create_server)(struct fs_context *);
+ 	struct nfs_server *(*clone_server)(struct nfs_server *, struct nfs_fh *,
+ 					   struct nfs_fattr *, rpc_authflavor_t);
++	void	(*enable_swap)(struct inode *inode);
++	void	(*disable_swap)(struct inode *inode);
+ };
+ 
+ /*
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index c478108ca6a65..e190d38c4c827 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -3026,6 +3026,8 @@ rpc_clnt_swap_activate_callback(struct rpc_clnt *clnt,
+ int
+ rpc_clnt_swap_activate(struct rpc_clnt *clnt)
+ {
++	while (clnt != clnt->cl_parent)
++		clnt = clnt->cl_parent;
+ 	if (atomic_inc_return(&clnt->cl_swapper) == 1)
+ 		return rpc_clnt_iterate_for_each_xprt(clnt,
+ 				rpc_clnt_swap_activate_callback, NULL);
 -- 
 2.39.2
 
