@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C21A76B4521
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6DB6B4853
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:01:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232546AbjCJObR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:31:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55624 "EHLO
+        id S233664AbjCJPB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:01:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232548AbjCJOa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC857120855
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:57 -0800 (PST)
+        with ESMTP id S233663AbjCJPBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B6271220A7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 903CEB822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA0F8C433EF;
-        Fri, 10 Mar 2023 14:29:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29661B8231F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E3C7C4339C;
+        Fri, 10 Mar 2023 14:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458595;
-        bh=iRKDiuORhUFkc+Gbczn67gqxzJMbbQEtLKuC6ktFWlc=;
+        s=korg; t=1678460023;
+        bh=OsTvTladaaV6kytI5+x/CU4Kp+1XIzI4wSRH++SDxak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZFi6FQ2cyQUThWmvezpn/J+6XxUFQwiis3UPSnSJbiqlJCm1Lo4HyaPUl/wZmwDQ
-         yW6EmGDrLXGGxFDxs9JowWhguTp8mCNkjv9rKmQf6CVjVHaWy43NIZ1WaXUmRfSKRL
-         MoKvKChRgsB7K7BxiioU8+rkThRBwtju/UbgosEw=
+        b=SH9Ymx1n7Yo5v4Y1qlAk+JbVbfAup6F78jTHb3DpnICBeK86+GDe/yKGXOilr4tAS
+         q3MOSBOOmsCVkfEIBydvwA1ZSsBhh2N609/0mnMp/1Bw+8V01sjnnVDockxkxgYe1O
+         hAicB1gybQGutO5DiifiCrbCh5l0nVbByMhRa2PE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/357] ACPICA: Drop port I/O validation for some regions
+Subject: [PATCH 5.10 198/529] ASoC: mchp-spdifrx: Fix uninitialized use of mr in mchp_spdifrx_hw_params()
 Date:   Fri, 10 Mar 2023 14:35:41 +0100
-Message-Id: <20230310133736.269575543@linuxfoundation.org>
+Message-Id: <20230310133814.174300157@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,73 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit e1d9148582ab2c3dada5c5cf8ca7531ca269fee5 ]
+[ Upstream commit 218674a45930c700486d27b765bf2f1b43f8cbf7 ]
 
-Microsoft introduced support in Windows XP for blocking port I/O
-to various regions.  For Windows compatibility ACPICA has adopted
-the same protections and will disallow writes to those
-(presumably) the same regions.
+Clang warns:
 
-On some systems the AML included with the firmware will issue 4 byte
-long writes to 0x80.  These writes aren't making it over because of this
-blockage. The first 4 byte write attempt is rejected, and then
-subsequently 1 byte at a time each offset is tried. The first at 0x80
-works, but then the next 3 bytes are rejected.
+  ../sound/soc/atmel/mchp-spdifrx.c:455:3: error: variable 'mr' is uninitialized when used here [-Werror,-Wuninitialized]
+                  mr |= SPDIFRX_MR_ENDIAN_BIG;
+                  ^~
+  ../sound/soc/atmel/mchp-spdifrx.c:432:8: note: initialize the variable 'mr' to silence this warning
+          u32 mr;
+                ^
+                 = 0
+  1 error generated.
 
-This manifests in bizarre failures for devices that expected the AML to
-write all 4 bytes.  Trying the same AML on Windows 10 or 11 doesn't hit
-this failure and all 4 bytes are written.
+Zero initialize mr so that these bitwise OR and assignment operation
+works unconditionally.
 
-Either some of these regions were wrong or some point after Windows XP
-some of these regions blocks have been lifted.
-
-In the last 15 years there doesn't seem to be any reports popping up of
-this error in the Windows event viewer anymore.  There is no documentation
-at Microsoft's developer site indicating that Windows ACPI interpreter
-blocks these regions. Between the lack of documentation and the fact that
-the writes actually do work in Windows 10 and 11, it's quite likely
-Windows doesn't actually enforce this anymore.
-
-So to help the issue, only enforce Windows XP specific entries if the
-latest _OSI supported is Windows XP. Continue to enforce the
-ALWAYS_ILLEGAL entries.
-
-Link: https://github.com/acpica/acpica/pull/817
-Fixes: 7f0719039085 ("ACPICA: New: I/O port protection")
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: fa09fa60385a ("ASoC: mchp-spdifrx: fix controls which rely on rsr register")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1797
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230202-mchp-spdifrx-fix-uninit-mr-v1-1-629a045d7a2f@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/hwvalid.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/atmel/mchp-spdifrx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/hwvalid.c b/drivers/acpi/acpica/hwvalid.c
-index cd576153257c6..f1495b88bf138 100644
---- a/drivers/acpi/acpica/hwvalid.c
-+++ b/drivers/acpi/acpica/hwvalid.c
-@@ -23,8 +23,8 @@ acpi_hw_validate_io_request(acpi_io_address address, u32 bit_width);
-  *
-  * The table is used to implement the Microsoft port access rules that
-  * first appeared in Windows XP. Some ports are always illegal, and some
-- * ports are only illegal if the BIOS calls _OSI with a win_XP string or
-- * later (meaning that the BIOS itelf is post-XP.)
-+ * ports are only illegal if the BIOS calls _OSI with nothing newer than
-+ * the specific _OSI strings.
-  *
-  * This provides ACPICA with the desired port protections and
-  * Microsoft compatibility.
-@@ -145,7 +145,8 @@ acpi_hw_validate_io_request(acpi_io_address address, u32 bit_width)
+diff --git a/sound/soc/atmel/mchp-spdifrx.c b/sound/soc/atmel/mchp-spdifrx.c
+index 03b7037239b85..39a3c2a33bdbb 100644
+--- a/sound/soc/atmel/mchp-spdifrx.c
++++ b/sound/soc/atmel/mchp-spdifrx.c
+@@ -362,7 +362,7 @@ static int mchp_spdifrx_hw_params(struct snd_pcm_substream *substream,
+ 				  struct snd_soc_dai *dai)
+ {
+ 	struct mchp_spdifrx_dev *dev = snd_soc_dai_get_drvdata(dai);
+-	u32 mr;
++	u32 mr = 0;
+ 	int ret;
  
- 			/* Port illegality may depend on the _OSI calls made by the BIOS */
- 
--			if (acpi_gbl_osi_data >= port_info->osi_dependency) {
-+			if (port_info->osi_dependency == ACPI_ALWAYS_ILLEGAL ||
-+			    acpi_gbl_osi_data == port_info->osi_dependency) {
- 				ACPI_DEBUG_PRINT((ACPI_DB_VALUES,
- 						  "Denied AML access to port 0x%8.8X%8.8X/%X (%s 0x%.4X-0x%.4X)\n",
- 						  ACPI_FORMAT_UINT64(address),
+ 	dev_dbg(dev->dev, "%s() rate=%u format=%#x width=%u channels=%u\n",
 -- 
 2.39.2
 
