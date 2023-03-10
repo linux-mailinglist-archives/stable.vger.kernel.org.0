@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 562AC6B4612
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B826B44A2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbjCJOjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:39:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
+        id S232196AbjCJO02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:26:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232691AbjCJOjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:39:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A36220A04
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:43 -0800 (PST)
+        with ESMTP id S232380AbjCJOZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A0C3B3EB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35FE1B822DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9842FC4339C;
-        Fri, 10 Mar 2023 14:39:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2DC2618A6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C22ABC433D2;
+        Fri, 10 Mar 2023 14:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459181;
-        bh=lGpvSeXcNX1cM0uufaZvRIAj2MCEdhVX/90mepeVURo=;
+        s=korg; t=1678458288;
+        bh=9NGX+tZCERSlXMEQimSbLKGyFWCrfYWtSx9ciOgQbr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRqrdCHb3m/DVW7NdFiTLiBKsstYRjU3gM8mJ19gMVd5LDKAjCD1Z3uhC1sIg6SEx
-         BvRaofgyQEpqPi+qQAbyPhOEVKx0joOaR6Gp5mPi8sETosEpqkZ+9D+Qmc4hQtvHIZ
-         +dErNUZ75aIlXuJLdLSIJHlu0AmB+M/CnqaBiVZY=
+        b=AvX+6wptPz6Pp2ZDBQskIYry8QWUnDmdHTkjYF7AaTuFgRR8KlWNPxsVNZ5NExQQ4
+         J3+h9n9z9THsbJE9LY20GQOgHH5LSNFwdCMC6ZanOjYoutgo2tG9bIIVDVZnE8BkU2
+         AyUNXYUTA9ypYn1BfSc71/b9yk0YMuEmCho/doXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 275/357] scsi: ses: Fix slab-out-of-bounds in ses_intf_remove()
-Date:   Fri, 10 Mar 2023 14:39:24 +0100
-Message-Id: <20230310133746.879839942@linuxfoundation.org>
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.19 195/252] wifi: ath9k: use proper statements in conditionals
+Date:   Fri, 10 Mar 2023 14:39:25 +0100
+Message-Id: <20230310133724.881368609@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 578797f0c8cbc2e3ec5fc0dab87087b4c7073686 upstream.
+commit b7dc753fe33a707379e2254317794a4dad6c0fe2 upstream.
 
-A fix for:
+A previous cleanup patch accidentally broke some conditional
+expressions by replacing the safe "do {} while (0)" constructs
+with empty macros. gcc points this out when extra warnings
+are enabled:
 
-BUG: KASAN: slab-out-of-bounds in ses_intf_remove+0x23f/0x270 [ses]
-Read of size 8 at addr ffff88a10d32e5d8 by task rmmod/12013
+drivers/net/wireless/ath/ath9k/hif_usb.c: In function 'ath9k_skb_queue_complete':
+drivers/net/wireless/ath/ath9k/hif_usb.c:251:57: error: suggest braces around empty body in an 'else' statement [-Werror=empty-body]
+  251 |                         TX_STAT_INC(hif_dev, skb_failed);
 
-When edev->components is zero, accessing edev->component[0] members is
-wrong.
+Make both sets of macros proper expressions again.
 
-Link: https://lore.kernel.org/r/20230202162451.15346-5-thenzl@redhat.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: d7fc76039b74 ("ath9k: htc: clean up statistics macros")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221215165553.1950307-1-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ses.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/htc.h |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/scsi/ses.c
-+++ b/drivers/scsi/ses.c
-@@ -856,7 +856,8 @@ static void ses_intf_remove_enclosure(st
- 	kfree(ses_dev->page2);
- 	kfree(ses_dev);
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -325,9 +325,9 @@ static inline struct ath9k_htc_tx_ctl *H
+ }
  
--	kfree(edev->component[0].scratch);
-+	if (edev->components)
-+		kfree(edev->component[0].scratch);
+ #ifdef CONFIG_ATH9K_HTC_DEBUGFS
+-#define __STAT_SAFE(hif_dev, expr)	((hif_dev)->htc_handle->drv_priv ? (expr) : 0)
+-#define CAB_STAT_INC(priv)		((priv)->debug.tx_stats.cab_queued++)
+-#define TX_QSTAT_INC(priv, q)		((priv)->debug.tx_stats.queue_stats[q]++)
++#define __STAT_SAFE(hif_dev, expr)	do { ((hif_dev)->htc_handle->drv_priv ? (expr) : 0); } while (0)
++#define CAB_STAT_INC(priv)		do { ((priv)->debug.tx_stats.cab_queued++); } while (0)
++#define TX_QSTAT_INC(priv, q)		do { ((priv)->debug.tx_stats.queue_stats[q]++); } while (0)
  
- 	put_device(&edev->edev);
- 	enclosure_unregister(edev);
+ #define TX_STAT_INC(hif_dev, c) \
+ 		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c++)
+@@ -376,10 +376,10 @@ void ath9k_htc_get_et_stats(struct ieee8
+ 			    struct ethtool_stats *stats, u64 *data);
+ #else
+ 
+-#define TX_STAT_INC(hif_dev, c)
+-#define TX_STAT_ADD(hif_dev, c, a)
+-#define RX_STAT_INC(hif_dev, c)
+-#define RX_STAT_ADD(hif_dev, c, a)
++#define TX_STAT_INC(hif_dev, c)		do { } while (0)
++#define TX_STAT_ADD(hif_dev, c, a)	do { } while (0)
++#define RX_STAT_INC(hif_dev, c)		do { } while (0)
++#define RX_STAT_ADD(hif_dev, c, a)	do { } while (0)
+ 
+ #define CAB_STAT_INC(priv)
+ #define TX_QSTAT_INC(priv, c)
 
 
