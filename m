@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F02D96B429B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B746B40F0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231539AbjCJOE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:04:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53068 "EHLO
+        id S230248AbjCJNru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:47:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231543AbjCJOEm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9E281091D7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:41 -0800 (PST)
+        with ESMTP id S230246AbjCJNrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2994828E46
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62E1260D29
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE8CC4339E;
-        Fri, 10 Mar 2023 14:04:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D881FB822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D397C4339B;
+        Fri, 10 Mar 2023 13:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457080;
-        bh=8ghZjGPY7u+3R5WbdEOWGAi4bKIDBJgWj9lAqmtjbDc=;
+        s=korg; t=1678456065;
+        bh=GG9W4kIAXUe5z6QezJ+9k0p395mQHEKeIA27QxfSA9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWSTKO+aHSbiH9TVQS5hL2Wci91ds+v9k+uHns5sfTgE5n/btJ4+O5z1ntgjgtqUY
-         erBBi88aAKi2VZDD8uHIn3oFhjMXIqUa0lH6jE707pNhdHb9deJh0agqa2X5hPV26U
-         oMeEIZCDCTI4a9i+uCTDglQfrX6UqMXdyQKoi1XI=
+        b=cB9UdM2SRfCxcEoc81LZ7UQ/7ebsHXVtUVh0YJEOoxxDngsgfs2acrNotjr4UhzxH
+         8ndXcSnJkr/YoOZhDuYE9Ee8eekBZTbOxh/BFvv04DhDe4Bw3i9/tpoyEqlnp8FSBp
+         oTMlQMlmEYX5ZAsNm+rb+yyj9zr5ORSG0TYsLa04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 014/200] f2fs: introduce trace_f2fs_replace_atomic_write_block
+Subject: [PATCH 4.14 039/193] ACPI: battery: Fix missing NUL-termination with large strings
 Date:   Fri, 10 Mar 2023 14:37:01 +0100
-Message-Id: <20230310133717.483050995@linuxfoundation.org>
+Message-Id: <20230310133712.262756241@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 2f3a9ae990a7881c9a57a073bb52ebe34fdc3160 ]
+[ Upstream commit f2ac14b5f197e4a2dec51e5ceaa56682ff1592bc ]
 
-Commit 3db1de0e582c ("f2fs: change the current atomic write way")
-removed old tracepoints, but it missed to add new one, this patch
-fixes to introduce trace_f2fs_replace_atomic_write_block to trace
-atomic_write commit flow.
+When encountering a string bigger than the destination buffer (32 bytes),
+the string is not properly NUL-terminated, causing buffer overreads later.
 
-Fixes: 3db1de0e582c ("f2fs: change the current atomic write way")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+This for example happens on the Inspiron 3505, where the battery
+model name is larger than 32 bytes, which leads to sysfs showing
+the model name together with the serial number string (which is
+NUL-terminated and thus prevents worse).
+
+Fix this by using strscpy() which ensures that the result is
+always NUL-terminated.
+
+Fixes: 106449e870b3 ("ACPI: Battery: Allow extract string from integer")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c           |  3 +++
- include/trace/events/f2fs.h | 37 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+)
+ drivers/acpi/battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index c1d0713666ee5..af9a3b7996b4d 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -250,6 +250,9 @@ static int __replace_atomic_write_block(struct inode *inode, pgoff_t index,
- 	}
- 
- 	f2fs_put_dnode(&dn);
-+
-+	trace_f2fs_replace_atomic_write_block(inode, F2FS_I(inode)->cow_inode,
-+					index, *old_addr, new_addr, recover);
- 	return 0;
- }
- 
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index ff57e7f9914cc..e57f867191ef1 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -1286,6 +1286,43 @@ DEFINE_EVENT(f2fs__page, f2fs_vm_page_mkwrite,
- 	TP_ARGS(page, type)
- );
- 
-+TRACE_EVENT(f2fs_replace_atomic_write_block,
-+
-+	TP_PROTO(struct inode *inode, struct inode *cow_inode, pgoff_t index,
-+			block_t old_addr, block_t new_addr, bool recovery),
-+
-+	TP_ARGS(inode, cow_inode, index, old_addr, new_addr, recovery),
-+
-+	TP_STRUCT__entry(
-+		__field(dev_t,	dev)
-+		__field(ino_t,	ino)
-+		__field(ino_t,	cow_ino)
-+		__field(pgoff_t, index)
-+		__field(block_t, old_addr)
-+		__field(block_t, new_addr)
-+		__field(bool, recovery)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->dev		= inode->i_sb->s_dev;
-+		__entry->ino		= inode->i_ino;
-+		__entry->cow_ino	= cow_inode->i_ino;
-+		__entry->index		= index;
-+		__entry->old_addr	= old_addr;
-+		__entry->new_addr	= new_addr;
-+		__entry->recovery	= recovery;
-+	),
-+
-+	TP_printk("dev = (%d,%d), ino = %lu, cow_ino = %lu, index = %lu, "
-+			"old_addr = 0x%llx, new_addr = 0x%llx, recovery = %d",
-+		show_dev_ino(__entry),
-+		__entry->cow_ino,
-+		(unsigned long)__entry->index,
-+		(unsigned long long)__entry->old_addr,
-+		(unsigned long long)__entry->new_addr,
-+		__entry->recovery)
-+);
-+
- TRACE_EVENT(f2fs_filemap_fault,
- 
- 	TP_PROTO(struct inode *inode, pgoff_t index, unsigned long ret),
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index 42fba8493854f..96aeb0c8cc0e9 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -415,7 +415,7 @@ static int extract_package(struct acpi_battery *battery,
+ 			u8 *ptr = (u8 *)battery + offsets[i].offset;
+ 			if (element->type == ACPI_TYPE_STRING ||
+ 			    element->type == ACPI_TYPE_BUFFER)
+-				strncpy(ptr, element->string.pointer, 32);
++				strscpy(ptr, element->string.pointer, 32);
+ 			else if (element->type == ACPI_TYPE_INTEGER) {
+ 				strncpy(ptr, (u8 *)&element->integer.value,
+ 					sizeof(u64));
 -- 
 2.39.2
 
