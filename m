@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E3716B4633
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E28F6B4188
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232750AbjCJOlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:41:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57442 "EHLO
+        id S230517AbjCJNyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:54:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232773AbjCJOlH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEF99121B68
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:05 -0800 (PST)
+        with ESMTP id S231179AbjCJNyE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C29911F93A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B8AB6187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78863C4339C;
-        Fri, 10 Mar 2023 14:41:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66031B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4483C433EF;
+        Fri, 10 Mar 2023 13:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459264;
-        bh=t9l0rL79DdQH08zb7LFZMujbo5p/7YFo4WxHblT69XA=;
+        s=korg; t=1678456426;
+        bh=3/hLmWewTAnRQ3f5N1F3icsbR+2eZD1EpO5hvcYONSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OVoy88++6CDF9LF5o7ELoPv0MiWL8X5mbqbqjwvrPBwMe78zRxOrryf78yXPFogT5
-         cUjFjESU23FeN8Lm9xItDfjjWnF1/IFUQQjVpVqXRuPxXJqM4yGc+d/gqFt1U8g3nO
-         yiaFVfuyB8QwtWDLGjeGOuNVsAn+MF7pNZeC9GbA=
+        b=VmW0VVld+LFk1gaNxPQXVYjp9yigg4tKsDTqSj0K7xUq32xH6lR+Vt4zTEN083Db0
+         ikIOk0A3dP2yaHesQGqH7UR0IyhrqsnffPxub9qPEBiGGqzJLVXvCpuY/EsK87y/Al
+         sCARJJNvOCU4bBrwo1uNQph+feRdA9SeL7ZrXyH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 286/357] pwm: sifive: Always let the first pwm_apply_state succeed
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 193/193] thermal: intel: powerclamp: Fix cur_state for multi package system
 Date:   Fri, 10 Mar 2023 14:39:35 +0100
-Message-Id: <20230310133747.377146274@linuxfoundation.org>
+Message-Id: <20230310133717.473828953@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit 334c7b13d38321e47d1a51dba0bef9f4c403ec75 ]
+commit 8e47363588377e1bdb65e2b020b409cfb44dd260 upstream.
 
-Commit 2cfe9bbec56ea579135cdd92409fff371841904f added support for the
-RGB and green PWM controlled LEDs on the HiFive Unmatched board
-managed by the leds-pwm-multicolor and leds-pwm drivers respectively.
-All three colours of the RGB LED and the green LED run from different
-lines of the same PWM, but with the same period so this works fine when
-the LED drivers are loaded one after the other.
+The powerclamp cooling device cur_state shows actual idle observed by
+package C-state idle counters. But the implementation is not sufficient
+for multi package or multi die system. The cur_state value is incorrect.
+On these systems, these counters must be read from each package/die and
+somehow aggregate them. But there is no good method for aggregation.
 
-Unfortunately it does expose a race in the PWM driver when both LED
-drivers are loaded at roughly the same time. Here is an example:
+It was not a problem when explicit CPU model addition was required to
+enable intel powerclamp. In this way certain CPU models could have
+been avoided. But with the removal of CPU model check with the
+availability of Package C-state counters, the driver is loaded on most
+of the recent systems.
 
-  |          Thread A           |          Thread B           |
-  |  led_pwm_mc_probe           |  led_pwm_probe              |
-  |    devm_fwnode_pwm_get      |                             |
-  |      pwm_sifive_request     |                             |
-  |        ddata->user_count++  |                             |
-  |                             |    devm_fwnode_pwm_get      |
-  |                             |      pwm_sifive_request     |
-  |                             |        ddata->user_count++  |
-  |         ...                 |          ...                |
-  |    pwm_state_apply          |    pwm_state_apply          |
-  |      pwm_sifive_apply       |      pwm_sifive_apply       |
+For multi package/die systems, just show the actual target idle state,
+the system is trying to achieve. In powerclamp this is the user set
+state minus one.
 
-Now both calls to pwm_sifive_apply will see that ddata->approx_period,
-initially 0, is different from the requested period and the clock needs
-to be updated. But since ddata->user_count >= 2 both calls will fail
-with -EBUSY, which will then cause both LED drivers to fail to probe.
+Also there is no use of starting a worker thread for polling package
+C-state counters and applying any compensation for multiple package
+or multiple die systems.
 
-Fix it by letting the first call to pwm_sifive_apply update the clock
-even when ddata->user_count != 1.
-
-Fixes: 9e37a53eb051 ("pwm: sifive: Add a driver for SiFive SoC PWM")
-Signed-off-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b721ca0d1927 ("thermal/powerclamp: remove cpu whitelist")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-sifive.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/thermal/intel_powerclamp.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
-index 980ddcdd52953..16c70147ec40e 100644
---- a/drivers/pwm/pwm-sifive.c
-+++ b/drivers/pwm/pwm-sifive.c
-@@ -187,7 +187,13 @@ static int pwm_sifive_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+--- a/drivers/thermal/intel_powerclamp.c
++++ b/drivers/thermal/intel_powerclamp.c
+@@ -72,6 +72,7 @@
  
- 	mutex_lock(&ddata->lock);
- 	if (state->period != ddata->approx_period) {
--		if (ddata->user_count != 1) {
-+		/*
-+		 * Don't let a 2nd user change the period underneath the 1st user.
-+		 * However if ddate->approx_period == 0 this is the first time we set
-+		 * any period, so let whoever gets here first set the period so other
-+		 * users who agree on the period won't fail.
-+		 */
-+		if (ddata->user_count != 1 && ddata->approx_period) {
- 			mutex_unlock(&ddata->lock);
- 			ret = -EBUSY;
- 			goto exit;
--- 
-2.39.2
-
+ static unsigned int target_mwait;
+ static struct dentry *debug_dir;
++static bool poll_pkg_cstate_enable;
+ 
+ /* user selected target */
+ static unsigned int set_target_ratio;
+@@ -280,6 +281,9 @@ static unsigned int get_compensation(int
+ {
+ 	unsigned int comp = 0;
+ 
++	if (!poll_pkg_cstate_enable)
++		return 0;
++
+ 	/* we only use compensation if all adjacent ones are good */
+ 	if (ratio == 1 &&
+ 		cal_data[ratio].confidence >= CONFIDENCE_OK &&
+@@ -552,7 +556,8 @@ static int start_power_clamp(void)
+ 	control_cpu = cpumask_first(cpu_online_mask);
+ 
+ 	clamping = true;
+-	schedule_delayed_work(&poll_pkg_cstate_work, 0);
++	if (poll_pkg_cstate_enable)
++		schedule_delayed_work(&poll_pkg_cstate_work, 0);
+ 
+ 	/* start one kthread worker per online cpu */
+ 	for_each_online_cpu(cpu) {
+@@ -621,11 +626,15 @@ static int powerclamp_get_max_state(stru
+ static int powerclamp_get_cur_state(struct thermal_cooling_device *cdev,
+ 				 unsigned long *state)
+ {
+-	if (true == clamping)
+-		*state = pkg_cstate_ratio_cur;
+-	else
++	if (clamping) {
++		if (poll_pkg_cstate_enable)
++			*state = pkg_cstate_ratio_cur;
++		else
++			*state = set_target_ratio;
++	} else {
+ 		/* to save power, do not poll idle ratio while not clamping */
+ 		*state = -1; /* indicates invalid state */
++	}
+ 
+ 	return 0;
+ }
+@@ -770,6 +779,9 @@ static int __init powerclamp_init(void)
+ 		goto exit_unregister;
+ 	}
+ 
++	if (topology_max_packages() == 1)
++		poll_pkg_cstate_enable = true;
++
+ 	cooling_dev = thermal_cooling_device_register("intel_powerclamp", NULL,
+ 						&powerclamp_cooling_ops);
+ 	if (IS_ERR(cooling_dev)) {
 
 
