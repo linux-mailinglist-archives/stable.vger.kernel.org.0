@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F296A6B40B0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6431E6B43C5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbjCJNo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:44:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43134 "EHLO
+        id S232043AbjCJORj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:17:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230246AbjCJNo4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:44:56 -0500
+        with ESMTP id S232109AbjCJORV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:17:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E738534A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:44:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D35D1188F8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53F9A617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:44:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48BD4C433EF;
-        Fri, 10 Mar 2023 13:44:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A71E961771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6CC0C433A4;
+        Fri, 10 Mar 2023 14:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455894;
-        bh=mpdXmXUtZN3L1OMEJO1JO9Swez2ShNpVB5+YAfK5iCc=;
+        s=korg; t=1678457778;
+        bh=stMifCR5hRwqAN2V2IAiZl4abqvorFiPwaY+x1L6E2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qQctv692de+OgMP3K1kKriw4xuq7hVOHj7BNbf+3eMu4X5Zs9JaGO5X0aSeqy2GEy
-         ilCsN4wNrIttH2haFo9jOt0wkvrAVdKDG+Cg7m2FJLkDhpm+7YrPa8iu9rfiBmFKAK
-         MtAYYfXgo17Em8D48abrejpNo3zj0tXPSqheSkf0=
+        b=AjVkUP2d1sYfqlosDC2y1u5lvoLR6geW6WZhqmtSWYOJda4Il1ECRm2KB+QiIFMcc
+         i8FJXh70tPljNi1ljGqHGimCjzsXHZAfSPRVW+MUPBiQ+0qJqz/B87QI3L5YhoaBNU
+         /HC6XVMkNbSLM0e/HtLi2ensbwVM8LBOpmmnY8O0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luke D Jones <luke@ljones.dev>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 4.14 012/193] HID: asus: Remove check for same LED brightness on set
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 024/252] wifi: rtlwifi: Fix global-out-of-bounds bug in _rtl8812ae_phy_set_txpower_limit()
 Date:   Fri, 10 Mar 2023 14:36:34 +0100
-Message-Id: <20230310133711.346718374@linuxfoundation.org>
+Message-Id: <20230310133719.553238608@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Li Zetao <lizetao1@huawei.com>
 
-commit 3fdcf7cdfc229346d028242e73562704ad644dd0 upstream.
+[ Upstream commit 117dbeda22ec5ea0918254d03b540ef8b8a64d53 ]
 
-Remove the early return on LED brightness set so that any controller
-application, daemon, or desktop may set the same brightness at any stage.
+There is a global-out-of-bounds reported by KASAN:
 
-This is required because many ASUS ROG keyboards will default to max
-brightness on laptop resume if the LEDs were set to off before sleep.
+  BUG: KASAN: global-out-of-bounds in
+  _rtl8812ae_eq_n_byte.part.0+0x3d/0x84 [rtl8821ae]
+  Read of size 1 at addr ffffffffa0773c43 by task NetworkManager/411
 
-Signed-off-by: Luke D Jones <luke@ljones.dev>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  CPU: 6 PID: 411 Comm: NetworkManager Tainted: G      D
+  6.1.0-rc8+ #144 e15588508517267d37
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+  Call Trace:
+   <TASK>
+   ...
+   kasan_report+0xbb/0x1c0
+   _rtl8812ae_eq_n_byte.part.0+0x3d/0x84 [rtl8821ae]
+   rtl8821ae_phy_bb_config.cold+0x346/0x641 [rtl8821ae]
+   rtl8821ae_hw_init+0x1f5e/0x79b0 [rtl8821ae]
+   ...
+   </TASK>
+
+The root cause of the problem is that the comparison order of
+"prate_section" in _rtl8812ae_phy_set_txpower_limit() is wrong. The
+_rtl8812ae_eq_n_byte() is used to compare the first n bytes of the two
+strings from tail to head, which causes the problem. In the
+_rtl8812ae_phy_set_txpower_limit(), it was originally intended to meet
+this requirement by carefully designing the comparison order.
+For example, "pregulation" and "pbandwidth" are compared in order of
+length from small to large, first is 3 and last is 4. However, the
+comparison order of "prate_section" dose not obey such order requirement,
+therefore when "prate_section" is "HT", when comparing from tail to head,
+it will lead to access out of bounds in _rtl8812ae_eq_n_byte(). As
+mentioned above, the _rtl8812ae_eq_n_byte() has the same function as
+strcmp(), so just strcmp() is enough.
+
+Fix it by removing _rtl8812ae_eq_n_byte() and use strcmp() barely.
+Although it can be fixed by adjusting the comparison order of
+"prate_section", this may cause the value of "rate_section" to not be
+from 0 to 5. In addition, commit "21e4b0726dc6" not only moved driver
+from staging to regular tree, but also added setting txpower limit
+function during the driver config phase, so the problem was introduced
+by this commit.
+
+Fixes: 21e4b0726dc6 ("rtlwifi: rtl8821ae: Move driver from staging to regular tree")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Acked-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221212025812.1541311-1-lizetao1@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c |    3 ---
- 1 file changed, 3 deletions(-)
+ .../wireless/realtek/rtlwifi/rtl8821ae/phy.c  | 52 +++++++------------
+ 1 file changed, 20 insertions(+), 32 deletions(-)
 
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -298,9 +298,6 @@ static void asus_kbd_backlight_set(struc
- {
- 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
- 						 cdev);
--	if (led->brightness == brightness)
--		return;
--
- 	led->brightness = brightness;
- 	schedule_work(&led->work);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
+index c805ad1bba2e0..502ac10cf251b 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
+@@ -1626,18 +1626,6 @@ static bool _rtl8812ae_get_integer_from_string(const char *str, u8 *pint)
+ 	return true;
  }
+ 
+-static bool _rtl8812ae_eq_n_byte(const char *str1, const char *str2, u32 num)
+-{
+-	if (num == 0)
+-		return false;
+-	while (num > 0) {
+-		num--;
+-		if (str1[num] != str2[num])
+-			return false;
+-	}
+-	return true;
+-}
+-
+ static s8 _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(struct ieee80211_hw *hw,
+ 					      u8 band, u8 channel)
+ {
+@@ -1687,42 +1675,42 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw,
+ 	power_limit = power_limit > MAX_POWER_INDEX ?
+ 		      MAX_POWER_INDEX : power_limit;
+ 
+-	if (_rtl8812ae_eq_n_byte(pregulation, "FCC", 3))
++	if (strcmp(pregulation, "FCC") == 0)
+ 		regulation = 0;
+-	else if (_rtl8812ae_eq_n_byte(pregulation, "MKK", 3))
++	else if (strcmp(pregulation, "MKK") == 0)
+ 		regulation = 1;
+-	else if (_rtl8812ae_eq_n_byte(pregulation, "ETSI", 4))
++	else if (strcmp(pregulation, "ETSI") == 0)
+ 		regulation = 2;
+-	else if (_rtl8812ae_eq_n_byte(pregulation, "WW13", 4))
++	else if (strcmp(pregulation, "WW13") == 0)
+ 		regulation = 3;
+ 
+-	if (_rtl8812ae_eq_n_byte(prate_section, "CCK", 3))
++	if (strcmp(prate_section, "CCK") == 0)
+ 		rate_section = 0;
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "OFDM", 4))
++	else if (strcmp(prate_section, "OFDM") == 0)
+ 		rate_section = 1;
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
++	else if (strcmp(prate_section, "HT") == 0 &&
++		 strcmp(prf_path, "1T") == 0)
+ 		rate_section = 2;
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
++	else if (strcmp(prate_section, "HT") == 0 &&
++		 strcmp(prf_path, "2T") == 0)
+ 		rate_section = 3;
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
++	else if (strcmp(prate_section, "VHT") == 0 &&
++		 strcmp(prf_path, "1T") == 0)
+ 		rate_section = 4;
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
++	else if (strcmp(prate_section, "VHT") == 0 &&
++		 strcmp(prf_path, "2T") == 0)
+ 		rate_section = 5;
+ 
+-	if (_rtl8812ae_eq_n_byte(pbandwidth, "20M", 3))
++	if (strcmp(pbandwidth, "20M") == 0)
+ 		bandwidth = 0;
+-	else if (_rtl8812ae_eq_n_byte(pbandwidth, "40M", 3))
++	else if (strcmp(pbandwidth, "40M") == 0)
+ 		bandwidth = 1;
+-	else if (_rtl8812ae_eq_n_byte(pbandwidth, "80M", 3))
++	else if (strcmp(pbandwidth, "80M") == 0)
+ 		bandwidth = 2;
+-	else if (_rtl8812ae_eq_n_byte(pbandwidth, "160M", 4))
++	else if (strcmp(pbandwidth, "160M") == 0)
+ 		bandwidth = 3;
+ 
+-	if (_rtl8812ae_eq_n_byte(pband, "2.4G", 4)) {
++	if (strcmp(pband, "2.4G") == 0) {
+ 		ret = _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(hw,
+ 							       BAND_ON_2_4G,
+ 							       channel);
+@@ -1746,7 +1734,7 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw,
+ 			  regulation, bandwidth, rate_section, channel_index,
+ 			  rtlphy->txpwr_limit_2_4g[regulation][bandwidth]
+ 				[rate_section][channel_index][RF90_PATH_A]);
+-	} else if (_rtl8812ae_eq_n_byte(pband, "5G", 2)) {
++	} else if (strcmp(pband, "5G") == 0) {
+ 		ret = _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(hw,
+ 							       BAND_ON_5G,
+ 							       channel);
+-- 
+2.39.2
+
 
 
