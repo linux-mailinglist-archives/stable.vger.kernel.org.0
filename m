@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A8076B4619
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C2E6B4183
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232720AbjCJOkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
+        id S231254AbjCJNxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:53:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232733AbjCJOkH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 664FC5D445
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:03 -0800 (PST)
+        with ESMTP id S231261AbjCJNxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FEBAEAB88
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97AC06187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7535C433D2;
-        Fri, 10 Mar 2023 14:40:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5431B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32ABCC433EF;
+        Fri, 10 Mar 2023 13:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459202;
-        bh=9NGX+tZCERSlXMEQimSbLKGyFWCrfYWtSx9ciOgQbr0=;
+        s=korg; t=1678456411;
+        bh=8ivhV4rIQF8V0NQSfq3Oi8356Odb3PPcz9Le8tPxjMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTknzA52adhkOpGGPJBirxmHDemYtt5CUgkKZRuc18eblmg4IzZNVK3eg+AgwAirf
-         bW+b20v/AYoLkJs798dplVW7zsaBz6NMMQ5P7KaxqwatMLW3BKIEQzNdtBhnlDFJmC
-         tHRtdM2aSRrxzzfBKeuYhGOI7Lo9YOskhiLuqWO4=
+        b=0LBwp6jxB551+5CKeACZRo5fLe82gnA+VoB7HFeu4ICb4D577Qzq2SDZOtvb4pLf1
+         bNJ3/eUmlj+xlfXP8Spu9w9A2f4ux2UTZ1LrzMqcA+udLfXEEKuUEM59u+NENOxHn+
+         3QrT/ThmERoH2iXtpl0Q9Vjr9qAKwqKxqK9QKC90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.4 281/357] wifi: ath9k: use proper statements in conditionals
+        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 188/193] phy: rockchip-typec: Fix unsigned comparison with less than zero
 Date:   Fri, 10 Mar 2023 14:39:30 +0100
-Message-Id: <20230310133747.155917898@linuxfoundation.org>
+Message-Id: <20230310133717.317682286@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-commit b7dc753fe33a707379e2254317794a4dad6c0fe2 upstream.
+[ Upstream commit f765c59c5a72546a2d74a92ae5d0eb0329d8e247 ]
 
-A previous cleanup patch accidentally broke some conditional
-expressions by replacing the safe "do {} while (0)" constructs
-with empty macros. gcc points this out when extra warnings
-are enabled:
+The dp and ufp are defined as bool type, the return value type of
+function extcon_get_state should be int, so the type of dp and ufp
+are modified to int.
 
-drivers/net/wireless/ath/ath9k/hif_usb.c: In function 'ath9k_skb_queue_complete':
-drivers/net/wireless/ath/ath9k/hif_usb.c:251:57: error: suggest braces around empty body in an 'else' statement [-Werror=empty-body]
-  251 |                         TX_STAT_INC(hif_dev, skb_failed);
+./drivers/phy/rockchip/phy-rockchip-typec.c:827:12-14: WARNING: Unsigned expression compared with zero: dp > 0.
 
-Make both sets of macros proper expressions again.
-
-Fixes: d7fc76039b74 ("ath9k: htc: clean up statistics macros")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221215165553.1950307-1-arnd@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3962
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20230213035709.99027-1-jiapeng.chong@linux.alibaba.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc.h |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/phy/rockchip/phy-rockchip-typec.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -325,9 +325,9 @@ static inline struct ath9k_htc_tx_ctl *H
- }
+--- a/drivers/phy/rockchip/phy-rockchip-typec.c
++++ b/drivers/phy/rockchip/phy-rockchip-typec.c
+@@ -645,9 +645,8 @@ static int tcphy_get_mode(struct rockchi
+ 	struct extcon_dev *edev = tcphy->extcon;
+ 	union extcon_property_value property;
+ 	unsigned int id;
+-	bool ufp, dp;
+ 	u8 mode;
+-	int ret;
++	int ret, ufp, dp;
  
- #ifdef CONFIG_ATH9K_HTC_DEBUGFS
--#define __STAT_SAFE(hif_dev, expr)	((hif_dev)->htc_handle->drv_priv ? (expr) : 0)
--#define CAB_STAT_INC(priv)		((priv)->debug.tx_stats.cab_queued++)
--#define TX_QSTAT_INC(priv, q)		((priv)->debug.tx_stats.queue_stats[q]++)
-+#define __STAT_SAFE(hif_dev, expr)	do { ((hif_dev)->htc_handle->drv_priv ? (expr) : 0); } while (0)
-+#define CAB_STAT_INC(priv)		do { ((priv)->debug.tx_stats.cab_queued++); } while (0)
-+#define TX_QSTAT_INC(priv, q)		do { ((priv)->debug.tx_stats.queue_stats[q]++); } while (0)
- 
- #define TX_STAT_INC(hif_dev, c) \
- 		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c++)
-@@ -376,10 +376,10 @@ void ath9k_htc_get_et_stats(struct ieee8
- 			    struct ethtool_stats *stats, u64 *data);
- #else
- 
--#define TX_STAT_INC(hif_dev, c)
--#define TX_STAT_ADD(hif_dev, c, a)
--#define RX_STAT_INC(hif_dev, c)
--#define RX_STAT_ADD(hif_dev, c, a)
-+#define TX_STAT_INC(hif_dev, c)		do { } while (0)
-+#define TX_STAT_ADD(hif_dev, c, a)	do { } while (0)
-+#define RX_STAT_INC(hif_dev, c)		do { } while (0)
-+#define RX_STAT_ADD(hif_dev, c, a)	do { } while (0)
- 
- #define CAB_STAT_INC(priv)
- #define TX_QSTAT_INC(priv, c)
+ 	ufp = extcon_get_state(edev, EXTCON_USB);
+ 	dp = extcon_get_state(edev, EXTCON_DISP_DP);
 
 
