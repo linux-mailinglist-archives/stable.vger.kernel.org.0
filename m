@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EEAB6B4635
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33F9D6B44B1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232752AbjCJOlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:41:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57442 "EHLO
+        id S232278AbjCJO1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:27:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232766AbjCJOlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97534121B59
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:08 -0800 (PST)
+        with ESMTP id S232265AbjCJO1G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6202311C8F4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 327C161745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B98C4339E;
-        Fri, 10 Mar 2023 14:41:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E11226192E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E22F4C433EF;
+        Fri, 10 Mar 2023 14:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459267;
-        bh=oYFTPTYDvdtYop+jd8l+ltWMxKmV7QrqEng5g96to6w=;
+        s=korg; t=1678458325;
+        bh=8rFB1HYUMmBidRPrTd9p2DIYPlH+bluPCeO0DFQIQg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcPvXiAzRpm7a+0QIDG9WG7TgxIeT44kyZNs+bVs7A/NTrZBaJFFMidlATDgumRj6
-         rZ8xDf6cnBcGdFkZk0yyGCHGEA8cPGqhU4c2vso9hkI8kJac+9fyp5etH7uq7Oz2ev
-         Sh8BPM5YEM7au7usBUZl8HRcWH1Z7SDmj8bAWdqE=
+        b=i3DD4uuTxZ8nl3zCGHgc5fRrZI4GhW8iryKvnluMeACU0jyCsyoTzL8cgDiSRcsNy
+         Ug4HExG2mwz7Z+bG7syX0nM6dyReamPiVyownYLgKJTdNHhspQSrynGMbINjZkNdiM
+         LK/EKkKPGJkJ0OIewk18KQXrrjM+9IyP1gGZHXKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 304/357] ubifs: ubifs_writepage: Mark page dirty after writing inode failed
+Subject: [PATCH 4.19 223/252] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
 Date:   Fri, 10 Mar 2023 14:39:53 +0100
-Message-Id: <20230310133748.116864339@linuxfoundation.org>
+Message-Id: <20230310133725.978931006@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,112 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit fb8bc4c74ae4526d9489362ab2793a936d072b84 ]
+[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
 
-There are two states for ubifs writing pages:
-1. Dirty, Private
-2. Not Dirty, Not Private
+When down_interruptible() or ib_post_send() failed in rdma_request(),
+receive dma buffer is not unmapped. Add unmap action to error path.
+Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
+Add unmap action to error path.
 
-There is a third possibility which maybe related to [1] that page is
-private but not dirty caused by following process:
-
-          PA
-lock(page)
-ubifs_write_end
-  attach_page_private		// set Private
-    __set_page_dirty_nobuffers	// set Dirty
-unlock(page)
-
-write_cache_pages
-  lock(page)
-  clear_page_dirty_for_io(page)	// clear Dirty
-  ubifs_writepage
-    write_inode
-    // fail, goto out, following codes are not executed
-    // do_writepage
-    //   set_page_writeback 	// set Writeback
-    //   detach_page_private	// clear Private
-    //   end_page_writeback 	// clear Writeback
-    out:
-    unlock(page)		// Private, Not Dirty
-
-                                       PB
-				ksys_fadvise64_64
-				  generic_fadvise
-				     invalidate_inode_page
-				     // page is neither Dirty nor Writeback
-				       invalidate_complete_page
-				       // page_has_private is true
-					 try_to_release_page
-					   ubifs_releasepage
-					     ubifs_assert(c, 0) !!!
-
-Then we may get following assertion failed:
-  UBIFS error (ubi0:0 pid 1492): ubifs_assert_failed [ubifs]:
-  UBIFS assert failed: 0, in fs/ubifs/file.c:1499
-  UBIFS warning (ubi0:0 pid 1492): ubifs_ro_mode [ubifs]:
-  switched to read-only mode, error -22
-  CPU: 2 PID: 1492 Comm: aa Not tainted 5.16.0-rc2-00012-g7bb767dee0ba-dirty
-  Call Trace:
-    dump_stack+0x13/0x1b
-    ubifs_ro_mode+0x54/0x60 [ubifs]
-    ubifs_assert_failed+0x4b/0x80 [ubifs]
-    ubifs_releasepage+0x7e/0x1e0 [ubifs]
-    try_to_release_page+0x57/0xe0
-    invalidate_inode_page+0xfb/0x130
-    invalidate_mapping_pagevec+0x12/0x20
-    generic_fadvise+0x303/0x3c0
-    vfs_fadvise+0x35/0x40
-    ksys_fadvise64_64+0x4c/0xb0
-
-Jump [2] to find a reproducer.
-
-[1] https://linux-mtd.infradead.narkive.com/NQoBeT1u/patch-rfc-ubifs-fix-assert-failed-in-ubifs-set-page-dirty
-[2] https://bugzilla.kernel.org/show_bug.cgi?id=215357
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
+Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ net/9p/trans_rdma.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index 6069c63d833ae..177cd4a751ebb 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -1031,7 +1031,7 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
- 		if (page->index >= synced_i_size >> PAGE_SHIFT) {
- 			err = inode->i_sb->s_op->write_inode(inode, NULL);
- 			if (err)
--				goto out_unlock;
-+				goto out_redirty;
- 			/*
- 			 * The inode has been written, but the write-buffer has
- 			 * not been synchronized, so in case of an unclean
-@@ -1059,11 +1059,17 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
- 	if (i_size > synced_i_size) {
- 		err = inode->i_sb->s_op->write_inode(inode, NULL);
- 		if (err)
--			goto out_unlock;
-+			goto out_redirty;
+diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
+index 119103bfa82ee..4bbb8683d4518 100644
+--- a/net/9p/trans_rdma.c
++++ b/net/9p/trans_rdma.c
+@@ -400,6 +400,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
+ 	struct p9_trans_rdma *rdma = client->trans;
+ 	struct ib_recv_wr wr;
+ 	struct ib_sge sge;
++	int ret;
+ 
+ 	c->busa = ib_dma_map_single(rdma->cm_id->device,
+ 				    c->rc.sdata, client->msize,
+@@ -417,7 +418,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
+ 	wr.wr_cqe = &c->cqe;
+ 	wr.sg_list = &sge;
+ 	wr.num_sge = 1;
+-	return ib_post_recv(rdma->qp, &wr, NULL);
++
++	ret = ib_post_recv(rdma->qp, &wr, NULL);
++	if (ret)
++		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
++				    client->msize, DMA_FROM_DEVICE);
++	return ret;
+ 
+  error:
+ 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
+@@ -514,7 +520,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 
+ 	if (down_interruptible(&rdma->sq_sem)) {
+ 		err = -EINTR;
+-		goto send_error;
++		goto dma_unmap;
  	}
  
- 	return do_writepage(page, len);
--
-+out_redirty:
-+	/*
-+	 * redirty_page_for_writepage() won't call ubifs_dirty_inode() because
-+	 * it passes I_DIRTY_PAGES flag while calling __mark_inode_dirty(), so
-+	 * there is no need to do space budget for dirty inode.
-+	 */
-+	redirty_page_for_writepage(wbc, page);
- out_unlock:
- 	unlock_page(page);
- 	return err;
+ 	/* Mark request as `sent' *before* we actually send it,
+@@ -524,11 +530,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 	req->status = REQ_STATUS_SENT;
+ 	err = ib_post_send(rdma->qp, &wr, NULL);
+ 	if (err)
+-		goto send_error;
++		goto dma_unmap;
+ 
+ 	/* Success */
+ 	return 0;
+ 
++dma_unmap:
++	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
++			    c->req->tc.size, DMA_TO_DEVICE);
+  /* Handle errors that happened during or while preparing the send: */
+  send_error:
+ 	req->status = REQ_STATUS_ERROR;
 -- 
 2.39.2
 
