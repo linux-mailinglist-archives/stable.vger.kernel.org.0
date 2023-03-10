@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3914C6B468E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9CB6B438A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232938AbjCJOoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:44:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60860 "EHLO
+        id S232027AbjCJOP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:15:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232871AbjCJOns (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:43:48 -0500
+        with ESMTP id S232035AbjCJOPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:15:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB45635257
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:43:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938718E3D8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:14:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67EDD61745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:43:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A523C4339B;
-        Fri, 10 Mar 2023 14:43:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F20DC6182F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13E67C433D2;
+        Fri, 10 Mar 2023 14:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459425;
-        bh=5c8AitNH/yphUC4ws+qyz6mZb6RsWvB5aetFQpQbIhw=;
+        s=korg; t=1678457639;
+        bh=4BwReLaZ5wA1dlh0zI2K26R9S3JhYUDjXUIbnw+0Rtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZMRYmc2rg0EeLWBrxUmcpz3RleBmR71dT06aEbvYrDXlXi7IA7oZYuVcSWBDHV7A
-         SJ13F714aoX9iLx7dNhfigiR1DrxkCGQVIXHZnWsLTFB/gw64KrriUUWlXdfPRvSVb
-         YVIlguhxZUuy8g5veO/5msxuZAUaTHEoCsU6wWSM=
+        b=d5DOfmiCPRU1ameMd9uDpT/BRE7mCTo+Oj2PDl8Pjp6BmImwaxuKGSNfmaYW8aMeO
+         PAU7i/GfvAtIy5KvL+ozJsQe99PHcD2X5gajra42rZyxpOVEF1lnA1hBcUb/uZCAqQ
+         b3sp4GxJGGzZjVstydWaSpsyXZoM1oJAeLCszJ44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 317/357] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
-Date:   Fri, 10 Mar 2023 14:40:06 +0100
-Message-Id: <20230310133748.682707645@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>
+Subject: [PATCH 6.1 200/200] usb: gadget: uvc: fix missing mutex_unlock() if kstrtou8() fails
+Date:   Fri, 10 Mar 2023 14:40:07 +0100
+Message-Id: <20230310133723.219194041@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,79 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
+commit 7ebb605d2283fb2647b4fa82030307ce00bee436 upstream.
 
-When down_interruptible() or ib_post_send() failed in rdma_request(),
-receive dma buffer is not unmapped. Add unmap action to error path.
-Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
-Add unmap action to error path.
+If kstrtou8() fails, the mutex_unlock() is missed, move kstrtou8()
+before mutex_lock() to fix it up.
 
-Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
-Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0525210c9840 ("usb: gadget: uvc: Allow definition of XUs in configfs")
+Fixes: b3c839bd8a07 ("usb: gadget: uvc: Make bSourceID read/write")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20230213070926.776447-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_rdma.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/function/uvc_configfs.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
-index b21c3c2098159..c00e965c082bf 100644
---- a/net/9p/trans_rdma.c
-+++ b/net/9p/trans_rdma.c
-@@ -385,6 +385,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	struct p9_trans_rdma *rdma = client->trans;
- 	struct ib_recv_wr wr;
- 	struct ib_sge sge;
-+	int ret;
+--- a/drivers/usb/gadget/function/uvc_configfs.c
++++ b/drivers/usb/gadget/function/uvc_configfs.c
+@@ -524,6 +524,10 @@ static ssize_t uvcg_default_output_b_sou
+ 	int result;
+ 	u8 num;
  
- 	c->busa = ib_dma_map_single(rdma->cm_id->device,
- 				    c->rc.sdata, client->msize,
-@@ -402,7 +403,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	wr.wr_cqe = &c->cqe;
- 	wr.sg_list = &sge;
- 	wr.num_sge = 1;
--	return ib_post_recv(rdma->qp, &wr, NULL);
++	result = kstrtou8(page, 0, &num);
++	if (result)
++		return result;
 +
-+	ret = ib_post_recv(rdma->qp, &wr, NULL);
-+	if (ret)
-+		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+				    client->msize, DMA_FROM_DEVICE);
-+	return ret;
+ 	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
  
-  error:
- 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
-@@ -499,7 +505,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 	opts_item = group->cg_item.ci_parent->ci_parent->
+@@ -531,10 +535,6 @@ static ssize_t uvcg_default_output_b_sou
+ 	opts = to_f_uvc_opts(opts_item);
+ 	cd = &opts->uvc_output_terminal;
  
- 	if (down_interruptible(&rdma->sq_sem)) {
- 		err = -EINTR;
--		goto send_error;
-+		goto dma_unmap;
- 	}
- 
- 	/* Mark request as `sent' *before* we actually send it,
-@@ -509,11 +515,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
- 	req->status = REQ_STATUS_SENT;
- 	err = ib_post_send(rdma->qp, &wr, NULL);
- 	if (err)
--		goto send_error;
-+		goto dma_unmap;
- 
- 	/* Success */
- 	return 0;
- 
-+dma_unmap:
-+	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+			    c->req->tc.size, DMA_TO_DEVICE);
-  /* Handle errors that happened during or while preparing the send: */
-  send_error:
- 	req->status = REQ_STATUS_ERROR;
--- 
-2.39.2
-
+-	result = kstrtou8(page, 0, &num);
+-	if (result)
+-		return result;
+-
+ 	mutex_lock(&opts->lock);
+ 	cd->bSourceID = num;
+ 	mutex_unlock(&opts->lock);
 
 
