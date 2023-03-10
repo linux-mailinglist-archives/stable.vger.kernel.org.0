@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDDF36B483F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFF56B44FB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233646AbjCJPBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:01:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
+        id S232480AbjCJOaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233650AbjCJPAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:00:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED5012C81C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:27 -0800 (PST)
+        with ESMTP id S232413AbjCJO3d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90BF93C20
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B429B8231A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 786FCC4339B;
-        Fri, 10 Mar 2023 14:53:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C68E61380
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4515EC4339B;
+        Fri, 10 Mar 2023 14:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460002;
-        bh=KOXnq/ZGzYbXe5yukVoh4jIAH6bIVpYRK589NZtmF1Y=;
+        s=korg; t=1678458500;
+        bh=11WK8pcdcLgcV9qs2ZAllq7UfOxadUX5mSIH0u0OQcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMJmJynm4OXxUP13u0I7RGiGsfJ9WwT7iNgxbXIlO9P+Zz9bMm7okdgZhDxulkClg
-         z43RBEyDeoe9HcvKndqMlkeyUgSjJXsyzf6PH1sMHiy1H4nJJnpnjXfleY8aU6rmPU
-         4OEAC4XMuNrhaBzzaSo4tDagCEJmP4uFg+EclxtU=
+        b=dKQ3eVnP40EeCYwPWzviZyVc0OItgr/yjLPEO+1RDLqmSTayb6gRxqT5xa5xAtVTo
+         rszMAYdblBC/RI3a0X9kgof3TFswCBW9TYs9xj/P3zGq2mw78C9XIDRXVvV0j03xB/
+         Cxd/mgEVnmNpH9rQUFcjSAOYJProZyWxv/kAhCXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Clark Wang <xiaoning.wang@nxp.com>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 191/529] gpio: vf610: connect GPIO label to dev name
-Date:   Fri, 10 Mar 2023 14:35:34 +0100
-Message-Id: <20230310133813.838547807@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 046/357] wifi: libertas_tf: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Fri, 10 Mar 2023 14:35:35 +0100
+Message-Id: <20230310133736.008151660@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 6f8ecb7f85f441eb7d78ba2a4df45ee8a821934e ]
+[ Upstream commit 9388ce97b98216833c969191ee6df61a7201d797 ]
 
-Current GPIO label is fixed, so can't distinguish different GPIO
-controllers through labels. Use dev name instead.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
+tested only.
 
-Fixes: 7f2691a19627 ("gpio: vf610: add gpiolib/IRQ chip driver for Vybrid")
-Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Fixes: fc75122fabb5 ("libertas_tf: use irqsave() in USB's complete callback")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207150008.111743-2-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-vf610.c | 2 +-
+ drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-vf610.c b/drivers/gpio/gpio-vf610.c
-index 1ae612c796eef..396a687e020f5 100644
---- a/drivers/gpio/gpio-vf610.c
-+++ b/drivers/gpio/gpio-vf610.c
-@@ -304,7 +304,7 @@ static int vf610_gpio_probe(struct platform_device *pdev)
- 	gc = &port->gc;
- 	gc->of_node = np;
- 	gc->parent = dev;
--	gc->label = "vf610-gpio";
-+	gc->label = dev_name(dev);
- 	gc->ngpio = VF610_GPIO_PER_PORT;
- 	gc->base = of_alias_get_id(np, "gpio") * VF610_GPIO_PER_PORT;
- 
+diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+index b30bcb28503ae..f47db95299f37 100644
+--- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+@@ -613,7 +613,7 @@ static inline void process_cmdrequest(int recvlength, uint8_t *recvbuff,
+ 	spin_lock_irqsave(&priv->driver_lock, flags);
+ 	memcpy(priv->cmd_resp_buff, recvbuff + MESSAGE_HEADER_LEN,
+ 	       recvlength - MESSAGE_HEADER_LEN);
+-	kfree_skb(skb);
++	dev_kfree_skb_irq(skb);
+ 	lbtf_cmd_response_rx(priv);
+ 	spin_unlock_irqrestore(&priv->driver_lock, flags);
+ }
 -- 
 2.39.2
 
