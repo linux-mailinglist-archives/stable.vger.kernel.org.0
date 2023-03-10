@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5743A6B445B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 625C46B4319
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232158AbjCJOXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:23:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60248 "EHLO
+        id S231764AbjCJOKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232255AbjCJOWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0542911AC8F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:08 -0800 (PST)
+        with ESMTP id S231769AbjCJOKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA29C112A64
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BFEA616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CDA1C4339B;
-        Fri, 10 Mar 2023 14:22:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95494B82278
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC37C433A1;
+        Fri, 10 Mar 2023 14:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458127;
-        bh=s7/xobAQRrsurvzSjHrXxO+rqxzENtSff3QKSZbLo/Q=;
+        s=korg; t=1678457384;
+        bh=YKefre9Jvc6Lxl3JY7rnaim0zfA+qJGhlhH0R3hZHcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbezsOkkPKmSUWzRYi8dCgzH8iaF9bPr60/SlfGECNJVGMPGHTKfe+qAx55v5z0m6
-         /Kzth+Oef+H6ec3GFcjZO/A4h4U1Do3GZn9PzEfG0P1ESpu7I4sbwMkZ3fBJWbhQEN
-         QBrzufh1tQ/MTLphIOA7JUEgQUdq+t6TPb82iFh8=
+        b=lZzuH+g0PKGfnNbjsbzQkHQJd8uPjd3IeYXBgmhx3zj8CXjkF1v5SFNNFMCJc7Ddk
+         6yVGp49J4kR2PaMlkvr2qjjQW+ceP+u/6bYjZpsO1JASzuhK1hycB1hSYsx1Jp7wdg
+         Z1cRoBeMa57It1VEcvpDODc+WqHsNRHVWWSLnrDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <Andrew.Cooper3@citrix.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 4.19 155/252] x86/virt: Force GIF=1 prior to disabling SVM (for reboot flows)
+        patches@lists.linux.dev,
+        Souradeep Chowdhury <quic_schowdhu@quicinc.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 118/200] bootconfig: Increase max nodes of bootconfig from 1024 to 8192 for DCC support
 Date:   Fri, 10 Mar 2023 14:38:45 +0100
-Message-Id: <20230310133723.510316289@linuxfoundation.org>
+Message-Id: <20230310133720.728760156@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
 
-commit 6a3236580b0b1accc3976345e723104f74f6f8e6 upstream.
+[ Upstream commit 6c40624930c58529185a257380442547580ed837 ]
 
-Set GIF=1 prior to disabling SVM to ensure that INIT is recognized if the
-kernel is disabling SVM in an emergency, e.g. if the kernel is about to
-jump into a crash kernel or may reboot without doing a full CPU RESET.
-If GIF is left cleared, the new kernel (or firmware) will be unabled to
-awaken APs.  Eat faults on STGI (due to EFER.SVME=0) as it's possible
-that SVM could be disabled via NMI shootdown between reading EFER.SVME
-and executing STGI.
+The Data Capture and Compare(DCC) is a debugging tool that uses the bootconfig
+for configuring the register values during boot-time. Increase the max nodes
+supported by bootconfig to cater to the requirements of the Data Capture and
+Compare Driver.
 
-Link: https://lore.kernel.org/all/cbcb6f35-e5d7-c1c9-4db9-fe5cc4de579a@amd.com
-Cc: stable@vger.kernel.org
-Cc: Andrew Cooper <Andrew.Cooper3@citrix.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221130233650.1404148-3-seanjc@google.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/all/1674536682-18404-1-git-send-email-quic_schowdhu@quicinc.com/
+
+Signed-off-by: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/virtext.h |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ include/linux/bootconfig.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/virtext.h
-+++ b/arch/x86/include/asm/virtext.h
-@@ -114,7 +114,21 @@ static inline void cpu_svm_disable(void)
+diff --git a/include/linux/bootconfig.h b/include/linux/bootconfig.h
+index 1611f9db878e7..ca73940e26df8 100644
+--- a/include/linux/bootconfig.h
++++ b/include/linux/bootconfig.h
+@@ -59,7 +59,7 @@ struct xbc_node {
+ /* Maximum size of boot config is 32KB - 1 */
+ #define XBC_DATA_MAX	(XBC_VALUE - 1)
  
- 	wrmsrl(MSR_VM_HSAVE_PA, 0);
- 	rdmsrl(MSR_EFER, efer);
--	wrmsrl(MSR_EFER, efer & ~EFER_SVME);
-+	if (efer & EFER_SVME) {
-+		/*
-+		 * Force GIF=1 prior to disabling SVM to ensure INIT and NMI
-+		 * aren't blocked, e.g. if a fatal error occurred between CLGI
-+		 * and STGI.  Note, STGI may #UD if SVM is disabled from NMI
-+		 * context between reading EFER and executing STGI.  In that
-+		 * case, GIF must already be set, otherwise the NMI would have
-+		 * been blocked, so just eat the fault.
-+		 */
-+		asm_volatile_goto("1: stgi\n\t"
-+				  _ASM_EXTABLE(1b, %l[fault])
-+				  ::: "memory" : fault);
-+fault:
-+		wrmsrl(MSR_EFER, efer & ~EFER_SVME);
-+	}
- }
+-#define XBC_NODE_MAX	1024
++#define XBC_NODE_MAX	8192
+ #define XBC_KEYLEN_MAX	256
+ #define XBC_DEPTH_MAX	16
  
- /** Makes sure SVM is disabled, if it is supported on the CPU
+-- 
+2.39.2
+
 
 
