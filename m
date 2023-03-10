@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF7116B486F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD3B6B4524
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233844AbjCJPCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:02:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44000 "EHLO
+        id S232559AbjCJObV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:31:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233099AbjCJPCG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:02:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83FC312C716
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:20 -0800 (PST)
+        with ESMTP id S232486AbjCJObA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B82F121402
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8A8B822EB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:55:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8108CC433D2;
-        Fri, 10 Mar 2023 14:55:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A762361745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A170EC4339B;
+        Fri, 10 Mar 2023 14:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460108;
-        bh=5TjZXxZx++20B/0zTVo7iGIgmESD7Zr9sAb4G7+FNTY=;
+        s=korg; t=1678458601;
+        bh=lX3QmONUX/1AN5HbsF3iYlWjhhe6CXWHwkKD/m5ze6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lexzwk2iuUTfuac4lPYD/TUzuzaGVTEGPvj2COVIbqkWbzpomdVLrVxNGFw52LxBZ
-         G/MlGkEb/q7UHt9A2+hUguo9ATc91cHGlljT6l+fiMwUVGH6wCR96VQptVUwmW7cfi
-         Al/7kbl2IyBkxlLy18jww1J6c8IeA3ip5VQGMsdA=
+        b=xNh/cmoT5pLu1tNLoJ2teSEgp9HZGH8Zi4zVPSpVUhwYQbv78FdCmGIU7DA2+Ir/p
+         aWyNMwcUQVN8lkV4UDpS+e2s8UR+2+dpVaRc7ZH6Vkx/cyIwgQb6icEiltAeobFc6O
+         RwtUph8gACdfiMVEAsPBFrxRzBaJJp9WlDloiMSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sam Ravnborg <sam@ravnborg.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Kirill Tkhai <tkhai@yandex.ru>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 226/529] sparc: allow PM configs for sparc32 COMPILE_TEST
+Subject: [PATCH 5.4 080/357] crypto: rsa-pkcs1pad - Use akcipher_request_complete
 Date:   Fri, 10 Mar 2023 14:36:09 +0100
-Message-Id: <20230310133815.474374900@linuxfoundation.org>
+Message-Id: <20230310133737.513272147@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,84 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 7be6a87c2473957090995b7eb541e31d57a2c801 ]
+[ Upstream commit 564cabc0ca0bdfa8f0fc1ae74b24d0a7554522c5 ]
 
-When doing randconfig builds for sparc32 with COMPILE_TEST, some
-(non-Sparc) drivers cause kconfig warnings with the Kconfig symbols PM,
-PM_GENERIC_DOMAINS, or PM_GENERIC_DOMAINS_OF.
+Use the akcipher_request_complete helper instead of calling the
+completion function directly.  In fact the previous code was buggy
+in that EINPROGRESS was never passed back to the original caller.
 
-This is due to arch/sparc/Kconfig not using the PM Kconfig for
-Sparc32:
-
-  if SPARC64
-  source "kernel/power/Kconfig"
-  endif
-
-Arnd suggested adding "|| COMPILE_TEST" to the conditional,
-instead of trying to track down every driver that selects
-any of these PM symbols.
-
-Fixes the following kconfig warnings:
-
-WARNING: unmet direct dependencies detected for PM
-  Depends on [n]: SPARC64 [=n]
-  Selected by [y]:
-  - SUN20I_PPU [=y] && (ARCH_SUNXI || COMPILE_TEST [=y])
-
-WARNING: unmet direct dependencies detected for PM
-  Depends on [n]: SPARC64 [=n]
-  Selected by [y]:
-  - SUN20I_PPU [=y] && (ARCH_SUNXI || COMPILE_TEST [=y])
-
-WARNING: unmet direct dependencies detected for PM_GENERIC_DOMAINS
-  Depends on [n]: SPARC64 [=n] && PM [=y]
-  Selected by [y]:
-  - QCOM_GDSC [=y] && COMMON_CLK [=y] && PM [=y]
-  - SUN20I_PPU [=y] && (ARCH_SUNXI || COMPILE_TEST [=y])
-  - MESON_GX_PM_DOMAINS [=y] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
-  - BCM2835_POWER [=y] && (ARCH_BCM2835 || COMPILE_TEST [=y] && OF [=y]) && PM [=y]
-  - BCM_PMB [=y] && (ARCH_BCMBCA || COMPILE_TEST [=y] && OF [=y]) && PM [=y]
-  - ROCKCHIP_PM_DOMAINS [=y] && (ARCH_ROCKCHIP || COMPILE_TEST [=y]) && PM [=y]
-  Selected by [m]:
-  - ARM_SCPI_POWER_DOMAIN [=m] && (ARM_SCPI_PROTOCOL [=m] || COMPILE_TEST [=y] && OF [=y]) && PM [=y]
-  - MESON_EE_PM_DOMAINS [=m] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
-  - QCOM_AOSS_QMP [=m] && (ARCH_QCOM || COMPILE_TEST [=y]) && MAILBOX [=y] && COMMON_CLK [=y] && PM [=y]
-
-WARNING: unmet direct dependencies detected for PM_GENERIC_DOMAINS_OF
-  Depends on [n]: SPARC64 [=n] && PM_GENERIC_DOMAINS [=y] && OF [=y]
-  Selected by [y]:
-  - MESON_GX_PM_DOMAINS [=y] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
-  Selected by [m]:
-  - MESON_EE_PM_DOMAINS [=m] && (ARCH_MESON || COMPILE_TEST [=y]) && PM [=y] && OF [=y]
-
-Link: https://lkml.kernel.org/r/20230205004357.29459-1-rdunlap@infradead.org
-Fixes: bdde6b3c8ba4 ("sparc64: Hibernation support")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Kirill Tkhai <tkhai@yandex.ru>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 3d5b1ecdea6f ("crypto: rsa - RSA padding algorithm")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/rsa-pkcs1pad.c | 34 +++++++++++++++-------------------
+ 1 file changed, 15 insertions(+), 19 deletions(-)
 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 530b7ec5d3ca9..b5ed893420591 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -293,7 +293,7 @@ config FORCE_MAX_ZONEORDER
- 	  This config option is actually maximum order plus one. For example,
- 	  a value of 13 means that the largest free memory block is 2^12 pages.
+diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
+index 9cbafaf6dd851..5b4b12b8a71a7 100644
+--- a/crypto/rsa-pkcs1pad.c
++++ b/crypto/rsa-pkcs1pad.c
+@@ -213,16 +213,14 @@ static void pkcs1pad_encrypt_sign_complete_cb(
+ 		struct crypto_async_request *child_async_req, int err)
+ {
+ 	struct akcipher_request *req = child_async_req->data;
+-	struct crypto_async_request async_req;
  
--if SPARC64
-+if SPARC64 || COMPILE_TEST
- source "kernel/power/Kconfig"
- endif
+ 	if (err == -EINPROGRESS)
+-		return;
++		goto out;
++
++	err = pkcs1pad_encrypt_sign_complete(req, err);
  
+-	async_req.data = req->base.data;
+-	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
+-	async_req.flags = child_async_req->flags;
+-	req->base.complete(&async_req,
+-			pkcs1pad_encrypt_sign_complete(req, err));
++out:
++	akcipher_request_complete(req, err);
+ }
+ 
+ static int pkcs1pad_encrypt(struct akcipher_request *req)
+@@ -331,15 +329,14 @@ static void pkcs1pad_decrypt_complete_cb(
+ 		struct crypto_async_request *child_async_req, int err)
+ {
+ 	struct akcipher_request *req = child_async_req->data;
+-	struct crypto_async_request async_req;
+ 
+ 	if (err == -EINPROGRESS)
+-		return;
++		goto out;
++
++	err = pkcs1pad_decrypt_complete(req, err);
+ 
+-	async_req.data = req->base.data;
+-	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
+-	async_req.flags = child_async_req->flags;
+-	req->base.complete(&async_req, pkcs1pad_decrypt_complete(req, err));
++out:
++	akcipher_request_complete(req, err);
+ }
+ 
+ static int pkcs1pad_decrypt(struct akcipher_request *req)
+@@ -511,15 +508,14 @@ static void pkcs1pad_verify_complete_cb(
+ 		struct crypto_async_request *child_async_req, int err)
+ {
+ 	struct akcipher_request *req = child_async_req->data;
+-	struct crypto_async_request async_req;
+ 
+ 	if (err == -EINPROGRESS)
+-		return;
++		goto out;
+ 
+-	async_req.data = req->base.data;
+-	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
+-	async_req.flags = child_async_req->flags;
+-	req->base.complete(&async_req, pkcs1pad_verify_complete(req, err));
++	err = pkcs1pad_verify_complete(req, err);
++
++out:
++	akcipher_request_complete(req, err);
+ }
+ 
+ /*
 -- 
 2.39.2
 
