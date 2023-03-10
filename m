@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAEF46B40FF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A44236B41F1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230347AbjCJNsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
+        id S231368AbjCJN6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230362AbjCJNs3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:29 -0500
+        with ESMTP id S231395AbjCJN56 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF92150F85
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA3A166EC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60CDE617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E454C433EF;
-        Fri, 10 Mar 2023 13:48:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBD1F61552
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F08E0C4339C;
+        Fri, 10 Mar 2023 13:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456106;
-        bh=gpQW+R9HmffdpY/muO/Fuck2asHsWmi9eGSv+5i37PY=;
+        s=korg; t=1678456675;
+        bh=WyvtTXrSIf4F5EnjKnIMnikvS8JpCCgLWGrp97SG79w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsmdWL9CPQqxxoqZr86CTUfhdSlS68qD6lr4Uv+R2+sWNOQ33PWFybnd6Y+JhRH+q
-         VJcsiq5afmPtqWEN9AIJg6L1vOMOVrPAA3j29+ZliBHr2bM9Q8SjMNX24InRpjQ84o
-         QbnNSKZ7PPjh083rayCpr47QR9FXA7mdh0+E3r34=
+        b=pT7iEeMFh7H2dRn0NfeBdi4p50yXzbyGkAgTCMkFVeyXSUthtSBt7D/tr2jdkCXZQ
+         jFHejPA4R8dyDa+80K0NT1B/TLviJXJs9G+EQ1sZZfn2ugPKjzz1lNyni99fOTldCO
+         ryYlkufCpL/Zx94N5k3gY8gw0eRh4zJ6nVtFfJ18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/193] inet: fix fast path in __inet_hash_connect()
+Subject: [PATCH 6.2 085/211] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
 Date:   Fri, 10 Mar 2023 14:37:45 +0100
-Message-Id: <20230310133713.841082947@linuxfoundation.org>
+Message-Id: <20230310133721.367138995@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,54 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 21cbd90a6fab7123905386985e3e4a80236b8714 ]
+[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
 
-__inet_hash_connect() has a fast path taken if sk_head(&tb->owners) is
-equal to the sk parameter.
-sk_head() returns the hlist_entry() with respect to the sk_node field.
-However entries in the tb->owners list are inserted with respect to the
-sk_bind_node field with sk_add_bind_node().
-Thus the check would never pass and the fast path never execute.
+When down_interruptible() or ib_post_send() failed in rdma_request(),
+receive dma buffer is not unmapped. Add unmap action to error path.
+Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
+Add unmap action to error path.
 
-This fast path has never been executed or tested as this bug seems
-to be present since commit 1da177e4c3f4 ("Linux-2.6.12-rc2"), thus
-remove it to reduce code complexity.
-
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230112-inet_hash_connect_bind_head-v3-1-b591fd212b93@diag.uniroma1.it
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
+Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ net/9p/trans_rdma.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 590801a7487f7..c5092e2b5933e 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -616,17 +616,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 	u32 index;
+diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
+index 83f9100d46bff..b84748baf9cbe 100644
+--- a/net/9p/trans_rdma.c
++++ b/net/9p/trans_rdma.c
+@@ -385,6 +385,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
+ 	struct p9_trans_rdma *rdma = client->trans;
+ 	struct ib_recv_wr wr;
+ 	struct ib_sge sge;
++	int ret;
  
- 	if (port) {
--		head = &hinfo->bhash[inet_bhashfn(net, port,
--						  hinfo->bhash_size)];
--		tb = inet_csk(sk)->icsk_bind_hash;
--		spin_lock_bh(&head->lock);
--		if (sk_head(&tb->owners) == sk && !sk->sk_bind_node.next) {
--			inet_ehash_nolisten(sk, NULL, NULL);
--			spin_unlock_bh(&head->lock);
--			return 0;
--		}
--		spin_unlock(&head->lock);
--		/* No definite answer... Walk to established hash table */
-+		local_bh_disable();
- 		ret = check_established(death_row, sk, port, NULL);
- 		local_bh_enable();
- 		return ret;
+ 	c->busa = ib_dma_map_single(rdma->cm_id->device,
+ 				    c->rc.sdata, client->msize,
+@@ -402,7 +403,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
+ 	wr.wr_cqe = &c->cqe;
+ 	wr.sg_list = &sge;
+ 	wr.num_sge = 1;
+-	return ib_post_recv(rdma->qp, &wr, NULL);
++
++	ret = ib_post_recv(rdma->qp, &wr, NULL);
++	if (ret)
++		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
++				    client->msize, DMA_FROM_DEVICE);
++	return ret;
+ 
+  error:
+ 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
+@@ -499,7 +505,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 
+ 	if (down_interruptible(&rdma->sq_sem)) {
+ 		err = -EINTR;
+-		goto send_error;
++		goto dma_unmap;
+ 	}
+ 
+ 	/* Mark request as `sent' *before* we actually send it,
+@@ -509,11 +515,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 	WRITE_ONCE(req->status, REQ_STATUS_SENT);
+ 	err = ib_post_send(rdma->qp, &wr, NULL);
+ 	if (err)
+-		goto send_error;
++		goto dma_unmap;
+ 
+ 	/* Success */
+ 	return 0;
+ 
++dma_unmap:
++	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
++			    c->req->tc.size, DMA_TO_DEVICE);
+  /* Handle errors that happened during or while preparing the send: */
+  send_error:
+ 	WRITE_ONCE(req->status, REQ_STATUS_ERROR);
 -- 
 2.39.2
 
