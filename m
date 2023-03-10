@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A04BE6B4251
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:02:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF0D6B445E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231560AbjCJOCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:02:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51014 "EHLO
+        id S232285AbjCJOX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:23:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231535AbjCJOBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D551151D5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:01:48 -0800 (PST)
+        with ESMTP id S232191AbjCJOWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4031E9D4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A13361771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:01:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B39BC4339B;
-        Fri, 10 Mar 2023 14:01:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8920BCE28F8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66C6CC433D2;
+        Fri, 10 Mar 2023 14:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456907;
-        bh=KRBEIVoE9JmHAOpRSWS3UjsvllJYFulQOA9LVXLoDQc=;
+        s=korg; t=1678458135;
+        bh=sHVyyNHYI5vjxby4TKYMDIHiTJ6KYSmWpyqJS2DRaPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mm5hqd7IvdLR7EGo1gdai9i6oZOzhyx3wK5U483mUwu6iCZC77pWrDLz5vzP9q3kf
-         b8Cd5Bo0jHdGNoTxK+dJuVJZLtnDWy+y1FF09b+FYuS+jZUuORulp2tWJqK5p4/ct1
-         7u2H8QZ1Lz+CU180wWL4if/rhjP6h97iXZlQjzuM=
+        b=tYFgj5f3h8oGE8mSrVNmFuSlhcDZmNZnP+lj9dgjiJi7F2UZWPN1zSJmgRYhO1p6+
+         qryq4EuUdlUr3SjZGljN0SCK1J681CwJBOSz/HHi7y18wnEzRWJm8YVztf6eQuSojd
+         jiIFZ/KhA+VK244UDWisgCgY6d0vhoJwS6qCfcfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kevin Cernekee <cernekee@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 165/211] USB: gadget: bcm63xx_udc: fix memory leak with using debugfs_lookup()
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.19 175/252] dm flakey: fix logic when corrupting a bio
 Date:   Fri, 10 Mar 2023 14:39:05 +0100
-Message-Id: <20230310133723.800180304@linuxfoundation.org>
+Message-Id: <20230310133724.156043993@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit a91c99b1fe5c6f7e52fb932ad9e57ec7cfe913ec ]
+commit aa56b9b75996ff4c76a0a4181c2fa0206c3d91cc upstream.
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+If "corrupt_bio_byte" is set to corrupt reads and corrupt_bio_flags is
+used, dm-flakey would erroneously return all writes as errors. Likewise,
+if "corrupt_bio_byte" is set to corrupt writes, dm-flakey would return
+errors for all reads.
 
-Cc: Kevin Cernekee <cernekee@gmail.com>
-Link: https://lore.kernel.org/r/20230202153235.2412790-9-gregkh@linuxfoundation.org
+Fix the logic so that if fc->corrupt_bio_byte is non-zero, dm-flakey
+will not abort reads on writes with an error.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bcm63xx_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-flakey.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/bcm63xx_udc.c b/drivers/usb/gadget/udc/bcm63xx_udc.c
-index d04d72f5816e6..8d58928913007 100644
---- a/drivers/usb/gadget/udc/bcm63xx_udc.c
-+++ b/drivers/usb/gadget/udc/bcm63xx_udc.c
-@@ -2258,7 +2258,7 @@ static void bcm63xx_udc_init_debugfs(struct bcm63xx_udc *udc)
-  */
- static void bcm63xx_udc_cleanup_debugfs(struct bcm63xx_udc *udc)
- {
--	debugfs_remove(debugfs_lookup(udc->gadget.name, usb_debug_root));
-+	debugfs_lookup_and_remove(udc->gadget.name, usb_debug_root);
- }
+--- a/drivers/md/dm-flakey.c
++++ b/drivers/md/dm-flakey.c
+@@ -364,9 +364,11 @@ static int flakey_map(struct dm_target *
+ 		/*
+ 		 * Corrupt matching writes.
+ 		 */
+-		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == WRITE)) {
+-			if (all_corrupt_bio_flags_match(bio, fc))
+-				corrupt_bio_data(bio, fc);
++		if (fc->corrupt_bio_byte) {
++			if (fc->corrupt_bio_rw == WRITE) {
++				if (all_corrupt_bio_flags_match(bio, fc))
++					corrupt_bio_data(bio, fc);
++			}
+ 			goto map_bio;
+ 		}
  
- /***********************************************************************
--- 
-2.39.2
-
+@@ -397,13 +399,14 @@ static int flakey_end_io(struct dm_targe
+ 	}
+ 
+ 	if (!*error && pb->bio_submitted && (bio_data_dir(bio) == READ)) {
+-		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == READ) &&
+-		    all_corrupt_bio_flags_match(bio, fc)) {
+-			/*
+-			 * Corrupt successful matching READs while in down state.
+-			 */
+-			corrupt_bio_data(bio, fc);
+-
++		if (fc->corrupt_bio_byte) {
++			if ((fc->corrupt_bio_rw == READ) &&
++			    all_corrupt_bio_flags_match(bio, fc)) {
++				/*
++				 * Corrupt successful matching READs while in down state.
++				 */
++				corrupt_bio_data(bio, fc);
++			}
+ 		} else if (!test_bit(DROP_WRITES, &fc->flags) &&
+ 			   !test_bit(ERROR_WRITES, &fc->flags)) {
+ 			/*
 
 
