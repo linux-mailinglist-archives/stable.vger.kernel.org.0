@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 515D06B4436
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D55516B4310
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232256AbjCJOWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58866 "EHLO
+        id S231830AbjCJOKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232233AbjCJOWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CEA61175B6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:58 -0800 (PST)
+        with ESMTP id S231931AbjCJOJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335C262FC5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 198BCCE27BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C89FC4339B;
-        Fri, 10 Mar 2023 14:20:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1476560F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC0EC4339B;
+        Fri, 10 Mar 2023 14:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458055;
-        bh=AVvRRtLuCC/Uh4h8WUg+3OWLhq8hny2VimOci6ZzFVM=;
+        s=korg; t=1678457360;
+        bh=Q17zExphoCBt19sRePr89iq4XZhdz3XvwQ2GfhKX0Zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDRG7liM6fMFJY6Nv2Q55PPkH8ygsmU41laUkC/5ZPkxoKI9U1OoHS9Lhwh8FXPpj
-         eZDJRGzpxAcfpOCpHPhI2DcAVpnGhQJgdx8j0XZrvA3mmk0H8gNP28kPcmkQqIakZ2
-         xoJuQmbR3AsobMITPl9cqWYxmiJ24oRQANPWBIIw=
+        b=HFXyVvPGpNas9KH/AmZDj9YvAnO7/m2CkcoEyWo/Zfg8jeOY0iDY5utieVV6RW/gj
+         SOF6PuZCxpUDWkCFYbH4PWGrHdzZci9abMEKVKuf1UPEIFJmumuTbMLK3BkOAIWx6g
+         CSj4KaPp9IrpqUvDa8FGlG67XonAtldus49QSCbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 4.19 148/252] f2fs: fix information leak in f2fs_move_inline_dirents()
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 111/200] ASoC: zl38060 add gpiolib dependency
 Date:   Fri, 10 Mar 2023 14:38:38 +0100
-Message-Id: <20230310133723.270315754@linuxfoundation.org>
+Message-Id: <20230310133720.511551240@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 9a5571cff4ffcfc24847df9fd545cc5799ac0ee5 upstream.
+[ Upstream commit 0de2cc3707b6b6e2ad40bd24ce09a5c1f65d01e1 ]
 
-When converting an inline directory to a regular one, f2fs is leaking
-uninitialized memory to disk because it doesn't initialize the entire
-directory block.  Fix this by zero-initializing the block.
+Without gpiolib, this driver fails to link:
 
-This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
-initializing when converting inline dentry"), which didn't consider the
-security implications of leaking uninitialized memory to disk.
+arm-linux-gnueabi-ld: sound/soc/codecs/zl38060.o: in function `chip_gpio_get':
+zl38060.c:(.text+0x30): undefined reference to `gpiochip_get_data'
+arm-linux-gnueabi-ld: sound/soc/codecs/zl38060.o: in function `zl38_spi_probe':
+zl38060.c:(.text+0xa18): undefined reference to `devm_gpiochip_add_data_with_key'
 
-This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
+This appears to have been in the driver since the start, but is hard to
+hit in randconfig testing since gpiolib is almost always selected by something
+else.
 
-Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
-Cc: <stable@vger.kernel.org> # v4.3+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 52e8a94baf90 ("ASoC: Add initial ZL38060 driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230227085850.2503725-1-arnd@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inline.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ sound/soc/codecs/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -408,18 +408,17 @@ static int f2fs_move_inline_dirents(stru
- 
- 	dentry_blk = page_address(page);
- 
-+	/*
-+	 * Start by zeroing the full block, to ensure that all unused space is
-+	 * zeroed and no uninitialized memory is leaked to disk.
-+	 */
-+	memset(dentry_blk, 0, F2FS_BLKSIZE);
-+
- 	make_dentry_ptr_inline(dir, &src, inline_dentry);
- 	make_dentry_ptr_block(dir, &dst, dentry_blk);
- 
- 	/* copy data from inline dentry block to new dentry block */
- 	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
--	memset(dst.bitmap + src.nr_bitmap, 0, dst.nr_bitmap - src.nr_bitmap);
--	/*
--	 * we do not need to zero out remainder part of dentry and filename
--	 * field, since we have used bitmap for marking the usage status of
--	 * them, besides, we can also ignore copying/zeroing reserved space
--	 * of dentry block, because them haven't been used so far.
--	 */
- 	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
- 	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
- 
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 7022e6286e6cb..3f16ad1c37585 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -2039,6 +2039,7 @@ config SND_SOC_WSA883X
+ config SND_SOC_ZL38060
+ 	tristate "Microsemi ZL38060 Connected Home Audio Processor"
+ 	depends on SPI_MASTER
++	depends on GPIOLIB
+ 	select REGMAP
+ 	help
+ 	  Support for ZL38060 Connected Home Audio Processor from Microsemi,
+-- 
+2.39.2
+
 
 
