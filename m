@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E93116B421B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 330D36B4427
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231450AbjCJOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47452 "EHLO
+        id S232243AbjCJOWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231480AbjCJN7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C6921151FB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:52 -0800 (PST)
+        with ESMTP id S231893AbjCJOVh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E450B12086F;
+        Fri, 10 Mar 2023 06:20:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C39EDB822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F17FC4339C;
-        Fri, 10 Mar 2023 13:59:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39A4F616F0;
+        Fri, 10 Mar 2023 14:20:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DFEDC4339B;
+        Fri, 10 Mar 2023 14:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456789;
-        bh=yEocyvpjW3kXWlnbIVuc3GSwiYbjoFqbUTV9hn5YZks=;
+        s=korg; t=1678458014;
+        bh=e0kjNd8dXWiayVzUnyofvlTCsuC6QsMuMAlfe1EJO04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHR+dStZ10OVHuKNYI40o8qhONwo1te+J4mWkM6bpJZkxmXcGUG5/l7kZWCKG3Iko
-         oFCnjLGRp0wz7HiUMWpkE81Keub5MSg57Xqyz4PKvQieb2yTESJILcD6leZUua5j7y
-         nuOR/53p8Jj38VeDRED3EjnUIsKQS2kmBt6R9PiQ=
+        b=s2i464Go4qhhkOkn/jWcshkGyAidvBNeICuMrv7JQKSgkwDwd+3t1tPXD5bze1qgn
+         W4/gb6rMI1JW4daym9W7PNmR5NcGKukmSbfBPf7FZbjos62QHfZeOUb52k9tawUplp
+         PBHHKBkXuxoxjeVe5UFlYfA8mm6ddIPHuLF27ukY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        linux-samsung-soc@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 125/211] tracing: Add NULL checks for buffer in ring_buffer_free_read_page()
+Subject: [PATCH 4.19 135/252] regulator: s5m8767: Bounds check id indexing into arrays
 Date:   Fri, 10 Mar 2023 14:38:25 +0100
-Message-Id: <20230310133722.536368889@linuxfoundation.org>
+Message-Id: <20230310133722.887417444@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,60 +58,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 3e4272b9954094907f16861199728f14002fcaf6 ]
+[ Upstream commit e314e15a0b58f9d051c00b25951073bcdae61953 ]
 
-In a previous commit 7433632c9ff6, buffer, buffer->buffers and
-buffer->buffers[cpu] in ring_buffer_wake_waiters() can be NULL,
-and thus the related checks are added.
+The compiler has no way to know if "id" is within the array bounds of
+the regulators array. Add a check for this and a build-time check that
+the regulators and reg_voltage_map arrays are sized the same. Seen with
+GCC 13:
 
-However, in the same call stack, these variables are also used in
-ring_buffer_free_read_page():
+../drivers/regulator/s5m8767.c: In function 's5m8767_pmic_probe':
+../drivers/regulator/s5m8767.c:936:35: warning: array subscript [0, 36] is outside array bounds of 'struct regulator_desc[37]' [-Warray-bounds=]
+  936 |                         regulators[id].vsel_reg =
+      |                         ~~~~~~~~~~^~~~
 
-tracing_buffers_release()
-  ring_buffer_wake_waiters(iter->array_buffer->buffer)
-    cpu_buffer = buffer->buffers[cpu] -> Add checks by previous commit
-  ring_buffer_free_read_page(iter->array_buffer->buffer)
-    cpu_buffer = buffer->buffers[cpu] -> No check
-
-Thus, to avod possible null-pointer derefernces, the related checks
-should be added.
-
-These results are reported by a static tool designed by myself.
-
-Link: https://lkml.kernel.org/r/20230113125501.760324-1-baijiaju1990@gmail.com
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: linux-samsung-soc@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230128005358.never.313-kees@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ring_buffer.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/regulator/s5m8767.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index b641cab2745e9..20cd8c9d245e2 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -5604,11 +5604,16 @@ EXPORT_SYMBOL_GPL(ring_buffer_alloc_read_page);
-  */
- void ring_buffer_free_read_page(struct trace_buffer *buffer, int cpu, void *data)
- {
--	struct ring_buffer_per_cpu *cpu_buffer = buffer->buffers[cpu];
-+	struct ring_buffer_per_cpu *cpu_buffer;
- 	struct buffer_data_page *bpage = data;
- 	struct page *page = virt_to_page(bpage);
- 	unsigned long flags;
+diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
+index 4818df3f8ec91..24c0c82b08a5d 100644
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -922,10 +922,14 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
  
-+	if (!buffer || !buffer->buffers || !buffer->buffers[cpu])
-+		return;
+ 	for (i = 0; i < pdata->num_regulators; i++) {
+ 		const struct sec_voltage_desc *desc;
+-		int id = pdata->regulators[i].id;
++		unsigned int id = pdata->regulators[i].id;
+ 		int enable_reg, enable_val;
+ 		struct regulator_dev *rdev;
+ 
++		BUILD_BUG_ON(ARRAY_SIZE(regulators) != ARRAY_SIZE(reg_voltage_map));
++		if (WARN_ON_ONCE(id >= ARRAY_SIZE(regulators)))
++			continue;
 +
-+	cpu_buffer = buffer->buffers[cpu];
-+
- 	/* If the page is still in use someplace else, we can't reuse it */
- 	if (page_ref_count(page) > 1)
- 		goto out;
+ 		desc = reg_voltage_map[id];
+ 		if (desc) {
+ 			regulators[id].n_voltages =
 -- 
 2.39.2
 
