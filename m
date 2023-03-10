@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E726B4112
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 863856B4401
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbjCJNtU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:49:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51232 "EHLO
+        id S232195AbjCJOUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:20:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230407AbjCJNtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E03978569F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:12 -0800 (PST)
+        with ESMTP id S232198AbjCJOUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F058117847
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F9AEB822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB441C433D2;
-        Fri, 10 Mar 2023 13:49:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90307618C9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A23D4C433D2;
+        Fri, 10 Mar 2023 14:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456150;
-        bh=k8apr88Pa4dOKFGhsCWanATlqNL60BvGN6PQ8i+aMms=;
+        s=korg; t=1678457937;
+        bh=yFSt00cOasyncrNWMXaIqAWy5VOMoQbD1xTXk5g2rK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPG4y0Z4pleOOyvF2xxpioM3F+r6an4XHFmmr5NCQiUVkpz/ThTnjMOSGLVFo4EVd
-         LnM5k2EmYEwp81uMr8TllGw/06ddz5ug6Eoz48ruDNA7PT1m17YXjh8LxkWh1Qcqpc
-         4pac4r+asyGuvEUUO3osx7LdTWLkhDM70WJM3oHg=
+        b=qMTsZWopjrRlBj4fhnIgEOYX8U4w0655AVDte1Msqcip+H2lHYCS4a7lerSG4h3BQ
+         OSqLu0l/Lj801NAiDiX6L9Hvl+4CxclKoUg84ebzsjQDWwaqZUwb6VbQYmoL70YqEW
+         dNvQzRCIkf6Es+ciOlg2fM1L69U4Ju9U4X+qKEhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Snitzer <snitzer@kernel.org>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/193] dm cache: add cond_resched() to various workqueue loops
+Subject: [PATCH 4.19 108/252] media: platform: ti: Add missing check for devm_regulator_get
 Date:   Fri, 10 Mar 2023 14:37:58 +0100
-Message-Id: <20230310133714.429716689@linuxfoundation.org>
+Message-Id: <20230310133722.071813445@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@kernel.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 76227f6dc805e9e960128bcc6276647361e0827c ]
+[ Upstream commit da8e05f84a11c3cc3b0ba0a3c62d20e358002d99 ]
 
-Otherwise on resource constrained systems these workqueues may be too
-greedy.
+Add check for the return value of devm_regulator_get since it may return
+error pointer.
 
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 448de7e7850b ("[media] omap3isp: OMAP3 ISP core")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-cache-target.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/platform/omap3isp/isp.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/md/dm-cache-target.c b/drivers/md/dm-cache-target.c
-index 5458a06971670..590aff275acb8 100644
---- a/drivers/md/dm-cache-target.c
-+++ b/drivers/md/dm-cache-target.c
-@@ -1952,6 +1952,7 @@ static void process_deferred_bios(struct work_struct *ws)
+diff --git a/drivers/media/platform/omap3isp/isp.c b/drivers/media/platform/omap3isp/isp.c
+index 00e52f0b8251b..b559cc179d708 100644
+--- a/drivers/media/platform/omap3isp/isp.c
++++ b/drivers/media/platform/omap3isp/isp.c
+@@ -2247,7 +2247,16 @@ static int isp_probe(struct platform_device *pdev)
  
- 		else
- 			commit_needed = process_bio(cache, bio) || commit_needed;
-+		cond_resched();
- 	}
- 
- 	if (commit_needed)
-@@ -1974,6 +1975,7 @@ static void requeue_deferred_bios(struct cache *cache)
- 	while ((bio = bio_list_pop(&bios))) {
- 		bio->bi_status = BLK_STS_DM_REQUEUE;
- 		bio_endio(bio);
-+		cond_resched();
- 	}
- }
- 
-@@ -2014,6 +2016,8 @@ static void check_migrations(struct work_struct *ws)
- 		r = mg_start(cache, op, NULL);
- 		if (r)
- 			break;
+ 	/* Regulators */
+ 	isp->isp_csiphy1.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy1");
++	if (IS_ERR(isp->isp_csiphy1.vdd)) {
++		ret = PTR_ERR(isp->isp_csiphy1.vdd);
++		goto error;
++	}
 +
-+		cond_resched();
- 	}
- }
+ 	isp->isp_csiphy2.vdd = devm_regulator_get(&pdev->dev, "vdd-csiphy2");
++	if (IS_ERR(isp->isp_csiphy2.vdd)) {
++		ret = PTR_ERR(isp->isp_csiphy2.vdd);
++		goto error;
++	}
  
+ 	/* Clocks
+ 	 *
 -- 
 2.39.2
 
