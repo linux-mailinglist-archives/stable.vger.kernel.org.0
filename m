@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB3A6B415E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84A9A6B4248
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231132AbjCJNwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:52:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56222 "EHLO
+        id S231530AbjCJOBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:01:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231140AbjCJNwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:52:11 -0500
+        with ESMTP id S231483AbjCJOB2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0691115656
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6482D114ED9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:01:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E1D06187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66964C433D2;
-        Fri, 10 Mar 2023 13:52:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F365B61552
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:01:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1CE7C4339B;
+        Fri, 10 Mar 2023 14:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456323;
-        bh=uEu+2Rs4uWmfpMB5T6wQk8UGk9Oub8psbftkPFeFGM4=;
+        s=korg; t=1678456886;
+        bh=uuFptdgdXONQlpP314S7OqYZlmrK8PnW/w/gUmsCNCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwP0C/yMP6zzHLVJ2XApC0FJBtt7Jb+sCrv9qZZR6u+XrE97bx/LlsSJ7vxCONAAb
-         aUx54uBJu5Qb0zUPG/O7AY3lTCBYuAJoD0MOhhf0spVCpJ62ZK2szlhcTbIb2WuoJ4
-         6tXTHjGDAf3Z3lDPvVlgVv+lcjqQJtYj2zmu/1wY=
+        b=ICYlk6hTcwzWrIeuFLjz18xA3HjNwn57Mo/ytOeTSihlDJ4u3OaHA5M/pwAFX2Qja
+         BM3z1VpPyXGui5mUBSWP98ESQ4Y+4JLoVJFF4tVtbXFDbKML1uDWUxjHdSJEDujdzg
+         EJWKjh3kWD39wZUzDd7lZd/5IFALdpdHdZNxSqN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 157/193] ubi: Fix unreferenced object reported by kmemleak in ubi_resize_volume()
+Subject: [PATCH 6.2 159/211] USB: uhci: fix memory leak with using debugfs_lookup()
 Date:   Fri, 10 Mar 2023 14:38:59 +0100
-Message-Id: <20230310133716.406197411@linuxfoundation.org>
+Message-Id: <20230310133723.594731638@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 1e591ea072df7211f64542a09482b5f81cb3ad27 ]
+[ Upstream commit 0a3f82c79c86278e7f144564b1cb6cc5c3657144 ]
 
-There is a memory leaks problem reported by kmemleak:
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-unreferenced object 0xffff888102007a00 (size 128):
-  comm "ubirsvol", pid 32090, jiffies 4298464136 (age 2361.231s)
-  hex dump (first 32 bytes):
-ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
-  backtrace:
-[<ffffffff8176cecd>] __kmalloc+0x4d/0x150
-[<ffffffffa02a9a36>] ubi_eba_create_table+0x76/0x170 [ubi]
-[<ffffffffa029764e>] ubi_resize_volume+0x1be/0xbc0 [ubi]
-[<ffffffffa02a3321>] ubi_cdev_ioctl+0x701/0x1850 [ubi]
-[<ffffffff81975d2d>] __x64_sys_ioctl+0x11d/0x170
-[<ffffffff83c142a5>] do_syscall_64+0x35/0x80
-[<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-This is due to a mismatch between create and destroy interfaces, and
-in detail that "new_eba_tbl" created by ubi_eba_create_table() but
-destroyed by kfree(), while will causing "new_eba_tbl->entries" not
-freed.
-
-Fix it by replacing kfree(new_eba_tbl) with
-ubi_eba_destroy_table(new_eba_tbl)
-
-Fixes: 799dca34ac54 ("UBI: hide EBA internals")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20230202153235.2412790-3-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/vmt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/uhci-hcd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index bbf4b61733708..26dcffb624e87 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -521,7 +521,7 @@ int ubi_resize_volume(struct ubi_volume_desc *desc, int reserved_pebs)
- 	return err;
+diff --git a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
+index c22b51af83fcb..7cdc2fa7c28fb 100644
+--- a/drivers/usb/host/uhci-hcd.c
++++ b/drivers/usb/host/uhci-hcd.c
+@@ -536,8 +536,8 @@ static void release_uhci(struct uhci_hcd *uhci)
+ 	uhci->is_initialized = 0;
+ 	spin_unlock_irq(&uhci->lock);
  
- out_free:
--	kfree(new_eba_tbl);
-+	ubi_eba_destroy_table(new_eba_tbl);
- 	return err;
+-	debugfs_remove(debugfs_lookup(uhci_to_hcd(uhci)->self.bus_name,
+-				      uhci_debugfs_root));
++	debugfs_lookup_and_remove(uhci_to_hcd(uhci)->self.bus_name,
++				  uhci_debugfs_root);
+ 
+ 	for (i = 0; i < UHCI_NUM_SKELQH; i++)
+ 		uhci_free_qh(uhci, uhci->skelqh[i]);
+@@ -700,7 +700,7 @@ static int uhci_start(struct usb_hcd *hcd)
+ 			uhci->frame, uhci->frame_dma_handle);
+ 
+ err_alloc_frame:
+-	debugfs_remove(debugfs_lookup(hcd->self.bus_name, uhci_debugfs_root));
++	debugfs_lookup_and_remove(hcd->self.bus_name, uhci_debugfs_root);
+ 
+ 	return retval;
  }
- 
 -- 
 2.39.2
 
