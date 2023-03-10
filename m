@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 034E36B463F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E2F6B4381
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232762AbjCJOld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:41:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58072 "EHLO
+        id S232025AbjCJOPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:15:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232776AbjCJOlc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:32 -0500
+        with ESMTP id S232040AbjCJOOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC4D11F61A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ECD060A95
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 442C16187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F228C4339C;
-        Fri, 10 Mar 2023 14:41:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 974AB61771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA152C433D2;
+        Fri, 10 Mar 2023 14:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459287;
-        bh=RZEf7v+wyeHDpn5PIlC3RxFgnFy8sBoUQvxBZ+pUalo=;
+        s=korg; t=1678457605;
+        bh=ZrtyA0A7hrz6MWSDZccImiLlC87UAiLyjk0epvMRlh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfPC+7Bu0krFiSAU/OJlQWITVtum6BrcyZMVHenjhA/srGxAXqQ00M9nWA5Q3qecL
-         5FRl9Scbi2VCNvwhxlG0BmmTmjpmEehK/q4NIZNAOnphJCVl0fJTHbo/W9FSvHp1m/
-         YyNaOXINMHeei6/sPDyq8NCVWNvA0WWZcF5m2RtU=
+        b=om7d7zcWzbaRFX4mLz9PUpgyv20QNMumYZdV7g89o0qjLUeuXbnWymMmcdYJjuuFz
+         X7yVCR3MPXh0jFOz1C71Lrl89cgc61/CJ33YIalJkKfVCoKE2OCHPequp9FXq0IRVC
+         Z+XI0exga+2KcIXLubLSDrd25a/mYpzy33xqTqus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 311/357] netfilter: ctnetlink: fix possible refcount leak in ctnetlink_create_conntrack()
-Date:   Fri, 10 Mar 2023 14:40:00 +0100
-Message-Id: <20230310133748.429493239@linuxfoundation.org>
+        patches@lists.linux.dev, Yunke Cao <yunkec@chromium.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 6.1 194/200] media: uvcvideo: Fix race condition with usb_kill_urb
+Date:   Fri, 10 Mar 2023 14:40:01 +0100
+Message-Id: <20230310133723.045260440@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit ac4893980bbe79ce383daf9a0885666a30fe4c83 ]
+commit 619d9b710cf06f7a00a17120ca92333684ac45a8 upstream.
 
-nf_ct_put() needs to be called to put the refcount got by
-nf_conntrack_find_get() to avoid refcount leak when
-nf_conntrack_hash_check_insert() fails.
+usb_kill_urb warranties that all the handlers are finished when it
+returns, but does not protect against threads that might be handling
+asynchronously the urb.
 
-Fixes: 7d367e06688d ("netfilter: ctnetlink: fix soft lockup when netlink adds new entries (v2)")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For UVC, the function uvc_ctrl_status_event_async() takes care of
+control changes asynchronously.
+
+If the code is executed in the following order:
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+uvc_ctrl_status_event_work()
+					uvc_status_start() -> FAIL
+
+Then uvc_status_start will keep failing and this error will be shown:
+
+<4>[    5.540139] URB 0000000000000000 submitted while active
+drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
+
+Let's improve the current situation, by not re-submiting the urb if
+we are stopping the status event. Also process the queued work
+(if any) during stop.
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+					uvc_status_start()
+uvc_ctrl_status_event_work() -> FAIL
+
+Hopefully, with the usb layer protection this should be enough to cover
+all the cases.
+
+Cc: stable@vger.kernel.org
+Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
+Reviewed-by: Yunke Cao <yunkec@chromium.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_ctrl.c   |    5 +++++
+ drivers/media/usb/uvc/uvc_status.c |   37 +++++++++++++++++++++++++++++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |    1 +
+ 3 files changed, 43 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index bc6f0c8874f81..4747daf901e71 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -2086,12 +2086,15 @@ ctnetlink_create_conntrack(struct net *net,
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
  
- 	err = nf_conntrack_hash_check_insert(ct);
- 	if (err < 0)
--		goto err2;
-+		goto err3;
++#include <asm/barrier.h>
+ #include <linux/bitops.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+@@ -1509,6 +1510,10 @@ static void uvc_ctrl_status_event_work(s
  
- 	rcu_read_unlock();
+ 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
  
- 	return ct;
++	/* The barrier is needed to synchronize with uvc_status_stop(). */
++	if (smp_load_acquire(&dev->flush_status))
++		return;
++
+ 	/* Resubmit the URB. */
+ 	w->urb->interval = dev->int_ep->desc.bInterval;
+ 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
+--- a/drivers/media/usb/uvc/uvc_status.c
++++ b/drivers/media/usb/uvc/uvc_status.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
  
-+err3:
-+	if (ct->master)
-+		nf_ct_put(ct->master);
- err2:
- 	rcu_read_unlock();
- err1:
--- 
-2.39.2
-
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+@@ -309,5 +310,41 @@ int uvc_status_start(struct uvc_device *
+ 
+ void uvc_status_stop(struct uvc_device *dev)
+ {
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++
++	/*
++	 * Prevent the asynchronous control handler from requeing the URB. The
++	 * barrier is needed so the flush_status change is visible to other
++	 * CPUs running the asynchronous handler before usb_kill_urb() is
++	 * called below.
++	 */
++	smp_store_release(&dev->flush_status, true);
++
++	/*
++	 * Cancel any pending asynchronous work. If any status event was queued,
++	 * process it synchronously.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/* Kill the urb. */
+ 	usb_kill_urb(dev->int_urb);
++
++	/*
++	 * The URB completion handler may have queued asynchronous work. This
++	 * won't resubmit the URB as flush_status is set, but it needs to be
++	 * cancelled before returning or it could then race with a future
++	 * uvc_status_start() call.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/*
++	 * From this point, there are no events on the queue and the status URB
++	 * is dead. No events will be queued until uvc_status_start() is called.
++	 * The barrier is needed to make sure that flush_status is visible to
++	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
++	 * again.
++	 */
++	smp_store_release(&dev->flush_status, false);
+ }
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -558,6 +558,7 @@ struct uvc_device {
+ 	/* Status Interrupt Endpoint */
+ 	struct usb_host_endpoint *int_ep;
+ 	struct urb *int_urb;
++	bool flush_status;
+ 	u8 *status;
+ 	struct input_dev *input;
+ 	char input_phys[64];
 
 
