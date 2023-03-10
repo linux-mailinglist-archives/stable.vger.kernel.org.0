@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C01E6B45A0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA9BC6B40EB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232579AbjCJOfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44488 "EHLO
+        id S230259AbjCJNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:47:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232600AbjCJOfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EBFF9D27
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:20 -0800 (PST)
+        with ESMTP id S230293AbjCJNrf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9F528E7D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 388EDB822BF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 881BFC433EF;
-        Fri, 10 Mar 2023 14:35:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C641617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA1C9C433D2;
+        Fri, 10 Mar 2023 13:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458917;
-        bh=fJQZg13Ohe2r1Dn1nVwifU1FHx0q7mLiQlEVWMgyaLo=;
+        s=korg; t=1678456053;
+        bh=AHH8+V25j04dYhHbB6RZNyhY6wrLnlvtMgRictoQFyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vwyz+jrjdRIzPscPwAXe60jhmfN8RHlaWN87N2VEicwwQTixJNAdbI9mY3TDp4N6J
-         xmc7CXsnclIGLXP0LJE7T53hilj8hN9tYouWzB0LgLQYtINECffL+iU+vsdDuhJOTe
-         w2yHZPtAOoYkiKy37PD/ENP4nCxub3xcmjc6KnGg=
+        b=OFAM0tLHvKbVAxlc+/g81xKN4EoXdmPyfnBO8CuOCTng4gYHulu7L4NAqk+qzk7Zt
+         /K1K8OLZ2yoPnOYO5YwEZFrjCI2BDKZy62SmdPU2hoay+UM+eCwyu7SI6mMZwtPmEz
+         C+GKOeOGuhneQh8kYcSbIHx4+Bzt9hOpbYnvW00k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jason Yan <yanaijie@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 156/357] clk: qcom: gpucc-sdm845: fix clk_dis_wait being programmed for CX GDSC
+Subject: [PATCH 4.14 063/193] scsi: aic94xx: Add missing check for dma_map_single()
 Date:   Fri, 10 Mar 2023 14:37:25 +0100
-Message-Id: <20230310133741.601821000@linuxfoundation.org>
+Message-Id: <20230310133713.130983965@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit cb81719e3c1165ef1bc33137dc628f750eed8ea4 ]
+[ Upstream commit 32fe45274edb5926abc0fac7263d9f889d02d9cf ]
 
-The gdsc_init() function will rewrite the CLK_DIS_WAIT field while
-registering the GDSC (writing the value 0x2 by default). This will
-override the setting done in the driver's probe function.
+Add check for dma_map_single() and return error if it fails in order to
+avoid invalid DMA address.
 
-Set cx_gdsc.clk_dis_wait_val to 8 to follow the intention of the probe
-function.
-
-Fixes: 453361cdd757 ("clk: qcom: Add graphics clock controller driver for SDM845")
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230201172305.993146-2-dmitry.baryshkov@linaro.org
+Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
+Link: https://lore.kernel.org/r/20230128110832.6792-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gpucc-sdm845.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/scsi/aic94xx/aic94xx_task.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/qcom/gpucc-sdm845.c b/drivers/clk/qcom/gpucc-sdm845.c
-index e40efba1bf7d4..7a116f62168bd 100644
---- a/drivers/clk/qcom/gpucc-sdm845.c
-+++ b/drivers/clk/qcom/gpucc-sdm845.c
-@@ -22,8 +22,6 @@
- #define CX_GMU_CBCR_SLEEP_SHIFT		4
- #define CX_GMU_CBCR_WAKE_MASK		0xf
- #define CX_GMU_CBCR_WAKE_SHIFT		8
--#define CLK_DIS_WAIT_SHIFT		12
--#define CLK_DIS_WAIT_MASK		(0xf << CLK_DIS_WAIT_SHIFT)
- 
- enum {
- 	P_BI_TCXO,
-@@ -124,6 +122,7 @@ static struct clk_branch gpu_cc_cxo_clk = {
- static struct gdsc gpu_cx_gdsc = {
- 	.gdscr = 0x106c,
- 	.gds_hw_ctrl = 0x1540,
-+	.clk_dis_wait_val = 0x8,
- 	.pd = {
- 		.name = "gpu_cx_gdsc",
- 	},
-@@ -221,10 +220,6 @@ static int gpu_cc_sdm845_probe(struct platform_device *pdev)
- 	value = 0xf << CX_GMU_CBCR_WAKE_SHIFT | 0xf << CX_GMU_CBCR_SLEEP_SHIFT;
- 	regmap_update_bits(regmap, 0x1098, mask, value);
- 
--	/* Configure clk_dis_wait for gpu_cx_gdsc */
--	regmap_update_bits(regmap, 0x106c, CLK_DIS_WAIT_MASK,
--						8 << CLK_DIS_WAIT_SHIFT);
--
- 	return qcom_cc_really_probe(pdev, &gpu_cc_sdm845_desc, regmap);
- }
- 
+diff --git a/drivers/scsi/aic94xx/aic94xx_task.c b/drivers/scsi/aic94xx/aic94xx_task.c
+index cdd4ab683be98..4de4bbca1f925 100644
+--- a/drivers/scsi/aic94xx/aic94xx_task.c
++++ b/drivers/scsi/aic94xx/aic94xx_task.c
+@@ -68,6 +68,9 @@ static int asd_map_scatterlist(struct sas_task *task,
+ 		dma_addr_t dma = pci_map_single(asd_ha->pcidev, p,
+ 						task->total_xfer_len,
+ 						task->data_dir);
++		if (dma_mapping_error(&asd_ha->pcidev->dev, dma))
++			return -ENOMEM;
++
+ 		sg_arr[0].bus_addr = cpu_to_le64((u64)dma);
+ 		sg_arr[0].size = cpu_to_le32(task->total_xfer_len);
+ 		sg_arr[0].flags |= ASD_SG_EL_LIST_EOL;
 -- 
 2.39.2
 
