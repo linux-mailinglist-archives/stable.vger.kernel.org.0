@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E21186B4243
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12FA46B4157
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231455AbjCJOB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:01:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50202 "EHLO
+        id S230521AbjCJNvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:51:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231423AbjCJOBX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BCD1165EC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:01:12 -0800 (PST)
+        with ESMTP id S230514AbjCJNvy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ACEF111B3A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEC6A61552
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:01:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1469C433A1;
-        Fri, 10 Mar 2023 14:01:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D3BDB822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8967C433EF;
+        Fri, 10 Mar 2023 13:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456871;
-        bh=Q9jxn3Wr7kc38QVx7x7JbpqH1/uDMpoRV96i6dtUSWg=;
+        s=korg; t=1678456309;
+        bh=kJQ71wpOorkv/Y7grx4+vHHaheC1pji4lLvUgLu8fTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=142jt8U+ddIEqOck4B7SQyKxF0yM8ttCm1jurOnTGlfuAGCr6lEQaVFzQBq9qq+nF
-         m74SnzVGKr7pX69WHV0JJ0BlmYOstkAJ7ge8DaCPUA+SQO/yMWbVcawPUMwq4nz4Qx
-         lHeXjnKK5RDgOx9a+qMHyMVvjpk+2+DUnIOAePm0=
+        b=p0FXyhegXRfSzFspowIhPkK8aGJ2++D7YWIwWeCo9we/2aFviavBdBmkuKVcKokIX
+         Q0qEYo6+TYl4Hjh/FrTC4fZjIWeJjdVA0pUWHpd2ugCh/zxVFvwP2RBZiM4E1DSX/8
+         eDFrHcVYqR/xYegZhZgmbok5U9qSAkXgQX2lUWFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 154/211] PCI: loongson: Prevent LS7A MRRS increases
+Subject: [PATCH 4.14 152/193] ubi: ensure that VID header offset + VID header size <= alloc, size
 Date:   Fri, 10 Mar 2023 14:38:54 +0100
-Message-Id: <20230310133723.432670705@linuxfoundation.org>
+Message-Id: <20230310133716.259429034@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,139 +55,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 8b3517f88ff2983f52698893519227c10aac90b2 ]
+[ Upstream commit 1b42b1a36fc946f0d7088425b90d491b4257ca3e ]
 
-Except for isochronous-configured devices, software may set
-Max_Read_Request_Size (MRRS) to any value up to 4096.  If a device issues a
-read request with size greater than the completer's Max_Payload_Size (MPS),
-the completer is required to break the response into multiple completions.
+Ensure that the VID header offset + VID header size does not exceed
+the allocated area to avoid slab OOB.
 
-Instead of correctly responding with multiple completions to a large read
-request, some LS7A Root Ports respond with a Completer Abort.  To prevent
-this, the MRRS must be limited to an implementation-specific value.
+BUG: KASAN: slab-out-of-bounds in crc32_body lib/crc32.c:111 [inline]
+BUG: KASAN: slab-out-of-bounds in crc32_le_generic lib/crc32.c:179 [inline]
+BUG: KASAN: slab-out-of-bounds in crc32_le_base+0x58c/0x626 lib/crc32.c:197
+Read of size 4 at addr ffff88802bb36f00 by task syz-executor136/1555
 
-The OS cannot detect that value, so rely on BIOS to configure MRRS before
-booting, and quirk the Root Ports so we never set an MRRS larger than that
-BIOS value for any downstream device.
+CPU: 2 PID: 1555 Comm: syz-executor136 Tainted: G        W
+6.0.0-1868 #1
+Hardware name: Red Hat KVM, BIOS 1.13.0-2.module+el8.3.0+7860+a7792d29
+04/01/2014
+Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x85/0xad lib/dump_stack.c:106
+  print_address_description mm/kasan/report.c:317 [inline]
+  print_report.cold.13+0xb6/0x6bb mm/kasan/report.c:433
+  kasan_report+0xa7/0x11b mm/kasan/report.c:495
+  crc32_body lib/crc32.c:111 [inline]
+  crc32_le_generic lib/crc32.c:179 [inline]
+  crc32_le_base+0x58c/0x626 lib/crc32.c:197
+  ubi_io_write_vid_hdr+0x1b7/0x472 drivers/mtd/ubi/io.c:1067
+  create_vtbl+0x4d5/0x9c4 drivers/mtd/ubi/vtbl.c:317
+  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
+  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
+  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
+  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
+  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
+  vfs_ioctl fs/ioctl.c:51 [inline]
+  __do_sys_ioctl fs/ioctl.c:870 [inline]
+  __se_sys_ioctl fs/ioctl.c:856 [inline]
+  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0x0
+RIP: 0033:0x7f96d5cf753d
+Code:
+RSP: 002b:00007fffd72206f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f96d5cf753d
+RDX: 0000000020000080 RSI: 0000000040186f40 RDI: 0000000000000003
+RBP: 0000000000400cd0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000400be0
+R13: 00007fffd72207e0 R14: 0000000000000000 R15: 0000000000000000
+  </TASK>
 
-N.B. Hot-added devices are not configured by BIOS, and they power up with
-MRRS = 512 bytes, so these devices will be limited to 512 bytes.  If the
-LS7A limit is smaller, those hot-added devices may not work correctly, but
-per [1], hotplug is not supported with this chipset revision.
+Allocated by task 1555:
+  kasan_save_stack+0x20/0x3d mm/kasan/common.c:38
+  kasan_set_track mm/kasan/common.c:45 [inline]
+  set_alloc_info mm/kasan/common.c:437 [inline]
+  ____kasan_kmalloc mm/kasan/common.c:516 [inline]
+  __kasan_kmalloc+0x88/0xa3 mm/kasan/common.c:525
+  kasan_kmalloc include/linux/kasan.h:234 [inline]
+  __kmalloc+0x138/0x257 mm/slub.c:4429
+  kmalloc include/linux/slab.h:605 [inline]
+  ubi_alloc_vid_buf drivers/mtd/ubi/ubi.h:1093 [inline]
+  create_vtbl+0xcc/0x9c4 drivers/mtd/ubi/vtbl.c:295
+  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
+  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
+  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
+  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
+  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
+  vfs_ioctl fs/ioctl.c:51 [inline]
+  __do_sys_ioctl fs/ioctl.c:870 [inline]
+  __se_sys_ioctl fs/ioctl.c:856 [inline]
+  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0x0
 
-[1] https://lore.kernel.org/r/073638a7-ae68-2847-ac3d-29e5e760d6af@loongson.cn
+The buggy address belongs to the object at ffff88802bb36e00
+  which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 0 bytes to the right of
+  256-byte region [ffff88802bb36e00, ffff88802bb36f00)
 
-[bhelgaas: commit log]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216884
-Link: https://lore.kernel.org/r/20230201043018.778499-3-chenhuacai@loongson.cn
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+The buggy address belongs to the physical page:
+page:00000000ea4d1263 refcount:1 mapcount:0 mapping:0000000000000000
+index:0x0 pfn:0x2bb36
+head:00000000ea4d1263 order:1 compound_mapcount:0 compound_pincount:0
+flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
+raw: 000fffffc0010200 ffffea000066c300 dead000000000003 ffff888100042b40
+raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff88802bb36e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ffff88802bb36e80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff88802bb36f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                    ^
+  ffff88802bb36f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff88802bb37000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-loongson.c | 44 +++++++++------------------
- drivers/pci/pci.c                     | 10 ++++++
- include/linux/pci.h                   |  1 +
- 3 files changed, 26 insertions(+), 29 deletions(-)
+ drivers/mtd/ubi/build.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
-index 05c50408f13b7..759ec211c17bf 100644
---- a/drivers/pci/controller/pci-loongson.c
-+++ b/drivers/pci/controller/pci-loongson.c
-@@ -75,37 +75,23 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
- 			DEV_LS7A_LPC, system_bus_quirk);
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index 933c4de39dcea..211fa2770a4eb 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -647,6 +647,12 @@ static int io_init(struct ubi_device *ubi, int max_beb_per1024)
+ 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
+ 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
  
--static void loongson_mrrs_quirk(struct pci_dev *dev)
-+static void loongson_mrrs_quirk(struct pci_dev *pdev)
- {
--	struct pci_bus *bus = dev->bus;
--	struct pci_dev *bridge;
--	static const struct pci_device_id bridge_devids[] = {
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_0) },
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_1) },
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_2) },
--		{ 0, },
--	};
--
--	/* look for the matching bridge */
--	while (!pci_is_root_bus(bus)) {
--		bridge = bus->self;
--		bus = bus->parent;
--		/*
--		 * Some Loongson PCIe ports have a h/w limitation of
--		 * 256 bytes maximum read request size. They can't handle
--		 * anything larger than this. So force this limit on
--		 * any devices attached under these ports.
--		 */
--		if (pci_match_id(bridge_devids, bridge)) {
--			if (pcie_get_readrq(dev) > 256) {
--				pci_info(dev, "limiting MRRS to 256\n");
--				pcie_set_readrq(dev, 256);
--			}
--			break;
--		}
--	}
-+	/*
-+	 * Some Loongson PCIe ports have h/w limitations of maximum read
-+	 * request size. They can't handle anything larger than this. So
-+	 * force this limit on any devices attached under these ports.
-+	 */
-+	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
-+
-+	bridge->no_inc_mrrs = 1;
- }
--DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_0, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_1, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_2, loongson_mrrs_quirk);
- 
- static void loongson_pci_pin_quirk(struct pci_dev *pdev)
- {
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index da748247061d2..7a67611dc5f48 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -6017,6 +6017,7 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
- {
- 	u16 v;
- 	int ret;
-+	struct pci_host_bridge *bridge = pci_find_host_bridge(dev->bus);
- 
- 	if (rq < 128 || rq > 4096 || !is_power_of_2(rq))
- 		return -EINVAL;
-@@ -6035,6 +6036,15 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
- 
- 	v = (ffs(rq) - 8) << 12;
- 
-+	if (bridge->no_inc_mrrs) {
-+		int max_mrrs = pcie_get_readrq(dev);
-+
-+		if (rq > max_mrrs) {
-+			pci_info(dev, "can't set Max_Read_Request_Size to %d; max is %d\n", rq, max_mrrs);
-+			return -EINVAL;
-+		}
++	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
++	    ubi->vid_hdr_alsize)) {
++		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
++		return -EINVAL;
 +	}
 +
- 	ret = pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
- 						  PCI_EXP_DEVCTL_READRQ, v);
- 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 254c8a4126a89..50042ea8e0083 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -572,6 +572,7 @@ struct pci_host_bridge {
- 	void		*release_data;
- 	unsigned int	ignore_reset_delay:1;	/* For entire hierarchy */
- 	unsigned int	no_ext_tags:1;		/* No Extended Tags */
-+	unsigned int	no_inc_mrrs:1;		/* No Increase MRRS */
- 	unsigned int	native_aer:1;		/* OS may use PCIe AER */
- 	unsigned int	native_pcie_hotplug:1;	/* OS may use PCIe hotplug */
- 	unsigned int	native_shpc_hotplug:1;	/* OS may use SHPC hotplug */
+ 	dbg_gen("min_io_size      %d", ubi->min_io_size);
+ 	dbg_gen("max_write_size   %d", ubi->max_write_size);
+ 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
 -- 
 2.39.2
 
