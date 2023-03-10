@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA9B26B49E3
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:16:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F15716B49E4
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233429AbjCJPQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:16:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56946 "EHLO
+        id S234146AbjCJPQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:16:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233293AbjCJPQO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:16:14 -0500
+        with ESMTP id S233507AbjCJPQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:16:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497BF13D1D4
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983F0135528
         for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:07:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF87B61A7F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D849BC433D2;
-        Fri, 10 Mar 2023 15:06:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA0B661962
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8AF8C433EF;
+        Fri, 10 Mar 2023 15:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460791;
-        bh=MUyFBHOgVcb184SN6l7njyAw+uF2brWnQdsB9Ybzebk=;
+        s=korg; t=1678460794;
+        bh=WQapwnlzvdlcuOSFjzemO+1KCgxp2nR0nblIBIOnKYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ofWBnwJG+Vn4GX7JlYANrRFHEqupcKvpvIA1u4Ohd/B2psN+x1RGvPYab1lIjPtxw
-         l4VChPLhLsMwCQcnkMGrQhq1SWSgUjwgvs8l3Atx3q3gx5hsqzV7GZyg5LF0irc1sh
-         5urtSU8iK8nNcYComiAqnbx8cwPeI6xe1xXh13Bk=
+        b=xx6f68+wdMtNx6msdR996dHfT1L01SmOVOgOGhyedUfah20Lpci4Vq7/CuBm5BekD
+         7Kj3F+jzsI0ZuJgDu4Im3TT2sVfzN+URhspOkKwYaJFJeA6vCbqXu6ZRuKHwCYv/Hz
+         lKGT+4Yzc5pN1z6A8sypB764hEa01mor6F5vTt2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 453/529] ubifs: ubifs_writepage: Mark page dirty after writing inode failed
-Date:   Fri, 10 Mar 2023 14:39:56 +0100
-Message-Id: <20230310133825.886850312@linuxfoundation.org>
+Subject: [PATCH 5.10 454/529] ubi: fastmap: Fix missed fm_anchor PEB in wear-leveling after disabling fastmap
+Date:   Fri, 10 Mar 2023 14:39:57 +0100
+Message-Id: <20230310133825.936600452@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -56,110 +56,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit fb8bc4c74ae4526d9489362ab2793a936d072b84 ]
+[ Upstream commit 76f9476ece445a07aeb72df9d896cd563fb5b50f ]
 
-There are two states for ubifs writing pages:
-1. Dirty, Private
-2. Not Dirty, Not Private
+After disabling fastmap(ubi->fm_disabled = 1), fastmap won't be updated,
+fm_anchor PEB is missed being scheduled for erasing. Besides, fm_anchor
+PEB may have smallest erase count, it doesn't participate wear-leveling.
+The difference of erase count between fm_anchor PEB and other PEBs will
+be larger and larger later on.
 
-There is a third possibility which maybe related to [1] that page is
-private but not dirty caused by following process:
+In which situation fastmap can be disabled? Initially, we have an UBI
+image with fastmap. Then the image will be atttached without module
+parameter 'fm_autoconvert', ubi turns to full scanning mode in one
+random attaching process(eg. bad fastmap caused by powercut), ubi
+fastmap is disabled since then.
 
-          PA
-lock(page)
-ubifs_write_end
-  attach_page_private		// set Private
-    __set_page_dirty_nobuffers	// set Dirty
-unlock(page)
+Fix it by not getting fm_anchor if fastmap is disabled in
+ubi_refill_pools().
 
-write_cache_pages
-  lock(page)
-  clear_page_dirty_for_io(page)	// clear Dirty
-  ubifs_writepage
-    write_inode
-    // fail, goto out, following codes are not executed
-    // do_writepage
-    //   set_page_writeback 	// set Writeback
-    //   detach_page_private	// clear Private
-    //   end_page_writeback 	// clear Writeback
-    out:
-    unlock(page)		// Private, Not Dirty
+Fetch a reproducer in [Link].
 
-                                       PB
-				ksys_fadvise64_64
-				  generic_fadvise
-				     invalidate_inode_page
-				     // page is neither Dirty nor Writeback
-				       invalidate_complete_page
-				       // page_has_private is true
-					 try_to_release_page
-					   ubifs_releasepage
-					     ubifs_assert(c, 0) !!!
-
-Then we may get following assertion failed:
-  UBIFS error (ubi0:0 pid 1492): ubifs_assert_failed [ubifs]:
-  UBIFS assert failed: 0, in fs/ubifs/file.c:1499
-  UBIFS warning (ubi0:0 pid 1492): ubifs_ro_mode [ubifs]:
-  switched to read-only mode, error -22
-  CPU: 2 PID: 1492 Comm: aa Not tainted 5.16.0-rc2-00012-g7bb767dee0ba-dirty
-  Call Trace:
-    dump_stack+0x13/0x1b
-    ubifs_ro_mode+0x54/0x60 [ubifs]
-    ubifs_assert_failed+0x4b/0x80 [ubifs]
-    ubifs_releasepage+0x7e/0x1e0 [ubifs]
-    try_to_release_page+0x57/0xe0
-    invalidate_inode_page+0xfb/0x130
-    invalidate_mapping_pagevec+0x12/0x20
-    generic_fadvise+0x303/0x3c0
-    vfs_fadvise+0x35/0x40
-    ksys_fadvise64_64+0x4c/0xb0
-
-Jump [2] to find a reproducer.
-
-[1] https://linux-mtd.infradead.narkive.com/NQoBeT1u/patch-rfc-ubifs-fix-assert-failed-in-ubifs-set-page-dirty
-[2] https://bugzilla.kernel.org/show_bug.cgi?id=215357
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216341
+Fixes: 4b68bf9a69d22d ("ubi: Select fastmap anchor PEBs considering ...")
 Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/mtd/ubi/fastmap-wl.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index 354457e846cda..19fdcda045890 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -1031,7 +1031,7 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
- 		if (page->index >= synced_i_size >> PAGE_SHIFT) {
- 			err = inode->i_sb->s_op->write_inode(inode, NULL);
- 			if (err)
--				goto out_unlock;
-+				goto out_redirty;
- 			/*
- 			 * The inode has been written, but the write-buffer has
- 			 * not been synchronized, so in case of an unclean
-@@ -1059,11 +1059,17 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
- 	if (i_size > synced_i_size) {
- 		err = inode->i_sb->s_op->write_inode(inode, NULL);
- 		if (err)
--			goto out_unlock;
-+			goto out_redirty;
+diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
+index 053ab52668e8b..69592be33adfc 100644
+--- a/drivers/mtd/ubi/fastmap-wl.c
++++ b/drivers/mtd/ubi/fastmap-wl.c
+@@ -146,13 +146,15 @@ void ubi_refill_pools(struct ubi_device *ubi)
+ 	if (ubi->fm_anchor) {
+ 		wl_tree_add(ubi->fm_anchor, &ubi->free);
+ 		ubi->free_count++;
++		ubi->fm_anchor = NULL;
  	}
  
- 	return do_writepage(page, len);
--
-+out_redirty:
-+	/*
-+	 * redirty_page_for_writepage() won't call ubifs_dirty_inode() because
-+	 * it passes I_DIRTY_PAGES flag while calling __mark_inode_dirty(), so
-+	 * there is no need to do space budget for dirty inode.
-+	 */
-+	redirty_page_for_writepage(wbc, page);
- out_unlock:
- 	unlock_page(page);
- 	return err;
+-	/*
+-	 * All available PEBs are in ubi->free, now is the time to get
+-	 * the best anchor PEBs.
+-	 */
+-	ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
++	if (!ubi->fm_disabled)
++		/*
++		 * All available PEBs are in ubi->free, now is the time to get
++		 * the best anchor PEBs.
++		 */
++		ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
+ 
+ 	for (;;) {
+ 		enough = 0;
 -- 
 2.39.2
 
