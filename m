@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 860F76B430A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7CA16B413E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231774AbjCJOKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
+        id S230459AbjCJNu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:50:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231811AbjCJOJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE6B11786F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:07 -0800 (PST)
+        with ESMTP id S230464AbjCJNuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D0B7104AF6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86A6F61948
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93935C4339E;
-        Fri, 10 Mar 2023 14:09:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52F9BB822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F11AC433EF;
+        Fri, 10 Mar 2023 13:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457346;
-        bh=I9LMU2nZLKl9c1k1I1vIBYQRQYDE/9gFVnCwbePCPKk=;
+        s=korg; t=1678456252;
+        bh=sHVyyNHYI5vjxby4TKYMDIHiTJ6KYSmWpyqJS2DRaPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBnd+4VjeuvvdLdvrR8K91YmbyFlT9vHfSjVKY64OwGVNcO3h1PhnpHvENaGKTTL5
-         MyRGCWSPoy4YfS+hGJtoXo0ot/DdfwXKxE+VK+rgwK7COxQz4RNh3u6d7MP3zEshy3
-         CNtRmzeiytbo8rRYkdRRWRIuH+9/g8Z2kDkaZqgE=
+        b=b5XTG/ABaPrZ2E2YWGzwQvzpEepw/zEI0Y3RzkLA3cEKya7WQi1/B0ntwasNKy4PL
+         hbVk1sU3G5yYZjJxuro3XpAhawoS3pGPIn5bkYiYLzfRuJ8Vs9fXylSitP3Z0nE6qB
+         JlgU4Poth8qxeOkK5hXCMVC4SMJZxopsUqZYkEbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 106/200] ASoC: apple: mca: Fix SERDES reset sequence
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.14 131/193] dm flakey: fix logic when corrupting a bio
 Date:   Fri, 10 Mar 2023 14:38:33 +0100
-Message-Id: <20230310133720.351076307@linuxfoundation.org>
+Message-Id: <20230310133715.597342928@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit d8b3e396088d787771f19fd3b7949e080dc31d6f ]
+commit aa56b9b75996ff4c76a0a4181c2fa0206c3d91cc upstream.
 
-Fix the reset sequence of reads and writes that we invoke from within
-the early trigger. It looks like there never was a SERDES_CONF_SOME_RST
-bit that should be involved in the reset sequence, and its presence in
-the driver code is a mistake from earlier.
+If "corrupt_bio_byte" is set to corrupt reads and corrupt_bio_flags is
+used, dm-flakey would erroneously return all writes as errors. Likewise,
+if "corrupt_bio_byte" is set to corrupt writes, dm-flakey would return
+errors for all reads.
 
-Instead, the reset sequence should go as follows: We should switch the
-the SERDES unit's SYNC_SEL mux to the value of 7 (so outside the range
-of 1...6 representing cluster's SYNCGEN units), then raise the RST bit
-in SERDES_STATUS and wait for it to clear.
+Fix the logic so that if fc->corrupt_bio_byte is non-zero, dm-flakey
+will not abort reads on writes with an error.
 
-Properly resetting the SERDES unit fixes frame desynchronization hazard
-in case of long frames (longer than 4 used slots). The desynchronization
-manifests itself by rotating the PCM channels.
-
-Fixes: 3df5d0d97289 ("ASoC: apple: mca: Start new platform driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Link: https://lore.kernel.org/r/20230224153302.45365-2-povik+lin@cutebit.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/apple/mca.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/md/dm-flakey.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/apple/mca.c b/sound/soc/apple/mca.c
-index 9cceeb2599524..aea08c7b2ee85 100644
---- a/sound/soc/apple/mca.c
-+++ b/sound/soc/apple/mca.c
-@@ -101,7 +101,6 @@
- #define SERDES_CONF_UNK3	BIT(14)
- #define SERDES_CONF_NO_DATA_FEEDBACK	BIT(15)
- #define SERDES_CONF_SYNC_SEL	GENMASK(18, 16)
--#define SERDES_CONF_SOME_RST	BIT(19)
- #define REG_TX_SERDES_BITSTART	0x08
- #define REG_RX_SERDES_BITSTART	0x0c
- #define REG_TX_SERDES_SLOTMASK	0x0c
-@@ -203,15 +202,24 @@ static void mca_fe_early_trigger(struct snd_pcm_substream *substream, int cmd,
- 	case SNDRV_PCM_TRIGGER_START:
- 	case SNDRV_PCM_TRIGGER_RESUME:
- 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
-+		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
-+			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 0));
-+		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
-+			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 7));
- 		mca_modify(cl, serdes_unit + REG_SERDES_STATUS,
- 			   SERDES_STATUS_EN | SERDES_STATUS_RST,
- 			   SERDES_STATUS_RST);
--		mca_modify(cl, serdes_conf, SERDES_CONF_SOME_RST,
--			   SERDES_CONF_SOME_RST);
--		readl_relaxed(cl->base + serdes_conf);
--		mca_modify(cl, serdes_conf, SERDES_STATUS_RST, 0);
-+		/*
-+		 * Experiments suggest that it takes at most ~1 us
-+		 * for the bit to clear, so wait 2 us for good measure.
-+		 */
-+		udelay(2);
- 		WARN_ON(readl_relaxed(cl->base + serdes_unit + REG_SERDES_STATUS) &
- 			SERDES_STATUS_RST);
-+		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
-+			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 0));
-+		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
-+			   FIELD_PREP(SERDES_CONF_SYNC_SEL, cl->no + 1));
- 		break;
- 	default:
- 		break;
--- 
-2.39.2
-
+--- a/drivers/md/dm-flakey.c
++++ b/drivers/md/dm-flakey.c
+@@ -364,9 +364,11 @@ static int flakey_map(struct dm_target *
+ 		/*
+ 		 * Corrupt matching writes.
+ 		 */
+-		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == WRITE)) {
+-			if (all_corrupt_bio_flags_match(bio, fc))
+-				corrupt_bio_data(bio, fc);
++		if (fc->corrupt_bio_byte) {
++			if (fc->corrupt_bio_rw == WRITE) {
++				if (all_corrupt_bio_flags_match(bio, fc))
++					corrupt_bio_data(bio, fc);
++			}
+ 			goto map_bio;
+ 		}
+ 
+@@ -397,13 +399,14 @@ static int flakey_end_io(struct dm_targe
+ 	}
+ 
+ 	if (!*error && pb->bio_submitted && (bio_data_dir(bio) == READ)) {
+-		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == READ) &&
+-		    all_corrupt_bio_flags_match(bio, fc)) {
+-			/*
+-			 * Corrupt successful matching READs while in down state.
+-			 */
+-			corrupt_bio_data(bio, fc);
+-
++		if (fc->corrupt_bio_byte) {
++			if ((fc->corrupt_bio_rw == READ) &&
++			    all_corrupt_bio_flags_match(bio, fc)) {
++				/*
++				 * Corrupt successful matching READs while in down state.
++				 */
++				corrupt_bio_data(bio, fc);
++			}
+ 		} else if (!test_bit(DROP_WRITES, &fc->flags) &&
+ 			   !test_bit(ERROR_WRITES, &fc->flags)) {
+ 			/*
 
 
