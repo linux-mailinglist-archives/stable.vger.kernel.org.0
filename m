@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 482126B45CD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:37:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6EBB6B421F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232653AbjCJOhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:37:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
+        id S231490AbjCJOAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:00:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232660AbjCJOhQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:37:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0FA211D087
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:51 -0800 (PST)
+        with ESMTP id S231469AbjCJN7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86EB2116B98
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72F0361948
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 822BBC433EF;
-        Fri, 10 Mar 2023 14:36:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F407B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E9DC4339B;
+        Fri, 10 Mar 2023 13:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458997;
-        bh=BPPX9JLlnk477fbxhIhEPVrL/A5quUKMyrQmgDlOn84=;
+        s=korg; t=1678456781;
+        bh=zBUqozHxHstBRR7Ih0Jkut8w18pfYbHSzl7sT5zCGn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1pm3rZQQcmSyvBxPz0WYhAWswKQxno6vZfYYqDtnPis8IaJYC6Mn9xXuQNiSGpOdX
-         0iht0Apz/PCx5uz5HWNeTvXOrPR7/womV3Jpz2aTJi2T5EMvtbw7GWXD2Zj2vX4Cdk
-         ZbgFu0qYMJEdekQiSWWOHIKKXGTG8VCF89xM0dZg=
+        b=EPpw4cjaIFsUn39hROTGC7vsBT5yuhmDMh+atw2lA060Uu5Qe42fajVECDkYBAdcg
+         45k8NcaTAK4dMfKIf4B0BMdQYYP6KmfnF3hZd7ZVHO0keNHuLm7ntRrWrPjIYJ/F37
+         mtW+4v5tjIhsb8zvGmMYwC0e5JveCFGs/onzPmbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        David Collins <quic_collinsd@quicinc.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.4 213/357] rtc: pm8xxx: fix set-alarm race
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 122/211] thermal: intel: quark_dts: fix error pointer dereference
 Date:   Fri, 10 Mar 2023 14:38:22 +0100
-Message-Id: <20230310133744.116980613@linuxfoundation.org>
+Message-Id: <20230310133722.440526639@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,74 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Dan Carpenter <error27@gmail.com>
 
-commit c88db0eff9722fc2b6c4d172a50471d20e08ecc6 upstream.
+[ Upstream commit f1b930e740811d416de4d2074da48b6633a672c8 ]
 
-Make sure to disable the alarm before updating the four alarm time
-registers to avoid spurious alarms during the update.
+If alloc_soc_dts() fails, then we can just return.  Trying to free
+"soc_dts" will lead to an Oops.
 
-Note that the disable needs to be done outside of the ctrl_reg_lock
-section to prevent a racing alarm interrupt from disabling the newly set
-alarm when the lock is released.
-
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Cc: stable@vger.kernel.org      # 3.1
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: David Collins <quic_collinsd@quicinc.com>
-Link: https://lore.kernel.org/r/20230202155448.6715-2-johan+linaro@kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8c1876939663 ("thermal: intel Quark SoC X1000 DTS thermal driver")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c |   24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/thermal/intel/intel_quark_dts_thermal.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -219,7 +219,6 @@ static int pm8xxx_rtc_set_alarm(struct d
+diff --git a/drivers/thermal/intel/intel_quark_dts_thermal.c b/drivers/thermal/intel/intel_quark_dts_thermal.c
+index 3eafc6b0e6c30..b43fbd5eaa6b4 100644
+--- a/drivers/thermal/intel/intel_quark_dts_thermal.c
++++ b/drivers/thermal/intel/intel_quark_dts_thermal.c
+@@ -415,22 +415,14 @@ MODULE_DEVICE_TABLE(x86cpu, qrk_thermal_ids);
+ 
+ static int __init intel_quark_thermal_init(void)
  {
- 	int rc, i;
- 	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned int ctrl_reg;
- 	unsigned long secs, irq_flags;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-@@ -231,6 +230,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		secs >>= 8;
- 	}
- 
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+				regs->alarm_en, 0);
-+	if (rc)
-+		return rc;
-+
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
- 
- 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
-@@ -240,19 +244,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		goto rtc_rw_fail;
- 	}
- 
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
--	if (rc)
--		goto rtc_rw_fail;
+-	int err = 0;
 -
--	if (alarm->enabled)
--		ctrl_reg |= regs->alarm_en;
--	else
--		ctrl_reg &= ~regs->alarm_en;
--
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
--	if (rc) {
--		dev_err(dev, "Write to RTC alarm control register failed\n");
--		goto rtc_rw_fail;
-+	if (alarm->enabled) {
-+		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+					regs->alarm_en, regs->alarm_en);
-+		if (rc)
-+			goto rtc_rw_fail;
- 	}
+ 	if (!x86_match_cpu(qrk_thermal_ids) || !iosf_mbi_available())
+ 		return -ENODEV;
  
- 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
+ 	soc_dts = alloc_soc_dts();
+-	if (IS_ERR(soc_dts)) {
+-		err = PTR_ERR(soc_dts);
+-		goto err_free;
+-	}
++	if (IS_ERR(soc_dts))
++		return PTR_ERR(soc_dts);
+ 
+ 	return 0;
+-
+-err_free:
+-	free_soc_dts(soc_dts);
+-	return err;
+ }
+ 
+ static void __exit intel_quark_thermal_exit(void)
+-- 
+2.39.2
+
 
 
