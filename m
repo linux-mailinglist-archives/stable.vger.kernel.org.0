@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1989B6B4299
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 033226B41BF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231588AbjCJOE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:04:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54124 "EHLO
+        id S231268AbjCJN4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231616AbjCJOEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3549410869E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:37 -0800 (PST)
+        with ESMTP id S231274AbjCJN4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20731151C5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65E85B82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D64C4339C;
-        Fri, 10 Mar 2023 14:04:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5BCCB822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F9B6C433D2;
+        Fri, 10 Mar 2023 13:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457075;
-        bh=0zI6VcRu3luBut8F6KbuWZP04gPQ/ZDrZxiRTlAOrFg=;
+        s=korg; t=1678456547;
+        bh=f6u2J5NWjV8c4KTosZEvfTBzhiZcVzUNJVqIcEqQBNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4QwmdR68cenzUfamkv6vZPKyfTjzXZuGSGayulCA2+hV6MDSyJ+x+5MdmiK5Bp5q
-         GYcnzyDTlI27M3OM+kadkRlckRknDtmBkRe70aTo59Nn6ILKyFX/S5sCfc7iWFU2jn
-         jnSB2gEO3i7tB9kw+DdXeKs+lOzaRPXLtdZVdRko=
+        b=xIaG7br6KD4CFebP8oynNeulqQsyygrAy6Q1MzdJKsiQaA0f0xniMaVYZw7kNH/hE
+         K34uxDa7lnNOPh20EXK2IY4sqaOj33Su0Ln1P0KjYWH941bbEbu400GR+ur28+809I
+         kTJJa8fRL3wi4ouyMGTAjK+RL8HEHbhEVTtF9g/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 012/200] pwm: sifive: Always let the first pwm_apply_state succeed
+Subject: [PATCH 6.2 039/211] ubifs: ubifs_writepage: Mark page dirty after writing inode failed
 Date:   Fri, 10 Mar 2023 14:36:59 +0100
-Message-Id: <20230310133717.425371015@linuxfoundation.org>
+Message-Id: <20230310133719.921195169@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,67 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 334c7b13d38321e47d1a51dba0bef9f4c403ec75 ]
+[ Upstream commit fb8bc4c74ae4526d9489362ab2793a936d072b84 ]
 
-Commit 2cfe9bbec56ea579135cdd92409fff371841904f added support for the
-RGB and green PWM controlled LEDs on the HiFive Unmatched board
-managed by the leds-pwm-multicolor and leds-pwm drivers respectively.
-All three colours of the RGB LED and the green LED run from different
-lines of the same PWM, but with the same period so this works fine when
-the LED drivers are loaded one after the other.
+There are two states for ubifs writing pages:
+1. Dirty, Private
+2. Not Dirty, Not Private
 
-Unfortunately it does expose a race in the PWM driver when both LED
-drivers are loaded at roughly the same time. Here is an example:
+There is a third possibility which maybe related to [1] that page is
+private but not dirty caused by following process:
 
-  |          Thread A           |          Thread B           |
-  |  led_pwm_mc_probe           |  led_pwm_probe              |
-  |    devm_fwnode_pwm_get      |                             |
-  |      pwm_sifive_request     |                             |
-  |        ddata->user_count++  |                             |
-  |                             |    devm_fwnode_pwm_get      |
-  |                             |      pwm_sifive_request     |
-  |                             |        ddata->user_count++  |
-  |         ...                 |          ...                |
-  |    pwm_state_apply          |    pwm_state_apply          |
-  |      pwm_sifive_apply       |      pwm_sifive_apply       |
+          PA
+lock(page)
+ubifs_write_end
+  attach_page_private		// set Private
+    __set_page_dirty_nobuffers	// set Dirty
+unlock(page)
 
-Now both calls to pwm_sifive_apply will see that ddata->approx_period,
-initially 0, is different from the requested period and the clock needs
-to be updated. But since ddata->user_count >= 2 both calls will fail
-with -EBUSY, which will then cause both LED drivers to fail to probe.
+write_cache_pages
+  lock(page)
+  clear_page_dirty_for_io(page)	// clear Dirty
+  ubifs_writepage
+    write_inode
+    // fail, goto out, following codes are not executed
+    // do_writepage
+    //   set_page_writeback 	// set Writeback
+    //   detach_page_private	// clear Private
+    //   end_page_writeback 	// clear Writeback
+    out:
+    unlock(page)		// Private, Not Dirty
 
-Fix it by letting the first call to pwm_sifive_apply update the clock
-even when ddata->user_count != 1.
+                                       PB
+				ksys_fadvise64_64
+				  generic_fadvise
+				     invalidate_inode_page
+				     // page is neither Dirty nor Writeback
+				       invalidate_complete_page
+				       // page_has_private is true
+					 try_to_release_page
+					   ubifs_releasepage
+					     ubifs_assert(c, 0) !!!
 
-Fixes: 9e37a53eb051 ("pwm: sifive: Add a driver for SiFive SoC PWM")
-Signed-off-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Then we may get following assertion failed:
+  UBIFS error (ubi0:0 pid 1492): ubifs_assert_failed [ubifs]:
+  UBIFS assert failed: 0, in fs/ubifs/file.c:1499
+  UBIFS warning (ubi0:0 pid 1492): ubifs_ro_mode [ubifs]:
+  switched to read-only mode, error -22
+  CPU: 2 PID: 1492 Comm: aa Not tainted 5.16.0-rc2-00012-g7bb767dee0ba-dirty
+  Call Trace:
+    dump_stack+0x13/0x1b
+    ubifs_ro_mode+0x54/0x60 [ubifs]
+    ubifs_assert_failed+0x4b/0x80 [ubifs]
+    ubifs_releasepage+0x7e/0x1e0 [ubifs]
+    try_to_release_page+0x57/0xe0
+    invalidate_inode_page+0xfb/0x130
+    invalidate_mapping_pagevec+0x12/0x20
+    generic_fadvise+0x303/0x3c0
+    vfs_fadvise+0x35/0x40
+    ksys_fadvise64_64+0x4c/0xb0
+
+Jump [2] to find a reproducer.
+
+[1] https://linux-mtd.infradead.narkive.com/NQoBeT1u/patch-rfc-ubifs-fix-assert-failed-in-ubifs-set-page-dirty
+[2] https://bugzilla.kernel.org/show_bug.cgi?id=215357
+
+Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-sifive.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/ubifs/file.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
-index bb72393134016..89d53a0f91e65 100644
---- a/drivers/pwm/pwm-sifive.c
-+++ b/drivers/pwm/pwm-sifive.c
-@@ -159,7 +159,13 @@ static int pwm_sifive_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
+index f2353dd676ef0..1f429260a85fc 100644
+--- a/fs/ubifs/file.c
++++ b/fs/ubifs/file.c
+@@ -1032,7 +1032,7 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
+ 		if (page->index >= synced_i_size >> PAGE_SHIFT) {
+ 			err = inode->i_sb->s_op->write_inode(inode, NULL);
+ 			if (err)
+-				goto out_unlock;
++				goto out_redirty;
+ 			/*
+ 			 * The inode has been written, but the write-buffer has
+ 			 * not been synchronized, so in case of an unclean
+@@ -1060,11 +1060,17 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
+ 	if (i_size > synced_i_size) {
+ 		err = inode->i_sb->s_op->write_inode(inode, NULL);
+ 		if (err)
+-			goto out_unlock;
++			goto out_redirty;
+ 	}
  
- 	mutex_lock(&ddata->lock);
- 	if (state->period != ddata->approx_period) {
--		if (ddata->user_count != 1) {
-+		/*
-+		 * Don't let a 2nd user change the period underneath the 1st user.
-+		 * However if ddate->approx_period == 0 this is the first time we set
-+		 * any period, so let whoever gets here first set the period so other
-+		 * users who agree on the period won't fail.
-+		 */
-+		if (ddata->user_count != 1 && ddata->approx_period) {
- 			mutex_unlock(&ddata->lock);
- 			return -EBUSY;
- 		}
+ 	return do_writepage(page, len);
+-
++out_redirty:
++	/*
++	 * redirty_page_for_writepage() won't call ubifs_dirty_inode() because
++	 * it passes I_DIRTY_PAGES flag while calling __mark_inode_dirty(), so
++	 * there is no need to do space budget for dirty inode.
++	 */
++	redirty_page_for_writepage(wbc, page);
+ out_unlock:
+ 	unlock_page(page);
+ 	return err;
 -- 
 2.39.2
 
