@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA1F6B413D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 821D86B430B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230463AbjCJNuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:50:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54424 "EHLO
+        id S231782AbjCJOKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230467AbjCJNuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B9CFE7EC2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:50 -0800 (PST)
+        with ESMTP id S231863AbjCJOJr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ABAE117FF3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9FE860F11
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C429DC4339B;
-        Fri, 10 Mar 2023 13:50:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 578EEB822C0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3DCFC433D2;
+        Fri, 10 Mar 2023 14:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456249;
-        bh=dwjk4MqKV8Plta4pZ0qNQeyJcvbXYxKxLPSDtQlWrlw=;
+        s=korg; t=1678457343;
+        bh=NOCtR16MvCE5si4/jGeWf/tHDwOeSNEGL7wKjhq/Jo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffIoTz4t6BQWMCEeHhVAE25zyyueGNkH9jlwIhMR4+7L/UnKMpJEGeAyRZ2cBCLca
-         wVMzVhU1kmnTgbI6KU8bl45K7FvKJKXv6lhEFfXbsNWRdRJkF128B6nSN8axMyGGSV
-         AiE1Bzq9X0Nbd6Dshsu82zF4XK/QFBs8F5G1XZKE=
+        b=X9Lv3PVPm7p5umLTVgBteFOKls1KbStsx8KL06Z9IYHk4MWRmh0V5iH2o/AWDqGPD
+         paGcVXX30ASpjQFgxsgIdfSFW7/1e0khuf863wWS/8FknSolBB4E0fM99R2qiyPWMd
+         B3B/Y0F93Rzq0R6dezdbpFkGHp+sWkXxEIEqo6bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alexander Wetzel <alexander@wetzel-home.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 130/193] wifi: cfg80211: Fix use after free for wext
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 105/200] ASoC: apple: mca: Fix final status read on SERDES reset
 Date:   Fri, 10 Mar 2023 14:38:32 +0100
-Message-Id: <20230310133715.567564053@linuxfoundation.org>
+Message-Id: <20230310133720.322419776@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,96 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Wetzel <alexander@wetzel-home.de>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-commit 015b8cc5e7c4d7bb671f1984d7b7338c310b185b upstream.
+[ Upstream commit aaf5f0d76b6e1870e3674408de2b13a92a4d4059 ]
 
-Key information in wext.connect is not reset on (re)connect and can hold
-data from a previous connection.
+>From within the early trigger we are doing a reset of the SERDES unit,
+but the final status read is on a bad address. Add the missing SERDES
+unit offset in calculation of the address.
 
-Reset key data to avoid that drivers or mac80211 incorrectly detect a
-WEP connection request and access the freed or already reused memory.
-
-Additionally optimize cfg80211_sme_connect() and avoid an useless
-schedule of conn_work.
-
-Fixes: fffd0934b939 ("cfg80211: rework key operation")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230124141856.356646-1-alexander@wetzel-home.de
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3df5d0d97289 ("ASoC: apple: mca: Start new platform driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20230224153302.45365-1-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/sme.c |   31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ sound/soc/apple/mca.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -269,6 +269,15 @@ void cfg80211_conn_work(struct work_stru
- 	rtnl_unlock();
- }
- 
-+static void cfg80211_step_auth_next(struct cfg80211_conn *conn,
-+				    struct cfg80211_bss *bss)
-+{
-+	memcpy(conn->bssid, bss->bssid, ETH_ALEN);
-+	conn->params.bssid = conn->bssid;
-+	conn->params.channel = bss->channel;
-+	conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+}
-+
- /* Returned bss is reference counted and must be cleaned up appropriately. */
- static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
- {
-@@ -286,10 +295,7 @@ static struct cfg80211_bss *cfg80211_get
- 	if (!bss)
- 		return NULL;
- 
--	memcpy(wdev->conn->bssid, bss->bssid, ETH_ALEN);
--	wdev->conn->params.bssid = wdev->conn->bssid;
--	wdev->conn->params.channel = bss->channel;
--	wdev->conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+	cfg80211_step_auth_next(wdev->conn, bss);
- 	schedule_work(&rdev->conn_work);
- 
- 	return bss;
-@@ -568,7 +574,12 @@ static int cfg80211_sme_connect(struct w
- 	wdev->conn->params.ssid_len = wdev->ssid_len;
- 
- 	/* see if we have the bss already */
--	bss = cfg80211_get_conn_bss(wdev);
-+	bss = cfg80211_get_bss(wdev->wiphy, wdev->conn->params.channel,
-+			       wdev->conn->params.bssid,
-+			       wdev->conn->params.ssid,
-+			       wdev->conn->params.ssid_len,
-+			       wdev->conn_bss_type,
-+			       IEEE80211_PRIVACY(wdev->conn->params.privacy));
- 
- 	if (prev_bssid) {
- 		memcpy(wdev->conn->prev_bssid, prev_bssid, ETH_ALEN);
-@@ -579,6 +590,7 @@ static int cfg80211_sme_connect(struct w
- 	if (bss) {
- 		enum nl80211_timeout_reason treason;
- 
-+		cfg80211_step_auth_next(wdev->conn, bss);
- 		err = cfg80211_conn_do_work(wdev, &treason);
- 		cfg80211_put_bss(wdev->wiphy, bss);
- 	} else {
-@@ -1128,6 +1140,15 @@ int cfg80211_connect(struct cfg80211_reg
- 	} else {
- 		if (WARN_ON(connkeys))
- 			return -EINVAL;
-+
-+		/* connect can point to wdev->wext.connect which
-+		 * can hold key data from a previous connection
-+		 */
-+		connect->key = NULL;
-+		connect->key_len = 0;
-+		connect->key_idx = 0;
-+		connect->crypto.cipher_group = 0;
-+		connect->crypto.n_ciphers_pairwise = 0;
- 	}
- 
- 	wdev->connect_keys = connkeys;
+diff --git a/sound/soc/apple/mca.c b/sound/soc/apple/mca.c
+index 24381c42eb54c..9cceeb2599524 100644
+--- a/sound/soc/apple/mca.c
++++ b/sound/soc/apple/mca.c
+@@ -210,7 +210,7 @@ static void mca_fe_early_trigger(struct snd_pcm_substream *substream, int cmd,
+ 			   SERDES_CONF_SOME_RST);
+ 		readl_relaxed(cl->base + serdes_conf);
+ 		mca_modify(cl, serdes_conf, SERDES_STATUS_RST, 0);
+-		WARN_ON(readl_relaxed(cl->base + REG_SERDES_STATUS) &
++		WARN_ON(readl_relaxed(cl->base + serdes_unit + REG_SERDES_STATUS) &
+ 			SERDES_STATUS_RST);
+ 		break;
+ 	default:
+-- 
+2.39.2
+
 
 
