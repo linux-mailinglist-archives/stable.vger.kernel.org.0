@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F1A86B43DC
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:19:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2113B6B42BB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232156AbjCJOTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:19:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58574 "EHLO
+        id S231715AbjCJOGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232057AbjCJOSs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:18:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5195B1ABE6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:17:22 -0800 (PST)
+        with ESMTP id S231719AbjCJOGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34FEA1175A4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C35B2B822CC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:17:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED902C433D2;
-        Fri, 10 Mar 2023 14:17:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A99256191F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE0B7C433EF;
+        Fri, 10 Mar 2023 14:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457839;
-        bh=cH20vsidyE9GU0I90u2Zyy/9JjiCnxfD8mgCSl3AK4I=;
+        s=korg; t=1678457152;
+        bh=f6u2J5NWjV8c4KTosZEvfTBzhiZcVzUNJVqIcEqQBNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PwzHZmdV9+dVMmlcwB4wYQhAjiTdChLLjzhzJquuj0lwvCFfl52RUi5j13e5PnFox
-         9iY83xpnJFu+rTZ0Xg7r5Vh2SqG+y464MyQNWq0Chvgne2oPnzfRDZXOgkWe83bJ5S
-         3HIh6RvH4QEV2s76lVC9xvLw43IDYgtyIN9GxvJ8=
+        b=in2/ZL5n6CJv+9R8Y8xn+4j0wYc9MHTZsHVuTLAb4PkE3k4gsVb8rshTET6eXKzQT
+         mCuzLvwEfNSprdCoLvn2yrIz3M4fBwOwvMS+ys0+AsqsP6zvvf4NPCET1b+j7ECAon
+         eZ2RiJhNUA8aLLWi8hQBKAI+EZHX+VWzTKszYIxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Alexey V. Vissarionov" <gremlin@altlinux.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/252] ALSA: hda/ca0132: minor fix for allocation size
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 038/200] ubifs: ubifs_writepage: Mark page dirty after writing inode failed
 Date:   Fri, 10 Mar 2023 14:37:25 +0100
-Message-Id: <20230310133721.099473852@linuxfoundation.org>
+Message-Id: <20230310133718.224930832@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,38 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey V. Vissarionov <gremlin@altlinux.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 3ee0fe7fa39b14d1cea455b7041f2df933bd97d2 ]
+[ Upstream commit fb8bc4c74ae4526d9489362ab2793a936d072b84 ]
 
-Although the "dma_chan" pointer occupies more or equal space compared
-to "*dma_chan", the allocation size should use the size of variable
-itself.
+There are two states for ubifs writing pages:
+1. Dirty, Private
+2. Not Dirty, Not Private
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+There is a third possibility which maybe related to [1] that page is
+private but not dirty caused by following process:
 
-Fixes: 01ef7dbffb41 ("ALSA: hda - Update CA0132 codec to load DSP firmware binary")
-Signed-off-by: Alexey V. Vissarionov <gremlin@altlinux.org>
-Link: https://lore.kernel.org/r/20230117111522.GA15213@altlinux.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+          PA
+lock(page)
+ubifs_write_end
+  attach_page_private		// set Private
+    __set_page_dirty_nobuffers	// set Dirty
+unlock(page)
+
+write_cache_pages
+  lock(page)
+  clear_page_dirty_for_io(page)	// clear Dirty
+  ubifs_writepage
+    write_inode
+    // fail, goto out, following codes are not executed
+    // do_writepage
+    //   set_page_writeback 	// set Writeback
+    //   detach_page_private	// clear Private
+    //   end_page_writeback 	// clear Writeback
+    out:
+    unlock(page)		// Private, Not Dirty
+
+                                       PB
+				ksys_fadvise64_64
+				  generic_fadvise
+				     invalidate_inode_page
+				     // page is neither Dirty nor Writeback
+				       invalidate_complete_page
+				       // page_has_private is true
+					 try_to_release_page
+					   ubifs_releasepage
+					     ubifs_assert(c, 0) !!!
+
+Then we may get following assertion failed:
+  UBIFS error (ubi0:0 pid 1492): ubifs_assert_failed [ubifs]:
+  UBIFS assert failed: 0, in fs/ubifs/file.c:1499
+  UBIFS warning (ubi0:0 pid 1492): ubifs_ro_mode [ubifs]:
+  switched to read-only mode, error -22
+  CPU: 2 PID: 1492 Comm: aa Not tainted 5.16.0-rc2-00012-g7bb767dee0ba-dirty
+  Call Trace:
+    dump_stack+0x13/0x1b
+    ubifs_ro_mode+0x54/0x60 [ubifs]
+    ubifs_assert_failed+0x4b/0x80 [ubifs]
+    ubifs_releasepage+0x7e/0x1e0 [ubifs]
+    try_to_release_page+0x57/0xe0
+    invalidate_inode_page+0xfb/0x130
+    invalidate_mapping_pagevec+0x12/0x20
+    generic_fadvise+0x303/0x3c0
+    vfs_fadvise+0x35/0x40
+    ksys_fadvise64_64+0x4c/0xb0
+
+Jump [2] to find a reproducer.
+
+[1] https://linux-mtd.infradead.narkive.com/NQoBeT1u/patch-rfc-ubifs-fix-assert-failed-in-ubifs-set-page-dirty
+[2] https://bugzilla.kernel.org/show_bug.cgi?id=215357
+
+Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_ca0132.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ubifs/file.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
-index 23f00ba993cb7..ca8a37388d565 100644
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1917,7 +1917,7 @@ static int dspio_set_uint_param_no_source(struct hda_codec *codec, int mod_id,
- static int dspio_alloc_dma_chan(struct hda_codec *codec, unsigned int *dma_chan)
- {
- 	int status = 0;
--	unsigned int size = sizeof(dma_chan);
-+	unsigned int size = sizeof(*dma_chan);
+diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
+index f2353dd676ef0..1f429260a85fc 100644
+--- a/fs/ubifs/file.c
++++ b/fs/ubifs/file.c
+@@ -1032,7 +1032,7 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
+ 		if (page->index >= synced_i_size >> PAGE_SHIFT) {
+ 			err = inode->i_sb->s_op->write_inode(inode, NULL);
+ 			if (err)
+-				goto out_unlock;
++				goto out_redirty;
+ 			/*
+ 			 * The inode has been written, but the write-buffer has
+ 			 * not been synchronized, so in case of an unclean
+@@ -1060,11 +1060,17 @@ static int ubifs_writepage(struct page *page, struct writeback_control *wbc)
+ 	if (i_size > synced_i_size) {
+ 		err = inode->i_sb->s_op->write_inode(inode, NULL);
+ 		if (err)
+-			goto out_unlock;
++			goto out_redirty;
+ 	}
  
- 	codec_dbg(codec, "     dspio_alloc_dma_chan() -- begin\n");
- 	status = dspio_scp(codec, MASTERCONTROL, 0x20,
+ 	return do_writepage(page, len);
+-
++out_redirty:
++	/*
++	 * redirty_page_for_writepage() won't call ubifs_dirty_inode() because
++	 * it passes I_DIRTY_PAGES flag while calling __mark_inode_dirty(), so
++	 * there is no need to do space budget for dirty inode.
++	 */
++	redirty_page_for_writepage(wbc, page);
+ out_unlock:
+ 	unlock_page(page);
+ 	return err;
 -- 
 2.39.2
 
