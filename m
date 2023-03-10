@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 135F86B48E5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 009446B48E1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:07:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233832AbjCJPHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:07:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40990 "EHLO
+        id S233873AbjCJPHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:07:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231336AbjCJPH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:07:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EEBE1223B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:00:19 -0800 (PST)
+        with ESMTP id S233876AbjCJPG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:06:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1597A134812
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:00:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DD7460F55
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D565C433D2;
-        Fri, 10 Mar 2023 14:59:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67194B822E5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A056AC433D2;
+        Fri, 10 Mar 2023 14:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460348;
-        bh=q7q0vhpP5EDbtfq0XQMlYN2j8y5A6PCx4dJkx1d9pNs=;
+        s=korg; t=1678460351;
+        bh=cTTTpAImm4spEbGfphMmFMfPxetuJ0aXloV/irLSgCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTOejGO3WEXOdEuNPUBn9WHQtEMh0Kv4Z5cTPHfhV1NiUd/0t8tmFuCnkkywoPhdr
-         PpvTMVuKUbWdNXBYJSrMhdkHBs7PwcdPx6kNEOxmU4A6g9Zm1oUOUjYGMeXtNDTnwt
-         nLm6k40cWYIrzreQenuB3umlGvKhtywKaRvCPm2I=
+        b=gAEib62WfeQu3sdZpF8u03PdWKfmApHbClsTv8NssTkNhgI25e2KeDrBzu8OoC+Zf
+         HWLqXXWBgSriwhSiplwpnlx5JRhSzd1u+1eD6STjp2VsKXQAxNEcjiJq3f6GsESR/9
+         +zHQqd+la75U9NjzhEUMGmyYwc4VyoAfRJ4U6wKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Jan Harkes <jaharkes@cs.cmu.edu>,
+        coda@cs.cmu.edu, codalist@coda.cs.cmu.edu,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 304/529] net/mlx5: fw_tracer: Fix debug print
-Date:   Fri, 10 Mar 2023 14:37:27 +0100
-Message-Id: <20230310133819.092910169@linuxfoundation.org>
+Subject: [PATCH 5.10 305/529] coda: Avoid partial allocation of sig_inputArgs
+Date:   Fri, 10 Mar 2023 14:37:28 +0100
+Message-Id: <20230310133819.132034587@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,34 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 988c2352273997a242f15c4fc3711773515006a2 ]
+[ Upstream commit 48df133578c70185a95a49390d42df1996ddba2a ]
 
-The debug message specify tdsn, but takes as an argument the
-tmsn. The correct argument is tmsn, hence, fix the print.
+GCC does not like having a partially allocated object, since it cannot
+reason about it for bounds checking when it is passed to other code.
+Instead, fully allocate sig_inputArgs. (Alternatively, sig_inputArgs
+should be defined as a struct coda_in_hdr, if it is actually not using
+any other part of the union.) Seen under GCC 13:
 
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+../fs/coda/upcall.c: In function 'coda_upcall':
+../fs/coda/upcall.c:801:22: warning: array subscript 'union inputArgs[0]' is partly outside array bounds of 'unsigned char[20]' [-Warray-bounds=]
+  801 |         sig_inputArgs->ih.opcode = CODA_SIGNAL;
+      |                      ^~
+
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: coda@cs.cmu.edu
+Cc: codalist@coda.cs.cmu.edu
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20230127223921.never.882-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
+ fs/coda/upcall.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-index 40d7bfca37499..0a011a41c039e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -603,7 +603,7 @@ static int mlx5_tracer_handle_string_trace(struct mlx5_fw_tracer *tracer,
- 	} else {
- 		cur_string = mlx5_tracer_message_get(tracer, tracer_event);
- 		if (!cur_string) {
--			pr_debug("%s Got string event for unknown string tdsm: %d\n",
-+			pr_debug("%s Got string event for unknown string tmsn: %d\n",
- 				 __func__, tracer_event->string_event.tmsn);
- 			return -1;
- 		}
+diff --git a/fs/coda/upcall.c b/fs/coda/upcall.c
+index eb3b1898da462..610484c90260b 100644
+--- a/fs/coda/upcall.c
++++ b/fs/coda/upcall.c
+@@ -790,7 +790,7 @@ static int coda_upcall(struct venus_comm *vcp,
+ 	sig_req = kmalloc(sizeof(struct upc_req), GFP_KERNEL);
+ 	if (!sig_req) goto exit;
+ 
+-	sig_inputArgs = kvzalloc(sizeof(struct coda_in_hdr), GFP_KERNEL);
++	sig_inputArgs = kvzalloc(sizeof(*sig_inputArgs), GFP_KERNEL);
+ 	if (!sig_inputArgs) {
+ 		kfree(sig_req);
+ 		goto exit;
 -- 
 2.39.2
 
