@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DAA66B43CA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:18:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4526B41A1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232126AbjCJOSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:18:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58720 "EHLO
+        id S231293AbjCJNzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:55:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232102AbjCJORp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:17:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AFF373398
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:33 -0800 (PST)
+        with ESMTP id S231261AbjCJNys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAEEB10FBA5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05059617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1689AC433EF;
-        Fri, 10 Mar 2023 14:16:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82671B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA28C433EF;
+        Fri, 10 Mar 2023 13:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457792;
-        bh=H1KQT47QQ4AuzrxyTvDF7wUC4H2W4gp6dVZ2BViqDUo=;
+        s=korg; t=1678456485;
+        bh=+0x302HVA94pD7u0OKvIqfzTRP+nx4DiV6FamS1tsgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftTxuvcP7bmx2427dNzQtPG6TmBZsPCDVozt3gnEjeXtjlCVh/M+EK55VlwJQWITd
-         xscq7wXt9QAb7lUDMtHKtrvFGfIvS/1gXTDpBUWl95j8/i8OuN9uz+tujcUiAxbY0k
-         JACkhFDijJjx6wT11xQP9BWMpP4+3oXpEix58BgU=
+        b=zmWyROD2L276CgKoIMLtp57qFrPjRO4qOvATOoJ+97SnRq/nwO2wUXoNJpZlCDLbD
+         jg5IrN2gpjmZ4QZOj4qJjvMZJW2OdBi8UvV55gfkjOM9YyAbvKDUrApAjgvumKk/FF
+         jCn+VqpaeRNw8cdEAIKLhvTk7p5CThFKl+rmuxYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/252] wifi: brcmfmac: unmap dma buffer in brcmf_msgbuf_alloc_pktid()
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Roger Lu <roger.lu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 019/211] soc: mediatek: mtk-svs: Use pm_runtime_resume_and_get() in svs_init01()
 Date:   Fri, 10 Mar 2023 14:36:39 +0100
-Message-Id: <20230310133719.706623778@linuxfoundation.org>
+Message-Id: <20230310133719.319533626@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit b9f420032f2ba1e634b22ca7b433e5c40ea663af ]
+[ Upstream commit 37fa2aff8fe490771f2229b0f2fcd15796b1bfca ]
 
-After the DMA buffer is mapped to a physical address, address is stored
-in pktids in brcmf_msgbuf_alloc_pktid(). Then, pktids is parsed in
-brcmf_msgbuf_get_pktid()/brcmf_msgbuf_release_array() to obtain physaddr
-and later unmap the DMA buffer. But when count is always equal to
-pktids->array_size, physaddr isn't stored in pktids and the DMA buffer
-will not be unmapped anyway.
+svs_init01() calls pm_runtime_get_sync() and added fail path as
+svs_init01_finish to put usage_counter. However, pm_runtime_get_sync()
+will increment usage_counter even it failed. Fix it by replacing it with
+pm_runtime_resume_and_get() to keep usage counter balanced.
 
-Fixes: 9a1bb60250d2 ("brcmfmac: Adding msgbuf protocol.")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207013114.1748936-1-shaozhengchao@huawei.com
+Fixes: 681a02e95000 ("soc: mediatek: SVS: introduce MTK SVS engine")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Roger Lu <roger.lu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20230111074528.29354-5-roger.lu@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/soc/mediatek/mtk-svs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-index 768a99c15c08b..e81e892ddacc5 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-@@ -339,8 +339,11 @@ brcmf_msgbuf_alloc_pktid(struct device *dev,
- 		count++;
- 	} while (count < pktids->array_size);
+diff --git a/drivers/soc/mediatek/mtk-svs.c b/drivers/soc/mediatek/mtk-svs.c
+index e0b8aa75c84b6..00526fd37d7b8 100644
+--- a/drivers/soc/mediatek/mtk-svs.c
++++ b/drivers/soc/mediatek/mtk-svs.c
+@@ -1324,7 +1324,7 @@ static int svs_init01(struct svs_platform *svsp)
+ 				svsb->pm_runtime_enabled_count++;
+ 			}
  
--	if (count == pktids->array_size)
-+	if (count == pktids->array_size) {
-+		dma_unmap_single(dev, *physaddr, skb->len - data_offset,
-+				 pktids->direction);
- 		return -ENOMEM;
-+	}
- 
- 	array[*idx].data_offset = data_offset;
- 	array[*idx].physaddr = *physaddr;
+-			ret = pm_runtime_get_sync(svsb->opp_dev);
++			ret = pm_runtime_resume_and_get(svsb->opp_dev);
+ 			if (ret < 0) {
+ 				dev_err(svsb->dev, "mtcmos on fail: %d\n", ret);
+ 				goto svs_init01_resume_cpuidle;
 -- 
 2.39.2
 
