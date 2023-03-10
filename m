@@ -2,230 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9E5F6B3EE9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:14:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0936B3EFD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:17:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229654AbjCJMOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 07:14:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43718 "EHLO
+        id S230164AbjCJMRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 07:17:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229584AbjCJMOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:14:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73A2EBF98
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:14:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FDC5B82280
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 12:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B21E8C433D2;
-        Fri, 10 Mar 2023 12:14:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678450480;
-        bh=4xZTK7D0zqP2E00LXKWr8Qa6EEBUm//ivfLqTh9Q2gY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=2dAgHTAKcoXxkQ0QJt4dQmD2E4YqVunP6El3zUURsFcMtogwGsNGwR0xuwMTxl8VL
-         VeUG+1eVqQUmPf6BRf4LxmcykJSQiE7lYV68haWhc+DRgxIhbsZ347hqeG5DmgmelU
-         5vesqv7FD927OjVAVMuGUJwBwbKj8loknlnh911o=
-Subject: FAILED: patch "[PATCH] media: uvcvideo: Fix race condition with usb_kill_urb" failed to apply to 5.4-stable tree
-To:     ribalda@chromium.org, laurent.pinchart@ideasonboard.com,
-        yunkec@chromium.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Mar 2023 13:14:27 +0100
-Message-ID: <167845046715250@kroah.com>
+        with ESMTP id S230261AbjCJMRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:17:54 -0500
+Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA33103EF3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:17:51 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 8C5F432003D3;
+        Fri, 10 Mar 2023 07:17:50 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Fri, 10 Mar 2023 07:17:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1678450670; x=1678537070; bh=ln
+        Dy+Z3Zn/JpRhEid/Pb6/Lu/QzCVDRoZSTsZItuxek=; b=A9p5zBY7LMIGSvg0Ne
+        MyfCTPxT598/QKcOR03Us5yiYUmqGmVS4FC6wdCoOa1iAnZoKyWA1iAOzTPfk0X1
+        upVua3qknrZLMmWk7k439aknsFAGYOCHyHZR6qRAMETl9GimDSSsNtAZuLtRyep7
+        gY6W3sqlQrzYzs4Dd8YXcD0+BC/4XIxqjeUdjj1e//82sIan0F1jRFaYegbINEG/
+        annfCrl/GGeieUOcIVCKlsBdMCJVYDhgZTFtVuC9nRYoRcsGx3GwTmE4RI/8U81E
+        JlMyjBhS7zNvhwt4xm6llNNA4o2EJpM/wHOEdUDD0BSR4Ba0g+phpw/a9dA3X/SN
+        0Obw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; t=1678450670; x=1678537070; bh=lnDy+Z3Zn/JpR
+        hEid/Pb6/Lu/QzCVDRoZSTsZItuxek=; b=rIkVK3HhbfjBTiIJeQp10CdSbmflY
+        Ih4dB6z5kKwBWY8B+khhP1nmMz3tFNqBgaTcXUYDbdQB6t/3JbvFjOPy+RdK08eL
+        XKzmN5jCGuZ9nJCuellCdhOi+SBkGBAkJo6tZ0tMz2l+ezEpfA01QpjGrRoFigEG
+        fmkYLD6x304TfDYI7xfyrAkKs7tQp7RsFmv68IU41WPVaflZvPLlP8Z2/paWPUHc
+        xDXUMkvisXvLqVLQrGzSFImwaMyWYiunpw+FRYYqK+5rt6v4rIAm8FdhYVvRM9Jk
+        v9kqFfbcA/T7sVOBaGjc/vPCaFM+ZxmkU+Bnfgix49HtSsiat3/1orr7Q==
+X-ME-Sender: <xms:7h8LZLrHAZKCa7rYDiwMuxvhm4clamoOn2CnM4lNc6w8LeugGUosFg>
+    <xme:7h8LZFpCoXeQ1fMtrctJX34A6QDy-zL5qIGcc1Hd5Zx8BBSZzqp2W22SmVsFl9ywQ
+    gkFRXvYaqGF4w>
+X-ME-Received: <xmr:7h8LZIN0nv87_cxS-lDZCqoJakmSN8c7AODVFxUifiQiHjFQs-vtUtzT4m8qiNvvg610SRqwMBs4uACXdrbYwZyPfvFEy_Bxr46HDg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvddukedgfeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
+    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:7h8LZO65zHpKVMwsDYZjwdlLmUD3gPG4f1S44cW9KuFZQu1prSZPgw>
+    <xmx:7h8LZK7C4j8rS9REHQ6QViUJ16BwOnAxSDPCBonQen5xRwYTmWL10g>
+    <xmx:7h8LZGjUw8tcI825CHmpG1rbU02HOD_aWAoB_kUMUQnZl6d5T37bWQ>
+    <xmx:7h8LZHuPuAE395n-JC7fBFU8FXVbrk0prvjG69WtGJXeeQ8weNVbTA>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 10 Mar 2023 07:17:49 -0500 (EST)
+Date:   Fri, 10 Mar 2023 13:17:47 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ricardo Ribalda <ribalda@chromium.org>
+Cc:     stable@vger.kernel.org, Yunke Cao <yunkec@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 6.2.y] media: uvcvideo: Fix race condition with
+ usb_kill_urb
+Message-ID: <ZAsf6wksYtH9/Ura@kroah.com>
+References: <16781002113959@kroah.com>
+ <20230308133025.191306-1-ribalda@chromium.org>
+ <ZAsaiH4YhwHSDHOO@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZAsaiH4YhwHSDHOO@kroah.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Mar 10, 2023 at 12:54:48PM +0100, Greg KH wrote:
+> On Wed, Mar 08, 2023 at 02:30:25PM +0100, Ricardo Ribalda wrote:
+> > usb_kill_urb warranties that all the handlers are finished when it
+> > returns, but does not protect against threads that might be handling
+> > asynchronously the urb.
+> > 
+> > For UVC, the function uvc_ctrl_status_event_async() takes care of
+> > control changes asynchronously.
+> > 
+> > If the code is executed in the following order:
+> > 
+> > CPU 0					CPU 1
+> > ===== 					=====
+> > uvc_status_complete()
+> > 					uvc_status_stop()
+> > uvc_ctrl_status_event_work()
+> > 					uvc_status_start() -> FAIL
+> > 
+> > Then uvc_status_start will keep failing and this error will be shown:
+> > 
+> > <4>[    5.540139] URB 0000000000000000 submitted while active
+> > drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
+> > 
+> > Let's improve the current situation, by not re-submiting the urb if
+> > we are stopping the status event. Also process the queued work
+> > (if any) during stop.
+> > 
+> > CPU 0					CPU 1
+> > ===== 					=====
+> > uvc_status_complete()
+> > 					uvc_status_stop()
+> > 					uvc_status_start()
+> > uvc_ctrl_status_event_work() -> FAIL
+> > 
+> > Hopefully, with the usb layer protection this should be enough to cover
+> > all the cases.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
+> > Reviewed-by: Yunke Cao <yunkec@chromium.org>
+> > Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+> > Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> > Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> > (cherry picked from commit 619d9b710cf06f7a00a17120ca92333684ac45a8)
+> > Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+> > ---
+> >  drivers/media/usb/uvc/uvc_ctrl.c   |  5 ++++
+> >  drivers/media/usb/uvc/uvc_status.c | 37 ++++++++++++++++++++++++++++++
+> >  drivers/media/usb/uvc/uvcvideo.h   |  1 +
+> >  3 files changed, 43 insertions(+)
+> 
+> This fails to apply to the 6.2.y queue right now:
+> 
+> checking file drivers/media/usb/uvc/uvc_ctrl.c
+> Hunk #1 FAILED at 6.
+> Hunk #2 succeeded at 1509 (offset 67 lines).
+> 1 out of 2 hunks FAILED
+> checking file drivers/media/usb/uvc/uvc_status.c
+> checking file drivers/media/usb/uvc/uvcvideo.h
+> Hunk #1 succeeded at 559 (offset -1 lines).
+> 
+> Can you redo this?
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
-git checkout FETCH_HEAD
-git cherry-pick -x 619d9b710cf06f7a00a17120ca92333684ac45a8
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167845046715250@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
-
-Possible dependencies:
-
-619d9b710cf0 ("media: uvcvideo: Fix race condition with usb_kill_urb")
-40140eda661e ("media: uvcvideo: Implement mask for V4L2_CTRL_TYPE_MENU")
-adfd3910c27f ("media: uvcvideo: Remove void casting for the status endpoint")
-382075604a68 ("media: uvcvideo: Limit power line control for Quanta UVC Webcam")
-710871163510 ("media: uvcvideo: Add missing value for power_line_frequency")
-70fa906d6fce ("media: uvcvideo: Use control names from framework")
-9b31ea808a44 ("media: uvcvideo: Add support for V4L2_CTRL_TYPE_CTRL_CLASS")
-866c6bdd5663 ("media: uvcvideo: refactor __uvc_ctrl_add_mapping")
-9e56380ae625 ("media: uvcvideo: Rename debug functions")
-ed4c5fa4d804 ("media: uvcvideo: use dev_printk() for uvc_trace()")
-59e92bf62771 ("media: uvcvideo: New macro uvc_trace_cont")
-69df09547e7a ("media: uvcvideo: Use dev_ printk aliases")
-6f6a87eb8266 ("media: uvcvideo: Add Privacy control based on EXT_GPIO")
-2886477ff987 ("media: uvcvideo: Implement UVC_EXT_GPIO_UNIT")
-d9c8763e6129 ("media: uvcvideo: Provide sync and async uvc_ctrl_status_event")
-351509c604dc ("media: uvcvideo: Move guid to entity")
-dc9455ffae02 ("media: uvcvideo: Accept invalid bFormatIndex and bFrameIndex values")
-b400b6f28af0 ("media: uvcvideo: Force UVC version to 1.0a for 1bcf:0b40")
-8a652a17e3c0 ("media: uvcvideo: Ensure all probed info is returned to v4l2")
-f875bcc375c7 ("media: uvcvideo: Fix dereference of out-of-bound list iterator")
+I got 5.15.y and newer to work here on my own, can you redo the older
+ones as well?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 619d9b710cf06f7a00a17120ca92333684ac45a8 Mon Sep 17 00:00:00 2001
-From: Ricardo Ribalda <ribalda@chromium.org>
-Date: Thu, 5 Jan 2023 15:31:29 +0100
-Subject: [PATCH] media: uvcvideo: Fix race condition with usb_kill_urb
-
-usb_kill_urb warranties that all the handlers are finished when it
-returns, but does not protect against threads that might be handling
-asynchronously the urb.
-
-For UVC, the function uvc_ctrl_status_event_async() takes care of
-control changes asynchronously.
-
-If the code is executed in the following order:
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-uvc_ctrl_status_event_work()
-					uvc_status_start() -> FAIL
-
-Then uvc_status_start will keep failing and this error will be shown:
-
-<4>[    5.540139] URB 0000000000000000 submitted while active
-drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
-
-Let's improve the current situation, by not re-submiting the urb if
-we are stopping the status event. Also process the queued work
-(if any) during stop.
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-					uvc_status_start()
-uvc_ctrl_status_event_work() -> FAIL
-
-Hopefully, with the usb layer protection this should be enough to cover
-all the cases.
-
-Cc: stable@vger.kernel.org
-Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-Reviewed-by: Yunke Cao <yunkec@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-
-diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index ee58f0db2763..c3aeba3fe31b 100644
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/bitops.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
-@@ -1571,6 +1572,10 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 
- 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
-+	/* The barrier is needed to synchronize with uvc_status_stop(). */
-+	if (smp_load_acquire(&dev->flush_status))
-+		return;
-+
- 	/* Resubmit the URB. */
- 	w->urb->interval = dev->int_ep->desc.bInterval;
- 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
-diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
-index 602830a8023e..a78a88c710e2 100644
---- a/drivers/media/usb/uvc/uvc_status.c
-+++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/kernel.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-@@ -311,5 +312,41 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
- 
- void uvc_status_stop(struct uvc_device *dev)
- {
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+
-+	/*
-+	 * Prevent the asynchronous control handler from requeing the URB. The
-+	 * barrier is needed so the flush_status change is visible to other
-+	 * CPUs running the asynchronous handler before usb_kill_urb() is
-+	 * called below.
-+	 */
-+	smp_store_release(&dev->flush_status, true);
-+
-+	/*
-+	 * Cancel any pending asynchronous work. If any status event was queued,
-+	 * process it synchronously.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/* Kill the urb. */
- 	usb_kill_urb(dev->int_urb);
-+
-+	/*
-+	 * The URB completion handler may have queued asynchronous work. This
-+	 * won't resubmit the URB as flush_status is set, but it needs to be
-+	 * cancelled before returning or it could then race with a future
-+	 * uvc_status_start() call.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/*
-+	 * From this point, there are no events on the queue and the status URB
-+	 * is dead. No events will be queued until uvc_status_start() is called.
-+	 * The barrier is needed to make sure that flush_status is visible to
-+	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
-+	 * again.
-+	 */
-+	smp_store_release(&dev->flush_status, false);
- }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index e85df8deb965..c0e706fcd2cb 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -577,6 +577,7 @@ struct uvc_device {
- 	struct usb_host_endpoint *int_ep;
- 	struct urb *int_urb;
- 	struct uvc_status *status;
-+	bool flush_status;
- 
- 	struct input_dev *input;
- 	char input_phys[64];
-
