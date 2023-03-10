@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3C56B40B6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAFF6B43A5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230161AbjCJNpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:45:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43490 "EHLO
+        id S232066AbjCJOQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:16:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230142AbjCJNpP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BD7E9EF44
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:14 -0800 (PST)
+        with ESMTP id S231893AbjCJOQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CC2B11F2CC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 492C6B822B5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:45:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A9FDC433EF;
-        Fri, 10 Mar 2023 13:45:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC032617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2781C4339E;
+        Fri, 10 Mar 2023 14:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455911;
-        bh=mAXt+gcziXHMrnRDVnTrC0yKlfOYsus+wYlUuadqvs8=;
+        s=korg; t=1678457705;
+        bh=881xeg0KCA0uC5/lHp5WWXAzA4dcI057X+G0QJFcq9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nd9oDvjTRDGO1SwH7tC2Fw4giPSRP56zUV3X82efj8xb97COZDuWOItOYbn0hxFai
-         ECSqUR//NE9TNCyllvv/6CXTtxljK7eMLbpWaa9M2oRREG8nsGXJ1eGPSaW1KcSw33
-         5pyWYVfqBkIxdXpzIn7W3cg3vqUTkwlby89g4Sgc=
+        b=pY0QDgebQbvsYOkVFKJ3yle6LmPpq3pE+gDSSUk+TA56GBTKeGlaF5UAFfi3XbbIr
+         NcJMv7ugWSGg+F+J0MC4D4okHYvO2t/SbAq/bm99NLhCt7rk+vjW2bX+busPdX/uRC
+         II59o69Y6GwB6KrxJQKxsXHcHwgfEbXY3BcwES68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 018/193] arm64: dts: meson-gx: Fix the SCPI DVFS node name and unit address
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 030/252] wifi: libertas_tf: dont call kfree_skb() under spin_lock_irqsave()
 Date:   Fri, 10 Mar 2023 14:36:40 +0100
-Message-Id: <20230310133711.543496714@linuxfoundation.org>
+Message-Id: <20230310133719.738370323@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,38 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f189c869ad92787ddd753558bcbae89d75825bb6 ]
+[ Upstream commit 9388ce97b98216833c969191ee6df61a7201d797 ]
 
-Node names should be generic and use hyphens instead of underscores to
-not cause warnings. Also nodes without a reg property should not have a
-unit-address. Change the scpi_dvfs node to use clock-controller as node
-name without a unit address (since it does not have a reg property).
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
+tested only.
 
-Fixes: 70db166a2baa ("ARM64: dts: meson-gxbb: Add SCPI with cpufreq & sensors Nodes")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://lore.kernel.org/r/20230111211350.1461860-7-martin.blumenstingl@googlemail.com
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Fixes: fc75122fabb5 ("libertas_tf: use irqsave() in USB's complete callback")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207150008.111743-2-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi | 2 +-
+ drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index 007aed410704f..f78be385d4dcd 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -191,7 +191,7 @@ scpi {
- 		scpi_clocks: clocks {
- 			compatible = "arm,scpi-clocks";
- 
--			scpi_dvfs: scpi_clocks@0 {
-+			scpi_dvfs: clock-controller {
- 				compatible = "arm,scpi-dvfs-clocks";
- 				#clock-cells = <1>;
- 				clock-indices = <0>;
+diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+index 60941c319b421..5e7edc0309751 100644
+--- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+@@ -616,7 +616,7 @@ static inline void process_cmdrequest(int recvlength, uint8_t *recvbuff,
+ 	spin_lock_irqsave(&priv->driver_lock, flags);
+ 	memcpy(priv->cmd_resp_buff, recvbuff + MESSAGE_HEADER_LEN,
+ 	       recvlength - MESSAGE_HEADER_LEN);
+-	kfree_skb(skb);
++	dev_kfree_skb_irq(skb);
+ 	lbtf_cmd_response_rx(priv);
+ 	spin_unlock_irqrestore(&priv->driver_lock, flags);
+ }
 -- 
 2.39.2
 
