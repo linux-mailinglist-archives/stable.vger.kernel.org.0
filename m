@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0FED6B4382
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7366B4277
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232032AbjCJOPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:15:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46652 "EHLO
+        id S231652AbjCJODr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbjCJOOv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2D6733AA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:39 -0800 (PST)
+        with ESMTP id S231655AbjCJODU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0BC45A1BD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAAD56182F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACAF2C433D2;
-        Fri, 10 Mar 2023 14:13:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EF8361771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EFA8C433D2;
+        Fri, 10 Mar 2023 14:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457619;
-        bh=0yn9a/0ZqgCaPh72GYDN97/wH50O7bCHBkNQXbLoGhc=;
+        s=korg; t=1678456996;
+        bh=sUiRhxewCgC3dtqFzN+Sq11Vm+nXjivcxsoRaI+Rd/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kgNVVSUaiA/hPCnPxjAoZYFOsu5bOYhTKrwsQVJN8Z05E8gB7pe8y+t/XStcIll5X
-         SJ8vqrBv8T5me2Uq9FlWjEp6ut1O+B2P8x0H79lrsxyq5LgSzquYTHr1r4HxCG6Zg7
-         kbMIkKN8vPg6RQEQE4Kt5MCyCnW4XI1M63Iqs/nM=
+        b=dsudtV2PypqNvmLqVjkLp1HhUHw4iPaQ7+zVXznzc7ZbueOJnUsYwzohZTjopduQl
+         ddDYqcGqgoobAt1ifj8n/Uhcsw5RN+o6A91jPlBPMO6aScaCWR7xiK8s8clc3U77c9
+         2oPNjnZc2ClytTt1VwuG1iJJJxVViqaI0XTaMvLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mengyuan Lou <mengyuanlou@net-swift.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 169/200] PCI: Add ACS quirk for Wangxun NICs
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.2 196/211] vDPA/ifcvf: decouple vq irq requester from the adapter
 Date:   Fri, 10 Mar 2023 14:39:36 +0100
-Message-Id: <20230310133722.287179031@linuxfoundation.org>
+Message-Id: <20230310133724.845601236@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,81 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mengyuan Lou <mengyuanlou@net-swift.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit a2b9b123ccac913e9f9b80337d687a2fe786a634 ]
+commit f9a9ffb2e4dbde81090416fc51662441c2a7b73b upstream.
 
-Wangxun has verified there is no peer-to-peer between functions for the
-below selection of SFxxx, RP1000 and RP2000 NICS.  They may be
-multi-function devices, but the hardware does not advertise ACS capability.
+This commit decouples the vq irq requester from the adapter,
+so that these functions can be invoked since probe.
 
-Add an ACS quirk for these devices so the functions can be in independent
-IOMMU groups.
-
-Link: https://lore.kernel.org/r/20230207102419.44326-1-mengyuanlou@net-swift.com
-Signed-off-by: Mengyuan Lou <mengyuanlou@net-swift.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-7-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c    | 22 ++++++++++++++++++++++
- include/linux/pci_ids.h |  2 ++
- 2 files changed, 24 insertions(+)
+ drivers/vdpa/ifcvf/ifcvf_main.c |   19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 20ac67d590348..494fa46f57671 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4835,6 +4835,26 @@ static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
- 		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -155,10 +155,9 @@ static int ifcvf_alloc_vectors(struct if
+ 	return ret;
  }
  
-+/*
-+ * Wangxun 10G/1G NICs have no ACS capability, and on multi-function
-+ * devices, peer-to-peer transactions are not be used between the functions.
-+ * So add an ACS quirk for below devices to isolate functions.
-+ * SFxxx 1G NICs(em).
-+ * RP1000/RP2000 10G NICs(sp).
-+ */
-+static int  pci_quirk_wangxun_nic_acs(struct pci_dev *dev, u16 acs_flags)
-+{
-+	switch (dev->device) {
-+	case 0x0100 ... 0x010F:
-+	case 0x1001:
-+	case 0x2001:
-+		return pci_acs_ctrl_enabled(acs_flags,
-+			PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
-+	}
-+
-+	return false;
-+}
-+
- static const struct pci_dev_acs_enabled {
- 	u16 vendor;
- 	u16 device;
-@@ -4980,6 +5000,8 @@ static const struct pci_dev_acs_enabled {
- 	{ PCI_VENDOR_ID_NXP, 0x8d9b, pci_quirk_nxp_rp_acs },
- 	/* Zhaoxin Root/Downstream Ports */
- 	{ PCI_VENDOR_ID_ZHAOXIN, PCI_ANY_ID, pci_quirk_zhaoxin_pcie_ports_acs },
-+	/* Wangxun nics */
-+	{ PCI_VENDOR_ID_WANGXUN, PCI_ANY_ID, pci_quirk_wangxun_nic_acs },
- 	{ 0 }
- };
+-static int ifcvf_request_per_vq_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_per_vq_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int i, vector, ret, irq;
  
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index b362d90eb9b0b..bc8f484cdcf3b 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -3012,6 +3012,8 @@
- #define PCI_DEVICE_ID_INTEL_VMD_9A0B	0x9a0b
- #define PCI_DEVICE_ID_INTEL_S21152BB	0xb152
+ 	vf->vqs_reused_irq = -EINVAL;
+@@ -190,10 +189,9 @@ err:
+ 	return -EFAULT;
+ }
  
-+#define PCI_VENDOR_ID_WANGXUN		0x8088
-+
- #define PCI_VENDOR_ID_SCALEMP		0x8686
- #define PCI_DEVICE_ID_SCALEMP_VSMP_CTL	0x1010
+-static int ifcvf_request_vqs_reused_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_vqs_reused_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 	int i, vector, ret, irq;
  
--- 
-2.39.2
-
+ 	vector = 0;
+@@ -266,15 +264,14 @@ err:
+ 
+ }
+ 
+-static int ifcvf_request_vq_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_vq_irq(struct ifcvf_hw *vf)
+ {
+-	struct ifcvf_hw *vf = &adapter->vf;
+ 	int ret;
+ 
+ 	if (vf->msix_vector_status == MSIX_VECTOR_PER_VQ_AND_CONFIG)
+-		ret = ifcvf_request_per_vq_irq(adapter);
++		ret = ifcvf_request_per_vq_irq(vf);
+ 	else
+-		ret = ifcvf_request_vqs_reused_irq(adapter);
++		ret = ifcvf_request_vqs_reused_irq(vf);
+ 
+ 	return ret;
+ }
+@@ -341,7 +338,7 @@ static int ifcvf_request_irq(struct ifcv
+ 		return ret;
+ 	}
+ 
+-	ret = ifcvf_request_vq_irq(adapter);
++	ret = ifcvf_request_vq_irq(vf);
+ 	if (ret)
+ 		return ret;
+ 
 
 
