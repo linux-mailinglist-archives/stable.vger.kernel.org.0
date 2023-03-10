@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF736B44B7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F346B465E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232361AbjCJO1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:27:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43882 "EHLO
+        id S232801AbjCJOmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:42:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232365AbjCJO1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608DA2F7A7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:43 -0800 (PST)
+        with ESMTP id S232842AbjCJOmd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:42:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7742E120EBE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:42:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E80DA616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09BA0C433D2;
-        Fri, 10 Mar 2023 14:25:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1488E617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 269A9C433EF;
+        Fri, 10 Mar 2023 14:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458342;
-        bh=6LmaKSZJOuNTmzf5klKXJMmFtwTgDmcdurxTOec6EqI=;
+        s=korg; t=1678459335;
+        bh=D/4oeywm5q55fB7T4McNKMiC7CfEvxEX1f3NZYKC098=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOhawGa/jOujqgM77NSCuA2RAApJvYQPzT5o/vc0igq9FgVrZkr4a6YF5RmUxXO6U
-         SK/p2GoBFHW7PCnzRs7qhufxk4JbzFDsHcWs02A9N5ZsRnbJCQipMXv7m2MNmUsznn
-         2BmRzyBfPt6rScPqJg9Tfcn2V/2beBDw9E1TZ7YM=
+        b=Uo6cTUVBXxwt5Eu2deCDuMYxS+LkhEdCrAP06OXzeVMjUa99DlSlZBunr/nouRN+Q
+         9Kn0hB7CdlKZzyp+SqqtFgs5PMkWUunzIzOvgYkmMA+Q5uPju78a7K+7U6ZvdOVQKb
+         u1SlrJfTin6GfQbqaisxW2lLPA3qmZTCWl2LGbqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.19 246/252] s390/maccess: add no DAT mode to kernel_write
-Date:   Fri, 10 Mar 2023 14:40:16 +0100
-Message-Id: <20230310133727.009541177@linuxfoundation.org>
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 328/357] thermal: intel: BXT_PMIC: select REGMAP instead of depending on it
+Date:   Fri, 10 Mar 2023 14:40:17 +0100
+Message-Id: <20230310133749.124958777@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,48 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit d6df52e9996dcc2062c3d9c9123288468bb95b52 upstream.
+[ Upstream commit 1467fb960349dfa5e300658f1a409dde2cfb0c51 ]
 
-To be able to patch kernel code before paging is initialized do plain
-memcpy if DAT is off. This is required to enable early jump label
-initialization.
+REGMAP is a hidden (not user visible) symbol. Users cannot set it
+directly thru "make *config", so drivers should select it instead of
+depending on it if they need it.
 
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Consistently using "select" or "depends on" can also help reduce
+Kconfig circular dependency issues.
+
+Therefore, change the use of "depends on REGMAP" to "select REGMAP".
+
+Fixes: b474303ffd57 ("thermal: add Intel BXT WhiskeyCove PMIC thermal driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/maccess.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/thermal/intel/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/s390/mm/maccess.c
-+++ b/arch/s390/mm/maccess.c
-@@ -58,13 +58,19 @@ static notrace long s390_kernel_write_od
-  */
- void notrace s390_kernel_write(void *dst, const void *src, size_t size)
- {
-+	unsigned long flags;
- 	long copied;
+diff --git a/drivers/thermal/intel/Kconfig b/drivers/thermal/intel/Kconfig
+index 8025b21f43fa5..b5427579fae59 100644
+--- a/drivers/thermal/intel/Kconfig
++++ b/drivers/thermal/intel/Kconfig
+@@ -60,7 +60,8 @@ endmenu
  
--	while (size) {
--		copied = s390_kernel_write_odd(dst, src, size);
--		dst += copied;
--		src += copied;
--		size -= copied;
-+	flags = arch_local_save_flags();
-+	if (!(flags & PSW_MASK_DAT)) {
-+		memcpy(dst, src, size);
-+	} else {
-+		while (size) {
-+			copied = s390_kernel_write_odd(dst, src, size);
-+			dst += copied;
-+			src += copied;
-+			size -= copied;
-+		}
- 	}
- }
- 
+ config INTEL_BXT_PMIC_THERMAL
+ 	tristate "Intel Broxton PMIC thermal driver"
+-	depends on X86 && INTEL_SOC_PMIC_BXTWC && REGMAP
++	depends on X86 && INTEL_SOC_PMIC_BXTWC
++	select REGMAP
+ 	help
+ 	  Select this driver for Intel Broxton PMIC with ADC channels monitoring
+ 	  system temperature measurements and alerts.
+-- 
+2.39.2
+
 
 
