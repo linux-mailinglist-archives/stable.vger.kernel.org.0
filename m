@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F3B6B417D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9DAF6B4353
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231219AbjCJNxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:53:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59266 "EHLO
+        id S231993AbjCJONR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:13:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231211AbjCJNx0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:26 -0500
+        with ESMTP id S231998AbjCJOM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:12:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542C712CE4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C340885A40
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:11:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00650B822B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6154FC433D2;
-        Fri, 10 Mar 2023 13:53:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61573B822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:11:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D2C6C4339B;
+        Fri, 10 Mar 2023 14:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456394;
-        bh=k5XWIl5XB4f65o6A0XZFfzI5aSXS0CJa1Wdvb80QDis=;
+        s=korg; t=1678457503;
+        bh=7DncJ7Sp55/QaL5AZ2gDo9EjANT0in8LnumekkBM47o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TpmsD6cdmq3eNQERU0x4jflIIgjRq5JoOzx/mpkYAsW/5a6mRdHIhLSR3mY9GrlyI
-         rCbxFYTSuimbWkXWnQE2iaK8YTRLprLbtzp7Q2wrjzpOWC1iuYxu1Xexr7MDtgD18G
-         6kuaOP/pZsreZHifx3v4jnq1Wys+Ly0n0Em5dSlE=
+        b=MZkrGRJGG0Sit5j1m4p+fuEvgPMMS9WxErMHklW/TD6cPBQgtMwExt2ZXNOgXCFSj
+         05uHVnPohjp5/RcsIP6q+jfJ+n+WGMaeCHcjV4MKQAN15q1j4AQodwZjcT4QCjN+XP
+         z4h9XkQW99ADXAE+DjwQ7tm9jK/o2QdeJ5OeWTIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Daniel Scally <dan.scally@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 183/193] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_status_word()
+Subject: [PATCH 6.1 158/200] usb: uvc: Enumerate valid values for color matching
 Date:   Fri, 10 Mar 2023 14:39:25 +0100
-Message-Id: <20230310133717.172678772@linuxfoundation.org>
+Message-Id: <20230310133721.973015122@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Daniel Scally <dan.scally@ideasonboard.com>
 
-[ Upstream commit e56d2c34ce9dc122b1a618172ec0e05e50adb9e9 ]
+[ Upstream commit e16cab9c1596e251761d2bfb5e1467950d616963 ]
 
-Smatch Warns: drivers/iio/accel/mma9551_core.c:357
-	mma9551_read_status_word() error: uninitialized symbol 'v'.
+The color matching descriptors defined in the UVC Specification
+contain 3 fields with discrete numeric values representing particular
+settings. Enumerate those values so that later code setting them can
+be more readable.
 
-When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
-without 'v' being initialized, so check for the error and return.
-
-Note: Not a bug as such because the caller checks return value and
-doesn't not use this parameter in the problem case.
-
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20230126152147.3585874-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
+Link: https://lore.kernel.org/r/20230202114142.300858-2-dan.scally@ideasonboard.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mma9551_core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/uapi/linux/usb/video.h | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
-index c34c5ce8123b0..b4bbc83be4310 100644
---- a/drivers/iio/accel/mma9551_core.c
-+++ b/drivers/iio/accel/mma9551_core.c
-@@ -362,9 +362,12 @@ int mma9551_read_status_word(struct i2c_client *client, u8 app_id,
+diff --git a/include/uapi/linux/usb/video.h b/include/uapi/linux/usb/video.h
+index bfdae12cdacf8..c58854fb7d94a 100644
+--- a/include/uapi/linux/usb/video.h
++++ b/include/uapi/linux/usb/video.h
+@@ -179,6 +179,36 @@
+ #define UVC_CONTROL_CAP_AUTOUPDATE			(1 << 3)
+ #define UVC_CONTROL_CAP_ASYNCHRONOUS			(1 << 4)
  
- 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_STATUS,
- 			       reg, NULL, 0, (u8 *)&v, 2);
-+	if (ret < 0)
-+		return ret;
++/* 3.9.2.6 Color Matching Descriptor Values */
++enum uvc_color_primaries_values {
++	UVC_COLOR_PRIMARIES_UNSPECIFIED,
++	UVC_COLOR_PRIMARIES_BT_709_SRGB,
++	UVC_COLOR_PRIMARIES_BT_470_2_M,
++	UVC_COLOR_PRIMARIES_BT_470_2_B_G,
++	UVC_COLOR_PRIMARIES_SMPTE_170M,
++	UVC_COLOR_PRIMARIES_SMPTE_240M,
++};
 +
- 	*val = be16_to_cpu(v);
- 
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL(mma9551_read_status_word);
- 
++enum uvc_transfer_characteristics_values {
++	UVC_TRANSFER_CHARACTERISTICS_UNSPECIFIED,
++	UVC_TRANSFER_CHARACTERISTICS_BT_709,
++	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_M,
++	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_B_G,
++	UVC_TRANSFER_CHARACTERISTICS_SMPTE_170M,
++	UVC_TRANSFER_CHARACTERISTICS_SMPTE_240M,
++	UVC_TRANSFER_CHARACTERISTICS_LINEAR,
++	UVC_TRANSFER_CHARACTERISTICS_SRGB,
++};
++
++enum uvc_matrix_coefficients {
++	UVC_MATRIX_COEFFICIENTS_UNSPECIFIED,
++	UVC_MATRIX_COEFFICIENTS_BT_709,
++	UVC_MATRIX_COEFFICIENTS_FCC,
++	UVC_MATRIX_COEFFICIENTS_BT_470_2_B_G,
++	UVC_MATRIX_COEFFICIENTS_SMPTE_170M,
++	UVC_MATRIX_COEFFICIENTS_SMPTE_240M,
++};
++
+ /* ------------------------------------------------------------------------
+  * UVC structures
+  */
 -- 
 2.39.2
 
