@@ -2,140 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFF66B42DE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 533666B41DD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231818AbjCJOIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:08:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33360 "EHLO
+        id S231350AbjCJN5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231699AbjCJOHw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F65F115DF2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:16 -0800 (PST)
+        with ESMTP id S231345AbjCJN5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B811151D6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D54F96191F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F8FC433D2;
-        Fri, 10 Mar 2023 14:07:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 644B3B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE5D9C4339B;
+        Fri, 10 Mar 2023 13:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457235;
-        bh=mpqJt5zJ7CPvSkDyBW2VufNE4cqUl48yhJW3ZkM8w90=;
+        s=korg; t=1678456613;
+        bh=55d+tflnAs4rFheYh8iV3b0Ax1Tcfcm8ljuQ2IFdQwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsChGZcNzaQma3c1cFIqHkDGQf8mAHUMSMkKC76/1nNsJ1tEf49N9VPLpQ1ujYF6n
-         oZlg7QNW+Z936cNq2MZxszjnMRgrKOXfx1F6vRLEua7meItjmo6KZDD5FnGfaLhhnS
-         5qy4AapjPJBfehSlc5CkiEgDluVw5z1bihDutqHg=
+        b=OCP1C/UgOsr36mODo+oSD4agpXUWXhlIGUASjv5tMQl1ZIXuYjyNeEM0LDI9V509w
+         2Hs/eBSQ5c5myZjgT842QrSIvBxlBk+2kNZ+ncqSAdUVAkmsS6CYr23IhpeXTV+/1a
+         ho2seDxE9gTuEIRJgRb+3SoYnmifeOcNY4zTh2Hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Chen Jun <chenjun102@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 035/200] ubi: Fix possible null-ptr-deref in ubi_free_volume()
-Date:   Fri, 10 Mar 2023 14:37:22 +0100
-Message-Id: <20230310133718.132008476@linuxfoundation.org>
+Subject: [PATCH 6.2 063/211] watchdog: Fix kmemleak in watchdog_cdev_register
+Date:   Fri, 10 Mar 2023 14:37:23 +0100
+Message-Id: <20230310133720.644790524@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,WEIRD_QUOTING autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-[ Upstream commit c15859bfd326c10230f09cb48a17f8a35f190342 ]
+[ Upstream commit 13721a2ac66b246f5802ba1b75ad8637e53eeecc ]
 
-It willl cause null-ptr-deref in the following case:
+kmemleak reports memory leaks in watchdog_dev_register, as follows:
+unreferenced object 0xffff888116233000 (size 2048):
+  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
+  hex dump (first 32 bytes):
+    80 fa b9 05 81 88 ff ff 08 30 23 16 81 88 ff ff  .........0#.....
+    08 30 23 16 81 88 ff ff 00 00 00 00 00 00 00 00  .0#.............
+  backtrace:
+    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
+    [<000000006a389304>] kmalloc_trace+0x21/0x110
+    [<000000008d640eea>] watchdog_dev_register+0x4e/0x780 [watchdog]
+    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
+    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
+    [<000000001f730178>] 0xffffffffc10880ae
+    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
+    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
+    [<0000000046d08e7c>] load_module+0x6133/0x70f0
+    ...
 
-uif_init()
-  ubi_add_volume()
-    cdev_add() -> if it fails, call kill_volumes()
-    device_register()
+unreferenced object 0xffff888105b9fa80 (size 16):
+  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
+  hex dump (first 16 bytes):
+    77 61 74 63 68 64 6f 67 31 00 b9 05 81 88 ff ff  watchdog1.......
+  backtrace:
+    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
+    [<00000000486ab89b>] __kmalloc_node_track_caller+0x44/0x1b0
+    [<000000005a39aab0>] kvasprintf+0xb5/0x140
+    [<0000000024806f85>] kvasprintf_const+0x55/0x180
+    [<000000009276cb7f>] kobject_set_name_vargs+0x56/0x150
+    [<00000000a92e820b>] dev_set_name+0xab/0xe0
+    [<00000000cec812c6>] watchdog_dev_register+0x285/0x780 [watchdog]
+    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
+    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
+    [<000000001f730178>] 0xffffffffc10880ae
+    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
+    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
+    [<0000000046d08e7c>] load_module+0x6133/0x70f0
+    ...
 
-kill_volumes() -> if ubi_add_volume() fails call this function
-  ubi_free_volume()
-    cdev_del()
-    device_unregister() -> trying to delete a not added device,
-			   it causes null-ptr-deref
+The reason is that put_device is not be called if cdev_device_add fails
+and wdd->id != 0.
 
-So in ubi_free_volume(), it delete devices whether they are added
-or not, it will causes null-ptr-deref.
+watchdog_cdev_register
+  wd_data = kzalloc                             [1]
+  err = dev_set_name                            [2]
+  ..
+  err = cdev_device_add
+  if (err) {
+    if (wdd->id == 0) {  // wdd->id != 0
+      ..
+    }
+    return err;  // [1],[2] would be leaked
 
-Handle the error case whlie calling ubi_add_volume() to fix this
-problem. If add volume fails, set the corresponding vol to null,
-so it can not be accessed in kill_volumes() and release the
-resource in ubi_add_volume() error path.
+To fix it, call put_device in all wdd->id cases.
 
-Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
-Suggested-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 72139dfa2464 ("watchdog: Fix the race between the release of watchdog_core_data and cdev")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221116012714.102066-1-chenjun102@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c |  1 +
- drivers/mtd/ubi/vmt.c   | 12 ++++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-index 2178eb4115b36..7f65af1697519 100644
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -468,6 +468,7 @@ static int uif_init(struct ubi_device *ubi)
- 			err = ubi_add_volume(ubi, ubi->volumes[i]);
- 			if (err) {
- 				ubi_err(ubi, "cannot add volume %d", i);
-+				ubi->volumes[i] = NULL;
- 				goto out_volumes;
- 			}
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 55574ed425042..fdffa6859dde3 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -1061,8 +1061,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
+ 		if (wdd->id == 0) {
+ 			misc_deregister(&watchdog_miscdev);
+ 			old_wd_data = NULL;
+-			put_device(&wd_data->dev);
  		}
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 9fbc64b997cef..2c867d16f89f7 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -582,6 +582,7 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	if (err) {
- 		ubi_err(ubi, "cannot add character device for volume %d, error %d",
- 			vol_id, err);
-+		vol_release(&vol->dev);
++		put_device(&wd_data->dev);
  		return err;
  	}
  
-@@ -592,15 +593,14 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	vol->dev.groups = volume_dev_groups;
- 	dev_set_name(&vol->dev, "%s_%d", ubi->ubi_name, vol->vol_id);
- 	err = device_register(&vol->dev);
--	if (err)
--		goto out_cdev;
-+	if (err) {
-+		cdev_del(&vol->cdev);
-+		put_device(&vol->dev);
-+		return err;
-+	}
- 
- 	self_check_volumes(ubi);
- 	return err;
--
--out_cdev:
--	cdev_del(&vol->cdev);
--	return err;
- }
- 
- /**
 -- 
 2.39.2
 
