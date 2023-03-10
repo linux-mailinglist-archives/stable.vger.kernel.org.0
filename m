@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E2F6B4381
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D496B44A6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:26:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232025AbjCJOPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:15:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45418 "EHLO
+        id S232030AbjCJO0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:26:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232040AbjCJOOs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:48 -0500
+        with ESMTP id S232398AbjCJOZ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ECD060A95
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D0B8574C8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 974AB61771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA152C433D2;
-        Fri, 10 Mar 2023 14:13:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2606A616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ADD7C433EF;
+        Fri, 10 Mar 2023 14:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457605;
-        bh=ZrtyA0A7hrz6MWSDZccImiLlC87UAiLyjk0epvMRlh0=;
+        s=korg; t=1678458296;
+        bh=DebMMl5JVaCccNPwj0VWexdoM2ZHUJyfI0s2IbXJf2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=om7d7zcWzbaRFX4mLz9PUpgyv20QNMumYZdV7g89o0qjLUeuXbnWymMmcdYJjuuFz
-         X7yVCR3MPXh0jFOz1C71Lrl89cgc61/CJ33YIalJkKfVCoKE2OCHPequp9FXq0IRVC
-         Z+XI0exga+2KcIXLubLSDrd25a/mYpzy33xqTqus=
+        b=C0buUWFvdxtgHvFEdu6uBwnBjtcPirhFci214/uopaKHx3XthuZnjrTjXZgjUesmK
+         Nb4ODZK+hzRzgnkayVga2/ft61plIUqKQAoyldULUw0He/l9GvuWvTJJT3v7gV+KBH
+         lSrEQ3IN/GMSAZWSuWPlgiKW3SnmOTeAZQfvWeFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yunke Cao <yunkec@chromium.org>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [PATCH 6.1 194/200] media: uvcvideo: Fix race condition with usb_kill_urb
+        patches@lists.linux.dev,
+        Darrell Kavanagh <darrell.kavanagh@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 231/252] firmware/efi sysfb_efi: Add quirk for Lenovo IdeaPad Duet 3
 Date:   Fri, 10 Mar 2023 14:40:01 +0100
-Message-Id: <20230310133723.045260440@linuxfoundation.org>
+Message-Id: <20230310133726.307139706@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,140 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
 
-commit 619d9b710cf06f7a00a17120ca92333684ac45a8 upstream.
+[ Upstream commit e1d447157f232c650e6f32c9fb89ff3d0207c69a ]
 
-usb_kill_urb warranties that all the handlers are finished when it
-returns, but does not protect against threads that might be handling
-asynchronously the urb.
+Another Lenovo convertable which reports a landscape resolution of
+1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
+has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
 
-For UVC, the function uvc_ctrl_status_event_async() takes care of
-control changes asynchronously.
-
-If the code is executed in the following order:
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-uvc_ctrl_status_event_work()
-					uvc_status_start() -> FAIL
-
-Then uvc_status_start will keep failing and this error will be shown:
-
-<4>[    5.540139] URB 0000000000000000 submitted while active
-drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
-
-Let's improve the current situation, by not re-submiting the urb if
-we are stopping the status event. Also process the queued work
-(if any) during stop.
-
-CPU 0					CPU 1
-===== 					=====
-uvc_status_complete()
-					uvc_status_stop()
-					uvc_status_start()
-uvc_ctrl_status_event_work() -> FAIL
-
-Hopefully, with the usb layer protection this should be enough to cover
-all the cases.
-
-Cc: stable@vger.kernel.org
-Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-Reviewed-by: Yunke Cao <yunkec@chromium.org>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_ctrl.c   |    5 +++++
- drivers/media/usb/uvc/uvc_status.c |   37 +++++++++++++++++++++++++++++++++++++
- drivers/media/usb/uvc/uvcvideo.h   |    1 +
- 3 files changed, 43 insertions(+)
+ arch/x86/kernel/sysfb_efi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/media/usb/uvc/uvc_ctrl.c
-+++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
+diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
+index 897da526e40e6..dd8d7636c5420 100644
+--- a/arch/x86/kernel/sysfb_efi.c
++++ b/arch/x86/kernel/sysfb_efi.c
+@@ -265,6 +265,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
+ 					"Lenovo ideapad D330-10IGM"),
+ 		},
+ 	},
++	{
++		/* Lenovo IdeaPad Duet 3 10IGL5 with 1200x1920 portrait screen */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"IdeaPad Duet 3 10IGL5"),
++		},
++	},
+ 	{},
+ };
  
-+#include <asm/barrier.h>
- #include <linux/bitops.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
-@@ -1509,6 +1510,10 @@ static void uvc_ctrl_status_event_work(s
- 
- 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
-+	/* The barrier is needed to synchronize with uvc_status_stop(). */
-+	if (smp_load_acquire(&dev->flush_status))
-+		return;
-+
- 	/* Resubmit the URB. */
- 	w->urb->interval = dev->int_ep->desc.bInterval;
- 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
---- a/drivers/media/usb/uvc/uvc_status.c
-+++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -6,6 +6,7 @@
-  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
-  */
- 
-+#include <asm/barrier.h>
- #include <linux/kernel.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-@@ -309,5 +310,41 @@ int uvc_status_start(struct uvc_device *
- 
- void uvc_status_stop(struct uvc_device *dev)
- {
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+
-+	/*
-+	 * Prevent the asynchronous control handler from requeing the URB. The
-+	 * barrier is needed so the flush_status change is visible to other
-+	 * CPUs running the asynchronous handler before usb_kill_urb() is
-+	 * called below.
-+	 */
-+	smp_store_release(&dev->flush_status, true);
-+
-+	/*
-+	 * Cancel any pending asynchronous work. If any status event was queued,
-+	 * process it synchronously.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/* Kill the urb. */
- 	usb_kill_urb(dev->int_urb);
-+
-+	/*
-+	 * The URB completion handler may have queued asynchronous work. This
-+	 * won't resubmit the URB as flush_status is set, but it needs to be
-+	 * cancelled before returning or it could then race with a future
-+	 * uvc_status_start() call.
-+	 */
-+	if (cancel_work_sync(&w->work))
-+		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
-+
-+	/*
-+	 * From this point, there are no events on the queue and the status URB
-+	 * is dead. No events will be queued until uvc_status_start() is called.
-+	 * The barrier is needed to make sure that flush_status is visible to
-+	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
-+	 * again.
-+	 */
-+	smp_store_release(&dev->flush_status, false);
- }
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -558,6 +558,7 @@ struct uvc_device {
- 	/* Status Interrupt Endpoint */
- 	struct usb_host_endpoint *int_ep;
- 	struct urb *int_urb;
-+	bool flush_status;
- 	u8 *status;
- 	struct input_dev *input;
- 	char input_phys[64];
+-- 
+2.39.2
+
 
 
