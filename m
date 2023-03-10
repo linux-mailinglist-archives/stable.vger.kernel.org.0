@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E51656B48AE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:05:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3D46B48B0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:05:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233756AbjCJPFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:05:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55932 "EHLO
+        id S233776AbjCJPFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:05:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233898AbjCJPFE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:05:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF7F65441
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:58:25 -0800 (PST)
+        with ESMTP id S233912AbjCJPFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:05:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD5C763F1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:58:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88D3D61A32
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:58:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C6CBC4339B;
-        Fri, 10 Mar 2023 14:58:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66AD26195A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:58:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68C24C4339C;
+        Fri, 10 Mar 2023 14:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460301;
-        bh=epABEj/SZ0cq9aedys3d9Su29rP6FVdRmXEXlofm5Gw=;
+        s=korg; t=1678460304;
+        bh=B/WLy0/dRnW3te6awgDNH88hJ7P9pQW/SOr/pmrPDfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDnH0zSDeMvKGFkvWFC1jokc75auBr7b3vbyyKYI82lHg2EG9A+TXR1/WBPhCaWyk
-         dWSVoOm0kVkiJOWRSGVsiekJIbg/SiBV1aI+tS0e4c23evVhBNcY/6n+eC2T6ReWH/
-         UHt/oQeuiLTaKEPmV/6RAtBWmUixOzKqL5SpjwTQ=
+        b=g9Z8IftlWDHtfG5Ba7EsRbXf0DHZ+ZQTJ/8rVVoPKoo4oPlvTk2QQWB0cGusPzbD3
+         DvwiGmeoNCxjZuKcEfeQ8HWFNi9gIlxXe6qminQ+4CgQiBLMTp3RR5d0145P6FZzmA
+         B0pOQ53CuP8YD0TSrnxqnGiNSi1h+DWlSoYQPy3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 290/529] thermal: intel: Fix unsigned comparison with less than zero
-Date:   Fri, 10 Mar 2023 14:37:13 +0100
-Message-Id: <20230310133818.407866089@linuxfoundation.org>
+Subject: [PATCH 5.10 291/529] timers: Prevent union confusion from unexpected restart_syscall()
+Date:   Fri, 10 Mar 2023 14:37:14 +0100
+Message-Id: <20230310133818.458060208@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -46,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,39 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit e7fcfe67f9f410736b758969477b17ea285e8e6c ]
+[ Upstream commit 9f76d59173d9d146e96c66886b671c1915a5c5e5 ]
 
-The return value from the call to intel_tcc_get_tjmax() is int, which can
-be a negative error code. However, the return value is being assigned to
-an u32 variable 'tj_max', so making 'tj_max' an int.
+The nanosleep syscalls use the restart_block mechanism, with a quirk:
+The `type` and `rmtp`/`compat_rmtp` fields are set up unconditionally on
+syscall entry, while the rest of the restart_block is only set up in the
+unlikely case that the syscall is actually interrupted by a signal (or
+pseudo-signal) that doesn't have a signal handler.
 
-Eliminate the following warning:
-./drivers/thermal/intel/intel_soc_dts_iosf.c:394:5-11: WARNING: Unsigned expression compared with zero: tj_max < 0
+If the restart_block was set up by a previous syscall (futex(...,
+FUTEX_WAIT, ...) or poll()) and hasn't been invalidated somehow since then,
+this will clobber some of the union fields used by futex_wait_restart() and
+do_restart_poll().
 
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3637
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Acked-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+If userspace afterwards wrongly calls the restart_syscall syscall,
+futex_wait_restart()/do_restart_poll() will read struct fields that have
+been clobbered.
+
+This doesn't actually lead to anything particularly interesting because
+none of the union fields contain trusted kernel data, and
+futex(..., FUTEX_WAIT, ...) and poll() aren't syscalls where it makes much
+sense to apply seccomp filters to their arguments.
+
+So the current consequences are just of the "if userspace does bad stuff,
+it can damage itself, and that's not a problem" flavor.
+
+But still, it seems like a hazard for future developers, so invalidate the
+restart_block when partly setting it up in the nanosleep syscalls.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20230105134403.754986-1-jannh@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_soc_dts_iosf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/time/hrtimer.c      | 2 ++
+ kernel/time/posix-stubs.c  | 2 ++
+ kernel/time/posix-timers.c | 2 ++
+ 3 files changed, 6 insertions(+)
 
-diff --git a/drivers/thermal/intel/intel_soc_dts_iosf.c b/drivers/thermal/intel/intel_soc_dts_iosf.c
-index 4f1a2f7c016cc..8d6707e48d023 100644
---- a/drivers/thermal/intel/intel_soc_dts_iosf.c
-+++ b/drivers/thermal/intel/intel_soc_dts_iosf.c
-@@ -404,7 +404,7 @@ struct intel_soc_dts_sensors *intel_soc_dts_iosf_init(
- {
- 	struct intel_soc_dts_sensors *sensors;
- 	bool notification;
--	u32 tj_max;
-+	int tj_max;
- 	int ret;
- 	int i;
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 544ce87ba38a7..70deb2f01e97a 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -2024,6 +2024,7 @@ SYSCALL_DEFINE2(nanosleep, struct __kernel_timespec __user *, rqtp,
+ 	if (!timespec64_valid(&tu))
+ 		return -EINVAL;
+ 
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
+ 	current->restart_block.nanosleep.rmtp = rmtp;
+ 	return hrtimer_nanosleep(timespec64_to_ktime(tu), HRTIMER_MODE_REL,
+@@ -2045,6 +2046,7 @@ SYSCALL_DEFINE2(nanosleep_time32, struct old_timespec32 __user *, rqtp,
+ 	if (!timespec64_valid(&tu))
+ 		return -EINVAL;
+ 
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
+ 	current->restart_block.nanosleep.compat_rmtp = rmtp;
+ 	return hrtimer_nanosleep(timespec64_to_ktime(tu), HRTIMER_MODE_REL,
+diff --git a/kernel/time/posix-stubs.c b/kernel/time/posix-stubs.c
+index fcb3b21d8bdcd..3783d07d60ba0 100644
+--- a/kernel/time/posix-stubs.c
++++ b/kernel/time/posix-stubs.c
+@@ -146,6 +146,7 @@ SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
+ 	current->restart_block.nanosleep.rmtp = rmtp;
+ 	texp = timespec64_to_ktime(t);
+@@ -239,6 +240,7 @@ SYSCALL_DEFINE4(clock_nanosleep_time32, clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
+ 	current->restart_block.nanosleep.compat_rmtp = rmtp;
+ 	texp = timespec64_to_ktime(t);
+diff --git a/kernel/time/posix-timers.c b/kernel/time/posix-timers.c
+index b624788023d8f..724ca7eb1a6e8 100644
+--- a/kernel/time/posix-timers.c
++++ b/kernel/time/posix-timers.c
+@@ -1270,6 +1270,7 @@ SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
+ 	current->restart_block.nanosleep.rmtp = rmtp;
+ 
+@@ -1297,6 +1298,7 @@ SYSCALL_DEFINE4(clock_nanosleep_time32, clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
+ 	current->restart_block.nanosleep.compat_rmtp = rmtp;
  
 -- 
 2.39.2
