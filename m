@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45C366B4186
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E006B437F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231264AbjCJNyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:54:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58360 "EHLO
+        id S231945AbjCJOPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:15:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231224AbjCJNxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519E7E9CF5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:42 -0800 (PST)
+        with ESMTP id S231954AbjCJOOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC2160435
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 934EBB822B5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBBBEC433D2;
-        Fri, 10 Mar 2023 13:53:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE8E6187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 326D8C433EF;
+        Fri, 10 Mar 2023 14:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456420;
-        bh=ZaLQcEE0HiG7s7GAUpH1sXoj6rMJ27q6byadrVK+Uz0=;
+        s=korg; t=1678457610;
+        bh=W2MA+wmUhwGOJg5DWVY02C2JXEYymrxQonm/OCKR8w8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wp6YWb08mnLiG/082W5VvAcX4npNr8sgI8e98KjJlZdCC20uCrqcxfFnAkezGbMnc
-         r3zwre35bu5C5mIzzbktvwWmcBIi3TwVDdR2FXhy4JQGoUxfnMrx7LLgO4H+bPZp/0
-         DPHGT777uecH8U83EyZjiFwCPbeVwVS7+2TY9woc=
+        b=J1ySxjQLq0HIWZg4hnjru9S6NZ1yNmYYXb0siATxJc78rOKUiVN5Ocjlpw3uMcMn5
+         5iA1qIMonzJ+lbuDfdUHf6iZ+Jta683LJhzs26TuKUQDyQoiD13+PYdaTtGXTNaFEt
+         V/mRvAEEl3m9R3zSPCfMqNvtggb+EmJ9k/WKn8pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14 191/193] s390/setup: init jump labels before command line parsing
+        patches@lists.linux.dev, "Rafael J. Wysocki" <rafael@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 166/200] drivers: base: dd: fix memory leak with using debugfs_lookup()
 Date:   Fri, 10 Mar 2023 14:39:33 +0100
-Message-Id: <20230310133717.416213162@linuxfoundation.org>
+Message-Id: <20230310133722.202354174@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,41 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 95e61b1b5d6394b53d147c0fcbe2ae70fbe09446 upstream.
+[ Upstream commit 36c893d3a759ae7c91ee7d4871ebfc7504f08c40 ]
 
-Command line parameters might set static keys. This is true for s390 at
-least since commit 6471384af2a6 ("mm: security: introduce init_on_alloc=1
-and init_on_free=1 boot options"). To avoid the following WARN:
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-static_key_enable_cpuslocked(): static key 'init_on_alloc+0x0/0x40' used
-before call to jump_label_init()
-
-call jump_label_init() just before parse_early_param().
-jump_label_init() is safe to call multiple times (x86 does that), doesn't
-do any memory allocations and hence should be safe to call that early.
-
-Fixes: 6471384af2a6 ("mm: security: introduce init_on_alloc=1 and init_on_free=1 boot options")
-Cc: <stable@vger.kernel.org> # 5.3: d6df52e9996d: s390/maccess: add no DAT mode to kernel_write
-Cc: <stable@vger.kernel.org> # 5.3
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Link: https://lore.kernel.org/r/20230202141621.2296458-2-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/setup.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/dd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -911,6 +911,7 @@ void __init setup_arch(char **cmdline_p)
- 	if (IS_ENABLED(CONFIG_EXPOLINE_AUTO))
- 		nospec_auto_detect();
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 9ae2b5c4fc496..c463173f1fb1a 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -372,7 +372,7 @@ late_initcall(deferred_probe_initcall);
  
-+	jump_label_init();
- 	parse_early_param();
- #ifdef CONFIG_CRASH_DUMP
- 	/* Deactivate elfcorehdr= kernel parameter */
+ static void __exit deferred_probe_exit(void)
+ {
+-	debugfs_remove_recursive(debugfs_lookup("devices_deferred", NULL));
++	debugfs_lookup_and_remove("devices_deferred", NULL);
+ }
+ __exitcall(deferred_probe_exit);
+ 
+-- 
+2.39.2
+
 
 
