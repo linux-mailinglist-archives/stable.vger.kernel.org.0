@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C37CD6B4165
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5A06B445D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231158AbjCJNwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:52:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56858 "EHLO
+        id S231745AbjCJOX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:23:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231163AbjCJNwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:52:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0503711565D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:23 -0800 (PST)
+        with ESMTP id S231888AbjCJOWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70AAC149B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA598B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28B0FC433D2;
-        Fri, 10 Mar 2023 13:52:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F1DAB822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5568EC433EF;
+        Fri, 10 Mar 2023 14:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456340;
-        bh=nLakX7cwSUYBuJ1Y1LZS1EnCS21adUAUaK8od5UgV1M=;
+        s=korg; t=1678458132;
+        bh=Rh7fL2Qmc8rknp2a3KDZSel1NvQS2vn4Ppl6mSTT7bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=faGA43WUBoU8EAeT4QQEAlC74OQevm1aQzC50a1Oe/zaoqGRbo1Wu4vP5RtMJkQG+
-         mFxdlbfz/WBRlTw28Z55yBnfOkHMTHI4D5HNPPTQhROIBvJogKj8ZYTAa2jP52k1/B
-         NTTL3qWHbghdTNc1IsCIS+PjlBKQVj0D8ODjKNs0=
+        b=AMrSbbS98Z2jgF62GI1Z8HXjHtTyanrkx/iYoWynKjoRS+oqQX1C4ZphcVwB3sYOF
+         Nuft7yIdNd2C4ZtLyceUcmF4QDzxjVT2QoCfXmiWsDlZh2I6Xuqs/9JDLcV0umx5cr
+         OJLF39RlDZS763PaK81bOhtp7sSPsYr10G9QV3Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 162/193] ubi: Fix UAF wear-leveling entry in eraseblk_count_seq_show()
+        patches@lists.linux.dev,
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 174/252] wifi: cfg80211: Fix use after free for wext
 Date:   Fri, 10 Mar 2023 14:39:04 +0100
-Message-Id: <20230310133716.552815727@linuxfoundation.org>
+Message-Id: <20230310133724.126178009@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,76 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-[ Upstream commit a240bc5c43130c6aa50831d7caaa02a1d84e1bce ]
+commit 015b8cc5e7c4d7bb671f1984d7b7338c310b185b upstream.
 
-Wear-leveling entry could be freed in error path, which may be accessed
-again in eraseblk_count_seq_show(), for example:
+Key information in wext.connect is not reset on (re)connect and can hold
+data from a previous connection.
 
-__erase_worker                eraseblk_count_seq_show
-                                wl = ubi->lookuptbl[*block_number]
-				if (wl)
-  wl_entry_destroy
-    ubi->lookuptbl[e->pnum] = NULL
-    kmem_cache_free(ubi_wl_entry_slab, e)
-		                   erase_count = wl->ec  // UAF!
+Reset key data to avoid that drivers or mac80211 incorrectly detect a
+WEP connection request and access the freed or already reused memory.
 
-Wear-leveling entry updating/accessing in ubi->lookuptbl should be
-protected by ubi->wl_lock, fix it by adding ubi->wl_lock to serialize
-wl entry accessing between wl_entry_destroy() and
-eraseblk_count_seq_show().
+Additionally optimize cfg80211_sme_connect() and avoid an useless
+schedule of conn_work.
 
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216305
-Fixes: 7bccd12d27b7e3 ("ubi: Add debugfs file for tracking PEB state")
-Fixes: 801c135ce73d5d ("UBI: Unsorted Block Images")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fffd0934b939 ("cfg80211: rework key operation")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230124141856.356646-1-alexander@wetzel-home.de
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/wl.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/wireless/sme.c |   31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
-index 545a92eb8f569..e267e0519d94a 100644
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -878,8 +878,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -269,6 +269,15 @@ void cfg80211_conn_work(struct work_stru
+ 	rtnl_unlock();
+ }
  
- 	err = do_sync_erase(ubi, e1, vol_id, lnum, 0);
- 	if (err) {
--		if (e2)
-+		if (e2) {
-+			spin_lock(&ubi->wl_lock);
- 			wl_entry_destroy(ubi, e2);
-+			spin_unlock(&ubi->wl_lock);
-+		}
- 		goto out_ro;
++static void cfg80211_step_auth_next(struct cfg80211_conn *conn,
++				    struct cfg80211_bss *bss)
++{
++	memcpy(conn->bssid, bss->bssid, ETH_ALEN);
++	conn->params.bssid = conn->bssid;
++	conn->params.channel = bss->channel;
++	conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
++}
++
+ /* Returned bss is reference counted and must be cleaned up appropriately. */
+ static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
+ {
+@@ -286,10 +295,7 @@ static struct cfg80211_bss *cfg80211_get
+ 	if (!bss)
+ 		return NULL;
+ 
+-	memcpy(wdev->conn->bssid, bss->bssid, ETH_ALEN);
+-	wdev->conn->params.bssid = wdev->conn->bssid;
+-	wdev->conn->params.channel = bss->channel;
+-	wdev->conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
++	cfg80211_step_auth_next(wdev->conn, bss);
+ 	schedule_work(&rdev->conn_work);
+ 
+ 	return bss;
+@@ -568,7 +574,12 @@ static int cfg80211_sme_connect(struct w
+ 	wdev->conn->params.ssid_len = wdev->ssid_len;
+ 
+ 	/* see if we have the bss already */
+-	bss = cfg80211_get_conn_bss(wdev);
++	bss = cfg80211_get_bss(wdev->wiphy, wdev->conn->params.channel,
++			       wdev->conn->params.bssid,
++			       wdev->conn->params.ssid,
++			       wdev->conn->params.ssid_len,
++			       wdev->conn_bss_type,
++			       IEEE80211_PRIVACY(wdev->conn->params.privacy));
+ 
+ 	if (prev_bssid) {
+ 		memcpy(wdev->conn->prev_bssid, prev_bssid, ETH_ALEN);
+@@ -579,6 +590,7 @@ static int cfg80211_sme_connect(struct w
+ 	if (bss) {
+ 		enum nl80211_timeout_reason treason;
+ 
++		cfg80211_step_auth_next(wdev->conn, bss);
+ 		err = cfg80211_conn_do_work(wdev, &treason);
+ 		cfg80211_put_bss(wdev->wiphy, bss);
+ 	} else {
+@@ -1207,6 +1219,15 @@ int cfg80211_connect(struct cfg80211_reg
+ 	} else {
+ 		if (WARN_ON(connkeys))
+ 			return -EINVAL;
++
++		/* connect can point to wdev->wext.connect which
++		 * can hold key data from a previous connection
++		 */
++		connect->key = NULL;
++		connect->key_len = 0;
++		connect->key_idx = 0;
++		connect->crypto.cipher_group = 0;
++		connect->crypto.n_ciphers_pairwise = 0;
  	}
  
-@@ -1103,14 +1106,18 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
- 		/* Re-schedule the LEB for erasure */
- 		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
- 		if (err1) {
-+			spin_lock(&ubi->wl_lock);
- 			wl_entry_destroy(ubi, e);
-+			spin_unlock(&ubi->wl_lock);
- 			err = err1;
- 			goto out_ro;
- 		}
- 		return err;
- 	}
- 
-+	spin_lock(&ubi->wl_lock);
- 	wl_entry_destroy(ubi, e);
-+	spin_unlock(&ubi->wl_lock);
- 	if (err != -EIO)
- 		/*
- 		 * If this is not %-EIO, we have no idea what to do. Scheduling
--- 
-2.39.2
-
+ 	wdev->connect_keys = connkeys;
 
 
