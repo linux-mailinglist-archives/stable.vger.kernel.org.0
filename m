@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 982A76B4192
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D88B56B452F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231224AbjCJNyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:54:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57756 "EHLO
+        id S232474AbjCJObo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231244AbjCJNyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C87734035
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:21 -0800 (PST)
+        with ESMTP id S232466AbjCJOb2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9E0DE1DA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8B1FB822B5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FB0C433D2;
-        Fri, 10 Mar 2023 13:54:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D9DD6191D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74BEDC433D2;
+        Fri, 10 Mar 2023 14:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456458;
-        bh=s8HttMRlfxiQVjgYNpcGtmLGKklX1y1jNFUtoylxP2I=;
+        s=korg; t=1678458632;
+        bh=zgWl2ppkWQ9Q4XbjYNMGClQNmCQ1qh7b/+50aYuQoIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQNj79g/Cs0TBUpknDRjJgFKaOw72bZgFLFmkveia57EUIyF4H3Pa4DoWT9H1n8w2
-         Fa0Tb07A+hjjeqz5tHNTvXgmB3LMfzIej3xpPxSZsNCrAfxejo5yT8z6xOC8TlVvkw
-         ollHHjaxs+A9/vXEI+D88DUYrr6Hp9Ej4N8v6DX0=
+        b=oQLaK7wtSyO6hlOe6riOeMVkaASUKVtHP67qkh+K/eJ5IjGHx6TxV6pYuUnO9ZFpS
+         +h2jrG7k34Lc1vHNDdUkTjMa6KyR6qxHB35KJOkcQFTwCWAUuRczzi+FfN1HLLhXm4
+         snHlXTCXx3r6ZVt6J8iFLEByB829IvdZwGm5NU4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Jianglei Nie <niejianglei2021@163.com>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 002/211] auxdisplay: hd44780: Fix potential memory leak in hd44780_remove()
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 093/357] irqchip/irq-bcm7120-l2: Set IRQ_LEVEL for level triggered interrupts
 Date:   Fri, 10 Mar 2023 14:36:22 +0100
-Message-Id: <20230310133718.767222555@linuxfoundation.org>
+Message-Id: <20230310133738.110197678@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit ddf75a86aba2cfb7ec4497e8692b60c8c8fe0ee7 ]
+[ Upstream commit 13a157b38ca5b4f9eed81442b8821db293755961 ]
 
-hd44780_probe() allocates a memory chunk for hd with kzalloc() and
-makes "lcd->drvdata->hd44780" point to it. When we call hd44780_remove(),
-we should release all relevant memory and resource. But "lcd->drvdata
-->hd44780" is not released, which will lead to a memory leak.
+When support for the interrupt controller was added with a5042de2688d,
+we forgot to update the flags to be set to contain IRQ_LEVEL. While the
+flow handler is correct, the output from /proc/interrupts does not show
+such interrupts as being level triggered when they are, correct that.
 
-We should release the "lcd->drvdata->hd44780" in hd44780_remove() to fix
-the memory leak bug.
-
-Fixes: 718e05ed92ec ("auxdisplay: Introduce hd44780_common.[ch]")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Fixes: a5042de2688d ("irqchip: bcm7120-l2: Add Broadcom BCM7120-style Level 2 interrupt controller")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@linaro.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221216230934.2478345-3-f.fainelli@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/auxdisplay/hd44780.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/irqchip/irq-bcm7120-l2.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/auxdisplay/hd44780.c b/drivers/auxdisplay/hd44780.c
-index 8b2a0eb3f32a4..d56a5d508ccd7 100644
---- a/drivers/auxdisplay/hd44780.c
-+++ b/drivers/auxdisplay/hd44780.c
-@@ -322,8 +322,10 @@ static int hd44780_probe(struct platform_device *pdev)
- static int hd44780_remove(struct platform_device *pdev)
- {
- 	struct charlcd *lcd = platform_get_drvdata(pdev);
-+	struct hd44780_common *hdc = lcd->drvdata;
+diff --git a/drivers/irqchip/irq-bcm7120-l2.c b/drivers/irqchip/irq-bcm7120-l2.c
+index 586df3587be06..d308bbe6f5286 100644
+--- a/drivers/irqchip/irq-bcm7120-l2.c
++++ b/drivers/irqchip/irq-bcm7120-l2.c
+@@ -268,7 +268,8 @@ static int __init bcm7120_l2_intc_probe(struct device_node *dn,
+ 		flags |= IRQ_GC_BE_IO;
  
- 	charlcd_unregister(lcd);
-+	kfree(hdc->hd44780);
- 	kfree(lcd->drvdata);
- 
- 	kfree(lcd);
+ 	ret = irq_alloc_domain_generic_chips(data->domain, IRQS_PER_WORD, 1,
+-				dn->full_name, handle_level_irq, clr, 0, flags);
++				dn->full_name, handle_level_irq, clr,
++				IRQ_LEVEL, flags);
+ 	if (ret) {
+ 		pr_err("failed to allocate generic irq chip\n");
+ 		goto out_free_domain;
 -- 
 2.39.2
 
