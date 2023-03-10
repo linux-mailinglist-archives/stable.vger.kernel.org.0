@@ -2,68 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 785E16B3F07
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 426A66B3F22
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230286AbjCJMTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 07:19:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51366 "EHLO
+        id S230337AbjCJM1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 07:27:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbjCJMTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:19:22 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93DA4EBDAA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:19:08 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id n6so5336559plf.5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:19:08 -0800 (PST)
+        with ESMTP id S230218AbjCJM1t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:27:49 -0500
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4149377E00
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:27:48 -0800 (PST)
+Received: by mail-ed1-x52d.google.com with SMTP id da10so19798806edb.3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:27:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1678450747;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=RyYoshxZ3LsechZe9ZsTvEq5Q44AfdDhCOd4VA4FxSE=;
-        b=cnI/2ZRUwaAJ0LnEXCgbdVMeWosFi/t6grF7JPSkFMj1l1UZHG9Eh17PuDiUk3HHGR
-         WS2ACdkyy5/iLin2JuEX+AJpjg4sL3lmf+9cLTj3w3DuIoNGw3vWfuIAQYK/cZEALR3/
-         nojaxZH8Ae7BJqI2ZGZfei9rMClfkKU3qJQow=
+        d=chromium.org; s=google; t=1678451266;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gEnPF3txL82EcXZLXGfSlTcE0aF2c4Vm5zQB5mBotqs=;
+        b=VRCkNY+n1U6V2/GmVw9slRwxSvM9Q87Nu4t/Scq7EVlQ/iyiRBajbumKbiPmYkH87m
+         6Rg0cxC0T7pQURZWbiywbbaXXsupz+c2ghY/P7k2wokzO14cau6Xle+/5xDpGIokuSd9
+         k4iN+lwWz810FOQ41zj7njHEQoFXLnf4T2npI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678450747;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=RyYoshxZ3LsechZe9ZsTvEq5Q44AfdDhCOd4VA4FxSE=;
-        b=EHjxNfVAYgaOoZWhSaqpP2nq6sNlDA2Pfyvljv7PZPCxUgRA909m/oHruZeC7ak9DI
-         rt8dJah5yGuK60Pjdw/JgSWtN2R1bpMLSUYUJkohwNvFjXzAJXWdYm6CuM3bfiTvzoct
-         ZOxZB8LvapOU/+oWWPcs94DuM2Pf0H9M0M8LxEkNT2Y71XUY8Z0VBdoVK/l3vwdPC/19
-         0K7Z63+OT94FWRHOvQ/AllC22Ga43H2iUWzTWaSlFqa/vZfkvNCu8UmyMpmONQVwccXn
-         BBRnJ79/S1JD8ZNa6U/MQ1/OsU0DT5l+Qp6WU1nA7cdgtDN21iDBTWv2LIaqk7HnWM0i
-         LO4g==
-X-Gm-Message-State: AO0yUKURu+EAbkB0JVSRIycgwnZyns2HCNcvOrMgewDjMwE7o9S5C+TD
-        Yv1TLk3GIM6A1hFH2T0YKHvRu2llBDxMSQ20lAE=
-X-Google-Smtp-Source: AK7set8S2N9b8IqtU6eZQpsy+OIms7YMCXRknnYR8HU0KnOBpanaFbFw3GuOcni5QKl11n967rNJrg==
-X-Received: by 2002:a17:902:a70a:b0:19d:1898:5b89 with SMTP id w10-20020a170902a70a00b0019d18985b89mr20064054plq.7.1678450747669;
-        Fri, 10 Mar 2023 04:19:07 -0800 (PST)
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com. [209.85.215.181])
-        by smtp.gmail.com with ESMTPSA id jk18-20020a170903331200b0019adbef6a63sm1314419plb.235.2023.03.10.04.19.07
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 10 Mar 2023 04:19:07 -0800 (PST)
-Received: by mail-pg1-f181.google.com with SMTP id d10so2896740pgt.12
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:19:07 -0800 (PST)
-X-Received: by 2002:a63:8c1a:0:b0:503:7be3:e81d with SMTP id
- m26-20020a638c1a000000b005037be3e81dmr8928160pgd.1.1678450746631; Fri, 10 Mar
- 2023 04:19:06 -0800 (PST)
-MIME-Version: 1.0
-References: <16781002113959@kroah.com> <20230308133025.191306-1-ribalda@chromium.org>
- <ZAsaiH4YhwHSDHOO@kroah.com> <ZAsf6wksYtH9/Ura@kroah.com>
-In-Reply-To: <ZAsf6wksYtH9/Ura@kroah.com>
+        d=1e100.net; s=20210112; t=1678451266;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gEnPF3txL82EcXZLXGfSlTcE0aF2c4Vm5zQB5mBotqs=;
+        b=FtWBX2EfXUdA9yqQYqbwFTY1g34hQqtYrvALU7eUbMbUoABLleZa3+J6azHHriOD6k
+         yGgafiNcr10PMbuVOoIERAMCH7zR7nTEXm1lNXK4MNBlAUN6p8tBOPQEXSwAsuwKoxaA
+         QiiB9Wx50M7m9tg3uCuplH698XWRL4x1gtJAACfu8JPyRrNUSk16iJ5H57W8BcGyvN3x
+         D2rTaX6HEd1T9EkcF7m+HYN/uPZIOAqn1x0/kxeIA5rKfgedbpKlb/reH7X5SlqkmIn0
+         eI7MgZw8pWxKWdtcNC+rxtuTkW269zN1PFnGiKyDzzkY41E9PtkzlmdNi4EiFX1Tt/Bn
+         Ad6Q==
+X-Gm-Message-State: AO0yUKUY/fyzfsExFn1JUWGB8+FJ9I4ghs5TUBqkA+MF/OUwYOZC16Qe
+        PRkeik7/9aU8FqZD3vURjTnHrpHDczcvpNcAOPniRQ==
+X-Google-Smtp-Source: AK7set+EHO1ag7G1+89LZbh8J09F7N2Q+TlmgwKUzGI9RekK+UHzSyjFHc2YtUtywma7SA9es2qiiQ==
+X-Received: by 2002:a17:906:4f94:b0:8f7:3488:fd78 with SMTP id o20-20020a1709064f9400b008f73488fd78mr25800094eju.0.1678451266559;
+        Fri, 10 Mar 2023 04:27:46 -0800 (PST)
+Received: from alco.corp.google.com ([2620:0:1059:10:e8d1:757a:19c3:a0cf])
+        by smtp.gmail.com with ESMTPSA id q10-20020a170906678a00b008d09b900614sm893980ejp.80.2023.03.10.04.27.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Mar 2023 04:27:46 -0800 (PST)
 From:   Ricardo Ribalda <ribalda@chromium.org>
-Date:   Fri, 10 Mar 2023 13:18:55 +0100
-X-Gmail-Original-Message-ID: <CANiDSCu2MJpKJrL3BmEwWgKhMmUwrob-p0D7s7rLaOxQYsJrCw@mail.gmail.com>
-Message-ID: <CANiDSCu2MJpKJrL3BmEwWgKhMmUwrob-p0D7s7rLaOxQYsJrCw@mail.gmail.com>
-Subject: Re: [PATCH 6.2.y] media: uvcvideo: Fix race condition with usb_kill_urb
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, Yunke Cao <yunkec@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Content-Type: text/plain; charset="UTF-8"
+To:     stable@vger.kernel.org
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4.y 1/2] media: uvcvideo: Provide sync and async uvc_ctrl_status_event
+Date:   Fri, 10 Mar 2023 13:27:38 +0100
+Message-Id: <20230310122739.566442-1-ribalda@chromium.org>
+X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
+In-Reply-To: <167845046715250@kroah.com>
+References: <167845046715250@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -74,86 +69,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg
+Split the functionality of void uvc_ctrl_status_event_work in two, so it
+can be called by functions outside interrupt context and not part of an
+URB.
 
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+(cherry picked from commit d9c8763e61295be0a21dc04ad9c379d5d17c3d86)
+---
+ drivers/media/usb/uvc/uvc_ctrl.c   | 25 +++++++++++++++----------
+ drivers/media/usb/uvc/uvc_status.c |  3 ++-
+ drivers/media/usb/uvc/uvcvideo.h   |  4 +++-
+ 3 files changed, 20 insertions(+), 12 deletions(-)
 
-
-On Fri, 10 Mar 2023 at 13:17, Greg KH <greg@kroah.com> wrote:
->
-> On Fri, Mar 10, 2023 at 12:54:48PM +0100, Greg KH wrote:
-> > On Wed, Mar 08, 2023 at 02:30:25PM +0100, Ricardo Ribalda wrote:
-> > > usb_kill_urb warranties that all the handlers are finished when it
-> > > returns, but does not protect against threads that might be handling
-> > > asynchronously the urb.
-> > >
-> > > For UVC, the function uvc_ctrl_status_event_async() takes care of
-> > > control changes asynchronously.
-> > >
-> > > If the code is executed in the following order:
-> > >
-> > > CPU 0                                       CPU 1
-> > > =====                                       =====
-> > > uvc_status_complete()
-> > >                                     uvc_status_stop()
-> > > uvc_ctrl_status_event_work()
-> > >                                     uvc_status_start() -> FAIL
-> > >
-> > > Then uvc_status_start will keep failing and this error will be shown:
-> > >
-> > > <4>[    5.540139] URB 0000000000000000 submitted while active
-> > > drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
-> > >
-> > > Let's improve the current situation, by not re-submiting the urb if
-> > > we are stopping the status event. Also process the queued work
-> > > (if any) during stop.
-> > >
-> > > CPU 0                                       CPU 1
-> > > =====                                       =====
-> > > uvc_status_complete()
-> > >                                     uvc_status_stop()
-> > >                                     uvc_status_start()
-> > > uvc_ctrl_status_event_work() -> FAIL
-> > >
-> > > Hopefully, with the usb layer protection this should be enough to cover
-> > > all the cases.
-> > >
-> > > Cc: stable@vger.kernel.org
-> > > Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
-> > > Reviewed-by: Yunke Cao <yunkec@chromium.org>
-> > > Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-> > > Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > > Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > > (cherry picked from commit 619d9b710cf06f7a00a17120ca92333684ac45a8)
-> > > Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-> > > ---
-> > >  drivers/media/usb/uvc/uvc_ctrl.c   |  5 ++++
-> > >  drivers/media/usb/uvc/uvc_status.c | 37 ++++++++++++++++++++++++++++++
-> > >  drivers/media/usb/uvc/uvcvideo.h   |  1 +
-> > >  3 files changed, 43 insertions(+)
-> >
-> > This fails to apply to the 6.2.y queue right now:
-> >
-> > checking file drivers/media/usb/uvc/uvc_ctrl.c
-> > Hunk #1 FAILED at 6.
-> > Hunk #2 succeeded at 1509 (offset 67 lines).
-> > 1 out of 2 hunks FAILED
-> > checking file drivers/media/usb/uvc/uvc_status.c
-> > checking file drivers/media/usb/uvc/uvcvideo.h
-> > Hunk #1 succeeded at 559 (offset -1 lines).
-> >
-> > Can you redo this?
->
-> I got 5.15.y and newer to work here on my own, can you redo the older
-> ones as well?
-
-Sure thanks!
-
->
-> thanks,
->
-> greg k-h
-
-
-
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index 36abe47997b0..b6cadae3c187 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -1275,17 +1275,12 @@ static void uvc_ctrl_send_slave_event(struct uvc_video_chain *chain,
+ 	uvc_ctrl_send_event(chain, handle, ctrl, mapping, val, changes);
+ }
+ 
+-static void uvc_ctrl_status_event_work(struct work_struct *work)
++void uvc_ctrl_status_event(struct uvc_video_chain *chain,
++			   struct uvc_control *ctrl, const u8 *data)
+ {
+-	struct uvc_device *dev = container_of(work, struct uvc_device,
+-					      async_ctrl.work);
+-	struct uvc_ctrl_work *w = &dev->async_ctrl;
+-	struct uvc_video_chain *chain = w->chain;
+ 	struct uvc_control_mapping *mapping;
+-	struct uvc_control *ctrl = w->ctrl;
+ 	struct uvc_fh *handle;
+ 	unsigned int i;
+-	int ret;
+ 
+ 	mutex_lock(&chain->ctrl_mutex);
+ 
+@@ -1293,7 +1288,7 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 	ctrl->handle = NULL;
+ 
+ 	list_for_each_entry(mapping, &ctrl->info.mappings, list) {
+-		s32 value = __uvc_ctrl_get_value(mapping, w->data);
++		s32 value = __uvc_ctrl_get_value(mapping, data);
+ 
+ 		/*
+ 		 * handle may be NULL here if the device sends auto-update
+@@ -1312,6 +1307,16 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 	}
+ 
+ 	mutex_unlock(&chain->ctrl_mutex);
++}
++
++static void uvc_ctrl_status_event_work(struct work_struct *work)
++{
++	struct uvc_device *dev = container_of(work, struct uvc_device,
++					      async_ctrl.work);
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++	int ret;
++
++	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
+ 
+ 	/* Resubmit the URB. */
+ 	w->urb->interval = dev->int_ep->desc.bInterval;
+@@ -1321,8 +1326,8 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 			   ret);
+ }
+ 
+-bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
+-			   struct uvc_control *ctrl, const u8 *data)
++bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
++				 struct uvc_control *ctrl, const u8 *data)
+ {
+ 	struct uvc_device *dev = chain->dev;
+ 	struct uvc_ctrl_work *w = &dev->async_ctrl;
+diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
+index 2bdb0ff203f8..3e26d82a906d 100644
+--- a/drivers/media/usb/uvc/uvc_status.c
++++ b/drivers/media/usb/uvc/uvc_status.c
+@@ -179,7 +179,8 @@ static bool uvc_event_control(struct urb *urb,
+ 
+ 	switch (status->bAttribute) {
+ 	case UVC_CTRL_VALUE_CHANGE:
+-		return uvc_ctrl_status_event(urb, chain, ctrl, status->bValue);
++		return uvc_ctrl_status_event_async(urb, chain, ctrl,
++						   status->bValue);
+ 
+ 	case UVC_CTRL_INFO_CHANGE:
+ 	case UVC_CTRL_FAILURE_CHANGE:
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index 5f137400bebd..fce41609e27a 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -832,7 +832,9 @@ int uvc_ctrl_add_mapping(struct uvc_video_chain *chain,
+ int uvc_ctrl_init_device(struct uvc_device *dev);
+ void uvc_ctrl_cleanup_device(struct uvc_device *dev);
+ int uvc_ctrl_restore_values(struct uvc_device *dev);
+-bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
++bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
++				 struct uvc_control *ctrl, const u8 *data);
++void uvc_ctrl_status_event(struct uvc_video_chain *chain,
+ 			   struct uvc_control *ctrl, const u8 *data);
+ 
+ int uvc_ctrl_begin(struct uvc_video_chain *chain);
 -- 
-Ricardo Ribalda
+2.40.0.rc1.284.g88254d51c5-goog
+
