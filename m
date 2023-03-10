@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E3C6B44DB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F309E6B4864
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232324AbjCJO3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:29:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55754 "EHLO
+        id S233683AbjCJPCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:02:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232395AbjCJO26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:28:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1475611EE98
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:27:04 -0800 (PST)
+        with ESMTP id S233681AbjCJPBa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496C612C731
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D2227CE2911
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4F2CC433EF;
-        Fri, 10 Mar 2023 14:26:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC82FB822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5AFC433D2;
+        Fri, 10 Mar 2023 14:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458415;
-        bh=J7mb6ofHizPLjvjgbic5lVFIuNp5l/c9JP7LYYCio/o=;
+        s=korg; t=1678459974;
+        bh=wakE+wdMk7VmV7wQVzUthbNSSnW3UOJaBKZNiHKyHI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oV/M3ucFRZfaXHQmqw0mAjytK/P+2ZK2pcYhm9Cz0/tHiD7h/xD8uY9JHln5suqdV
-         gGRFdLQsSwa9pKpGe0RPMMgIFIMqprxHw4G5Bv6z0ui3lIrHoipTI6/oW9WznSIYz+
-         Y5ZmNxaS922G7W2kRYPZGleWqh7TOGE/FrC1gJfQ=
+        b=LS8Bh0y5fEkh4EJDWbJdLYN4n0GvhUOU5YQGDnLQERYZDSdz1cYUK7u2E3+rI0pV8
+         0NYKdRDPwnNoL+RlZsNydXudUcxdgw0+vcLn9suZ0LWtwO1SkUR6rz9oKMqW1Ko+5o
+         lOy90AX/V3Gox2Z/XI9lAe+z1wqF53DzzJL6FM6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Ian Ray <ian.ray@ge.com>, Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 005/357] arm64: dts: qcom: qcs404: use symbol names for PCIe resets
+Subject: [PATCH 5.10 151/529] drm/bridge: megachips: Fix error handling in i2c_register_driver()
 Date:   Fri, 10 Mar 2023 14:34:54 +0100
-Message-Id: <20230310133734.210437366@linuxfoundation.org>
+Message-Id: <20230310133811.950872751@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 41a37d157a613444c97e8f71a5fb2a21116b70d7 ]
+[ Upstream commit 4ecff954c370b82bce45bdca2846c5c5563e8a8a ]
 
-The commit e5bbbff5b7d7 ("clk: gcc-qcs404: Add PCIe resets") added names
-for PCIe resets, but it did not change the existing qcs404.dtsi to use
-these names. Do it now and use symbol names to make it easier to check
-and modify the dtsi in future.
+A problem about insmod megachips-stdpxxxx-ge-b850v3-fw.ko failed is
+triggered with the following log given:
 
-Fixes: e5bbbff5b7d7 ("clk: gcc-qcs404: Add PCIe resets")
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221226042154.2666748-14-dmitry.baryshkov@linaro.org
+[ 4497.981497] Error: Driver 'stdp4028-ge-b850v3-fw' is already registered, aborting...
+insmod: ERROR: could not insert module megachips-stdpxxxx-ge-b850v3-fw.ko: Device or resource busy
+
+The reason is that stdpxxxx_ge_b850v3_init() returns i2c_add_driver()
+directly without checking its return value, if i2c_add_driver() failed,
+it returns without calling i2c_del_driver() on the previous i2c driver,
+resulting the megachips-stdpxxxx-ge-b850v3-fw can never be installed
+later.
+A simple call graph is shown as below:
+
+ stdpxxxx_ge_b850v3_init()
+   i2c_add_driver(&stdp4028_ge_b850v3_fw_driver)
+   i2c_add_driver(&stdp2690_ge_b850v3_fw_driver)
+     i2c_register_driver()
+       driver_register()
+         bus_add_driver()
+           priv = kzalloc(...) # OOM happened
+   # return without delete stdp4028_ge_b850v3_fw_driver
+
+Fix by calling i2c_del_driver() on stdp4028_ge_b850v3_fw_driver when
+i2c_add_driver() returns error.
+
+Fixes: fcfa0ddc18ed ("drm/bridge: Drivers for megachips-stdpxxxx-ge-b850v3-fw (LVDS-DP++)")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Tested-by: Ian Ray <ian.ray@ge.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221108091226.114524-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/qcs404.dtsi | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/qcs404.dtsi b/arch/arm64/boot/dts/qcom/qcs404.dtsi
-index a97eeb4569c00..1eb51b12cfac7 100644
---- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
-+++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
-@@ -533,7 +533,7 @@ pcie_phy: phy@7786000 {
+diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+index 72248a565579e..e41afcc5326b1 100644
+--- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
++++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+@@ -444,7 +444,11 @@ static int __init stdpxxxx_ge_b850v3_init(void)
+ 	if (ret)
+ 		return ret;
  
- 			clocks = <&gcc GCC_PCIE_0_PIPE_CLK>;
- 			resets = <&gcc GCC_PCIEPHY_0_PHY_BCR>,
--				 <&gcc 21>;
-+				 <&gcc GCC_PCIE_0_PIPE_ARES>;
- 			reset-names = "phy", "pipe";
+-	return i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
++	ret = i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
++	if (ret)
++		i2c_del_driver(&stdp4028_ge_b850v3_fw_driver);
++
++	return ret;
+ }
+ module_init(stdpxxxx_ge_b850v3_init);
  
- 			clock-output-names = "pcie_0_pipe_clk";
-@@ -991,12 +991,12 @@ pcie: pci@10000000 {
- 				 <&gcc GCC_PCIE_0_SLV_AXI_CLK>;
- 			clock-names = "iface", "aux", "master_bus", "slave_bus";
- 
--			resets = <&gcc 18>,
--				 <&gcc 17>,
--				 <&gcc 15>,
--				 <&gcc 19>,
-+			resets = <&gcc GCC_PCIE_0_AXI_MASTER_ARES>,
-+				 <&gcc GCC_PCIE_0_AXI_SLAVE_ARES>,
-+				 <&gcc GCC_PCIE_0_AXI_MASTER_STICKY_ARES>,
-+				 <&gcc GCC_PCIE_0_CORE_STICKY_ARES>,
- 				 <&gcc GCC_PCIE_0_BCR>,
--				 <&gcc 16>;
-+				 <&gcc GCC_PCIE_0_AHB_ARES>;
- 			reset-names = "axi_m",
- 				      "axi_s",
- 				      "axi_m_sticky",
 -- 
 2.39.2
 
