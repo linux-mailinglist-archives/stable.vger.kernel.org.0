@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0453F6B4654
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C406B427B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232852AbjCJOmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:42:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58732 "EHLO
+        id S231682AbjCJOD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232853AbjCJOmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:42:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B182C11F609
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:57 -0800 (PST)
+        with ESMTP id S231684AbjCJOD3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8284C62FD6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 071FCB822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DA98C4339C;
-        Fri, 10 Mar 2023 14:41:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30F6BB82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD1AC433EF;
+        Fri, 10 Mar 2023 14:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459314;
-        bh=MixvVkryo7N9jIJa3+uKxF0gQJFGw8RJ/CfUnMnkH20=;
+        s=korg; t=1678457005;
+        bh=cvci2CIgjhUYpoLQqTiU0LVo7ik06hSSnpDB3PV9V98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XfYL9Ud8IeH4PDpG8bM12xQHI0j6yvUwrvz7scDs/iLnoBxZtM98Zj0h1p5ZSlYIl
-         LQwmkLBwjFgcet9KSarrfpf+7FbWyIK8YQRBJZLCNSP4FQYPO8M5uj6VRaK096xKLk
-         BmOERBc9osabQ+p/1zP85+pf+YVBBp+/p1FxKUAQ=
+        b=T+WJH8RFwg7kd1te+EOz7yTffFt1fhIUeS9d2oBWWxJcMd5X3fEF+jpnVw+QkKES9
+         rOrYUiIwtf5v0V5wHwxA+yAKym3aMj8/Nvc2cSUE94IgRJ4s3CBxfrLJGx7sB+mdzh
+         kx2Ko73VgX4j5DATlOtmQ9WJG28FYk7vbwoIrcow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiang Yang <xiangyang3@huawei.com>,
-        Anton Ivanov <anton.ivanov@kot-begemot.co.uk>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 290/357] um: vector: Fix memory leak in vector_config
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.2 199/211] vDPA/ifcvf: manage ifcvf_hw in the mgmt_dev
 Date:   Fri, 10 Mar 2023 14:39:39 +0100
-Message-Id: <20230310133747.557576287@linuxfoundation.org>
+Message-Id: <20230310133724.947973691@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,36 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Yang <xiangyang3@huawei.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit 8f88c73afe481f93d40801596927e8c0047b6d96 ]
+commit 6a3b2f179b49f2c6452ecc37b4778a43848b454c upstream.
 
-If the return value of the uml_parse_vector_ifspec function is NULL,
-we should call kfree(params) to prevent memory leak.
+This commit allocates the hw structure in the
+management device structure. So the hardware
+can be initialized once the management device
+is allocated in probe.
 
-Fixes: 49da7e64f33e ("High Performance UML Vector Network Driver")
-Signed-off-by: Xiang Yang <xiangyang3@huawei.com>
-Acked-By: Anton Ivanov <anton.ivanov@kot-begemot.co.uk>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-10-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/drivers/vector_kern.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vdpa/ifcvf/ifcvf_base.h |    5 +++--
+ drivers/vdpa/ifcvf/ifcvf_main.c |    7 ++++---
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
-index 769ffbd9e9a61..eb9dba8dcf958 100644
---- a/arch/um/drivers/vector_kern.c
-+++ b/arch/um/drivers/vector_kern.c
-@@ -746,6 +746,7 @@ static int vector_config(char *str, char **error_out)
+--- a/drivers/vdpa/ifcvf/ifcvf_base.h
++++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+@@ -39,7 +39,7 @@
+ #define IFCVF_INFO(pdev, fmt, ...)	dev_info(&pdev->dev, fmt, ##__VA_ARGS__)
  
- 	if (parsed == NULL) {
- 		*error_out = "vector_config failed to parse parameters";
-+		kfree(params);
- 		return -EINVAL;
- 	}
+ #define ifcvf_private_to_vf(adapter) \
+-	(&((struct ifcvf_adapter *)adapter)->vf)
++	(((struct ifcvf_adapter *)adapter)->vf)
  
--- 
-2.39.2
-
+ /* all vqs and config interrupt has its own vector */
+ #define MSIX_VECTOR_PER_VQ_AND_CONFIG		1
+@@ -95,7 +95,7 @@ struct ifcvf_hw {
+ struct ifcvf_adapter {
+ 	struct vdpa_device vdpa;
+ 	struct pci_dev *pdev;
+-	struct ifcvf_hw vf;
++	struct ifcvf_hw *vf;
+ };
+ 
+ struct ifcvf_vring_lm_cfg {
+@@ -110,6 +110,7 @@ struct ifcvf_lm_cfg {
+ 
+ struct ifcvf_vdpa_mgmt_dev {
+ 	struct vdpa_mgmt_dev mdev;
++	struct ifcvf_hw vf;
+ 	struct ifcvf_adapter *adapter;
+ 	struct pci_dev *pdev;
+ };
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -402,7 +402,7 @@ static struct ifcvf_hw *vdpa_to_vf(struc
+ {
+ 	struct ifcvf_adapter *adapter = vdpa_to_adapter(vdpa_dev);
+ 
+-	return &adapter->vf;
++	return adapter->vf;
+ }
+ 
+ static u64 ifcvf_vdpa_get_device_features(struct vdpa_device *vdpa_dev)
+@@ -750,7 +750,7 @@ static int ifcvf_vdpa_dev_add(struct vdp
+ 		return -EOPNOTSUPP;
+ 
+ 	adapter = ifcvf_mgmt_dev->adapter;
+-	vf = &adapter->vf;
++	vf = adapter->vf;
+ 	pdev = adapter->pdev;
+ 	vdpa_dev = &adapter->vdpa;
+ 
+@@ -838,10 +838,11 @@ static int ifcvf_probe(struct pci_dev *p
+ 	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
+ 	ifcvf_mgmt_dev->adapter = adapter;
+ 
+-	vf = &adapter->vf;
++	vf = &ifcvf_mgmt_dev->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+ 	vf->base = pcim_iomap_table(pdev);
+ 	vf->pdev = pdev;
++	adapter->vf = vf;
+ 
+ 	ret = ifcvf_init_hw(vf, pdev);
+ 	if (ret) {
 
 
