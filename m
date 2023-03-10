@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A615A6B4954
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA846B492D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234041AbjCJPLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:11:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41762 "EHLO
+        id S233958AbjCJPKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:10:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233862AbjCJPKx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:53 -0500
+        with ESMTP id S232929AbjCJPKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:07 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82DF01C589
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:03:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 001E0125DB7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD7D3B822DE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 072EEC433EF;
-        Fri, 10 Mar 2023 15:03:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5778BB822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:01:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4EC5C433A8;
+        Fri, 10 Mar 2023 15:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460584;
-        bh=RGiB+QXgTEXwKYb5bAjIPsMTIT/f9dGgIClOp0tifG8=;
+        s=korg; t=1678460488;
+        bh=+Di6mEXN9G2ImwIWJqyFDIz3cVF3s9l5AUN86uS81yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBodio/bVo0UB7OTIC2hdzVwAEQZT6TiRIzsCD+RqqCSh3dnH4S2gvE9H2ncGaaD2
-         QbF/JYslzE7tA7SvuS4+JCWADNERoJw2biDQ+DhrzLN8cB3aTGqTW2ytqM513lkyL8
-         5HtAbsyx3kkBTlSpCNCwu0f4lWLRvDWvdPCeuTRE=
+        b=xkiowP1zaaXMxGLKCgl/iNMkMat6Qi1dFdF1XxcEj9rhjs4rS7w03JU69L06tcaUa
+         RzjstO2RkVPAD8aVeS5aH1jA7aPnuI4TfBhB/4neuVBj/1MDi6RqxV5OqvqG3WuVdi
+         JJUMZrAPiQB5Vvu0cY83cyMXmp2s0yJAk7q97i9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yugui <wangyugui@e16-tech.com>,
-        Yuezhang Mo <Yuezhang.Mo@sony.com>, Andy Wu <Andy.Wu@sony.com>,
-        Namjae Jeon <linkinjeon@kernel.org>
-Subject: [PATCH 5.10 343/529] exfat: fix inode->i_blocks for non-512 byte sector size device
-Date:   Fri, 10 Mar 2023 14:38:06 +0100
-Message-Id: <20230310133820.908105666@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 344/529] f2fs: fix information leak in f2fs_move_inline_dirents()
+Date:   Fri, 10 Mar 2023 14:38:07 +0100
+Message-Id: <20230310133820.958388854@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,83 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuezhang Mo <Yuezhang.Mo@sony.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 39c1ce8eafc0ff64fb9e28536ccc7df6a8e2999d upstream.
+commit 9a5571cff4ffcfc24847df9fd545cc5799ac0ee5 upstream.
 
-inode->i_blocks is not real number of blocks, but 512 byte ones.
+When converting an inline directory to a regular one, f2fs is leaking
+uninitialized memory to disk because it doesn't initialize the entire
+directory block.  Fix this by zero-initializing the block.
 
-Fixes: 98d917047e8b ("exfat: add file operations")
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: Wang Yugui <wangyugui@e16-tech.com>
-Tested-by: Wang Yugui <wangyugui@e16-tech.com>
-Signed-off-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
-Reviewed-by: Andy Wu <Andy.Wu@sony.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
+initializing when converting inline dentry"), which didn't consider the
+security implications of leaking uninitialized memory to disk.
+
+This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
+
+Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
+Cc: <stable@vger.kernel.org> # v4.3+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/exfat/file.c  |    3 +--
- fs/exfat/inode.c |    6 ++----
- fs/exfat/namei.c |    2 +-
- fs/exfat/super.c |    3 +--
- 4 files changed, 5 insertions(+), 9 deletions(-)
+ fs/f2fs/inline.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/fs/exfat/file.c
-+++ b/fs/exfat/file.c
-@@ -250,8 +250,7 @@ void exfat_truncate(struct inode *inode,
- 	else
- 		mark_inode_dirty(inode);
+--- a/fs/f2fs/inline.c
++++ b/fs/f2fs/inline.c
+@@ -420,18 +420,17 @@ static int f2fs_move_inline_dirents(stru
  
--	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >>
--				inode->i_blkbits;
-+	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >> 9;
- write_size:
- 	aligned_size = i_size_read(inode);
- 	if (aligned_size & (blocksize - 1)) {
---- a/fs/exfat/inode.c
-+++ b/fs/exfat/inode.c
-@@ -242,8 +242,7 @@ static int exfat_map_cluster(struct inod
- 				return err;
- 		} /* end of if != DIR_DELETED */
+ 	dentry_blk = page_address(page);
  
--		inode->i_blocks +=
--			num_to_be_allocated << sbi->sect_per_clus_bits;
-+		inode->i_blocks += EXFAT_CLU_TO_B(num_to_be_allocated, sbi) >> 9;
++	/*
++	 * Start by zeroing the full block, to ensure that all unused space is
++	 * zeroed and no uninitialized memory is leaked to disk.
++	 */
++	memset(dentry_blk, 0, F2FS_BLKSIZE);
++
+ 	make_dentry_ptr_inline(dir, &src, inline_dentry);
+ 	make_dentry_ptr_block(dir, &dst, dentry_blk);
  
- 		/*
- 		 * Move *clu pointer along FAT chains (hole care) because the
-@@ -600,8 +599,7 @@ static int exfat_fill_inode(struct inode
+ 	/* copy data from inline dentry block to new dentry block */
+ 	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
+-	memset(dst.bitmap + src.nr_bitmap, 0, dst.nr_bitmap - src.nr_bitmap);
+-	/*
+-	 * we do not need to zero out remainder part of dentry and filename
+-	 * field, since we have used bitmap for marking the usage status of
+-	 * them, besides, we can also ignore copying/zeroing reserved space
+-	 * of dentry block, because them haven't been used so far.
+-	 */
+ 	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
+ 	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
  
- 	exfat_save_attr(inode, info->attr);
- 
--	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >>
--				inode->i_blkbits;
-+	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >> 9;
- 	inode->i_mtime = info->mtime;
- 	inode->i_ctime = info->mtime;
- 	ei->i_crtime = info->crtime;
---- a/fs/exfat/namei.c
-+++ b/fs/exfat/namei.c
-@@ -398,7 +398,7 @@ static int exfat_find_empty_entry(struct
- 		ei->i_size_ondisk += sbi->cluster_size;
- 		ei->i_size_aligned += sbi->cluster_size;
- 		ei->flags = p_dir->flags;
--		inode->i_blocks += 1 << sbi->sect_per_clus_bits;
-+		inode->i_blocks += sbi->cluster_size >> 9;
- 	}
- 
- 	return dentry;
---- a/fs/exfat/super.c
-+++ b/fs/exfat/super.c
-@@ -364,8 +364,7 @@ static int exfat_read_root(struct inode
- 	inode->i_op = &exfat_dir_inode_operations;
- 	inode->i_fop = &exfat_dir_operations;
- 
--	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >>
--				inode->i_blkbits;
-+	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >> 9;
- 	ei->i_pos = ((loff_t)sbi->root_dir << 32) | 0xffffffff;
- 	ei->i_size_aligned = i_size_read(inode);
- 	ei->i_size_ondisk = i_size_read(inode);
 
 
