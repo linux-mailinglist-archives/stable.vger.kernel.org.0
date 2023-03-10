@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 834446B43DF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:19:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EFF66B42DE
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbjCJOTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:19:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60248 "EHLO
+        id S231818AbjCJOIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:08:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231923AbjCJOTC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C963E11BB03
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:17:30 -0800 (PST)
+        with ESMTP id S231699AbjCJOHw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F65F115DF2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08760B822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:17:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73691C433EF;
-        Fri, 10 Mar 2023 14:17:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D54F96191F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F8FC433D2;
+        Fri, 10 Mar 2023 14:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457827;
-        bh=4asVLtVFUUDyCxNA8OheF6Xwnoh8An8F/w579dKdNAI=;
+        s=korg; t=1678457235;
+        bh=mpqJt5zJ7CPvSkDyBW2VufNE4cqUl48yhJW3ZkM8w90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UxJzS/ynU3eO5W2PbD+lbqHSBwPA2wls4SPREb9BjAUut8efG6KRG6ka8Gk8DPzL3
-         bfIdN//IimK7Yf0IzstjCpaazo1sFkjbO203CASJLl/g08GMJDS5AuGHgwsHdhXRjP
-         FVS+KQmxm20MG2u7ibjUYrPm0OzHXFk6DMC5G8xs=
+        b=UsChGZcNzaQma3c1cFIqHkDGQf8mAHUMSMkKC76/1nNsJ1tEf49N9VPLpQ1ujYF6n
+         oZlg7QNW+Z936cNq2MZxszjnMRgrKOXfx1F6vRLEua7meItjmo6KZDD5FnGfaLhhnS
+         5qy4AapjPJBfehSlc5CkiEgDluVw5z1bihDutqHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 072/252] drm/msm/hdmi: Add missing check for alloc_ordered_workqueue
+Subject: [PATCH 6.1 035/200] ubi: Fix possible null-ptr-deref in ubi_free_volume()
 Date:   Fri, 10 Mar 2023 14:37:22 +0100
-Message-Id: <20230310133721.002642508@linuxfoundation.org>
+Message-Id: <20230310133718.132008476@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit afe4cb96153a0d8003e4e4ebd91b5c543e10df84 ]
+[ Upstream commit c15859bfd326c10230f09cb48a17f8a35f190342 ]
 
-Add check for the return value of alloc_ordered_workqueue as it may return
-NULL pointer and cause NULL pointer dereference in `hdmi_hdcp.c` and
-`hdmi_hpd.c`.
+It willl cause null-ptr-deref in the following case:
 
-Fixes: c6a57a50ad56 ("drm/msm/hdmi: add hdmi hdcp support (V3)")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/517211/
-Link: https://lore.kernel.org/r/20230106023011.3985-1-jiasheng@iscas.ac.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+uif_init()
+  ubi_add_volume()
+    cdev_add() -> if it fails, call kill_volumes()
+    device_register()
+
+kill_volumes() -> if ubi_add_volume() fails call this function
+  ubi_free_volume()
+    cdev_del()
+    device_unregister() -> trying to delete a not added device,
+			   it causes null-ptr-deref
+
+So in ubi_free_volume(), it delete devices whether they are added
+or not, it will causes null-ptr-deref.
+
+Handle the error case whlie calling ubi_add_volume() to fix this
+problem. If add volume fails, set the corresponding vol to null,
+so it can not be accessed in kill_volumes() and release the
+resource in ubi_add_volume() error path.
+
+Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
+Suggested-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mtd/ubi/build.c |  1 +
+ drivers/mtd/ubi/vmt.c   | 12 ++++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index e03f08757b252..b75067854b4d7 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -254,6 +254,10 @@ static struct hdmi *msm_hdmi_init(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index 2178eb4115b36..7f65af1697519 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -468,6 +468,7 @@ static int uif_init(struct ubi_device *ubi)
+ 			err = ubi_add_volume(ubi, ubi->volumes[i]);
+ 			if (err) {
+ 				ubi_err(ubi, "cannot add volume %d", i);
++				ubi->volumes[i] = NULL;
+ 				goto out_volumes;
+ 			}
+ 		}
+diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
+index 9fbc64b997cef..2c867d16f89f7 100644
+--- a/drivers/mtd/ubi/vmt.c
++++ b/drivers/mtd/ubi/vmt.c
+@@ -582,6 +582,7 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
+ 	if (err) {
+ 		ubi_err(ubi, "cannot add character device for volume %d, error %d",
+ 			vol_id, err);
++		vol_release(&vol->dev);
+ 		return err;
+ 	}
  
- 	hdmi->workq = alloc_ordered_workqueue("msm_hdmi", 0);
-+	if (!hdmi->workq) {
-+		ret = -ENOMEM;
-+		goto fail;
+@@ -592,15 +593,14 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
+ 	vol->dev.groups = volume_dev_groups;
+ 	dev_set_name(&vol->dev, "%s_%d", ubi->ubi_name, vol->vol_id);
+ 	err = device_register(&vol->dev);
+-	if (err)
+-		goto out_cdev;
++	if (err) {
++		cdev_del(&vol->cdev);
++		put_device(&vol->dev);
++		return err;
 +	}
  
- 	hdmi->i2c = msm_hdmi_i2c_init(hdmi);
- 	if (IS_ERR(hdmi->i2c)) {
+ 	self_check_volumes(ubi);
+ 	return err;
+-
+-out_cdev:
+-	cdev_del(&vol->cdev);
+-	return err;
+ }
+ 
+ /**
 -- 
 2.39.2
 
