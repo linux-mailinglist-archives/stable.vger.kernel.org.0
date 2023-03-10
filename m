@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D2776B44A1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 562AC6B4612
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232392AbjCJO0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:26:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44100 "EHLO
+        id S232697AbjCJOjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232073AbjCJOZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFEB1E2A5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:46 -0800 (PST)
+        with ESMTP id S232691AbjCJOjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:39:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A36220A04
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD5A3617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8C2CC433EF;
-        Fri, 10 Mar 2023 14:24:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35FE1B822DC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9842FC4339C;
+        Fri, 10 Mar 2023 14:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458285;
-        bh=Xg0X9O+oqwbhf1s+xLJNY0gJv2vvHl/xwF7HhHu8Eyc=;
+        s=korg; t=1678459181;
+        bh=lGpvSeXcNX1cM0uufaZvRIAj2MCEdhVX/90mepeVURo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhXnn+l9mz6X1tfnd8VABwB2cwFozvdX+6q7QxsdNY8B6sSWoUkS6ql0rGRS2INA0
-         w6oN/aZTLN0YLI1n/eJ5EE3hRYClMksjnhgiqOeePwgX9ZH/nLSBGQr2MGh+VprROM
-         ZdHpKrEauvrdBahoe882RRBFbrNFaES76f057PuU=
+        b=rRqrdCHb3m/DVW7NdFiTLiBKsstYRjU3gM8mJ19gMVd5LDKAjCD1Z3uhC1sIg6SEx
+         BvRaofgyQEpqPi+qQAbyPhOEVKx0joOaR6Gp5mPi8sETosEpqkZ+9D+Qmc4hQtvHIZ
+         +dErNUZ75aIlXuJLdLSIJHlu0AmB+M/CnqaBiVZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Hawrylak <mark.hawrylak@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 194/252] drm/radeon: Fix eDP for single-display iMac11,2
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 275/357] scsi: ses: Fix slab-out-of-bounds in ses_intf_remove()
 Date:   Fri, 10 Mar 2023 14:39:24 +0100
-Message-Id: <20230310133724.852006762@linuxfoundation.org>
+Message-Id: <20230310133746.879839942@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Hawrylak <mark.hawrylak@gmail.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-commit 05eacc198c68cbb35a7281ce4011f8899ee1cfb8 upstream.
+commit 578797f0c8cbc2e3ec5fc0dab87087b4c7073686 upstream.
 
-Apple iMac11,2 (mid 2010) also with Radeon HD-4670 that has the same
-issue as iMac10,1 (late 2009) where the internal eDP panel stays dark on
-driver load.  This patch treats iMac11,2 the same as iMac10,1,
-so the eDP panel stays active.
+A fix for:
 
-Additional steps:
-Kernel boot parameter radeon.nomodeset=0 required to keep the eDP
-panel active.
+BUG: KASAN: slab-out-of-bounds in ses_intf_remove+0x23f/0x270 [ses]
+Read of size 8 at addr ffff88a10d32e5d8 by task rmmod/12013
 
-This patch is an extension of
-commit 564d8a2cf3ab ("drm/radeon: Fix eDP for single-display iMac10,1 (v2)")
-Link: https://lore.kernel.org/all/lsq.1507553064.833262317@decadent.org.uk/
-Signed-off-by: Mark Hawrylak <mark.hawrylak@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+When edev->components is zero, accessing edev->component[0] members is
+wrong.
+
+Link: https://lore.kernel.org/r/20230202162451.15346-5-thenzl@redhat.com
 Cc: stable@vger.kernel.org
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/atombios_encoders.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/ses.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/radeon/atombios_encoders.c
-+++ b/drivers/gpu/drm/radeon/atombios_encoders.c
-@@ -2188,11 +2188,12 @@ int radeon_atom_pick_dig_encoder(struct
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -856,7 +856,8 @@ static void ses_intf_remove_enclosure(st
+ 	kfree(ses_dev->page2);
+ 	kfree(ses_dev);
  
- 	/*
- 	 * On DCE32 any encoder can drive any block so usually just use crtc id,
--	 * but Apple thinks different at least on iMac10,1, so there use linkb,
-+	 * but Apple thinks different at least on iMac10,1 and iMac11,2, so there use linkb,
- 	 * otherwise the internal eDP panel will stay dark.
- 	 */
- 	if (ASIC_IS_DCE32(rdev)) {
--		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1"))
-+		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1") ||
-+		    dmi_match(DMI_PRODUCT_NAME, "iMac11,2"))
- 			enc_idx = (dig->linkb) ? 1 : 0;
- 		else
- 			enc_idx = radeon_crtc->crtc_id;
+-	kfree(edev->component[0].scratch);
++	if (edev->components)
++		kfree(edev->component[0].scratch);
+ 
+ 	put_device(&edev->edev);
+ 	enclosure_unregister(edev);
 
 
