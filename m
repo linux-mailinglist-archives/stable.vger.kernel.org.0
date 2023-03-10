@@ -2,52 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E88EA6B4212
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9C26B4419
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbjCJN70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:59:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46604 "EHLO
+        id S232153AbjCJOV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:21:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231426AbjCJN7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83385C113
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:23 -0800 (PST)
+        with ESMTP id S232171AbjCJOU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFAD41E1E0;
+        Fri, 10 Mar 2023 06:19:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 820BAB822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6175C433EF;
-        Fri, 10 Mar 2023 13:59:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 410A760D29;
+        Fri, 10 Mar 2023 14:19:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 178A6C433EF;
+        Fri, 10 Mar 2023 14:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456761;
-        bh=CHzhDt5YKfpnCveuLrDX8+WCuQozbGmrFhgFSp4fLoM=;
+        s=korg; t=1678457982;
+        bh=PWCVTMAtb7lR3ibJwAzfRbnIR8hV1DXYUS5UqAvsxPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRkytJ/QNdccRataCKq6syyV6DeyQLIRq2ekCuaHWxm4++6FjiMb6+mCYpuH5wgpL
-         FqAowS72HvVgPYEoJvHjfcilDwUJTyPDMfJPgjfSgjg0YMYhJLSaOGKvESLPSradnR
-         Xr6aRzZ0eiJayJYjASf8nGyWI+i1xmwKXNIwkT1c=
+        b=dNyVHj5A3AWwtcLCiPVGK9mypT/+kNOp5tjH8e2UD60CGQE3reBCbk49ODZi8ipZL
+         b6K0oJDFBlm6S9fsWnmo4dCLU+LHuDj9iIX4cwlP+17NUVHaFRsic/927iJ5gQA5Fx
+         auIIrWy9kyOExnqNOdUa6McyRmfdePdRAP5C+zgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
+        patches@lists.linux.dev, Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        llvm@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Tom Rix <trix@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 084/211] 9p/xen: fix connection sequence
+Subject: [PATCH 4.19 094/252] perf llvm: Fix inadvertent file creation
 Date:   Fri, 10 Mar 2023 14:37:44 +0100
-Message-Id: <20230310133721.338123686@linuxfoundation.org>
+Message-Id: <20230310133721.663982365@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,115 +63,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit c15fe55d14b3b4ded5af2a3260877460a6ffb8ad ]
+[ Upstream commit 9f19aab47ced012eddef1e2bc96007efc7713b61 ]
 
-Today the connection sequence of the Xen 9pfs frontend doesn't match
-the documented sequence. It can work reliably only for a PV 9pfs device
-having been added at boot time already, as the frontend is not waiting
-for the backend to have set its state to "XenbusStateInitWait" before
-reading the backend properties from Xenstore.
+The LLVM template is first echo-ed into command_out and then
+command_out executed. The echo surrounds the template with double
+quotes, however, the template itself may contain quotes. This is
+generally innocuous but in tools/perf/tests/bpf-script-test-prologue.c
+we see:
+...
+SEC("func=null_lseek file->f_mode offset orig")
+...
+where the first double quote ends the double quote of the echo, then
+the > redirects output into a file called f_mode.
 
-Fix that by following the documented sequence [1] (the documentation
-has a bug, so the reference is for the patch fixing that).
+To avoid this inadvertent behavior substitute redirects and similar
+characters to be ASCII control codes, then substitute the output in
+the echo back again.
 
-[1]: https://lore.kernel.org/xen-devel/20230130090937.31623-1-jgross@suse.com/T/#u
-
-Link: https://lkml.kernel.org/r/20230130113036.7087-3-jgross@suse.com
-Fixes: 868eb122739a ("xen/9pfs: introduce Xen 9pfs transport driver")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Fixes: 5eab5a7ee032acaa ("perf llvm: Display eBPF compiling command in debug output")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: bpf@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: llvm@lists.linux.dev
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/20230105082609.344538-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_xen.c | 38 +++++++++++++++++++++++---------------
- 1 file changed, 23 insertions(+), 15 deletions(-)
+ tools/perf/util/llvm-utils.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index ad2947a3b3760..c64050e839ac6 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -372,12 +372,11 @@ static int xen_9pfs_front_alloc_dataring(struct xenbus_device *dev,
- 	return ret;
- }
+diff --git a/tools/perf/util/llvm-utils.c b/tools/perf/util/llvm-utils.c
+index 46ec9a1bb94cc..1ff4788bcb4e5 100644
+--- a/tools/perf/util/llvm-utils.c
++++ b/tools/perf/util/llvm-utils.c
+@@ -521,14 +521,37 @@ int llvm__compile_bpf(const char *path, void **p_obj_buf,
  
--static int xen_9pfs_front_probe(struct xenbus_device *dev,
--				const struct xenbus_device_id *id)
-+static int xen_9pfs_front_init(struct xenbus_device *dev)
- {
- 	int ret, i;
- 	struct xenbus_transaction xbt;
--	struct xen_9pfs_front_priv *priv = NULL;
-+	struct xen_9pfs_front_priv *priv = dev_get_drvdata(&dev->dev);
- 	char *versions, *v;
- 	unsigned int max_rings, max_ring_order, len = 0;
+ 	pr_debug("llvm compiling command template: %s\n", template);
  
-@@ -405,11 +404,6 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
- 	if (p9_xen_trans.maxsize > XEN_FLEX_RING_SIZE(max_ring_order))
- 		p9_xen_trans.maxsize = XEN_FLEX_RING_SIZE(max_ring_order) / 2;
++	/*
++	 * Below, substitute control characters for values that can cause the
++	 * echo to misbehave, then substitute the values back.
++	 */
+ 	err = -ENOMEM;
+-	if (asprintf(&command_echo, "echo -n \"%s\"", template) < 0)
++	if (asprintf(&command_echo, "echo -n \a%s\a", template) < 0)
+ 		goto errout;
  
--	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
--
--	priv->dev = dev;
- 	priv->num_rings = XEN_9PFS_NUM_RINGS;
- 	priv->rings = kcalloc(priv->num_rings, sizeof(*priv->rings),
- 			      GFP_KERNEL);
-@@ -468,23 +462,35 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
- 		goto error;
- 	}
++#define SWAP_CHAR(a, b) do { if (*p == a) *p = b; } while (0)
++	for (char *p = command_echo; *p; p++) {
++		SWAP_CHAR('<', '\001');
++		SWAP_CHAR('>', '\002');
++		SWAP_CHAR('"', '\003');
++		SWAP_CHAR('\'', '\004');
++		SWAP_CHAR('|', '\005');
++		SWAP_CHAR('&', '\006');
++		SWAP_CHAR('\a', '"');
++	}
+ 	err = read_from_pipe(command_echo, (void **) &command_out, NULL);
+ 	if (err)
+ 		goto errout;
  
--	write_lock(&xen_9pfs_lock);
--	list_add_tail(&priv->list, &xen_9pfs_devs);
--	write_unlock(&xen_9pfs_lock);
--	dev_set_drvdata(&dev->dev, priv);
--	xenbus_switch_state(dev, XenbusStateInitialised);
--
- 	return 0;
++	for (char *p = command_out; *p; p++) {
++		SWAP_CHAR('\001', '<');
++		SWAP_CHAR('\002', '>');
++		SWAP_CHAR('\003', '"');
++		SWAP_CHAR('\004', '\'');
++		SWAP_CHAR('\005', '|');
++		SWAP_CHAR('\006', '&');
++	}
++#undef SWAP_CHAR
+ 	pr_debug("llvm compiling command : %s\n", command_out);
  
-  error_xenbus:
- 	xenbus_transaction_end(xbt, 1);
- 	xenbus_dev_fatal(dev, ret, "writing xenstore");
-  error:
--	dev_set_drvdata(&dev->dev, NULL);
- 	xen_9pfs_front_free(priv);
- 	return ret;
- }
- 
-+static int xen_9pfs_front_probe(struct xenbus_device *dev,
-+				const struct xenbus_device_id *id)
-+{
-+	struct xen_9pfs_front_priv *priv = NULL;
-+
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->dev = dev;
-+	dev_set_drvdata(&dev->dev, priv);
-+
-+	write_lock(&xen_9pfs_lock);
-+	list_add_tail(&priv->list, &xen_9pfs_devs);
-+	write_unlock(&xen_9pfs_lock);
-+
-+	return 0;
-+}
-+
- static int xen_9pfs_front_resume(struct xenbus_device *dev)
- {
- 	dev_warn(&dev->dev, "suspend/resume unsupported\n");
-@@ -503,6 +509,8 @@ static void xen_9pfs_front_changed(struct xenbus_device *dev,
- 		break;
- 
- 	case XenbusStateInitWait:
-+		if (!xen_9pfs_front_init(dev))
-+			xenbus_switch_state(dev, XenbusStateInitialised);
- 		break;
- 
- 	case XenbusStateConnected:
+ 	err = read_from_pipe(template, &obj_buf, &obj_buf_sz);
 -- 
 2.39.2
 
