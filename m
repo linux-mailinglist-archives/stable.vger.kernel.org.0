@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 166FD6B4699
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2D26B468F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232986AbjCJOol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:44:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37850 "EHLO
+        id S232858AbjCJOoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:44:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232974AbjCJOoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:44:13 -0500
+        with ESMTP id S232799AbjCJOnx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:43:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5854C106A2A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:44:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BEEB1CBE8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:43:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1730BB8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:44:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 689C3C4339E;
-        Fri, 10 Mar 2023 14:44:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D23FB822EA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:43:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61023C433A8;
+        Fri, 10 Mar 2023 14:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459449;
-        bh=51J+DjP2V28KQkpv+0RnHKAwsuKzvMf0gOMfTNDOJzY=;
+        s=korg; t=1678459428;
+        bh=UrByhsffoI95stNS84vdrpJQtP7pzNcWqu12R6y4ew4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlmot18N8czmUbsViD1jQPVxJAHRTQu5t2Ps7fYhAEUb+2WyzoMPpZE/vN4w9m+EX
-         SW39L79VmRGjGCmRswhgyUTNesrq5uOVjBtX/5YkAQAxcFgkF9+JUUNC++gnIUeB8o
-         Cp7NnQlOb+7TozC6sp/K1uyL2YQvX5ZyFOGcb15o=
+        b=DvAF8+pZbA32MBj+lKk0mLWqxFKC0e87Kc8bFQyCd69YBcf+Znwof+tal/xjLQH6Y
+         m1oD3PpmgvpODZXoOnjz/VuCCyblFfgOx2CU9wcsCurLTL6uKOy/rf4n9MpAn/l4Zp
+         XKaZNqunlHlD/0IStCQWyD2ns1kSvgF9SkGKnA2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 350/357] x86/resctrl: Apply READ_ONCE/WRITE_ONCE to task_struct.{rmid,closid}
-Date:   Fri, 10 Mar 2023 14:40:39 +0100
-Message-Id: <20230310133750.112162762@linuxfoundation.org>
+        patches@lists.linux.dev, Stephane Eranian <eranian@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Babu Moger <babu.moger@amd.com>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 351/357] x86/resctl: fix scheduler confusion with current
+Date:   Fri, 10 Mar 2023 14:40:40 +0100
+Message-Id: <20230310133750.146237221@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -55,84 +56,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 6d3b47ddffed70006cf4ba360eef61e9ce097d8f upstream.
+commit 7fef099702527c3b2c5234a2ea6a24411485a13a upstream.
 
-A CPU's current task can have its {closid, rmid} fields read locally
-while they are being concurrently written to from another CPU.
-This can happen anytime __resctrl_sched_in() races with either
-__rdtgroup_move_task() or rdt_move_group_tasks().
+The implementation of 'current' on x86 is very intentionally special: it
+is a very common thing to look up, and it uses 'this_cpu_read_stable()'
+to get the current thread pointer efficiently from per-cpu storage.
 
-Prevent load / store tearing for those accesses by giving them the
-READ_ONCE() / WRITE_ONCE() treatment.
+And the keyword in there is 'stable': the current thread pointer never
+changes as far as a single thread is concerned.  Even if when a thread
+is preempted, or moved to another CPU, or even across an explicit call
+'schedule()' that thread will still have the same value for 'current'.
 
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/9921fda88ad81afb9885b517fbe864a2bc7c35a9.1608243147.git.reinette.chatre@intel.com
+It is, after all, the kernel base pointer to thread-local storage.
+That's why it's stable to begin with, but it's also why it's important
+enough that we have that special 'this_cpu_read_stable()' access for it.
+
+So this is all done very intentionally to allow the compiler to treat
+'current' as a value that never visibly changes, so that the compiler
+can do CSE and combine multiple different 'current' accesses into one.
+
+However, there is obviously one very special situation when the
+currently running thread does actually change: inside the scheduler
+itself.
+
+So the scheduler code paths are special, and do not have a 'current'
+thread at all.  Instead there are _two_ threads: the previous and the
+next thread - typically called 'prev' and 'next' (or prev_p/next_p)
+internally.
+
+So this is all actually quite straightforward and simple, and not all
+that complicated.
+
+Except for when you then have special code that is run in scheduler
+context, that code then has to be aware that 'current' isn't really a
+valid thing.  Did you mean 'prev'? Did you mean 'next'?
+
+In fact, even if then look at the code, and you use 'current' after the
+new value has been assigned to the percpu variable, we have explicitly
+told the compiler that 'current' is magical and always stable.  So the
+compiler is quite free to use an older (or newer) value of 'current',
+and the actual assignment to the percpu storage is not relevant even if
+it might look that way.
+
+Which is exactly what happened in the resctl code, that blithely used
+'current' in '__resctrl_sched_in()' when it really wanted the new
+process state (as implied by the name: we're scheduling 'into' that new
+resctl state).  And clang would end up just using the old thread pointer
+value at least in some configurations.
+
+This could have happened with gcc too, and purely depends on random
+compiler details.  Clang just seems to have been more aggressive about
+moving the read of the per-cpu current_task pointer around.
+
+The fix is trivial: just make the resctl code adhere to the scheduler
+rules of using the prev/next thread pointer explicitly, instead of using
+'current' in a situation where it just wasn't valid.
+
+That same code is then also used outside of the scheduler context (when
+a thread resctl state is explicitly changed), and then we will just pass
+in 'current' as that pointer, of course.  There is no ambiguity in that
+case.
+
+The fix may be trivial, but noticing and figuring out what went wrong
+was not.  The credit for that goes to Stephane Eranian.
+
+Reported-by: Stephane Eranian <eranian@google.com>
+Link: https://lore.kernel.org/lkml/20230303231133.1486085-1-eranian@google.com/
+Link: https://lore.kernel.org/lkml/alpine.LFD.2.01.0908011214330.3304@localhost.localdomain/
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Tony Luck <tony.luck@intel.com>
+Tested-by: Stephane Eranian <eranian@google.com>
+Tested-by: Babu Moger <babu.moger@amd.com>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/resctrl_sched.h   |   11 +++++++----
- arch/x86/kernel/cpu/resctrl/rdtgroup.c |   10 +++++-----
- 2 files changed, 12 insertions(+), 9 deletions(-)
+ arch/x86/include/asm/resctrl_sched.h   |   12 ++++++------
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c |    4 ++--
+ arch/x86/kernel/process_32.c           |    2 +-
+ arch/x86/kernel/process_64.c           |    2 +-
+ 4 files changed, 10 insertions(+), 10 deletions(-)
 
 --- a/arch/x86/include/asm/resctrl_sched.h
 +++ b/arch/x86/include/asm/resctrl_sched.h
-@@ -56,19 +56,22 @@ static void __resctrl_sched_in(void)
+@@ -51,7 +51,7 @@ DECLARE_STATIC_KEY_FALSE(rdt_mon_enable_
+  *   simple as possible.
+  * Must be called with preemption disabled.
+  */
+-static void __resctrl_sched_in(void)
++static inline void __resctrl_sched_in(struct task_struct *tsk)
+ {
  	struct resctrl_pqr_state *state = this_cpu_ptr(&pqr_state);
  	u32 closid = state->default_closid;
- 	u32 rmid = state->default_rmid;
-+	u32 tmp;
- 
- 	/*
- 	 * If this task has a closid/rmid assigned, use it.
+@@ -63,13 +63,13 @@ static void __resctrl_sched_in(void)
  	 * Else use the closid/rmid assigned to this cpu.
  	 */
  	if (static_branch_likely(&rdt_alloc_enable_key)) {
--		if (current->closid)
--			closid = current->closid;
-+		tmp = READ_ONCE(current->closid);
-+		if (tmp)
-+			closid = tmp;
+-		tmp = READ_ONCE(current->closid);
++		tmp = READ_ONCE(tsk->closid);
+ 		if (tmp)
+ 			closid = tmp;
  	}
  
  	if (static_branch_likely(&rdt_mon_enable_key)) {
--		if (current->rmid)
--			rmid = current->rmid;
-+		tmp = READ_ONCE(current->rmid);
-+		if (tmp)
-+			rmid = tmp;
+-		tmp = READ_ONCE(current->rmid);
++		tmp = READ_ONCE(tsk->rmid);
+ 		if (tmp)
+ 			rmid = tmp;
  	}
+@@ -81,15 +81,15 @@ static void __resctrl_sched_in(void)
+ 	}
+ }
  
- 	if (closid != state->cur_closid || rmid != state->cur_rmid) {
+-static inline void resctrl_sched_in(void)
++static inline void resctrl_sched_in(struct task_struct *tsk)
+ {
+ 	if (static_branch_likely(&rdt_enable_key))
+-		__resctrl_sched_in();
++		__resctrl_sched_in(tsk);
+ }
+ 
+ #else
+ 
+-static inline void resctrl_sched_in(void) {}
++static inline void resctrl_sched_in(struct task_struct *tsk) {}
+ 
+ #endif /* CONFIG_X86_CPU_RESCTRL */
+ 
 --- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
 +++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -563,11 +563,11 @@ static int __rdtgroup_move_task(struct t
+@@ -311,7 +311,7 @@ static void update_cpu_closid_rmid(void
+ 	 * executing task might have its own closid selected. Just reuse
+ 	 * the context switch code.
  	 */
+-	resctrl_sched_in();
++	resctrl_sched_in(current);
+ }
  
- 	if (rdtgrp->type == RDTCTRL_GROUP) {
--		tsk->closid = rdtgrp->closid;
--		tsk->rmid = rdtgrp->mon.rmid;
-+		WRITE_ONCE(tsk->closid, rdtgrp->closid);
-+		WRITE_ONCE(tsk->rmid, rdtgrp->mon.rmid);
- 	} else if (rdtgrp->type == RDTMON_GROUP) {
- 		if (rdtgrp->mon.parent->closid == tsk->closid) {
--			tsk->rmid = rdtgrp->mon.rmid;
-+			WRITE_ONCE(tsk->rmid, rdtgrp->mon.rmid);
- 		} else {
- 			rdt_last_cmd_puts("Can't move task to different control group\n");
- 			return -EINVAL;
-@@ -2177,8 +2177,8 @@ static void rdt_move_group_tasks(struct
- 	for_each_process_thread(p, t) {
- 		if (!from || is_closid_match(t, from) ||
- 		    is_rmid_match(t, from)) {
--			t->closid = to->closid;
--			t->rmid = to->mon.rmid;
-+			WRITE_ONCE(t->closid, to->closid);
-+			WRITE_ONCE(t->rmid, to->mon.rmid);
+ /*
+@@ -532,7 +532,7 @@ static void _update_task_closid_rmid(voi
+ 	 * Otherwise, the MSR is updated when the task is scheduled in.
+ 	 */
+ 	if (task == current)
+-		resctrl_sched_in();
++		resctrl_sched_in(task);
+ }
  
- 			/*
- 			 * Order the closid/rmid stores above before the loads
+ static void update_task_closid_rmid(struct task_struct *t)
+--- a/arch/x86/kernel/process_32.c
++++ b/arch/x86/kernel/process_32.c
+@@ -293,7 +293,7 @@ __switch_to(struct task_struct *prev_p,
+ 	switch_fpu_finish(next_p);
+ 
+ 	/* Load the Intel cache allocation PQR MSR. */
+-	resctrl_sched_in();
++	resctrl_sched_in(next_p);
+ 
+ 	return prev_p;
+ }
+--- a/arch/x86/kernel/process_64.c
++++ b/arch/x86/kernel/process_64.c
+@@ -610,7 +610,7 @@ __switch_to(struct task_struct *prev_p,
+ 	}
+ 
+ 	/* Load the Intel cache allocation PQR MSR. */
+-	resctrl_sched_in();
++	resctrl_sched_in(next_p);
+ 
+ 	return prev_p;
+ }
 
 
