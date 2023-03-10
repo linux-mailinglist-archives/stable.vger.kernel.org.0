@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5F16B42E8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4656B4209
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbjCJOIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:08:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34418 "EHLO
+        id S231421AbjCJN7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:59:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231740AbjCJOIT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F4D51184C7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:52 -0800 (PST)
+        with ESMTP id S231423AbjCJN7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4A2AF4B66
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BEABB82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF7EC4339B;
-        Fri, 10 Mar 2023 14:07:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E84561552
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DFF0C433EF;
+        Fri, 10 Mar 2023 13:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457269;
-        bh=GrS2Lw7JbN7t+iWzXR/rT0Zpd69CCXz6DPiigDbnBxM=;
+        s=korg; t=1678456740;
+        bh=qgBWcSuqsd86vyiJtME/EBTG/dZrfhB4LIYVvAuMZL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohWB8Hdl5ARHThCDKlO5HH2mkgEOiD2jDMNxFBPo/cWKXS6UM9PllZtJFmQDkPpmh
-         M5JYkJ9QHccsrMntCanH34arz0RSNYs3p20ouB4oM7LW1J2GkIEyqto3xZtCL5WMUR
-         4f1a/tUs1UDC4qWsBvCc4D7hZ9q4qrFZ0/ErCNSg=
+        b=W67XzSUtg4p8XwCCXhBKsMfIeVCazTAjZ0BEX0AEZ9PdWxj5hhN+/q0iTJviVD+io
+         Qx9jPO1ENVQa4c8VlS1FGDUKt9ap1kdJgF5KMGl0Z/2tPM28esrGG/glRnz4kqVcFB
+         +QWg4bAMG2Y96IMs/MIm3xDFdYhOtrNmdWpsTS7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gal Pressman <gal@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Vadim Fedorenko <vadfed@meta.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 079/200] mlx5: fix skb leak while fifo resync and push
+Subject: [PATCH 6.2 106/211] genirq/ipi: Fix NULL pointer deref in irq_data_get_affinity_mask()
 Date:   Fri, 10 Mar 2023 14:38:06 +0100
-Message-Id: <20230310133719.530242278@linuxfoundation.org>
+Message-Id: <20230310133721.982963519@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,76 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vadfed@meta.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit e435941b1da1a0be4ff8a7ae425774c76a5ac514 ]
+[ Upstream commit feabecaff5902f896531dde90646ca5dfa9d4f7d ]
 
-During ptp resync operation SKBs were poped from the fifo but were never
-freed neither by napi_consume nor by dev_kfree_skb_any. Add call to
-napi_consume_skb to properly free SKBs.
+If ipi_send_{mask|single}() is called with an invalid interrupt number, all
+the local variables there will be NULL. ipi_send_verify() which is invoked
+from these functions does verify its 'data' parameter, resulting in a
+kernel oops in irq_data_get_affinity_mask() as the passed NULL pointer gets
+dereferenced.
 
-Another leak was happening because mlx5e_skb_fifo_has_room() had an error
-in the check. Comparing free running counters works well unless C promotes
-the types to something wider than the counter. In this case counters are
-u16 but the result of the substraction is promouted to int and it causes
-wrong result (negative value) of the check when producer have already
-overlapped but consumer haven't yet. Explicit cast to u16 fixes the issue.
+Add a missing NULL pointer check in ipi_send_verify()...
 
-Fixes: 58a518948f60 ("net/mlx5e: Add resiliency for PTP TX port timestamp")
-Reviewed-by: Gal Pressman <gal@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Vadim Fedorenko <vadfed@meta.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE static
+analysis tool.
+
+Fixes: 3b8e29a82dd1 ("genirq: Implement ipi_send_mask/single()")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/b541232d-c2b6-1fe9-79b4-a7129459e4d0@omp.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c  | 6 ++++--
- drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h | 2 +-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ kernel/irq/ipi.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-index 8469e9c386706..b72de2b520ecb 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-@@ -86,7 +86,8 @@ static bool mlx5e_ptp_ts_cqe_drop(struct mlx5e_ptpsq *ptpsq, u16 skb_cc, u16 skb
- 	return (ptpsq->ts_cqe_ctr_mask && (skb_cc != skb_id));
- }
- 
--static void mlx5e_ptp_skb_fifo_ts_cqe_resync(struct mlx5e_ptpsq *ptpsq, u16 skb_cc, u16 skb_id)
-+static void mlx5e_ptp_skb_fifo_ts_cqe_resync(struct mlx5e_ptpsq *ptpsq, u16 skb_cc,
-+					     u16 skb_id, int budget)
+diff --git a/kernel/irq/ipi.c b/kernel/irq/ipi.c
+index bbd945bacef08..961d4af76af37 100644
+--- a/kernel/irq/ipi.c
++++ b/kernel/irq/ipi.c
+@@ -188,9 +188,9 @@ EXPORT_SYMBOL_GPL(ipi_get_hwirq);
+ static int ipi_send_verify(struct irq_chip *chip, struct irq_data *data,
+ 			   const struct cpumask *dest, unsigned int cpu)
  {
- 	struct skb_shared_hwtstamps hwts = {};
- 	struct sk_buff *skb;
-@@ -98,6 +99,7 @@ static void mlx5e_ptp_skb_fifo_ts_cqe_resync(struct mlx5e_ptpsq *ptpsq, u16 skb_
- 		hwts.hwtstamp = mlx5e_skb_cb_get_hwts(skb)->cqe_hwtstamp;
- 		skb_tstamp_tx(skb, &hwts);
- 		ptpsq->cq_stats->resync_cqe++;
-+		napi_consume_skb(skb, budget);
- 		skb_cc = PTP_WQE_CTR2IDX(ptpsq->skb_fifo_cc);
- 	}
- }
-@@ -119,7 +121,7 @@ static void mlx5e_ptp_handle_ts_cqe(struct mlx5e_ptpsq *ptpsq,
- 	}
+-	const struct cpumask *ipimask = irq_data_get_affinity_mask(data);
++	const struct cpumask *ipimask;
  
- 	if (mlx5e_ptp_ts_cqe_drop(ptpsq, skb_cc, skb_id))
--		mlx5e_ptp_skb_fifo_ts_cqe_resync(ptpsq, skb_cc, skb_id);
-+		mlx5e_ptp_skb_fifo_ts_cqe_resync(ptpsq, skb_cc, skb_id, budget);
+-	if (!chip || !ipimask)
++	if (!chip || !data)
+ 		return -EINVAL;
  
- 	skb = mlx5e_skb_fifo_pop(&ptpsq->skb_fifo);
- 	hwtstamp = mlx5e_cqe_ts_to_ns(sq->ptp_cyc2time, sq->clock, get_cqe_ts(cqe));
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-index 853f312cd7572..15a5a57b47b85 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-@@ -81,7 +81,7 @@ void mlx5e_free_txqsq_descs(struct mlx5e_txqsq *sq);
- static inline bool
- mlx5e_skb_fifo_has_room(struct mlx5e_skb_fifo *fifo)
- {
--	return (*fifo->pc - *fifo->cc) < fifo->mask;
-+	return (u16)(*fifo->pc - *fifo->cc) < fifo->mask;
- }
+ 	if (!chip->ipi_send_single && !chip->ipi_send_mask)
+@@ -199,6 +199,10 @@ static int ipi_send_verify(struct irq_chip *chip, struct irq_data *data,
+ 	if (cpu >= nr_cpu_ids)
+ 		return -EINVAL;
  
- static inline bool
++	ipimask = irq_data_get_affinity_mask(data);
++	if (!ipimask)
++		return -EINVAL;
++
+ 	if (dest) {
+ 		if (!cpumask_subset(dest, ipimask))
+ 			return -EINVAL;
 -- 
 2.39.2
 
