@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7C56B4224
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F596B45F6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231499AbjCJOAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
+        id S232743AbjCJOjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231510AbjCJOAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:07 -0500
+        with ESMTP id S232692AbjCJOiv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9B2112A4C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10CE111165
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09B14B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D4E5C433EF;
-        Fri, 10 Mar 2023 14:00:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 980C4B822DD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF179C4339C;
+        Fri, 10 Mar 2023 14:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456803;
-        bh=F8FewJ31dQ1Dg861HaHKWxUUUXVVumBqMtx5jiA84Jg=;
+        s=korg; t=1678459109;
+        bh=HtEflstP9YVFSqBhKRZ5o60xntNJ2+/ynZx50FIm420=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gX6k95HHmmlLBlruSUFRv2WVRRO44QFj2kR4FteYvgrnHoAiJOOqJLSkktlYnMVLX
-         qCA+qBJWw9QvgcrnOGds0IlqRqI3dsdwtUruPAFXsmnFE8uxJkFFLBMixdYaoO59ob
-         fqbJYsKBJElv9UIBvpDAcvHSUXTnqPGsX0lpywEE=
+        b=O4gfpn/uuRGfWaSi9Iplr3SHGKRcXPRX9HmSHK0Zw8L+5Fr/j5HybhuIfVJ793/02
+         6mElemQpLIo248G/HHkbuatX/fTX4WaLAsGrakftLXdvnC6KPeIS6MFmbzWAyOlrWu
+         zcadWlGpgven4C7qX9aUcbT4EYA83bV0NNJDTODw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 129/211] mfd: arizona: Use pm_runtime_resume_and_get() to prevent refcnt leak
+        patches@lists.linux.dev,
+        syzbot+57e3e98f7e3b80f64d56@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        "Theodore Tso" <tytso@mit.edu>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 220/357] fs: hfsplus: fix UAF issue in hfsplus_put_super
 Date:   Fri, 10 Mar 2023 14:38:29 +0100
-Message-Id: <20230310133722.652204513@linuxfoundation.org>
+Message-Id: <20230310133744.436478631@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +60,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 4414a7ab80cebf715045e3c4d465feefbad21139 ]
+commit 07db5e247ab5858439b14dd7cc1fe538b9efcf32 upstream.
 
-In arizona_clk32k_enable(), we should use pm_runtime_resume_and_get()
-as pm_runtime_get_sync() will increase the refcnt even when it
-returns an error.
+The current hfsplus_put_super first calls hfs_btree_close on
+sbi->ext_tree, then invokes iput on sbi->hidden_dir, resulting in an
+use-after-free issue in hfsplus_release_folio.
 
-Signed-off-by: Liang He <windhl@126.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20230105061055.1509261-1-windhl@126.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As shown in hfsplus_fill_super, the error handling code also calls iput
+before hfs_btree_close.
+
+To fix this error, we move all iput calls before hfsplus_btree_close.
+
+Note that this patch is tested on Syzbot.
+
+Link: https://lkml.kernel.org/r/20230226124948.3175736-1-mudongliangabcd@gmail.com
+Reported-by: syzbot+57e3e98f7e3b80f64d56@syzkaller.appspotmail.com
+Tested-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/arizona-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/hfsplus/super.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
-index bd7ee3260d53f..c166fcd331f11 100644
---- a/drivers/mfd/arizona-core.c
-+++ b/drivers/mfd/arizona-core.c
-@@ -45,7 +45,7 @@ int arizona_clk32k_enable(struct arizona *arizona)
- 	if (arizona->clk32k_ref == 1) {
- 		switch (arizona->pdata.clk32k_src) {
- 		case ARIZONA_32KZ_MCLK1:
--			ret = pm_runtime_get_sync(arizona->dev);
-+			ret = pm_runtime_resume_and_get(arizona->dev);
- 			if (ret != 0)
- 				goto err_ref;
- 			ret = clk_prepare_enable(arizona->mclk[ARIZONA_MCLK1]);
--- 
-2.39.2
-
+--- a/fs/hfsplus/super.c
++++ b/fs/hfsplus/super.c
+@@ -295,11 +295,11 @@ static void hfsplus_put_super(struct sup
+ 		hfsplus_sync_fs(sb, 1);
+ 	}
+ 
++	iput(sbi->alloc_file);
++	iput(sbi->hidden_dir);
+ 	hfs_btree_close(sbi->attr_tree);
+ 	hfs_btree_close(sbi->cat_tree);
+ 	hfs_btree_close(sbi->ext_tree);
+-	iput(sbi->alloc_file);
+-	iput(sbi->hidden_dir);
+ 	kfree(sbi->s_vhdr_buf);
+ 	kfree(sbi->s_backup_vhdr_buf);
+ 	unload_nls(sbi->nls);
 
 
