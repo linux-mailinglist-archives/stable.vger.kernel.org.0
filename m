@@ -2,66 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E9626B359E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 05:30:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B262B6B3822
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 09:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229476AbjCJEaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 23:30:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36578 "EHLO
+        id S230165AbjCJIIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 03:08:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229761AbjCJEaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 23:30:01 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11796FA09E
-        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 20:30:00 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id l24-20020a25b318000000b007eba3f8e3baso4571906ybj.4
-        for <stable@vger.kernel.org>; Thu, 09 Mar 2023 20:30:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1678422599;
-        h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=QkRgpCrNH+soo+fiEkY3prqCJENxuAn2pQWgX5GFHYo=;
-        b=IUwzYC9QwdzKEGQekhpa3YY0njrREkSmoVgmtl99u7nOXC6fV8I6Qj8xuVm2JdNjLn
-         ubRsEea2cY/79WDUcqLNBHNxYbZC0yowAuL8uRs9dKMJlfl6FryHgcWIuU1DGLMuyXBt
-         PEjg/9aOEgNcJYJvM7lq/BUNAYKdWmpfQbreuO0+RIIH2FkduGalkt7xW4w8KqiPD21w
-         548hOgBBPCkxL0InIdqn8serccLJf2BAmAuuJF5wGZH6yih+2Uf1yosBEuzcLLl+tdHt
-         jMdq1pIgADFODU1v+bGWjfsUjbguZJAQaVh0EbM8oOlgQP5bG02Ujj2O//AQw742BkZw
-         avyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678422599;
-        h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QkRgpCrNH+soo+fiEkY3prqCJENxuAn2pQWgX5GFHYo=;
-        b=6JCLmdaMYa1ptJYztJ4yupV1cKbwOnQs5vi5LiPo31Yf0dlxJz0aOpe6GpUd9OIFvS
-         Ja0a17AevsKTIfoDPj8ILAS3FsuR4TnuRtArJW6mSwLn9mBUIqVt03Qi9flDjFaItDuv
-         CwL/dJsXaCcobAUArjMVKjJsCs54LBGUop+eBj2gd5VhS7/pejJ2nalF37F5O3KCtSLf
-         p2wCC6S7ZCLNnAOLGpuNv0dhWuWC9rL1cW/VV3MAKcgWOkhTZpjMRGMUOdhgILwJXyzI
-         ROgtY44I7oXfhBSdGJXAkGGfVD9g21p/Alnf8NGE9z03AZhCszygFuDdkugCUc4FOiQU
-         1Tcw==
-X-Gm-Message-State: AO0yUKX/M4UQcW+tqOzrqmHcZWrn5vVd5cNXSm37qUUgjiKi01HwfCGr
-        chiHUHIOAO9PGAOqftJVR1QcIFU=
-X-Google-Smtp-Source: AK7set/EOxMMKghq1Vn5wpYfyDCvnNJSf9PCauOlQqG2n14zxfpAuyizvUnSCrDxjZGqveuY2rprJzc=
-X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2d3:205:4760:7b08:a3d0:bc10])
- (user=pcc job=sendgmr) by 2002:a81:b289:0:b0:53c:7095:595a with SMTP id
- q131-20020a81b289000000b0053c7095595amr15950888ywh.7.1678422599352; Thu, 09
- Mar 2023 20:29:59 -0800 (PST)
-Date:   Thu,  9 Mar 2023 20:29:13 -0800
-In-Reply-To: <20230310042914.3805818-1-pcc@google.com>
-Message-Id: <20230310042914.3805818-2-pcc@google.com>
-Mime-Version: 1.0
-References: <20230310042914.3805818-1-pcc@google.com>
-X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
-Subject: [PATCH v4 1/2] Revert "kasan: drop skip_kasan_poison variable in free_pages_prepare"
-From:   Peter Collingbourne <pcc@google.com>
-To:     catalin.marinas@arm.com, andreyknvl@gmail.com
-Cc:     Peter Collingbourne <pcc@google.com>, linux-mm@kvack.org,
-        kasan-dev@googlegroups.com, ryabinin.a.a@gmail.com,
-        linux-arm-kernel@lists.infradead.org, vincenzo.frascino@arm.com,
-        will@kernel.org, eugenis@google.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=ham
+        with ESMTP id S230036AbjCJIIY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 03:08:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1C9F4B79;
+        Fri, 10 Mar 2023 00:07:37 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F325060F5D;
+        Fri, 10 Mar 2023 08:07:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 66A1DC433EF;
+        Fri, 10 Mar 2023 08:07:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678435656;
+        bh=MBsYfjfwW/rmvE0gLI4/NSeVvvOwKkEYquLXFvYR9d4=;
+        h=From:Date:Subject:To:Cc:Reply-To:From;
+        b=tR27wX7rP+axAePuvF5YfZvXyV8GK0gd4g9XBi5fG9lmjK+2mZR/j67UjvuBhnluN
+         ko976C3omeUDXl7C8Y4R1m6qSvTn3N0M75I8pj71mi1oLc7T/n72NzspfbRrmMyBS6
+         KghudbAhQ51/ne3baCEmVRYIWJGrrvnE3hABp4mu0Tb+SM9SVRz4eHbMxxIiazwBPy
+         nvrqjYx3xqfTYDNZxXq+hrzpnmMMEiJ3/1lwzHQZNL2J/hm8wfNyms9LPlRI6pJNy5
+         NSw5TMLmGS9YGGKO3NqRJCMWIgXBTmK9L94u1yQP7EbPzEOgdrpbP0/vKOrKlQzM98
+         ZU0gT9xvNHtAA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by smtp.lore.kernel.org (Postfix) with ESMTP id 33654C64EC4;
+        Fri, 10 Mar 2023 08:07:36 +0000 (UTC)
+From:   Sasha Finkelstein via B4 Relay 
+        <devnull+fnkl.kernel.gmail.com@kernel.org>
+Date:   Fri, 10 Mar 2023 09:07:33 +0100
+Subject: [PATCH RESEND] bluetooth: btbcm: Fix logic error in forming the
+ board name.
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230224-btbcm-wtf-v1-1-d2dbd7ca7ae4@gmail.com>
+To:     Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc:     linux-bluetooth@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Sasha Finkelstein <fnkl.kernel@gmail.com>
+X-Mailer: b4 0.12.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1678435655; l=1021;
+ i=fnkl.kernel@gmail.com; s=20230213; h=from:subject:message-id;
+ bh=liXj6eso7YibAPpq3C6GEb2euORWvG95T35Md9MPiuM=;
+ b=7R+3sE6FGxSwElKG3xR8d3Up8y0qyG/1zw2uAQP/cLjg7ciqcMZgxV9f0J8QrL5vV3dZTV0jx
+ P9vQM/QPcioCqEvgyVVluZl7j4scNKItXuj362r+Tg6W/sJ1nOVL13D
+X-Developer-Key: i=fnkl.kernel@gmail.com; a=ed25519;
+ pk=7LFSAJtxIWAs9LzCIyX0sSvCZy2wQTyEIu1zch6o804=
+X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20230213 with auth_id=28
+X-Original-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+Reply-To: <fnkl.kernel@gmail.com>
+X-Spam-Status: No, score=-2.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FORGED_REPLYTO,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,57 +70,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 487a32ec24be819e747af8c2ab0d5c515508086a.
+From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 
-The should_skip_kasan_poison() function reads the PG_skip_kasan_poison
-flag from page->flags. However, this line of code in free_pages_prepare():
+This patch fixes an incorrect loop exit condition in code that replaces
+'/' symbols in the board name. There might also be a memory corruption
+issue here, but it is unlikely to be a real problem.
 
-page->flags &= ~PAGE_FLAGS_CHECK_AT_PREP;
-
-clears most of page->flags, including PG_skip_kasan_poison, before calling
-should_skip_kasan_poison(), which meant that it would never return true
-as a result of the page flag being set. Therefore, fix the code to call
-should_skip_kasan_poison() before clearing the flags, as we were doing
-before the reverted patch.
-
-This fixes a measurable performance regression introduced in the
-reverted commit, where munmap() takes longer than intended if HW
-tags KASAN is supported and enabled at runtime. Without this patch,
-we see a single-digit percentage performance regression in a particular
-mmap()-heavy benchmark when enabling HW tags KASAN, and with the patch,
-there is no statistically significant performance impact when enabling
-HW tags KASAN.
-
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Fixes: 487a32ec24be ("kasan: drop skip_kasan_poison variable in free_pages_prepare")
-Cc: <stable@vger.kernel.org> # 6.1
-Link: https://linux-review.googlesource.com/id/Ic4f13affeebd20548758438bb9ed9ca40e312b79
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
 ---
- mm/page_alloc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btbcm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 1c54790c2d17..c58ebf21ce63 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1413,6 +1413,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
- 			unsigned int order, fpi_t fpi_flags)
- {
- 	int bad = 0;
-+	bool skip_kasan_poison = should_skip_kasan_poison(page, fpi_flags);
- 	bool init = want_init_on_free();
- 
- 	VM_BUG_ON_PAGE(PageTail(page), page);
-@@ -1489,7 +1490,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
- 	 * With hardware tag-based KASAN, memory tags must be set before the
- 	 * page becomes unavailable via debug_pagealloc or arch_free_page.
- 	 */
--	if (!should_skip_kasan_poison(page, fpi_flags)) {
-+	if (!skip_kasan_poison) {
- 		kasan_poison_pages(page, order, init);
- 
- 		/* Memory is already initialized if KASAN did it internally. */
+diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+index 3006e2a0f37e..43e98a598bd9 100644
+--- a/drivers/bluetooth/btbcm.c
++++ b/drivers/bluetooth/btbcm.c
+@@ -511,7 +511,7 @@ static const char *btbcm_get_board_name(struct device *dev)
+ 	len = strlen(tmp) + 1;
+ 	board_type = devm_kzalloc(dev, len, GFP_KERNEL);
+ 	strscpy(board_type, tmp, len);
+-	for (i = 0; i < board_type[i]; i++) {
++	for (i = 0; i < len; i++) {
+ 		if (board_type[i] == '/')
+ 			board_type[i] = '-';
+ 	}
+
+---
+base-commit: c9c3395d5e3dcc6daee66c6908354d47bf98cb0c
+change-id: 20230224-btbcm-wtf-ff32fed3e930
+
+Best regards,
 -- 
-2.40.0.rc1.284.g88254d51c5-goog
+Sasha Finkelstein <fnkl.kernel@gmail.com>
 
