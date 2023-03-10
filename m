@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A47D16B48F0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:08:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4106B49F9
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233113AbjCJPIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:08:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41644 "EHLO
+        id S234140AbjCJPRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:17:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233879AbjCJPHn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:07:43 -0500
+        with ESMTP id S234085AbjCJPRI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:17:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0619713595B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:00:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D1F231D2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:08:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE87161A32
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9263C4339C;
-        Fri, 10 Mar 2023 14:59:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D582861A6D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA96FC4339C;
+        Fri, 10 Mar 2023 14:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460369;
-        bh=GD9fZiPmg8hvZaGBCbqBinxIG6NERqz58DxiMg3ekjk=;
+        s=korg; t=1678460372;
+        bh=+62j8uD9EWgCBuiLUBwwjP17XM/fasGBQpAmWkPL15A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kix9ED2n5kGzEn8OdwwyB+qyUyCKfMpkm8L67KLGbaTz4oTZ9LIarmfyVF46hS72u
-         c8YrGheZzRP5OrKdpFk/xH5cVhHzkiNw/SRd4A+q43LP02XL1ow0MU5JBwlY4wb+Qb
-         gor+V2izEYYn5SwU0tNCoMXUeMZM2EJzzxsqmcZc=
+        b=urN04kEZL9Kd2bHd9gqyllV7tcParEr+lVdhsuagkeKaDvVE4AMsGGvTMl6GO1v+c
+         b3Cwoj3802hjjzXm44J8REgRNGW4OeME42OvDwXM+d/adcFGDHOsGjrwdWDpzhN5sg
+         nntV/JTIAeHqWFI2XGYiNyyEj8eJA8DkZEEs3/Jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev, Markuss Broks <markuss.broks@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 281/529] udf: Define EFSCORRUPTED error code
-Date:   Fri, 10 Mar 2023 14:37:04 +0100
-Message-Id: <20230310133817.976617539@linuxfoundation.org>
+Subject: [PATCH 5.10 282/529] ARM: dts: exynos: Use Exynos5420 compatible for the MIPI video phy
+Date:   Fri, 10 Mar 2023 14:37:05 +0100
+Message-Id: <20230310133818.025945381@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -53,32 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Markuss Broks <markuss.broks@gmail.com>
 
-[ Upstream commit 3d2d7e61553dbcc8ba45201d8ae4f383742c8202 ]
+[ Upstream commit 5d5aa219a790d61cad2c38e1aa32058f16ad2f0b ]
 
-Similarly to other filesystems define EFSCORRUPTED error code for
-reporting internal filesystem corruption.
+For some reason, the driver adding support for Exynos5420 MIPI phy
+back in 2016 wasn't used on Exynos5420, which caused a kernel panic.
+Add the proper compatible for it.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
+Link: https://lore.kernel.org/r/20230121201844.46872-2-markuss.broks@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/udf_sb.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/exynos5420.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/udf/udf_sb.h b/fs/udf/udf_sb.h
-index 4fa620543d302..2205859731dc2 100644
---- a/fs/udf/udf_sb.h
-+++ b/fs/udf/udf_sb.h
-@@ -51,6 +51,8 @@
- #define MF_DUPLICATE_MD		0x01
- #define MF_MIRROR_FE_LOADED	0x02
+diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+index 83580f076a587..34886535f8477 100644
+--- a/arch/arm/boot/dts/exynos5420.dtsi
++++ b/arch/arm/boot/dts/exynos5420.dtsi
+@@ -605,7 +605,7 @@ dp_phy: dp-video-phy {
+ 		};
  
-+#define EFSCORRUPTED EUCLEAN
-+
- struct udf_meta_data {
- 	__u32	s_meta_file_loc;
- 	__u32	s_mirror_file_loc;
+ 		mipi_phy: mipi-video-phy {
+-			compatible = "samsung,s5pv210-mipi-video-phy";
++			compatible = "samsung,exynos5420-mipi-video-phy";
+ 			syscon = <&pmu_system_controller>;
+ 			#phy-cells = <1>;
+ 		};
 -- 
 2.39.2
 
