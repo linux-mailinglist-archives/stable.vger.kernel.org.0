@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2546B44FA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDF36B483F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232371AbjCJOaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:30:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55360 "EHLO
+        id S233646AbjCJPBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:01:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232475AbjCJO3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 353C939CC2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:16 -0800 (PST)
+        with ESMTP id S233650AbjCJPAd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:00:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED5012C81C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C33E561380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6A7CC433EF;
-        Fri, 10 Mar 2023 14:28:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B429B8231A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:53:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 786FCC4339B;
+        Fri, 10 Mar 2023 14:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458495;
-        bh=vQx0DcgNVq3yP6igtFOF3HSDy8VXdxYpLfBEVjf80QM=;
+        s=korg; t=1678460002;
+        bh=KOXnq/ZGzYbXe5yukVoh4jIAH6bIVpYRK589NZtmF1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esdfpgfX7ZZykgkeKyrMdugM1rQwQ6DEary0q9X70ikrNuIocQSpWg6M4Bk6OzI82
-         WiXRIzQe5LC7i4jKwQTyI4W3JPpfkO+qUJqGubVAK8jv3tojaHzI2SpDMWkfG8kpZ2
-         p8N99NtTaVUOEVT5VijNI3fcPIqs8KGihmnNbPi0=
+        b=NMJmJynm4OXxUP13u0I7RGiGsfJ9WwT7iNgxbXIlO9P+Zz9bMm7okdgZhDxulkClg
+         z43RBEyDeoe9HcvKndqMlkeyUgSjJXsyzf6PH1sMHiy1H4nJJnpnjXfleY8aU6rmPU
+         4OEAC4XMuNrhaBzzaSo4tDagCEJmP4uFg+EclxtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 045/357] wifi: brcmfmac: unmap dma buffer in brcmf_msgbuf_alloc_pktid()
+        patches@lists.linux.dev, Clark Wang <xiaoning.wang@nxp.com>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 191/529] gpio: vf610: connect GPIO label to dev name
 Date:   Fri, 10 Mar 2023 14:35:34 +0100
-Message-Id: <20230310133735.970360229@linuxfoundation.org>
+Message-Id: <20230310133813.838547807@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit b9f420032f2ba1e634b22ca7b433e5c40ea663af ]
+[ Upstream commit 6f8ecb7f85f441eb7d78ba2a4df45ee8a821934e ]
 
-After the DMA buffer is mapped to a physical address, address is stored
-in pktids in brcmf_msgbuf_alloc_pktid(). Then, pktids is parsed in
-brcmf_msgbuf_get_pktid()/brcmf_msgbuf_release_array() to obtain physaddr
-and later unmap the DMA buffer. But when count is always equal to
-pktids->array_size, physaddr isn't stored in pktids and the DMA buffer
-will not be unmapped anyway.
+Current GPIO label is fixed, so can't distinguish different GPIO
+controllers through labels. Use dev name instead.
 
-Fixes: 9a1bb60250d2 ("brcmfmac: Adding msgbuf protocol.")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207013114.1748936-1-shaozhengchao@huawei.com
+Fixes: 7f2691a19627 ("gpio: vf610: add gpiolib/IRQ chip driver for Vybrid")
+Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-vf610.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-index c2705d7a4247e..fd54acb859246 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-@@ -345,8 +345,11 @@ brcmf_msgbuf_alloc_pktid(struct device *dev,
- 		count++;
- 	} while (count < pktids->array_size);
+diff --git a/drivers/gpio/gpio-vf610.c b/drivers/gpio/gpio-vf610.c
+index 1ae612c796eef..396a687e020f5 100644
+--- a/drivers/gpio/gpio-vf610.c
++++ b/drivers/gpio/gpio-vf610.c
+@@ -304,7 +304,7 @@ static int vf610_gpio_probe(struct platform_device *pdev)
+ 	gc = &port->gc;
+ 	gc->of_node = np;
+ 	gc->parent = dev;
+-	gc->label = "vf610-gpio";
++	gc->label = dev_name(dev);
+ 	gc->ngpio = VF610_GPIO_PER_PORT;
+ 	gc->base = of_alias_get_id(np, "gpio") * VF610_GPIO_PER_PORT;
  
--	if (count == pktids->array_size)
-+	if (count == pktids->array_size) {
-+		dma_unmap_single(dev, *physaddr, skb->len - data_offset,
-+				 pktids->direction);
- 		return -ENOMEM;
-+	}
- 
- 	array[*idx].data_offset = data_offset;
- 	array[*idx].physaddr = *physaddr;
 -- 
 2.39.2
 
