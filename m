@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C23576B4646
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FED6B4382
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232803AbjCJOlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:41:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58122 "EHLO
+        id S232032AbjCJOPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:15:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232744AbjCJOlm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEB63122CD4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:39 -0800 (PST)
+        with ESMTP id S232064AbjCJOOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2D6733AA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D161B822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65BEDC4339E;
-        Fri, 10 Mar 2023 14:41:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAAD56182F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACAF2C433D2;
+        Fri, 10 Mar 2023 14:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459296;
-        bh=9Wd3+A7H74RVfJiZ95w/ViiZImUKdM+UsNe/rGiW5IE=;
+        s=korg; t=1678457619;
+        bh=0yn9a/0ZqgCaPh72GYDN97/wH50O7bCHBkNQXbLoGhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wA2XuBys4EbgtVsV/zDco33LhzDFqJYjpXRWU0ZJddM2TSnKkHNPPMXms/EV6rd7S
-         Cu/FrUBn1UK5eRpJE1uczSEvqKQF+do377qhFyq1cEE31KioIOebDNihntXHYhPQMM
-         IO2BSWfyIDtcpkQ2MvBm6VbvuNnBkNYFbCEaYHXc=
+        b=kgNVVSUaiA/hPCnPxjAoZYFOsu5bOYhTKrwsQVJN8Z05E8gB7pe8y+t/XStcIll5X
+         SJ8vqrBv8T5me2Uq9FlWjEp6ut1O+B2P8x0H79lrsxyq5LgSzquYTHr1r4HxCG6Zg7
+         kbMIkKN8vPg6RQEQE4Kt5MCyCnW4XI1M63Iqs/nM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        patches@lists.linux.dev, Mengyuan Lou <mengyuanlou@net-swift.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 287/357] pwm: stm32-lp: fix the check on arr and cmp registers update
+Subject: [PATCH 6.1 169/200] PCI: Add ACS quirk for Wangxun NICs
 Date:   Fri, 10 Mar 2023 14:39:36 +0100
-Message-Id: <20230310133747.424753491@linuxfoundation.org>
+Message-Id: <20230310133722.287179031@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,39 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Mengyuan Lou <mengyuanlou@net-swift.com>
 
-[ Upstream commit 3066bc2d58be31275afb51a589668f265e419c37 ]
+[ Upstream commit a2b9b123ccac913e9f9b80337d687a2fe786a634 ]
 
-The ARR (auto reload register) and CMP (compare) registers are
-successively written. The status bits to check the update of these
-registers are polled together with regmap_read_poll_timeout().
-The condition to end the loop may become true, even if one of the
-register isn't correctly updated.
-So ensure both status bits are set before clearing them.
+Wangxun has verified there is no peer-to-peer between functions for the
+below selection of SFxxx, RP1000 and RP2000 NICS.  They may be
+multi-function devices, but the hardware does not advertise ACS capability.
 
-Fixes: e70a540b4e02 ("pwm: Add STM32 LPTimer PWM driver")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Add an ACS quirk for these devices so the functions can be in independent
+IOMMU groups.
+
+Link: https://lore.kernel.org/r/20230207102419.44326-1-mengyuanlou@net-swift.com
+Signed-off-by: Mengyuan Lou <mengyuanlou@net-swift.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-stm32-lp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c    | 22 ++++++++++++++++++++++
+ include/linux/pci_ids.h |  2 ++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/drivers/pwm/pwm-stm32-lp.c b/drivers/pwm/pwm-stm32-lp.c
-index 05bb1f95a7739..20657c649c65e 100644
---- a/drivers/pwm/pwm-stm32-lp.c
-+++ b/drivers/pwm/pwm-stm32-lp.c
-@@ -127,7 +127,7 @@ static int stm32_pwm_lp_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 20ac67d590348..494fa46f57671 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4835,6 +4835,26 @@ static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
+ 		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+ }
  
- 	/* ensure CMP & ARR registers are properly written */
- 	ret = regmap_read_poll_timeout(priv->regmap, STM32_LPTIM_ISR, val,
--				       (val & STM32_LPTIM_CMPOK_ARROK),
-+				       (val & STM32_LPTIM_CMPOK_ARROK) == STM32_LPTIM_CMPOK_ARROK,
- 				       100, 1000);
- 	if (ret) {
- 		dev_err(priv->chip.dev, "ARR/CMP registers write issue\n");
++/*
++ * Wangxun 10G/1G NICs have no ACS capability, and on multi-function
++ * devices, peer-to-peer transactions are not be used between the functions.
++ * So add an ACS quirk for below devices to isolate functions.
++ * SFxxx 1G NICs(em).
++ * RP1000/RP2000 10G NICs(sp).
++ */
++static int  pci_quirk_wangxun_nic_acs(struct pci_dev *dev, u16 acs_flags)
++{
++	switch (dev->device) {
++	case 0x0100 ... 0x010F:
++	case 0x1001:
++	case 0x2001:
++		return pci_acs_ctrl_enabled(acs_flags,
++			PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
++	}
++
++	return false;
++}
++
+ static const struct pci_dev_acs_enabled {
+ 	u16 vendor;
+ 	u16 device;
+@@ -4980,6 +5000,8 @@ static const struct pci_dev_acs_enabled {
+ 	{ PCI_VENDOR_ID_NXP, 0x8d9b, pci_quirk_nxp_rp_acs },
+ 	/* Zhaoxin Root/Downstream Ports */
+ 	{ PCI_VENDOR_ID_ZHAOXIN, PCI_ANY_ID, pci_quirk_zhaoxin_pcie_ports_acs },
++	/* Wangxun nics */
++	{ PCI_VENDOR_ID_WANGXUN, PCI_ANY_ID, pci_quirk_wangxun_nic_acs },
+ 	{ 0 }
+ };
+ 
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index b362d90eb9b0b..bc8f484cdcf3b 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -3012,6 +3012,8 @@
+ #define PCI_DEVICE_ID_INTEL_VMD_9A0B	0x9a0b
+ #define PCI_DEVICE_ID_INTEL_S21152BB	0xb152
+ 
++#define PCI_VENDOR_ID_WANGXUN		0x8088
++
+ #define PCI_VENDOR_ID_SCALEMP		0x8686
+ #define PCI_DEVICE_ID_SCALEMP_VSMP_CTL	0x1010
+ 
 -- 
 2.39.2
 
