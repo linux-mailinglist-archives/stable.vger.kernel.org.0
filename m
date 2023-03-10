@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3546B45BA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3496B45BD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232629AbjCJOgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:36:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45850 "EHLO
+        id S232626AbjCJOgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:36:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232655AbjCJOgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:25 -0500
+        with ESMTP id S232653AbjCJOga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C65E118BDD;
-        Fri, 10 Mar 2023 06:36:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9A511ACA0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01DCE61961;
-        Fri, 10 Mar 2023 14:36:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB8FDC433EF;
-        Fri, 10 Mar 2023 14:36:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA0C61380
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1837C4339B;
+        Fri, 10 Mar 2023 14:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458969;
-        bh=zTZax/p2rqalBvmPQFQzlm9KvkEQeTiAiqtImefjI6Q=;
+        s=korg; t=1678458972;
+        bh=AiZu5EIKSz5cXC+74MehBXazyzaRVafrGa9aQ1hTsRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoqU0nQtH7oTmqlFfx58lhW1wyXecxz+oY2qkOV71J82DCX+t6s1W2oRu4lWbNVHJ
-         IVC3l5EO6/492iYmixYIP3HYqqSYuxby3mZ6pFgGTdyHeeFsyPXVM/y8Idhs7zf9U2
-         kbIpXVWBIZroJ+xfUiXverxpx1LH1wUgrYhfagcg=
+        b=LSM6o7I2kSp1HoE1yFts3eQSPFTHwNie8Wr51c34B/milezqgYXz7PkG9gKaSUFFQ
+         FwHDb2tdU72YHRYxxHQ4fm12/7mnTxEzOjyqdDTL+VnsEgR11meUlyCMcirrIRLNLx
+         M8HwLYKSZWcpTGpRCnT2U7nQOQDv7JM1zVDB7YBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        linux-samsung-soc@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 204/357] regulator: s5m8767: Bounds check id indexing into arrays
-Date:   Fri, 10 Mar 2023 14:38:13 +0100
-Message-Id: <20230310133743.717604527@linuxfoundation.org>
+Subject: [PATCH 5.4 205/357] hwmon: (coretemp) Simplify platform device handling
+Date:   Fri, 10 Mar 2023 14:38:14 +0100
+Message-Id: <20230310133743.757255847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -58,53 +55,278 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit e314e15a0b58f9d051c00b25951073bcdae61953 ]
+[ Upstream commit 6d03bbff456befeccdd4d663177c4d6c75d0c4ff ]
 
-The compiler has no way to know if "id" is within the array bounds of
-the regulators array. Add a check for this and a build-time check that
-the regulators and reg_voltage_map arrays are sized the same. Seen with
-GCC 13:
+Coretemp's platform driver is unconventional. All the real work is done
+globally by the initcall and CPU hotplug notifiers, while the "driver"
+effectively just wraps an allocation and the registration of the hwmon
+interface in a long-winded round-trip through the driver core.  The whole
+logic of dynamically creating and destroying platform devices to bring
+the interfaces up and down is error prone, since it assumes
+platform_device_add() will synchronously bind the driver and set drvdata
+before it returns, thus results in a NULL dereference if drivers_autoprobe
+is turned off for the platform bus. Furthermore, the unusual approach of
+doing that from within a CPU hotplug notifier, already commented in the
+code that it deadlocks suspend, also causes lockdep issues for other
+drivers or subsystems which may want to legitimately register a CPU
+hotplug notifier from a platform bus notifier.
 
-../drivers/regulator/s5m8767.c: In function 's5m8767_pmic_probe':
-../drivers/regulator/s5m8767.c:936:35: warning: array subscript [0, 36] is outside array bounds of 'struct regulator_desc[37]' [-Warray-bounds=]
-  936 |                         regulators[id].vsel_reg =
-      |                         ~~~~~~~~~~^~~~
+All of these issues can be solved by ripping this unusual behaviour out
+completely, simply tying the platform devices to the lifetime of the
+module itself, and directly managing the hwmon interfaces from the
+hotplug notifiers. There is a slight user-visible change in that
+/sys/bus/platform/drivers/coretemp will no longer appear, and
+/sys/devices/platform/coretemp.n will remain present if package n is
+hotplugged off, but hwmon users should really only be looking for the
+presence of the hwmon interfaces, whose behaviour remains unchanged.
 
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: linux-samsung-soc@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230128005358.never.313-kees@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/lkml/20220922101036.87457-1-janusz.krzysztofik@linux.intel.com/
+Link: https://gitlab.freedesktop.org/drm/intel/issues/6641
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Link: https://lore.kernel.org/r/20230103114620.15319-1-janusz.krzysztofik@linux.intel.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/s5m8767.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/hwmon/coretemp.c | 128 ++++++++++++++++++---------------------
+ 1 file changed, 58 insertions(+), 70 deletions(-)
 
-diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
-index 1e9f03a2ea1cc..7ff480810cfa2 100644
---- a/drivers/regulator/s5m8767.c
-+++ b/drivers/regulator/s5m8767.c
-@@ -924,10 +924,14 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
+diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
+index 7a64ff6a8779c..e232f44f6c9ac 100644
+--- a/drivers/hwmon/coretemp.c
++++ b/drivers/hwmon/coretemp.c
+@@ -550,66 +550,49 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
+ 		ida_free(&pdata->ida, indx - BASE_SYSFS_ATTR_NO);
+ }
  
- 	for (i = 0; i < pdata->num_regulators; i++) {
- 		const struct sec_voltage_desc *desc;
--		int id = pdata->regulators[i].id;
-+		unsigned int id = pdata->regulators[i].id;
- 		int enable_reg, enable_val;
- 		struct regulator_dev *rdev;
+-static int coretemp_probe(struct platform_device *pdev)
++static int coretemp_device_add(int zoneid)
+ {
+-	struct device *dev = &pdev->dev;
++	struct platform_device *pdev;
+ 	struct platform_data *pdata;
++	int err;
  
-+		BUILD_BUG_ON(ARRAY_SIZE(regulators) != ARRAY_SIZE(reg_voltage_map));
-+		if (WARN_ON_ONCE(id >= ARRAY_SIZE(regulators)))
-+			continue;
+ 	/* Initialize the per-zone data structures */
+-	pdata = devm_kzalloc(dev, sizeof(struct platform_data), GFP_KERNEL);
++	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+ 		return -ENOMEM;
+ 
+-	pdata->pkg_id = pdev->id;
++	pdata->pkg_id = zoneid;
+ 	ida_init(&pdata->ida);
+-	platform_set_drvdata(pdev, pdata);
+ 
+-	pdata->hwmon_dev = devm_hwmon_device_register_with_groups(dev, DRVNAME,
+-								  pdata, NULL);
+-	return PTR_ERR_OR_ZERO(pdata->hwmon_dev);
+-}
+-
+-static int coretemp_remove(struct platform_device *pdev)
+-{
+-	struct platform_data *pdata = platform_get_drvdata(pdev);
+-	int i;
++	pdev = platform_device_alloc(DRVNAME, zoneid);
++	if (!pdev) {
++		err = -ENOMEM;
++		goto err_free_pdata;
++	}
+ 
+-	for (i = MAX_CORE_DATA - 1; i >= 0; --i)
+-		if (pdata->core_data[i])
+-			coretemp_remove_core(pdata, i);
++	err = platform_device_add(pdev);
++	if (err)
++		goto err_put_dev;
+ 
+-	ida_destroy(&pdata->ida);
++	platform_set_drvdata(pdev, pdata);
++	zone_devices[zoneid] = pdev;
+ 	return 0;
+-}
+ 
+-static struct platform_driver coretemp_driver = {
+-	.driver = {
+-		.name = DRVNAME,
+-	},
+-	.probe = coretemp_probe,
+-	.remove = coretemp_remove,
+-};
++err_put_dev:
++	platform_device_put(pdev);
++err_free_pdata:
++	kfree(pdata);
++	return err;
++}
+ 
+-static struct platform_device *coretemp_device_add(unsigned int cpu)
++static void coretemp_device_remove(int zoneid)
+ {
+-	int err, zoneid = topology_logical_die_id(cpu);
+-	struct platform_device *pdev;
+-
+-	if (zoneid < 0)
+-		return ERR_PTR(-ENOMEM);
+-
+-	pdev = platform_device_alloc(DRVNAME, zoneid);
+-	if (!pdev)
+-		return ERR_PTR(-ENOMEM);
+-
+-	err = platform_device_add(pdev);
+-	if (err) {
+-		platform_device_put(pdev);
+-		return ERR_PTR(err);
+-	}
++	struct platform_device *pdev = zone_devices[zoneid];
++	struct platform_data *pdata = platform_get_drvdata(pdev);
+ 
+-	zone_devices[zoneid] = pdev;
+-	return pdev;
++	ida_destroy(&pdata->ida);
++	kfree(pdata);
++	platform_device_unregister(pdev);
+ }
+ 
+ static int coretemp_cpu_online(unsigned int cpu)
+@@ -633,7 +616,10 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 	if (!cpu_has(c, X86_FEATURE_DTHERM))
+ 		return -ENODEV;
+ 
+-	if (!pdev) {
++	pdata = platform_get_drvdata(pdev);
++	if (!pdata->hwmon_dev) {
++		struct device *hwmon;
 +
- 		desc = reg_voltage_map[id];
- 		if (desc) {
- 			regulators[id].n_voltages =
+ 		/* Check the microcode version of the CPU */
+ 		if (chk_ucode_version(cpu))
+ 			return -EINVAL;
+@@ -644,9 +630,11 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 		 * online. So, initialize per-pkg data structures and
+ 		 * then bring this core online.
+ 		 */
+-		pdev = coretemp_device_add(cpu);
+-		if (IS_ERR(pdev))
+-			return PTR_ERR(pdev);
++		hwmon = hwmon_device_register_with_groups(&pdev->dev, DRVNAME,
++							  pdata, NULL);
++		if (IS_ERR(hwmon))
++			return PTR_ERR(hwmon);
++		pdata->hwmon_dev = hwmon;
+ 
+ 		/*
+ 		 * Check whether pkgtemp support is available.
+@@ -656,7 +644,6 @@ static int coretemp_cpu_online(unsigned int cpu)
+ 			coretemp_add_core(pdev, cpu, 1);
+ 	}
+ 
+-	pdata = platform_get_drvdata(pdev);
+ 	/*
+ 	 * Check whether a thread sibling is already online. If not add the
+ 	 * interface for this CPU core.
+@@ -675,18 +662,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	struct temp_data *tdata;
+ 	int i, indx = -1, target;
+ 
+-	/*
+-	 * Don't execute this on suspend as the device remove locks
+-	 * up the machine.
+-	 */
++	/* No need to tear down any interfaces for suspend */
+ 	if (cpuhp_tasks_frozen)
+ 		return 0;
+ 
+ 	/* If the physical CPU device does not exist, just return */
+-	if (!pdev)
+-		return 0;
+-
+ 	pd = platform_get_drvdata(pdev);
++	if (!pd->hwmon_dev)
++		return 0;
+ 
+ 	for (i = 0; i < NUM_REAL_CORES; i++) {
+ 		if (pd->cpu_map[i] == topology_core_id(cpu)) {
+@@ -718,13 +701,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	}
+ 
+ 	/*
+-	 * If all cores in this pkg are offline, remove the device. This
+-	 * will invoke the platform driver remove function, which cleans up
+-	 * the rest.
++	 * If all cores in this pkg are offline, remove the interface.
+ 	 */
++	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
+ 	if (cpumask_empty(&pd->cpumask)) {
+-		zone_devices[topology_logical_die_id(cpu)] = NULL;
+-		platform_device_unregister(pdev);
++		if (tdata)
++			coretemp_remove_core(pd, PKG_SYSFS_ATTR_NO);
++		hwmon_device_unregister(pd->hwmon_dev);
++		pd->hwmon_dev = NULL;
+ 		return 0;
+ 	}
+ 
+@@ -732,7 +716,6 @@ static int coretemp_cpu_offline(unsigned int cpu)
+ 	 * Check whether this core is the target for the package
+ 	 * interface. We need to assign it to some other cpu.
+ 	 */
+-	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
+ 	if (tdata && tdata->cpu == cpu) {
+ 		target = cpumask_first(&pd->cpumask);
+ 		mutex_lock(&tdata->update_lock);
+@@ -751,7 +734,7 @@ static enum cpuhp_state coretemp_hp_online;
+ 
+ static int __init coretemp_init(void)
+ {
+-	int err;
++	int i, err;
+ 
+ 	/*
+ 	 * CPUID.06H.EAX[0] indicates whether the CPU has thermal
+@@ -767,20 +750,22 @@ static int __init coretemp_init(void)
+ 	if (!zone_devices)
+ 		return -ENOMEM;
+ 
+-	err = platform_driver_register(&coretemp_driver);
+-	if (err)
+-		goto outzone;
++	for (i = 0; i < max_zones; i++) {
++		err = coretemp_device_add(i);
++		if (err)
++			goto outzone;
++	}
+ 
+ 	err = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "hwmon/coretemp:online",
+ 				coretemp_cpu_online, coretemp_cpu_offline);
+ 	if (err < 0)
+-		goto outdrv;
++		goto outzone;
+ 	coretemp_hp_online = err;
+ 	return 0;
+ 
+-outdrv:
+-	platform_driver_unregister(&coretemp_driver);
+ outzone:
++	while (i--)
++		coretemp_device_remove(i);
+ 	kfree(zone_devices);
+ 	return err;
+ }
+@@ -788,8 +773,11 @@ module_init(coretemp_init)
+ 
+ static void __exit coretemp_exit(void)
+ {
++	int i;
++
+ 	cpuhp_remove_state(coretemp_hp_online);
+-	platform_driver_unregister(&coretemp_driver);
++	for (i = 0; i < max_zones; i++)
++		coretemp_device_remove(i);
+ 	kfree(zone_devices);
+ }
+ module_exit(coretemp_exit)
 -- 
 2.39.2
 
