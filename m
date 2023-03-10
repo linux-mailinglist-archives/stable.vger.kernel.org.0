@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C12B96B4540
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5454F6B41C2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232549AbjCJOcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55438 "EHLO
+        id S231277AbjCJN4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232426AbjCJOcQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C9C4DE19
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:31:08 -0800 (PST)
+        with ESMTP id S231276AbjCJN4V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1682710F44F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBC886192E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB75AC433D2;
-        Fri, 10 Mar 2023 14:31:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97790617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A63CFC4339C;
+        Fri, 10 Mar 2023 13:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458667;
-        bh=/YOATX8XtpUjmYc6XebEFqVJBW/YHKJ9gLrDO5g3S3U=;
+        s=korg; t=1678456556;
+        bh=2gjPKvElEvXj4BXZy5Cfn7/owezuJGNeHeAltZaJjUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TP+097dGFB6CDSps2FODBKmGsOJbdNeEvNjc/MbGxZt75sXdw2KQqa2mXKo3Vbd1
-         fSHUdCgkEvfEMag0Z+7XHD0S0nYudtBxaeuQX7tiXfBcEazYfcjHPorii+hoKg03XV
-         RAAnRQ/4F2R3Flba9oIUqSKQ6uU+8SaX/rEgifYY=
+        b=SQOKTjQRhSmUaWvHJmmMhcvwQfevscNdIyKgq697KEK1hV/KDUXFhuBSoMs0xjACD
+         t6uNgLIdn97vs2HOPpRzZ4EQzOeKgBUdH1ZcC7DoqFvFZ26cwDPaMgzSTOrzmAOPKl
+         1gtRVbTGP/+hjTAdnPFg3BF678ch6glaFOX1lil0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Iuliana Prodan <iuliana.prodan@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 104/357] ASoC: fsl_sai: initialize is_dsp_mode flag
+Subject: [PATCH 6.2 013/211] pwm: sifive: Always let the first pwm_apply_state succeed
 Date:   Fri, 10 Mar 2023 14:36:33 +0100
-Message-Id: <20230310133738.607459505@linuxfoundation.org>
+Message-Id: <20230310133719.128533352@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,40 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Emil Renner Berthing <emil.renner.berthing@canonical.com>
 
-[ Upstream commit a23924b7dd7b748fff8e305e1daf590fed2af21b ]
+[ Upstream commit 334c7b13d38321e47d1a51dba0bef9f4c403ec75 ]
 
-Initialize is_dsp_mode flag in the beginning of function
-fsl_sai_set_dai_fmt_tr().
+Commit 2cfe9bbec56ea579135cdd92409fff371841904f added support for the
+RGB and green PWM controlled LEDs on the HiFive Unmatched board
+managed by the leds-pwm-multicolor and leds-pwm drivers respectively.
+All three colours of the RGB LED and the green LED run from different
+lines of the same PWM, but with the same period so this works fine when
+the LED drivers are loaded one after the other.
 
-When the DAIFMT is DAIFMT_DSP_B the first time, is_dsp_mode is
-true, then the second time DAIFMT is DAIFMT_I2S, is_dsp_mode
-still true, which is a wrong state. So need to initialize
-is_dsp_mode flag every time.
+Unfortunately it does expose a race in the PWM driver when both LED
+drivers are loaded at roughly the same time. Here is an example:
 
-Fixes: a3f7dcc9cc03 ("ASoC: fsl-sai: Add SND_SOC_DAIFMT_DSP_A/B support.")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Reviewed-by: Iuliana Prodan <iuliana.prodan@nxp.com>
-Link: https://lore.kernel.org/r/1673852874-32200-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  |          Thread A           |          Thread B           |
+  |  led_pwm_mc_probe           |  led_pwm_probe              |
+  |    devm_fwnode_pwm_get      |                             |
+  |      pwm_sifive_request     |                             |
+  |        ddata->user_count++  |                             |
+  |                             |    devm_fwnode_pwm_get      |
+  |                             |      pwm_sifive_request     |
+  |                             |        ddata->user_count++  |
+  |         ...                 |          ...                |
+  |    pwm_state_apply          |    pwm_state_apply          |
+  |      pwm_sifive_apply       |      pwm_sifive_apply       |
+
+Now both calls to pwm_sifive_apply will see that ddata->approx_period,
+initially 0, is different from the requested period and the clock needs
+to be updated. But since ddata->user_count >= 2 both calls will fail
+with -EBUSY, which will then cause both LED drivers to fail to probe.
+
+Fix it by letting the first call to pwm_sifive_apply update the clock
+even when ddata->user_count != 1.
+
+Fixes: 9e37a53eb051 ("pwm: sifive: Add a driver for SiFive SoC PWM")
+Signed-off-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_sai.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pwm/pwm-sifive.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
-index 027259695551c..f8445231ad782 100644
---- a/sound/soc/fsl/fsl_sai.c
-+++ b/sound/soc/fsl/fsl_sai.c
-@@ -212,6 +212,7 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
- 	if (!sai->is_lsb_first)
- 		val_cr4 |= FSL_SAI_CR4_MF;
+diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
+index 62b6acc6373db..393a4b97fc19e 100644
+--- a/drivers/pwm/pwm-sifive.c
++++ b/drivers/pwm/pwm-sifive.c
+@@ -161,7 +161,13 @@ static int pwm_sifive_apply(struct pwm_chip *chip, struct pwm_device *pwm,
  
-+	sai->is_dsp_mode = false;
- 	/* DAI mode */
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
+ 	mutex_lock(&ddata->lock);
+ 	if (state->period != ddata->approx_period) {
+-		if (ddata->user_count != 1) {
++		/*
++		 * Don't let a 2nd user change the period underneath the 1st user.
++		 * However if ddate->approx_period == 0 this is the first time we set
++		 * any period, so let whoever gets here first set the period so other
++		 * users who agree on the period won't fail.
++		 */
++		if (ddata->user_count != 1 && ddata->approx_period) {
+ 			mutex_unlock(&ddata->lock);
+ 			return -EBUSY;
+ 		}
 -- 
 2.39.2
 
