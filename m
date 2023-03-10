@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF4F6B4506
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBEC56B4507
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232355AbjCJOaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:30:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52988 "EHLO
+        id S232349AbjCJOa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232515AbjCJOaE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C046EC97D8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:54 -0800 (PST)
+        with ESMTP id S232385AbjCJOaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB48E2C50
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F126618C9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CD08C43442;
-        Fri, 10 Mar 2023 14:28:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28DB1616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34BDAC433D2;
+        Fri, 10 Mar 2023 14:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458533;
-        bh=Cbfnipa5jg+QyfwfolkbGlJbbRZ+80Q5TGRkp8LJTvo=;
+        s=korg; t=1678458536;
+        bh=F7uZVO0ca5QHNwSMbJOyEU21mOVccQ7RZ8POdiDPWMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePP4GX5L3Zhux7MJ+K64bQSsGPof6Y5uInfA6mrJzPKooeQw+nW1ke4pQYLOLPmW9
-         w4GqWgdv4SHaZO4ZXw2Hd1jpcSxF/qbgUH+r/E6sXK4ETaHcvKEJ3BegUNC8pInYPx
-         tzBwdNRbbgfUYQlyNLQqJyhr/bHbggQ2PzrW6IW4=
+        b=f+daT500eb1gBKNxqfwm28POsQvgXcaFVW5cqliJyg5CQm9l2kKJhgb8T4+mlOXJs
+         cPyN7OTcb0FsNeY/6U8STaahOS0aGnYefiHIDgcX+XKEceXR/HZA/FNNCsCLS1l8n/
+         RzpmWLHgD8GcyELcR50zfKZcHuvJmRJyC3V2ylxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Johnson <quic_jjohnson@quicinc.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
+        patches@lists.linux.dev,
+        syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
         =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
         Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/357] ath9k: htc: clean up statistics macros
-Date:   Fri, 10 Mar 2023 14:35:48 +0100
-Message-Id: <20230310133736.575165762@linuxfoundation.org>
+Subject: [PATCH 5.4 060/357] wifi: ath9k: hif_usb: clean up skbs if ath9k_hif_usb_rx_stream() fails
+Date:   Fri, 10 Mar 2023 14:35:49 +0100
+Message-Id: <20230310133736.619039111@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -46,8 +48,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,227 +58,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit d7fc76039b74ad37b7056d5607b05d7cb31a5404 ]
+[ Upstream commit 0af54343a76263a12dbae7fafb64eb47c4a6ad38 ]
 
-I've changed *STAT_* macros a bit in previous patch and I seems like
-they become really unreadable. Align these macros definitions to make
-code cleaner and fix folllowing checkpatch warning
+Syzkaller detected a memory leak of skbs in ath9k_hif_usb_rx_stream().
+While processing skbs in ath9k_hif_usb_rx_stream(), the already allocated
+skbs in skb_pool are not freed if ath9k_hif_usb_rx_stream() fails. If we
+have an incorrect pkt_len or pkt_tag, the input skb is considered invalid
+and dropped. All the associated packets already in skb_pool should be
+dropped and freed. Added a comment describing this issue.
 
-ERROR: Macros with complex values should be enclosed in parentheses
+The patch also makes remain_skb NULL after being processed so that it
+cannot be referenced after potential free. The initialization of hif_dev
+fields which are associated with remain_skb (rx_remain_len,
+rx_transfer_len and rx_pad_len) is moved after a new remain_skb is
+allocated.
 
-Also, statistics macros now accept an hif_dev as argument, since
-macros that depend on having a local variable with a magic name
-don't abide by the coding style.
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
 
-No functional change
-
-Suggested-by: Jeff Johnson <quic_jjohnson@quicinc.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 6ce708f54cc8 ("ath9k: Fix out-of-bound memcpy in ath9k_hif_usb_rx_stream")
+Fixes: 44b23b488d44 ("ath9k: hif_usb: Reduce indent 1 column")
+Reported-by: syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
 Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
 Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/ebb2306d06a496cd1b032155ae52fdc5fa8cc2c5.1655145743.git.paskripkin@gmail.com
-Stable-dep-of: 0af54343a762 ("wifi: ath9k: hif_usb: clean up skbs if ath9k_hif_usb_rx_stream() fails")
+Link: https://lore.kernel.org/r/20230104123615.51511-1-pchelkin@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c      | 26 +++++++--------
- drivers/net/wireless/ath/ath9k/htc.h          | 32 +++++++++++--------
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 10 +++---
- 3 files changed, 36 insertions(+), 32 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 31 +++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 15c8b512a1d9f..f68e47f9b01e2 100644
+index f68e47f9b01e2..e23d58f83dd6f 100644
 --- a/drivers/net/wireless/ath/ath9k/hif_usb.c
 +++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -244,11 +244,11 @@ static inline void ath9k_skb_queue_complete(struct hif_device_usb *hif_dev,
- 		ath9k_htc_txcompletion_cb(hif_dev->htc_handle,
- 					  skb, txok);
- 		if (txok) {
--			TX_STAT_INC(skb_success);
--			TX_STAT_ADD(skb_success_bytes, ln);
-+			TX_STAT_INC(hif_dev, skb_success);
-+			TX_STAT_ADD(hif_dev, skb_success_bytes, ln);
+@@ -561,11 +561,11 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 			memcpy(ptr, skb->data, rx_remain_len);
+ 
+ 			rx_pkt_len += rx_remain_len;
+-			hif_dev->rx_remain_len = 0;
+ 			skb_put(remain_skb, rx_pkt_len);
+ 
+ 			skb_pool[pool_index++] = remain_skb;
+-
++			hif_dev->remain_skb = NULL;
++			hif_dev->rx_remain_len = 0;
+ 		} else {
+ 			index = rx_remain_len;
  		}
- 		else
--			TX_STAT_INC(skb_failed);
-+			TX_STAT_INC(hif_dev, skb_failed);
- 	}
- }
- 
-@@ -302,7 +302,7 @@ static void hif_usb_tx_cb(struct urb *urb)
- 	hif_dev->tx.tx_buf_cnt++;
- 	if (!(hif_dev->tx.flags & HIF_USB_TX_STOP))
- 		__hif_usb_tx(hif_dev); /* Check for pending SKBs */
--	TX_STAT_INC(buf_completed);
-+	TX_STAT_INC(hif_dev, buf_completed);
- 	spin_unlock(&hif_dev->tx.tx_lock);
- }
- 
-@@ -353,7 +353,7 @@ static int __hif_usb_tx(struct hif_device_usb *hif_dev)
- 			tx_buf->len += tx_buf->offset;
- 
- 		__skb_queue_tail(&tx_buf->skb_queue, nskb);
--		TX_STAT_INC(skb_queued);
-+		TX_STAT_INC(hif_dev, skb_queued);
- 	}
- 
- 	usb_fill_bulk_urb(tx_buf->urb, hif_dev->udev,
-@@ -369,7 +369,7 @@ static int __hif_usb_tx(struct hif_device_usb *hif_dev)
- 		list_move_tail(&tx_buf->list, &hif_dev->tx.tx_buf);
- 		hif_dev->tx.tx_buf_cnt++;
- 	} else {
--		TX_STAT_INC(buf_queued);
-+		TX_STAT_INC(hif_dev, buf_queued);
- 	}
- 
- 	return ret;
-@@ -514,7 +514,7 @@ static void hif_usb_sta_drain(void *hif_handle, u8 idx)
- 			ath9k_htc_txcompletion_cb(hif_dev->htc_handle,
- 						  skb, false);
- 			hif_dev->tx.tx_skb_cnt--;
--			TX_STAT_INC(skb_failed);
-+			TX_STAT_INC(hif_dev, skb_failed);
- 		}
- 	}
- 
-@@ -585,14 +585,14 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+@@ -584,16 +584,21 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 		pkt_len = get_unaligned_le16(ptr + index);
  		pkt_tag = get_unaligned_le16(ptr + index + 2);
  
++		/* It is supposed that if we have an invalid pkt_tag or
++		 * pkt_len then the whole input SKB is considered invalid
++		 * and dropped; the associated packets already in skb_pool
++		 * are dropped, too.
++		 */
  		if (pkt_tag != ATH_USB_RX_STREAM_MODE_TAG) {
--			RX_STAT_INC(skb_dropped);
-+			RX_STAT_INC(hif_dev, skb_dropped);
- 			return;
+ 			RX_STAT_INC(hif_dev, skb_dropped);
+-			return;
++			goto invalid_pkt;
  		}
  
  		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
  			dev_err(&hif_dev->udev->dev,
  				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
--			RX_STAT_INC(skb_dropped);
-+			RX_STAT_INC(hif_dev, skb_dropped);
- 			return;
+ 			RX_STAT_INC(hif_dev, skb_dropped);
+-			return;
++			goto invalid_pkt;
  		}
  
-@@ -618,7 +618,7 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				goto err;
- 			}
- 			skb_reserve(nskb, 32);
--			RX_STAT_INC(skb_allocated);
-+			RX_STAT_INC(hif_dev, skb_allocated);
+ 		pad_len = 4 - (pkt_len & 0x3);
+@@ -605,11 +610,6 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
  
- 			memcpy(nskb->data, &(skb->data[chk_idx+4]),
- 			       hif_dev->rx_transfer_len);
-@@ -639,7 +639,7 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				goto err;
- 			}
- 			skb_reserve(nskb, 32);
--			RX_STAT_INC(skb_allocated);
-+			RX_STAT_INC(hif_dev, skb_allocated);
- 
- 			memcpy(nskb->data, &(skb->data[chk_idx+4]), pkt_len);
- 			skb_put(nskb, pkt_len);
-@@ -649,10 +649,10 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 
- err:
- 	for (i = 0; i < pool_index; i++) {
--		RX_STAT_ADD(skb_completed_bytes, skb_pool[i]->len);
-+		RX_STAT_ADD(hif_dev, skb_completed_bytes, skb_pool[i]->len);
- 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb_pool[i],
- 				 skb_pool[i]->len, USB_WLAN_RX_PIPE);
--		RX_STAT_INC(skb_completed);
-+		RX_STAT_INC(hif_dev, skb_completed);
- 	}
- }
- 
-diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
-index 81107100e3682..655238a59ee03 100644
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -325,14 +325,18 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
- }
- 
- #ifdef CONFIG_ATH9K_HTC_DEBUGFS
--#define __STAT_SAFE(expr) (hif_dev->htc_handle->drv_priv ? (expr) : 0)
--#define TX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c++)
--#define TX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.tx_stats.c += a)
--#define RX_STAT_INC(c) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c++)
--#define RX_STAT_ADD(c, a) __STAT_SAFE(hif_dev->htc_handle->drv_priv->debug.skbrx_stats.c += a)
--#define CAB_STAT_INC   priv->debug.tx_stats.cab_queued++
+ 		if (index > MAX_RX_BUF_SIZE) {
+ 			spin_lock(&hif_dev->rx_lock);
+-			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
+-			hif_dev->rx_transfer_len =
+-				MAX_RX_BUF_SIZE - chk_idx - 4;
+-			hif_dev->rx_pad_len = pad_len;
 -
--#define TX_QSTAT_INC(q) (priv->debug.tx_stats.queue_stats[q]++)
-+#define __STAT_SAFE(hif_dev, expr)	((hif_dev)->htc_handle->drv_priv ? (expr) : 0)
-+#define CAB_STAT_INC(priv)		((priv)->debug.tx_stats.cab_queued++)
-+#define TX_QSTAT_INC(priv, q)		((priv)->debug.tx_stats.queue_stats[q]++)
+ 			nskb = __dev_alloc_skb(pkt_len + 32, GFP_ATOMIC);
+ 			if (!nskb) {
+ 				dev_err(&hif_dev->udev->dev,
+@@ -617,6 +617,12 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 				spin_unlock(&hif_dev->rx_lock);
+ 				goto err;
+ 			}
 +
-+#define TX_STAT_INC(hif_dev, c) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c++)
-+#define TX_STAT_ADD(hif_dev, c, a) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c += a)
-+#define RX_STAT_INC(hif_dev, c) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.skbrx_stats.c++)
-+#define RX_STAT_ADD(hif_dev, c, a) \
-+		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.skbrx_stats.c += a)
++			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
++			hif_dev->rx_transfer_len =
++				MAX_RX_BUF_SIZE - chk_idx - 4;
++			hif_dev->rx_pad_len = pad_len;
++
+ 			skb_reserve(nskb, 32);
+ 			RX_STAT_INC(hif_dev, skb_allocated);
  
- void ath9k_htc_err_stat_rx(struct ath9k_htc_priv *priv,
- 			   struct ath_rx_status *rs);
-@@ -372,13 +376,13 @@ void ath9k_htc_get_et_stats(struct ieee80211_hw *hw,
- 			    struct ethtool_stats *stats, u64 *data);
- #else
- 
--#define TX_STAT_INC(c) do { } while (0)
--#define TX_STAT_ADD(c, a) do { } while (0)
--#define RX_STAT_INC(c) do { } while (0)
--#define RX_STAT_ADD(c, a) do { } while (0)
--#define CAB_STAT_INC   do { } while (0)
-+#define TX_STAT_INC(hif_dev, c)
-+#define TX_STAT_ADD(hif_dev, c, a)
-+#define RX_STAT_INC(hif_dev, c)
-+#define RX_STAT_ADD(hif_dev, c, a)
- 
--#define TX_QSTAT_INC(c) do { } while (0)
-+#define CAB_STAT_INC(priv)
-+#define TX_QSTAT_INC(priv, c)
- 
- static inline void ath9k_htc_err_stat_rx(struct ath9k_htc_priv *priv,
- 					 struct ath_rx_status *rs)
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index eeaf63de71bfd..ee021738bef02 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -106,20 +106,20 @@ static inline enum htc_endpoint_id get_htc_epid(struct ath9k_htc_priv *priv,
- 
- 	switch (qnum) {
- 	case 0:
--		TX_QSTAT_INC(IEEE80211_AC_VO);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_VO);
- 		epid = priv->data_vo_ep;
- 		break;
- 	case 1:
--		TX_QSTAT_INC(IEEE80211_AC_VI);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_VI);
- 		epid = priv->data_vi_ep;
- 		break;
- 	case 2:
--		TX_QSTAT_INC(IEEE80211_AC_BE);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_BE);
- 		epid = priv->data_be_ep;
- 		break;
- 	case 3:
- 	default:
--		TX_QSTAT_INC(IEEE80211_AC_BK);
-+		TX_QSTAT_INC(priv, IEEE80211_AC_BK);
- 		epid = priv->data_bk_ep;
- 		break;
+@@ -654,6 +660,13 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 				 skb_pool[i]->len, USB_WLAN_RX_PIPE);
+ 		RX_STAT_INC(hif_dev, skb_completed);
  	}
-@@ -323,7 +323,7 @@ static void ath9k_htc_tx_data(struct ath9k_htc_priv *priv,
- 	memcpy(tx_fhdr, (u8 *) &tx_hdr, sizeof(tx_hdr));
++	return;
++invalid_pkt:
++	for (i = 0; i < pool_index; i++) {
++		dev_kfree_skb_any(skb_pool[i]);
++		RX_STAT_INC(hif_dev, skb_dropped);
++	}
++	return;
+ }
  
- 	if (is_cab) {
--		CAB_STAT_INC;
-+		CAB_STAT_INC(priv);
- 		tx_ctl->epid = priv->cab_ep;
- 		return;
- 	}
+ static void ath9k_hif_usb_rx_cb(struct urb *urb)
 -- 
 2.39.2
 
