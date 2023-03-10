@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 921706B41A6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 276386B43AC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231305AbjCJNzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:55:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36488 "EHLO
+        id S232087AbjCJOQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:16:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231356AbjCJNzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E1AE10F468
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:03 -0800 (PST)
+        with ESMTP id S231975AbjCJOQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11B8C95BF1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CA17616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A45E2C4339B;
-        Fri, 10 Mar 2023 13:55:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6AC4B822BC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E67DC433EF;
+        Fri, 10 Mar 2023 14:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456502;
-        bh=dTJrYnKqk8s+vqBi0F09hGyI2OcwSqs+R0H4WLcmEC8=;
+        s=korg; t=1678457719;
+        bh=HTi9XEIUTifRYvY7WFN0JL0Q4F9ejH1SNlPVIv0C1b8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CRh6mv95hm0ov0RBDGZHod3YevKpORK3o0w1UVVMwW4uAfacqx/1PPP9U8NrSJ45J
-         g3Xn9DMa2LJuLQXxAcMfvem5XIqk6H2J7zWdbnLksnf/0xMQxI5aFJgySXzsbN69Rb
-         u8R7hehliiCT+8qDZbmc07W25W0hJiX+izw2IQns=
+        b=FLBjSgxUBwojhfHjC6SiuCplDaCEd9XR+PTX62iGsXW/bvFEFbHrpsEvHsZyDN6uS
+         lxXSFfq6zPMEfWYtO0bEWHQFB/w9Fhvlc/Dlte8BQDVQZoxdmY/jC6pxvkUwpPpQRc
+         GogRcQixHZZ7UKPIh7Ywt06p8GdI2tWgBftFuJ7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 025/211] ubi: ensure that VID header offset + VID header size <= alloc, size
+Subject: [PATCH 4.19 035/252] ACPICA: Drop port I/O validation for some regions
 Date:   Fri, 10 Mar 2023 14:36:45 +0100
-Message-Id: <20230310133719.491405890@linuxfoundation.org>
+Message-Id: <20230310133719.892957467@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,129 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 1b42b1a36fc946f0d7088425b90d491b4257ca3e ]
+[ Upstream commit e1d9148582ab2c3dada5c5cf8ca7531ca269fee5 ]
 
-Ensure that the VID header offset + VID header size does not exceed
-the allocated area to avoid slab OOB.
+Microsoft introduced support in Windows XP for blocking port I/O
+to various regions.  For Windows compatibility ACPICA has adopted
+the same protections and will disallow writes to those
+(presumably) the same regions.
 
-BUG: KASAN: slab-out-of-bounds in crc32_body lib/crc32.c:111 [inline]
-BUG: KASAN: slab-out-of-bounds in crc32_le_generic lib/crc32.c:179 [inline]
-BUG: KASAN: slab-out-of-bounds in crc32_le_base+0x58c/0x626 lib/crc32.c:197
-Read of size 4 at addr ffff88802bb36f00 by task syz-executor136/1555
+On some systems the AML included with the firmware will issue 4 byte
+long writes to 0x80.  These writes aren't making it over because of this
+blockage. The first 4 byte write attempt is rejected, and then
+subsequently 1 byte at a time each offset is tried. The first at 0x80
+works, but then the next 3 bytes are rejected.
 
-CPU: 2 PID: 1555 Comm: syz-executor136 Tainted: G        W
-6.0.0-1868 #1
-Hardware name: Red Hat KVM, BIOS 1.13.0-2.module+el8.3.0+7860+a7792d29
-04/01/2014
-Call Trace:
-  <TASK>
-  __dump_stack lib/dump_stack.c:88 [inline]
-  dump_stack_lvl+0x85/0xad lib/dump_stack.c:106
-  print_address_description mm/kasan/report.c:317 [inline]
-  print_report.cold.13+0xb6/0x6bb mm/kasan/report.c:433
-  kasan_report+0xa7/0x11b mm/kasan/report.c:495
-  crc32_body lib/crc32.c:111 [inline]
-  crc32_le_generic lib/crc32.c:179 [inline]
-  crc32_le_base+0x58c/0x626 lib/crc32.c:197
-  ubi_io_write_vid_hdr+0x1b7/0x472 drivers/mtd/ubi/io.c:1067
-  create_vtbl+0x4d5/0x9c4 drivers/mtd/ubi/vtbl.c:317
-  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
-  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
-  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
-  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
-  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
-  vfs_ioctl fs/ioctl.c:51 [inline]
-  __do_sys_ioctl fs/ioctl.c:870 [inline]
-  __se_sys_ioctl fs/ioctl.c:856 [inline]
-  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0x0
-RIP: 0033:0x7f96d5cf753d
-Code:
-RSP: 002b:00007fffd72206f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f96d5cf753d
-RDX: 0000000020000080 RSI: 0000000040186f40 RDI: 0000000000000003
-RBP: 0000000000400cd0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000400be0
-R13: 00007fffd72207e0 R14: 0000000000000000 R15: 0000000000000000
-  </TASK>
+This manifests in bizarre failures for devices that expected the AML to
+write all 4 bytes.  Trying the same AML on Windows 10 or 11 doesn't hit
+this failure and all 4 bytes are written.
 
-Allocated by task 1555:
-  kasan_save_stack+0x20/0x3d mm/kasan/common.c:38
-  kasan_set_track mm/kasan/common.c:45 [inline]
-  set_alloc_info mm/kasan/common.c:437 [inline]
-  ____kasan_kmalloc mm/kasan/common.c:516 [inline]
-  __kasan_kmalloc+0x88/0xa3 mm/kasan/common.c:525
-  kasan_kmalloc include/linux/kasan.h:234 [inline]
-  __kmalloc+0x138/0x257 mm/slub.c:4429
-  kmalloc include/linux/slab.h:605 [inline]
-  ubi_alloc_vid_buf drivers/mtd/ubi/ubi.h:1093 [inline]
-  create_vtbl+0xcc/0x9c4 drivers/mtd/ubi/vtbl.c:295
-  create_empty_lvol drivers/mtd/ubi/vtbl.c:500 [inline]
-  ubi_read_volume_table+0x67b/0x288a drivers/mtd/ubi/vtbl.c:812
-  ubi_attach+0xf34/0x1603 drivers/mtd/ubi/attach.c:1601
-  ubi_attach_mtd_dev+0x6f3/0x185e drivers/mtd/ubi/build.c:965
-  ctrl_cdev_ioctl+0x2db/0x347 drivers/mtd/ubi/cdev.c:1043
-  vfs_ioctl fs/ioctl.c:51 [inline]
-  __do_sys_ioctl fs/ioctl.c:870 [inline]
-  __se_sys_ioctl fs/ioctl.c:856 [inline]
-  __x64_sys_ioctl+0x193/0x213 fs/ioctl.c:856
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x3e/0x86 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0x0
+Either some of these regions were wrong or some point after Windows XP
+some of these regions blocks have been lifted.
 
-The buggy address belongs to the object at ffff88802bb36e00
-  which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 0 bytes to the right of
-  256-byte region [ffff88802bb36e00, ffff88802bb36f00)
+In the last 15 years there doesn't seem to be any reports popping up of
+this error in the Windows event viewer anymore.  There is no documentation
+at Microsoft's developer site indicating that Windows ACPI interpreter
+blocks these regions. Between the lack of documentation and the fact that
+the writes actually do work in Windows 10 and 11, it's quite likely
+Windows doesn't actually enforce this anymore.
 
-The buggy address belongs to the physical page:
-page:00000000ea4d1263 refcount:1 mapcount:0 mapping:0000000000000000
-index:0x0 pfn:0x2bb36
-head:00000000ea4d1263 order:1 compound_mapcount:0 compound_pincount:0
-flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
-raw: 000fffffc0010200 ffffea000066c300 dead000000000003 ffff888100042b40
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+So to help the issue, only enforce Windows XP specific entries if the
+latest _OSI supported is Windows XP. Continue to enforce the
+ALWAYS_ILLEGAL entries.
 
-Memory state around the buggy address:
-  ffff88802bb36e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ffff88802bb36e80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff88802bb36f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                    ^
-  ffff88802bb36f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff88802bb37000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Link: https://github.com/acpica/acpica/pull/817
+Fixes: 7f0719039085 ("ACPICA: New: I/O port protection")
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/acpi/acpica/hwvalid.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-index a901f8edfa41d..2178eb4115b36 100644
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -663,6 +663,12 @@ static int io_init(struct ubi_device *ubi, int max_beb_per1024)
- 	ubi->ec_hdr_alsize = ALIGN(UBI_EC_HDR_SIZE, ubi->hdrs_min_io_size);
- 	ubi->vid_hdr_alsize = ALIGN(UBI_VID_HDR_SIZE, ubi->hdrs_min_io_size);
+diff --git a/drivers/acpi/acpica/hwvalid.c b/drivers/acpi/acpica/hwvalid.c
+index 24f9b61aa4049..b081177c421aa 100644
+--- a/drivers/acpi/acpica/hwvalid.c
++++ b/drivers/acpi/acpica/hwvalid.c
+@@ -23,8 +23,8 @@ acpi_hw_validate_io_request(acpi_io_address address, u32 bit_width);
+  *
+  * The table is used to implement the Microsoft port access rules that
+  * first appeared in Windows XP. Some ports are always illegal, and some
+- * ports are only illegal if the BIOS calls _OSI with a win_XP string or
+- * later (meaning that the BIOS itelf is post-XP.)
++ * ports are only illegal if the BIOS calls _OSI with nothing newer than
++ * the specific _OSI strings.
+  *
+  * This provides ACPICA with the desired port protections and
+  * Microsoft compatibility.
+@@ -145,7 +145,8 @@ acpi_hw_validate_io_request(acpi_io_address address, u32 bit_width)
  
-+	if (ubi->vid_hdr_offset && ((ubi->vid_hdr_offset + UBI_VID_HDR_SIZE) >
-+	    ubi->vid_hdr_alsize)) {
-+		ubi_err(ubi, "VID header offset %d too large.", ubi->vid_hdr_offset);
-+		return -EINVAL;
-+	}
-+
- 	dbg_gen("min_io_size      %d", ubi->min_io_size);
- 	dbg_gen("max_write_size   %d", ubi->max_write_size);
- 	dbg_gen("hdrs_min_io_size %d", ubi->hdrs_min_io_size);
+ 			/* Port illegality may depend on the _OSI calls made by the BIOS */
+ 
+-			if (acpi_gbl_osi_data >= port_info->osi_dependency) {
++			if (port_info->osi_dependency == ACPI_ALWAYS_ILLEGAL ||
++			    acpi_gbl_osi_data == port_info->osi_dependency) {
+ 				ACPI_DEBUG_PRINT((ACPI_DB_VALUES,
+ 						  "Denied AML access to port 0x%8.8X%8.8X/%X (%s 0x%.4X-0x%.4X)\n",
+ 						  ACPI_FORMAT_UINT64(address),
 -- 
 2.39.2
 
