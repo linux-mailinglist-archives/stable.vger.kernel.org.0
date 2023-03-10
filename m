@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 787486B455E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB2A6B43C3
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232615AbjCJOdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35454 "EHLO
+        id S232088AbjCJORd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:17:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232599AbjCJOdD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C682411D087
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:29 -0800 (PST)
+        with ESMTP id S232014AbjCJORO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:17:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750641188E1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6030C618A6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6982EC433D2;
-        Fri, 10 Mar 2023 14:32:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA4C1B822BC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 093B7C433EF;
+        Fri, 10 Mar 2023 14:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458748;
-        bh=73WqWkbemJ/4jwqXMVJeNr8VP/NZehtBXFOoTemCbwY=;
+        s=korg; t=1678457772;
+        bh=xNXfbujEGb1VgDQlUtdjO9NkELFni8YXSWdLmdWro3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GS3utcV6h9UOoaWNdz8mKNLMTNZ0HpzF7TK7DLTxNWENoJs/qZnzOZB5a5FwXLzj+
-         uHcmW2b4zWejOqTZcAfPoBoVvjYvPAFxibg8sDkMzCnWAc0mAo54SRfg6X6OYwIZbl
-         V/Fs5MjWC1ElhZuPEsxyzAQYGD1TJ2dHoFUcEAec=
+        b=efZgegaRI1WPv2Rz4laCE8jfM2NDoNtR2HwdRbHWH9FI9CnNipG31WJ3b6axcNqtu
+         wJJ5X9k+gG2Iug7RWf3GulUEPQrqC/LWbTYVHX/sjWw26+tQmXePMBgxinWc95cHbM
+         3WAzxaY5rMbZ2q1qmy2WdXoXA/9pmj7ebuPI+QAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Alexander Coffin <alex.coffin@matician.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 132/357] HID: bigben_worker() remove unneeded check on report_field
+Subject: [PATCH 4.19 051/252] Bluetooth: L2CAP: Fix potential user-after-free
 Date:   Fri, 10 Mar 2023 14:37:01 +0100
-Message-Id: <20230310133740.506552428@linuxfoundation.org>
+Message-Id: <20230310133720.356578288@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 27d2a2fd844ec7da70d19fabb482304fd1e0595b ]
+[ Upstream commit df5703348813235874d851934e957c3723d71644 ]
 
-bigben_worker() checks report_field to be non-NULL.
-The check has been added in commit
-918aa1ef104d ("HID: bigbenff: prevent null pointer dereference")
-to prevent a NULL pointer crash.
-However, the true root cause was a missing check for output
-reports, patched in commit
-c7bf714f8755 ("HID: check empty report_list in bigben_probe()"),
-where the type-confused report list_entry was overlapping with
-a NULL pointer, which was then causing the crash.
+This fixes all instances of which requires to allocate a buffer calling
+alloc_skb which may release the chan lock and reacquire later which
+makes it possible that the chan is disconnected in the meantime.
 
-Fixes: 918aa1ef104d ("HID: bigbenff: prevent null pointer dereference")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-2-7860c5763c38@diag.uniroma1.it
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Fixes: a6a5568c03c4 ("Bluetooth: Lock the L2CAP channel when sending")
+Reported-by: Alexander Coffin <alex.coffin@matician.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 24 ------------------------
+ net/bluetooth/l2cap_sock.c |  8 ++++++++
+ 2 files changed, 8 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index ed3d2d7bc1dd4..b98c5f31c184b 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -197,7 +197,7 @@ static void bigben_worker(struct work_struct *work)
- 	u32 len;
- 	unsigned long flags;
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index fd95631205a6a..0e034925e3601 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -2517,14 +2517,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
+ 		if (IS_ERR(skb))
+ 			return PTR_ERR(skb);
  
--	if (bigben->removed || !report_field)
-+	if (bigben->removed)
- 		return;
+-		/* Channel lock is released before requesting new skb and then
+-		 * reacquired thus we need to recheck channel state.
+-		 */
+-		if (chan->state != BT_CONNECTED) {
+-			kfree_skb(skb);
+-			return -ENOTCONN;
+-		}
+-
+ 		l2cap_do_send(chan, skb);
+ 		return len;
+ 	}
+@@ -2568,14 +2560,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
+ 		if (IS_ERR(skb))
+ 			return PTR_ERR(skb);
  
- 	buf = hid_alloc_report_buf(bigben->report, GFP_KERNEL);
+-		/* Channel lock is released before requesting new skb and then
+-		 * reacquired thus we need to recheck channel state.
+-		 */
+-		if (chan->state != BT_CONNECTED) {
+-			kfree_skb(skb);
+-			return -ENOTCONN;
+-		}
+-
+ 		l2cap_do_send(chan, skb);
+ 		err = len;
+ 		break;
+@@ -2596,14 +2580,6 @@ int l2cap_chan_send(struct l2cap_chan *chan, struct msghdr *msg, size_t len)
+ 		 */
+ 		err = l2cap_segment_sdu(chan, &seg_queue, msg, len);
+ 
+-		/* The channel could have been closed while segmenting,
+-		 * check that it is still connected.
+-		 */
+-		if (chan->state != BT_CONNECTED) {
+-			__skb_queue_purge(&seg_queue);
+-			err = -ENOTCONN;
+-		}
+-
+ 		if (err)
+ 			break;
+ 
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index d938311c58a8d..1c6d01a27e0e8 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1414,6 +1414,14 @@ static struct sk_buff *l2cap_sock_alloc_skb_cb(struct l2cap_chan *chan,
+ 	if (!skb)
+ 		return ERR_PTR(err);
+ 
++	/* Channel lock is released before requesting new skb and then
++	 * reacquired thus we need to recheck channel state.
++	 */
++	if (chan->state != BT_CONNECTED) {
++		kfree_skb(skb);
++		return ERR_PTR(-ENOTCONN);
++	}
++
+ 	skb->priority = sk->sk_priority;
+ 
+ 	bt_cb(skb)->l2cap.chan = chan;
 -- 
 2.39.2
 
