@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A8C16B4617
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C2D6B4372
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232719AbjCJOkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55910 "EHLO
+        id S231937AbjCJOOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232721AbjCJOkA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:00 -0500
+        with ESMTP id S231846AbjCJOOX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB86011FF8B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6AB41C59B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47E13B822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82D17C4339E;
-        Fri, 10 Mar 2023 14:39:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35B10B822BD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A31F2C433D2;
+        Fri, 10 Mar 2023 14:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459195;
-        bh=zT0yCGT/RBc/lvcBHTqmO1n8iAi8+YdOzeIUZDQvo+E=;
+        s=korg; t=1678457521;
+        bh=vK5yQ45E+qHgdpbNyIIWfKmPjp/7AjgM+6mb2yjleXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqaaxVjBEUt+t0NTYij8ryMNy9mre7Q5KDd4JxLWX/ryFwahGTgtrov/T8muf/UJw
-         vZHB3wxaIVkgy4Vg+NkOIBvitS12kK+JJ7muVHVc/AS0+NI2JzxD6GGu4ZeVwP0Y9s
-         C9NuJN5coFUhFOmIHuzLKjQPmrTxQeuhv++DQReY=
+        b=uJvGYQCqOFJSRCqhs0BQfDwT0CNFrt2Viv/dIPnuoXbcvjbGu4K/8psczZ/Bu8YX3
+         M5uuXpifqAyZHkhBYSHh/PbQIvNY2WeOt+NKGXkJeipRX8JCncXGuZgnygyH0iylOm
+         u3FFlNtUlaLkNWoNM711D7aD6PqEbEy45c9QyTZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Wetzel <alexander@wetzel-home.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 253/357] wifi: cfg80211: Fix use after free for wext
+        patches@lists.linux.dev, Yulong Zhang <yulong.zhang@metoak.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 135/200] tools/iio/iio_utils:fix memory leak
 Date:   Fri, 10 Mar 2023 14:39:02 +0100
-Message-Id: <20230310133745.923941650@linuxfoundation.org>
+Message-Id: <20230310133721.280251298@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +54,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Wetzel <alexander@wetzel-home.de>
+From: Yulong Zhang <yulong.zhang@metoak.net>
 
-commit 015b8cc5e7c4d7bb671f1984d7b7338c310b185b upstream.
+[ Upstream commit f2edf0c819a4823cd6c288801ce737e8d4fcde06 ]
 
-Key information in wext.connect is not reset on (re)connect and can hold
-data from a previous connection.
+1. fopen sysfs without fclose.
+2. asprintf filename without free.
+3. if asprintf return error,do not need to free the buffer.
 
-Reset key data to avoid that drivers or mac80211 incorrectly detect a
-WEP connection request and access the freed or already reused memory.
-
-Additionally optimize cfg80211_sme_connect() and avoid an useless
-schedule of conn_work.
-
-Fixes: fffd0934b939 ("cfg80211: rework key operation")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230124141856.356646-1-alexander@wetzel-home.de
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yulong Zhang <yulong.zhang@metoak.net>
+Link: https://lore.kernel.org/r/20230117025147.69890-1-yulong.zhang@metoak.net
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/sme.c |   31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
+ tools/iio/iio_utils.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -269,6 +269,15 @@ void cfg80211_conn_work(struct work_stru
- 	rtnl_unlock();
- }
+diff --git a/tools/iio/iio_utils.c b/tools/iio/iio_utils.c
+index 8d35893b2fa85..6a00a6eecaef0 100644
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -264,6 +264,7 @@ int iioutils_get_param_float(float *output, const char *param_name,
+ 			if (fscanf(sysfsfp, "%f", output) != 1)
+ 				ret = errno ? -errno : -ENODATA;
  
-+static void cfg80211_step_auth_next(struct cfg80211_conn *conn,
-+				    struct cfg80211_bss *bss)
-+{
-+	memcpy(conn->bssid, bss->bssid, ETH_ALEN);
-+	conn->params.bssid = conn->bssid;
-+	conn->params.channel = bss->channel;
-+	conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+}
-+
- /* Returned bss is reference counted and must be cleaned up appropriately. */
- static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
- {
-@@ -286,10 +295,7 @@ static struct cfg80211_bss *cfg80211_get
- 	if (!bss)
- 		return NULL;
++			fclose(sysfsfp);
+ 			break;
+ 		}
+ error_free_filename:
+@@ -345,9 +346,9 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 			}
  
--	memcpy(wdev->conn->bssid, bss->bssid, ETH_ALEN);
--	wdev->conn->params.bssid = wdev->conn->bssid;
--	wdev->conn->params.channel = bss->channel;
--	wdev->conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+	cfg80211_step_auth_next(wdev->conn, bss);
- 	schedule_work(&rdev->conn_work);
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
  
- 	return bss;
-@@ -568,7 +574,12 @@ static int cfg80211_sme_connect(struct w
- 	wdev->conn->params.ssid_len = wdev->ssid_len;
+@@ -357,7 +358,6 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 				if (fclose(sysfsfp))
+ 					perror("build_channel_array(): Failed to close file");
  
- 	/* see if we have the bss already */
--	bss = cfg80211_get_conn_bss(wdev);
-+	bss = cfg80211_get_bss(wdev->wiphy, wdev->conn->params.channel,
-+			       wdev->conn->params.bssid,
-+			       wdev->conn->params.ssid,
-+			       wdev->conn->params.ssid_len,
-+			       wdev->conn_bss_type,
-+			       IEEE80211_PRIVACY(wdev->conn->params.privacy));
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
+ 			if (ret == 1)
+@@ -365,11 +365,9 @@ int build_channel_array(const char *device_dir, int buffer_idx,
  
- 	if (prev_bssid) {
- 		memcpy(wdev->conn->prev_bssid, prev_bssid, ETH_ALEN);
-@@ -579,6 +590,7 @@ static int cfg80211_sme_connect(struct w
- 	if (bss) {
- 		enum nl80211_timeout_reason treason;
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
  
-+		cfg80211_step_auth_next(wdev->conn, bss);
- 		err = cfg80211_conn_do_work(wdev, &treason);
- 		cfg80211_put_bss(wdev->wiphy, bss);
- 	} else {
-@@ -1233,6 +1245,15 @@ int cfg80211_connect(struct cfg80211_reg
- 	} else {
- 		if (WARN_ON(connkeys))
- 			return -EINVAL;
-+
-+		/* connect can point to wdev->wext.connect which
-+		 * can hold key data from a previous connection
-+		 */
-+		connect->key = NULL;
-+		connect->key_len = 0;
-+		connect->key_idx = 0;
-+		connect->crypto.cipher_group = 0;
-+		connect->crypto.n_ciphers_pairwise = 0;
- 	}
+-			free(filename);
+ 		}
  
- 	wdev->connect_keys = connkeys;
+ 	*ci_array = malloc(sizeof(**ci_array) * (*counter));
+@@ -395,9 +393,9 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 			}
+ 
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+@@ -405,20 +403,17 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 			errno = 0;
+ 			if (fscanf(sysfsfp, "%i", &current_enabled) != 1) {
+ 				ret = errno ? -errno : -ENODATA;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (!current_enabled) {
+-				free(filename);
+ 				count--;
+ 				continue;
+ 			}
+@@ -429,7 +424,6 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 						strlen(ent->d_name) -
+ 						strlen("_en"));
+ 			if (!current->name) {
+-				free(filename);
+ 				ret = -ENOMEM;
+ 				count--;
+ 				goto error_cleanup_array;
+@@ -439,7 +433,6 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 			ret = iioutils_break_up_name(current->name,
+ 						     &current->generic_name);
+ 			if (ret) {
+-				free(filename);
+ 				free(current->name);
+ 				count--;
+ 				goto error_cleanup_array;
+@@ -450,17 +443,16 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 				       scan_el_dir,
+ 				       current->name);
+ 			if (ret < 0) {
+-				free(filename);
+ 				ret = -ENOMEM;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				fprintf(stderr, "failed to open %s\n",
+-					filename);
+-				free(filename);
++				fprintf(stderr, "failed to open %s/%s_index\n",
++					scan_el_dir, current->name);
+ 				goto error_cleanup_array;
+ 			}
+ 
+@@ -470,17 +462,14 @@ int build_channel_array(const char *device_dir, int buffer_idx,
+ 				if (fclose(sysfsfp))
+ 					perror("build_channel_array(): Failed to close file");
+ 
+-				free(filename);
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_cleanup_array;
+ 			}
+ 
+-			free(filename);
+ 			/* Find the scale */
+ 			ret = iioutils_get_param_float(&current->scale,
+ 						       "scale",
+-- 
+2.39.2
+
 
 
