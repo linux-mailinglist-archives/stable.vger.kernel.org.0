@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 625C46B4319
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F576B414A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231764AbjCJOKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34630 "EHLO
+        id S230401AbjCJNvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:51:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231769AbjCJOKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA29C112A64
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:46 -0800 (PST)
+        with ESMTP id S230486AbjCJNvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6586510A2B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95494B82278
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC37C433A1;
-        Fri, 10 Mar 2023 14:09:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01FDE60D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A128C433EF;
+        Fri, 10 Mar 2023 13:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457384;
-        bh=YKefre9Jvc6Lxl3JY7rnaim0zfA+qJGhlhH0R3hZHcI=;
+        s=korg; t=1678456280;
+        bh=GJ3KZbABA+l7AWrAESMedG78EQzzgEfJdzf3o6YauBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lZzuH+g0PKGfnNbjsbzQkHQJd8uPjd3IeYXBgmhx3zj8CXjkF1v5SFNNFMCJc7Ddk
-         6yVGp49J4kR2PaMlkvr2qjjQW+ceP+u/6bYjZpsO1JASzuhK1hycB1hSYsx1Jp7wdg
-         Z1cRoBeMa57It1VEcvpDODc+WqHsNRHVWWSLnrDI=
+        b=uf3/kIPh2KIOWtQdA9TXIsgpfmOXuIqDPKJUmGUni6pGuSJb980WGIYTBOrTryHBV
+         qz8fAtmO3ovBkPyRZCezEEl4fd2XCn37QTyDxAmKfltJvG3kIdvsuIexjzHCKyBkOg
+         cvVFhUAqwwlH/wrYBWNHL2r8uwXwSo0aELJUPw9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Souradeep Chowdhury <quic_schowdhu@quicinc.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 118/200] bootconfig: Increase max nodes of bootconfig from 1024 to 8192 for DCC support
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 143/193] scsi: ses: Fix possible addl_desc_ptr out-of-bounds accesses
 Date:   Fri, 10 Mar 2023 14:38:45 +0100
-Message-Id: <20230310133720.728760156@linuxfoundation.org>
+Message-Id: <20230310133715.975353952@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit 6c40624930c58529185a257380442547580ed837 ]
+commit db95d4df71cb55506425b6e4a5f8d68e3a765b63 upstream.
 
-The Data Capture and Compare(DCC) is a debugging tool that uses the bootconfig
-for configuring the register values during boot-time. Increase the max nodes
-supported by bootconfig to cater to the requirements of the Data Capture and
-Compare Driver.
+Sanitize possible addl_desc_ptr out-of-bounds accesses in
+ses_enclosure_data_process().
 
-Link: https://lore.kernel.org/all/1674536682-18404-1-git-send-email-quic_schowdhu@quicinc.com/
-
-Signed-off-by: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20230202162451.15346-3-thenzl@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bootconfig.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ses.c |   35 ++++++++++++++++++++++++++---------
+ 1 file changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/bootconfig.h b/include/linux/bootconfig.h
-index 1611f9db878e7..ca73940e26df8 100644
---- a/include/linux/bootconfig.h
-+++ b/include/linux/bootconfig.h
-@@ -59,7 +59,7 @@ struct xbc_node {
- /* Maximum size of boot config is 32KB - 1 */
- #define XBC_DATA_MAX	(XBC_VALUE - 1)
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -449,8 +449,8 @@ int ses_match_host(struct enclosure_devi
+ }
+ #endif  /*  0  */
  
--#define XBC_NODE_MAX	1024
-+#define XBC_NODE_MAX	8192
- #define XBC_KEYLEN_MAX	256
- #define XBC_DEPTH_MAX	16
+-static void ses_process_descriptor(struct enclosure_component *ecomp,
+-				   unsigned char *desc)
++static int ses_process_descriptor(struct enclosure_component *ecomp,
++				   unsigned char *desc, int max_desc_len)
+ {
+ 	int eip = desc[0] & 0x10;
+ 	int invalid = desc[0] & 0x80;
+@@ -461,22 +461,32 @@ static void ses_process_descriptor(struc
+ 	unsigned char *d;
  
--- 
-2.39.2
-
+ 	if (invalid)
+-		return;
++		return 0;
+ 
+ 	switch (proto) {
+ 	case SCSI_PROTOCOL_FCP:
+ 		if (eip) {
++			if (max_desc_len <= 7)
++				return 1;
+ 			d = desc + 4;
+ 			slot = d[3];
+ 		}
+ 		break;
+ 	case SCSI_PROTOCOL_SAS:
++
+ 		if (eip) {
++			if (max_desc_len <= 27)
++				return 1;
+ 			d = desc + 4;
+ 			slot = d[3];
+ 			d = desc + 8;
+-		} else
++		} else {
++			if (max_desc_len <= 23)
++				return 1;
+ 			d = desc + 4;
++		}
++
++
+ 		/* only take the phy0 addr */
+ 		addr = (u64)d[12] << 56 |
+ 			(u64)d[13] << 48 |
+@@ -493,6 +503,8 @@ static void ses_process_descriptor(struc
+ 	}
+ 	ecomp->slot = slot;
+ 	scomp->addr = addr;
++
++	return 0;
+ }
+ 
+ struct efd {
+@@ -565,7 +577,7 @@ static void ses_enclosure_data_process(s
+ 		/* skip past overall descriptor */
+ 		desc_ptr += len + 4;
+ 	}
+-	if (ses_dev->page10)
++	if (ses_dev->page10 && ses_dev->page10_len > 9)
+ 		addl_desc_ptr = ses_dev->page10 + 8;
+ 	type_ptr = ses_dev->page1_types;
+ 	components = 0;
+@@ -573,6 +585,7 @@ static void ses_enclosure_data_process(s
+ 		for (j = 0; j < type_ptr[1]; j++) {
+ 			char *name = NULL;
+ 			struct enclosure_component *ecomp;
++			int max_desc_len;
+ 
+ 			if (desc_ptr) {
+ 				if (desc_ptr >= buf + page7_len) {
+@@ -599,10 +612,14 @@ static void ses_enclosure_data_process(s
+ 					ecomp = &edev->component[components++];
+ 
+ 				if (!IS_ERR(ecomp)) {
+-					if (addl_desc_ptr)
+-						ses_process_descriptor(
+-							ecomp,
+-							addl_desc_ptr);
++					if (addl_desc_ptr) {
++						max_desc_len = ses_dev->page10_len -
++						    (addl_desc_ptr - ses_dev->page10);
++						if (ses_process_descriptor(ecomp,
++						    addl_desc_ptr,
++						    max_desc_len))
++							addl_desc_ptr = NULL;
++					}
+ 					if (create)
+ 						enclosure_component_register(
+ 							ecomp);
 
 
