@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C6B6B42E9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0AC6B423D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:01:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231685AbjCJOIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:08:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37030 "EHLO
+        id S231472AbjCJOBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:01:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231838AbjCJOIW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EBE53A86
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:57 -0800 (PST)
+        with ESMTP id S231414AbjCJOBJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 417E0114EF4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 783D261771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A640C433EF;
-        Fri, 10 Mar 2023 14:07:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF90CB822C0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D7EAC4339B;
+        Fri, 10 Mar 2023 14:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457274;
-        bh=UKEoYjS25wgGroJqPbxWtKDzt69mI2UKt5Q+dewr1z0=;
+        s=korg; t=1678456856;
+        bh=bm2WJ1roVdn9VBIkoVkk3KE1nkq8Xz3lJOvX4cwpvjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4QJoZ+DxqgjCBNKD64yuDKrxdjy2zeh5LZLVrCMktzd1qaB9N2+XYeywwQ90lFjM
-         LPqZaLio/34E1zKOoDJJAEtFQaSbsI4DtTHEL8FwKS9iramx9dIYd6LuWf2DWh5M3I
-         6V5D2f0SE724JohFs+3pLR/68+iGgF1kidqFtzfQ=
+        b=HGEgmMMOFPxMR58NjXdbvd6sy98l8pLmsUZpTIH12Jo+xNDBwZxl1POhRR7cnYCoF
+         eSH58O49TZpRbKnhOwN83w3dj1JaUsybm8aMMZG+4aVSBLLb2FAnqgGdCs3w3Ibmnb
+         jc94wwLt+8zutiDCZndpNbqBKw5XPzU3t/fgK5rA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 081/200] net/mlx5: ECPF, wait for VF pages only after disabling host PFs
+Subject: [PATCH 6.2 108/211] scsi: mpi3mr: Fix an issue found by KASAN
 Date:   Fri, 10 Mar 2023 14:38:08 +0100
-Message-Id: <20230310133719.589390329@linuxfoundation.org>
+Message-Id: <20230310133722.040765188@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,62 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maher Sanalla <msanalla@nvidia.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit e1ed30c8c09abc85a01c897845bdbd08c0333353 ]
+[ Upstream commit ae7d45f5283d30274039b95d3e6d53d33c66e991 ]
 
-Currently,  during the early stages of their unloading, particularly
-during SRIOV disablement, PFs/ECPFs wait on the release of all of
-their VFs memory pages. Furthermore, ECPFs are considered the page
-supplier for host VFs, hence the host VFs memory pages are freed only
-during ECPF cleanup when host interfaces get disabled.
+Write only correct size (32 instead of 64 bytes).
 
-Thus, disabling SRIOV early in unload timeline causes the DPU ECPF
-to stall on driver unload while waiting on the release of host VF pages
-that won't be freed before host interfaces get disabled later on.
-
-Therefore, for ECPFs, wait on the release of VFs pages only after the
-disablement of host PFs during ECPF cleanup flow. Then, host PFs and VFs
-are disabled and their memory shall be freed accordingly.
-
-Fixes: 143a41d7623d ("net/mlx5: Disable SRIOV before PF removal")
-Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20230213193752.6859-1-thenzl@redhat.com
+Fixes: 42fc9fee116f ("scsi: mpi3mr: Add helper functions to manage device's port")
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/ecpf.c  | 4 ++++
- drivers/net/ethernet/mellanox/mlx5/core/sriov.c | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/scsi/mpi3mr/mpi3mr_transport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c b/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
-index cdc87ecae5d39..d000236ddbac5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
-@@ -90,4 +90,8 @@ void mlx5_ec_cleanup(struct mlx5_core_dev *dev)
- 	err = mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_HOST_PF]);
- 	if (err)
- 		mlx5_core_warn(dev, "Timeout reclaiming external host PF pages err(%d)\n", err);
-+
-+	err = mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_VF]);
-+	if (err)
-+		mlx5_core_warn(dev, "Timeout reclaiming external host VFs pages err(%d)\n", err);
- }
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/sriov.c b/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
-index 3008e9ce2bbff..20d7662c10fb6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
-@@ -147,6 +147,10 @@ mlx5_device_disable_sriov(struct mlx5_core_dev *dev, int num_vfs, bool clear_vf)
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_transport.c b/drivers/scsi/mpi3mr/mpi3mr_transport.c
+index 3fc897336b5e0..3b61815979dab 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_transport.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_transport.c
+@@ -1280,7 +1280,7 @@ void mpi3mr_sas_host_add(struct mpi3mr_ioc *mrioc)
  
- 	mlx5_eswitch_disable_sriov(dev->priv.eswitch, clear_vf);
- 
-+	/* For ECPFs, skip waiting for host VF pages until ECPF is destroyed */
-+	if (mlx5_core_is_ecpf(dev))
-+		return;
-+
- 	if (mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_VF]))
- 		mlx5_core_warn(dev, "timeout reclaiming VFs pages\n");
- }
+ 	if (mrioc->sas_hba.enclosure_handle) {
+ 		if (!(mpi3mr_cfg_get_enclosure_pg0(mrioc, &ioc_status,
+-		    &encl_pg0, sizeof(dev_pg0),
++		    &encl_pg0, sizeof(encl_pg0),
+ 		    MPI3_ENCLOS_PGAD_FORM_HANDLE,
+ 		    mrioc->sas_hba.enclosure_handle)) &&
+ 		    (ioc_status == MPI3_IOCSTATUS_SUCCESS))
 -- 
 2.39.2
 
