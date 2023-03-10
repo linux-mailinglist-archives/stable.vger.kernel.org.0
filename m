@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6C16B48FD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 274BB6B4923
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233826AbjCJPIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:08:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
+        id S233738AbjCJPKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:10:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232735AbjCJPIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:08:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 130D3136899
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:00:51 -0800 (PST)
+        with ESMTP id S233770AbjCJPJc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:09:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114E81B335
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:01:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BAB4B822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:00:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D36CC4339C;
-        Fri, 10 Mar 2023 15:00:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3286FB8231D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:00:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76160C4339C;
+        Fri, 10 Mar 2023 15:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460425;
-        bh=BPPX9JLlnk477fbxhIhEPVrL/A5quUKMyrQmgDlOn84=;
+        s=korg; t=1678460428;
+        bh=g8xkJFcdwM8EzNLs0O8O4uBDcnODHbv2WzYjzVHrnEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmIeoUACU0LF7iSh34IQDqk0Ad/vTtRp9h2QE4hqIfy7VRR/C2sPM6JxM7bK/xfMZ
-         g8CnVbe7i4yWny8Wn9kznGPz2pltJFNZ6zsg3K5KUoQCvr6nNP+gDyME6731TX0xAl
-         En1v5Srfu5DiSOud9grOvkv6XBC9WX1LDohj1IXA=
+        b=pd4AWheai1rIfS8Zp/Bawk/vLIGEdXnvL55FfiX2tyElNkTymzv/TndATXiIjxbQO
+         8VOHtdP6vmcoR4u2rir2nWoOJ4oQBAuN68AqAn+FO3JmgbkH33r4jlTbDpfMlMPpPd
+         N9Rqe2e+kLK4IzhfaxvTlrSIVjwfKi9aWxrirI/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        David Collins <quic_collinsd@quicinc.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.10 330/529] rtc: pm8xxx: fix set-alarm race
-Date:   Fri, 10 Mar 2023 14:37:53 +0100
-Message-Id: <20230310133820.308935537@linuxfoundation.org>
+        patches@lists.linux.dev, Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.10 331/529] ipmi_ssif: Rename idle state and check
+Date:   Fri, 10 Mar 2023 14:37:54 +0100
+Message-Id: <20230310133820.357657283@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -44,8 +42,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,74 +52,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Corey Minyard <cminyard@mvista.com>
 
-commit c88db0eff9722fc2b6c4d172a50471d20e08ecc6 upstream.
+commit 8230831c43a328c2be6d28c65d3f77e14c59986b upstream.
 
-Make sure to disable the alarm before updating the four alarm time
-registers to avoid spurious alarms during the update.
+Rename the SSIF_IDLE() to IS_SSIF_IDLE(), since that is more clear, and
+rename SSIF_NORMAL to SSIF_IDLE, since that's more accurate.
 
-Note that the disable needs to be done outside of the ctrl_reg_lock
-section to prevent a racing alarm interrupt from disabling the newly set
-alarm when the lock is released.
-
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Cc: stable@vger.kernel.org      # 3.1
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: David Collins <quic_collinsd@quicinc.com>
-Link: https://lore.kernel.org/r/20230202155448.6715-2-johan+linaro@kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-pm8xxx.c |   24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/char/ipmi/ipmi_ssif.c |   46 +++++++++++++++++++++---------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
 
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -219,7 +219,6 @@ static int pm8xxx_rtc_set_alarm(struct d
+--- a/drivers/char/ipmi/ipmi_ssif.c
++++ b/drivers/char/ipmi/ipmi_ssif.c
+@@ -92,7 +92,7 @@
+ #define SSIF_WATCH_WATCHDOG_TIMEOUT	msecs_to_jiffies(250)
+ 
+ enum ssif_intf_state {
+-	SSIF_NORMAL,
++	SSIF_IDLE,
+ 	SSIF_GETTING_FLAGS,
+ 	SSIF_GETTING_EVENTS,
+ 	SSIF_CLEARING_FLAGS,
+@@ -100,8 +100,8 @@ enum ssif_intf_state {
+ 	/* FIXME - add watchdog stuff. */
+ };
+ 
+-#define SSIF_IDLE(ssif)	 ((ssif)->ssif_state == SSIF_NORMAL \
+-			  && (ssif)->curr_msg == NULL)
++#define IS_SSIF_IDLE(ssif) ((ssif)->ssif_state == SSIF_IDLE \
++			    && (ssif)->curr_msg == NULL)
+ 
+ /*
+  * Indexes into stats[] in ssif_info below.
+@@ -348,9 +348,9 @@ static void return_hosed_msg(struct ssif
+ 
+ /*
+  * Must be called with the message lock held.  This will release the
+- * message lock.  Note that the caller will check SSIF_IDLE and start a
+- * new operation, so there is no need to check for new messages to
+- * start in here.
++ * message lock.  Note that the caller will check IS_SSIF_IDLE and
++ * start a new operation, so there is no need to check for new
++ * messages to start in here.
+  */
+ static void start_clear_flags(struct ssif_info *ssif_info, unsigned long *flags)
  {
- 	int rc, i;
- 	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned int ctrl_reg;
- 	unsigned long secs, irq_flags;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-@@ -231,6 +230,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		secs >>= 8;
+@@ -367,7 +367,7 @@ static void start_clear_flags(struct ssi
+ 
+ 	if (start_send(ssif_info, msg, 3) != 0) {
+ 		/* Error, just go to normal state. */
+-		ssif_info->ssif_state = SSIF_NORMAL;
++		ssif_info->ssif_state = SSIF_IDLE;
+ 	}
+ }
+ 
+@@ -382,7 +382,7 @@ static void start_flag_fetch(struct ssif
+ 	mb[0] = (IPMI_NETFN_APP_REQUEST << 2);
+ 	mb[1] = IPMI_GET_MSG_FLAGS_CMD;
+ 	if (start_send(ssif_info, mb, 2) != 0)
+-		ssif_info->ssif_state = SSIF_NORMAL;
++		ssif_info->ssif_state = SSIF_IDLE;
+ }
+ 
+ static void check_start_send(struct ssif_info *ssif_info, unsigned long *flags,
+@@ -393,7 +393,7 @@ static void check_start_send(struct ssif
+ 
+ 		flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+ 		ssif_info->curr_msg = NULL;
+-		ssif_info->ssif_state = SSIF_NORMAL;
++		ssif_info->ssif_state = SSIF_IDLE;
+ 		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 		ipmi_free_smi_msg(msg);
+ 	}
+@@ -407,7 +407,7 @@ static void start_event_fetch(struct ssi
+ 
+ 	msg = ipmi_alloc_smi_msg();
+ 	if (!msg) {
+-		ssif_info->ssif_state = SSIF_NORMAL;
++		ssif_info->ssif_state = SSIF_IDLE;
+ 		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 		return;
+ 	}
+@@ -430,7 +430,7 @@ static void start_recv_msg_fetch(struct
+ 
+ 	msg = ipmi_alloc_smi_msg();
+ 	if (!msg) {
+-		ssif_info->ssif_state = SSIF_NORMAL;
++		ssif_info->ssif_state = SSIF_IDLE;
+ 		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 		return;
+ 	}
+@@ -448,9 +448,9 @@ static void start_recv_msg_fetch(struct
+ 
+ /*
+  * Must be called with the message lock held.  This will release the
+- * message lock.  Note that the caller will check SSIF_IDLE and start a
+- * new operation, so there is no need to check for new messages to
+- * start in here.
++ * message lock.  Note that the caller will check IS_SSIF_IDLE and
++ * start a new operation, so there is no need to check for new
++ * messages to start in here.
+  */
+ static void handle_flags(struct ssif_info *ssif_info, unsigned long *flags)
+ {
+@@ -466,7 +466,7 @@ static void handle_flags(struct ssif_inf
+ 		/* Events available. */
+ 		start_event_fetch(ssif_info, flags);
+ 	else {
+-		ssif_info->ssif_state = SSIF_NORMAL;
++		ssif_info->ssif_state = SSIF_IDLE;
+ 		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 	}
+ }
+@@ -579,7 +579,7 @@ static void watch_timeout(struct timer_l
+ 	if (ssif_info->watch_timeout) {
+ 		mod_timer(&ssif_info->watch_timer,
+ 			  jiffies + ssif_info->watch_timeout);
+-		if (SSIF_IDLE(ssif_info)) {
++		if (IS_SSIF_IDLE(ssif_info)) {
+ 			start_flag_fetch(ssif_info, flags); /* Releases lock */
+ 			return;
+ 		}
+@@ -782,7 +782,7 @@ static void msg_done_handler(struct ssif
  	}
  
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+				regs->alarm_en, 0);
-+	if (rc)
-+		return rc;
-+
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+ 	switch (ssif_info->ssif_state) {
+-	case SSIF_NORMAL:
++	case SSIF_IDLE:
+ 		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 		if (!msg)
+ 			break;
+@@ -800,7 +800,7 @@ static void msg_done_handler(struct ssif
+ 			 * Error fetching flags, or invalid length,
+ 			 * just give up for now.
+ 			 */
+-			ssif_info->ssif_state = SSIF_NORMAL;
++			ssif_info->ssif_state = SSIF_IDLE;
+ 			ipmi_ssif_unlock_cond(ssif_info, flags);
+ 			dev_warn(&ssif_info->client->dev,
+ 				 "Error getting flags: %d %d, %x\n",
+@@ -835,7 +835,7 @@ static void msg_done_handler(struct ssif
+ 				 "Invalid response clearing flags: %x %x\n",
+ 				 data[0], data[1]);
+ 		}
+-		ssif_info->ssif_state = SSIF_NORMAL;
++		ssif_info->ssif_state = SSIF_IDLE;
+ 		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 		break;
  
- 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
-@@ -240,19 +244,11 @@ static int pm8xxx_rtc_set_alarm(struct d
- 		goto rtc_rw_fail;
+@@ -913,7 +913,7 @@ static void msg_done_handler(struct ssif
  	}
  
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
--	if (rc)
--		goto rtc_rw_fail;
--
--	if (alarm->enabled)
--		ctrl_reg |= regs->alarm_en;
--	else
--		ctrl_reg &= ~regs->alarm_en;
--
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
--	if (rc) {
--		dev_err(dev, "Write to RTC alarm control register failed\n");
--		goto rtc_rw_fail;
-+	if (alarm->enabled) {
-+		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+					regs->alarm_en, regs->alarm_en);
-+		if (rc)
-+			goto rtc_rw_fail;
+ 	flags = ipmi_ssif_lock_cond(ssif_info, &oflags);
+-	if (SSIF_IDLE(ssif_info) && !ssif_info->stopping) {
++	if (IS_SSIF_IDLE(ssif_info) && !ssif_info->stopping) {
+ 		if (ssif_info->req_events)
+ 			start_event_fetch(ssif_info, flags);
+ 		else if (ssif_info->req_flags)
+@@ -1087,7 +1087,7 @@ static void start_next_msg(struct ssif_i
+ 	unsigned long oflags;
+ 
+  restart:
+-	if (!SSIF_IDLE(ssif_info)) {
++	if (!IS_SSIF_IDLE(ssif_info)) {
+ 		ipmi_ssif_unlock_cond(ssif_info, flags);
+ 		return;
+ 	}
+@@ -1310,7 +1310,7 @@ static void shutdown_ssif(void *send_inf
+ 	dev_set_drvdata(&ssif_info->client->dev, NULL);
+ 
+ 	/* make sure the driver is not looking for flags any more. */
+-	while (ssif_info->ssif_state != SSIF_NORMAL)
++	while (ssif_info->ssif_state != SSIF_IDLE)
+ 		schedule_timeout(1);
+ 
+ 	ssif_info->stopping = true;
+@@ -1882,7 +1882,7 @@ static int ssif_probe(struct i2c_client
  	}
  
- 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
+ 	spin_lock_init(&ssif_info->lock);
+-	ssif_info->ssif_state = SSIF_NORMAL;
++	ssif_info->ssif_state = SSIF_IDLE;
+ 	timer_setup(&ssif_info->retry_timer, retry_timeout, 0);
+ 	timer_setup(&ssif_info->watch_timer, watch_timeout, 0);
+ 
 
 
