@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0476A6B4626
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 439EA6B427F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232695AbjCJOkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
+        id S231696AbjCJOEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:04:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232691AbjCJOkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73DB05C115
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:36 -0800 (PST)
+        with ESMTP id S231546AbjCJODs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F292324736
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FBEA616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A32EC433D2;
-        Fri, 10 Mar 2023 14:40:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2138760D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ED98C433EF;
+        Fri, 10 Mar 2023 14:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459235;
-        bh=nASo2f4JR8ZSOoYzvCW9dDL1De1xlQ+pb1BhFDIja5I=;
+        s=korg; t=1678457016;
+        bh=U9LwCidUUgPKBYh/I/AUlqjiF+BElbC3N7KpNePoHkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uy407Hls1Ha6INccJrJRuAdhAsAfxwvynnGETSK1cBdIbgx1Oifv5vgzXG0b5vnI7
-         rfdKAhQXSyzQCvtQARsYbzvI7E6LBuYZFJZqhkW7xkt6owGWyfwkFIQtcRugshg2G/
-         5+ZFkuqliTN6jq2M6lNGLhXESz1+NV79rpHfziAs=
+        b=UzEpQKK7cT19LD/twsQTCt4xoHvUQGO13HbyDYNd9KH0LNezaAghvogEmkPcfYxlm
+         H/Cqc4IYA/qvm21Tan9EwM+DmXyXu0OFiFajrIknNjrpnbLQ9aQGgudnvCQjBix/+3
+         dcLRHMy6MtpmXdqGRG79GRLO/R9y7x+ObWuPPSg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 294/357] ubifs: Rectify space budget for ubifs_xrename()
+        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
+        Imre Deak <imre.deak@intel.com>
+Subject: [PATCH 6.2 203/211] drm/display/dp_mst: Fix down message handling after a packet reception error
 Date:   Fri, 10 Mar 2023 14:39:43 +0100
-Message-Id: <20230310133747.734492728@linuxfoundation.org>
+Message-Id: <20230310133725.093526230@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,51 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 1b2ba09060e41adb356b9ae58ef94a7390928004 ]
+commit 1241aedb6b5c7a5a8ad73e5eb3a41cfe18a3e00e upstream.
 
-There is no space budget for ubifs_xrename(). It may let
-make_reservation() return with -ENOSPC, which could turn
-ubifs to read-only mode in do_writepage() process.
-Fix it by adding space budget for ubifs_xrename().
+After an error during receiving a packet for a multi-packet DP MST
+sideband message, the state tracking which packets have been received
+already is not reset. This prevents the reception of subsequent down
+messages (due to the pending message not yet completed with an
+end-of-message-transfer packet).
 
-Fetch a reproducer in [Link].
+Fix the above by resetting the reception state after a packet error.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216569
-Fixes: 9ec64962afb170 ("ubifs: Implement RENAME_EXCHANGE")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: <stable@vger.kernel.org> # v3.17+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221214184258.2869417-2-imre.deak@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/display/drm_dp_mst_topology.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 0c012f8fabbb2..9a4f9563aceea 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1538,6 +1538,10 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
- 		return err;
- 	}
+--- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+@@ -3859,7 +3859,7 @@ static int drm_dp_mst_handle_down_rep(st
+ 	struct drm_dp_sideband_msg_rx *msg = &mgr->down_rep_recv;
  
-+	err = ubifs_budget_space(c, &req);
-+	if (err)
-+		goto out;
-+
- 	lock_4_inodes(old_dir, new_dir, NULL, NULL);
+ 	if (!drm_dp_get_one_sb_msg(mgr, false, &mstb))
+-		goto out;
++		goto out_clear_reply;
  
- 	time = current_time(old_dir);
-@@ -1563,6 +1567,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
- 	unlock_4_inodes(old_dir, new_dir, NULL, NULL);
- 	ubifs_release_budget(c, &req);
- 
-+out:
- 	fscrypt_free_filename(&fst_nm);
- 	fscrypt_free_filename(&snd_nm);
- 	return err;
--- 
-2.39.2
-
+ 	/* Multi-packet message transmission, don't clear the reply */
+ 	if (!msg->have_eomt)
 
 
