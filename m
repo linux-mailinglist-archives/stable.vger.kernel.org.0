@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B326B4536
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F536B4396
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232498AbjCJOcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57580 "EHLO
+        id S232024AbjCJOP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:15:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232564AbjCJObd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7FFAF367E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:46 -0800 (PST)
+        with ESMTP id S232026AbjCJOP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:15:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3250CC338
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:14:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A33AAB822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC1BC43445;
-        Fri, 10 Mar 2023 14:30:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FF50B822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 024F2C433EF;
+        Fri, 10 Mar 2023 14:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458644;
-        bh=RT4s2/oFfiS1+4UmZeWEprWchzJoRaCpPslgf5EoBfw=;
+        s=korg; t=1678457665;
+        bh=8D3S1plG5/IvHPJ038Bp2u2e3KxjRArLhnPbFBTqzSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R33o/kkk89lHUF4oj78dquZCThlmw7DCvXPZ8WJ+0JFx+D7Hfpalf3z5sK2Q60dm8
-         AHM8TC062OSCp7xr1Zoh6Khf9A5O4I4T/Wwcp0dlMkCW9CKUB5U4EsOL1AfsH76Yt5
-         xHQepGYltlE8+Gix+O0HxXlsHnBOIGYL+IbnPCI4=
+        b=P1j5PI7zlVzgDloLjHGDW1uRKT2UFzKE8++cIFFkGs7gatw7/qyxyT6/IpPSQaeHC
+         iL7tWMU0Awb9SFl0/1ltW/WtdrvC9XtkSvhsULA4uaLV8bWUtEY3wIrbKcLtClMDfu
+         YoXyrhpVh6HaWV0VPrt8ewd9WGw/oOICX+SX5ng0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marek Vasut <marex@denx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/357] drm: mxsfb: DRM_MXSFB should depend on ARCH_MXS || ARCH_MXC
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 016/252] arm64: dts: amlogic: meson-gxl: add missing unit address to eth-phy-mux node name
 Date:   Fri, 10 Mar 2023 14:36:26 +0100
-Message-Id: <20230310133738.280581099@linuxfoundation.org>
+Message-Id: <20230310133719.322312452@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,37 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Neil Armstrong <neil.armstrong@linaro.org>
 
-[ Upstream commit 7783cc67862f9166c901bfa0f80b717aa8d354dd ]
+[ Upstream commit d19189f70ba596798ea49166d2d1ef36a8df5289 ]
 
-Freescale/NXP i.MX LCDIF and eLCDIF LCD controllers are only present on
-Freescale/NXP i.MX SoCs.  Hence add a dependency on ARCH_MXS ||
-ARCH_MXC, to prevent asking the user about this driver when configuring
-a kernel without Freescale/NXP i.MX support.
+Fixes:
+bus@c8834000: eth-phy-mux: {...} should not be valid under {'type': 'object'}
 
-Fixes: 45d59d704080cc0c ("drm: Add new driver for MXSFB controller")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/98e74779ca2bc575d91afff03369e86b080c01ac.1669046358.git.geert+renesas@glider.be
+Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-9-44351528957e@linaro.org
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/amlogic/meson-gxl.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mxsfb/Kconfig b/drivers/gpu/drm/mxsfb/Kconfig
-index 33916b7b2c501..e8cb02803d9b6 100644
---- a/drivers/gpu/drm/mxsfb/Kconfig
-+++ b/drivers/gpu/drm/mxsfb/Kconfig
-@@ -8,6 +8,7 @@ config DRM_MXSFB
- 	tristate "i.MX23/i.MX28/i.MX6SX MXSFB LCD controller"
- 	depends on DRM && OF
- 	depends on COMMON_CLK
-+	depends on ARCH_MXS || ARCH_MXC || COMPILE_TEST
- 	select DRM_MXS
- 	select DRM_KMS_HELPER
- 	select DRM_KMS_CMA_HELPER
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
+index 5d7724b3a6123..f999a92d174b7 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl.dtsi
+@@ -636,7 +636,7 @@ mux {
+ 		};
+ 	};
+ 
+-	eth-phy-mux {
++	eth-phy-mux@55c {
+ 		compatible = "mdio-mux-mmioreg", "mdio-mux";
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 -- 
 2.39.2
 
