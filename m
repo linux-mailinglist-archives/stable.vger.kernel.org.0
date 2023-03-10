@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A487D6B48F3
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:08:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6C16B48FD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233925AbjCJPIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:08:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60382 "EHLO
+        id S233826AbjCJPIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233881AbjCJPHr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:07:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2C1136883
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:00:38 -0800 (PST)
+        with ESMTP id S232735AbjCJPIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:08:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 130D3136899
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:00:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A444B822EE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:00:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93165C433D2;
-        Fri, 10 Mar 2023 15:00:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BAB4B822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:00:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D36CC4339C;
+        Fri, 10 Mar 2023 15:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460423;
-        bh=UJG2yLRgAPyWqdYK9/H3/GB16kLkik00kOREtcReAF8=;
+        s=korg; t=1678460425;
+        bh=BPPX9JLlnk477fbxhIhEPVrL/A5quUKMyrQmgDlOn84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9BFxAk0HDDcX5HTosZPZjaCG3Op2Iu5MXQMXA/BiCCzobYK9TYmmUcrYc4cyZb0o
-         zHawOgwvqueCnpyuDbT+2nuZg8LimxN6rRU825TkvmGNWfOIYxOCbwnx5OamxsN/Da
-         LgA+sBJgcUF1ioGA76CUof9cCaVe4cLVxc/HI1fU=
+        b=hmIeoUACU0LF7iSh34IQDqk0Ad/vTtRp9h2QE4hqIfy7VRR/C2sPM6JxM7bK/xfMZ
+         g8CnVbe7i4yWny8Wn9kznGPz2pltJFNZ6zsg3K5KUoQCvr6nNP+gDyME6731TX0xAl
+         En1v5Srfu5DiSOud9grOvkv6XBC9WX1LDohj1IXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alper Nebi Yasak <alpernebiyasak@gmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 5.10 329/529] firmware: coreboot: framebuffer: Ignore reserved pixel color bits
-Date:   Fri, 10 Mar 2023 14:37:52 +0100
-Message-Id: <20230310133820.260588137@linuxfoundation.org>
+        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
+        David Collins <quic_collinsd@quicinc.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.10 330/529] rtc: pm8xxx: fix set-alarm race
+Date:   Fri, 10 Mar 2023 14:37:53 +0100
+Message-Id: <20230310133820.308935537@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,52 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alper Nebi Yasak <alpernebiyasak@gmail.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit e6acaf25cba14661211bb72181c35dd13b24f5b3 upstream.
+commit c88db0eff9722fc2b6c4d172a50471d20e08ecc6 upstream.
 
-The coreboot framebuffer doesn't support transparency, its 'reserved'
-bit field is merely padding for byte/word alignment of pixel colors [1].
-When trying to match the framebuffer to a simplefb format, the kernel
-driver unnecessarily requires the format's transparency bit field to
-exactly match this padding, even if the former is zero-width.
+Make sure to disable the alarm before updating the four alarm time
+registers to avoid spurious alarms during the update.
 
-Due to a coreboot bug [2] (fixed upstream), some boards misreport the
-reserved field's size as equal to its position (0x18 for both on a
-'Lick' Chromebook), and the driver fails to probe where it would have
-otherwise worked fine with e.g. the a8r8g8b8 or x8r8g8b8 formats.
+Note that the disable needs to be done outside of the ctrl_reg_lock
+section to prevent a racing alarm interrupt from disabling the newly set
+alarm when the lock is released.
 
-Remove the transparency comparison with reserved bits. When the
-bits-per-pixel and other color components match, transparency will
-already be in a subset of the reserved field. Not forcing it to match
-reserved bits allows the driver to work on the boards which misreport
-the reserved field. It also enables using simplefb formats that don't
-have transparency bits, although this doesn't currently happen due to
-format support and ordering in linux/platform_data/simplefb.h.
-
-[1] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.19/src/commonlib/include/commonlib/coreboot_tables.h#255
-[2] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.13/src/drivers/intel/fsp2_0/graphics.c#82
-
-Signed-off-by: Alper Nebi Yasak <alpernebiyasak@gmail.com>
-Link: https://lore.kernel.org/r/20230122190433.195941-1-alpernebiyasak@gmail.com
-Cc: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
+Cc: stable@vger.kernel.org      # 3.1
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: David Collins <quic_collinsd@quicinc.com>
+Link: https://lore.kernel.org/r/20230202155448.6715-2-johan+linaro@kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/google/framebuffer-coreboot.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c |   24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
 
---- a/drivers/firmware/google/framebuffer-coreboot.c
-+++ b/drivers/firmware/google/framebuffer-coreboot.c
-@@ -43,9 +43,7 @@ static int framebuffer_probe(struct core
- 		    fb->green_mask_pos     == formats[i].green.offset &&
- 		    fb->green_mask_size    == formats[i].green.length &&
- 		    fb->blue_mask_pos      == formats[i].blue.offset &&
--		    fb->blue_mask_size     == formats[i].blue.length &&
--		    fb->reserved_mask_pos  == formats[i].transp.offset &&
--		    fb->reserved_mask_size == formats[i].transp.length)
-+		    fb->blue_mask_size     == formats[i].blue.length)
- 			pdata.format = formats[i].name;
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -219,7 +219,6 @@ static int pm8xxx_rtc_set_alarm(struct d
+ {
+ 	int rc, i;
+ 	u8 value[NUM_8_BIT_RTC_REGS];
+-	unsigned int ctrl_reg;
+ 	unsigned long secs, irq_flags;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+@@ -231,6 +230,11 @@ static int pm8xxx_rtc_set_alarm(struct d
+ 		secs >>= 8;
  	}
- 	if (!pdata.format)
+ 
++	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
++				regs->alarm_en, 0);
++	if (rc)
++		return rc;
++
+ 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+ 
+ 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
+@@ -240,19 +244,11 @@ static int pm8xxx_rtc_set_alarm(struct d
+ 		goto rtc_rw_fail;
+ 	}
+ 
+-	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
+-	if (rc)
+-		goto rtc_rw_fail;
+-
+-	if (alarm->enabled)
+-		ctrl_reg |= regs->alarm_en;
+-	else
+-		ctrl_reg &= ~regs->alarm_en;
+-
+-	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
+-	if (rc) {
+-		dev_err(dev, "Write to RTC alarm control register failed\n");
+-		goto rtc_rw_fail;
++	if (alarm->enabled) {
++		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
++					regs->alarm_en, regs->alarm_en);
++		if (rc)
++			goto rtc_rw_fail;
+ 	}
+ 
+ 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
 
 
