@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66BA36B4580
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF05F6B4114
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232192AbjCJOe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:34:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41220 "EHLO
+        id S230404AbjCJNtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:49:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232641AbjCJOeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:34:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33723A7A80
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:34:03 -0800 (PST)
+        with ESMTP id S230410AbjCJNtV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77EE185686
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9299B822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B671C433A0;
-        Fri, 10 Mar 2023 14:34:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 337EAB822B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A92C433D2;
+        Fri, 10 Mar 2023 13:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458840;
-        bh=7rkYHDJciWNfgZyu6i07Kh5yKCdXU0eh9RjC3XuqjkA=;
+        s=korg; t=1678456156;
+        bh=/Tq1KfffpsIyg77UJj94OUlHumQjg2M0xPQ9az5/zBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itRW43sOMxRI6qPC6s/g30GAq9D9yQMI5sb96Pdij9rPjvtOYp37fupSxZhhpPv1b
-         eSV9cvn5JYXM7q1LmhkNKxEtkL3HKtNRGYVPa6YuuFT5+NAnqqgR7OuBsqCfqo2MD+
-         SpC0uZfjMZLVO9gxsTzDzcIwPZW9zvQ2F8mN1jLA=
+        b=yhEj5//LxJfT7Q0UvUpHCoW7ikgVhALMx2bmYuwhPiBHJZVT9QkkI6xF3gb6xcxNx
+         akIYGU6noi8Uin5oVrVbSzwU/SVARYQuY91NGng5oIkwony0NpLSSI9gGOn4Dre2qr
+         YqXG5eZ09hxlU2SGNRNHWcMX/+BhxTG9xHnJONKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        patches@lists.linux.dev, Andrew Jeffery <andrew@aj.id.au>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/357] powerpc/rtas: ensure 4KB alignment for rtas_data_buf
+Subject: [PATCH 4.14 069/193] powerpc/powernv/ioda: Skip unallocated resources when mapping to PE
 Date:   Fri, 10 Mar 2023 14:37:31 +0100
-Message-Id: <20230310133741.866880429@linuxfoundation.org>
+Message-Id: <20230310133713.337643962@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,55 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Frederic Barrat <fbarrat@linux.ibm.com>
 
-[ Upstream commit 836b5b9fcc8e09cea7e8a59a070349a00e818308 ]
+[ Upstream commit e64e71056f323a1e178dccf04d4c0f032d84436c ]
 
-Some RTAS functions that have work area parameters impose alignment
-requirements on the work area passed to them by the OS. Examples
-include:
+pnv_ioda_setup_pe_res() calls opal to map a resource with a PE. However,
+the code assumes the resource is allocated and it uses the resource
+address to find out the segment(s) which need to be mapped to the
+PE. In the unlikely case where the resource hasn't been allocated, the
+computation for the segment number is garbage, which can lead to
+invalid memory access and potentially a kernel crash, such as:
 
-- ibm,configure-connector
-- ibm,update-nodes
-- ibm,update-properties
+[ ] pci_bus 0002:02: Configuring PE for bus
+[ ] pci 0002:02     : [PE# fc] Secondary bus 0x0000000000000002..0x0000000000000002 associated with PE#fc
+[ ] BUG: Kernel NULL pointer dereference on write at 0x00000000
+[ ] Faulting instruction address: 0xc00000000005eac4
+[ ] Oops: Kernel access of bad area, sig: 7 [#1]
+[ ] LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
+[ ] Modules linked in:
+[ ] CPU: 12 PID: 1 Comm: swapper/20 Not tainted 5.10.50-openpower1 #2
+[ ] NIP:  c00000000005eac4 LR: c00000000005ea44 CTR: 0000000030061b9c
+[ ] REGS: c000200007383650 TRAP: 0300   Not tainted  (5.10.50-openpower1)
+[ ] MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44000224  XER: 20040000
+[ ] CFAR: c00000000005eaa0 DAR: 0000000000000000 DSISR: 02080000 IRQMASK: 0
+[ ] GPR00: c00000000005dd98 c0002000073838e0 c00000000185de00 c000200fff018960
+[ ] GPR04: 00000000000000fc 0000000000000003 0000000000000000 0000000000000000
+[ ] GPR08: 0000000000000000 0000000000000000 0000000000000000 9000000000001033
+[ ] GPR12: 0000000031cb0000 c000000ffffe6a80 c000000000010a58 0000000000000000
+[ ] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[ ] GPR20: 0000000000000000 0000000000000000 0000000000000000 c00000000711e200
+[ ] GPR24: 0000000000000100 c000200009501120 c00020000cee2800 00000000000003ff
+[ ] GPR28: c000200fff018960 0000000000000000 c000200ffcb7fd00 0000000000000000
+[ ] NIP [c00000000005eac4] pnv_ioda_setup_pe_res+0x94/0x1a0
+[ ] LR [c00000000005ea44] pnv_ioda_setup_pe_res+0x14/0x1a0
+[ ] Call Trace:
+[ ] [c0002000073838e0] [c00000000005eb98] pnv_ioda_setup_pe_res+0x168/0x1a0 (unreliable)
+[ ] [c000200007383970] [c00000000005dd98] pnv_pci_ioda_dma_dev_setup+0x43c/0x970
+[ ] [c000200007383a60] [c000000000032cdc] pcibios_bus_add_device+0x78/0x18c
+[ ] [c000200007383aa0] [c00000000028f2bc] pci_bus_add_device+0x28/0xbc
+[ ] [c000200007383b10] [c00000000028f3a0] pci_bus_add_devices+0x50/0x7c
+[ ] [c000200007383b50] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
+[ ] [c000200007383b90] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
+[ ] [c000200007383bd0] [c00000000069ad0c] pcibios_init+0xf0/0x104
+[ ] [c000200007383c50] [c0000000000106d8] do_one_initcall+0x84/0x1c4
+[ ] [c000200007383d20] [c0000000006910b8] kernel_init_freeable+0x264/0x268
+[ ] [c000200007383dc0] [c000000000010a68] kernel_init+0x18/0x138
+[ ] [c000200007383e20] [c00000000000cbfc] ret_from_kernel_thread+0x5c/0x80
+[ ] Instruction dump:
+[ ] 7f89e840 409d000c 7fbbf840 409c000c 38210090 4848f448 809c002c e95e0120
+[ ] 7ba91764 38a00003 57a7043e 38c00000 <7c8a492e> 5484043e e87e0018 4bff23bd
 
-4KB is the greatest alignment required by PAPR for such
-buffers. rtas_data_buf used to have a __page_aligned attribute in the
-arch/ppc64 days, but that was changed to __cacheline_aligned for
-unknown reasons by commit 033ef338b6e0 ("powerpc: Merge rtas.c into
-arch/powerpc/kernel"). That works out to 128-byte alignment
-on ppc64, which isn't right.
+Hitting the problem is not that easy. It was seen with a (semi-bogus)
+PCI device with a class code of 0. The generic PCI framework doesn't
+allocate resources in such a case.
 
-This was found by inspection and I'm not aware of any real problems
-caused by this. Either current RTAS implementations don't enforce the
-alignment constraints, or rtas_data_buf is always being placed at a
-4KB boundary by accident (or both, perhaps).
+The patch is simply skipping resources which are still flagged with
+IORESOURCE_UNSET.
 
-Use __aligned(SZ_4K) to ensure the rtas_data_buf has alignment
-appropriate for all users.
+We don't have the problem with 64-bit mem resources, as the address of
+the resource is checked to be within the range of the 64-bit mmio
+window. See pnv_ioda_reserve_dev_m64_pe() and pnv_pci_is_m64().
 
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Fixes: 033ef338b6e0 ("powerpc: Merge rtas.c into arch/powerpc/kernel")
+Reported-by: Andrew Jeffery <andrew@aj.id.au>
+Fixes: 23e79425fe7c ("powerpc/powernv: Simplify pnv_ioda_setup_pe_seg()")
+Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230125-b4-powerpc-rtas-queue-v3-6-26929c8cce78@linux.ibm.com
+Link: https://lore.kernel.org/r/20230120093215.19496-1-fbarrat@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/rtas.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/powernv/pci-ioda.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 8e61984b368d1..ee810df7d522d 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -53,7 +53,7 @@ EXPORT_SYMBOL(rtas);
- DEFINE_SPINLOCK(rtas_data_buf_lock);
- EXPORT_SYMBOL_GPL(rtas_data_buf_lock);
+diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+index 36ef504eeab32..58798ced4dbbf 100644
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -3155,7 +3155,8 @@ static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
+ 	int index;
+ 	int64_t rc;
  
--char rtas_data_buf[RTAS_DATA_BUF_SIZE] __cacheline_aligned;
-+char rtas_data_buf[RTAS_DATA_BUF_SIZE] __aligned(SZ_4K);
- EXPORT_SYMBOL_GPL(rtas_data_buf);
+-	if (!res || !res->flags || res->start > res->end)
++	if (!res || !res->flags || res->start > res->end ||
++	    res->flags & IORESOURCE_UNSET)
+ 		return;
  
- unsigned long rtas_rmo_buf;
+ 	if (res->flags & IORESOURCE_IO) {
 -- 
 2.39.2
 
