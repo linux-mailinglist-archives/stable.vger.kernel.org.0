@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BCF6B4320
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5486B45E8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbjCJOKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S232713AbjCJOil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:38:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231839AbjCJOKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D003E57D3B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:59 -0800 (PST)
+        with ESMTP id S232673AbjCJOiX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8F51165C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E14B60D29
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74864C4339E;
-        Fri, 10 Mar 2023 14:09:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF983B822E4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25124C4339C;
+        Fri, 10 Mar 2023 14:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457398;
-        bh=uuSqhmxDCYgypybfQKebjgZqdZnGipeGoMUAKlPMPNE=;
+        s=korg; t=1678459079;
+        bh=BXMlJSL5Kc38xrg++6JtI2axxwb+ggvBIzaYc6tDbxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y39lKtPP9lP2IRmw0DaQa0lLN8TUREKCFn9GEifQxKSoMfORAjimmfRZrCS2Db0aI
-         iMiycq/S/rIdrF2QH8MGmWprAs1kk/psRFM9JvzyW8sI58onjjr1KWIWsG4hXDJLqN
-         dr776QnsAl03/1YAqTHWD+p+CBpSTdJ1GRKvsFx0=
+        b=rqehRnE3brawrI5gVWfVgRyUiJJ82LSGjIc0NMw+Il0dOUdeJB21CPBbSH7OCnbi1
+         +gxCeV/bseyyMS/yJTu08d2vrAZqPmd+W7tZiv8kx37/91VI3ApAgTapBGcp0AWs7U
+         lad761x2xF62BFVNWrVA+dVDDVgPnnZU0vu/J2LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 123/200] media: uvcvideo: Remove format descriptions
+        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
+        stable@kernel.org
+Subject: [PATCH 5.4 241/357] x86/microcode/AMD: Fix mixed steppings support
 Date:   Fri, 10 Mar 2023 14:38:50 +0100
-Message-Id: <20230310133720.903341356@linuxfoundation.org>
+Message-Id: <20230310133745.386503518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,136 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Borislav Petkov (AMD) <bp@alien8.de>
 
-[ Upstream commit 50459f103edfe47c9a599d766a850ef6014936c5 ]
+commit 7ff6edf4fef38ab404ee7861f257e28eaaeed35f upstream.
 
-The V4L2 core overwrites format descriptions in v4l_fill_fmtdesc(),
-there's no need to manually set the descriptions in the driver. This
-prepares for removal of the format descriptions from the uvc_fmts table.
+The AMD side of the loader has always claimed to support mixed
+steppings. But somewhere along the way, it broke that by assuming that
+the cached patch blob is a single one instead of it being one per
+*node*.
 
-Unlike V4L2, UVC makes a distinction between the SD-DV, SDL-DV and HD-DV
-formats. It also indicates whether the DV format uses 50Hz or 60Hz. This
-information is parsed by the driver to construct a format name string
-that is printed in a debug message, but serves no other purpose as V4L2
-has a single V4L2_PIX_FMT_DV pixel format that covers all those cases.
+So turn it into a per-node one so that each node can stash the blob
+relevant for it.
 
-As the information is available in the UVC descriptors, and thus
-accessible to users with lsusb if they really care, don't log it in a
-debug message and drop the format name string to simplify the code.
+  [ NB: Fixes tag is not really the exactly correct one but it is good
+    enough. ]
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fe055896c040 ("x86/microcode: Merge the early microcode loader")
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Cc: <stable@kernel.org> # 2355370cd941 ("x86/microcode/amd: Remove load_microcode_amd()'s bsp parameter")
+Cc: <stable@kernel.org> # a5ad92134bd1 ("x86/microcode/AMD: Add a @cpu parameter to the reloading functions")
+Link: https://lore.kernel.org/r/20230130161709.11615-4-bp@alien8.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 24 ++----------------------
- drivers/media/usb/uvc/uvc_v4l2.c   |  2 --
- drivers/media/usb/uvc/uvcvideo.h   |  2 --
- 3 files changed, 2 insertions(+), 26 deletions(-)
+ arch/x86/kernel/cpu/microcode/amd.c |   34 +++++++++++++++++++++-------------
+ 1 file changed, 21 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index abfe735f6ea30..16c75b8635455 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -252,14 +252,10 @@ static int uvc_parse_format(struct uvc_device *dev,
- 		fmtdesc = uvc_format_by_guid(&buffer[5]);
+--- a/arch/x86/kernel/cpu/microcode/amd.c
++++ b/arch/x86/kernel/cpu/microcode/amd.c
+@@ -55,7 +55,9 @@ struct cont_desc {
+ };
  
- 		if (fmtdesc != NULL) {
--			strscpy(format->name, fmtdesc->name,
--				sizeof(format->name));
- 			format->fcc = fmtdesc->fcc;
- 		} else {
- 			dev_info(&streaming->intf->dev,
- 				 "Unknown video format %pUl\n", &buffer[5]);
--			snprintf(format->name, sizeof(format->name), "%pUl\n",
--				&buffer[5]);
- 			format->fcc = 0;
- 		}
+ static u32 ucode_new_rev;
+-static u8 amd_ucode_patch[PATCH_MAX_SIZE];
++
++/* One blob per node. */
++static u8 amd_ucode_patch[MAX_NUMNODES][PATCH_MAX_SIZE];
  
-@@ -271,8 +267,6 @@ static int uvc_parse_format(struct uvc_device *dev,
- 		 */
- 		if (dev->quirks & UVC_QUIRK_FORCE_Y8) {
- 			if (format->fcc == V4L2_PIX_FMT_YUYV) {
--				strscpy(format->name, "Greyscale 8-bit (Y8  )",
--					sizeof(format->name));
- 				format->fcc = V4L2_PIX_FMT_GREY;
- 				format->bpp = 8;
- 				width_multiplier = 2;
-@@ -313,7 +307,6 @@ static int uvc_parse_format(struct uvc_device *dev,
- 			return -EINVAL;
- 		}
+ /*
+  * Microcode patch container file is prepended to the initrd in cpio
+@@ -429,7 +431,7 @@ apply_microcode_early_amd(u32 cpuid_1_ea
+ 	patch	= (u8 (*)[PATCH_MAX_SIZE])__pa_nodebug(&amd_ucode_patch);
+ #else
+ 	new_rev = &ucode_new_rev;
+-	patch	= &amd_ucode_patch;
++	patch	= &amd_ucode_patch[0];
+ #endif
  
--		strscpy(format->name, "MJPEG", sizeof(format->name));
- 		format->fcc = V4L2_PIX_FMT_MJPEG;
- 		format->flags = UVC_FMT_FLAG_COMPRESSED;
- 		format->bpp = 0;
-@@ -329,17 +322,7 @@ static int uvc_parse_format(struct uvc_device *dev,
- 			return -EINVAL;
- 		}
+ 	desc.cpuid_1_eax = cpuid_1_eax;
+@@ -575,10 +577,10 @@ int __init save_microcode_in_initrd_amd(
  
--		switch (buffer[8] & 0x7f) {
--		case 0:
--			strscpy(format->name, "SD-DV", sizeof(format->name));
--			break;
--		case 1:
--			strscpy(format->name, "SDL-DV", sizeof(format->name));
--			break;
--		case 2:
--			strscpy(format->name, "HD-DV", sizeof(format->name));
--			break;
--		default:
-+		if ((buffer[8] & 0x7f) > 2) {
- 			uvc_dbg(dev, DESCR,
- 				"device %d videostreaming interface %d: unknown DV format %u\n",
- 				dev->udev->devnum,
-@@ -347,9 +330,6 @@ static int uvc_parse_format(struct uvc_device *dev,
- 			return -EINVAL;
- 		}
+ void reload_ucode_amd(unsigned int cpu)
+ {
+-	struct microcode_amd *mc;
+ 	u32 rev, dummy;
++	struct microcode_amd *mc;
  
--		strlcat(format->name, buffer[8] & (1 << 7) ? " 60Hz" : " 50Hz",
--			sizeof(format->name));
--
- 		format->fcc = V4L2_PIX_FMT_DV;
- 		format->flags = UVC_FMT_FLAG_COMPRESSED | UVC_FMT_FLAG_STREAM;
- 		format->bpp = 0;
-@@ -376,7 +356,7 @@ static int uvc_parse_format(struct uvc_device *dev,
- 		return -EINVAL;
+-	mc = (struct microcode_amd *)amd_ucode_patch;
++	mc = (struct microcode_amd *)amd_ucode_patch[cpu_to_node(cpu)];
+ 
+ 	rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
+ 
+@@ -846,6 +848,8 @@ static enum ucode_state __load_microcode
+ 
+ static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
+ {
++	struct cpuinfo_x86 *c;
++	unsigned int nid, cpu;
+ 	struct ucode_patch *p;
+ 	enum ucode_state ret;
+ 
+@@ -858,18 +862,22 @@ static enum ucode_state load_microcode_a
+ 		return ret;
  	}
  
--	uvc_dbg(dev, DESCR, "Found format %s\n", format->name);
-+	uvc_dbg(dev, DESCR, "Found format %p4cc", &format->fcc);
+-	p = find_patch(0);
+-	if (!p) {
+-		return ret;
+-	} else {
+-		if (boot_cpu_data.microcode >= p->patch_id)
+-			return ret;
++	for_each_node(nid) {
++		cpu = cpumask_first(cpumask_of_node(nid));
++		c = &cpu_data(cpu);
++
++		p = find_patch(cpu);
++		if (!p)
++			continue;
++
++		if (c->microcode >= p->patch_id)
++			continue;
  
- 	buflen -= buffer[0];
- 	buffer += buffer[0];
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index 0774a11360c03..950b42d78a107 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -661,8 +661,6 @@ static int uvc_ioctl_enum_fmt(struct uvc_streaming *stream,
- 	fmt->flags = 0;
- 	if (format->flags & UVC_FMT_FLAG_COMPRESSED)
- 		fmt->flags |= V4L2_FMT_FLAG_COMPRESSED;
--	strscpy(fmt->description, format->name, sizeof(fmt->description));
--	fmt->description[sizeof(fmt->description) - 1] = 0;
- 	fmt->pixelformat = format->fcc;
- 	return 0;
+ 		ret = UCODE_NEW;
+-	}
+ 
+-	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
+-	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
++		memset(&amd_ucode_patch[nid], 0, PATCH_MAX_SIZE);
++		memcpy(&amd_ucode_patch[nid], p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
++	}
+ 
+ 	return ret;
  }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index 1227ae63f85b7..4c89bf08171f2 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -264,8 +264,6 @@ struct uvc_format {
- 	u32 fcc;
- 	u32 flags;
- 
--	char name[32];
--
- 	unsigned int nframes;
- 	struct uvc_frame *frame;
- };
--- 
-2.39.2
-
 
 
