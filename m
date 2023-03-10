@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F716B4142
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDDB56B440B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbjCJNvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:51:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
+        id S231267AbjCJOVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:21:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230468AbjCJNvB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA66DABB0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:00 -0800 (PST)
+        with ESMTP id S232193AbjCJOUm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A0E11646
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:19:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B5E3B822B5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C0E0C433D2;
-        Fri, 10 Mar 2023 13:50:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E63C60D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:19:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 325C5C433D2;
+        Fri, 10 Mar 2023 14:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456257;
-        bh=sS/J0QfHfYSCcas+e46117j1oKncpAgH6kr++MmvCvM=;
+        s=korg; t=1678457954;
+        bh=rRBvHy/KHR2tD3gr3x6cTLVEk8ik7A0RhuZoaqDQ//s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vOa4uzknvMzPJtOeOItgEqsCh4lrF0pMHX8E4TsQKY+FDPAR1sYfPtDfu199hFwJG
-         QMZpj7Z/Z65573K8CO5eQ/MTk4AJ/AEBCv0czHWOcQ0LK4FNUzAMh8Nvevws10WwhV
-         QIE0XkMYl4svgjHIQYkvgWlBX/Pn2W8IjyEQ8ZiQ=
+        b=CXdJeg9Av3YfNSmkIyv0rLCDLf/UUE4qO9/J3C1woiDEsKTFHap4ANOcZOV36IpX7
+         gLvNIqqXt2Jzs7Hi6uEyXl+QAvL/Q6y2nM9gim7GhK59Esdk2rLQNpAEPBAa6Mz3rP
+         LqIg4YmNc31ehe4wTs7uU1GbPXveEwYTs8cDsYAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com,
-        Liu Shixin <liushixin2@huawei.com>,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 102/193] hfs: fix missing hfs_bnode_get() in __hfs_bnode_create
+        Bjorn Andersson <quic_bjorande@quicinc.com>,
+        Chris Lew <quic_clew@quicinc.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 114/252] rpmsg: glink: Avoid infinite loop on intent for missing channel
 Date:   Fri, 10 Mar 2023 14:38:04 +0100
-Message-Id: <20230310133714.662385929@linuxfoundation.org>
+Message-Id: <20230310133722.244345655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,98 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Bjorn Andersson <quic_bjorande@quicinc.com>
 
-commit a9dc087fd3c484fd1ed18c5efb290efaaf44ce03 upstream.
+[ Upstream commit 3e74ec2f39362bffbd42854acbb67c7f4cb808f9 ]
 
-Syzbot found a kernel BUG in hfs_bnode_put():
+In the event that an intent advertisement arrives on an unknown channel
+the fifo is not advanced, resulting in the same message being handled
+over and over.
 
- kernel BUG at fs/hfs/bnode.c:466!
- invalid opcode: 0000 [#1] PREEMPT SMP KASAN
- CPU: 0 PID: 3634 Comm: kworker/u4:5 Not tainted 6.1.0-rc7-syzkaller-00190-g97ee9d1c1696 #0
- Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
- Workqueue: writeback wb_workfn (flush-7:0)
- RIP: 0010:hfs_bnode_put+0x46f/0x480 fs/hfs/bnode.c:466
- Code: 8a 80 ff e9 73 fe ff ff 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c a0 fe ff ff 48 89 df e8 db 8a 80 ff e9 93 fe ff ff e8 a1 68 2c ff <0f> 0b e8 9a 68 2c ff 0f 0b 0f 1f 84 00 00 00 00 00 55 41 57 41 56
- RSP: 0018:ffffc90003b4f258 EFLAGS: 00010293
- RAX: ffffffff825e318f RBX: 0000000000000000 RCX: ffff8880739dd7c0
- RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
- RBP: ffffc90003b4f430 R08: ffffffff825e2d9b R09: ffffed10045157d1
- R10: ffffed10045157d1 R11: 1ffff110045157d0 R12: ffff8880228abe80
- R13: ffff88807016c000 R14: dffffc0000000000 R15: ffff8880228abe00
- FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007fa6ebe88718 CR3: 000000001e93d000 CR4: 00000000003506f0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  <TASK>
-  hfs_write_inode+0x1bc/0xb40
-  write_inode fs/fs-writeback.c:1440 [inline]
-  __writeback_single_inode+0x4d6/0x670 fs/fs-writeback.c:1652
-  writeback_sb_inodes+0xb3b/0x18f0 fs/fs-writeback.c:1878
-  __writeback_inodes_wb+0x125/0x420 fs/fs-writeback.c:1949
-  wb_writeback+0x440/0x7b0 fs/fs-writeback.c:2054
-  wb_check_start_all fs/fs-writeback.c:2176 [inline]
-  wb_do_writeback fs/fs-writeback.c:2202 [inline]
-  wb_workfn+0x827/0xef0 fs/fs-writeback.c:2235
-  process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
-  worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
-  kthread+0x266/0x300 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
-  </TASK>
-
-The BUG_ON() is triggered at here:
-
-/* Dispose of resources used by a node */
-void hfs_bnode_put(struct hfs_bnode *node)
-{
-	if (node) {
- 		<skipped>
- 		BUG_ON(!atomic_read(&node->refcnt)); <- we have issue here!!!!
- 		<skipped>
- 	}
-}
-
-By tracing the refcnt, I found the node is created by hfs_bmap_alloc()
-with refcnt 1.  Then the node is used by hfs_btree_write().  There is a
-missing of hfs_bnode_get() after find the node.  The issue happened in
-following path:
-
-<alloc>
- hfs_bmap_alloc
-   hfs_bnode_find
-     __hfs_bnode_create   <- allocate a new node with refcnt 1.
-   hfs_bnode_put          <- decrease the refcnt
-
-<write>
- hfs_btree_write
-   hfs_bnode_find
-     __hfs_bnode_create
-       hfs_bnode_findhash <- find the node without refcnt increased.
-   hfs_bnode_put	  <- trigger the BUG_ON() since refcnt is 0.
-
-Link: https://lkml.kernel.org/r/20221212021627.3766829-1-liushixin2@huawei.com
-Reported-by: syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Cc: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dacbb35e930f ("rpmsg: glink: Receive and store the remote intent buffers")
+Signed-off-by: Bjorn Andersson <quic_bjorande@quicinc.com>
+Reviewed-by: Chris Lew <quic_clew@quicinc.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20230214234231.2069751-1-quic_bjorande@quicinc.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/bnode.c |    1 +
+ drivers/rpmsg/qcom_glink_native.c | 1 +
  1 file changed, 1 insertion(+)
 
---- a/fs/hfs/bnode.c
-+++ b/fs/hfs/bnode.c
-@@ -285,6 +285,7 @@ static struct hfs_bnode *__hfs_bnode_cre
- 		tree->node_hash[hash] = node;
- 		tree->node_hash_cnt++;
- 	} else {
-+		hfs_bnode_get(node2);
- 		spin_unlock(&tree->hash_lock);
- 		kfree(node);
- 		wait_event(node2->lock_wq, !test_bit(HFS_BNODE_NEW, &node2->flags));
+diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
+index c10230ad90b29..940f099c2092f 100644
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -929,6 +929,7 @@ static void qcom_glink_handle_intent(struct qcom_glink *glink,
+ 	spin_unlock_irqrestore(&glink->idr_lock, flags);
+ 	if (!channel) {
+ 		dev_err(glink->dev, "intents for non-existing channel\n");
++		qcom_glink_rx_advance(glink, ALIGN(msglen, 8));
+ 		return;
+ 	}
+ 
+-- 
+2.39.2
+
 
 
