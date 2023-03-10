@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C00D96B45E5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC3F6B4260
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:02:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232734AbjCJOi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
+        id S231599AbjCJOCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:02:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232727AbjCJOiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA93B441
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:37:59 -0800 (PST)
+        with ESMTP id S231611AbjCJOCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780EF117230
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7933B822E0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D41D4C4339C;
-        Fri, 10 Mar 2023 14:37:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14E3E618A8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BFFAC4339E;
+        Fri, 10 Mar 2023 14:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459076;
-        bh=18UahwAOv87ERH6C1Bc2ZaRAD0AML/qKuysvTLkXdxc=;
+        s=korg; t=1678456946;
+        bh=s+oxcJSBZ8YNHVi15Y9HIZrKQpkfo0EPqvo/HoBvzpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ieklEfuuAXBoNmt/+8JMLn6Epp5mn+vtCQLRuCrxt2d5q/aeLsUSZIo1PF1NHeHMs
-         R8BXxExJ+aYzW2btftO+I3ALiTHlu6se+v/0KVxMx0zNaxCOy+F0lvH4JO/f0ZDR4n
-         /41g2YYrL/xQUl6u+nHvqrIUW7W05Jofhl9n/i88=
+        b=JIdVtczxa7zv8wdZo0TEySbAXXRp4R16YvDwO+igE6zlToOFl454LSFbLhmgEMwqF
+         WVPIa5fKM/JMllhWZZalDojeJ3Gi9oc3pI3M1imIP2MxCd4cIqHk5it5db4SN3riAe
+         xwBiqt6vtJtwpuonDYukO1X7laCRyiu1fmvRJgYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 5.4 240/357] x86/microcode/AMD: Add a @cpu parameter to the reloading functions
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 149/211] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_status_word()
 Date:   Fri, 10 Mar 2023 14:38:49 +0100
-Message-Id: <20230310133745.339610366@linuxfoundation.org>
+Message-Id: <20230310133723.266288945@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,98 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-commit a5ad92134bd153a9ccdcddf09a95b088f36c3cce upstream.
+[ Upstream commit e56d2c34ce9dc122b1a618172ec0e05e50adb9e9 ]
 
-Will be used in a subsequent change.
+Smatch Warns: drivers/iio/accel/mma9551_core.c:357
+	mma9551_read_status_word() error: uninitialized symbol 'v'.
 
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-3-bp@alien8.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
+without 'v' being initialized, so check for the error and return.
+
+Note: Not a bug as such because the caller checks return value and
+doesn't not use this parameter in the problem case.
+
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20230126152147.3585874-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/microcode.h     |    4 ++--
- arch/x86/include/asm/microcode_amd.h |    4 ++--
- arch/x86/kernel/cpu/microcode/amd.c  |    2 +-
- arch/x86/kernel/cpu/microcode/core.c |    6 +++---
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/iio/accel/mma9551_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -131,7 +131,7 @@ static inline unsigned int x86_cpuid_fam
- int __init microcode_init(void);
- extern void __init load_ucode_bsp(void);
- extern void load_ucode_ap(void);
--void reload_early_microcode(void);
-+void reload_early_microcode(unsigned int cpu);
- extern bool get_builtin_firmware(struct cpio_data *cd, const char *name);
- extern bool initrd_gone;
- void microcode_bsp_resume(void);
-@@ -139,7 +139,7 @@ void microcode_bsp_resume(void);
- static inline int __init microcode_init(void)			{ return 0; };
- static inline void __init load_ucode_bsp(void)			{ }
- static inline void load_ucode_ap(void)				{ }
--static inline void reload_early_microcode(void)			{ }
-+static inline void reload_early_microcode(unsigned int cpu)	{ }
- static inline void microcode_bsp_resume(void)			{ }
- static inline bool
- get_builtin_firmware(struct cpio_data *cd, const char *name)	{ return false; }
---- a/arch/x86/include/asm/microcode_amd.h
-+++ b/arch/x86/include/asm/microcode_amd.h
-@@ -47,12 +47,12 @@ struct microcode_amd {
- extern void __init load_ucode_amd_bsp(unsigned int family);
- extern void load_ucode_amd_ap(unsigned int family);
- extern int __init save_microcode_in_initrd_amd(unsigned int family);
--void reload_ucode_amd(void);
-+void reload_ucode_amd(unsigned int cpu);
- #else
- static inline void __init load_ucode_amd_bsp(unsigned int family) {}
- static inline void load_ucode_amd_ap(unsigned int family) {}
- static inline int __init
- save_microcode_in_initrd_amd(unsigned int family) { return -EINVAL; }
--void reload_ucode_amd(void) {}
-+static inline void reload_ucode_amd(unsigned int cpu) {}
- #endif
- #endif /* _ASM_X86_MICROCODE_AMD_H */
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -573,7 +573,7 @@ int __init save_microcode_in_initrd_amd(
- 	return 0;
+diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
+index 64ca7d7a9673d..86437ddc5ca18 100644
+--- a/drivers/iio/accel/mma9551_core.c
++++ b/drivers/iio/accel/mma9551_core.c
+@@ -354,9 +354,12 @@ int mma9551_read_status_word(struct i2c_client *client, u8 app_id,
+ 
+ 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_STATUS,
+ 			       reg, NULL, 0, (u8 *)&v, 2);
++	if (ret < 0)
++		return ret;
++
+ 	*val = be16_to_cpu(v);
+ 
+-	return ret;
++	return 0;
  }
+ EXPORT_SYMBOL_NS(mma9551_read_status_word, IIO_MMA9551);
  
--void reload_ucode_amd(void)
-+void reload_ucode_amd(unsigned int cpu)
- {
- 	struct microcode_amd *mc;
- 	u32 rev, dummy;
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -322,7 +322,7 @@ struct cpio_data find_microcode_in_initr
- #endif
- }
- 
--void reload_early_microcode(void)
-+void reload_early_microcode(unsigned int cpu)
- {
- 	int vendor, family;
- 
-@@ -336,7 +336,7 @@ void reload_early_microcode(void)
- 		break;
- 	case X86_VENDOR_AMD:
- 		if (family >= 0x10)
--			reload_ucode_amd();
-+			reload_ucode_amd(cpu);
- 		break;
- 	default:
- 		break;
-@@ -782,7 +782,7 @@ void microcode_bsp_resume(void)
- 	if (uci->valid && uci->mc)
- 		microcode_ops->apply_microcode(cpu);
- 	else if (!uci->mc)
--		reload_early_microcode();
-+		reload_early_microcode(cpu);
- }
- 
- static struct syscore_ops mc_syscore_ops = {
+-- 
+2.39.2
+
 
 
