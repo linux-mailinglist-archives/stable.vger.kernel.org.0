@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 160CA6B45A9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE3E6B4204
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232542AbjCJOf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44872 "EHLO
+        id S231400AbjCJN6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232598AbjCJOfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:50 -0500
+        with ESMTP id S231392AbjCJN6v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5B7AEDB59
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4684BD4CA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 559CB61745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 615F0C433EF;
-        Fri, 10 Mar 2023 14:35:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23606617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37D1EC4339B;
+        Fri, 10 Mar 2023 13:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458936;
-        bh=cTTTpAImm4spEbGfphMmFMfPxetuJ0aXloV/irLSgCE=;
+        s=korg; t=1678456729;
+        bh=CpiyB0KE4oedlvZbYzeZxrtOK5jpCAYmfI3DsnQgxOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcgeP1viXBO802w4ua4hoxqBq9oga8xYQTBpxR6a6OnumtQt/2gG17Ori2oohu8wQ
-         8xAdIn3sA+twWTttbVHjXjB4JbrWSwNkU1Pg2evp3ffH65GsExHRTK35MJ02VhYz8p
-         Dl/PF5RhT9sIebnQrviYXuZFBdr8Fu1kQGz70jbY=
+        b=Dv+Dg2tB9DDH6WyNe1v2uAIlAo+sc2900lW/OIfxWCrX1hs4xlE1YRiqjBgyWZRvn
+         6FNpDdWxSHhd2s7wx/gC505nY2AtI1db9V/x/3G8lrd8IAdiYzOie1yKZ+f75ykbz1
+         bL/mrtZ44mxypA9IDkmv62JXstkASC7TMmzyWQF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Harkes <jaharkes@cs.cmu.edu>,
-        coda@cs.cmu.edu, codalist@coda.cs.cmu.edu,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Jiri Slaby <jirislaby@kernel.org>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 194/357] coda: Avoid partial allocation of sig_inputArgs
+Subject: [PATCH 6.2 103/211] vc_screen: modify vcs_size() handling in vcs_read()
 Date:   Fri, 10 Mar 2023 14:38:03 +0100
-Message-Id: <20230310133743.276826940@linuxfoundation.org>
+Message-Id: <20230310133721.895926194@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 48df133578c70185a95a49390d42df1996ddba2a ]
+[ Upstream commit 46d733d0efc79bc8430d63b57ab88011806d5180 ]
 
-GCC does not like having a partially allocated object, since it cannot
-reason about it for bounds checking when it is passed to other code.
-Instead, fully allocate sig_inputArgs. (Alternatively, sig_inputArgs
-should be defined as a struct coda_in_hdr, if it is actually not using
-any other part of the union.) Seen under GCC 13:
+Restore the vcs_size() handling in vcs_read() to what
+it had been in previous version.
 
-../fs/coda/upcall.c: In function 'coda_upcall':
-../fs/coda/upcall.c:801:22: warning: array subscript 'union inputArgs[0]' is partly outside array bounds of 'unsigned char[20]' [-Warray-bounds=]
-  801 |         sig_inputArgs->ih.opcode = CODA_SIGNAL;
-      |                      ^~
-
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: coda@cs.cmu.edu
-Cc: codalist@coda.cs.cmu.edu
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20230127223921.never.882-kees@kernel.org
+Fixes: 226fae124b2d ("vc_screen: move load of struct vc_data pointer in vcs_read() to avoid UAF")
+Suggested-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/coda/upcall.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/vt/vc_screen.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/coda/upcall.c b/fs/coda/upcall.c
-index eb3b1898da462..610484c90260b 100644
---- a/fs/coda/upcall.c
-+++ b/fs/coda/upcall.c
-@@ -790,7 +790,7 @@ static int coda_upcall(struct venus_comm *vcp,
- 	sig_req = kmalloc(sizeof(struct upc_req), GFP_KERNEL);
- 	if (!sig_req) goto exit;
- 
--	sig_inputArgs = kvzalloc(sizeof(struct coda_in_hdr), GFP_KERNEL);
-+	sig_inputArgs = kvzalloc(sizeof(*sig_inputArgs), GFP_KERNEL);
- 	if (!sig_inputArgs) {
- 		kfree(sig_req);
- 		goto exit;
+diff --git a/drivers/tty/vt/vc_screen.c b/drivers/tty/vt/vc_screen.c
+index 71e091f879f0e..1dc07f9214d57 100644
+--- a/drivers/tty/vt/vc_screen.c
++++ b/drivers/tty/vt/vc_screen.c
+@@ -415,10 +415,8 @@ vcs_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+ 		 */
+ 		size = vcs_size(vc, attr, uni_mode);
+ 		if (size < 0) {
+-			if (read)
+-				break;
+ 			ret = size;
+-			goto unlock_out;
++			break;
+ 		}
+ 		if (pos >= size)
+ 			break;
 -- 
 2.39.2
 
