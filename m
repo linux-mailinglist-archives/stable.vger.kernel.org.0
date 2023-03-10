@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E4D6B412D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C966B421D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230444AbjCJNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:50:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
+        id S231468AbjCJOAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:00:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230462AbjCJNuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA30AD3319
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:12 -0800 (PST)
+        with ESMTP id S231459AbjCJN7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E55BF116BA3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68FE16187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBC7EC433EF;
-        Fri, 10 Mar 2023 13:50:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D873B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1687C4339B;
+        Fri, 10 Mar 2023 13:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456211;
-        bh=L6AfB4iAQQR/Li67d/NdcyakSCuRou4ibUHjQWSLONg=;
+        s=korg; t=1678456778;
+        bh=rXFzxb7jhWiX/anZkxrUeOxUc2zSdHxJZmDQVP+y1lM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ud8mWoDP+fMFN+e5yEVXVIrc310296zWOB16dicKigm85k0I3H0MJ+GIshk148+fo
-         /0jFaf2VD7PjHvseVLQnnCuTTNGV55xc8D+nJd04DSulPaXCxMmOHXf9bLMDDjZoil
-         qVDlGFLwnCnYIgsH5xPjeI3Sz9XwhC3zBVqbthEQ=
+        b=PjSBDATfqpPk7GUc69eV7l4/Y/PMM71Bvcv/5/9t9tEHNeVhgojPIVdThso2b448L
+         /HHWiYrSlAndvmlMk6swSXm5OFduNnMm31KXAkJXRy1b9Rqh9PbeOHqAqOm9IkElxf
+         ySyFGhHL1gPNVZDOi5rDl1BWyG+Eh/QuU0Dr8klE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 4.14 118/193] x86/microcode/AMD: Add a @cpu parameter to the reloading functions
-Date:   Fri, 10 Mar 2023 14:38:20 +0100
-Message-Id: <20230310133715.192802681@linuxfoundation.org>
+        patches@lists.linux.dev, Trevor Wu <trevor.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 121/211] ASoC: mediatek: mt8195: add missing initialization
+Date:   Fri, 10 Mar 2023 14:38:21 +0100
+Message-Id: <20230310133722.412162068@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,98 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Trevor Wu <trevor.wu@mediatek.com>
 
-commit a5ad92134bd153a9ccdcddf09a95b088f36c3cce upstream.
+[ Upstream commit b56ec2992a2e43bc3e60d6db86849d31640e791f ]
 
-Will be used in a subsequent change.
+In etdm dai driver, dai_etdm_parse_of() function is used to parse dts
+properties to get parameters. There are two for-loops which are
+sepearately for all etdm and etdm input only cases. In etdm in only
+loop, dai_id is not initialized, so it keeps the value intiliazed in
+another loop.
 
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-3-bp@alien8.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In the patch, add the missing initialization to fix the unexpected
+parsing problem.
+
+Fixes: 1de9a54acafb ("ASoC: mediatek: mt8195: support etdm in platform driver")
+Signed-off-by: Trevor Wu <trevor.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20230301110200.26177-3-trevor.wu@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/microcode.h     |    4 ++--
- arch/x86/include/asm/microcode_amd.h |    4 ++--
- arch/x86/kernel/cpu/microcode/amd.c  |    2 +-
- arch/x86/kernel/cpu/microcode/core.c |    6 +++---
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ sound/soc/mediatek/mt8195/mt8195-dai-etdm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -144,7 +144,7 @@ static inline unsigned int x86_cpuid_fam
- int __init microcode_init(void);
- extern void __init load_ucode_bsp(void);
- extern void load_ucode_ap(void);
--void reload_early_microcode(void);
-+void reload_early_microcode(unsigned int cpu);
- extern bool get_builtin_firmware(struct cpio_data *cd, const char *name);
- extern bool initrd_gone;
- void microcode_bsp_resume(void);
-@@ -152,7 +152,7 @@ void microcode_bsp_resume(void);
- static inline int __init microcode_init(void)			{ return 0; };
- static inline void __init load_ucode_bsp(void)			{ }
- static inline void load_ucode_ap(void)				{ }
--static inline void reload_early_microcode(void)			{ }
-+static inline void reload_early_microcode(unsigned int cpu)	{ }
- static inline void microcode_bsp_resume(void)			{ }
- static inline bool
- get_builtin_firmware(struct cpio_data *cd, const char *name)	{ return false; }
---- a/arch/x86/include/asm/microcode_amd.h
-+++ b/arch/x86/include/asm/microcode_amd.h
-@@ -47,12 +47,12 @@ struct microcode_amd {
- extern void __init load_ucode_amd_bsp(unsigned int family);
- extern void load_ucode_amd_ap(unsigned int family);
- extern int __init save_microcode_in_initrd_amd(unsigned int family);
--void reload_ucode_amd(void);
-+void reload_ucode_amd(unsigned int cpu);
- #else
- static inline void __init load_ucode_amd_bsp(unsigned int family) {}
- static inline void load_ucode_amd_ap(unsigned int family) {}
- static inline int __init
- save_microcode_in_initrd_amd(unsigned int family) { return -EINVAL; }
--void reload_ucode_amd(void) {}
-+static inline void reload_ucode_amd(unsigned int cpu) {}
- #endif
- #endif /* _ASM_X86_MICROCODE_AMD_H */
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -354,7 +354,7 @@ int __init save_microcode_in_initrd_amd(
- 	return 0;
- }
+diff --git a/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c b/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c
+index c2e268054773d..f2c9a1fdbe0d0 100644
+--- a/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c
++++ b/sound/soc/mediatek/mt8195/mt8195-dai-etdm.c
+@@ -2567,6 +2567,9 @@ static void mt8195_dai_etdm_parse_of(struct mtk_base_afe *afe)
  
--void reload_ucode_amd(void)
-+void reload_ucode_amd(unsigned int cpu)
- {
- 	struct microcode_amd *mc;
- 	u32 rev, dummy;
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -326,7 +326,7 @@ struct cpio_data find_microcode_in_initr
- #endif
- }
- 
--void reload_early_microcode(void)
-+void reload_early_microcode(unsigned int cpu)
- {
- 	int vendor, family;
- 
-@@ -340,7 +340,7 @@ void reload_early_microcode(void)
- 		break;
- 	case X86_VENDOR_AMD:
- 		if (family >= 0x10)
--			reload_ucode_amd();
-+			reload_ucode_amd(cpu);
- 		break;
- 	default:
- 		break;
-@@ -783,7 +783,7 @@ void microcode_bsp_resume(void)
- 	if (uci->valid && uci->mc)
- 		microcode_ops->apply_microcode(cpu);
- 	else if (!uci->mc)
--		reload_early_microcode();
-+		reload_early_microcode(cpu);
- }
- 
- static struct syscore_ops mc_syscore_ops = {
+ 	/* etdm in only */
+ 	for (i = 0; i < 2; i++) {
++		dai_id = ETDM_TO_DAI_ID(i);
++		etdm_data = afe_priv->dai_priv[dai_id];
++
+ 		ret = snprintf(prop, sizeof(prop),
+ 			       "mediatek,%s-chn-disabled",
+ 			       of_afe_etdms[i].name);
+-- 
+2.39.2
+
 
 
