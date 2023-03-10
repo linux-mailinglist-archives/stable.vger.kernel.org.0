@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F266B410F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27A246B457E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230394AbjCJNtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:49:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51180 "EHLO
+        id S232157AbjCJOeP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:34:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230422AbjCJNtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43FF48ABEF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:04 -0800 (PST)
+        with ESMTP id S232635AbjCJOd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7621DB92
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBE5EB822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD87C43442;
-        Fri, 10 Mar 2023 13:49:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E9F261771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6714C433A0;
+        Fri, 10 Mar 2023 14:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456141;
-        bh=2ugTqTugnfclooHvcHshSwj/Ed8qm4Kln7tc39V9KIA=;
+        s=korg; t=1678458835;
+        bh=vxiwI8u6GR2Ol31ysJfEa8dmeMKf0xfr+sIyxxVwlCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aN0S/jS9w6i3TwmCpICt4SqUiTq0BOcMmZtM73/46EGog6kFkAdDEbAJ6GgT9XiPp
-         iPfB48AHQKtP79qcvGDsExo7zGgnBqIQlk6KXz+cst5QnqU9SyL1piW1qgzKRAzUIH
-         XkOFO9ywml8E5jDVHcr2AZMu/kRLLiZwzIBbCPis=
+        b=jWrTHRrJ5amWrN81xVCd5XXL9PnObxAvL0SkEPmQ1WB/Jjm550YM9fJ9VCRLlDWf5
+         0hxD+U2jVYzpwpXjas6lJ8O7nwR1M6/6YmKLa8MHQjQEv+o0wNKJoUJAc/RNvEAf7E
+         EBqRrPlSC2vy7+XwN7JRAPTpAysXfwyjnXrmA+/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Ellero <l.ellero@asem.it>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 067/193] Input: ads7846 - dont report pressure for ads7845
+Subject: [PATCH 5.4 160/357] powerpc/pseries/lparcfg: add missing RTAS retry status handling
 Date:   Fri, 10 Mar 2023 14:37:29 +0100
-Message-Id: <20230310133713.268701730@linuxfoundation.org>
+Message-Id: <20230310133741.779753169@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ellero <l.ellero@asem.it>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit d50584d783313c8b05b84d0b07a2142f1bde46dd ]
+[ Upstream commit 5d08633e5f6564b60f1cbe09af3af40a74d66431 ]
 
-ADS7845 doesn't support pressure.
-Avoid the following error reported by libinput-list-devices:
-"ADS7845 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE".
+The ibm,get-system-parameter RTAS function may return -2 or 990x,
+which indicate that the caller should try again.
 
-Fixes: ffa458c1bd9b ("spi: ads7846 driver")
-Signed-off-by: Luca Ellero <l.ellero@asem.it>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20230126105227.47648-2-l.ellero@asem.it
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+lparcfg's parse_system_parameter_string() ignores this, making it
+possible to intermittently report incorrect SPLPAR characteristics.
+
+Move the RTAS call into a coventional rtas_busy_delay()-based loop.
+
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230125-b4-powerpc-rtas-queue-v3-4-26929c8cce78@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/ads7846.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/lparcfg.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index b536768234b7c..491cc7efecf9e 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1374,8 +1374,9 @@ static int ads7846_probe(struct spi_device *spi)
- 			pdata->y_min ? : 0,
- 			pdata->y_max ? : MAX_12BIT,
- 			0, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE,
--			pdata->pressure_min, pdata->pressure_max, 0, 0);
-+	if (ts->model != 7845)
-+		input_set_abs_params(input_dev, ABS_PRESSURE,
-+				pdata->pressure_min, pdata->pressure_max, 0, 0);
+diff --git a/arch/powerpc/platforms/pseries/lparcfg.c b/arch/powerpc/platforms/pseries/lparcfg.c
+index 38c306551f76b..e12cf62357f29 100644
+--- a/arch/powerpc/platforms/pseries/lparcfg.c
++++ b/arch/powerpc/platforms/pseries/lparcfg.c
+@@ -289,6 +289,7 @@ static void parse_mpp_x_data(struct seq_file *m)
+  */
+ static void parse_system_parameter_string(struct seq_file *m)
+ {
++	const s32 token = rtas_token("ibm,get-system-parameter");
+ 	int call_status;
  
- 	ads7846_setup_spi_msg(ts, pdata);
+ 	unsigned char *local_buffer = kmalloc(SPLPAR_MAXLENGTH, GFP_KERNEL);
+@@ -298,16 +299,15 @@ static void parse_system_parameter_string(struct seq_file *m)
+ 		return;
+ 	}
  
+-	spin_lock(&rtas_data_buf_lock);
+-	memset(rtas_data_buf, 0, SPLPAR_MAXLENGTH);
+-	call_status = rtas_call(rtas_token("ibm,get-system-parameter"), 3, 1,
+-				NULL,
+-				SPLPAR_CHARACTERISTICS_TOKEN,
+-				__pa(rtas_data_buf),
+-				RTAS_DATA_BUF_SIZE);
+-	memcpy(local_buffer, rtas_data_buf, SPLPAR_MAXLENGTH);
+-	local_buffer[SPLPAR_MAXLENGTH - 1] = '\0';
+-	spin_unlock(&rtas_data_buf_lock);
++	do {
++		spin_lock(&rtas_data_buf_lock);
++		memset(rtas_data_buf, 0, SPLPAR_MAXLENGTH);
++		call_status = rtas_call(token, 3, 1, NULL, SPLPAR_CHARACTERISTICS_TOKEN,
++					__pa(rtas_data_buf), RTAS_DATA_BUF_SIZE);
++		memcpy(local_buffer, rtas_data_buf, SPLPAR_MAXLENGTH);
++		local_buffer[SPLPAR_MAXLENGTH - 1] = '\0';
++		spin_unlock(&rtas_data_buf_lock);
++	} while (rtas_busy_delay(call_status));
+ 
+ 	if (call_status != 0) {
+ 		printk(KERN_INFO
 -- 
 2.39.2
 
