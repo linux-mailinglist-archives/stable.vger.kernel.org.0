@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EC96B4996
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB556B4888
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233959AbjCJPOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:14:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59366 "EHLO
+        id S233760AbjCJPDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:03:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233223AbjCJPNy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:13:54 -0500
+        with ESMTP id S233099AbjCJPDI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:03:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2089A12F06
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7447A130C17
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:56:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA554B822F2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:50:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17886C433A8;
-        Fri, 10 Mar 2023 14:50:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 890A0B822E5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:50:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0228BC4339B;
+        Fri, 10 Mar 2023 14:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459814;
-        bh=RAIavJ4jffJjiEf39bOfpPl/k1lTu4zr/NqLx957w7U=;
+        s=korg; t=1678459817;
+        bh=QWiufvSY18xyAYhN9U/7BhkGAcbUi0Aa4xBhKUhlFrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+8tBXLCsDT9S93dIdBYPptqtMURhflziwiuDxi5upNcqGR1CBo73sRHqLGtgjuiI
-         Q8OvaIzGJDD0+pYNzpop2fN8IbohRzZaZ/tWgro8Cg8WHdNEyVIH1GqoarTn5aJHjq
-         CAD3imEuuQVPaq/mlVwQLEarZbVg8vhldYVzVxnU=
+        b=YypgQZ2EyHLqNoKYvhYH5G2nEAnFAVptOSqtNHws8W1SgjqwuCd6vGQZImPAiuyKb
+         ojATEe5gSWxd3ENE1IGowATUhgGe6vx1DpYDXjYb1gYvBaDbbnCljE+KIDPcITIFbL
+         8kxkO+m5kiBktuEiSjcWjqx5tZGySqdu9m78jjII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 129/529] crypto: rsa-pkcs1pad - Use akcipher_request_complete
-Date:   Fri, 10 Mar 2023 14:34:32 +0100
-Message-Id: <20230310133810.950448903@linuxfoundation.org>
+Subject: [PATCH 5.10 130/529] m68k: /proc/hardware should depend on PROC_FS
+Date:   Fri, 10 Mar 2023 14:34:33 +0100
+Message-Id: <20230310133810.997937187@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -53,89 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 564cabc0ca0bdfa8f0fc1ae74b24d0a7554522c5 ]
+[ Upstream commit 1e5b5df65af99013b4d31607ddb3ca5731dbe44d ]
 
-Use the akcipher_request_complete helper instead of calling the
-completion function directly.  In fact the previous code was buggy
-in that EINPROGRESS was never passed back to the original caller.
+When CONFIG_PROC_FS is not set, there is a build error for an unused
+function. Make PROC_HARDWARE depend on PROC_FS to prevent this error.
 
-Fixes: 3d5b1ecdea6f ("crypto: rsa - RSA padding algorithm")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+In file included from ../arch/m68k/kernel/setup.c:3:
+../arch/m68k/kernel/setup_mm.c:477:12: error: 'hardware_proc_show' defined but not used [-Werror=unused-function]
+  477 | static int hardware_proc_show(struct seq_file *m, void *v)
+      |            ^~~~~~~~~~~~~~~~~~
+
+Fixes: 66d857b08b8c ("m68k: merge m68k and m68knommu arch directories") # v3.0
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20230209010825.24136-1-rdunlap@infradead.org
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/rsa-pkcs1pad.c | 34 +++++++++++++++-------------------
- 1 file changed, 15 insertions(+), 19 deletions(-)
+ arch/m68k/Kconfig.devices | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
-index 9d804831c8b3f..a4ebbb889274e 100644
---- a/crypto/rsa-pkcs1pad.c
-+++ b/crypto/rsa-pkcs1pad.c
-@@ -214,16 +214,14 @@ static void pkcs1pad_encrypt_sign_complete_cb(
- 		struct crypto_async_request *child_async_req, int err)
- {
- 	struct akcipher_request *req = child_async_req->data;
--	struct crypto_async_request async_req;
- 
- 	if (err == -EINPROGRESS)
--		return;
-+		goto out;
-+
-+	err = pkcs1pad_encrypt_sign_complete(req, err);
- 
--	async_req.data = req->base.data;
--	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
--	async_req.flags = child_async_req->flags;
--	req->base.complete(&async_req,
--			pkcs1pad_encrypt_sign_complete(req, err));
-+out:
-+	akcipher_request_complete(req, err);
- }
- 
- static int pkcs1pad_encrypt(struct akcipher_request *req)
-@@ -332,15 +330,14 @@ static void pkcs1pad_decrypt_complete_cb(
- 		struct crypto_async_request *child_async_req, int err)
- {
- 	struct akcipher_request *req = child_async_req->data;
--	struct crypto_async_request async_req;
- 
- 	if (err == -EINPROGRESS)
--		return;
-+		goto out;
-+
-+	err = pkcs1pad_decrypt_complete(req, err);
- 
--	async_req.data = req->base.data;
--	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
--	async_req.flags = child_async_req->flags;
--	req->base.complete(&async_req, pkcs1pad_decrypt_complete(req, err));
-+out:
-+	akcipher_request_complete(req, err);
- }
- 
- static int pkcs1pad_decrypt(struct akcipher_request *req)
-@@ -512,15 +509,14 @@ static void pkcs1pad_verify_complete_cb(
- 		struct crypto_async_request *child_async_req, int err)
- {
- 	struct akcipher_request *req = child_async_req->data;
--	struct crypto_async_request async_req;
- 
- 	if (err == -EINPROGRESS)
--		return;
-+		goto out;
- 
--	async_req.data = req->base.data;
--	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
--	async_req.flags = child_async_req->flags;
--	req->base.complete(&async_req, pkcs1pad_verify_complete(req, err));
-+	err = pkcs1pad_verify_complete(req, err);
-+
-+out:
-+	akcipher_request_complete(req, err);
- }
- 
- /*
+diff --git a/arch/m68k/Kconfig.devices b/arch/m68k/Kconfig.devices
+index 6a87b4a5fcac2..e6e3efac18407 100644
+--- a/arch/m68k/Kconfig.devices
++++ b/arch/m68k/Kconfig.devices
+@@ -19,6 +19,7 @@ config HEARTBEAT
+ # We have a dedicated heartbeat LED. :-)
+ config PROC_HARDWARE
+ 	bool "/proc/hardware support"
++	depends on PROC_FS
+ 	help
+ 	  Say Y here to support the /proc/hardware file, which gives you
+ 	  access to information about the machine you're running on,
 -- 
 2.39.2
 
