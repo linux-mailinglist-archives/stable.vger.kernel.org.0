@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 286416B4422
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1F46B412F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbjCJOVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:21:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58568 "EHLO
+        id S230443AbjCJNuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:50:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232152AbjCJOVY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:24 -0500
+        with ESMTP id S230445AbjCJNuV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79B765CECA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D2F7EBDAC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2483DB82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94803C4339C;
-        Fri, 10 Mar 2023 14:20:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2734B822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2830BC433EF;
+        Fri, 10 Mar 2023 13:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458002;
-        bh=v9DSHBt1a1Sc9/H/WFW43HVX38krruFe8gZtV+jKE28=;
+        s=korg; t=1678456217;
+        bh=65iryVcWZDHNpagJxiVgUSgY35Zq21RtpVK1/juWxrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1DTJUHOjJKoXqK+S29VDY5ueOeEvhfU3mq7icAplCMmxlQPdPYwcEYbnEHp7SVfKu
-         htW1OOc7Fru7y4LRC6hrZAg558Iiob4lLq1wFCB9XNzk4WYKFqzLydZoRmfwpBxGq9
-         jVQTo7x64+uV5/ZOmI9Aa+U3qtTISWHBbAqcU1PI=
+        b=LFEUwd+ivqyktSwJE5yCPuw3YkSHyRPL3duLdfN0s/DYlEZCqazgmoRpSsV5DQaKN
+         l9z3fJDbUDoCmewV3+L4uKF8Eh6rRDyfsLVhzfvqZT9CMzl0DWM7hieZbFZ1XScind
+         TqlXG1gF7tI+3NJg5nWc3eDBCCAXQ5jE6dEFdJoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 131/252] drm/msm/dsi: Add missing check for alloc_ordered_workqueue
-Date:   Fri, 10 Mar 2023 14:38:21 +0100
-Message-Id: <20230310133722.774016047@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Jos=C3=A9=20Oliveira?= <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>
+Subject: [PATCH 4.14 120/193] x86/speculation: Allow enabling STIBP with legacy IBRS
+Date:   Fri, 10 Mar 2023 14:38:22 +0100
+Message-Id: <20230310133715.252772721@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +56,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: KP Singh <kpsingh@kernel.org>
 
-[ Upstream commit 115906ca7b535afb1fe7b5406c566ccd3873f82b ]
+commit 6921ed9049bc7457f66c1596c5b78aec0dae4a9d upstream.
 
-Add check for the return value of alloc_ordered_workqueue as it may return
-NULL pointer and cause NULL pointer dereference.
+When plain IBRS is enabled (not enhanced IBRS), the logic in
+spectre_v2_user_select_mitigation() determines that STIBP is not needed.
 
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/517646/
-Link: https://lore.kernel.org/r/20230110021651.12770-1-jiasheng@iscas.ac.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The IBRS bit implicitly protects against cross-thread branch target
+injection. However, with legacy IBRS, the IBRS bit is cleared on
+returning to userspace for performance reasons which leaves userspace
+threads vulnerable to cross-thread branch target injection against which
+STIBP protects.
+
+Exclude IBRS from the spectre_v2_in_ibrs_mode() check to allow for
+enabling STIBP (through seccomp/prctl() by default or always-on, if
+selected by spectre_v2_user kernel cmdline parameter).
+
+  [ bp: Massage. ]
+
+Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
+Reported-by: José Oliveira <joseloliveira11@gmail.com>
+Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+Signed-off-by: KP Singh <kpsingh@kernel.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230220120127.1975241-1-kpsingh@kernel.org
+Link: https://lore.kernel.org/r/20230221184908.2349578-1-kpsingh@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 56cfa0a03fd5b..059578faa1c6d 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -1883,6 +1883,9 @@ int msm_dsi_host_init(struct msm_dsi *msm_dsi)
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -981,14 +981,18 @@ spectre_v2_parse_user_cmdline(void)
+ 	return SPECTRE_V2_USER_CMD_AUTO;
+ }
  
- 	/* setup workqueue */
- 	msm_host->workqueue = alloc_ordered_workqueue("dsi_drm_work", 0);
-+	if (!msm_host->workqueue)
-+		return -ENOMEM;
+-static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
++static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
+ {
+-	return mode == SPECTRE_V2_IBRS ||
+-	       mode == SPECTRE_V2_EIBRS ||
++	return mode == SPECTRE_V2_EIBRS ||
+ 	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
+ 	       mode == SPECTRE_V2_EIBRS_LFENCE;
+ }
+ 
++static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
++{
++	return spectre_v2_in_eibrs_mode(mode) || mode == SPECTRE_V2_IBRS;
++}
 +
- 	INIT_WORK(&msm_host->err_work, dsi_err_worker);
- 	INIT_WORK(&msm_host->hpd_work, dsi_hpd_worker);
+ static void __init
+ spectre_v2_user_select_mitigation(void)
+ {
+@@ -1051,12 +1055,19 @@ spectre_v2_user_select_mitigation(void)
+ 	}
  
--- 
-2.39.2
-
+ 	/*
+-	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
+-	 * STIBP is not required.
++	 * If no STIBP, enhanced IBRS is enabled, or SMT impossible, STIBP
++	 * is not required.
++	 *
++	 * Enhanced IBRS also protects against cross-thread branch target
++	 * injection in user-mode as the IBRS bit remains always set which
++	 * implicitly enables cross-thread protections.  However, in legacy IBRS
++	 * mode, the IBRS bit is set only on kernel entry and cleared on return
++	 * to userspace. This disables the implicit cross-thread protection,
++	 * so allow for STIBP to be selected in that case.
+ 	 */
+ 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+ 	    !smt_possible ||
+-	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+ 		return;
+ 
+ 	/*
+@@ -2108,7 +2119,7 @@ static ssize_t mmio_stale_data_show_stat
+ 
+ static char *stibp_state(void)
+ {
+-	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+ 		return "";
+ 
+ 	switch (spectre_v2_user_stibp) {
 
 
