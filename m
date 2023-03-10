@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D9F6B4220
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDDE6B45C6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:37:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231497AbjCJOAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47322 "EHLO
+        id S232667AbjCJOhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:37:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231440AbjCJN7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:47 -0500
+        with ESMTP id S232638AbjCJOg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE72C115DED
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B1511CBED
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A261DB822BC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15698C4339B;
-        Fri, 10 Mar 2023 13:59:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A26AB822E1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC28FC4339C;
+        Fri, 10 Mar 2023 14:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456775;
-        bh=+30/Qqrjyh5HqwhI9Jbf649iIvLcw46hl2g8prYA+Zg=;
+        s=korg; t=1678458989;
+        bh=cCH7VQG9oHwEHtMIfZAQ+VE25nBoMuZ8zCtrHLV57SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZG03CcaqFohiS2/zRTzQwQuSDFhbb2MS5oYh3teXNp+d74FnfPNMRfJzuAR16lOdR
-         TXvNyYKQrFDfqDVhtBRHVC7SiPw4bwWGfffNb9QB+yT94FMvkMEpauvRIJknBhMaEM
-         gOHeyWsWakTTwaH3D0Hs/Lh0F9Fc1VeMO1IgRJzw=
+        b=LrmBHJRoEGDWiZyNi+L1jcZ3424842O9s+WqOkf7m8aZuMxHRxlNWk0wwby8gpBB7
+         lxwwA2j1/nuhluhDxcwPnndz8TZQ3H13aIlqyA22ugTp/uYy1MpdDeA5W82M2bhBZR
+         C98QM38moq97TMrGge5WcuNtAfVl7AXU1TeDO3QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 120/211] ASoC: zl38060 add gpiolib dependency
+        patches@lists.linux.dev, Jun ASAKA <JunASAKA@zzy040330.moe>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.4 211/357] wifi: rtl8xxxu: fixing transmisison failure for rtl8192eu
 Date:   Fri, 10 Mar 2023 14:38:20 +0100
-Message-Id: <20230310133722.383149299@linuxfoundation.org>
+Message-Id: <20230310133744.023961556@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Jun ASAKA <JunASAKA@zzy040330.moe>
 
-[ Upstream commit 0de2cc3707b6b6e2ad40bd24ce09a5c1f65d01e1 ]
+commit c6015bf3ff1ffb3caa27eb913797438a0fc634a0 upstream.
 
-Without gpiolib, this driver fails to link:
+Fixing transmission failure which results in
+"authentication with ... timed out". This can be
+fixed by disable the REG_TXPAUSE.
 
-arm-linux-gnueabi-ld: sound/soc/codecs/zl38060.o: in function `chip_gpio_get':
-zl38060.c:(.text+0x30): undefined reference to `gpiochip_get_data'
-arm-linux-gnueabi-ld: sound/soc/codecs/zl38060.o: in function `zl38_spi_probe':
-zl38060.c:(.text+0xa18): undefined reference to `devm_gpiochip_add_data_with_key'
-
-This appears to have been in the driver since the start, but is hard to
-hit in randconfig testing since gpiolib is almost always selected by something
-else.
-
-Fixes: 52e8a94baf90 ("ASoC: Add initial ZL38060 driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20230227085850.2503725-1-arnd@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jun ASAKA <JunASAKA@zzy040330.moe>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221217030659.12577-1-JunASAKA@zzy040330.moe
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 0f9d71490075f..ac2a2bfdaf37a 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -2045,6 +2045,7 @@ config SND_SOC_WSA883X
- config SND_SOC_ZL38060
- 	tristate "Microsemi ZL38060 Connected Home Audio Processor"
- 	depends on SPI_MASTER
-+	depends on GPIOLIB
- 	select REGMAP
- 	help
- 	  Support for ZL38060 Connected Home Audio Processor from Microsemi,
--- 
-2.39.2
-
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
+@@ -1671,6 +1671,11 @@ static void rtl8192e_enable_rf(struct rt
+ 	val8 = rtl8xxxu_read8(priv, REG_PAD_CTRL1);
+ 	val8 &= ~BIT(0);
+ 	rtl8xxxu_write8(priv, REG_PAD_CTRL1, val8);
++
++	/*
++	 * Fix transmission failure of rtl8192e.
++	 */
++	rtl8xxxu_write8(priv, REG_TXPAUSE, 0x00);
+ }
+ 
+ struct rtl8xxxu_fileops rtl8192eu_fops = {
 
 
