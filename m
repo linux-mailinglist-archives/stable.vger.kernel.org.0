@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D2E6B45FF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C5B6B4466
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232704AbjCJOj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:39:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51598 "EHLO
+        id S231648AbjCJOXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:23:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232717AbjCJOjC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:39:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF042387D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:00 -0800 (PST)
+        with ESMTP id S232151AbjCJOXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:23:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C399511C8C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2432616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE4DAC4339C;
-        Fri, 10 Mar 2023 14:38:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8C1B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9F7EC433EF;
+        Fri, 10 Mar 2023 14:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459139;
-        bh=MkEA/Rqc4kiLy9LubfQOROUJIHPf37hpL9BsilQsUPc=;
+        s=korg; t=1678458156;
+        bh=YiRHittQpWN5YfTa13A16IRnbNhvRX/dtklVC0XFaKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q0a53nZrE7x5ATyZ3Bs/VI0W5qSRabMvEK8MxDkY7xSmZ8N9inQRweCZGh6UlwTHT
-         cgScAEkx4329YGhtorYtwVCp1x2MkJXHXNav6eWYosprRm80pbRE3qJ8FINTwlSOYY
-         VphhPyYIbb+httJp5eMAlnyxrGCo/pHb5IYvdrUQ=
+        b=xuNZ+fMInemj+7tYAzDac+pbXMEzFgMN4Pt8+2CE8De2T24ZVy03bY15deEMfcL1d
+         DT9f5MG/jxG76irhukK5JCASU83MlIl6BDImfGkxhUekZgA67q7OP/qUWATCGrG2kC
+         xfkmEPKq6dxvWjJQF/e+RCFs6ZURZCwaH4m2BfcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Bingbu Cao <bingbu.cao@intel.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.4 262/357] media: ipu3-cio2: Fix PM runtime usage_count in driver unbind
-Date:   Fri, 10 Mar 2023 14:39:11 +0100
-Message-Id: <20230310133746.285802531@linuxfoundation.org>
+Subject: [PATCH 4.19 182/252] media: ipu3-cio2: Fix PM runtime usage_count in driver unbind
+Date:   Fri, 10 Mar 2023 14:39:12 +0100
+Message-Id: <20230310133724.409674587@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,7 +74,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
 +++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1871,6 +1871,9 @@ static void cio2_pci_remove(struct pci_d
+@@ -1860,6 +1860,9 @@ static void cio2_pci_remove(struct pci_d
  	v4l2_device_unregister(&cio2->v4l2_dev);
  	media_device_cleanup(&cio2->media_dev);
  	mutex_destroy(&cio2->lock);
