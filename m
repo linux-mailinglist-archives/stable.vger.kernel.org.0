@@ -2,141 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 533666B41DD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 650176B42DF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbjCJN5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:57:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
+        id S231834AbjCJOIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:08:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbjCJN5g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B811151D6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:17 -0800 (PST)
+        with ESMTP id S231824AbjCJOHz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA3A117FE3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 644B3B822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE5D9C4339B;
-        Fri, 10 Mar 2023 13:56:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 680F9B822C0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0FACC433EF;
+        Fri, 10 Mar 2023 14:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456613;
-        bh=55d+tflnAs4rFheYh8iV3b0Ax1Tcfcm8ljuQ2IFdQwQ=;
+        s=korg; t=1678457238;
+        bh=0x/+WmQzqu8GiFGj5lbXFO2fyb5nHNBnxZJqnBAU9jY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCP1C/UgOsr36mODo+oSD4agpXUWXhlIGUASjv5tMQl1ZIXuYjyNeEM0LDI9V509w
-         2Hs/eBSQ5c5myZjgT842QrSIvBxlBk+2kNZ+ncqSAdUVAkmsS6CYr23IhpeXTV+/1a
-         ho2seDxE9gTuEIRJgRb+3SoYnmifeOcNY4zTh2Hw=
+        b=Mfk1eI9r5DcIIQQxjKwJujDB+KR0G/4ihGFq925KnhhzmkROB5gNqGM/kVAzgPyre
+         +aCGOG3blvTpvvPKx6aOG7t1+ZUZQdgONFnuGT8WaiC/hPnqpfOSSMsoZIeVrG+fqU
+         VLSxmwdQtrr806C39PkpuSE6mX1sM4e8pflR5WY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Jun <chenjun102@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 063/211] watchdog: Fix kmemleak in watchdog_cdev_register
+Subject: [PATCH 6.1 036/200] ubifs: Re-statistic cleaned znode count if commit failed
 Date:   Fri, 10 Mar 2023 14:37:23 +0100
-Message-Id: <20230310133720.644790524@linuxfoundation.org>
+Message-Id: <20230310133718.161756040@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,WEIRD_QUOTING autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jun <chenjun102@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 13721a2ac66b246f5802ba1b75ad8637e53eeecc ]
+[ Upstream commit 944e096aa24071d3fe22822f6249d3ae309e39ea ]
 
-kmemleak reports memory leaks in watchdog_dev_register, as follows:
-unreferenced object 0xffff888116233000 (size 2048):
-  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
-  hex dump (first 32 bytes):
-    80 fa b9 05 81 88 ff ff 08 30 23 16 81 88 ff ff  .........0#.....
-    08 30 23 16 81 88 ff ff 00 00 00 00 00 00 00 00  .0#.............
-  backtrace:
-    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
-    [<000000006a389304>] kmalloc_trace+0x21/0x110
-    [<000000008d640eea>] watchdog_dev_register+0x4e/0x780 [watchdog]
-    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
-    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
-    [<000000001f730178>] 0xffffffffc10880ae
-    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
-    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
-    [<0000000046d08e7c>] load_module+0x6133/0x70f0
-    ...
+Dirty znodes will be written on flash in committing process with
+following states:
 
-unreferenced object 0xffff888105b9fa80 (size 16):
-  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
-  hex dump (first 16 bytes):
-    77 61 74 63 68 64 6f 67 31 00 b9 05 81 88 ff ff  watchdog1.......
-  backtrace:
-    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
-    [<00000000486ab89b>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<000000005a39aab0>] kvasprintf+0xb5/0x140
-    [<0000000024806f85>] kvasprintf_const+0x55/0x180
-    [<000000009276cb7f>] kobject_set_name_vargs+0x56/0x150
-    [<00000000a92e820b>] dev_set_name+0xab/0xe0
-    [<00000000cec812c6>] watchdog_dev_register+0x285/0x780 [watchdog]
-    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
-    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
-    [<000000001f730178>] 0xffffffffc10880ae
-    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
-    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
-    [<0000000046d08e7c>] load_module+0x6133/0x70f0
-    ...
+	      process A			|  znode state
+------------------------------------------------------
+do_commit				| DIRTY_ZNODE
+  ubifs_tnc_start_commit		| DIRTY_ZNODE
+   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
+    layout_commit			| DIRTY_ZNODE | COW_ZNODE
+     fill_gap                           | 0
+  write master				| 0 or OBSOLETE_ZNODE
 
-The reason is that put_device is not be called if cdev_device_add fails
-and wdd->id != 0.
+	      process B			|  znode state
+------------------------------------------------------
+do_commit				| DIRTY_ZNODE[1]
+  ubifs_tnc_start_commit		| DIRTY_ZNODE
+   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
+  ubifs_tnc_end_commit			| DIRTY_ZNODE | COW_ZNODE
+   write_index                          | 0
+  write master				| 0 or OBSOLETE_ZNODE[2] or
+					| DIRTY_ZNODE[3]
 
-watchdog_cdev_register
-  wd_data = kzalloc                             [1]
-  err = dev_set_name                            [2]
-  ..
-  err = cdev_device_add
-  if (err) {
-    if (wdd->id == 0) {  // wdd->id != 0
-      ..
-    }
-    return err;  // [1],[2] would be leaked
+[1] znode is dirtied without concurrent committing process
+[2] znode is copied up (re-dirtied by other process) before cleaned
+    up in committing process
+[3] znode is re-dirtied after cleaned up in committing process
 
-To fix it, call put_device in all wdd->id cases.
+Currently, the clean znode count is updated in free_obsolete_znodes(),
+which is called only in normal path. If do_commit failed, clean znode
+count won't be updated, which triggers a failure ubifs assertion[4] in
+ubifs_tnc_close():
+ ubifs_assert_failed [ubifs]: UBIFS assert failed: freed == n
 
-Fixes: 72139dfa2464 ("watchdog: Fix the race between the release of watchdog_core_data and cdev")
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221116012714.102066-1-chenjun102@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+[4] Commit 380347e9ca7682 ("UBIFS: Add an assertion for clean_zn_cnt").
+
+Fix it by re-statisticing cleaned znode count in tnc_destroy_cnext().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216704
+Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/watchdog_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ubifs/tnc.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 55574ed425042..fdffa6859dde3 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -1061,8 +1061,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 		if (wdd->id == 0) {
- 			misc_deregister(&watchdog_miscdev);
- 			old_wd_data = NULL;
--			put_device(&wd_data->dev);
- 		}
-+		put_device(&wd_data->dev);
- 		return err;
- 	}
+diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
+index 488f3da7a6c6c..2df56bbc68657 100644
+--- a/fs/ubifs/tnc.c
++++ b/fs/ubifs/tnc.c
+@@ -3053,6 +3053,21 @@ static void tnc_destroy_cnext(struct ubifs_info *c)
+ 		cnext = cnext->cnext;
+ 		if (ubifs_zn_obsolete(znode))
+ 			kfree(znode);
++		else if (!ubifs_zn_cow(znode)) {
++			/*
++			 * Don't forget to update clean znode count after
++			 * committing failed, because ubifs will check this
++			 * count while closing tnc. Non-obsolete znode could
++			 * be re-dirtied during committing process, so dirty
++			 * flag is untrustable. The flag 'COW_ZNODE' is set
++			 * for each dirty znode before committing, and it is
++			 * cleared as long as the znode become clean, so we
++			 * can statistic clean znode count according to this
++			 * flag.
++			 */
++			atomic_long_inc(&c->clean_zn_cnt);
++			atomic_long_inc(&ubifs_clean_zn_cnt);
++		}
+ 	} while (cnext && cnext != c->cnext);
+ }
  
 -- 
 2.39.2
