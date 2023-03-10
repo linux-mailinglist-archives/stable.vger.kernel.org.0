@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA88B6B4575
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9C26B42B2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232455AbjCJOd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35662 "EHLO
+        id S231681AbjCJOGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232605AbjCJOdg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A622C168A2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:28 -0800 (PST)
+        with ESMTP id S231467AbjCJOF4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:05:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48ED411787B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D839A617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC9BFC433D2;
-        Fri, 10 Mar 2023 14:33:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADE90B822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D056CC433EF;
+        Fri, 10 Mar 2023 14:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458807;
-        bh=KOXnq/ZGzYbXe5yukVoh4jIAH6bIVpYRK589NZtmF1Y=;
+        s=korg; t=1678457125;
+        bh=Kxv1Rboy2AqethexMtI0i9KUwVskqnjYgnCO9voOlLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6nRYImK7bYfPeDC/p+J0zMEepvYtvZssGfGo3w8O76OhJGbxaE3CAm4y0Qe1Zc8z
-         a2o2dZT0RAU8NO8UL/yAAs2gRGl4yLGTn3OwNT1sfmcI/bF73PjHMCRFHkAkpYy8WO
-         jlWNP2dtteyD6ketPwB0o4ZAGxd4TttGLywnELMI=
+        b=dB1cffOiYTwtw98/kYYIMp/WoWIC35YO40m7kA5LbboTLwtkeaGL+QF1GzlIoYDlC
+         L6OaimsgqNyz0Rrue1x4KVJYzyY9/Q8TPYbbZuWEFRzCsxIMlmvjgbP4E6ImGwb/+a
+         8qj+SRWxNZCba02/woYoZTnpi/WkQS99ZSFvOou4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Clark Wang <xiaoning.wang@nxp.com>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        patches@lists.linux.dev,
+        syzbot+0be96567042453c0c820@syzkaller.appspotmail.com,
+        Liu Shixin <liushixin2@huawei.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 121/357] gpio: vf610: connect GPIO label to dev name
+Subject: [PATCH 6.1 003/200] fs/jfs: fix shift exponent db_agl2size negative
 Date:   Fri, 10 Mar 2023 14:36:50 +0100
-Message-Id: <20230310133740.007405055@linuxfoundation.org>
+Message-Id: <20230310133717.161745328@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,36 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Liu Shixin via Jfs-discussion <jfs-discussion@lists.sourceforge.net>
 
-[ Upstream commit 6f8ecb7f85f441eb7d78ba2a4df45ee8a821934e ]
+[ Upstream commit fad376fce0af58deebc5075b8539dc05bf639af3 ]
 
-Current GPIO label is fixed, so can't distinguish different GPIO
-controllers through labels. Use dev name instead.
+As a shift exponent, db_agl2size can not be less than 0. Add the missing
+check to fix the shift-out-of-bounds bug reported by syzkaller:
 
-Fixes: 7f2691a19627 ("gpio: vf610: add gpiolib/IRQ chip driver for Vybrid")
-Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+ UBSAN: shift-out-of-bounds in fs/jfs/jfs_dmap.c:2227:15
+ shift exponent -744642816 is negative
+
+Reported-by: syzbot+0be96567042453c0c820@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-vf610.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jfs/jfs_dmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-vf610.c b/drivers/gpio/gpio-vf610.c
-index 1ae612c796eef..396a687e020f5 100644
---- a/drivers/gpio/gpio-vf610.c
-+++ b/drivers/gpio/gpio-vf610.c
-@@ -304,7 +304,7 @@ static int vf610_gpio_probe(struct platform_device *pdev)
- 	gc = &port->gc;
- 	gc->of_node = np;
- 	gc->parent = dev;
--	gc->label = "vf610-gpio";
-+	gc->label = dev_name(dev);
- 	gc->ngpio = VF610_GPIO_PER_PORT;
- 	gc->base = of_alias_get_id(np, "gpio") * VF610_GPIO_PER_PORT;
- 
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 765838578a722..a3eb1e8269477 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -193,7 +193,8 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
+ 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
+ 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
+-	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
++	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG ||
++	    bmp->db_agl2size < 0) {
+ 		err = -EINVAL;
+ 		goto err_release_metapage;
+ 	}
 -- 
 2.39.2
 
