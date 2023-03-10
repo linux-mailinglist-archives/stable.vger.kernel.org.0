@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7CA16B413E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9A456B45F9
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230459AbjCJNu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:50:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54514 "EHLO
+        id S232749AbjCJOjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230464AbjCJNuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:55 -0500
+        with ESMTP id S232747AbjCJOiz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D0B7104AF6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D77C97CE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52F9BB822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F11AC433EF;
-        Fri, 10 Mar 2023 13:50:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD69FB822E5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF1FC4339C;
+        Fri, 10 Mar 2023 14:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456252;
-        bh=sHVyyNHYI5vjxby4TKYMDIHiTJ6KYSmWpyqJS2DRaPI=;
+        s=korg; t=1678459121;
+        bh=noPyn0pyVQ1GGu/VIZLDUb1HrmUSFyiFCC2K9CQ2CyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b5XTG/ABaPrZ2E2YWGzwQvzpEepw/zEI0Y3RzkLA3cEKya7WQi1/B0ntwasNKy4PL
-         hbVk1sU3G5yYZjJxuro3XpAhawoS3pGPIn5bkYiYLzfRuJ8Vs9fXylSitP3Z0nE6qB
-         JlgU4Poth8qxeOkK5hXCMVC4SMJZxopsUqZYkEbw=
+        b=hY6BK81pVzeli0ZntFvp4+q+ZHp3kzftWwyqgbOT7NyGo1ayUeMMPXvpmoFAh9u1U
+         ACDXFNFJDtnoVuH8MGjbmuSYq31AizGpYKDsuBz4nWVU8UcUZGVF7YPjj067FWhzVU
+         Q46+JoRyseAf10oDqI3YUqftCrebVVqlMrzJ7CvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Sweet Tea Dorminy <sweettea-kernel@dorminy.me>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.14 131/193] dm flakey: fix logic when corrupting a bio
+        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 224/357] ocfs2: fix non-auto defrag path not working issue
 Date:   Fri, 10 Mar 2023 14:38:33 +0100
-Message-Id: <20230310133715.597342928@linuxfoundation.org>
+Message-Id: <20230310133744.637821085@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +59,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
 
-commit aa56b9b75996ff4c76a0a4181c2fa0206c3d91cc upstream.
+commit 236b9254f8d1edc273ad88b420aa85fbd84f492d upstream.
 
-If "corrupt_bio_byte" is set to corrupt reads and corrupt_bio_flags is
-used, dm-flakey would erroneously return all writes as errors. Likewise,
-if "corrupt_bio_byte" is set to corrupt writes, dm-flakey would return
-errors for all reads.
+This fixes three issues on move extents ioctl without auto defrag:
 
-Fix the logic so that if fc->corrupt_bio_byte is non-zero, dm-flakey
-will not abort reads on writes with an error.
+a) In ocfs2_find_victim_alloc_group(), we have to convert bits to block
+   first in case of global bitmap.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Sweet Tea Dorminy <sweettea-kernel@dorminy.me>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+b) In ocfs2_probe_alloc_group(), when finding enough bits in block
+   group bitmap, we have to back off move_len to start pos as well,
+   otherwise it may corrupt filesystem.
+
+c) In ocfs2_ioctl_move_extents(), set me_threshold both for non-auto
+   and auto defrag paths.  Otherwise it will set move_max_hop to 0 and
+   finally cause unexpectedly ENOSPC error.
+
+Currently there are no tools triggering the above issues since
+defragfs.ocfs2 enables auto defrag by default.  Tested with manually
+changing defragfs.ocfs2 to run non auto defrag path.
+
+Link: https://lkml.kernel.org/r/20230220050526.22020-1-heming.zhao@suse.com
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-flakey.c |   23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ fs/ocfs2/move_extents.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm-flakey.c
-+++ b/drivers/md/dm-flakey.c
-@@ -364,9 +364,11 @@ static int flakey_map(struct dm_target *
- 		/*
- 		 * Corrupt matching writes.
- 		 */
--		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == WRITE)) {
--			if (all_corrupt_bio_flags_match(bio, fc))
--				corrupt_bio_data(bio, fc);
-+		if (fc->corrupt_bio_byte) {
-+			if (fc->corrupt_bio_rw == WRITE) {
-+				if (all_corrupt_bio_flags_match(bio, fc))
-+					corrupt_bio_data(bio, fc);
-+			}
- 			goto map_bio;
- 		}
+--- a/fs/ocfs2/move_extents.c
++++ b/fs/ocfs2/move_extents.c
+@@ -436,7 +436,7 @@ static int ocfs2_find_victim_alloc_group
+ 			bg = (struct ocfs2_group_desc *)gd_bh->b_data;
  
-@@ -397,13 +399,14 @@ static int flakey_end_io(struct dm_targe
- 	}
+ 			if (vict_blkno < (le64_to_cpu(bg->bg_blkno) +
+-						le16_to_cpu(bg->bg_bits))) {
++						(le16_to_cpu(bg->bg_bits) << bits_per_unit))) {
  
- 	if (!*error && pb->bio_submitted && (bio_data_dir(bio) == READ)) {
--		if (fc->corrupt_bio_byte && (fc->corrupt_bio_rw == READ) &&
--		    all_corrupt_bio_flags_match(bio, fc)) {
--			/*
--			 * Corrupt successful matching READs while in down state.
--			 */
--			corrupt_bio_data(bio, fc);
+ 				*ret_bh = gd_bh;
+ 				*vict_bit = (vict_blkno - blkno) >>
+@@ -551,6 +551,7 @@ static void ocfs2_probe_alloc_group(stru
+ 			last_free_bits++;
+ 
+ 		if (last_free_bits == move_len) {
++			i -= move_len;
+ 			*goal_bit = i;
+ 			*phys_cpos = base_cpos + i;
+ 			break;
+@@ -1022,18 +1023,19 @@ int ocfs2_ioctl_move_extents(struct file
+ 
+ 	context->range = &range;
+ 
++	/*
++	 * ok, the default theshold for the defragmentation
++	 * is 1M, since our maximum clustersize was 1M also.
++	 * any thought?
++	 */
++	if (!range.me_threshold)
++		range.me_threshold = 1024 * 1024;
++
++	if (range.me_threshold > i_size_read(inode))
++		range.me_threshold = i_size_read(inode);
++
+ 	if (range.me_flags & OCFS2_MOVE_EXT_FL_AUTO_DEFRAG) {
+ 		context->auto_defrag = 1;
+-		/*
+-		 * ok, the default theshold for the defragmentation
+-		 * is 1M, since our maximum clustersize was 1M also.
+-		 * any thought?
+-		 */
+-		if (!range.me_threshold)
+-			range.me_threshold = 1024 * 1024;
 -
-+		if (fc->corrupt_bio_byte) {
-+			if ((fc->corrupt_bio_rw == READ) &&
-+			    all_corrupt_bio_flags_match(bio, fc)) {
-+				/*
-+				 * Corrupt successful matching READs while in down state.
-+				 */
-+				corrupt_bio_data(bio, fc);
-+			}
- 		} else if (!test_bit(DROP_WRITES, &fc->flags) &&
- 			   !test_bit(ERROR_WRITES, &fc->flags)) {
- 			/*
+-		if (range.me_threshold > i_size_read(inode))
+-			range.me_threshold = i_size_read(inode);
+ 
+ 		if (range.me_flags & OCFS2_MOVE_EXT_FL_PART_DEFRAG)
+ 			context->partial = 1;
 
 
