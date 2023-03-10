@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CFF86B4202
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7A96B4407
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbjCJN6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:58:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44888 "EHLO
+        id S232136AbjCJOUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:20:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231398AbjCJN6r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BFFA61A9B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:46 -0800 (PST)
+        with ESMTP id S232133AbjCJOUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E2811A2CB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:19:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E9FBB822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB487C4339B;
-        Fri, 10 Mar 2023 13:58:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 661D961380
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78D61C433EF;
+        Fri, 10 Mar 2023 14:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456724;
-        bh=35tNpUgvmGiPXTi0O8sbowS2JZkvEaR4P1nZWV4frg4=;
+        s=korg; t=1678457945;
+        bh=0lBHX3qXVc3JxCFl6+DwYNF1FvVd05iTzs1YJMjPgSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5nw1zADaG7RyICQVq9m7ZLHFLY7o+Y8hMnAXc63ew9wtcEz64txbP6rm6SlbneiL
-         mLXPJ9WfrTDdyaM7xysz3gfrgY7UXS9Xpda519KU8HPfFNH7li+8mbjkKM9DYvYPV9
-         hlJTO69rrp+wGF3EWDfSk6G+NQbCr8i1ZL9szcls=
+        b=qJgZJtriu6f1sarjJrJvytEHxkKdcBTugjK4NePALVtnaYJlpmfeF2vMdLC2iFP5m
+         blyvcGeDE2VOYQZAqZxnRq4b76X3z6OMjCQ+fDJNDpPv6P9MfSNqYIDqJQDO9cIPuP
+         IjOSPzEXReOhpW+RF7yq02TlF0eyudxHFOHasiaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 101/211] ARM: dts: spear320-hmi: correct STMPE GPIO compatible
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 111/252] media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
 Date:   Fri, 10 Mar 2023 14:38:01 +0100
-Message-Id: <20230310133721.839104440@linuxfoundation.org>
+Message-Id: <20230310133722.158357823@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,35 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 33a0c1b850c8c85f400531dab3a0b022cdb164b1 ]
+[ Upstream commit 29b0589a865b6f66d141d79b2dd1373e4e50fe17 ]
 
-The compatible is st,stmpe-gpio.
+When the ene device is detaching, function ene_remove() will
+be called. But there is no function to cancel tx_sim_timer
+in ene_remove(), the timer handler ene_tx_irqsim() could race
+with ene_remove(). As a result, the UAF bugs could happen,
+the process is shown below.
 
-Fixes: e2eb69183ec4 ("ARM: SPEAr320: DT: Add SPEAr 320 HMI board support")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Link: https://lore.kernel.org/r/20230225162237.40242-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+    (cleanup routine)          |        (timer routine)
+                               | mod_timer(&dev->tx_sim_timer, ..)
+ene_remove()                   | (wait a time)
+                               | ene_tx_irqsim()
+                               |   dev->hw_lock //USE
+                               |   ene_tx_sample(dev) //USE
+
+Fix by adding del_timer_sync(&dev->tx_sim_timer) in ene_remove(),
+The tx_sim_timer could stop before ene device is deallocated.
+
+What's more, The rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove() and the deallocated
+functions such as free_irq(), release_region() and so on
+should be called behind them. Because the rc_unregister_device()
+is well synchronized. Otherwise, race conditions may happen. The
+situations that may lead to race conditions are shown below.
+
+Firstly, the rx receiver is disabled with ene_rx_disable()
+before rc_unregister_device() in ene_remove(), which means it
+can be enabled again if a process opens /dev/lirc0 between
+ene_rx_disable() and rc_unregister_device().
+
+Secondly, the irqaction descriptor is freed by free_irq()
+before the rc device is unregistered, which means irqaction
+descriptor may be accessed again after it is deallocated.
+
+Thirdly, the timer can call ene_tx_sample() that can write
+to the io ports, which means the io ports could be accessed
+again after they are deallocated by release_region().
+
+Therefore, the rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove().
+
+Suggested by: Sean Young <sean@mess.org>
+
+Fixes: 9ea53b74df9c ("V4L/DVB: STAGING: remove lirc_ene0100 driver")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/spear320-hmi.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/ene_ir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/spear320-hmi.dts b/arch/arm/boot/dts/spear320-hmi.dts
-index 34503ac9c51c2..721e5ee7b6803 100644
---- a/arch/arm/boot/dts/spear320-hmi.dts
-+++ b/arch/arm/boot/dts/spear320-hmi.dts
-@@ -241,7 +241,7 @@
- 					irq-trigger = <0x1>;
+diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
+index 71b8c9bbf6c40..8cf2a5c0575ab 100644
+--- a/drivers/media/rc/ene_ir.c
++++ b/drivers/media/rc/ene_ir.c
+@@ -1116,6 +1116,8 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 	struct ene_device *dev = pnp_get_drvdata(pnp_dev);
+ 	unsigned long flags;
  
- 					stmpegpio: stmpe-gpio {
--						compatible = "stmpe,gpio";
-+						compatible = "st,stmpe-gpio";
- 						reg = <0>;
- 						gpio-controller;
- 						#gpio-cells = <2>;
++	rc_unregister_device(dev->rdev);
++	del_timer_sync(&dev->tx_sim_timer);
+ 	spin_lock_irqsave(&dev->hw_lock, flags);
+ 	ene_rx_disable(dev);
+ 	ene_rx_restore_hw_buffer(dev);
+@@ -1123,7 +1125,6 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 
+ 	free_irq(dev->irq, dev);
+ 	release_region(dev->hw_io, ENE_IO_SIZE);
+-	rc_unregister_device(dev->rdev);
+ 	kfree(dev);
+ }
+ 
 -- 
 2.39.2
 
