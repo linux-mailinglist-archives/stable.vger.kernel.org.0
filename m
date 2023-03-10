@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F776B4618
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB9F6B4182
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232682AbjCJOkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55554 "EHLO
+        id S231252AbjCJNxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:53:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232735AbjCJOkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5009112049C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:59 -0800 (PST)
+        with ESMTP id S231267AbjCJNxk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 681BA2BF07
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 927EB61771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E660C433D2;
-        Fri, 10 Mar 2023 14:39:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F6C5B822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A69C433D2;
+        Fri, 10 Mar 2023 13:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459199;
-        bh=boUZcNcovaUdbWQr+onI2Y/r8sdyizDNwfxRAFQuXOs=;
+        s=korg; t=1678456408;
+        bh=MK2d23DoXbgShlYQVPK7sKeaRL9k6MseUOKmcmmdE8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQcPRKPkiGWBJho+0rSRCByRbfKlgaF59k+lYRmi/B+PZbG61dd/tox1XGBOUnp5V
-         w9fzigdCh+x5/D7d9KPcuFVaWzo0RDDEwQ6C8SbOH1UcRBgmOnsQrIoRkJMmQ721DY
-         VfSPloDgWNVEPHP/4M2/XSp7IvHP4Ht5d91m2MxY=
+        b=LjpVePHwN90hyqfGy+qrmkbI/T9jeKVhFT87ZfD28PPdg9mtTSiownivYOtALWDyi
+         0zN5Ikv+Q5pUeT9UGlILV7Gl++4AIH4dj6CBmwIQIsyWLGf4i7RTrnFY6RMEUyABHO
+         cbUWYTSwex4wgsYMmUf+fcbIko2O2dJeYI6EQkg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Hawrylak <mark.hawrylak@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 280/357] drm/radeon: Fix eDP for single-display iMac11,2
+        patches@lists.linux.dev,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Daniel Scally <dan.scally@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 187/193] usb: uvc: Enumerate valid values for color matching
 Date:   Fri, 10 Mar 2023 14:39:29 +0100
-Message-Id: <20230310133747.108336661@linuxfoundation.org>
+Message-Id: <20230310133717.288164080@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Hawrylak <mark.hawrylak@gmail.com>
+From: Daniel Scally <dan.scally@ideasonboard.com>
 
-commit 05eacc198c68cbb35a7281ce4011f8899ee1cfb8 upstream.
+[ Upstream commit e16cab9c1596e251761d2bfb5e1467950d616963 ]
 
-Apple iMac11,2 (mid 2010) also with Radeon HD-4670 that has the same
-issue as iMac10,1 (late 2009) where the internal eDP panel stays dark on
-driver load.  This patch treats iMac11,2 the same as iMac10,1,
-so the eDP panel stays active.
+The color matching descriptors defined in the UVC Specification
+contain 3 fields with discrete numeric values representing particular
+settings. Enumerate those values so that later code setting them can
+be more readable.
 
-Additional steps:
-Kernel boot parameter radeon.nomodeset=0 required to keep the eDP
-panel active.
-
-This patch is an extension of
-commit 564d8a2cf3ab ("drm/radeon: Fix eDP for single-display iMac10,1 (v2)")
-Link: https://lore.kernel.org/all/lsq.1507553064.833262317@decadent.org.uk/
-Signed-off-by: Mark Hawrylak <mark.hawrylak@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
+Link: https://lore.kernel.org/r/20230202114142.300858-2-dan.scally@ideasonboard.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/atombios_encoders.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/uapi/linux/usb/video.h | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
---- a/drivers/gpu/drm/radeon/atombios_encoders.c
-+++ b/drivers/gpu/drm/radeon/atombios_encoders.c
-@@ -2192,11 +2192,12 @@ int radeon_atom_pick_dig_encoder(struct
+diff --git a/include/uapi/linux/usb/video.h b/include/uapi/linux/usb/video.h
+index ff6cc6cb4227c..0c5087c39a9fe 100644
+--- a/include/uapi/linux/usb/video.h
++++ b/include/uapi/linux/usb/video.h
+@@ -179,6 +179,36 @@
+ #define UVC_CONTROL_CAP_AUTOUPDATE			(1 << 3)
+ #define UVC_CONTROL_CAP_ASYNCHRONOUS			(1 << 4)
  
- 	/*
- 	 * On DCE32 any encoder can drive any block so usually just use crtc id,
--	 * but Apple thinks different at least on iMac10,1, so there use linkb,
-+	 * but Apple thinks different at least on iMac10,1 and iMac11,2, so there use linkb,
- 	 * otherwise the internal eDP panel will stay dark.
- 	 */
- 	if (ASIC_IS_DCE32(rdev)) {
--		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1"))
-+		if (dmi_match(DMI_PRODUCT_NAME, "iMac10,1") ||
-+		    dmi_match(DMI_PRODUCT_NAME, "iMac11,2"))
- 			enc_idx = (dig->linkb) ? 1 : 0;
- 		else
- 			enc_idx = radeon_crtc->crtc_id;
++/* 3.9.2.6 Color Matching Descriptor Values */
++enum uvc_color_primaries_values {
++	UVC_COLOR_PRIMARIES_UNSPECIFIED,
++	UVC_COLOR_PRIMARIES_BT_709_SRGB,
++	UVC_COLOR_PRIMARIES_BT_470_2_M,
++	UVC_COLOR_PRIMARIES_BT_470_2_B_G,
++	UVC_COLOR_PRIMARIES_SMPTE_170M,
++	UVC_COLOR_PRIMARIES_SMPTE_240M,
++};
++
++enum uvc_transfer_characteristics_values {
++	UVC_TRANSFER_CHARACTERISTICS_UNSPECIFIED,
++	UVC_TRANSFER_CHARACTERISTICS_BT_709,
++	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_M,
++	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_B_G,
++	UVC_TRANSFER_CHARACTERISTICS_SMPTE_170M,
++	UVC_TRANSFER_CHARACTERISTICS_SMPTE_240M,
++	UVC_TRANSFER_CHARACTERISTICS_LINEAR,
++	UVC_TRANSFER_CHARACTERISTICS_SRGB,
++};
++
++enum uvc_matrix_coefficients {
++	UVC_MATRIX_COEFFICIENTS_UNSPECIFIED,
++	UVC_MATRIX_COEFFICIENTS_BT_709,
++	UVC_MATRIX_COEFFICIENTS_FCC,
++	UVC_MATRIX_COEFFICIENTS_BT_470_2_B_G,
++	UVC_MATRIX_COEFFICIENTS_SMPTE_170M,
++	UVC_MATRIX_COEFFICIENTS_SMPTE_240M,
++};
++
+ /* ------------------------------------------------------------------------
+  * UVC structures
+  */
+-- 
+2.39.2
+
 
 
