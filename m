@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 318CF6B433D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C62C6B4258
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:02:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231962AbjCJOL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:11:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45878 "EHLO
+        id S231608AbjCJOCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:02:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231907AbjCJOL1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:11:27 -0500
+        with ESMTP id S231544AbjCJOCV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD52117589
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DB9F117848
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEE91618B8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9DC2C4339B;
-        Fri, 10 Mar 2023 14:10:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEB3C617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01A99C433EF;
+        Fri, 10 Mar 2023 14:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457455;
-        bh=FUCWLS/7vbF+P+R1E0PQ2GUZNu+Szjwa/c5dSR33D+I=;
+        s=korg; t=1678456926;
+        bh=uyxFHVNf5vtn8pWkum9VdF0p4lE4oPAAwoZvnSf5epk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUl7ERTUycEI4/WHJFV2x9VJNNUvY9LWvpw4yVdOUXFy7f0OjXN6LMnFTxJNp53pk
-         SS/Z4WVD9AvGgTGd5XnF/QO8cooeirB+CAzRbRF9KpD+jAhLsGNpWy5nxf5vQoz7Jx
-         HokpNw95OESlbtt/4NEHvSFUI6lldzaoqFcs14z8=
+        b=ZArwvXaCwU9H+jjvkBGd6iZ+3Xujuh3P+kgFq9MU5b+yH8LKfWRz8mZvpBI1ei9AQ
+         CMnRKSgKEKLPTHVK2v3htccOij8P7S29+qx/nUCF85/zrBHEhYpgCgHq2cF67Wih42
+         VX69LC8gOwJPtqpPUNd/SDDFNOYMkIMpmbh5RKMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        patches@lists.linux.dev,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Daniel Scally <dan.scally@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 144/200] USB: chipidea: fix memory leak with using debugfs_lookup()
+Subject: [PATCH 6.2 171/211] usb: uvc: Enumerate valid values for color matching
 Date:   Fri, 10 Mar 2023 14:39:11 +0100
-Message-Id: <20230310133721.552526847@linuxfoundation.org>
+Message-Id: <20230310133723.987324026@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Daniel Scally <dan.scally@ideasonboard.com>
 
-[ Upstream commit ff35f3ea3baba5b81416ac02d005cfbf6dd182fa ]
+[ Upstream commit e16cab9c1596e251761d2bfb5e1467950d616963 ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+The color matching descriptors defined in the UVC Specification
+contain 3 fields with discrete numeric values representing particular
+settings. Enumerate those values so that later code setting them can
+be more readable.
 
-Cc: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20230202153235.2412790-1-gregkh@linuxfoundation.org
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
+Link: https://lore.kernel.org/r/20230202114142.300858-2-dan.scally@ideasonboard.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/uapi/linux/usb/video.h | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/drivers/usb/chipidea/debug.c b/drivers/usb/chipidea/debug.c
-index faf6b078b6c44..bbc610e5bd69c 100644
---- a/drivers/usb/chipidea/debug.c
-+++ b/drivers/usb/chipidea/debug.c
-@@ -364,5 +364,5 @@ void dbg_create_files(struct ci_hdrc *ci)
+diff --git a/include/uapi/linux/usb/video.h b/include/uapi/linux/usb/video.h
+index 6e8e572c2980a..2ff0e8a3a683d 100644
+--- a/include/uapi/linux/usb/video.h
++++ b/include/uapi/linux/usb/video.h
+@@ -179,6 +179,36 @@
+ #define UVC_CONTROL_CAP_AUTOUPDATE			(1 << 3)
+ #define UVC_CONTROL_CAP_ASYNCHRONOUS			(1 << 4)
+ 
++/* 3.9.2.6 Color Matching Descriptor Values */
++enum uvc_color_primaries_values {
++	UVC_COLOR_PRIMARIES_UNSPECIFIED,
++	UVC_COLOR_PRIMARIES_BT_709_SRGB,
++	UVC_COLOR_PRIMARIES_BT_470_2_M,
++	UVC_COLOR_PRIMARIES_BT_470_2_B_G,
++	UVC_COLOR_PRIMARIES_SMPTE_170M,
++	UVC_COLOR_PRIMARIES_SMPTE_240M,
++};
++
++enum uvc_transfer_characteristics_values {
++	UVC_TRANSFER_CHARACTERISTICS_UNSPECIFIED,
++	UVC_TRANSFER_CHARACTERISTICS_BT_709,
++	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_M,
++	UVC_TRANSFER_CHARACTERISTICS_BT_470_2_B_G,
++	UVC_TRANSFER_CHARACTERISTICS_SMPTE_170M,
++	UVC_TRANSFER_CHARACTERISTICS_SMPTE_240M,
++	UVC_TRANSFER_CHARACTERISTICS_LINEAR,
++	UVC_TRANSFER_CHARACTERISTICS_SRGB,
++};
++
++enum uvc_matrix_coefficients {
++	UVC_MATRIX_COEFFICIENTS_UNSPECIFIED,
++	UVC_MATRIX_COEFFICIENTS_BT_709,
++	UVC_MATRIX_COEFFICIENTS_FCC,
++	UVC_MATRIX_COEFFICIENTS_BT_470_2_B_G,
++	UVC_MATRIX_COEFFICIENTS_SMPTE_170M,
++	UVC_MATRIX_COEFFICIENTS_SMPTE_240M,
++};
++
+ /* ------------------------------------------------------------------------
+  * UVC structures
   */
- void dbg_remove_files(struct ci_hdrc *ci)
- {
--	debugfs_remove(debugfs_lookup(dev_name(ci->dev), usb_debug_root));
-+	debugfs_lookup_and_remove(dev_name(ci->dev), usb_debug_root);
- }
 -- 
 2.39.2
 
