@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 281E76B41BD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F91B6B455D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231270AbjCJN4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:56:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38380 "EHLO
+        id S232531AbjCJOdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:33:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231273AbjCJN4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:12 -0500
+        with ESMTP id S232473AbjCJOdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31961151E2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0232B11CD64
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FFD0618A8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86711C433EF;
-        Fri, 10 Mar 2023 13:55:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FDB561745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94463C433D2;
+        Fri, 10 Mar 2023 14:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456541;
-        bh=8lY5SP0eMFjUYMDwZ22966vW7MGBnjlSuuYs2z0LYfs=;
+        s=korg; t=1678458743;
+        bh=DUMf+Gl2X4DauAvSUryXFjvWmzi5pOY9w2gGv/dBFAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVaWX5JCJERolMwvkWePUVoOnkYJIR6MvwulnGDmFJ6cma/bZgz0AFOVJV5lTGMro
-         AbK3qdogrnIFttdFSpK8hIU2nINEfeJw51AkDwomn9YUn7ALTym4WAndswCHTEkQ6A
-         KS2dybp51FN3MCjm696eD1mV13qvDmiFZz26tYDQ=
+        b=jdNM9cwzNRI3qj4E2X1KCkgix9gfzV9DEOnu44p5YpxzmsuGKeNxD81eVxpvRYCdi
+         036sCh3l4BT5l42p9FKHg3FMZOxU+NcVpHZrC++fXDgYeK5QRhKoAgRUQSWtnoAn6O
+         Hy66oSt5/mfb7uQcMZnKCaj0zKus8dzZImJhH++k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Lucas Tanure <lucas.tanure@collabora.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 038/211] ubifs: dirty_cow_znode: Fix memleak in error handling path
-Date:   Fri, 10 Mar 2023 14:36:58 +0100
-Message-Id: <20230310133719.892713029@linuxfoundation.org>
+Subject: [PATCH 5.4 130/357] ASoC: soc-dapm.h: fixup warning struct snd_pcm_substream not declared
+Date:   Fri, 10 Mar 2023 14:36:59 +0100
+Message-Id: <20230310133740.416068336@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +57,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Lucas Tanure <lucas.tanure@collabora.com>
 
-[ Upstream commit 122deabfe1428bffe95e2bf364ff8a5059bdf089 ]
+[ Upstream commit fdff966bfde7cf0c85562d2bfb1ff1ba83da5f7b ]
 
-Following process will cause a memleak for copied up znode:
+Add struct snd_pcm_substream forward declaration
 
-dirty_cow_znode
-  zn = copy_znode(c, znode);
-  err = insert_old_idx(c, zbr->lnum, zbr->offs);
-  if (unlikely(err))
-     return ERR_PTR(err);   // No one refers to zn.
-
-Fix it by adding copied znode back to tnc, then it will be freed
-by ubifs_destroy_tnc_subtree() while closing tnc.
-
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216705
-Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 078a85f2806f ("ASoC: dapm: Only power up active channels from a DAI")
+Signed-off-by: Lucas Tanure <lucas.tanure@collabora.com>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20230215132851.1626881-1-lucas.tanure@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/tnc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/sound/soc-dapm.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
-index 2df56bbc68657..2469f72eeaabb 100644
---- a/fs/ubifs/tnc.c
-+++ b/fs/ubifs/tnc.c
-@@ -267,11 +267,18 @@ static struct ubifs_znode *dirty_cow_znode(struct ubifs_info *c,
- 	if (zbr->len) {
- 		err = insert_old_idx(c, zbr->lnum, zbr->offs);
- 		if (unlikely(err))
--			return ERR_PTR(err);
-+			/*
-+			 * Obsolete znodes will be freed by tnc_destroy_cnext()
-+			 * or free_obsolete_znodes(), copied up znodes should
-+			 * be added back to tnc and freed by
-+			 * ubifs_destroy_tnc_subtree().
-+			 */
-+			goto out;
- 		err = add_idx_dirt(c, zbr->lnum, zbr->len);
- 	} else
- 		err = 0;
+diff --git a/include/sound/soc-dapm.h b/include/sound/soc-dapm.h
+index 8c8988bfef8f4..659400d40873d 100644
+--- a/include/sound/soc-dapm.h
++++ b/include/sound/soc-dapm.h
+@@ -16,6 +16,7 @@
+ #include <sound/asoc.h>
  
-+out:
- 	zbr->znode = zn;
- 	zbr->lnum = 0;
- 	zbr->offs = 0;
+ struct device;
++struct snd_pcm_substream;
+ struct snd_soc_pcm_runtime;
+ struct soc_enum;
+ 
 -- 
 2.39.2
 
