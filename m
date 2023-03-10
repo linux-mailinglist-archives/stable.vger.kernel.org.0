@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 301E26B4228
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA1F6B413D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231445AbjCJOA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48152 "EHLO
+        id S230463AbjCJNuw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:50:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231478AbjCJOAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDDB116B80
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:14 -0800 (PST)
+        with ESMTP id S230467AbjCJNuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B9CFE7EC2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71E6AB822BE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02ACC433EF;
-        Fri, 10 Mar 2023 14:00:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9FE860F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C429DC4339B;
+        Fri, 10 Mar 2023 13:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456812;
-        bh=c0BcERzg5mF7NYDYXKq4lbEnyuY36ja+gkncF1XNcI8=;
+        s=korg; t=1678456249;
+        bh=dwjk4MqKV8Plta4pZ0qNQeyJcvbXYxKxLPSDtQlWrlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZ1htX/s+JEBSddpgmU0XyxUN+4rP6nXRPNfmjjysI/4LEMEsdKXvhtomBuk0Bubo
-         zfpMCjXAxW3xpN8R4I3orsHsGrdfAPXS0CIDUJFJxshTMh+jQdRaF1bcfCO4LijSww
-         5IB3+RLhJAOHEua3J0ooyr7+tRvNh7V2Kb7GEH68=
+        b=ffIoTz4t6BQWMCEeHhVAE25zyyueGNkH9jlwIhMR4+7L/UnKMpJEGeAyRZ2cBCLca
+         wVMzVhU1kmnTgbI6KU8bl45K7FvKJKXv6lhEFfXbsNWRdRJkF128B6nSN8axMyGGSV
+         AiE1Bzq9X0Nbd6Dshsu82zF4XK/QFBs8F5G1XZKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 132/211] PCI/ACPI: Account for _S0W of the target bridge in acpi_pci_bridge_d3()
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 130/193] wifi: cfg80211: Fix use after free for wext
 Date:   Fri, 10 Mar 2023 14:38:32 +0100
-Message-Id: <20230310133722.753428655@linuxfoundation.org>
+Message-Id: <20230310133715.567564053@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,166 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-[ Upstream commit 8133844a8f2434be9576850c6978179d7cca5c81 ]
+commit 015b8cc5e7c4d7bb671f1984d7b7338c310b185b upstream.
 
-It is questionable to allow a PCI bridge to go into D3 if it has _S0W
-returning D2 or a shallower power state, so modify acpi_pci_bridge_d3(() to
-always take the return value of _S0W for the target bridge into account.
-That is, make it return 'false' if _S0W returns D2 or a shallower power
-state for the target bridge regardless of its ancestor Root Port
-properties.  Of course, this also causes 'false' to be returned if the Root
-Port itself is the target and its _S0W returns D2 or a shallower power
-state.
+Key information in wext.connect is not reset on (re)connect and can hold
+data from a previous connection.
 
-However, still allow bridges without _S0W that are power-manageable via
-ACPI to enter D3 to retain the current code behavior in that case.
+Reset key data to avoid that drivers or mac80211 incorrectly detect a
+WEP connection request and access the freed or already reused memory.
 
-This fixes problems where a hotplug notification is missed because a bridge
-is in D3.  That means hot-added devices such as USB4 docks (and the devices
-they contain) and Thunderbolt 3 devices may not work.
+Additionally optimize cfg80211_sme_connect() and avoid an useless
+schedule of conn_work.
 
-Link: https://lore.kernel.org/linux-pci/20221031223356.32570-1-mario.limonciello@amd.com/
-Link: https://lore.kernel.org/r/12155458.O9o76ZdvQC@kreacher
-Reported-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fffd0934b939 ("cfg80211: rework key operation")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230124141856.356646-1-alexander@wetzel-home.de
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/device_pm.c | 19 +++++++++++++++++
- drivers/pci/pci-acpi.c   | 45 +++++++++++++++++++++++++++-------------
- include/acpi/acpi_bus.h  |  1 +
- 3 files changed, 51 insertions(+), 14 deletions(-)
+ net/wireless/sme.c |   31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
-index 97450f4003cc9..f007116a84276 100644
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -484,6 +484,25 @@ void acpi_dev_power_up_children_with_adr(struct acpi_device *adev)
- 	acpi_dev_for_each_child(adev, acpi_power_up_if_adr_present, NULL);
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -269,6 +269,15 @@ void cfg80211_conn_work(struct work_stru
+ 	rtnl_unlock();
  }
  
-+/**
-+ * acpi_dev_power_state_for_wake - Deepest power state for wakeup signaling
-+ * @adev: ACPI companion of the target device.
-+ *
-+ * Evaluate _S0W for @adev and return the value produced by it or return
-+ * ACPI_STATE_UNKNOWN on errors (including _S0W not present).
-+ */
-+u8 acpi_dev_power_state_for_wake(struct acpi_device *adev)
++static void cfg80211_step_auth_next(struct cfg80211_conn *conn,
++				    struct cfg80211_bss *bss)
 +{
-+	unsigned long long state;
-+	acpi_status status;
-+
-+	status = acpi_evaluate_integer(adev->handle, "_S0W", NULL, &state);
-+	if (ACPI_FAILURE(status))
-+		return ACPI_STATE_UNKNOWN;
-+
-+	return state;
++	memcpy(conn->bssid, bss->bssid, ETH_ALEN);
++	conn->params.bssid = conn->bssid;
++	conn->params.channel = bss->channel;
++	conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
 +}
 +
- #ifdef CONFIG_PM
- static DEFINE_MUTEX(acpi_pm_notifier_lock);
- static DEFINE_MUTEX(acpi_pm_notifier_install_lock);
-diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
-index 068d6745bf98c..052a611081ecd 100644
---- a/drivers/pci/pci-acpi.c
-+++ b/drivers/pci/pci-acpi.c
-@@ -976,24 +976,41 @@ bool acpi_pci_power_manageable(struct pci_dev *dev)
- bool acpi_pci_bridge_d3(struct pci_dev *dev)
+ /* Returned bss is reference counted and must be cleaned up appropriately. */
+ static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
  {
- 	struct pci_dev *rpdev;
--	struct acpi_device *adev;
--	acpi_status status;
--	unsigned long long state;
-+	struct acpi_device *adev, *rpadev;
- 	const union acpi_object *obj;
+@@ -286,10 +295,7 @@ static struct cfg80211_bss *cfg80211_get
+ 	if (!bss)
+ 		return NULL;
  
- 	if (acpi_pci_disabled || !dev->is_hotplug_bridge)
- 		return false;
+-	memcpy(wdev->conn->bssid, bss->bssid, ETH_ALEN);
+-	wdev->conn->params.bssid = wdev->conn->bssid;
+-	wdev->conn->params.channel = bss->channel;
+-	wdev->conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
++	cfg80211_step_auth_next(wdev->conn, bss);
+ 	schedule_work(&rdev->conn_work);
  
--	/* Assume D3 support if the bridge is power-manageable by ACPI. */
--	if (acpi_pci_power_manageable(dev))
--		return true;
-+	adev = ACPI_COMPANION(&dev->dev);
-+	if (adev) {
-+		/*
-+		 * If the bridge has _S0W, whether or not it can go into D3
-+		 * depends on what is returned by that object.  In particular,
-+		 * if the power state returned by _S0W is D2 or shallower,
-+		 * entering D3 should not be allowed.
-+		 */
-+		if (acpi_dev_power_state_for_wake(adev) <= ACPI_STATE_D2)
-+			return false;
+ 	return bss;
+@@ -568,7 +574,12 @@ static int cfg80211_sme_connect(struct w
+ 	wdev->conn->params.ssid_len = wdev->ssid_len;
+ 
+ 	/* see if we have the bss already */
+-	bss = cfg80211_get_conn_bss(wdev);
++	bss = cfg80211_get_bss(wdev->wiphy, wdev->conn->params.channel,
++			       wdev->conn->params.bssid,
++			       wdev->conn->params.ssid,
++			       wdev->conn->params.ssid_len,
++			       wdev->conn_bss_type,
++			       IEEE80211_PRIVACY(wdev->conn->params.privacy));
+ 
+ 	if (prev_bssid) {
+ 		memcpy(wdev->conn->prev_bssid, prev_bssid, ETH_ALEN);
+@@ -579,6 +590,7 @@ static int cfg80211_sme_connect(struct w
+ 	if (bss) {
+ 		enum nl80211_timeout_reason treason;
+ 
++		cfg80211_step_auth_next(wdev->conn, bss);
+ 		err = cfg80211_conn_do_work(wdev, &treason);
+ 		cfg80211_put_bss(wdev->wiphy, bss);
+ 	} else {
+@@ -1128,6 +1140,15 @@ int cfg80211_connect(struct cfg80211_reg
+ 	} else {
+ 		if (WARN_ON(connkeys))
+ 			return -EINVAL;
 +
-+		/*
-+		 * Otherwise, assume that the bridge can enter D3 so long as it
-+		 * is power-manageable via ACPI.
++		/* connect can point to wdev->wext.connect which
++		 * can hold key data from a previous connection
 +		 */
-+		if (acpi_device_power_manageable(adev))
-+			return true;
-+	}
++		connect->key = NULL;
++		connect->key_len = 0;
++		connect->key_idx = 0;
++		connect->crypto.cipher_group = 0;
++		connect->crypto.n_ciphers_pairwise = 0;
+ 	}
  
- 	rpdev = pcie_find_root_port(dev);
- 	if (!rpdev)
- 		return false;
- 
--	adev = ACPI_COMPANION(&rpdev->dev);
--	if (!adev)
-+	if (rpdev == dev)
-+		rpadev = adev;
-+	else
-+		rpadev = ACPI_COMPANION(&rpdev->dev);
-+
-+	if (!rpadev)
- 		return false;
- 
- 	/*
-@@ -1001,15 +1018,15 @@ bool acpi_pci_bridge_d3(struct pci_dev *dev)
- 	 * doesn't supply a wakeup GPE via _PRW, it cannot signal hotplug
- 	 * events from low-power states including D3hot and D3cold.
- 	 */
--	if (!adev->wakeup.flags.valid)
-+	if (!rpadev->wakeup.flags.valid)
- 		return false;
- 
- 	/*
--	 * If the Root Port cannot wake itself from D3hot or D3cold, we
--	 * can't use D3.
-+	 * In the bridge-below-a-Root-Port case, evaluate _S0W for the Root Port
-+	 * to verify whether or not it can signal wakeup from D3.
- 	 */
--	status = acpi_evaluate_integer(adev->handle, "_S0W", NULL, &state);
--	if (ACPI_SUCCESS(status) && state < ACPI_STATE_D3_HOT)
-+	if (rpadev != adev &&
-+	    acpi_dev_power_state_for_wake(rpadev) <= ACPI_STATE_D2)
- 		return false;
- 
- 	/*
-@@ -1018,7 +1035,7 @@ bool acpi_pci_bridge_d3(struct pci_dev *dev)
- 	 * bridges *below* that Root Port can also signal hotplug events
- 	 * while in D3.
- 	 */
--	if (!acpi_dev_get_property(adev, "HotPlugSupportInD3",
-+	if (!acpi_dev_get_property(rpadev, "HotPlugSupportInD3",
- 				   ACPI_TYPE_INTEGER, &obj) &&
- 	    obj->integer.value == 1)
- 		return true;
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index e44be31115a67..0584e9f6e3397 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -534,6 +534,7 @@ int acpi_bus_update_power(acpi_handle handle, int *state_p);
- int acpi_device_update_power(struct acpi_device *device, int *state_p);
- bool acpi_bus_power_manageable(acpi_handle handle);
- void acpi_dev_power_up_children_with_adr(struct acpi_device *adev);
-+u8 acpi_dev_power_state_for_wake(struct acpi_device *adev);
- int acpi_device_power_add_dependent(struct acpi_device *adev,
- 				    struct device *dev);
- void acpi_device_power_remove_dependent(struct acpi_device *adev,
--- 
-2.39.2
-
+ 	wdev->connect_keys = connkeys;
 
 
