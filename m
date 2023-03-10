@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CBDB6B42E5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D78D06B4203
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231697AbjCJOIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:08:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33792 "EHLO
+        id S231383AbjCJN6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231778AbjCJOIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D274111784C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:42 -0800 (PST)
+        with ESMTP id S231394AbjCJN6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E9C166EC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01864B822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62C68C433D2;
-        Fri, 10 Mar 2023 14:07:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FB9660D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 769F1C433EF;
+        Fri, 10 Mar 2023 13:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457257;
-        bh=McI1rkV3tKmLVyUeUHlxXIqLnuMz/ZhiZNd4ypWhyPw=;
+        s=korg; t=1678456726;
+        bh=gBrUsZocqROLSfFJ8Gr7fct03DvDQo5pJ+woAxhEgFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2lBjXRuvomqY/XW/2gOBtfJKZZhPfHtvGKtYhrUD5EBpa0t8czyLp8zjzpub833m
-         3epoNtg+DkOnrHv6KRQ0BrzMj18RGgCnK/1/kqMhMZiL7v9k4gsomv5wtcyKX1/OIG
-         S5hrHkGs2+sgalb49UmEjyqo1nG+V9Nv5r6lBHSk=
+        b=lqylKuH0hpjeb+GvJCUuMdxhUpYko9nuOHu8gRRWjTWJYZAW7eIZJJUo/Z2zST/+P
+         1E6nHqaYgdvyB1lbYb9KBgWrzB9I0M/si8XCZJeDMrywxSZMvdj/q99JEhj+xk3uPu
+         6fC2kZtyTluvooopVH9Ud+UcZ8Vq/7zA3EAsX2bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Frederick Lawler <fred@cloudflare.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 075/200] 9p/xen: fix version parsing
+Subject: [PATCH 6.2 102/211] tcp: tcp_check_req() can be called from process context
 Date:   Fri, 10 Mar 2023 14:38:02 +0100
-Message-Id: <20230310133719.416137343@linuxfoundation.org>
+Message-Id: <20230310133721.867796281@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit f1956f4ec15195ec60976d9b5625326285ab102e ]
+[ Upstream commit 580f98cc33a260bb8c6a39ae2921b29586b84fdf ]
 
-When connecting the Xen 9pfs frontend to the backend, the "versions"
-Xenstore entry written by the backend is parsed in a wrong way.
+This is a follow up of commit 0a375c822497 ("tcp: tcp_rtx_synack()
+can be called from process context").
 
-The "versions" entry is defined to contain the versions supported by
-the backend separated by commas (e.g. "1,2"). Today only version "1"
-is defined. Unfortunately the frontend doesn't look for "1" being
-listed in the entry, but it is expecting the entry to have the value
-"1".
+Frederick Lawler reported another "__this_cpu_add() in preemptible"
+warning caused by the same reason.
 
-This will result in failure as soon as the backend will support e.g.
-versions "1" and "2".
+In my former patch I took care of tcp_rtx_synack()
+but forgot that tcp_check_req() also contained some SNMP updates.
 
-Fix that by scanning the entry correctly.
+Note that some parts of tcp_check_req() always run in BH context,
+I added a comment to clarify this.
 
-Link: https://lkml.kernel.org/r/20230130113036.7087-2-jgross@suse.com
-Fixes: 71ebd71921e4 ("xen/9pfs: connect to the backend")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Fixes: 8336886f786f ("tcp: TCP Fast Open Server - support TFO listeners")
+Link: https://lore.kernel.org/netdev/8cd33923-a21d-397c-e46b-2a068c287b03@cloudflare.com/T/
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Frederick Lawler <fred@cloudflare.com>
+Tested-by: Frederick Lawler <fred@cloudflare.com>
+Link: https://lore.kernel.org/r/20230227083336.4153089-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_xen.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_minisocks.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
-index cf1b89ba522b4..80cc0289dd0d6 100644
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -377,13 +377,19 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
- 	int ret, i;
- 	struct xenbus_transaction xbt;
- 	struct xen_9pfs_front_priv *priv = NULL;
--	char *versions;
-+	char *versions, *v;
- 	unsigned int max_rings, max_ring_order, len = 0;
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index e002f2e1d4f2d..9a7ef7732c24c 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -597,6 +597,9 @@ EXPORT_SYMBOL(tcp_create_openreq_child);
+  * validation and inside tcp_v4_reqsk_send_ack(). Can we do better?
+  *
+  * We don't need to initialize tmp_opt.sack_ok as we don't use the results
++ *
++ * Note: If @fastopen is true, this can be called from process context.
++ *       Otherwise, this is from BH context.
+  */
  
- 	versions = xenbus_read(XBT_NIL, dev->otherend, "versions", &len);
- 	if (IS_ERR(versions))
- 		return PTR_ERR(versions);
--	if (strcmp(versions, "1")) {
-+	for (v = versions; *v; v++) {
-+		if (simple_strtoul(v, &v, 10) == 1) {
-+			v = NULL;
-+			break;
-+		}
-+	}
-+	if (v) {
- 		kfree(versions);
- 		return -EINVAL;
+ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+@@ -748,7 +751,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 					  &tcp_rsk(req)->last_oow_ack_time))
+ 			req->rsk_ops->send_ack(sk, skb, req);
+ 		if (paws_reject)
+-			__NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
++			NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
+ 		return NULL;
  	}
+ 
+@@ -767,7 +770,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 	 *	   "fourth, check the SYN bit"
+ 	 */
+ 	if (flg & (TCP_FLAG_RST|TCP_FLAG_SYN)) {
+-		__TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
++		TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
+ 		goto embryonic_reset;
+ 	}
+ 
 -- 
 2.39.2
 
