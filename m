@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1AE46B462A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 999C46B4363
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232732AbjCJOks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56936 "EHLO
+        id S232002AbjCJOOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232691AbjCJOks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029B41219F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:47 -0800 (PST)
+        with ESMTP id S231968AbjCJON4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B81CA1184FA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A967AB822DE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CF3DC433D2;
-        Fri, 10 Mar 2023 14:40:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5889761380
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B18FC433D2;
+        Fri, 10 Mar 2023 14:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459244;
-        bh=jUIvIeo1ycQNA9TrL8sm8mSPuhbigmEZbFbErarSjCE=;
+        s=korg; t=1678457560;
+        bh=ViG/VVdkEp+xwXqMWm6vJRYGD+RpdEo2b7Mdnnvyf4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2ygSQlHihTFTg5X9HpuOEQMthjJu8gsw/yZqcBHmANG8y2jSe/WlO2rkRsIk1mnu
-         oyedbV5h/q31F8C8Es6HKImlNPlpfU+rThF34UENoAzPlpGcqW46SnIAEMZlOpv+co
-         f7Zo8iDgTyYpihZdRFAaIJqrHmK+OSnsgyRRyrs0=
+        b=SKefTn02ZqEDuWTWE2T648lEmOuYhAWX/DN4+8FiwcpZa01HvQirj9/hSf/uC19Ep
+         nSrtUhySTBww9JqpAIcDN3b0ZnNYtNm6uY7H+sxtyzrP67FvQpOV5qC14RCR2XNoic
+         CirDMT4u/XaefWVnVpjfI+1H0ORXgRvGDa69w4Ns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 297/357] ubifs: Reserve one leb for each journal head while doing budget
-Date:   Fri, 10 Mar 2023 14:39:46 +0100
-Message-Id: <20230310133747.861086956@linuxfoundation.org>
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.1 180/200] vDPA/ifcvf: alloc the mgmt_dev before the adapter
+Date:   Fri, 10 Mar 2023 14:39:47 +0100
+Message-Id: <20230310133722.634171488@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,65 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit e874dcde1cbf82c786c0e7f2899811c02630cc52 ]
+commit 66e3970b16d1e960afbece65739a3628273633f1 upstream.
 
-UBIFS calculates available space by c->main_bytes - c->lst.total_used
-(which means non-index lebs' free and dirty space is accounted into
-total available), then index lebs and four lebs (one for gc_lnum, one
-for deletions, two for journal heads) are deducted.
-In following situation, ubifs may get -ENOSPC from make_reservation():
- LEB 84: DATAHD   free 122880 used 1920  dirty 2176  dark 6144
- LEB 110:DELETION free 126976 used 0     dirty 0     dark 6144 (empty)
- LEB 201:gc_lnum  free 126976 used 0     dirty 0     dark 6144
- LEB 272:GCHD     free 77824  used 47672 dirty 1480  dark 6144
- LEB 356:BASEHD   free 0      used 39776 dirty 87200 dark 6144
- OTHERS: index lebs, zero-available non-index lebs
+This commit reverses the order of allocating the
+management device and the adapter. So that it would
+be possible to move the allocation of the adapter
+to dev_add().
 
-UBIFS calculates the available bytes is 6888 (How to calculate it:
-126976 * 5[remain main bytes] - 1920[used] - 47672[used] - 39776[used] -
-126976 * 1[deletions] - 126976 * 1[gc_lnum] - 126976 * 2[journal heads]
-- 6144 * 5[dark] = 6888) after doing budget, however UBIFS cannot use
-BASEHD's dirty space(87200), because UBIFS cannot find next BASEHD to
-reclaim current BASEHD. (c->bi.min_idx_lebs equals to c->lst.idx_lebs,
-the empty leb won't be found by ubifs_find_free_space(), and dirty index
-lebs won't be picked as gced lebs. All non-index lebs has dirty space
-less then c->dead_wm, non-index lebs won't be picked as gced lebs
-either. So new free lebs won't be produced.). See more details in Link.
-
-To fix it, reserve one leb for each journal head while doing budget.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216562
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-4-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/budget.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c |   31 ++++++++++++++-----------------
+ 1 file changed, 14 insertions(+), 17 deletions(-)
 
-diff --git a/fs/ubifs/budget.c b/fs/ubifs/budget.c
-index bdb79be6dc0e2..9cb05ef9b9dd9 100644
---- a/fs/ubifs/budget.c
-+++ b/fs/ubifs/budget.c
-@@ -212,11 +212,10 @@ long long ubifs_calc_available(const struct ubifs_info *c, int min_idx_lebs)
- 	subtract_lebs += 1;
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -831,22 +831,30 @@ static int ifcvf_probe(struct pci_dev *p
+ 	}
  
- 	/*
--	 * The GC journal head LEB is not really accessible. And since
--	 * different write types go to different heads, we may count only on
--	 * one head's space.
-+	 * Since different write types go to different heads, we should
-+	 * reserve one leb for each head.
- 	 */
--	subtract_lebs += c->jhead_cnt - 1;
-+	subtract_lebs += c->jhead_cnt;
+ 	pci_set_master(pdev);
++	ifcvf_mgmt_dev = kzalloc(sizeof(struct ifcvf_vdpa_mgmt_dev), GFP_KERNEL);
++	if (!ifcvf_mgmt_dev) {
++		IFCVF_ERR(pdev, "Failed to alloc memory for the vDPA management device\n");
++		return -ENOMEM;
++	}
  
- 	/* We also reserve one LEB for deletions, which bypass budgeting */
- 	subtract_lebs += 1;
--- 
-2.39.2
-
+ 	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
+ 				    dev, &ifc_vdpa_ops, 1, 1, NULL, false);
+ 	if (IS_ERR(adapter)) {
+ 		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
+-		return PTR_ERR(adapter);
++		ret = PTR_ERR(adapter);
++		goto err;
+ 	}
+ 
++	adapter->pdev = pdev;
++	adapter->vdpa.dma_dev = &pdev->dev;
++	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
++	ifcvf_mgmt_dev->adapter = adapter;
++
+ 	vf = &adapter->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+ 	vf->base = pcim_iomap_table(pdev);
+ 	vf->pdev = pdev;
+ 
+-	adapter->pdev = pdev;
+-	adapter->vdpa.dma_dev = &pdev->dev;
+-
+ 	ret = ifcvf_init_hw(vf, pdev);
+ 	if (ret) {
+ 		IFCVF_ERR(pdev, "Failed to init IFCVF hw\n");
+@@ -859,16 +867,6 @@ static int ifcvf_probe(struct pci_dev *p
+ 	vf->hw_features = ifcvf_get_hw_features(vf);
+ 	vf->config_size = ifcvf_get_config_size(vf);
+ 
+-	ifcvf_mgmt_dev = kzalloc(sizeof(struct ifcvf_vdpa_mgmt_dev), GFP_KERNEL);
+-	if (!ifcvf_mgmt_dev) {
+-		IFCVF_ERR(pdev, "Failed to alloc memory for the vDPA management device\n");
+-		return -ENOMEM;
+-	}
+-
+-	ifcvf_mgmt_dev->mdev.ops = &ifcvf_vdpa_mgmt_dev_ops;
+-	ifcvf_mgmt_dev->mdev.device = dev;
+-	ifcvf_mgmt_dev->adapter = adapter;
+-
+ 	dev_type = get_dev_type(pdev);
+ 	switch (dev_type) {
+ 	case VIRTIO_ID_NET:
+@@ -883,12 +881,11 @@ static int ifcvf_probe(struct pci_dev *p
+ 		goto err;
+ 	}
+ 
++	ifcvf_mgmt_dev->mdev.ops = &ifcvf_vdpa_mgmt_dev_ops;
++	ifcvf_mgmt_dev->mdev.device = dev;
+ 	ifcvf_mgmt_dev->mdev.max_supported_vqs = vf->nr_vring;
+ 	ifcvf_mgmt_dev->mdev.supported_features = vf->hw_features;
+ 
+-	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
+-
+-
+ 	ret = vdpa_mgmtdev_register(&ifcvf_mgmt_dev->mdev);
+ 	if (ret) {
+ 		IFCVF_ERR(pdev,
 
 
