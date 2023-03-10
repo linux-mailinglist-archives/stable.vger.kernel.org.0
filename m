@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABD5A6B4550
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1990F6B439F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232258AbjCJOdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55084 "EHLO
+        id S232001AbjCJOQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:16:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232582AbjCJOcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6981219E0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:31:50 -0800 (PST)
+        with ESMTP id S232003AbjCJOPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:15:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E101707
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:14:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB102B822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:31:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46682C433D2;
-        Fri, 10 Mar 2023 14:31:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3FC76182F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:14:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA5DC4339E;
+        Fri, 10 Mar 2023 14:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458707;
-        bh=8Mn9WFMsr8HqliZn3JEuqHyTcWqqmoXVhAv+VXJ8HEo=;
+        s=korg; t=1678457688;
+        bh=h+AA5rhOUm/qbgFYYAyBRv5oXGeWsHthe1l+TFjSY7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytkRsjGSEwDYpHMlpXGcVXTv8YMX9sqRTKJvZYbz6BWwQnPrlmy45kTGxipJ7tBbY
-         aYGkxRMsj0dE2kVS3HxoSiXzZ0m9fXxO0oYeW5ZoJZMM9nXrmkKp4Odbzjf/hO1//j
-         Zc6ck2vZQ07qh6QiXBKasseKa5IFKymg7crQ9FDQ=
+        b=xPrrgQQRUMa+GoiuHh8c8qTnfU4e9uQehAGQjPvMSNWKsI8wBvIGSXPGka+N7sI3R
+         M8ZxWOTE9Iaqe3uSYSmI4C7cD5VGfjcqA2hLootqEw2SgddBTutfsg/JkTkJiJyQXk
+         qx+qMqabcCOmIp2Sq16CqYrMIvQ0Ng9BEAlWxnDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/357] wifi: mwifiex: fix loop iterator in mwifiex_update_ampdu_txwinsize()
+        patches@lists.linux.dev, Vyacheslav Bocharov <adeep@lexina.in>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 006/252] arm64: dts: meson-gx: Fix Ethernet MAC address unit name
 Date:   Fri, 10 Mar 2023 14:36:16 +0100
-Message-Id: <20230310133737.831201180@linuxfoundation.org>
+Message-Id: <20230310133719.004393209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,46 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 3cfb7df24cee0f5fdc4cc5d3176cab9aadfcb430 ]
+[ Upstream commit 8ed5310356bfa47cc6bb4221ae6b21258c52e3d1 ]
 
-This code re-uses "i" to be the iterator for both the inside and outside
-loops.  It means the outside loop will exit earlier than intended.
+Unit names should use hyphens instead of underscores to not cause
+warnings.
 
-Fixes: d219b7eb3792 ("mwifiex: handle BT coex event to adjust Rx BA window size")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/Y+ERnaDaZD7RtLvX@kili
+Fixes: bfe59f92d306 ("ARM64: dts: amlogic: gxbb: Enable NVMEM")
+Suggested-by: Vyacheslav Bocharov <adeep@lexina.in>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://lore.kernel.org/r/20230111211350.1461860-5-martin.blumenstingl@googlemail.com
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/11n.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-gx.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/11n.c b/drivers/net/wireless/marvell/mwifiex/11n.c
-index acbef9f1a83b6..b397a7e85e6b0 100644
---- a/drivers/net/wireless/marvell/mwifiex/11n.c
-+++ b/drivers/net/wireless/marvell/mwifiex/11n.c
-@@ -890,7 +890,7 @@ mwifiex_send_delba_txbastream_tbl(struct mwifiex_private *priv, u8 tid)
-  */
- void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
- {
--	u8 i;
-+	u8 i, j;
- 	u32 tx_win_size;
- 	struct mwifiex_private *priv;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
+index a127657526c7f..19feaec6a1ae8 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
+@@ -150,7 +150,7 @@ sn: sn@14 {
+ 			reg = <0x14 0x10>;
+ 		};
  
-@@ -921,8 +921,8 @@ void mwifiex_update_ampdu_txwinsize(struct mwifiex_adapter *adapter)
- 		if (tx_win_size != priv->add_ba_param.tx_win_size) {
- 			if (!priv->media_connected)
- 				continue;
--			for (i = 0; i < MAX_NUM_TID; i++)
--				mwifiex_send_delba_txbastream_tbl(priv, i);
-+			for (j = 0; j < MAX_NUM_TID; j++)
-+				mwifiex_send_delba_txbastream_tbl(priv, j);
- 		}
- 	}
- }
+-		eth_mac: eth_mac@34 {
++		eth_mac: eth-mac@34 {
+ 			reg = <0x34 0x10>;
+ 		};
+ 
 -- 
 2.39.2
 
