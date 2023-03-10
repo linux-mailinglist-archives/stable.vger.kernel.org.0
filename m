@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F7C6B41B4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7446B40C1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231315AbjCJNza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:55:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36860 "EHLO
+        id S229999AbjCJNpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:45:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231312AbjCJNzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300B110F46D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:19 -0800 (PST)
+        with ESMTP id S230132AbjCJNpo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40958B53DE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C021B822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF7EC433EF;
-        Fri, 10 Mar 2023 13:55:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB7C6617AF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:45:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B07C433D2;
+        Fri, 10 Mar 2023 13:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456516;
-        bh=cS+DtdsVu+fYrOFvYk2bwSQL9yt3KSAJFFbJxu8sRaY=;
+        s=korg; t=1678455942;
+        bh=WCBACU70P87hYKjXFIK4UB2vTm452CMVcS+ce7wCrmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8d/IDw5kselYH+zwE+Bnz5Ac7LYBXSj5PR7nYN38q0O54+48GMswe8dj1kNfltw5
-         g/DN3U1hYCU9OjpLo8cAo6MAIahUrkbgGKa+QXLZW0Z6Sw5X9R3MGzLi48wsRtJtQ7
-         gcjlxrkfyZUksG/Gl4Kyk3Q+IfMo4HuNMisiEAQY=
+        b=N+2t5UrSEaZmomRC38DMtCspDBTJwI+X/YvJSvnEr6pKrPewhOblFXshTJve8D0HQ
+         w60bfxY2YiH7ZO7IN+uiHzM/3IoEfGGukmdJ7KIPLMZEUacZU0EpkaqkpmT+2OX0z/
+         i8zogo/wpdL6wmDuNYHB3TDSTfsTwIvx1Bn0eB9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 029/211] ubifs: Rectify space budget for ubifs_xrename()
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 027/193] wifi: ipw2200: fix memory leak in ipw_wdev_init()
 Date:   Fri, 10 Mar 2023 14:36:49 +0100
-Message-Id: <20230310133719.618795716@linuxfoundation.org>
+Message-Id: <20230310133711.855837704@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 1b2ba09060e41adb356b9ae58ef94a7390928004 ]
+[ Upstream commit 9fe21dc626117fb44a8eb393713a86a620128ce3 ]
 
-There is no space budget for ubifs_xrename(). It may let
-make_reservation() return with -ENOSPC, which could turn
-ubifs to read-only mode in do_writepage() process.
-Fix it by adding space budget for ubifs_xrename().
+In the error path of ipw_wdev_init(), exception value is returned, and
+the memory applied for in the function is not released. Also the memory
+is not released in ipw_pci_probe(). As a result, memory leakage occurs.
+So memory release needs to be added to the error path of ipw_wdev_init().
 
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216569
-Fixes: 9ec64962afb170 ("ubifs: Implement RENAME_EXCHANGE")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: a3caa99e6c68 ("libipw: initiate cfg80211 API conversion (v2)")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221209012422.182669-1-shaozhengchao@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/intel/ipw2x00/ipw2200.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index aaff3f3f0aa3b..94634b872e382 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1576,6 +1576,10 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
- 		return err;
- 	}
+diff --git a/drivers/net/wireless/intel/ipw2x00/ipw2200.c b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
+index 2d0734ab3f747..3c447d6f84af5 100644
+--- a/drivers/net/wireless/intel/ipw2x00/ipw2200.c
++++ b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
+@@ -11437,9 +11437,14 @@ static int ipw_wdev_init(struct net_device *dev)
+ 	set_wiphy_dev(wdev->wiphy, &priv->pci_dev->dev);
  
-+	err = ubifs_budget_space(c, &req);
-+	if (err)
+ 	/* With that information in place, we can now register the wiphy... */
+-	if (wiphy_register(wdev->wiphy))
+-		rc = -EIO;
++	rc = wiphy_register(wdev->wiphy);
++	if (rc)
 +		goto out;
 +
- 	lock_4_inodes(old_dir, new_dir, NULL, NULL);
++	return 0;
+ out:
++	kfree(priv->ieee->a_band.channels);
++	kfree(priv->ieee->bg_band.channels);
+ 	return rc;
+ }
  
- 	time = current_time(old_dir);
-@@ -1601,6 +1605,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
- 	unlock_4_inodes(old_dir, new_dir, NULL, NULL);
- 	ubifs_release_budget(c, &req);
- 
-+out:
- 	fscrypt_free_filename(&fst_nm);
- 	fscrypt_free_filename(&snd_nm);
- 	return err;
 -- 
 2.39.2
 
