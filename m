@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2AA6B43F7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7CBC6B41F4
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232143AbjCJOUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:20:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34382 "EHLO
+        id S231417AbjCJN6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232231AbjCJOTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F418515C7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:25 -0800 (PST)
+        with ESMTP id S231393AbjCJN6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 972CD367C5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A5F1B822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7575EC433D2;
-        Fri, 10 Mar 2023 14:18:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2421EB822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CF8C4339C;
+        Fri, 10 Mar 2023 13:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457902;
-        bh=JwiaiJePlYKy+Z6LmfFH7t3aPBmB+Po3NczqPZBfy58=;
+        s=korg; t=1678456683;
+        bh=lVIYVInF/4g3d/DflonBHznBjXiViExa+vlP/a+90e0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H6IniPwiv7rGQ8tmm5V1FZ1cC0j1Qd8SqLgc9Di2+cmCNHJUCwwpLYf2m+Gi3rPTX
-         LBH3Dw2YiVDKgJb0i293AYNHPDalxFxj6yvpal0Zcskw7wRoYIc/4LXNWGVY5/GWQN
-         btVXxxmEUW7++dwZ0YoKe82hGoAhXInQtwaEPE5E=
+        b=X2sa0W3OD84vNV2FKfxguAYjcZbb6FyL7zVW3N23ehsuJI30eKxykDYxybZl3ABdN
+         1J0vOlgtBk8dyRGDd4irLKiBq2fu7+VdjtsCq8l0D4S+93HNfgbztibd7q3oXaqyAD
+         rIEEb7E5OA5Ux4wCQsGoD0xZMewz+VudR+SlZrc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 098/252] mfd: pcf50633-adc: Fix potential memleak in pcf50633_adc_async_read()
+        patches@lists.linux.dev, Vadim Fedorenko <vadfed@meta.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 088/211] mlx5: fix possible ptp queue fifo use-after-free
 Date:   Fri, 10 Mar 2023 14:37:48 +0100
-Message-Id: <20230310133721.784634885@linuxfoundation.org>
+Message-Id: <20230310133721.462854855@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,48 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiheng Lin <linqiheng@huawei.com>
+From: Vadim Fedorenko <vadfed@meta.com>
 
-[ Upstream commit 8b450dcff23aa254844492831a8e2b508a9d522d ]
+[ Upstream commit 3a50cf1e8e5157b82268eee7e330dbe5736a0948 ]
 
-`req` is allocated in pcf50633_adc_async_read(), but
-adc_enqueue_request() could fail to insert the `req` into queue.
-We need to check the return value and free it in the case of failure.
+Fifo indexes are not checked during pop operations and it leads to
+potential use-after-free when poping from empty queue. Such case was
+possible during re-sync action. WARN_ON_ONCE covers future cases.
 
-Fixes: 08c3e06a5eb2 ("mfd: PCF50633 adc driver")
-Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20221208061555.8776-1-linqiheng@huawei.com
+There were out-of-order cqe spotted which lead to drain of the queue and
+use-after-free because of lack of fifo pointers check. Special check and
+counter are added to avoid resync operation if SKB could not exist in the
+fifo because of OOO cqe (skb_id must be between consumer and producer
+index).
+
+Fixes: 58a518948f60 ("net/mlx5e: Add resiliency for PTP TX port timestamp")
+Signed-off-by: Vadim Fedorenko <vadfed@meta.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/pcf50633-adc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ .../net/ethernet/mellanox/mlx5/core/en/ptp.c  | 19 ++++++++++++++++++-
+ .../net/ethernet/mellanox/mlx5/core/en/txrx.h |  2 ++
+ .../ethernet/mellanox/mlx5/core/en_stats.c    |  1 +
+ .../ethernet/mellanox/mlx5/core/en_stats.h    |  1 +
+ 4 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/pcf50633-adc.c b/drivers/mfd/pcf50633-adc.c
-index c1984b0d1b652..a4a765055ee6b 100644
---- a/drivers/mfd/pcf50633-adc.c
-+++ b/drivers/mfd/pcf50633-adc.c
-@@ -140,6 +140,7 @@ int pcf50633_adc_async_read(struct pcf50633 *pcf, int mux, int avg,
- 			     void *callback_param)
- {
- 	struct pcf50633_adc_request *req;
-+	int ret;
- 
- 	/* req is freed when the result is ready, in interrupt handler */
- 	req = kmalloc(sizeof(*req), GFP_KERNEL);
-@@ -151,7 +152,11 @@ int pcf50633_adc_async_read(struct pcf50633 *pcf, int mux, int avg,
- 	req->callback = callback;
- 	req->callback_param = callback_param;
- 
--	return adc_enqueue_request(pcf, req);
-+	ret = adc_enqueue_request(pcf, req);
-+	if (ret)
-+		kfree(req);
-+
-+	return ret;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
+index b72de2b520ecb..ae75e230170b5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
+@@ -86,6 +86,17 @@ static bool mlx5e_ptp_ts_cqe_drop(struct mlx5e_ptpsq *ptpsq, u16 skb_cc, u16 skb
+ 	return (ptpsq->ts_cqe_ctr_mask && (skb_cc != skb_id));
  }
- EXPORT_SYMBOL_GPL(pcf50633_adc_async_read);
  
++static bool mlx5e_ptp_ts_cqe_ooo(struct mlx5e_ptpsq *ptpsq, u16 skb_id)
++{
++	u16 skb_cc = PTP_WQE_CTR2IDX(ptpsq->skb_fifo_cc);
++	u16 skb_pc = PTP_WQE_CTR2IDX(ptpsq->skb_fifo_pc);
++
++	if (PTP_WQE_CTR2IDX(skb_id - skb_cc) >= PTP_WQE_CTR2IDX(skb_pc - skb_cc))
++		return true;
++
++	return false;
++}
++
+ static void mlx5e_ptp_skb_fifo_ts_cqe_resync(struct mlx5e_ptpsq *ptpsq, u16 skb_cc,
+ 					     u16 skb_id, int budget)
+ {
+@@ -120,8 +131,14 @@ static void mlx5e_ptp_handle_ts_cqe(struct mlx5e_ptpsq *ptpsq,
+ 		goto out;
+ 	}
+ 
+-	if (mlx5e_ptp_ts_cqe_drop(ptpsq, skb_cc, skb_id))
++	if (mlx5e_ptp_ts_cqe_drop(ptpsq, skb_cc, skb_id)) {
++		if (mlx5e_ptp_ts_cqe_ooo(ptpsq, skb_id)) {
++			/* already handled by a previous resync */
++			ptpsq->cq_stats->ooo_cqe_drop++;
++			return;
++		}
+ 		mlx5e_ptp_skb_fifo_ts_cqe_resync(ptpsq, skb_cc, skb_id, budget);
++	}
+ 
+ 	skb = mlx5e_skb_fifo_pop(&ptpsq->skb_fifo);
+ 	hwtstamp = mlx5e_cqe_ts_to_ns(sq->ptp_cyc2time, sq->clock, get_cqe_ts(cqe));
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+index 15a5a57b47b85..1b3a65325ece1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+@@ -297,6 +297,8 @@ void mlx5e_skb_fifo_push(struct mlx5e_skb_fifo *fifo, struct sk_buff *skb)
+ static inline
+ struct sk_buff *mlx5e_skb_fifo_pop(struct mlx5e_skb_fifo *fifo)
+ {
++	WARN_ON_ONCE(*fifo->pc == *fifo->cc);
++
+ 	return *mlx5e_skb_fifo_get(fifo, (*fifo->cc)++);
+ }
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+index 6687b8136e441..4478223c17209 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+@@ -2138,6 +2138,7 @@ static const struct counter_desc ptp_cq_stats_desc[] = {
+ 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, abort_abs_diff_ns) },
+ 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, resync_cqe) },
+ 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, resync_event) },
++	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, ooo_cqe_drop) },
+ };
+ 
+ static const struct counter_desc ptp_rq_stats_desc[] = {
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
+index 375752d6546d5..b77100b60b505 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
+@@ -461,6 +461,7 @@ struct mlx5e_ptp_cq_stats {
+ 	u64 abort_abs_diff_ns;
+ 	u64 resync_cqe;
+ 	u64 resync_event;
++	u64 ooo_cqe_drop;
+ };
+ 
+ struct mlx5e_rep_stats {
 -- 
 2.39.2
 
