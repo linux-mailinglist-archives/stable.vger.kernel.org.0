@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 498546B49C3
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3266B49D2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234036AbjCJPPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:15:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56950 "EHLO
+        id S233345AbjCJPQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:16:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234110AbjCJPOw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:52 -0500
+        with ESMTP id S233897AbjCJPPW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:15:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B3812B013
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA6312B95A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E808161AB3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:05:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0E3EC433EF;
-        Fri, 10 Mar 2023 15:05:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 257E56187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:05:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30EEFC4339B;
+        Fri, 10 Mar 2023 15:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460716;
-        bh=obZjSIO79O29WRqEUV8ysSu5ypwfM/L2fIJmRwrjcrc=;
+        s=korg; t=1678460749;
+        bh=QbIrpss5qE2Z+/U8AMOEQ3D0lXgfkkKb3SuKvfXCgCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlFFN86zWGXcTCSTVhzsJ1RvFTrFiCDL4ArTLdBVlJM60/0Tjkp2PIsTvjVO2eRDE
-         gLL4aSTlcRnPYiaEB5l/lq3dXZxL3EPmg9/h4ysLmr0U++FNZyC4e+OmogjVVTGDPG
-         RohUbyh0e5h7RaZsAEVM8rRtvsnGrNgPKs69tktE=
+        b=ntp+hE5Jatgbx9Jsd53TL5f9AOo9pLb1cU6VuueYbtLphW57UkFD3ygyH5BaRaNdn
+         b+Ej8e04xuJ1ZEYpxMdML0IG/ryL+C+0C8wHHcQ1zCe+tV05PLOJyTXe1kbOH734E7
+         wZxvPWDfZEKOrUYFqfp2F8DsKcPTWyDvZ6J9i/ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Quinn Tran <qutran@marvell.com>,
+        patches@lists.linux.dev, Arun Easi <aeasi@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 410/529] scsi: qla2xxx: Fix link failure in NPIV environment
-Date:   Fri, 10 Mar 2023 14:39:13 +0100
-Message-Id: <20230310133823.991965903@linuxfoundation.org>
+Subject: [PATCH 5.10 411/529] scsi: qla2xxx: Fix DMA-API call trace on NVMe LS requests
+Date:   Fri, 10 Mar 2023 14:39:14 +0100
+Message-Id: <20230310133824.042299200@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,43 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit b1ae65c082f74536ec292b15766f2846f0238373 upstream.
+commit c75e6aef5039830cce5d4cf764dd204522f89e6b upstream.
 
-User experienced symptoms of adapter failure in NPIV environment. NPIV
-hosts were allowed to trigger chip reset back to back due to NPIV link
-state being slow to come online.
+The following message and call trace was seen with debug kernels:
 
-Fix link failure in NPIV environment by removing NPIV host from directly
-being able to perform chip reset.
+DMA-API: qla2xxx 0000:41:00.0: device driver failed to check map
+error [device address=0x00000002a3ff38d8] [size=1024 bytes] [mapped as
+single]
+WARNING: CPU: 0 PID: 2930 at kernel/dma/debug.c:1017
+	 check_unmap+0xf42/0x1990
 
- kernel: qla2xxx [0000:04:00.1]-6009:261: Loop down - aborting ISP.
- kernel: qla2xxx [0000:04:00.1]-6009:262: Loop down - aborting ISP.
- kernel: qla2xxx [0000:04:00.1]-6009:281: Loop down - aborting ISP.
- kernel: qla2xxx [0000:04:00.1]-6009:285: Loop down - aborting ISP
+Call Trace:
+	debug_dma_unmap_page+0xc9/0x100
+	qla_nvme_ls_unmap+0x141/0x210 [qla2xxx]
 
-Fixes: 0d6e61bc6a4f ("[SCSI] qla2xxx: Correct various NPIV issues.")
+Remove DMA mapping from the driver altogether, as it is already done by FC
+layer. This prevents the warning.
+
+Fixes: c85ab7d9e27a ("scsi: qla2xxx: Fix missed DMA unmap for NVMe ls requests")
 Cc: stable@vger.kernel.org
-Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_nvme.c |   19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -7145,7 +7145,7 @@ qla2x00_timer(struct timer_list *t)
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -165,18 +165,6 @@ out:
+ 	qla2xxx_rel_qpair_sp(sp->qpair, sp);
+ }
  
- 		/* if the loop has been down for 4 minutes, reinit adapter */
- 		if (atomic_dec_and_test(&vha->loop_down_timer) != 0) {
--			if (!(vha->device_flags & DFLG_NO_CABLE)) {
-+			if (!(vha->device_flags & DFLG_NO_CABLE) && !vha->vp_idx) {
- 				ql_log(ql_log_warn, vha, 0x6009,
- 				    "Loop down - aborting ISP.\n");
+-static void qla_nvme_ls_unmap(struct srb *sp, struct nvmefc_ls_req *fd)
+-{
+-	if (sp->flags & SRB_DMA_VALID) {
+-		struct srb_iocb *nvme = &sp->u.iocb_cmd;
+-		struct qla_hw_data *ha = sp->fcport->vha->hw;
+-
+-		dma_unmap_single(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
+-				 fd->rqstlen, DMA_TO_DEVICE);
+-		sp->flags &= ~SRB_DMA_VALID;
+-	}
+-}
+-
+ static void qla_nvme_release_ls_cmd_kref(struct kref *kref)
+ {
+ 	struct srb *sp = container_of(kref, struct srb, cmd_kref);
+@@ -194,7 +182,6 @@ static void qla_nvme_release_ls_cmd_kref
  
+ 	fd = priv->fd;
+ 
+-	qla_nvme_ls_unmap(sp, fd);
+ 	fd->done(fd, priv->comp_status);
+ out:
+ 	qla2x00_rel_sp(sp);
+@@ -336,13 +323,10 @@ static int qla_nvme_ls_req(struct nvme_f
+ 	nvme->u.nvme.rsp_len = fd->rsplen;
+ 	nvme->u.nvme.rsp_dma = fd->rspdma;
+ 	nvme->u.nvme.timeout_sec = fd->timeout;
+-	nvme->u.nvme.cmd_dma = dma_map_single(&ha->pdev->dev, fd->rqstaddr,
+-	    fd->rqstlen, DMA_TO_DEVICE);
++	nvme->u.nvme.cmd_dma = fd->rqstdma;
+ 	dma_sync_single_for_device(&ha->pdev->dev, nvme->u.nvme.cmd_dma,
+ 	    fd->rqstlen, DMA_TO_DEVICE);
+ 
+-	sp->flags |= SRB_DMA_VALID;
+-
+ 	rval = qla2x00_start_sp(sp);
+ 	if (rval != QLA_SUCCESS) {
+ 		ql_log(ql_log_warn, vha, 0x700e,
+@@ -350,7 +334,6 @@ static int qla_nvme_ls_req(struct nvme_f
+ 		wake_up(&sp->nvme_ls_waitq);
+ 		sp->priv = NULL;
+ 		priv->sp = NULL;
+-		qla_nvme_ls_unmap(sp, fd);
+ 		qla2x00_rel_sp(sp);
+ 		return rval;
+ 	}
 
 
