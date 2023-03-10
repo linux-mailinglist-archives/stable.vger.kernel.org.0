@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1266B4384
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A167A6B427A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232046AbjCJOPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:15:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46770 "EHLO
+        id S231572AbjCJODv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231893AbjCJOO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF3A7DD1C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:44 -0800 (PST)
+        with ESMTP id S231668AbjCJODZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3445DEDE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C043B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7547C433EF;
-        Fri, 10 Mar 2023 14:13:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8630D6187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B641C433EF;
+        Fri, 10 Mar 2023 14:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457622;
-        bh=4unAjt4V5SjOwcZePewu1fuScVRo67vkT/F46A6vQYo=;
+        s=korg; t=1678457002;
+        bh=rplNL3ybWykRjj0qvso+TAtH8avN7CLNd9FgBOZyaDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8dIQ4SC0k2GIFc6mpshShs0dp+tNISt+xrgTHiQPPcuSER0ScqB/kmgHdnVpUyKl
-         jeynqwowiw7D0fm581MGe+llwu4XDwUVFIMkqfmxabIXiuI15iE2kC7Ah/YVfRbeFs
-         xNoBe/s2tTsN9ByRery3UpGRddRMXBkDna9FOrNs=
+        b=zLcJ+kI3SXPL6fHpU0MMTR6Z9ViziaVlsWLP5dQYT505giNq5+4WsfNfjizEtu4RX
+         Z5zz0SPXRdyughCZoN1ICVx10jHs7FveJ02kARr1RI9vsbUfSSHIq0dH5k7pEp+7X2
+         1c8XYIaJBgQEAkG4o873b/h4uwo3eIHkCW8YXKqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 170/200] PCI: pciehp: Add Qualcomm quirk for Command Completed erratum
-Date:   Fri, 10 Mar 2023 14:39:37 +0100
-Message-Id: <20230310133722.315966030@linuxfoundation.org>
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.2 198/211] vDPA/ifcvf: ifcvf_request_irq works on ifcvf_hw
+Date:   Fri, 10 Mar 2023 14:39:38 +0100
+Message-Id: <20230310133724.909113674@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,46 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit 82b34b0800af8c9fc9988c290cdc813e0ca0df31 ]
+commit 7cfd36b7e8be6bdaeb5af0f9729871b732a7a3c8 upstream.
 
-The Qualcomm PCI bridge device (Device ID 0x010e) found in chipsets such as
-SC8280XP used in Lenovo Thinkpad X13s, does not set the Command Completed
-bit unless writes to the Slot Command register change "Control" bits.
+All ifcvf_request_irq's callees are refactored
+to work on ifcvf_hw, so it should be decoupled
+from the adapter as well
 
-This results in timeouts like below during boot and resume from suspend:
-
-  pcieport 0002:00:00.0: pciehp: Timeout on hotplug command 0x03c0 (issued 2020 msec ago)
-  ...
-  pcieport 0002:00:00.0: pciehp: Timeout on hotplug command 0x13f1 (issued 107724 msec ago)
-
-Add the device to the Command Completed quirk to mark commands "completed"
-immediately unless they change the "Control" bits.
-
-Link: https://lore.kernel.org/r/20230213144922.89982-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-9-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vdpa/ifcvf/ifcvf_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
-index 040ae076ec0e9..112c8f401ac4e 100644
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -1086,6 +1086,8 @@ static void quirk_cmd_compl(struct pci_dev *pdev)
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -314,9 +314,8 @@ err:
+ 	return -EFAULT;
  }
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
-+DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x010e,
-+			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0110,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0400,
--- 
-2.39.2
-
+ 
+-static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
++static int ifcvf_request_irq(struct ifcvf_hw *vf)
+ {
+-	struct ifcvf_hw *vf = &adapter->vf;
+ 	int nvectors, ret, max_intr;
+ 
+ 	nvectors = ifcvf_alloc_vectors(vf);
+@@ -468,7 +467,7 @@ static void ifcvf_vdpa_set_status(struct
+ 
+ 	if ((status & VIRTIO_CONFIG_S_DRIVER_OK) &&
+ 	    !(status_old & VIRTIO_CONFIG_S_DRIVER_OK)) {
+-		ret = ifcvf_request_irq(adapter);
++		ret = ifcvf_request_irq(vf);
+ 		if (ret) {
+ 			status = ifcvf_get_status(vf);
+ 			status |= VIRTIO_CONFIG_S_FAILED;
 
 
