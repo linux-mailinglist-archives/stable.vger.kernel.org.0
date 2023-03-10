@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 286C36B41D7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 979976B40E6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231295AbjCJN5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:57:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
+        id S230332AbjCJNrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:47:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231340AbjCJN5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35E3515553
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:11 -0800 (PST)
+        with ESMTP id S230242AbjCJNr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2516328E42
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02E2361771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 149FFC433D2;
-        Fri, 10 Mar 2023 13:56:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B643C6182F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD2F0C433EF;
+        Fri, 10 Mar 2023 13:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456610;
-        bh=9NJBLsx4qiq15RUbJYGha3cnPvyqWDhaEgc5KV9Rns0=;
+        s=korg; t=1678456041;
+        bh=7d8wbGskQghxoGa947+yfi4u1m4w196vyZcrgDbQh90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvBbqlPkn4yZu+wKNhXTqGd4eymukSC24rrgI57ZkK++kDe/pBd+7Z6aBWbba9oU2
-         QBoWtx28k8rMiQFWl7xJIju/uKwcQvGu4+wvzX7jjixAEv6wWuCi0H4IkZqejyC2sZ
-         y7QhYsOntr/dGpS6d9F3ghvPDBxet4LaZorYgw20=
+        b=2nQRhFZqV7FBBS/LtB0YP7NdbCQ5cvBoF/vvIu8uGJEpT9pF585ZfWbO/L/XoRsMJ
+         MX8AqHD7YZuzZpH+Ox5oTzwyp4kOZXSt3ImTUJjr5MDSBox/+qja0IqJrSq3CtQ3ZY
+         X3nYB985fQewJRs/9m+TcDTjcjTTNM6ApSsgDxxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        patches@lists.linux.dev,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 062/211] watchdog: at91sam9_wdt: use devm_request_irq to avoid missing free_irq() in error path
+Subject: [PATCH 4.14 060/193] ASoC: soc-compress.c: fixup private_data on snd_soc_new_compress()
 Date:   Fri, 10 Mar 2023 14:37:22 +0100
-Message-Id: <20230310133720.614848811@linuxfoundation.org>
+Message-Id: <20230310133713.027305284@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,43 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ruanjinjie <ruanjinjie@huawei.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 07bec0e09c1afbab4c5674fd2341f4f52d594f30 ]
+[ Upstream commit ffe4c0f0bfaa571a676a0e946d4a6a0607f94294 ]
 
-free_irq() is missing in case of error in at91_wdt_init(), use
-devm_request_irq to fix that.
+commit d3268a40d4b19f ("ASoC: soc-compress.c: fix NULL dereference")
+enables DPCM capture, but it should independent from playback.
+This patch fixup it.
 
-Fixes: 5161b31dc39a ("watchdog: at91sam9_wdt: better watchdog support")
-Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221116094950.3141943-1-ruanjinjie@huawei.com
-[groeck: Adjust multi-line alignment]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: d3268a40d4b1 ("ASoC: soc-compress.c: fix NULL dereference")
+Link: https://lore.kernel.org/r/87tu0i6j7j.wl-kuninori.morimoto.gx@renesas.com
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/871qnkvo1s.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/at91sam9_wdt.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ sound/soc/soc-compress.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/at91sam9_wdt.c b/drivers/watchdog/at91sam9_wdt.c
-index 292b5a1ca8318..fed7be2464420 100644
---- a/drivers/watchdog/at91sam9_wdt.c
-+++ b/drivers/watchdog/at91sam9_wdt.c
-@@ -206,10 +206,9 @@ static int at91_wdt_init(struct platform_device *pdev, struct at91wdt *wdt)
- 			 "min heartbeat and max heartbeat might be too close for the system to handle it correctly\n");
- 
- 	if ((tmp & AT91_WDT_WDFIEN) && wdt->irq) {
--		err = request_irq(wdt->irq, wdt_interrupt,
--				  IRQF_SHARED | IRQF_IRQPOLL |
--				  IRQF_NO_SUSPEND,
--				  pdev->name, wdt);
-+		err = devm_request_irq(dev, wdt->irq, wdt_interrupt,
-+				       IRQF_SHARED | IRQF_IRQPOLL | IRQF_NO_SUSPEND,
-+				       pdev->name, wdt);
- 		if (err)
- 			return err;
- 	}
+diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
+index 2cb8d3b55fbc2..c00f21dbcf11d 100644
+--- a/sound/soc/soc-compress.c
++++ b/sound/soc/soc-compress.c
+@@ -788,7 +788,7 @@ int snd_soc_new_compress(struct snd_soc_pcm_runtime *rtd, int num)
+ 		rtd->fe_compr = 1;
+ 		if (rtd->dai_link->dpcm_playback)
+ 			be_pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream->private_data = rtd;
+-		else if (rtd->dai_link->dpcm_capture)
++		if (rtd->dai_link->dpcm_capture)
+ 			be_pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream->private_data = rtd;
+ 		memcpy(compr->ops, &soc_compr_dyn_ops, sizeof(soc_compr_dyn_ops));
+ 	} else {
 -- 
 2.39.2
 
