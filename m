@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 663956B43E0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02CFF6B40EA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232102AbjCJOT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:19:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58266 "EHLO
+        id S229895AbjCJNri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:47:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231267AbjCJOTF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:05 -0500
+        with ESMTP id S230337AbjCJNre (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD7911BB30
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:17:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B8628E54
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11A4C6182F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0782DC433EF;
-        Fri, 10 Mar 2023 14:17:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B68B461866
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BED49C4339C;
+        Fri, 10 Mar 2023 13:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457836;
-        bh=AlPPXK9Ndz98AiwdhMLTtGNFjierJ7y96qVV8JuEy8Q=;
+        s=korg; t=1678456050;
+        bh=6dr/J/7dEG3YI4o2FHkASAm0CBPKyRgbPmG0hJ5e2kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNc19UplIrnJB+RfJKV77OdKNo4RCbRtyX7YOk6LdtxPSGf7+1XZZ4uzzssz/VDJP
-         65/xkF264ldA2nxvOEeTSplWXclW54erSWN/rEznL94WclsDAx7osWhm89V3VXbH5g
-         ISrdbwBQ2mhwUd/u2G0lUah7FydUO+b1/JLE/vFw=
+        b=XFRJSk/nuyG6W+KU2Rc2kZglkvkKjEt976PGoMXqMqIyCDwPPe6s2tLjAqFhTOr3R
+         gAmqFG6lwXB59HMpHyHWgYpEb0pUH+C5mpnOJ//RLH60UjZ3XPrhHEydnBKL8N8gYG
+         jDH/Dbm+FKLnm8sqdVburqy9350lrBj1WW1bHXmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev,
+        Jonathan Cormier <jcormier@criticallink.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 074/252] pinctrl: rockchip: Fix refcount leak in rockchip_pinctrl_parse_groups
+Subject: [PATCH 4.14 062/193] hwmon: (ltc2945) Handle error case in ltc2945_value_store
 Date:   Fri, 10 Mar 2023 14:37:24 +0100
-Message-Id: <20230310133721.060363976@linuxfoundation.org>
+Message-Id: <20230310133713.092285797@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jonathan Cormier <jcormier@criticallink.com>
 
-[ Upstream commit c818ae563bf99457f02e8170aabd6b174f629f65 ]
+[ Upstream commit 178b01eccfb0b8149682f61388400bd3d903dddc ]
 
-of_find_node_by_phandle() returns a node pointer with refcount incremented,
-We should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+ltc2945_val_to_reg errors were not being handled
+which would have resulted in register being set to
+0 (clamped) instead of being left alone.
 
-Fixes: d3e5116119bd ("pinctrl: add pinctrl driver for Rockchip SoCs")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20230102112845.3982407-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 6700ce035f83 ("hwmon: Driver for Linear Technologies LTC2945")
+
+Signed-off-by: Jonathan Cormier <jcormier@criticallink.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/ltc2945.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index d9b9bbb45a630..fb7f2282635e8 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -2504,6 +2504,7 @@ static int rockchip_pinctrl_parse_groups(struct device_node *np,
- 		np_config = of_find_node_by_phandle(be32_to_cpup(phandle));
- 		ret = pinconf_generic_parse_dt_config(np_config, NULL,
- 				&grp->data[j].configs, &grp->data[j].nconfigs);
-+		of_node_put(np_config);
- 		if (ret)
- 			return ret;
- 	}
+diff --git a/drivers/hwmon/ltc2945.c b/drivers/hwmon/ltc2945.c
+index 1b92e4f6e2349..efabe514ec560 100644
+--- a/drivers/hwmon/ltc2945.c
++++ b/drivers/hwmon/ltc2945.c
+@@ -257,6 +257,8 @@ static ssize_t ltc2945_set_value(struct device *dev,
+ 
+ 	/* convert to register value, then clamp and write result */
+ 	regval = ltc2945_val_to_reg(dev, reg, val);
++	if (regval < 0)
++		return regval;
+ 	if (is_power_reg(reg)) {
+ 		regval = clamp_val(regval, 0, 0xffffff);
+ 		regbuf[0] = regval >> 16;
 -- 
 2.39.2
 
