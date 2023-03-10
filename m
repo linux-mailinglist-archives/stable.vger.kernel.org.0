@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8FA6B42FA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23DE26B4420
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbjCJOJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:09:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34416 "EHLO
+        id S232224AbjCJOVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:21:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231723AbjCJOI6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6DD47DD36
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:32 -0800 (PST)
+        with ESMTP id S232110AbjCJOVU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B83B5193ED
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:19:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CE486192E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B7EC433D2;
-        Fri, 10 Mar 2023 14:08:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E332B822B5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:19:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBBCCC433D2;
+        Fri, 10 Mar 2023 14:19:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457310;
-        bh=35tNpUgvmGiPXTi0O8sbowS2JZkvEaR4P1nZWV4frg4=;
+        s=korg; t=1678457997;
+        bh=ilDX3teIw9VNwp2KB64sotEzCom8fGiOCDCHazHWBss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zwzu+hEZNTf57BxuJ9RpuAKMYM2icS3CWEgA8AZjmo/PpLWpVqoff4mm8uAO5kj0G
-         Bijg5lVRL040K6ReV1lXZQoRxFEDzI+/IwGlQWhzJkq+rArZo+WX0MBDmhJVrG4cua
-         +QpwRQHxbCEwxckmXVjBwZo3sh+5d97hSNEl3aAA=
+        b=YesRFNdVBnrRnE+MZaol+OskduMWoX37GOLTBHGYpjk26kjEQYZAOouaHcbNtWayQ
+         PBeKH8TeY2PNwa8NjLuERS4+CCO/pj1v+7C/49dDgbuHS2x+84THJg8a9PYUO2cI8c
+         o3UBl6hfD72+ffiFiRij5XExejYlIvnKyIT2gx5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 092/200] ARM: dts: spear320-hmi: correct STMPE GPIO compatible
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Wayne Lin <Wayne.Lin@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Roman Li <roman.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 129/252] drm/amd/display: Fix potential null-deref in dm_resume
 Date:   Fri, 10 Mar 2023 14:38:19 +0100
-Message-Id: <20230310133719.940502359@linuxfoundation.org>
+Message-Id: <20230310133722.715828741@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,35 +58,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Roman Li <roman.li@amd.com>
 
-[ Upstream commit 33a0c1b850c8c85f400531dab3a0b022cdb164b1 ]
+[ Upstream commit 7a7175a2cd84b7874bebbf8e59f134557a34161b ]
 
-The compatible is st,stmpe-gpio.
+[Why]
+Fixing smatch error:
+dm_resume() error: we previously assumed 'aconnector->dc_link' could be null
 
-Fixes: e2eb69183ec4 ("ARM: SPEAr320: DT: Add SPEAr 320 HMI board support")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Link: https://lore.kernel.org/r/20230225162237.40242-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[How]
+Check if dc_link null at the beginning of the loop,
+so further checks can be dropped.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Roman Li <roman.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/spear320-hmi.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/spear320-hmi.dts b/arch/arm/boot/dts/spear320-hmi.dts
-index 34503ac9c51c2..721e5ee7b6803 100644
---- a/arch/arm/boot/dts/spear320-hmi.dts
-+++ b/arch/arm/boot/dts/spear320-hmi.dts
-@@ -241,7 +241,7 @@
- 					irq-trigger = <0x1>;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 57678e6dcdc4c..98d51bc204172 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -773,12 +773,14 @@ static int dm_resume(void *handle)
+ 	list_for_each_entry(connector, &ddev->mode_config.connector_list, head) {
+ 		aconnector = to_amdgpu_dm_connector(connector);
  
- 					stmpegpio: stmpe-gpio {
--						compatible = "stmpe,gpio";
-+						compatible = "st,stmpe-gpio";
- 						reg = <0>;
- 						gpio-controller;
- 						#gpio-cells = <2>;
++		if (!aconnector->dc_link)
++			continue;
++
+ 		/*
+ 		 * this is the case when traversing through already created
+ 		 * MST connectors, should be skipped
+ 		 */
+-		if (aconnector->dc_link &&
+-		    aconnector->dc_link->type == dc_connection_mst_branch)
++		if (aconnector->dc_link->type == dc_connection_mst_branch)
+ 			continue;
+ 
+ 		mutex_lock(&aconnector->hpd_lock);
 -- 
 2.39.2
 
