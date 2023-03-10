@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3496B45BD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5176B443D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232626AbjCJOgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:36:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46190 "EHLO
+        id S232272AbjCJOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232653AbjCJOga (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9A511ACA0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:13 -0800 (PST)
+        with ESMTP id S232117AbjCJOWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDA3411AB97;
+        Fri, 10 Mar 2023 06:21:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA0C61380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1837C4339B;
-        Fri, 10 Mar 2023 14:36:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85118B82291;
+        Fri, 10 Mar 2023 14:21:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2D80C433EF;
+        Fri, 10 Mar 2023 14:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458972;
-        bh=AiZu5EIKSz5cXC+74MehBXazyzaRVafrGa9aQ1hTsRc=;
+        s=korg; t=1678458076;
+        bh=kDOj8ESPmA7xKbqWcp1HPEdDSwfeDbVxLFdjEIVQRb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSM6o7I2kSp1HoE1yFts3eQSPFTHwNie8Wr51c34B/milezqgYXz7PkG9gKaSUFFQ
-         FwHDb2tdU72YHRYxxHQ4fm12/7mnTxEzOjyqdDTL+VnsEgR11meUlyCMcirrIRLNLx
-         M8HwLYKSZWcpTGpRCnT2U7nQOQDv7JM1zVDB7YBY=
+        b=ldRyfzaoVbs3loJMiU9lC4kTTGFbtCPdAyWYPMFnOsX96ZfPNG/HJ2sWVNbz23WVy
+         mJBaAqJiO/CVFB3uGvwDX32sE0bOCkznQMjMzYN8FlkLeU7F/FXefEzEE4MbLB4iKB
+         k9WQC/RDdqJBWDEdc/j1cWjzLsP6DT0bsriibtNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Florent Revest <revest@chromium.org>,
+        Len Brown <lenb@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Robert Moore <robert.moore@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 205/357] hwmon: (coretemp) Simplify platform device handling
+Subject: [PATCH 4.19 124/252] ACPI: Dont build ACPICA with -Os
 Date:   Fri, 10 Mar 2023 14:38:14 +0100
-Message-Id: <20230310133743.757255847@linuxfoundation.org>
+Message-Id: <20230310133722.557512488@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,278 +62,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 6d03bbff456befeccdd4d663177c4d6c75d0c4ff ]
+[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
 
-Coretemp's platform driver is unconventional. All the real work is done
-globally by the initcall and CPU hotplug notifiers, while the "driver"
-effectively just wraps an allocation and the registration of the hwmon
-interface in a long-winded round-trip through the driver core.  The whole
-logic of dynamically creating and destroying platform devices to bring
-the interfaces up and down is error prone, since it assumes
-platform_device_add() will synchronously bind the driver and set drvdata
-before it returns, thus results in a NULL dereference if drivers_autoprobe
-is turned off for the platform bus. Furthermore, the unusual approach of
-doing that from within a CPU hotplug notifier, already commented in the
-code that it deadlocks suspend, also causes lockdep issues for other
-drivers or subsystems which may want to legitimately register a CPU
-hotplug notifier from a platform bus notifier.
+The ACPICA code has been built with '-Os' since the beginning of git
+history, though there's no explanatory comment as to why.
 
-All of these issues can be solved by ripping this unusual behaviour out
-completely, simply tying the platform devices to the lifetime of the
-module itself, and directly managing the hwmon interfaces from the
-hotplug notifiers. There is a slight user-visible change in that
-/sys/bus/platform/drivers/coretemp will no longer appear, and
-/sys/devices/platform/coretemp.n will remain present if package n is
-hotplugged off, but hwmon users should really only be looking for the
-presence of the hwmon interfaces, whose behaviour remains unchanged.
+This is unfortunate as GCC drops the alignment specificed by
+'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
 
-Link: https://lore.kernel.org/lkml/20220922101036.87457-1-janusz.krzysztofik@linux.intel.com/
-Link: https://gitlab.freedesktop.org/drm/intel/issues/6641
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-Link: https://lore.kernel.org/r/20230103114620.15319-1-janusz.krzysztofik@linux.intel.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
+
+This prevents CONFIG_FUNCTION_ALIGNMENT and
+CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
+on the ACPICA code. This is doubly unfortunate as in subsequent patches
+arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
+implementation.
+
+Drop the '-Os' flag when building the ACPICA code. With this removed,
+the code builds cleanly and works correctly in testing so far.
+
+I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
+building and booting a kernel using ACPI, and looking for misaligned
+text symbols:
+
+* arm64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    5009
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    919
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    323
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+* x86_64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    11537
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    2805
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    1357
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+With the patch applied, the remaining unaligned text labels are a
+combination of static call trampolines and labels in assembly, which can
+be dealt with in subsequent patches.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Robert Moore <robert.moore@intel.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-acpi@vger.kernel.org
+Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/coretemp.c | 128 ++++++++++++++++++---------------------
- 1 file changed, 58 insertions(+), 70 deletions(-)
+ drivers/acpi/acpica/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/coretemp.c b/drivers/hwmon/coretemp.c
-index 7a64ff6a8779c..e232f44f6c9ac 100644
---- a/drivers/hwmon/coretemp.c
-+++ b/drivers/hwmon/coretemp.c
-@@ -550,66 +550,49 @@ static void coretemp_remove_core(struct platform_data *pdata, int indx)
- 		ida_free(&pdata->ida, indx - BASE_SYSFS_ATTR_NO);
- }
+diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
+index 71f6f2624debc..8ce51f0f40ce5 100644
+--- a/drivers/acpi/acpica/Makefile
++++ b/drivers/acpi/acpica/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for ACPICA Core interpreter
+ #
  
--static int coretemp_probe(struct platform_device *pdev)
-+static int coretemp_device_add(int zoneid)
- {
--	struct device *dev = &pdev->dev;
-+	struct platform_device *pdev;
- 	struct platform_data *pdata;
-+	int err;
+-ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
++ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
+ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
  
- 	/* Initialize the per-zone data structures */
--	pdata = devm_kzalloc(dev, sizeof(struct platform_data), GFP_KERNEL);
-+	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
- 	if (!pdata)
- 		return -ENOMEM;
- 
--	pdata->pkg_id = pdev->id;
-+	pdata->pkg_id = zoneid;
- 	ida_init(&pdata->ida);
--	platform_set_drvdata(pdev, pdata);
- 
--	pdata->hwmon_dev = devm_hwmon_device_register_with_groups(dev, DRVNAME,
--								  pdata, NULL);
--	return PTR_ERR_OR_ZERO(pdata->hwmon_dev);
--}
--
--static int coretemp_remove(struct platform_device *pdev)
--{
--	struct platform_data *pdata = platform_get_drvdata(pdev);
--	int i;
-+	pdev = platform_device_alloc(DRVNAME, zoneid);
-+	if (!pdev) {
-+		err = -ENOMEM;
-+		goto err_free_pdata;
-+	}
- 
--	for (i = MAX_CORE_DATA - 1; i >= 0; --i)
--		if (pdata->core_data[i])
--			coretemp_remove_core(pdata, i);
-+	err = platform_device_add(pdev);
-+	if (err)
-+		goto err_put_dev;
- 
--	ida_destroy(&pdata->ida);
-+	platform_set_drvdata(pdev, pdata);
-+	zone_devices[zoneid] = pdev;
- 	return 0;
--}
- 
--static struct platform_driver coretemp_driver = {
--	.driver = {
--		.name = DRVNAME,
--	},
--	.probe = coretemp_probe,
--	.remove = coretemp_remove,
--};
-+err_put_dev:
-+	platform_device_put(pdev);
-+err_free_pdata:
-+	kfree(pdata);
-+	return err;
-+}
- 
--static struct platform_device *coretemp_device_add(unsigned int cpu)
-+static void coretemp_device_remove(int zoneid)
- {
--	int err, zoneid = topology_logical_die_id(cpu);
--	struct platform_device *pdev;
--
--	if (zoneid < 0)
--		return ERR_PTR(-ENOMEM);
--
--	pdev = platform_device_alloc(DRVNAME, zoneid);
--	if (!pdev)
--		return ERR_PTR(-ENOMEM);
--
--	err = platform_device_add(pdev);
--	if (err) {
--		platform_device_put(pdev);
--		return ERR_PTR(err);
--	}
-+	struct platform_device *pdev = zone_devices[zoneid];
-+	struct platform_data *pdata = platform_get_drvdata(pdev);
- 
--	zone_devices[zoneid] = pdev;
--	return pdev;
-+	ida_destroy(&pdata->ida);
-+	kfree(pdata);
-+	platform_device_unregister(pdev);
- }
- 
- static int coretemp_cpu_online(unsigned int cpu)
-@@ -633,7 +616,10 @@ static int coretemp_cpu_online(unsigned int cpu)
- 	if (!cpu_has(c, X86_FEATURE_DTHERM))
- 		return -ENODEV;
- 
--	if (!pdev) {
-+	pdata = platform_get_drvdata(pdev);
-+	if (!pdata->hwmon_dev) {
-+		struct device *hwmon;
-+
- 		/* Check the microcode version of the CPU */
- 		if (chk_ucode_version(cpu))
- 			return -EINVAL;
-@@ -644,9 +630,11 @@ static int coretemp_cpu_online(unsigned int cpu)
- 		 * online. So, initialize per-pkg data structures and
- 		 * then bring this core online.
- 		 */
--		pdev = coretemp_device_add(cpu);
--		if (IS_ERR(pdev))
--			return PTR_ERR(pdev);
-+		hwmon = hwmon_device_register_with_groups(&pdev->dev, DRVNAME,
-+							  pdata, NULL);
-+		if (IS_ERR(hwmon))
-+			return PTR_ERR(hwmon);
-+		pdata->hwmon_dev = hwmon;
- 
- 		/*
- 		 * Check whether pkgtemp support is available.
-@@ -656,7 +644,6 @@ static int coretemp_cpu_online(unsigned int cpu)
- 			coretemp_add_core(pdev, cpu, 1);
- 	}
- 
--	pdata = platform_get_drvdata(pdev);
- 	/*
- 	 * Check whether a thread sibling is already online. If not add the
- 	 * interface for this CPU core.
-@@ -675,18 +662,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
- 	struct temp_data *tdata;
- 	int i, indx = -1, target;
- 
--	/*
--	 * Don't execute this on suspend as the device remove locks
--	 * up the machine.
--	 */
-+	/* No need to tear down any interfaces for suspend */
- 	if (cpuhp_tasks_frozen)
- 		return 0;
- 
- 	/* If the physical CPU device does not exist, just return */
--	if (!pdev)
--		return 0;
--
- 	pd = platform_get_drvdata(pdev);
-+	if (!pd->hwmon_dev)
-+		return 0;
- 
- 	for (i = 0; i < NUM_REAL_CORES; i++) {
- 		if (pd->cpu_map[i] == topology_core_id(cpu)) {
-@@ -718,13 +701,14 @@ static int coretemp_cpu_offline(unsigned int cpu)
- 	}
- 
- 	/*
--	 * If all cores in this pkg are offline, remove the device. This
--	 * will invoke the platform driver remove function, which cleans up
--	 * the rest.
-+	 * If all cores in this pkg are offline, remove the interface.
- 	 */
-+	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
- 	if (cpumask_empty(&pd->cpumask)) {
--		zone_devices[topology_logical_die_id(cpu)] = NULL;
--		platform_device_unregister(pdev);
-+		if (tdata)
-+			coretemp_remove_core(pd, PKG_SYSFS_ATTR_NO);
-+		hwmon_device_unregister(pd->hwmon_dev);
-+		pd->hwmon_dev = NULL;
- 		return 0;
- 	}
- 
-@@ -732,7 +716,6 @@ static int coretemp_cpu_offline(unsigned int cpu)
- 	 * Check whether this core is the target for the package
- 	 * interface. We need to assign it to some other cpu.
- 	 */
--	tdata = pd->core_data[PKG_SYSFS_ATTR_NO];
- 	if (tdata && tdata->cpu == cpu) {
- 		target = cpumask_first(&pd->cpumask);
- 		mutex_lock(&tdata->update_lock);
-@@ -751,7 +734,7 @@ static enum cpuhp_state coretemp_hp_online;
- 
- static int __init coretemp_init(void)
- {
--	int err;
-+	int i, err;
- 
- 	/*
- 	 * CPUID.06H.EAX[0] indicates whether the CPU has thermal
-@@ -767,20 +750,22 @@ static int __init coretemp_init(void)
- 	if (!zone_devices)
- 		return -ENOMEM;
- 
--	err = platform_driver_register(&coretemp_driver);
--	if (err)
--		goto outzone;
-+	for (i = 0; i < max_zones; i++) {
-+		err = coretemp_device_add(i);
-+		if (err)
-+			goto outzone;
-+	}
- 
- 	err = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "hwmon/coretemp:online",
- 				coretemp_cpu_online, coretemp_cpu_offline);
- 	if (err < 0)
--		goto outdrv;
-+		goto outzone;
- 	coretemp_hp_online = err;
- 	return 0;
- 
--outdrv:
--	platform_driver_unregister(&coretemp_driver);
- outzone:
-+	while (i--)
-+		coretemp_device_remove(i);
- 	kfree(zone_devices);
- 	return err;
- }
-@@ -788,8 +773,11 @@ module_init(coretemp_init)
- 
- static void __exit coretemp_exit(void)
- {
-+	int i;
-+
- 	cpuhp_remove_state(coretemp_hp_online);
--	platform_driver_unregister(&coretemp_driver);
-+	for (i = 0; i < max_zones; i++)
-+		coretemp_device_remove(i);
- 	kfree(zone_devices);
- }
- module_exit(coretemp_exit)
+ # use acpi.o to put all files here into acpi.o modparam namespace
 -- 
 2.39.2
 
