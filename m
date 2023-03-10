@@ -2,143 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 999C46B4363
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 743686B4497
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232002AbjCJOOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46736 "EHLO
+        id S232138AbjCJOZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231968AbjCJON4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B81CA1184FA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:44 -0800 (PST)
+        with ESMTP id S232377AbjCJOZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87B16118BC2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5889761380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B18FC433D2;
-        Fri, 10 Mar 2023 14:12:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21506B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C795C4339B;
+        Fri, 10 Mar 2023 14:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457560;
-        bh=ViG/VVdkEp+xwXqMWm6vJRYGD+RpdEo2b7Mdnnvyf4g=;
+        s=korg; t=1678458261;
+        bh=W5VhaIiKg6jbVVwwpYqtvWfPYl4yWBQL9YPXT+d9wBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKefTn02ZqEDuWTWE2T648lEmOuYhAWX/DN4+8FiwcpZa01HvQirj9/hSf/uC19Ep
-         nSrtUhySTBww9JqpAIcDN3b0ZnNYtNm6uY7H+sxtyzrP67FvQpOV5qC14RCR2XNoic
-         CirDMT4u/XaefWVnVpjfI+1H0ORXgRvGDa69w4Ns=
+        b=jl7sAfHylNXAxXN384FEzEzDSDBsDFgxsVM2bcmRl5Iio4Jg6BqxicK3bNgHHr+pp
+         W8ceNhoOD1GGIy/jis80tmTcY4/gtR58AkEm8pC+ifD7H1lhA2VHU+eOnJdUsIlqj6
+         75VLSt0tcxjAIey+OlD1VK3sghSKomKWmZv+CGro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6.1 180/200] vDPA/ifcvf: alloc the mgmt_dev before the adapter
+        patches@lists.linux.dev, Chen Jun <chenjun102@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 217/252] watchdog: Fix kmemleak in watchdog_cdev_register
 Date:   Fri, 10 Mar 2023 14:39:47 +0100
-Message-Id: <20230310133722.634171488@linuxfoundation.org>
+Message-Id: <20230310133725.743577677@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,WEIRD_QUOTING autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-commit 66e3970b16d1e960afbece65739a3628273633f1 upstream.
+[ Upstream commit 13721a2ac66b246f5802ba1b75ad8637e53eeecc ]
 
-This commit reverses the order of allocating the
-management device and the adapter. So that it would
-be possible to move the allocation of the adapter
-to dev_add().
+kmemleak reports memory leaks in watchdog_dev_register, as follows:
+unreferenced object 0xffff888116233000 (size 2048):
+  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
+  hex dump (first 32 bytes):
+    80 fa b9 05 81 88 ff ff 08 30 23 16 81 88 ff ff  .........0#.....
+    08 30 23 16 81 88 ff ff 00 00 00 00 00 00 00 00  .0#.............
+  backtrace:
+    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
+    [<000000006a389304>] kmalloc_trace+0x21/0x110
+    [<000000008d640eea>] watchdog_dev_register+0x4e/0x780 [watchdog]
+    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
+    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
+    [<000000001f730178>] 0xffffffffc10880ae
+    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
+    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
+    [<0000000046d08e7c>] load_module+0x6133/0x70f0
+    ...
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20221125145724.1129962-4-lingshan.zhu@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+unreferenced object 0xffff888105b9fa80 (size 16):
+  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
+  hex dump (first 16 bytes):
+    77 61 74 63 68 64 6f 67 31 00 b9 05 81 88 ff ff  watchdog1.......
+  backtrace:
+    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
+    [<00000000486ab89b>] __kmalloc_node_track_caller+0x44/0x1b0
+    [<000000005a39aab0>] kvasprintf+0xb5/0x140
+    [<0000000024806f85>] kvasprintf_const+0x55/0x180
+    [<000000009276cb7f>] kobject_set_name_vargs+0x56/0x150
+    [<00000000a92e820b>] dev_set_name+0xab/0xe0
+    [<00000000cec812c6>] watchdog_dev_register+0x285/0x780 [watchdog]
+    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
+    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
+    [<000000001f730178>] 0xffffffffc10880ae
+    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
+    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
+    [<0000000046d08e7c>] load_module+0x6133/0x70f0
+    ...
+
+The reason is that put_device is not be called if cdev_device_add fails
+and wdd->id != 0.
+
+watchdog_cdev_register
+  wd_data = kzalloc                             [1]
+  err = dev_set_name                            [2]
+  ..
+  err = cdev_device_add
+  if (err) {
+    if (wdd->id == 0) {  // wdd->id != 0
+      ..
+    }
+    return err;  // [1],[2] would be leaked
+
+To fix it, call put_device in all wdd->id cases.
+
+Fixes: 72139dfa2464 ("watchdog: Fix the race between the release of watchdog_core_data and cdev")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221116012714.102066-1-chenjun102@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c |   31 ++++++++++++++-----------------
- 1 file changed, 14 insertions(+), 17 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -831,22 +831,30 @@ static int ifcvf_probe(struct pci_dev *p
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 8fe59b7d8eec8..808896c9e1c20 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -989,8 +989,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
+ 		if (wdd->id == 0) {
+ 			misc_deregister(&watchdog_miscdev);
+ 			old_wd_data = NULL;
+-			put_device(&wd_data->dev);
+ 		}
++		put_device(&wd_data->dev);
+ 		return err;
  	}
  
- 	pci_set_master(pdev);
-+	ifcvf_mgmt_dev = kzalloc(sizeof(struct ifcvf_vdpa_mgmt_dev), GFP_KERNEL);
-+	if (!ifcvf_mgmt_dev) {
-+		IFCVF_ERR(pdev, "Failed to alloc memory for the vDPA management device\n");
-+		return -ENOMEM;
-+	}
- 
- 	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
- 				    dev, &ifc_vdpa_ops, 1, 1, NULL, false);
- 	if (IS_ERR(adapter)) {
- 		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
--		return PTR_ERR(adapter);
-+		ret = PTR_ERR(adapter);
-+		goto err;
- 	}
- 
-+	adapter->pdev = pdev;
-+	adapter->vdpa.dma_dev = &pdev->dev;
-+	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
-+	ifcvf_mgmt_dev->adapter = adapter;
-+
- 	vf = &adapter->vf;
- 	vf->dev_type = get_dev_type(pdev);
- 	vf->base = pcim_iomap_table(pdev);
- 	vf->pdev = pdev;
- 
--	adapter->pdev = pdev;
--	adapter->vdpa.dma_dev = &pdev->dev;
--
- 	ret = ifcvf_init_hw(vf, pdev);
- 	if (ret) {
- 		IFCVF_ERR(pdev, "Failed to init IFCVF hw\n");
-@@ -859,16 +867,6 @@ static int ifcvf_probe(struct pci_dev *p
- 	vf->hw_features = ifcvf_get_hw_features(vf);
- 	vf->config_size = ifcvf_get_config_size(vf);
- 
--	ifcvf_mgmt_dev = kzalloc(sizeof(struct ifcvf_vdpa_mgmt_dev), GFP_KERNEL);
--	if (!ifcvf_mgmt_dev) {
--		IFCVF_ERR(pdev, "Failed to alloc memory for the vDPA management device\n");
--		return -ENOMEM;
--	}
--
--	ifcvf_mgmt_dev->mdev.ops = &ifcvf_vdpa_mgmt_dev_ops;
--	ifcvf_mgmt_dev->mdev.device = dev;
--	ifcvf_mgmt_dev->adapter = adapter;
--
- 	dev_type = get_dev_type(pdev);
- 	switch (dev_type) {
- 	case VIRTIO_ID_NET:
-@@ -883,12 +881,11 @@ static int ifcvf_probe(struct pci_dev *p
- 		goto err;
- 	}
- 
-+	ifcvf_mgmt_dev->mdev.ops = &ifcvf_vdpa_mgmt_dev_ops;
-+	ifcvf_mgmt_dev->mdev.device = dev;
- 	ifcvf_mgmt_dev->mdev.max_supported_vqs = vf->nr_vring;
- 	ifcvf_mgmt_dev->mdev.supported_features = vf->hw_features;
- 
--	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
--
--
- 	ret = vdpa_mgmtdev_register(&ifcvf_mgmt_dev->mdev);
- 	if (ret) {
- 		IFCVF_ERR(pdev,
+-- 
+2.39.2
+
 
 
