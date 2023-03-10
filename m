@@ -2,58 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5176B443D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1109D6B4125
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232272AbjCJOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40646 "EHLO
+        id S230417AbjCJNuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:50:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232117AbjCJOWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDA3411AB97;
-        Fri, 10 Mar 2023 06:21:18 -0800 (PST)
+        with ESMTP id S231138AbjCJNuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC480D3319
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85118B82291;
-        Fri, 10 Mar 2023 14:21:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2D80C433EF;
-        Fri, 10 Mar 2023 14:21:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F666B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B42C4339B;
+        Fri, 10 Mar 2023 13:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458076;
-        bh=kDOj8ESPmA7xKbqWcp1HPEdDSwfeDbVxLFdjEIVQRb4=;
+        s=korg; t=1678456191;
+        bh=RHe0hypWr/3CNVnbOibfuHfmnbm53EjK1HtzfuEPHUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldRyfzaoVbs3loJMiU9lC4kTTGFbtCPdAyWYPMFnOsX96ZfPNG/HJ2sWVNbz23WVy
-         mJBaAqJiO/CVFB3uGvwDX32sE0bOCkznQMjMzYN8FlkLeU7F/FXefEzEE4MbLB4iKB
-         k9WQC/RDdqJBWDEdc/j1cWjzLsP6DT0bsriibtNI=
+        b=mQGIDkVPRJ/DDfi/AqvM5Vw7MqOKor7mmJIazAs0hse7aFIsweCGZvHNSSnT/P5PK
+         sI//cpzatTM4Pnzh1ONsNi4ssvPvH2NdynxXZz1Ug5YghioJd8yXqf4M9T1Km7bS7S
+         u15G1d5aVJXLscUeMU7WyHmBTmmkjR7b7KemUGMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Florent Revest <revest@chromium.org>,
-        Len Brown <lenb@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Robert Moore <robert.moore@intel.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 124/252] ACPI: Dont build ACPICA with -Os
+        patches@lists.linux.dev,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sean Christopherson <seanjc@google.com>
+Subject: [PATCH 4.14 112/193] x86/crash: Disable virt in core NMI crash handler to avoid double shootdown
 Date:   Fri, 10 Mar 2023 14:38:14 +0100
-Message-Id: <20230310133722.557512488@linuxfoundation.org>
+Message-Id: <20230310133715.015537734@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -62,111 +57,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
+commit 26044aff37a5455b19a91785086914fd33053ef4 upstream.
 
-The ACPICA code has been built with '-Os' since the beginning of git
-history, though there's no explanatory comment as to why.
+Disable virtualization in crash_nmi_callback() and rework the
+emergency_vmx_disable_all() path to do an NMI shootdown if and only if a
+shootdown has not already occurred.   NMI crash shootdown fundamentally
+can't support multiple invocations as responding CPUs are deliberately
+put into halt state without unblocking NMIs.  But, the emergency reboot
+path doesn't have any work of its own, it simply cares about disabling
+virtualization, i.e. so long as a shootdown occurred, emergency reboot
+doesn't care who initiated the shootdown, or when.
 
-This is unfortunate as GCC drops the alignment specificed by
-'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
+If "crash_kexec_post_notifiers" is specified on the kernel command line,
+panic() will invoke crash_smp_send_stop() and result in a second call to
+nmi_shootdown_cpus() during native_machine_emergency_restart().
 
-  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
+Invoke the callback _before_ disabling virtualization, as the current
+VMCS needs to be cleared before doing VMXOFF.  Note, this results in a
+subtle change in ordering between disabling virtualization and stopping
+Intel PT on the responding CPUs.  While VMX and Intel PT do interact,
+VMXOFF and writes to MSR_IA32_RTIT_CTL do not induce faults between one
+another, which is all that matters when panicking.
 
-This prevents CONFIG_FUNCTION_ALIGNMENT and
-CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
-on the ACPICA code. This is doubly unfortunate as in subsequent patches
-arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
-implementation.
+Harden nmi_shootdown_cpus() against multiple invocations to try and
+capture any such kernel bugs via a WARN instead of hanging the system
+during a crash/dump, e.g. prior to the recent hardening of
+register_nmi_handler(), re-registering the NMI handler would trigger a
+double list_add() and hang the system if CONFIG_BUG_ON_DATA_CORRUPTION=y.
 
-Drop the '-Os' flag when building the ACPICA code. With this removed,
-the code builds cleanly and works correctly in testing so far.
+ list_add double add: new=ffffffff82220800, prev=ffffffff8221cfe8, next=ffffffff82220800.
+ WARNING: CPU: 2 PID: 1319 at lib/list_debug.c:29 __list_add_valid+0x67/0x70
+ Call Trace:
+  __register_nmi_handler+0xcf/0x130
+  nmi_shootdown_cpus+0x39/0x90
+  native_machine_emergency_restart+0x1c9/0x1d0
+  panic+0x237/0x29b
 
-I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
-building and booting a kernel using ACPI, and looking for misaligned
-text symbols:
+Extract the disabling logic to a common helper to deduplicate code, and
+to prepare for doing the shootdown in the emergency reboot path if SVM
+is supported.
 
-* arm64:
+Note, prior to commit ed72736183c4 ("x86/reboot: Force all cpus to exit
+VMX root if VMX is supported"), nmi_shootdown_cpus() was subtly protected
+against a second invocation by a cpu_vmx_enabled() check as the kdump
+handler would disable VMX if it ran first.
 
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    5009
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    919
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    323
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-* x86_64:
-
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    11537
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    2805
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    1357
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-With the patch applied, the remaining unaligned text labels are a
-combination of static call trampolines and labels in assembly, which can
-be dealt with in subsequent patches.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Florent Revest <revest@chromium.org>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Robert Moore <robert.moore@intel.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-acpi@vger.kernel.org
-Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ed72736183c4 ("x86/reboot: Force all cpus to exit VMX root if VMX is supported")
+Cc: stable@vger.kernel.org
+Reported-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/all/20220427224924.592546-2-gpiccoli@igalia.com
+Tested-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20221130233650.1404148-2-seanjc@google.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/acpica/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/reboot.h |    2 +
+ arch/x86/kernel/crash.c       |   17 ----------
+ arch/x86/kernel/reboot.c      |   65 ++++++++++++++++++++++++++++++++++--------
+ 3 files changed, 56 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
-index 71f6f2624debc..8ce51f0f40ce5 100644
---- a/drivers/acpi/acpica/Makefile
-+++ b/drivers/acpi/acpica/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for ACPICA Core interpreter
- #
+--- a/arch/x86/include/asm/reboot.h
++++ b/arch/x86/include/asm/reboot.h
+@@ -25,6 +25,8 @@ void __noreturn machine_real_restart(uns
+ #define MRR_BIOS	0
+ #define MRR_APM		1
  
--ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
-+ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
- ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
++void cpu_emergency_disable_virtualization(void);
++
+ typedef void (*nmi_shootdown_cb)(int, struct pt_regs*);
+ void nmi_shootdown_cpus(nmi_shootdown_cb callback);
+ void run_crash_ipi_callback(struct pt_regs *regs);
+--- a/arch/x86/kernel/crash.c
++++ b/arch/x86/kernel/crash.c
+@@ -36,7 +36,6 @@
+ #include <linux/kdebug.h>
+ #include <asm/cpu.h>
+ #include <asm/reboot.h>
+-#include <asm/virtext.h>
+ #include <asm/intel_pt.h>
  
- # use acpi.o to put all files here into acpi.o modparam namespace
--- 
-2.39.2
-
+ /* Alignment required for elf header segment */
+@@ -118,15 +117,6 @@ static void kdump_nmi_callback(int cpu,
+ 	 */
+ 	cpu_crash_vmclear_loaded_vmcss();
+ 
+-	/* Disable VMX or SVM if needed.
+-	 *
+-	 * We need to disable virtualization on all CPUs.
+-	 * Having VMX or SVM enabled on any CPU may break rebooting
+-	 * after the kdump kernel has finished its task.
+-	 */
+-	cpu_emergency_vmxoff();
+-	cpu_emergency_svm_disable();
+-
+ 	/*
+ 	 * Disable Intel PT to stop its logging
+ 	 */
+@@ -185,12 +175,7 @@ void native_machine_crash_shutdown(struc
+ 	 */
+ 	cpu_crash_vmclear_loaded_vmcss();
+ 
+-	/* Booting kdump kernel with VMX or SVM enabled won't work,
+-	 * because (among other limitations) we can't disable paging
+-	 * with the virt flags.
+-	 */
+-	cpu_emergency_vmxoff();
+-	cpu_emergency_svm_disable();
++	cpu_emergency_disable_virtualization();
+ 
+ 	/*
+ 	 * Disable Intel PT to stop its logging
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -536,10 +536,7 @@ static inline void kb_wait(void)
+ 	}
+ }
+ 
+-static void vmxoff_nmi(int cpu, struct pt_regs *regs)
+-{
+-	cpu_emergency_vmxoff();
+-}
++static inline void nmi_shootdown_cpus_on_restart(void);
+ 
+ /* Use NMIs as IPIs to tell all CPUs to disable virtualization */
+ static void emergency_vmx_disable_all(void)
+@@ -562,7 +559,7 @@ static void emergency_vmx_disable_all(vo
+ 		__cpu_emergency_vmxoff();
+ 
+ 		/* Halt and exit VMX root operation on the other CPUs. */
+-		nmi_shootdown_cpus(vmxoff_nmi);
++		nmi_shootdown_cpus_on_restart();
+ 
+ 	}
+ }
+@@ -803,6 +800,17 @@ void machine_crash_shutdown(struct pt_re
+ /* This is the CPU performing the emergency shutdown work. */
+ int crashing_cpu = -1;
+ 
++/*
++ * Disable virtualization, i.e. VMX or SVM, to ensure INIT is recognized during
++ * reboot.  VMX blocks INIT if the CPU is post-VMXON, and SVM blocks INIT if
++ * GIF=0, i.e. if the crash occurred between CLGI and STGI.
++ */
++void cpu_emergency_disable_virtualization(void)
++{
++	cpu_emergency_vmxoff();
++	cpu_emergency_svm_disable();
++}
++
+ #if defined(CONFIG_SMP)
+ 
+ static nmi_shootdown_cb shootdown_callback;
+@@ -825,7 +833,14 @@ static int crash_nmi_callback(unsigned i
+ 		return NMI_HANDLED;
+ 	local_irq_disable();
+ 
+-	shootdown_callback(cpu, regs);
++	if (shootdown_callback)
++		shootdown_callback(cpu, regs);
++
++	/*
++	 * Prepare the CPU for reboot _after_ invoking the callback so that the
++	 * callback can safely use virtualization instructions, e.g. VMCLEAR.
++	 */
++	cpu_emergency_disable_virtualization();
+ 
+ 	atomic_dec(&waiting_for_crash_ipi);
+ 	/* Assume hlt works */
+@@ -841,18 +856,32 @@ static void smp_send_nmi_allbutself(void
+ 	apic->send_IPI_allbutself(NMI_VECTOR);
+ }
+ 
+-/*
+- * Halt all other CPUs, calling the specified function on each of them
++/**
++ * nmi_shootdown_cpus - Stop other CPUs via NMI
++ * @callback:	Optional callback to be invoked from the NMI handler
++ *
++ * The NMI handler on the remote CPUs invokes @callback, if not
++ * NULL, first and then disables virtualization to ensure that
++ * INIT is recognized during reboot.
+  *
+- * This function can be used to halt all other CPUs on crash
+- * or emergency reboot time. The function passed as parameter
+- * will be called inside a NMI handler on all CPUs.
++ * nmi_shootdown_cpus() can only be invoked once. After the first
++ * invocation all other CPUs are stuck in crash_nmi_callback() and
++ * cannot respond to a second NMI.
+  */
+ void nmi_shootdown_cpus(nmi_shootdown_cb callback)
+ {
+ 	unsigned long msecs;
++
+ 	local_irq_disable();
+ 
++	/*
++	 * Avoid certain doom if a shootdown already occurred; re-registering
++	 * the NMI handler will cause list corruption, modifying the callback
++	 * will do who knows what, etc...
++	 */
++	if (WARN_ON_ONCE(crash_ipi_issued))
++		return;
++
+ 	/* Make a note of crashing cpu. Will be used in NMI callback. */
+ 	crashing_cpu = safe_smp_processor_id();
+ 
+@@ -880,7 +909,17 @@ void nmi_shootdown_cpus(nmi_shootdown_cb
+ 		msecs--;
+ 	}
+ 
+-	/* Leave the nmi callback set */
++	/*
++	 * Leave the nmi callback set, shootdown is a one-time thing.  Clearing
++	 * the callback could result in a NULL pointer dereference if a CPU
++	 * (finally) responds after the timeout expires.
++	 */
++}
++
++static inline void nmi_shootdown_cpus_on_restart(void)
++{
++	if (!crash_ipi_issued)
++		nmi_shootdown_cpus(NULL);
+ }
+ 
+ /*
+@@ -910,6 +949,8 @@ void nmi_shootdown_cpus(nmi_shootdown_cb
+ 	/* No other CPUs to shoot down */
+ }
+ 
++static inline void nmi_shootdown_cpus_on_restart(void) { }
++
+ void run_crash_ipi_callback(struct pt_regs *regs)
+ {
+ }
 
 
