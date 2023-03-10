@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCAB06B4268
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4E86B4478
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230406AbjCJODG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:03:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51604 "EHLO
+        id S232348AbjCJOYd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:24:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231531AbjCJOCq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:46 -0500
+        with ESMTP id S232280AbjCJOYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E55117239
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B957567AC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DE32617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20CBBC433EF;
-        Fri, 10 Mar 2023 14:02:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C64F9617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4821C433EF;
+        Fri, 10 Mar 2023 14:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456963;
-        bh=efSu9qO0KE2SDyHLMjSfHUgimsNFTJBvJP/gCLcuA9Y=;
+        s=korg; t=1678458193;
+        bh=67Q2YPk65wzm91ieI5uoY53IAZu4XDX5tCVRjcnvYwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cy8XUnIeCjSlM06Y+XPF/4CAMwgM8AVWD57cspx6Eh+otLvTXD6QO7a4Wbrmjfic8
-         mwZLUHJDKNQF8e98jO8jVjoT321NiDkiv3J7BB7/1iqVTFFzJwIq6JKX6VzW3zeJw0
-         DQCXqNjHOaConJiLtJUuiBmrEgP/rToI7n7JJZfQ=
+        b=qomfdqs4Ap95honlxU6oYQs1rmPPE0q27rfr9OLhim1oQOzsOYXRSUe4Q1hiLPXvT
+         OdAo6BRscPKgDKIXYu+V8DQLSYj/pms3vvMp1NdNI3FSHKoZki1bbpqv8PwbgxNE5j
+         LlMzCOFFiRLAP2GT0aosCKnNeUngcLtYyKW5gYEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 186/211] soundwire: cadence: Remove wasted space in response_buf
+        patches@lists.linux.dev, Jan Palus <jpalus+gnu@fastmail.com>,
+        Dmitry Goncharov <dgoncharov@users.sf.net>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 4.19 196/252] kbuild: Port silent mode detection to future gnu make.
 Date:   Fri, 10 Mar 2023 14:39:26 +0100
-Message-Id: <20230310133724.492441613@linuxfoundation.org>
+Message-Id: <20230310133724.920854773@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Dmitry Goncharov <dgoncharov@users.sf.net>
 
-[ Upstream commit 827c32d0df4bbe0d1c47d79f6a5eabfe9ac75216 ]
+commit 4bf73588165ba7d32131a043775557a54b6e1db5 upstream.
 
-The response_buf was declared much larger (128 entries) than the number
-of responses that could ever be written into it. The Cadence IP is
-configurable up to a maximum of 32 entries, and the datasheet says
-that RX_FIFO_AVAIL can be 2 larger than this. So allow up to 34
-responses.
+Port silent mode detection to the future (post make-4.4) versions of gnu make.
 
-Also add checking in cdns_read_response() to prevent overflowing
-reponse_buf if RX_FIFO_AVAIL contains an unexpectedly large number.
+Makefile contains the following piece of make code to detect if option -s is
+specified on the command line.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221202161812.4186897-3-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
+
+This code is executed by make at parse time and assumes that MAKEFLAGS
+does not contain command line variable definitions.
+Currently if the user defines a=s on the command line, then at build only
+time MAKEFLAGS contains " -- a=s".
+However, starting with commit dc2d963989b96161472b2cd38cef5d1f4851ea34
+MAKEFLAGS contains command line definitions at both parse time and
+build time.
+
+This '-s' detection code then confuses a command line variable
+definition which contains letter 's' with option -s.
+
+$ # old make
+$ make net/wireless/ocb.o a=s
+  CALL    scripts/checksyscalls.sh
+  DESCEND objtool
+$ # this a new make which defines makeflags at parse time
+$ ~/src/gmake/make/l64/make net/wireless/ocb.o a=s
+$
+
+We can see here that the letter 's' from 'a=s' was confused with -s.
+
+This patch checks for presence of -s using a method recommended by the
+make manual here
+https://www.gnu.org/software/make/manual/make.html#Testing-Flags.
+
+Link: https://lists.gnu.org/archive/html/bug-make/2022-11/msg00190.html
+Reported-by: Jan Palus <jpalus+gnu@fastmail.com>
+Signed-off-by: Dmitry Goncharov <dgoncharov@users.sf.net>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/cadence_master.c |  7 +++++++
- drivers/soundwire/cadence_master.h | 13 ++++++++++++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ Makefile |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index 27699f341f2c5..a6635f7f350ef 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -774,8 +774,15 @@ static void cdns_read_response(struct sdw_cdns *cdns)
- 	u32 num_resp, cmd_base;
- 	int i;
+--- a/Makefile
++++ b/Makefile
+@@ -88,10 +88,17 @@ endif
  
-+	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
-+	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
+ # If the user is running make -s (silent mode), suppress echoing of
+ # commands
++# make-4.0 (and later) keep single letter options in the 1st word of MAKEFLAGS.
+ 
+-ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
+-  quiet=silent_
+-  tools_silent=s
++ifeq ($(filter 3.%,$(MAKE_VERSION)),)
++silence:=$(findstring s,$(firstword -$(MAKEFLAGS)))
++else
++silence:=$(findstring s,$(filter-out --%,$(MAKEFLAGS)))
++endif
 +
- 	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
- 	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
-+	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
-+		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
-+		num_resp = ARRAY_SIZE(cdns->response_buf);
-+	}
++ifeq ($(silence),s)
++quiet=silent_
++tools_silent=s
+ endif
  
- 	cmd_base = CDNS_MCP_CMD_BASE;
- 
-diff --git a/drivers/soundwire/cadence_master.h b/drivers/soundwire/cadence_master.h
-index 0434d70d4b1f5..e0a64b28c6b9c 100644
---- a/drivers/soundwire/cadence_master.h
-+++ b/drivers/soundwire/cadence_master.h
-@@ -8,6 +8,12 @@
- #define SDW_CADENCE_GSYNC_KHZ		4 /* 4 kHz */
- #define SDW_CADENCE_GSYNC_HZ		(SDW_CADENCE_GSYNC_KHZ * 1000)
- 
-+/*
-+ * The Cadence IP supports up to 32 entries in the FIFO, though implementations
-+ * can configure the IP to have a smaller FIFO.
-+ */
-+#define CDNS_MCP_IP_MAX_CMD_LEN		32
-+
- /**
-  * struct sdw_cdns_pdi: PDI (Physical Data Interface) instance
-  *
-@@ -117,7 +123,12 @@ struct sdw_cdns {
- 	struct sdw_bus bus;
- 	unsigned int instance;
- 
--	u32 response_buf[0x80];
-+	/*
-+	 * The datasheet says the RX FIFO AVAIL can be 2 entries more
-+	 * than the FIFO capacity, so allow for this.
-+	 */
-+	u32 response_buf[CDNS_MCP_IP_MAX_CMD_LEN + 2];
-+
- 	struct completion tx_complete;
- 	struct sdw_defer *defer;
- 
--- 
-2.39.2
-
+ export quiet Q KBUILD_VERBOSE
 
 
