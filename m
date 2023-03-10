@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F309E6B4864
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:02:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6C56B44DA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233683AbjCJPCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:02:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43814 "EHLO
+        id S232447AbjCJO3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:29:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233681AbjCJPBa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:30 -0500
+        with ESMTP id S232443AbjCJO2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:28:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496C612C731
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:55:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C972F14212
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:27:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC82FB822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5AFC433D2;
-        Fri, 10 Mar 2023 14:52:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8D44B822DD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD5C2C433EF;
+        Fri, 10 Mar 2023 14:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459974;
-        bh=wakE+wdMk7VmV7wQVzUthbNSSnW3UOJaBKZNiHKyHI4=;
+        s=korg; t=1678458418;
+        bh=fg+x+bkFX6ZUErlos+KNhs00/QnMBAaIv1Y9TMxot/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LS8Bh0y5fEkh4EJDWbJdLYN4n0GvhUOU5YQGDnLQERYZDSdz1cYUK7u2E3+rI0pV8
-         0NYKdRDPwnNoL+RlZsNydXudUcxdgw0+vcLn9suZ0LWtwO1SkUR6rz9oKMqW1Ko+5o
-         lOy90AX/V3Gox2Z/XI9lAe+z1wqF53DzzJL6FM6A=
+        b=v/X+xPBY1jqx9z8Xu6PQOsZaxXDGT/NUGMolxHjg7TJDSTLeFsCWGDbBdZJDxrEj6
+         GHW9nnmrfR6SEre4kuk1k6Z2lqcLHz3yaJgCgGT/bdMuGEYZ132kNkvQsgU/03awTV
+         Oo8G2KSMmjMA5Rf9LWFITCo8EuHMaZIkpghbkE50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Ian Ray <ian.ray@ge.com>, Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
+        Michal Simek <michal.simek@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 151/529] drm/bridge: megachips: Fix error handling in i2c_register_driver()
-Date:   Fri, 10 Mar 2023 14:34:54 +0100
-Message-Id: <20230310133811.950872751@linuxfoundation.org>
+Subject: [PATCH 5.4 006/357] ARM: zynq: Fix refcount leak in zynq_early_slcr_init
+Date:   Fri, 10 Mar 2023 14:34:55 +0100
+Message-Id: <20230310133734.250306456@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
-References: <20230310133804.978589368@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Qiheng Lin <linqiheng@huawei.com>
 
-[ Upstream commit 4ecff954c370b82bce45bdca2846c5c5563e8a8a ]
+[ Upstream commit 9eedb910a3be0005b88c696a8552c0d4c9937cd4 ]
 
-A problem about insmod megachips-stdpxxxx-ge-b850v3-fw.ko failed is
-triggered with the following log given:
+of_find_compatible_node() returns a node pointer with refcount incremented,
+we should use of_node_put() on error path.
+Add missing of_node_put() to avoid refcount leak.
 
-[ 4497.981497] Error: Driver 'stdp4028-ge-b850v3-fw' is already registered, aborting...
-insmod: ERROR: could not insert module megachips-stdpxxxx-ge-b850v3-fw.ko: Device or resource busy
-
-The reason is that stdpxxxx_ge_b850v3_init() returns i2c_add_driver()
-directly without checking its return value, if i2c_add_driver() failed,
-it returns without calling i2c_del_driver() on the previous i2c driver,
-resulting the megachips-stdpxxxx-ge-b850v3-fw can never be installed
-later.
-A simple call graph is shown as below:
-
- stdpxxxx_ge_b850v3_init()
-   i2c_add_driver(&stdp4028_ge_b850v3_fw_driver)
-   i2c_add_driver(&stdp2690_ge_b850v3_fw_driver)
-     i2c_register_driver()
-       driver_register()
-         bus_add_driver()
-           priv = kzalloc(...) # OOM happened
-   # return without delete stdp4028_ge_b850v3_fw_driver
-
-Fix by calling i2c_del_driver() on stdp4028_ge_b850v3_fw_driver when
-i2c_add_driver() returns error.
-
-Fixes: fcfa0ddc18ed ("drm/bridge: Drivers for megachips-stdpxxxx-ge-b850v3-fw (LVDS-DP++)")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Tested-by: Ian Ray <ian.ray@ge.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221108091226.114524-1-yuancan@huawei.com
+Fixes: 3329659df030 ("ARM: zynq: Simplify SLCR initialization")
+Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
+Link: https://lore.kernel.org/r/20221129140544.41293-1-linqiheng@huawei.com
+Signed-off-by: Michal Simek <michal.simek@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm/mach-zynq/slcr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index 72248a565579e..e41afcc5326b1 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -444,7 +444,11 @@ static int __init stdpxxxx_ge_b850v3_init(void)
- 	if (ret)
- 		return ret;
- 
--	return i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	ret = i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	if (ret)
-+		i2c_del_driver(&stdp4028_ge_b850v3_fw_driver);
-+
-+	return ret;
- }
- module_init(stdpxxxx_ge_b850v3_init);
+diff --git a/arch/arm/mach-zynq/slcr.c b/arch/arm/mach-zynq/slcr.c
+index 37707614885a5..9765b3f4c2fc5 100644
+--- a/arch/arm/mach-zynq/slcr.c
++++ b/arch/arm/mach-zynq/slcr.c
+@@ -213,6 +213,7 @@ int __init zynq_early_slcr_init(void)
+ 	zynq_slcr_regmap = syscon_regmap_lookup_by_compatible("xlnx,zynq-slcr");
+ 	if (IS_ERR(zynq_slcr_regmap)) {
+ 		pr_err("%s: failed to find zynq-slcr\n", __func__);
++		of_node_put(np);
+ 		return -ENODEV;
+ 	}
  
 -- 
 2.39.2
