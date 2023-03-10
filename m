@@ -2,93 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EE6C6B3FC8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CFA56B3FCD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:58:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbjCJM43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 07:56:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
+        id S229998AbjCJM6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 07:58:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230400AbjCJM42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:56:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC17231E6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:56:27 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 399E060C81
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 12:56:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF69C433EF;
-        Fri, 10 Mar 2023 12:56:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678452986;
-        bh=ALL9J2vSSQ72UEWuKN5WYMn8kG4592Amw6jbQp2VDMs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=irte6f2TK7REGrK5GQ6DLe4aEfbpSuNxxZNUhACzqDB1KJqEbwZ2KOCFhHW2goA8j
-         be6jbdwQTe4/85S92UVchugKw5llnbxg87zCyadO9DCQmdtfAImWurUWyCKaiMWTvk
-         hBOvbB9Z1uWwcIcpsZZtCXRpG6YNS78pnQ4lHOO8=
-Date:   Fri, 10 Mar 2023 13:56:24 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Peter Collingbourne <pcc@google.com>
-Cc:     stable@vger.kernel.org,
-        Kuan-Ying Lee =?utf-8?B?KOadjuWGoOepjik=?= 
-        <Kuan-Ying.Lee@mediatek.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH 6.1.y 2/2] arm64: Reset KASAN tag in copy_highpage with
- HW tags only
-Message-ID: <ZAso+IbuyINCVa13@kroah.com>
-References: <1678182267252151@kroah.com>
- <20230307174925.3613182-1-pcc@google.com>
- <20230307174925.3613182-2-pcc@google.com>
+        with ESMTP id S230071AbjCJM5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:57:42 -0500
+Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A407D57E;
+        Fri, 10 Mar 2023 04:57:41 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id DF456320082A;
+        Fri, 10 Mar 2023 07:57:37 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute2.internal (MEProxy); Fri, 10 Mar 2023 07:57:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1678453057; x=1678539457; bh=4h
+        bZNGAH3VbTqYHe4cWGMIuHI9sJyZoDcjp+RPcyk/M=; b=aBRmzaxBq2hjxCES4c
+        yAJkgqHVHuVcZXnuUCAxe6iV/ug2/2KOZXUl/X0Dr0cxGHIhqyrRylTIOIKss0WF
+        TXSPYSosNQsJQsFK+QTgvjMnn1kogQghYpduGhOSJSiybQ+s86Ys7yU6rypMncjq
+        SxNfFCxbSnEMp7wqKJ3LOkNKn8v//xd8Vc+VSpyE6SQuGL0bs3R5DEzFJ19Ei4OQ
+        nWR+4efcxF0EnFYL9bK5tLYyIqnJMV+yC8Cg8eNVR/I31yQn6IC83CLsw76eagof
+        D84wd9yMpkizEJSF4vd4Gk91OpQvZv1cfEuMMINVzZUkDblIhpjqgEuzvRJVqgdG
+        A02A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; t=1678453057; x=1678539457; bh=4hbZNGAH3VbTq
+        YHe4cWGMIuHI9sJyZoDcjp+RPcyk/M=; b=F2oJ9DJPLUOtBGOkYzglEiaxsYNW3
+        fPhQHX4BN42oUcESpz9iec+edGOwmfDkEYrOzLXBAS/2cVUUVNLrxy0rFTvlTbKo
+        SNB/OXq7WHgK8o3tniEl/H9TFM/sP78QFnrGSoPEt/JI3CZGOHPiry94syXpJNtK
+        8tMOCGm0vP4Ya0smbCdYi1G/yWyLDq+tXf1WKDNBOb8GlA0UtS0vlMj+XQhzRgTR
+        nKGy1fxTQZ0R1uXvr677YxttAONx/hMPq+Ldfx80ZZY2eiuriPLNsn3Pr09rk1xz
+        WOF9F2hqGthZKynk8/+IUbE6J7uXbYmP47Zr2lnytBU5AtPt9LLQxtG4w==
+X-ME-Sender: <xms:QSkLZE3X5tC-lPUXdmHvuq-W-xFvl_xQih9wwhobj6UVCOuej68_ew>
+    <xme:QSkLZPH1quDfzecAsYWGhw9Icl_QXh-NphCei0dhnaFYmZJE3HJyix4VTU-0viw8y
+    6-NwN1VpqSrOg>
+X-ME-Received: <xmr:QSkLZM6VTfF4PwudjPjE5-bAjaipqTePRFSLpuXkXRZL1yJMglg1V5LMZ4z4hmayKOMyyjOVSbVdUf5WAt5y1ff8gvbQpFKUyLjQRw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvddukedggeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
+    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:QSkLZN1Ia3XEHfYA-T3leHNGEyizo-tfco0g-YyWms51E6Nmcin9RA>
+    <xmx:QSkLZHFYJHDg5IoVpv78vb7gHbb448rUSw-BgcTrwbTLHdgVfTcIwg>
+    <xmx:QSkLZG_KAW57kJAHjjtakvDJn1wG6ibnATXkqe5d94gorzGBGfQ_sw>
+    <xmx:QSkLZEe9YT5C22GILSpEi99odMnGKYnEeveGjOTM-W0B7Q3SWJPUhg>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 10 Mar 2023 07:57:36 -0500 (EST)
+Date:   Fri, 10 Mar 2023 13:57:34 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        linux-fscrypt@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Tejun Heo <tj@kernel.org>, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: Re: [PATCH 4.19] f2fs: fix cgroup writeback accounting with fs-layer
+ encryption
+Message-ID: <ZAspPgX+RazeDcgx@kroah.com>
+References: <20230308061746.711142-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230307174925.3613182-2-pcc@google.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20230308061746.711142-1-ebiggers@kernel.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 07, 2023 at 09:49:25AM -0800, Peter Collingbourne wrote:
-> During page migration, the copy_highpage function is used to copy the
-> page data to the target page. If the source page is a userspace page
-> with MTE tags, the KASAN tag of the target page must have the match-all
-> tag in order to avoid tag check faults during subsequent accesses to the
-> page by the kernel. However, the target page may have been allocated in
-> a number of ways, some of which will use the KASAN allocator and will
-> therefore end up setting the KASAN tag to a non-match-all tag. Therefore,
-> update the target page's KASAN tag to match the source page.
+On Tue, Mar 07, 2023 at 10:17:46PM -0800, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
 > 
-> We ended up unintentionally fixing this issue as a result of a bad
-> merge conflict resolution between commit e059853d14ca ("arm64: mte:
-> Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm64:
-> kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
-> preserved a tag reset for PG_mte_tagged pages which was considered to be
-> unnecessary at the time. Because SW tags KASAN uses separate tag storage,
-> update the code to only reset the tags when HW tags KASAN is enabled.
+> commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
 > 
-> Signed-off-by: Peter Collingbourne <pcc@google.com>
-> Link: https://linux-review.googlesource.com/id/If303d8a709438d3ff5af5fd85706505830f52e0c
-> Reported-by: "Kuan-Ying Lee (李冠穎)" <Kuan-Ying.Lee@mediatek.com>
-> Cc: <stable@vger.kernel.org> # 6.1
-> Fixes: 20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page tag in page->flags"")
-> Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-> Link: https://lore.kernel.org/r/20230215050911.1433132-1-pcc@google.com
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> (cherry picked from commit e74a68468062d7ebd8ce17069e12ccc64cc6a58c)
+> When writing a page from an encrypted file that is using
+> filesystem-layer encryption (not inline encryption), f2fs encrypts the
+> pagecache page into a bounce page, then writes the bounce page.
+> 
+> It also passes the bounce page to wbc_account_cgroup_owner().  That's
+> incorrect, because the bounce page is a newly allocated temporary page
+> that doesn't have the memory cgroup of the original pagecache page.
+> This makes wbc_account_cgroup_owner() not account the I/O to the owner
+> of the pagecache page as it should.
+> 
+> Fix this by always passing the pagecache page to
+> wbc_account_cgroup_owner().
+> 
+> Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
+> Cc: stable@vger.kernel.org
+> Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> Acked-by: Tejun Heo <tj@kernel.org>
+> Reviewed-by: Chao Yu <chao@kernel.org>
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 > ---
->  arch/arm64/mm/copypage.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
+>  fs/f2fs/data.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Both now queued up, thanks.
+Now queued up, thanks.
 
 greg k-h
