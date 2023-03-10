@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0616B42E6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 243AA6B4205
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231700AbjCJOIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:08:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34144 "EHLO
+        id S231394AbjCJN6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231699AbjCJOIM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F65C117859
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:44 -0800 (PST)
+        with ESMTP id S231392AbjCJN6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB5F1A4BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 378DA60F11
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C4C5C4339E;
-        Fri, 10 Mar 2023 14:07:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBF93616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF1BBC4339B;
+        Fri, 10 Mar 2023 13:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457263;
-        bh=fKMLIisuKxN2IsUu+quvm9sR7r2tdZoEdvnLhOKsPgY=;
+        s=korg; t=1678456732;
+        bh=fMGz2DWCGd41BOKS0mJl82IWM79KeKk4E+6XC8PH7VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SfWDx3ZbPcaEThAVcRu8dPebLCkdzl4/TEZnOnZICRL+hnnbp40gAW/8E2kkQEJO4
-         y7jsLf6PXjHm1h42Z9+yXiamEUFrZYDq6fRvKzDjddo6eAXSyskjKKSQOioiDpjWCO
-         weJos7CMp0Rxbd5No7+wFxewv9FCN2Tva6o+4pjs=
+        b=pLul98dAcU3WW8VyiDYXf1UUvVGzWQc2HzA6xD6cEDf5aOJgukxnmzSGNdjbeaUoc
+         eZlko0BcOl1bOB+a+DcsREOCKPP1bs5OrJhBQ6l1wlDt6a9/gfyBywgYiAW+jBF0nF
+         8pYWNNFwawtyH7DT1c7ajWz4fVEmpXCCTd6ZC4Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 077/200] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
+Subject: [PATCH 6.2 104/211] spi: tegra210-quad: Fix iterator outside loop
 Date:   Fri, 10 Mar 2023 14:38:04 +0100
-Message-Id: <20230310133719.473422804@linuxfoundation.org>
+Message-Id: <20230310133721.924845433@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,77 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Krishna Yarlagadda <kyarlagadda@nvidia.com>
 
-[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
+[ Upstream commit 2449d436681d40bc63ec2c766fd51b632270d8a7 ]
 
-When down_interruptible() or ib_post_send() failed in rdma_request(),
-receive dma buffer is not unmapped. Add unmap action to error path.
-Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
-Add unmap action to error path.
+Fix warn: iterator used outside loop: 'xfer'. 'xfer' variable contain
+invalid value in few conditions. Complete transfer within DATA phase
+in successful case and at the end for failed transfer.
 
-Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
-Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link:https://lore.kernel.org/all/202210191211.46FkzKmv-lkp@intel.com/
+Fixes: 8777dd9dff40 ("spi: tegra210-quad: Fix combined sequence")
+
+Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
+Link: https://lore.kernel.org/r/20230227200428.45832-1-kyarlagadda@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_rdma.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/spi/spi-tegra210-quad.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
-index e9a830c69058c..29a9292303ea3 100644
---- a/net/9p/trans_rdma.c
-+++ b/net/9p/trans_rdma.c
-@@ -386,6 +386,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	struct p9_trans_rdma *rdma = client->trans;
- 	struct ib_recv_wr wr;
- 	struct ib_sge sge;
-+	int ret;
- 
- 	c->busa = ib_dma_map_single(rdma->cm_id->device,
- 				    c->rc.sdata, client->msize,
-@@ -403,7 +404,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	wr.wr_cqe = &c->cqe;
- 	wr.sg_list = &sge;
- 	wr.num_sge = 1;
--	return ib_post_recv(rdma->qp, &wr, NULL);
-+
-+	ret = ib_post_recv(rdma->qp, &wr, NULL);
-+	if (ret)
-+		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+				    client->msize, DMA_FROM_DEVICE);
-+	return ret;
- 
-  error:
- 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
-@@ -500,7 +506,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
- 
- 	if (down_interruptible(&rdma->sq_sem)) {
- 		err = -EINTR;
--		goto send_error;
-+		goto dma_unmap;
+diff --git a/drivers/spi/spi-tegra210-quad.c b/drivers/spi/spi-tegra210-quad.c
+index 6498948e150a5..06c54d49076ae 100644
+--- a/drivers/spi/spi-tegra210-quad.c
++++ b/drivers/spi/spi-tegra210-quad.c
+@@ -1156,6 +1156,10 @@ static int tegra_qspi_combined_seq_xfer(struct tegra_qspi *tqspi,
+ 				ret = -EIO;
+ 				goto exit;
+ 			}
++			if (!xfer->cs_change) {
++				tegra_qspi_transfer_end(spi);
++				spi_transfer_delay_exec(xfer);
++			}
+ 			break;
+ 		default:
+ 			ret = -EINVAL;
+@@ -1164,14 +1168,14 @@ static int tegra_qspi_combined_seq_xfer(struct tegra_qspi *tqspi,
+ 		msg->actual_length += xfer->len;
+ 		transfer_phase++;
  	}
+-	if (!xfer->cs_change) {
+-		tegra_qspi_transfer_end(spi);
+-		spi_transfer_delay_exec(xfer);
+-	}
+ 	ret = 0;
  
- 	/* Mark request as `sent' *before* we actually send it,
-@@ -510,11 +516,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
- 	WRITE_ONCE(req->status, REQ_STATUS_SENT);
- 	err = ib_post_send(rdma->qp, &wr, NULL);
- 	if (err)
--		goto send_error;
-+		goto dma_unmap;
+ exit:
+ 	msg->status = ret;
++	if (ret < 0) {
++		tegra_qspi_transfer_end(spi);
++		spi_transfer_delay_exec(xfer);
++	}
  
- 	/* Success */
- 	return 0;
- 
-+dma_unmap:
-+	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+			    c->req->tc.size, DMA_TO_DEVICE);
-  /* Handle errors that happened during or while preparing the send: */
-  send_error:
- 	WRITE_ONCE(req->status, REQ_STATUS_ERROR);
+ 	return ret;
+ }
 -- 
 2.39.2
 
