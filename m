@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DDE26B4493
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 115656B4281
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232357AbjCJOZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:25:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40836 "EHLO
+        id S231665AbjCJOEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:04:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232358AbjCJOZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456281C300
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:11 -0800 (PST)
+        with ESMTP id S231668AbjCJODy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D080F98C7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B74A1617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C13E9C433D2;
-        Fri, 10 Mar 2023 14:24:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C975961771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC2F6C433EF;
+        Fri, 10 Mar 2023 14:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458250;
-        bh=QK2AtM9y/RedJkHIpFnYOaJz1UyvDNos/o8/oKSuOMM=;
+        s=korg; t=1678457022;
+        bh=XxkmY2yiIMJC/qSCr8YHujO/njukcWxugAbZZqrorZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U42AkQZLfgfhVFHtJM72N7WZgk8agcV5mCHhhuOhFhU22UFXHB/lIQT4raP7N7O09
-         RKKlGiKJjNruGTBj/gjLLKiIcGlAlhSYnJogPkIVPOktCSFX0yQETgUCkfVWKjSk7R
-         uTgtjVvcVL/HrSEMTdXl2RM5U/9ADmKnAOdGbBko=
+        b=AQMajtwW2XjIglXidH7vQF90hp1iWRRABKdLW2+0kh1u9KHlYhi/MyqRQ4Ag+VSW7
+         GlQO++3gdorrzTPe4fO8YjUD/A2q8M1RPQmIUz5UqsHrKPxMM4t+++U6WnsyI5/huE
+         k5pRc7GOxhIz+ZTFVS+GBT8RfZDlhXOJvet60HUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 214/252] ubi: ubi_wl_put_peb: Fix infinite loop when wear-leveling work failed
+        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
+        Imre Deak <imre.deak@intel.com>
+Subject: [PATCH 6.2 204/211] drm/display/dp_mst: Fix payload addition on a disconnected sink
 Date:   Fri, 10 Mar 2023 14:39:44 +0100
-Message-Id: <20230310133725.613255779@linuxfoundation.org>
+Message-Id: <20230310133725.125075034@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,90 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 4d57a7333e26040f2b583983e1970d9d460e56b0 ]
+commit 33f960e23c29d113fe3193e0bdc19ac4f3776f20 upstream.
 
-Following process will trigger an infinite loop in ubi_wl_put_peb():
+If an MST stream is enabled on a disconnected sink, the payload for the
+stream is not created and the MST manager's payload count/next start VC
+slot is not updated. Since the payload's start VC slot may still contain
+a valid value (!= -1) the subsequent disabling of such a stream could
+cause an incorrect decrease of the payload count/next start VC slot in
+drm_dp_remove_payload() and hence later payload additions will fail.
 
-	ubifs_bgt		ubi_bgt
-ubifs_leb_unmap
-  ubi_leb_unmap
-    ubi_eba_unmap_leb
-      ubi_wl_put_peb	wear_leveling_worker
-                          e1 = rb_entry(rb_first(&ubi->used)
-			  e2 = get_peb_for_wl(ubi)
-			  ubi_io_read_vid_hdr  // return err (flash fault)
-			  out_error:
-			    ubi->move_from = ubi->move_to = NULL
-			    wl_entry_destroy(ubi, e1)
-			      ubi->lookuptbl[e->pnum] = NULL
-      retry:
-        e = ubi->lookuptbl[pnum];	// return NULL
-	if (e == ubi->move_from) {	// NULL == NULL gets true
-	  goto retry;			// infinite loop !!!
+Fix the above by marking the payload as invalid in the above case, so
+that it's skipped during payload removal. While at it add a debug print
+for this case.
 
-$ top
-  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     COMMAND
-  7676 root     20   0       0      0      0 R 100.0  0.0  ubifs_bgt0_0
-
-Fix it by:
- 1) Letting ubi_wl_put_peb() returns directly if wearl leveling entry has
-    been removed from 'ubi->lookuptbl'.
- 2) Using 'ubi->wl_lock' protecting wl entry deletion to preventing an
-    use-after-free problem for wl entry in ubi_wl_put_peb().
-
-Fetch a reproducer in [Link].
-
-Fixes: 43f9b25a9cdd7b1 ("UBI: bugfix: protect from volume removal")
-Fixes: ee59ba8b064f692 ("UBI: Fix stale pointers in ubi->lookuptbl")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216111
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: <stable@vger.kernel.org> # v6.1+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221214184258.2869417-3-imre.deak@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/wl.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/display/drm_dp_mst_topology.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
-index f1142a2d8bd22..7f0847ee53f28 100644
---- a/drivers/mtd/ubi/wl.c
-+++ b/drivers/mtd/ubi/wl.c
-@@ -951,11 +951,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
- 	spin_lock(&ubi->wl_lock);
- 	ubi->move_from = ubi->move_to = NULL;
- 	ubi->move_to_put = ubi->wl_scheduled = 0;
-+	wl_entry_destroy(ubi, e1);
-+	wl_entry_destroy(ubi, e2);
- 	spin_unlock(&ubi->wl_lock);
+--- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+@@ -3309,8 +3309,13 @@ int drm_dp_add_payload_part1(struct drm_
+ 	int ret;
  
- 	ubi_free_vid_buf(vidb);
--	wl_entry_destroy(ubi, e1);
--	wl_entry_destroy(ubi, e2);
- 
- out_ro:
- 	ubi_ro_mode(ubi);
-@@ -1226,6 +1226,18 @@ int ubi_wl_put_peb(struct ubi_device *ubi, int vol_id, int lnum,
- retry:
- 	spin_lock(&ubi->wl_lock);
- 	e = ubi->lookuptbl[pnum];
-+	if (!e) {
-+		/*
-+		 * This wl entry has been removed for some errors by other
-+		 * process (eg. wear leveling worker), corresponding process
-+		 * (except __erase_worker, which cannot concurrent with
-+		 * ubi_wl_put_peb) will set ubi ro_mode at the same time,
-+		 * just ignore this wl entry.
-+		 */
-+		spin_unlock(&ubi->wl_lock);
-+		up_read(&ubi->fm_protect);
-+		return 0;
+ 	port = drm_dp_mst_topology_get_port_validated(mgr, payload->port);
+-	if (!port)
++	if (!port) {
++		drm_dbg_kms(mgr->dev,
++			    "VCPI %d for port %p not in topology, not creating a payload\n",
++			    payload->vcpi, payload->port);
++		payload->vc_start_slot = -1;
+ 		return 0;
 +	}
- 	if (e == ubi->move_from) {
- 		/*
- 		 * User is putting the physical eraseblock which was selected to
--- 
-2.39.2
-
+ 
+ 	if (mgr->payload_count == 0)
+ 		mgr->next_start_slot = mst_state->start_slot;
 
 
