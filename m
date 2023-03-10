@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9436B4489
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C90C6B4279
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232334AbjCJOZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:25:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40350 "EHLO
+        id S231689AbjCJODu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232369AbjCJOYq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A882C10DE76
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:41 -0800 (PST)
+        with ESMTP id S231660AbjCJODX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:23 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE21F5A6E5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45ED3618A6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C1A3C433D2;
-        Fri, 10 Mar 2023 14:23:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 68304CE28FF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39C46C4339C;
+        Fri, 10 Mar 2023 14:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458220;
-        bh=WmY4WOHV/4WsG8QuztXRyrrc8gE7y66aJg+FsFNN/sA=;
+        s=korg; t=1678456993;
+        bh=WHWFpoQ1nrjbpody8adXpagBLdlcYWceEFt87NMVy4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhljHntwhaEpN6EPlodvZSw2gEO4T98HQ7525FEp7T803ra4tyf8BzZrGwDKzC+iH
-         QXN5l8lX2TN0sSS+GZSC5RDHx+YA+uBRmdSEJ9MAZqBNQExJB2QZFb9FtxQI0dBcEA
-         YWPumgLrBXcDu0WlkzzmVuA9p7OiJ0YE8zE1CytM=
+        b=ATboc5VgP+MPjtHF64R6csIXA/laApvh8mr59EnzYSA/6nyRHmhLp9tKm+vIRSo4V
+         LyvvO/NklCiqzsVj4aYHV7s64z35KyISEySe3JXTkKQu/23gouMOSjNj6/Ep64Pf/R
+         ZA7HH1Uo7jY30mPjK3Gmu/Keqkx7sOpSKN7bRd0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 205/252] ubifs: do_rename: Fix wrong space budget when target inodes nlink > 1
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.2 195/211] vDPA/ifcvf: decouple config IRQ releaser from the adapter
 Date:   Fri, 10 Mar 2023 14:39:35 +0100
-Message-Id: <20230310133725.283403715@linuxfoundation.org>
+Message-Id: <20230310133724.811251456@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit 25fce616a61fc2f1821e4a9ce212d0e064707093 ]
+commit 23dac55cec3afdbc1b4eaed1c79f2cee00477f8b upstream.
 
-If target inode is a special file (eg. block/char device) with nlink
-count greater than 1, the inode with ui->data will be re-written on
-disk. However, UBIFS losts target inode's data_len while doing space
-budget. Bad space budget may let make_reservation() return with -ENOSPC,
-which could turn ubifs to read-only mode in do_writepage() process.
+This commit decouples config IRQ releaser from the adapter,
+so that it could be invoked once probe or in err handlers.
+ifcvf_free_irq() works on ifcvf_hw in this commit
 
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216494
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-6-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 89c5c2abc0faf..3b93b14e00412 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1309,9 +1309,13 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		old_dentry, old_inode->i_ino, old_dir->i_ino,
- 		new_dentry, new_dir->i_ino, flags);
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -101,10 +101,9 @@ static void ifcvf_free_vq_irq(struct ifc
+ 		ifcvf_free_vqs_reused_irq(vf);
+ }
  
--	if (unlink)
-+	if (unlink) {
- 		ubifs_assert(c, inode_is_locked(new_inode));
+-static void ifcvf_free_config_irq(struct ifcvf_adapter *adapter)
++static void ifcvf_free_config_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
  
-+		/* Budget for old inode's data when its nlink > 1. */
-+		req.dirtied_ino_d = ALIGN(ubifs_inode(new_inode)->data_len, 8);
-+	}
-+
- 	if (unlink && is_dir) {
- 		err = ubifs_check_dir_empty(new_inode);
- 		if (err)
--- 
-2.39.2
-
+ 	if (vf->config_irq == -EINVAL)
+ 		return;
+@@ -119,13 +118,12 @@ static void ifcvf_free_config_irq(struct
+ 	}
+ }
+ 
+-static void ifcvf_free_irq(struct ifcvf_adapter *adapter)
++static void ifcvf_free_irq(struct ifcvf_hw *vf)
+ {
+-	struct pci_dev *pdev = adapter->pdev;
+-	struct ifcvf_hw *vf = &adapter->vf;
++	struct pci_dev *pdev = vf->pdev;
+ 
+ 	ifcvf_free_vq_irq(vf);
+-	ifcvf_free_config_irq(adapter);
++	ifcvf_free_config_irq(vf);
+ 	ifcvf_free_irq_vectors(pdev);
+ }
+ 
+@@ -187,7 +185,7 @@ static int ifcvf_request_per_vq_irq(stru
+ 
+ 	return 0;
+ err:
+-	ifcvf_free_irq(adapter);
++	ifcvf_free_irq(vf);
+ 
+ 	return -EFAULT;
+ }
+@@ -221,7 +219,7 @@ static int ifcvf_request_vqs_reused_irq(
+ 
+ 	return 0;
+ err:
+-	ifcvf_free_irq(adapter);
++	ifcvf_free_irq(vf);
+ 
+ 	return -EFAULT;
+ }
+@@ -262,7 +260,7 @@ static int ifcvf_request_dev_irq(struct
+ 
+ 	return 0;
+ err:
+-	ifcvf_free_irq(adapter);
++	ifcvf_free_irq(vf);
+ 
+ 	return -EFAULT;
+ 
+@@ -317,7 +315,7 @@ static int ifcvf_request_config_irq(stru
+ 
+ 	return 0;
+ err:
+-	ifcvf_free_irq(adapter);
++	ifcvf_free_irq(vf);
+ 
+ 	return -EFAULT;
+ }
+@@ -508,7 +506,7 @@ static int ifcvf_vdpa_reset(struct vdpa_
+ 
+ 	if (status_old & VIRTIO_CONFIG_S_DRIVER_OK) {
+ 		ifcvf_stop_datapath(adapter);
+-		ifcvf_free_irq(adapter);
++		ifcvf_free_irq(vf);
+ 	}
+ 
+ 	ifcvf_reset_vring(adapter);
 
 
