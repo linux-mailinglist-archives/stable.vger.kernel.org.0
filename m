@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3319A6B4361
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85AE86B4284
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbjCJOOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
+        id S231604AbjCJOEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:04:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231730AbjCJONs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:48 -0500
+        with ESMTP id S231688AbjCJOED (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8FE51194E2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6FC7580D4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCAC8B822C3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D4BC4339C;
-        Fri, 10 Mar 2023 14:12:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66DE6B822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D89F5C433EF;
+        Fri, 10 Mar 2023 14:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457552;
-        bh=bZwvwSANhJovOcHO9FeUztwxC6AxSXPYwy5tXOVdlRU=;
+        s=korg; t=1678457025;
+        bh=HVBEpbmFeWEwfdNOHrtrFMFHxXtdlzwZ/HMrlECOqdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O978ZyYo/ED9u+9e8tMi4zNcC2033xhJw/+ionS2zqh12FbePCCiNGTLjago1AWF8
-         Wr/LC83J3HJUj7eISxuwSm1OjzwAOhJXBysdsQbVKSkj0npaO2pxSTmv9ueSu4tSXa
-         O46z9vjq2V2pGdihURu3sKW7r/N7Ezkt6h1KAnRM=
+        b=PCbawo5CQDUBF5p1kQbOjvyfDYAskrwylGqP/Y1JB4OHXDpedN3fvdXYeZtI793se
+         WaNAlP+o7uj6MfwErogM8D7q5gW2F3BHVDkw4OHVd77oN5WPBZWTQuzQv4DL+BmcvC
+         O1THaeGEgS9DMYRcOoMAs5o6utINtZ34D4BuRA2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stephane Eranian <eranian@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Babu Moger <babu.moger@amd.com>, stable@kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 6.1 177/200] x86/resctl: fix scheduler confusion with current
-Date:   Fri, 10 Mar 2023 14:39:44 +0100
-Message-Id: <20230310133722.539400703@linuxfoundation.org>
+        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
+        Wayne Lin <wayne.lin@amd.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Imre Deak <imre.deak@intel.com>
+Subject: [PATCH 6.2 205/211] drm/i915/dp_mst: Add the MST topology state for modesetted CRTCs
+Date:   Fri, 10 Mar 2023 14:39:45 +0100
+Message-Id: <20230310133725.155073247@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,178 +57,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Imre Deak <imre.deak@intel.com>
 
-commit 7fef099702527c3b2c5234a2ea6a24411485a13a upstream.
+commit 326b1e792ff08b4d8ecb9605aec98e4e5feef56e upstream.
 
-The implementation of 'current' on x86 is very intentionally special: it
-is a very common thing to look up, and it uses 'this_cpu_read_stable()'
-to get the current thread pointer efficiently from per-cpu storage.
+Add the MST topology for a CRTC to the atomic state if the driver
+needs to force a modeset on the CRTC after the encoder compute config
+functions are called.
 
-And the keyword in there is 'stable': the current thread pointer never
-changes as far as a single thread is concerned.  Even if when a thread
-is preempted, or moved to another CPU, or even across an explicit call
-'schedule()' that thread will still have the same value for 'current'.
+Later the MST encoder's disable hook also adds the state, but that isn't
+guaranteed to work (since in that hook getting the state may fail, which
+can't be handled there). This should fix that, while a later patch fixes
+the use of the MST state in the disable hook.
 
-It is, after all, the kernel base pointer to thread-local storage.
-That's why it's stable to begin with, but it's also why it's important
-enough that we have that special 'this_cpu_read_stable()' access for it.
+v2: Add missing forward struct declartions, caught by hdrtest.
+v3: Factor out intel_dp_mst_add_topology_state_for_connector() used
+    later in the patchset.
 
-So this is all done very intentionally to allow the compiler to treat
-'current' as a value that never visibly changes, so that the compiler
-can do CSE and combine multiple different 'current' accesses into one.
-
-However, there is obviously one very special situation when the
-currently running thread does actually change: inside the scheduler
-itself.
-
-So the scheduler code paths are special, and do not have a 'current'
-thread at all.  Instead there are _two_ threads: the previous and the
-next thread - typically called 'prev' and 'next' (or prev_p/next_p)
-internally.
-
-So this is all actually quite straightforward and simple, and not all
-that complicated.
-
-Except for when you then have special code that is run in scheduler
-context, that code then has to be aware that 'current' isn't really a
-valid thing.  Did you mean 'prev'? Did you mean 'next'?
-
-In fact, even if then look at the code, and you use 'current' after the
-new value has been assigned to the percpu variable, we have explicitly
-told the compiler that 'current' is magical and always stable.  So the
-compiler is quite free to use an older (or newer) value of 'current',
-and the actual assignment to the percpu storage is not relevant even if
-it might look that way.
-
-Which is exactly what happened in the resctl code, that blithely used
-'current' in '__resctrl_sched_in()' when it really wanted the new
-process state (as implied by the name: we're scheduling 'into' that new
-resctl state).  And clang would end up just using the old thread pointer
-value at least in some configurations.
-
-This could have happened with gcc too, and purely depends on random
-compiler details.  Clang just seems to have been more aggressive about
-moving the read of the per-cpu current_task pointer around.
-
-The fix is trivial: just make the resctl code adhere to the scheduler
-rules of using the prev/next thread pointer explicitly, instead of using
-'current' in a situation where it just wasn't valid.
-
-That same code is then also used outside of the scheduler context (when
-a thread resctl state is explicitly changed), and then we will just pass
-in 'current' as that pointer, of course.  There is no ambiguity in that
-case.
-
-The fix may be trivial, but noticing and figuring out what went wrong
-was not.  The credit for that goes to Stephane Eranian.
-
-Reported-by: Stephane Eranian <eranian@google.com>
-Link: https://lore.kernel.org/lkml/20230303231133.1486085-1-eranian@google.com/
-Link: https://lore.kernel.org/lkml/alpine.LFD.2.01.0908011214330.3304@localhost.localdomain/
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Tony Luck <tony.luck@intel.com>
-Tested-by: Stephane Eranian <eranian@google.com>
-Tested-by: Babu Moger <babu.moger@amd.com>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: stable@vger.kernel.org # 6.1
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com> # v2
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Daniel Vetter <daniel@ffwll.ch>
+Acked-by: Wayne Lin <wayne.lin@amd.com>
+Acked-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230206114856.2665066-1-imre.deak@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/resctrl.h         |   12 ++++++------
- arch/x86/kernel/cpu/resctrl/rdtgroup.c |    4 ++--
- arch/x86/kernel/process_32.c           |    2 +-
- arch/x86/kernel/process_64.c           |    2 +-
- 4 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/i915/display/intel_display.c |    4 +
+ drivers/gpu/drm/i915/display/intel_dp_mst.c  |   61 +++++++++++++++++++++++++++
+ drivers/gpu/drm/i915/display/intel_dp_mst.h  |    4 +
+ 3 files changed, 69 insertions(+)
 
---- a/arch/x86/include/asm/resctrl.h
-+++ b/arch/x86/include/asm/resctrl.h
-@@ -51,7 +51,7 @@ DECLARE_STATIC_KEY_FALSE(rdt_mon_enable_
-  *   simple as possible.
-  * Must be called with preemption disabled.
-  */
--static void __resctrl_sched_in(void)
-+static inline void __resctrl_sched_in(struct task_struct *tsk)
- {
- 	struct resctrl_pqr_state *state = this_cpu_ptr(&pqr_state);
- 	u32 closid = state->default_closid;
-@@ -63,13 +63,13 @@ static void __resctrl_sched_in(void)
- 	 * Else use the closid/rmid assigned to this cpu.
- 	 */
- 	if (static_branch_likely(&rdt_alloc_enable_key)) {
--		tmp = READ_ONCE(current->closid);
-+		tmp = READ_ONCE(tsk->closid);
- 		if (tmp)
- 			closid = tmp;
- 	}
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -5950,6 +5950,10 @@ int intel_modeset_all_pipes(struct intel
+ 		if (ret)
+ 			return ret;
  
- 	if (static_branch_likely(&rdt_mon_enable_key)) {
--		tmp = READ_ONCE(current->rmid);
-+		tmp = READ_ONCE(tsk->rmid);
- 		if (tmp)
- 			rmid = tmp;
- 	}
-@@ -90,17 +90,17 @@ static inline unsigned int resctrl_arch_
- 	return val * scale;
++		ret = intel_dp_mst_add_topology_state_for_crtc(state, crtc);
++		if (ret)
++			return ret;
++
+ 		ret = intel_atomic_add_affected_planes(state, crtc);
+ 		if (ret)
+ 			return ret;
+--- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+@@ -1018,3 +1018,64 @@ bool intel_dp_mst_is_slave_trans(const s
+ 	return crtc_state->mst_master_transcoder != INVALID_TRANSCODER &&
+ 	       crtc_state->mst_master_transcoder != crtc_state->cpu_transcoder;
  }
++
++/**
++ * intel_dp_mst_add_topology_state_for_connector - add MST topology state for a connector
++ * @state: atomic state
++ * @connector: connector to add the state for
++ * @crtc: the CRTC @connector is attached to
++ *
++ * Add the MST topology state for @connector to @state.
++ *
++ * Returns 0 on success, negative error code on failure.
++ */
++static int
++intel_dp_mst_add_topology_state_for_connector(struct intel_atomic_state *state,
++					      struct intel_connector *connector,
++					      struct intel_crtc *crtc)
++{
++	struct drm_dp_mst_topology_state *mst_state;
++
++	if (!connector->mst_port)
++		return 0;
++
++	mst_state = drm_atomic_get_mst_topology_state(&state->base,
++						      &connector->mst_port->mst_mgr);
++	if (IS_ERR(mst_state))
++		return PTR_ERR(mst_state);
++
++	mst_state->pending_crtc_mask |= drm_crtc_mask(&crtc->base);
++
++	return 0;
++}
++
++/**
++ * intel_dp_mst_add_topology_state_for_crtc - add MST topology state for a CRTC
++ * @state: atomic state
++ * @crtc: CRTC to add the state for
++ *
++ * Add the MST topology state for @crtc to @state.
++ *
++ * Returns 0 on success, negative error code on failure.
++ */
++int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_state *state,
++					     struct intel_crtc *crtc)
++{
++	struct drm_connector *_connector;
++	struct drm_connector_state *conn_state;
++	int i;
++
++	for_each_new_connector_in_state(&state->base, _connector, conn_state, i) {
++		struct intel_connector *connector = to_intel_connector(_connector);
++		int ret;
++
++		if (conn_state->crtc != &crtc->base)
++			continue;
++
++		ret = intel_dp_mst_add_topology_state_for_connector(state, connector, crtc);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
++}
+--- a/drivers/gpu/drm/i915/display/intel_dp_mst.h
++++ b/drivers/gpu/drm/i915/display/intel_dp_mst.h
+@@ -8,6 +8,8 @@
  
--static inline void resctrl_sched_in(void)
-+static inline void resctrl_sched_in(struct task_struct *tsk)
- {
- 	if (static_branch_likely(&rdt_enable_key))
--		__resctrl_sched_in();
-+		__resctrl_sched_in(tsk);
- }
+ #include <linux/types.h>
  
- void resctrl_cpu_detect(struct cpuinfo_x86 *c);
++struct intel_atomic_state;
++struct intel_crtc;
+ struct intel_crtc_state;
+ struct intel_digital_port;
+ struct intel_dp;
+@@ -18,5 +20,7 @@ int intel_dp_mst_encoder_active_links(st
+ bool intel_dp_mst_is_master_trans(const struct intel_crtc_state *crtc_state);
+ bool intel_dp_mst_is_slave_trans(const struct intel_crtc_state *crtc_state);
+ bool intel_dp_mst_source_support(struct intel_dp *intel_dp);
++int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_state *state,
++					     struct intel_crtc *crtc);
  
- #else
- 
--static inline void resctrl_sched_in(void) {}
-+static inline void resctrl_sched_in(struct task_struct *tsk) {}
- static inline void resctrl_cpu_detect(struct cpuinfo_x86 *c) {}
- 
- #endif /* CONFIG_X86_CPU_RESCTRL */
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -314,7 +314,7 @@ static void update_cpu_closid_rmid(void
- 	 * executing task might have its own closid selected. Just reuse
- 	 * the context switch code.
- 	 */
--	resctrl_sched_in();
-+	resctrl_sched_in(current);
- }
- 
- /*
-@@ -535,7 +535,7 @@ static void _update_task_closid_rmid(voi
- 	 * Otherwise, the MSR is updated when the task is scheduled in.
- 	 */
- 	if (task == current)
--		resctrl_sched_in();
-+		resctrl_sched_in(task);
- }
- 
- static void update_task_closid_rmid(struct task_struct *t)
---- a/arch/x86/kernel/process_32.c
-+++ b/arch/x86/kernel/process_32.c
-@@ -212,7 +212,7 @@ __switch_to(struct task_struct *prev_p,
- 	switch_fpu_finish();
- 
- 	/* Load the Intel cache allocation PQR MSR. */
--	resctrl_sched_in();
-+	resctrl_sched_in(next_p);
- 
- 	return prev_p;
- }
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -656,7 +656,7 @@ __switch_to(struct task_struct *prev_p,
- 	}
- 
- 	/* Load the Intel cache allocation PQR MSR. */
--	resctrl_sched_in();
-+	resctrl_sched_in(next_p);
- 
- 	return prev_p;
- }
+ #endif /* __INTEL_DP_MST_H__ */
 
 
