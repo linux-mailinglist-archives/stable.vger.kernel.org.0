@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E11E6B446F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9AF6B4323
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232182AbjCJOYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:24:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40856 "EHLO
+        id S231867AbjCJOK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232185AbjCJOXp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:23:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21C81CF5D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:02 -0800 (PST)
+        with ESMTP id S231871AbjCJOK3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19CD0117228
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DDD2616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61D48C433EF;
-        Fri, 10 Mar 2023 14:23:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1E7CB82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B2E1C4339B;
+        Fri, 10 Mar 2023 14:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458181;
-        bh=td9j31y/8yViev14YgL7FH2wEePfh5BObLNCd6u29Rg=;
+        s=korg; t=1678457407;
+        bh=zHzT9Dj/YWma/xyqkoMbLopKDEcCaNotOYmMZtWhzm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tBrTJc0bk0+4m2SLaEtTBQkG0FwgBhIA1h/XePznKKizhUYcrOojC8k6yz3WWwatQ
-         dRmGJ6EAoUErPwyJfajFw/xjMgPXp7tvNRyyL594QEjkFzDl/7swXLf3XrilkRm1OD
-         i/hWzdXUVYJm/FS5b2q4GteR0R+l7g9qv/XCx8jg=
+        b=tBnBhXLvSw5DjpI5wsT54BlrukTiQJ6fQx6iqdnqlWQ63trWaes9ZfI1TpZPJPnk5
+         zjWtA8xd8x9SnLkiQbZN4XDXzSeDwAvT6xaAmnvQYBMVm3e0TEdRqY6jcUxYdRbtiz
+         5oVyKphhE1LIWwQLtFnOssiWAD7FvnuBb7MXbLN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 4.19 161/252] x86/microcode/amd: Remove load_microcode_amd()s bsp parameter
-Date:   Fri, 10 Mar 2023 14:38:51 +0100
-Message-Id: <20230310133723.713256658@linuxfoundation.org>
+        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 125/200] media: uvcvideo: Handle errors from calls to usb_string
+Date:   Fri, 10 Mar 2023 14:38:52 +0100
+Message-Id: <20230310133720.961954880@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,85 +54,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 2355370cd941cbb20882cc3f34460f9f2b8f9a18 upstream.
+[ Upstream commit 4867bb590ae445bcfaa711a86b603c97e94574b3 ]
 
-It is always the BSP.
+On a Webcam from Quanta, we see the following error.
 
-No functional changes.
+usb 3-5: New USB device found, idVendor=0408, idProduct=30d2, bcdDevice= 0.03
+usb 3-5: New USB device strings: Mfr=3, Product=1, SerialNumber=2
+usb 3-5: Product: USB2.0 HD UVC WebCam
+usb 3-5: Manufacturer: Quanta
+usb 3-5: SerialNumber: 0x0001
+...
+uvcvideo: Found UVC 1.10 device USB2.0 HD UVC WebCam (0408:30d2)
+uvcvideo: Failed to initialize entity for entity 5
+uvcvideo: Failed to register entities (-22).
 
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-2-bp@alien8.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The Webcam reports an entity of type UVC_VC_EXTENSION_UNIT. It reports a
+string index of '7' associated with that entity. The attempt to read that
+string from the camera fails with error -32 (-EPIPE). usb_string() returns
+that error, but it is ignored. As result, the entity name is empty. This
+later causes v4l2_device_register_subdev() to return -EINVAL, and no
+entities are registered as result.
+
+While this appears to be a firmware problem with the camera, the kernel
+should still handle the situation gracefully. To do that, check the return
+value from usb_string(). If it reports an error, assign the entity's
+default name.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/microcode/amd.c |   17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ drivers/media/usb/uvc/uvc_driver.c | 48 ++++++++++++------------------
+ 1 file changed, 19 insertions(+), 29 deletions(-)
 
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -329,8 +329,7 @@ void load_ucode_amd_ap(unsigned int cpui
- 	apply_microcode_early_amd(cpuid_1_eax, cp.data, cp.size, false);
- }
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 16c75b8635455..ef08e5f51ede9 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -860,10 +860,8 @@ static int uvc_parse_vendor_control(struct uvc_device *dev,
+ 					       + n;
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], 2*n);
  
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size);
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size);
+-		if (buffer[24+p+2*n] != 0)
+-			usb_string(udev, buffer[24+p+2*n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[24+p+2*n] == 0 ||
++		    usb_string(udev, buffer[24+p+2*n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
  
- int __init save_microcode_in_initrd_amd(unsigned int cpuid_1_eax)
- {
-@@ -348,7 +347,7 @@ int __init save_microcode_in_initrd_amd(
- 	if (!desc.mc)
- 		return -EINVAL;
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -987,15 +985,15 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 			memcpy(term->media.bmTransportModes, &buffer[10+n], p);
+ 		}
  
--	ret = load_microcode_amd(true, x86_family(cpuid_1_eax), desc.data, desc.size);
-+	ret = load_microcode_amd(x86_family(cpuid_1_eax), desc.data, desc.size);
- 	if (ret > UCODE_UPDATED)
- 		return -EINVAL;
+-		if (buffer[7] != 0)
+-			usb_string(udev, buffer[7], term->name,
+-				   sizeof(term->name));
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
+-			sprintf(term->name, "Camera %u", buffer[3]);
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
+-			sprintf(term->name, "Media %u", buffer[3]);
+-		else
+-			sprintf(term->name, "Input %u", buffer[3]);
++		if (buffer[7] == 0 ||
++		    usb_string(udev, buffer[7], term->name, sizeof(term->name)) < 0) {
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
++				sprintf(term->name, "Camera %u", buffer[3]);
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
++				sprintf(term->name, "Media %u", buffer[3]);
++			else
++				sprintf(term->name, "Input %u", buffer[3]);
++		}
  
-@@ -698,8 +697,7 @@ static enum ucode_state __load_microcode
- 	return UCODE_OK;
- }
+ 		list_add_tail(&term->list, &dev->entities);
+ 		break;
+@@ -1028,10 +1026,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
  
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
- {
- 	struct ucode_patch *p;
- 	enum ucode_state ret;
-@@ -723,10 +721,6 @@ load_microcode_amd(bool save, u8 family,
- 		ret = UCODE_NEW;
- 	}
+ 		memcpy(term->baSourceID, &buffer[7], 1);
  
--	/* save BSP's matching patch for early load */
--	if (!save)
--		return ret;
--
- 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
- 	memcpy(amd_ucode_patch, p->data, min_t(u32, ksize(p->data), PATCH_MAX_SIZE));
+-		if (buffer[8] != 0)
+-			usb_string(udev, buffer[8], term->name,
+-				   sizeof(term->name));
+-		else
++		if (buffer[8] == 0 ||
++		    usb_string(udev, buffer[8], term->name, sizeof(term->name)) < 0)
+ 			sprintf(term->name, "Output %u", buffer[3]);
  
-@@ -754,12 +748,11 @@ static enum ucode_state request_microcod
- {
- 	char fw_name[36] = "amd-ucode/microcode_amd.bin";
- 	struct cpuinfo_x86 *c = &cpu_data(cpu);
--	bool bsp = c->cpu_index == boot_cpu_data.cpu_index;
- 	enum ucode_state ret = UCODE_NFOUND;
- 	const struct firmware *fw;
+ 		list_add_tail(&term->list, &dev->entities);
+@@ -1053,10 +1049,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
  
- 	/* reload ucode container only on the boot cpu */
--	if (!refresh_fw || !bsp)
-+	if (!refresh_fw)
- 		return UCODE_OK;
+ 		memcpy(unit->baSourceID, &buffer[5], p);
  
- 	if (c->x86 >= 0x15)
-@@ -776,7 +769,7 @@ static enum ucode_state request_microcod
- 		goto fw_release;
- 	}
+-		if (buffer[5+p] != 0)
+-			usb_string(udev, buffer[5+p], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[5+p] == 0 ||
++		    usb_string(udev, buffer[5+p], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Selector %u", buffer[3]);
  
--	ret = load_microcode_amd(bsp, c->x86, fw->data, fw->size);
-+	ret = load_microcode_amd(c->x86, fw->data, fw->size);
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1086,10 +1080,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		if (dev->uvc_version >= 0x0110)
+ 			unit->processing.bmVideoStandards = buffer[9+n];
  
-  fw_release:
- 	release_firmware(fw);
+-		if (buffer[8+n] != 0)
+-			usb_string(udev, buffer[8+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[8+n] == 0 ||
++		    usb_string(udev, buffer[8+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Processing %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1117,10 +1109,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		unit->extension.bmControls = (u8 *)unit + sizeof(*unit);
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], n);
+ 
+-		if (buffer[23+p+n] != 0)
+-			usb_string(udev, buffer[23+p+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[23+p+n] == 0 ||
++		    usb_string(udev, buffer[23+p+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+-- 
+2.39.2
+
 
 
