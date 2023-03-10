@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B996B43BD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 098316B4296
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbjCJORP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:17:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58328 "EHLO
+        id S231569AbjCJOEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:04:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232053AbjCJOQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F1D11BB02
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:00 -0800 (PST)
+        with ESMTP id S231533AbjCJOEd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB8915171
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D544B822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B200CC433D2;
-        Fri, 10 Mar 2023 14:15:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55E4BB822B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B98F5C4339C;
+        Fri, 10 Mar 2023 14:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457758;
-        bh=VzcIijc6rEZQ9gxKZ5dm8CaHZZaslgrmF7NVHuj8YSQ=;
+        s=korg; t=1678457069;
+        bh=9R1HBx8meFWbKpE7KPKXA+5E9RUOnDSCLEHUISCKaxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKc3zI2A67qT1x9U1UhWnTXoGXT1qjXOAcvXLvjrWuYw+sS9lKa5zwXjPOVntOzbu
-         ywH4hABjhvQ1gdDY8EFoJ/usrzTXtzxemPL5fO4Lxs35Fl67HUtsWak8/famX/Ox9Z
-         CQnd2QgvQb7PCMgLhVwlM1D/Nt253m5w0T1ukyao=
+        b=YtjLpkV+u5Sjbv7uBGQhD03dZGRwwKO43mUrEtkhf9kbkEF1qeaULtpAU4HDqQsii
+         u7M8Y3aesdDmug58wiX2kQvOGjj7alW8hFFM7GBLYSDqtRgS7I0U9NUfm74gr3lw3h
+         k3HXIe1IG1/MbGETifvch8w1gHnTdrzUnNjgEbmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/252] powercap: fix possible name leak in powercap_register_zone()
+Subject: [PATCH 6.1 010/200] memory: renesas-rpc-if: Move resource acquisition to .probe()
 Date:   Fri, 10 Mar 2023 14:36:57 +0100
-Message-Id: <20230310133720.242329815@linuxfoundation.org>
+Message-Id: <20230310133717.367047969@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,58 +56,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 1b6599f741a4525ca761ecde46e5885ff1e6ba58 ]
+[ Upstream commit 8b3580df15f53045fda3ffae53f74575c96aa77e ]
 
-In the error path after calling dev_set_name(), the device
-name is leaked. To fix this, calling dev_set_name() before
-device_register(), and call put_device() if it returns error.
+While the acquired resources are tied to the lifetime of the RPC-IF core
+device (through the use of managed resource functions), the actual
+resource acquisition is triggered from the HyperBus and SPI child
+drivers.  Due to this mismatch, unbinding and rebinding the child
+drivers manually fails with -EBUSY:
 
-All the resources is released in powercap_release(), so it
-can return from powercap_register_zone() directly.
+    # echo rpc-if-hyperflash > /sys/bus/platform/drivers/rpc-if-hyperflash/unbind
+    # echo rpc-if-hyperflash > /sys/bus/platform/drivers/rpc-if-hyperflash/bind
+    rpc-if ee200000.spi: can't request region for resource [mem 0xee200000-0xee2001ff]
+    rpc-if-hyperflash: probe of rpc-if-hyperflash failed with error -16
 
-Fixes: 75d2364ea0ca ("PowerCap: Add class driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The same is true for rpc-if-spi.
+
+Fix this by moving all resource acquisition to the core driver's probe
+routine.
+
+Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/c1012ef1de799e08a70817ab7313794e2d8d7bfb.1669213027.git.geert+renesas@glider.be
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/powercap/powercap_sys.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/memory/renesas-rpc-if.c | 49 ++++++++++++++++-----------------
+ 1 file changed, 24 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/powercap/powercap_sys.c b/drivers/powercap/powercap_sys.c
-index 60c8375c3c816..0a63fac54fd93 100644
---- a/drivers/powercap/powercap_sys.c
-+++ b/drivers/powercap/powercap_sys.c
-@@ -542,9 +542,6 @@ struct powercap_zone *powercap_register_zone(
- 	power_zone->name = kstrdup(name, GFP_KERNEL);
- 	if (!power_zone->name)
- 		goto err_name_alloc;
--	dev_set_name(&power_zone->dev, "%s:%x",
--					dev_name(power_zone->dev.parent),
--					power_zone->id);
- 	power_zone->constraints = kcalloc(nr_constraints,
- 					  sizeof(*power_zone->constraints),
- 					  GFP_KERNEL);
-@@ -567,9 +564,16 @@ struct powercap_zone *powercap_register_zone(
- 	power_zone->dev_attr_groups[0] = &power_zone->dev_zone_attr_group;
- 	power_zone->dev_attr_groups[1] = NULL;
- 	power_zone->dev.groups = power_zone->dev_attr_groups;
-+	dev_set_name(&power_zone->dev, "%s:%x",
-+					dev_name(power_zone->dev.parent),
-+					power_zone->id);
- 	result = device_register(&power_zone->dev);
--	if (result)
--		goto err_dev_ret;
-+	if (result) {
-+		put_device(&power_zone->dev);
-+		mutex_unlock(&control_type->lock);
-+
-+		return ERR_PTR(result);
-+	}
+diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
+index 309c0b59f3a2f..7343dbb79c9f7 100644
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -276,32 +276,7 @@ static const struct regmap_config rpcif_regmap_config = {
  
- 	control_type->nr_zones++;
- 	mutex_unlock(&control_type->lock);
+ int rpcif_sw_init(struct rpcif *rpcif, struct device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+ 	struct rpcif_priv *rpc = dev_get_drvdata(dev);
+-	struct resource *res;
+-
+-	rpc->base = devm_platform_ioremap_resource_byname(pdev, "regs");
+-	if (IS_ERR(rpc->base))
+-		return PTR_ERR(rpc->base);
+-
+-	rpc->regmap = devm_regmap_init(&pdev->dev, NULL, rpc, &rpcif_regmap_config);
+-	if (IS_ERR(rpc->regmap)) {
+-		dev_err(&pdev->dev,
+-			"failed to init regmap for rpcif, error %ld\n",
+-			PTR_ERR(rpc->regmap));
+-		return	PTR_ERR(rpc->regmap);
+-	}
+-
+-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dirmap");
+-	rpc->dirmap = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(rpc->dirmap))
+-		return PTR_ERR(rpc->dirmap);
+-	rpc->size = resource_size(res);
+-
+-	rpc->type = (uintptr_t)of_device_get_match_data(dev);
+-	rpc->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+-	if (IS_ERR(rpc->rstc))
+-		return PTR_ERR(rpc->rstc);
+ 
+ 	rpcif->dev = dev;
+ 	rpcif->dirmap = rpc->dirmap;
+@@ -701,9 +676,11 @@ EXPORT_SYMBOL(rpcif_dirmap_read);
+ 
+ static int rpcif_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct platform_device *vdev;
+ 	struct device_node *flash;
+ 	struct rpcif_priv *rpc;
++	struct resource *res;
+ 	const char *name;
+ 	int ret;
+ 
+@@ -728,6 +705,28 @@ static int rpcif_probe(struct platform_device *pdev)
+ 	if (!rpc)
+ 		return -ENOMEM;
+ 
++	rpc->base = devm_platform_ioremap_resource_byname(pdev, "regs");
++	if (IS_ERR(rpc->base))
++		return PTR_ERR(rpc->base);
++
++	rpc->regmap = devm_regmap_init(dev, NULL, rpc, &rpcif_regmap_config);
++	if (IS_ERR(rpc->regmap)) {
++		dev_err(dev, "failed to init regmap for rpcif, error %ld\n",
++			PTR_ERR(rpc->regmap));
++		return	PTR_ERR(rpc->regmap);
++	}
++
++	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dirmap");
++	rpc->dirmap = devm_ioremap_resource(dev, res);
++	if (IS_ERR(rpc->dirmap))
++		return PTR_ERR(rpc->dirmap);
++	rpc->size = resource_size(res);
++
++	rpc->type = (uintptr_t)of_device_get_match_data(dev);
++	rpc->rstc = devm_reset_control_get_exclusive(dev, NULL);
++	if (IS_ERR(rpc->rstc))
++		return PTR_ERR(rpc->rstc);
++
+ 	vdev = platform_device_alloc(name, pdev->id);
+ 	if (!vdev)
+ 		return -ENOMEM;
 -- 
 2.39.2
 
