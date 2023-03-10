@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57DDC6B430D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA54B6B4433
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbjCJOKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34628 "EHLO
+        id S232254AbjCJOWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231899AbjCJOJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:55 -0500
+        with ESMTP id S232157AbjCJOV6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB4451184F9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FA735245
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3832B82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D77DC433D2;
-        Fri, 10 Mar 2023 14:09:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B804B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A62EC433EF;
+        Fri, 10 Mar 2023 14:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457351;
-        bh=/klgkCbfemWAdxJo7bRHxEKpc43wKYFdJuMtUQ6Z2e0=;
+        s=korg; t=1678458046;
+        bh=GdbKForBwhzdKtaiuUPQIKix80NxJ489Hcmiv1XOYZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGDqfVi1epTzNmEG6Qob3kpqUdSZlGSJk5Y4vuSn3Nrnm24Pqh4nrGELSEhLAqFAa
-         b7K0OMdr0TbylnlMBp6kWXWWu85d5Ux7ACZOvRDH1veQ7jeYA5caeB8I+3q21JvZHI
-         TCKqMcX+dLl7xXzF8cLhPfiH/zu2177ABVFHO+i0=
+        b=vKqc2dfUqEmgA5noKR6/OzukpHwSX1JeaVWg16t1qI7ZtLrafgb4CO4S/D38WDd9R
+         /pXxl7U1GGZ+F5L4Nk79Y3/cfXfEuncQIafq2uMGDS+BqxT+7e1n7gnbTBRWJgtUNh
+         6ZbKwym8S7YDCuDlQN4ETXjgxd9QAK5hg9riGLb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nils Hanke <nh@edgeless.systems>,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 108/200] nvme: bring back auto-removal of deleted namespaces during sequential scan
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 4.19 145/252] ARM: dts: exynos: correct HDMI phy compatible in Exynos4
 Date:   Fri, 10 Mar 2023 14:38:35 +0100
-Message-Id: <20230310133720.407990040@linuxfoundation.org>
+Message-Id: <20230310133723.184061105@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,109 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 0dd6fff2aad4e35633fef1ea72838bec5b47559a ]
+commit af1c89ddb74f170eccd5a57001d7317560b638ea upstream.
 
-Bring back the check of the Identify Namespace return value for the
-legacy NVMe 1.0-style sequential scanning.  While NVMe 1.0 does not
-support namespace management, there are "modern" cloud solutions like
-Google Cloud Platform that claim the obsolete 1.0 compliance for no
-good reason while supporting proprietary sideband namespace management.
+The HDMI phy compatible was missing vendor prefix.
 
-Fixes: 1a893c2bfef4 ("nvme: refactor namespace probing")
-Reported-by: Nils Hanke <nh@edgeless.systems>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Tested-by: Nils Hanke <nh@edgeless.systems>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ed80d4cab772 ("ARM: dts: add hdmi related nodes for exynos4 SoCs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230125094513.155063-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/core.c | 35 ++++++++++++++++++-----------------
- 1 file changed, 18 insertions(+), 17 deletions(-)
+ arch/arm/boot/dts/exynos4.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 5acc9ae225df3..2031fd960549c 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -38,6 +38,7 @@ struct nvme_ns_info {
- 	bool is_shared;
- 	bool is_readonly;
- 	bool is_ready;
-+	bool is_removed;
- };
+--- a/arch/arm/boot/dts/exynos4.dtsi
++++ b/arch/arm/boot/dts/exynos4.dtsi
+@@ -611,7 +611,7 @@
+ 			status = "disabled";
  
- unsigned int admin_timeout = 60;
-@@ -1439,16 +1440,8 @@ static int nvme_identify_ns(struct nvme_ctrl *ctrl, unsigned nsid,
- 	error = nvme_submit_sync_cmd(ctrl->admin_q, &c, *id, sizeof(**id));
- 	if (error) {
- 		dev_warn(ctrl->device, "Identify namespace failed (%d)\n", error);
--		goto out_free_id;
-+		kfree(*id);
- 	}
--
--	error = NVME_SC_INVALID_NS | NVME_SC_DNR;
--	if ((*id)->ncap == 0) /* namespace not allocated or attached */
--		goto out_free_id;
--	return 0;
--
--out_free_id:
--	kfree(*id);
- 	return error;
- }
- 
-@@ -1462,6 +1455,13 @@ static int nvme_ns_info_from_identify(struct nvme_ctrl *ctrl,
- 	ret = nvme_identify_ns(ctrl, info->nsid, &id);
- 	if (ret)
- 		return ret;
-+
-+	if (id->ncap == 0) {
-+		/* namespace not allocated or attached */
-+		info->is_removed = true;
-+		return -ENODEV;
-+	}
-+
- 	info->anagrpid = id->anagrpid;
- 	info->is_shared = id->nmic & NVME_NS_NMIC_SHARED;
- 	info->is_readonly = id->nsattr & NVME_NS_ATTR_RO;
-@@ -4388,6 +4388,7 @@ static void nvme_scan_ns(struct nvme_ctrl *ctrl, unsigned nsid)
- {
- 	struct nvme_ns_info info = { .nsid = nsid };
- 	struct nvme_ns *ns;
-+	int ret;
- 
- 	if (nvme_identify_ns_descs(ctrl, &info))
- 		return;
-@@ -4404,19 +4405,19 @@ static void nvme_scan_ns(struct nvme_ctrl *ctrl, unsigned nsid)
- 	 * set up a namespace.  If not fall back to the legacy version.
- 	 */
- 	if ((ctrl->cap & NVME_CAP_CRMS_CRIMS) ||
--	    (info.ids.csi != NVME_CSI_NVM && info.ids.csi != NVME_CSI_ZNS)) {
--		if (nvme_ns_info_from_id_cs_indep(ctrl, &info))
--			return;
--	} else {
--		if (nvme_ns_info_from_identify(ctrl, &info))
--			return;
--	}
-+	    (info.ids.csi != NVME_CSI_NVM && info.ids.csi != NVME_CSI_ZNS))
-+		ret = nvme_ns_info_from_id_cs_indep(ctrl, &info);
-+	else
-+		ret = nvme_ns_info_from_identify(ctrl, &info);
-+
-+	if (info.is_removed)
-+		nvme_ns_remove_by_nsid(ctrl, nsid);
- 
- 	/*
- 	 * Ignore the namespace if it is not ready. We will get an AEN once it
- 	 * becomes ready and restart the scan.
- 	 */
--	if (!info.is_ready)
-+	if (ret || !info.is_ready)
- 		return;
- 
- 	ns = nvme_find_get_ns(ctrl, nsid);
--- 
-2.39.2
-
+ 			hdmi_i2c_phy: hdmiphy@38 {
+-				compatible = "exynos4210-hdmiphy";
++				compatible = "samsung,exynos4210-hdmiphy";
+ 				reg = <0x38>;
+ 			};
+ 		};
 
 
