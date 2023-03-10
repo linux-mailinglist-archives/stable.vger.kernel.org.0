@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2173A6B4144
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7431D6B4410
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230474AbjCJNvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:51:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54752 "EHLO
+        id S232199AbjCJOVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:21:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbjCJNvG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE6A4DABB0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:04 -0800 (PST)
+        with ESMTP id S232004AbjCJOUq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BA561B329
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:19:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 777C3616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68C19C4339B;
-        Fri, 10 Mar 2023 13:51:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C980B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:19:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 656DDC4339C;
+        Fri, 10 Mar 2023 14:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456263;
-        bh=RpOmuauEYjtMLoriIZbJFJmWeKeIrJOA/3GRyk9GS2Y=;
+        s=korg; t=1678457960;
+        bh=3qZuyZq1wOCuzkHFzySZMLrOvH4xBj1LpMQEorLlC2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sz3xhE9R3sqaaQPlkXaEBttAy4p7pGqBTIlANdipTwncXbGj2yk1P5obw6p37QCWZ
-         GXx2hOzSxyTYPKu+zUwGxRhNV/mqseL7EHR5/hFS9GvpVd4IJ0+1xi95PQva9osgP2
-         FGitPwZtzW5oE/Hv3VAKeGbuZPQCKW98Pdlb+fBg=
+        b=Nz0vw+UAdQMLr04mmF6fQhxrBvI7CrQZlfCeInC68H7ynXceDCzwbpP+qe4DxdPhh
+         nqPPp5yaNzekdtfNNLAqE7erbIr1yy8MFLzGrE8uDaUWDgybdcLqwzL3T9D5tjLnVf
+         eixsLY1I8iW0CQqy8rCj/ZeTTr+qAPh8b8qyPWwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 4.14 104/193] f2fs: fix information leak in f2fs_move_inline_dirents()
+        patches@lists.linux.dev, Markuss Broks <markuss.broks@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 116/252] ARM: dts: exynos: Use Exynos5420 compatible for the MIPI video phy
 Date:   Fri, 10 Mar 2023 14:38:06 +0100
-Message-Id: <20230310133714.731003932@linuxfoundation.org>
+Message-Id: <20230310133722.301605125@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Markuss Broks <markuss.broks@gmail.com>
 
-commit 9a5571cff4ffcfc24847df9fd545cc5799ac0ee5 upstream.
+[ Upstream commit 5d5aa219a790d61cad2c38e1aa32058f16ad2f0b ]
 
-When converting an inline directory to a regular one, f2fs is leaking
-uninitialized memory to disk because it doesn't initialize the entire
-directory block.  Fix this by zero-initializing the block.
+For some reason, the driver adding support for Exynos5420 MIPI phy
+back in 2016 wasn't used on Exynos5420, which caused a kernel panic.
+Add the proper compatible for it.
 
-This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
-initializing when converting inline dentry"), which didn't consider the
-security implications of leaking uninitialized memory to disk.
-
-This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
-
-Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
-Cc: <stable@vger.kernel.org> # v4.3+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
+Link: https://lore.kernel.org/r/20230121201844.46872-2-markuss.broks@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inline.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/exynos5420.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -392,18 +392,17 @@ static int f2fs_move_inline_dirents(stru
+diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+index aaff158807613..99e2e0b0b9cd4 100644
+--- a/arch/arm/boot/dts/exynos5420.dtsi
++++ b/arch/arm/boot/dts/exynos5420.dtsi
+@@ -530,7 +530,7 @@ dp_phy: dp-video-phy {
+ 		};
  
- 	dentry_blk = kmap_atomic(page);
- 
-+	/*
-+	 * Start by zeroing the full block, to ensure that all unused space is
-+	 * zeroed and no uninitialized memory is leaked to disk.
-+	 */
-+	memset(dentry_blk, 0, F2FS_BLKSIZE);
-+
- 	make_dentry_ptr_inline(dir, &src, inline_dentry);
- 	make_dentry_ptr_block(dir, &dst, dentry_blk);
- 
- 	/* copy data from inline dentry block to new dentry block */
- 	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
--	memset(dst.bitmap + src.nr_bitmap, 0, dst.nr_bitmap - src.nr_bitmap);
--	/*
--	 * we do not need to zero out remainder part of dentry and filename
--	 * field, since we have used bitmap for marking the usage status of
--	 * them, besides, we can also ignore copying/zeroing reserved space
--	 * of dentry block, because them haven't been used so far.
--	 */
- 	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
- 	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
- 
+ 		mipi_phy: mipi-video-phy {
+-			compatible = "samsung,s5pv210-mipi-video-phy";
++			compatible = "samsung,exynos5420-mipi-video-phy";
+ 			syscon = <&pmu_system_controller>;
+ 			#phy-cells = <1>;
+ 		};
+-- 
+2.39.2
+
 
 
