@@ -2,191 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF4C46B433B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF116B4190
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231972AbjCJOLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:11:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33714 "EHLO
+        id S231228AbjCJNyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:54:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231730AbjCJOLE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:11:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8598810FBA2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:49 -0800 (PST)
+        with ESMTP id S231261AbjCJNyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E587115667
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 201AFB822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A2B8C4339E;
-        Fri, 10 Mar 2023 14:10:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05F8761774
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F1CC433EF;
+        Fri, 10 Mar 2023 13:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457446;
-        bh=91y9v1e6MZIshQ7MVs8Wj9WrSdmVZy3WnhtJV+akc2k=;
+        s=korg; t=1678456449;
+        bh=RS+pyNIV/BFPdB0R8uhCXPkmtq7feD2COD86+6PgcDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qL6KmeM5mQcyqtLxDQSrXZsULuysr8SAlgI3WbhYhveiNQLlKXNy2qZZN0gLLam0r
-         ZWcazdmB+BJIjhSO/HLK+9sKQJH1hKV5k37hy9WUr3weo3VseAC8UOne6AJpTVQRBr
-         0HPuqLW2gFfWLEe3w3ctNJ+nZdX+6YvUihvwX628=
+        b=aRF+4If/DxIF1MHufEe80Yp1qzex+JwCODxwrAciVz9WNPqx0M+joVpmX4nZ2PnPA
+         RNKF5qzcyBEtNBe7GqN6REOSMWe7dSUuJaLoBY9sDkwo7JROdkf14Bt8wur1Ml7IOg
+         owAJvnPzndVvBpvqOKbJt/EAf5agC1m9zZ7XA0yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        patches@lists.linux.dev, Chen Jun <chenjun102@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 141/200] PCI: loongson: Prevent LS7A MRRS increases
+Subject: [PATCH 4.14 166/193] watchdog: Fix kmemleak in watchdog_cdev_register
 Date:   Fri, 10 Mar 2023 14:39:08 +0100
-Message-Id: <20230310133721.462471087@linuxfoundation.org>
+Message-Id: <20230310133716.669449540@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,WEIRD_QUOTING autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Chen Jun <chenjun102@huawei.com>
 
-[ Upstream commit 8b3517f88ff2983f52698893519227c10aac90b2 ]
+[ Upstream commit 13721a2ac66b246f5802ba1b75ad8637e53eeecc ]
 
-Except for isochronous-configured devices, software may set
-Max_Read_Request_Size (MRRS) to any value up to 4096.  If a device issues a
-read request with size greater than the completer's Max_Payload_Size (MPS),
-the completer is required to break the response into multiple completions.
+kmemleak reports memory leaks in watchdog_dev_register, as follows:
+unreferenced object 0xffff888116233000 (size 2048):
+  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
+  hex dump (first 32 bytes):
+    80 fa b9 05 81 88 ff ff 08 30 23 16 81 88 ff ff  .........0#.....
+    08 30 23 16 81 88 ff ff 00 00 00 00 00 00 00 00  .0#.............
+  backtrace:
+    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
+    [<000000006a389304>] kmalloc_trace+0x21/0x110
+    [<000000008d640eea>] watchdog_dev_register+0x4e/0x780 [watchdog]
+    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
+    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
+    [<000000001f730178>] 0xffffffffc10880ae
+    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
+    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
+    [<0000000046d08e7c>] load_module+0x6133/0x70f0
+    ...
 
-Instead of correctly responding with multiple completions to a large read
-request, some LS7A Root Ports respond with a Completer Abort.  To prevent
-this, the MRRS must be limited to an implementation-specific value.
+unreferenced object 0xffff888105b9fa80 (size 16):
+  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
+  hex dump (first 16 bytes):
+    77 61 74 63 68 64 6f 67 31 00 b9 05 81 88 ff ff  watchdog1.......
+  backtrace:
+    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
+    [<00000000486ab89b>] __kmalloc_node_track_caller+0x44/0x1b0
+    [<000000005a39aab0>] kvasprintf+0xb5/0x140
+    [<0000000024806f85>] kvasprintf_const+0x55/0x180
+    [<000000009276cb7f>] kobject_set_name_vargs+0x56/0x150
+    [<00000000a92e820b>] dev_set_name+0xab/0xe0
+    [<00000000cec812c6>] watchdog_dev_register+0x285/0x780 [watchdog]
+    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
+    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
+    [<000000001f730178>] 0xffffffffc10880ae
+    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
+    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
+    [<0000000046d08e7c>] load_module+0x6133/0x70f0
+    ...
 
-The OS cannot detect that value, so rely on BIOS to configure MRRS before
-booting, and quirk the Root Ports so we never set an MRRS larger than that
-BIOS value for any downstream device.
+The reason is that put_device is not be called if cdev_device_add fails
+and wdd->id != 0.
 
-N.B. Hot-added devices are not configured by BIOS, and they power up with
-MRRS = 512 bytes, so these devices will be limited to 512 bytes.  If the
-LS7A limit is smaller, those hot-added devices may not work correctly, but
-per [1], hotplug is not supported with this chipset revision.
+watchdog_cdev_register
+  wd_data = kzalloc                             [1]
+  err = dev_set_name                            [2]
+  ..
+  err = cdev_device_add
+  if (err) {
+    if (wdd->id == 0) {  // wdd->id != 0
+      ..
+    }
+    return err;  // [1],[2] would be leaked
 
-[1] https://lore.kernel.org/r/073638a7-ae68-2847-ac3d-29e5e760d6af@loongson.cn
+To fix it, call put_device in all wdd->id cases.
 
-[bhelgaas: commit log]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216884
-Link: https://lore.kernel.org/r/20230201043018.778499-3-chenhuacai@loongson.cn
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: 72139dfa2464 ("watchdog: Fix the race between the release of watchdog_core_data and cdev")
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221116012714.102066-1-chenjun102@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-loongson.c | 44 +++++++++------------------
- drivers/pci/pci.c                     | 10 ++++++
- include/linux/pci.h                   |  1 +
- 3 files changed, 26 insertions(+), 29 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
-index 05c50408f13b7..759ec211c17bf 100644
---- a/drivers/pci/controller/pci-loongson.c
-+++ b/drivers/pci/controller/pci-loongson.c
-@@ -75,37 +75,23 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
- 			DEV_LS7A_LPC, system_bus_quirk);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 21c3ffdc8a09d..337ca3690d622 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -965,8 +965,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
+ 		if (wdd->id == 0) {
+ 			misc_deregister(&watchdog_miscdev);
+ 			old_wd_data = NULL;
+-			put_device(&wd_data->dev);
+ 		}
++		put_device(&wd_data->dev);
+ 		return err;
+ 	}
  
--static void loongson_mrrs_quirk(struct pci_dev *dev)
-+static void loongson_mrrs_quirk(struct pci_dev *pdev)
- {
--	struct pci_bus *bus = dev->bus;
--	struct pci_dev *bridge;
--	static const struct pci_device_id bridge_devids[] = {
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_0) },
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_1) },
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_2) },
--		{ 0, },
--	};
--
--	/* look for the matching bridge */
--	while (!pci_is_root_bus(bus)) {
--		bridge = bus->self;
--		bus = bus->parent;
--		/*
--		 * Some Loongson PCIe ports have a h/w limitation of
--		 * 256 bytes maximum read request size. They can't handle
--		 * anything larger than this. So force this limit on
--		 * any devices attached under these ports.
--		 */
--		if (pci_match_id(bridge_devids, bridge)) {
--			if (pcie_get_readrq(dev) > 256) {
--				pci_info(dev, "limiting MRRS to 256\n");
--				pcie_set_readrq(dev, 256);
--			}
--			break;
--		}
--	}
-+	/*
-+	 * Some Loongson PCIe ports have h/w limitations of maximum read
-+	 * request size. They can't handle anything larger than this. So
-+	 * force this limit on any devices attached under these ports.
-+	 */
-+	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
-+
-+	bridge->no_inc_mrrs = 1;
- }
--DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_0, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_1, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_2, loongson_mrrs_quirk);
- 
- static void loongson_pci_pin_quirk(struct pci_dev *pdev)
- {
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index c20e95fd48cee..98d841a7b45bb 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -6017,6 +6017,7 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
- {
- 	u16 v;
- 	int ret;
-+	struct pci_host_bridge *bridge = pci_find_host_bridge(dev->bus);
- 
- 	if (rq < 128 || rq > 4096 || !is_power_of_2(rq))
- 		return -EINVAL;
-@@ -6035,6 +6036,15 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
- 
- 	v = (ffs(rq) - 8) << 12;
- 
-+	if (bridge->no_inc_mrrs) {
-+		int max_mrrs = pcie_get_readrq(dev);
-+
-+		if (rq > max_mrrs) {
-+			pci_info(dev, "can't set Max_Read_Request_Size to %d; max is %d\n", rq, max_mrrs);
-+			return -EINVAL;
-+		}
-+	}
-+
- 	ret = pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
- 						  PCI_EXP_DEVCTL_READRQ, v);
- 
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 2bda4a4e47e81..cb538bc579710 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -570,6 +570,7 @@ struct pci_host_bridge {
- 	void		*release_data;
- 	unsigned int	ignore_reset_delay:1;	/* For entire hierarchy */
- 	unsigned int	no_ext_tags:1;		/* No Extended Tags */
-+	unsigned int	no_inc_mrrs:1;		/* No Increase MRRS */
- 	unsigned int	native_aer:1;		/* OS may use PCIe AER */
- 	unsigned int	native_pcie_hotplug:1;	/* OS may use PCIe hotplug */
- 	unsigned int	native_shpc_hotplug:1;	/* OS may use SHPC hotplug */
 -- 
 2.39.2
 
