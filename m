@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21EF06B434F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:13:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 950B36B449C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231778AbjCJONE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:13:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45422 "EHLO
+        id S232289AbjCJOZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231775AbjCJOMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:12:44 -0500
+        with ESMTP id S232030AbjCJOZg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D732B11A2F6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:11:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411AB118BDC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B769C61959
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:11:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 826B8C4339B;
-        Fri, 10 Mar 2023 14:11:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9C84616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C38C3C433D2;
+        Fri, 10 Mar 2023 14:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457488;
-        bh=qlL51E0/NZbjTW3c4TmV6aYGz5OpdvOQVh9xBbC5vGk=;
+        s=korg; t=1678458276;
+        bh=p2bZOgehJ4DmOBPea7v6KYn+JokJdFVcBZSbH9GKNsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kChF6Z0cfjK60JA9nDjx+LSbORdFLGzIyPxMccTdBC3ReKeYaeAAnGudMHEnKjzrF
-         SlVd6L1PrSxA8JRJlFgva5pSwFPFH9JK/itJycp/sUtjKD0u0Tk7m5mv/4+PvAT73q
-         RA5r/xuCKQqgcVm7+2so/wki1yZt7FBvFU0nnbhU=
+        b=1xV1X3PYTSUgxPtHhyVTPH3h5bzgnfJQ8MZtf5VdkT4UdDwkq3r0GuCvqrIoAvHRz
+         4Vk/a0jJkbzNKhYv2OM9XoDCZRJheRLYnyLEN63XDop1CK6Ytw/4ng9K+zig/wyBi5
+         ms51TgTL7AuBIQl84DYv7FIzMdX+40JvcZBshUrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Robert Jarzmik <robert.jarzmik@free.fr>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 154/200] USB: gadget: pxa25x_udc: fix memory leak with using debugfs_lookup()
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 191/252] scsi: ses: Fix possible desc_ptr out-of-bounds accesses
 Date:   Fri, 10 Mar 2023 14:39:21 +0100
-Message-Id: <20230310133721.858799707@linuxfoundation.org>
+Message-Id: <20230310133724.729446374@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit 7a038a681b7df78362d9fc7013e5395a694a9d3a ]
+commit 801ab13d50cf3d26170ee073ea8bb4eececb76ab upstream.
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+Sanitize possible desc_ptr out-of-bounds accesses in
+ses_enclosure_data_process().
 
-Cc: Daniel Mack <daniel@zonque.org>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>
-Link: https://lore.kernel.org/r/20230202153235.2412790-11-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20230202162451.15346-4-thenzl@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/pxa25x_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ses.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/pxa25x_udc.c b/drivers/usb/gadget/udc/pxa25x_udc.c
-index c593fc383481e..9e01ddf2b4170 100644
---- a/drivers/usb/gadget/udc/pxa25x_udc.c
-+++ b/drivers/usb/gadget/udc/pxa25x_udc.c
-@@ -1340,7 +1340,7 @@ DEFINE_SHOW_ATTRIBUTE(udc_debug);
- 		debugfs_create_file(dev->gadget.name, \
- 			S_IRUGO, NULL, dev, &udc_debug_fops); \
- 	} while (0)
--#define remove_debug_files(dev) debugfs_remove(debugfs_lookup(dev->gadget.name, NULL))
-+#define remove_debug_files(dev) debugfs_lookup_and_remove(dev->gadget.name, NULL)
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -588,15 +588,19 @@ static void ses_enclosure_data_process(s
+ 			int max_desc_len;
  
- #else	/* !CONFIG_USB_GADGET_DEBUG_FILES */
- 
--- 
-2.39.2
-
+ 			if (desc_ptr) {
+-				if (desc_ptr >= buf + page7_len) {
++				if (desc_ptr + 3 >= buf + page7_len) {
+ 					desc_ptr = NULL;
+ 				} else {
+ 					len = (desc_ptr[2] << 8) + desc_ptr[3];
+ 					desc_ptr += 4;
+-					/* Add trailing zero - pushes into
+-					 * reserved space */
+-					desc_ptr[len] = '\0';
+-					name = desc_ptr;
++					if (desc_ptr + len > buf + page7_len)
++						desc_ptr = NULL;
++					else {
++						/* Add trailing zero - pushes into
++						 * reserved space */
++						desc_ptr[len] = '\0';
++						name = desc_ptr;
++					}
+ 				}
+ 			}
+ 			if (type_ptr[0] == ENCLOSURE_COMPONENT_DEVICE ||
 
 
