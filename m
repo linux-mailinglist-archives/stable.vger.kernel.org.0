@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA846B492D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3C66B4925
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233958AbjCJPKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:10:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48002 "EHLO
+        id S233806AbjCJPKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:10:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232929AbjCJPKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 001E0125DB7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:24 -0800 (PST)
+        with ESMTP id S233944AbjCJPJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:09:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CBA124EA8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5778BB822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:01:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4EC5C433A8;
-        Fri, 10 Mar 2023 15:01:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84652B82325
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:02:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B43C433D2;
+        Fri, 10 Mar 2023 15:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460488;
-        bh=+Di6mEXN9G2ImwIWJqyFDIz3cVF3s9l5AUN86uS81yQ=;
+        s=korg; t=1678460521;
+        bh=zw0ud984ToxvO8ZuUPcsLQpD6kfo084/EMokdg0GKuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkiowP1zaaXMxGLKCgl/iNMkMat6Qi1dFdF1XxcEj9rhjs4rS7w03JU69L06tcaUa
-         RzjstO2RkVPAD8aVeS5aH1jA7aPnuI4TfBhB/4neuVBj/1MDi6RqxV5OqvqG3WuVdi
-         JJUMZrAPiQB5Vvu0cY83cyMXmp2s0yJAk7q97i9M=
+        b=BxGCAdU+orA5zJvjMnYVlkidKO7z0y9BSyw992+8mOKXJiT8WFnki4utsctT4JIGT
+         9bdPbWhz64KYJVhPqMwN2QJYSL/wfUyvD0vz6pylvtFJIx7DV8przzL/nwNYe0akOG
+         q/IwyzgLiiezDOlfZKVOmqxwJfqQrLk3nJja+jLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Eric Biggers <ebiggers@google.com>, Tejun Heo <tj@kernel.org>,
         Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 344/529] f2fs: fix information leak in f2fs_move_inline_dirents()
-Date:   Fri, 10 Mar 2023 14:38:07 +0100
-Message-Id: <20230310133820.958388854@linuxfoundation.org>
+Subject: [PATCH 5.10 345/529] f2fs: fix cgroup writeback accounting with fs-layer encryption
+Date:   Fri, 10 Mar 2023 14:38:08 +0100
+Message-Id: <20230310133820.992290970@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -43,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,54 +57,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 9a5571cff4ffcfc24847df9fd545cc5799ac0ee5 upstream.
+commit 844545c51a5b2a524b22a2fe9d0b353b827d24b4 upstream.
 
-When converting an inline directory to a regular one, f2fs is leaking
-uninitialized memory to disk because it doesn't initialize the entire
-directory block.  Fix this by zero-initializing the block.
+When writing a page from an encrypted file that is using
+filesystem-layer encryption (not inline encryption), f2fs encrypts the
+pagecache page into a bounce page, then writes the bounce page.
 
-This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
-initializing when converting inline dentry"), which didn't consider the
-security implications of leaking uninitialized memory to disk.
+It also passes the bounce page to wbc_account_cgroup_owner().  That's
+incorrect, because the bounce page is a newly allocated temporary page
+that doesn't have the memory cgroup of the original pagecache page.
+This makes wbc_account_cgroup_owner() not account the I/O to the owner
+of the pagecache page as it should.
 
-This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
+Fix this by always passing the pagecache page to
+wbc_account_cgroup_owner().
 
-Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
-Cc: <stable@vger.kernel.org> # v4.3+
+Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
+Cc: stable@vger.kernel.org
+Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Tejun Heo <tj@kernel.org>
 Reviewed-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/inline.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/f2fs/data.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -420,18 +420,17 @@ static int f2fs_move_inline_dirents(stru
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -721,7 +721,7 @@ int f2fs_submit_page_bio(struct f2fs_io_
+ 	}
  
- 	dentry_blk = page_address(page);
+ 	if (fio->io_wbc && !is_read_io(fio->op))
+-		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
  
-+	/*
-+	 * Start by zeroing the full block, to ensure that all unused space is
-+	 * zeroed and no uninitialized memory is leaked to disk.
-+	 */
-+	memset(dentry_blk, 0, F2FS_BLKSIZE);
-+
- 	make_dentry_ptr_inline(dir, &src, inline_dentry);
- 	make_dentry_ptr_block(dir, &dst, dentry_blk);
+ 	__attach_io_flag(fio);
+ 	bio_set_op_attrs(bio, fio->op, fio->op_flags);
+@@ -929,7 +929,7 @@ alloc_new:
+ 	}
  
- 	/* copy data from inline dentry block to new dentry block */
- 	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
--	memset(dst.bitmap + src.nr_bitmap, 0, dst.nr_bitmap - src.nr_bitmap);
--	/*
--	 * we do not need to zero out remainder part of dentry and filename
--	 * field, since we have used bitmap for marking the usage status of
--	 * them, besides, we can also ignore copying/zeroing reserved space
--	 * of dentry block, because them haven't been used so far.
--	 */
- 	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
- 	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
+ 	if (fio->io_wbc)
+-		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
  
+ 	inc_page_count(fio->sbi, WB_DATA_TYPE(page));
+ 
+@@ -1003,7 +1003,7 @@ alloc_new:
+ 	}
+ 
+ 	if (fio->io_wbc)
+-		wbc_account_cgroup_owner(fio->io_wbc, bio_page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	io->last_block_in_bio = fio->new_blkaddr;
+ 	f2fs_trace_ios(fio, 0);
 
 
