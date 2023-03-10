@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1586B48A4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:05:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 262A76B4988
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:13:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233217AbjCJPFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:05:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60384 "EHLO
+        id S233314AbjCJPNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:13:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233801AbjCJPEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:04:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2154861522
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:58:09 -0800 (PST)
+        with ESMTP id S234042AbjCJPNQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:13:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C140D13133F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:04:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8290A61A77
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F2BAC4339B;
-        Fri, 10 Mar 2023 14:57:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50867B82313
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9141FC433D2;
+        Fri, 10 Mar 2023 14:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460246;
-        bh=neQGTpQLF8s0krKC5Rr8IqGJF7bvebM1TR8ix3VGs9s=;
+        s=korg; t=1678460250;
+        bh=l1IZyNiIIV2Vwuw43cWIspOq8wefSLI1BBbGPVV5RtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3yJoGra4IGQIFE8aD+UWJNwCo1v9vWtKhChbX+UKDe6j4+K1czk11ILvM1Cv5CwY
-         /307WCc5RfzRvOj8SoaGnpI+H1rMgWk857beeoLXK88Ca7zldWXBGayhiolYnXv7uN
-         fIwTQ5/gfAMKIHOiTqbJjnA2hyP5Q1GZ/R+ZLth8=
+        b=RsD3TOKxAJx/hrjNjba2qfnTPhr9noxG+kPS/T2A2rJjXt67/jlbSktn0GWi3FppQ
+         E2dklduQcggVAVV8MH1YK9T3iHlxUpS6HbgzMvJZZpmSbxsqubZIpIDrCb50EwWo47
+         5IiDak31g+ELUJqT8cjKq8nwvizrvhshJl0T4nTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 271/529] media: ov5675: Fix memleak in ov5675_init_controls()
-Date:   Fri, 10 Mar 2023 14:36:54 +0100
-Message-Id: <20230310133817.516589141@linuxfoundation.org>
+Subject: [PATCH 5.10 272/529] media: i2c: ov772x: Fix memleak in ov772x_probe()
+Date:   Fri, 10 Mar 2023 14:36:55 +0100
+Message-Id: <20230310133817.564358684@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,65 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit dd74ed6c213003533e3abf4c204374ef01d86978 ]
+[ Upstream commit 7485edb2b6ca5960205c0a49bedfd09bba30e521 ]
 
-There is a kmemleak when testing the media/i2c/ov5675.c with bpf mock
-device:
+A memory leak was reported when testing ov772x with bpf mock device:
 
-AssertionError: unreferenced object 0xffff888107362160 (size 16):
-  comm "python3", pid 277, jiffies 4294832798 (age 20.722s)
-  hex dump (first 16 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+AssertionError: unreferenced object 0xffff888109afa7a8 (size 8):
+  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
+  hex dump (first 8 bytes):
+    80 22 88 15 81 88 ff ff                          ."......
   backtrace:
-    [<00000000abe7d67c>] __kmalloc_node+0x44/0x1b0
-    [<000000008a725aac>] kvmalloc_node+0x34/0x180
-    [<000000009a53cd11>] v4l2_ctrl_handler_init_class+0x11d/0x180
-[videodev]
-    [<0000000055b46db0>] ov5675_probe+0x38b/0x897 [ov5675]
-    [<00000000153d886c>] i2c_device_probe+0x28d/0x680
-    [<000000004afb7e8f>] really_probe+0x17c/0x3f0
-    [<00000000ff2f18e4>] __driver_probe_device+0xe3/0x170
-    [<000000000a001029>] driver_probe_device+0x49/0x120
-    [<00000000e39743c7>] __device_attach_driver+0xf7/0x150
-    [<00000000d32fd070>] bus_for_each_drv+0x114/0x180
-    [<000000009083ac41>] __device_attach+0x1e5/0x2d0
-    [<0000000015b4a830>] bus_probe_device+0x126/0x140
-    [<000000007813deaf>] device_add+0x810/0x1130
-    [<000000007becb867>] i2c_new_client_device+0x386/0x540
-    [<000000007f9cf4b4>] of_i2c_register_device+0xf1/0x110
-    [<00000000ebfdd032>] of_i2c_notify+0xfc/0x1f0
+    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
+    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
+    [<00000000faf48134>] v4l2_ctrl_handler_init_class+0x11d/0x180 [videodev]
+    [<00000000da376937>] ov772x_probe+0x1c3/0x68c [ov772x]
+    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
+    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
+    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
+    [<0000000048370519>] driver_probe_device+0x49/0x120
+    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
+    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
+    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
+    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
+    [<00000000ee0f3046>] device_add+0x810/0x1130
+    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
+    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
+    [<00000000a9f2159d>] of_i2c_notify+0x100/0x160
+unreferenced object 0xffff888119825c00 (size 256):
+  comm "python3", pid 279, jiffies 4294805921 (age 20.681s)
+  hex dump (first 32 bytes):
+    00 b4 a5 17 81 88 ff ff 00 5e 82 19 81 88 ff ff  .........^......
+    10 5c 82 19 81 88 ff ff 10 5c 82 19 81 88 ff ff  .\.......\......
+  backtrace:
+    [<000000009990b438>] __kmalloc_node+0x44/0x1b0
+    [<000000009e32f7d7>] kvmalloc_node+0x34/0x180
+    [<0000000073d88e0b>] v4l2_ctrl_new.cold+0x19b/0x86f [videodev]
+    [<00000000b1f576fb>] v4l2_ctrl_new_std+0x16f/0x210 [videodev]
+    [<00000000caf7ac99>] ov772x_probe+0x1fa/0x68c [ov772x]
+    [<000000003f0d225e>] i2c_device_probe+0x28d/0x680
+    [<00000000e0b6db89>] really_probe+0x17c/0x3f0
+    [<000000001b19fcee>] __driver_probe_device+0xe3/0x170
+    [<0000000048370519>] driver_probe_device+0x49/0x120
+    [<000000005ead07a0>] __device_attach_driver+0xf7/0x150
+    [<0000000043f452b8>] bus_for_each_drv+0x114/0x180
+    [<00000000358e5596>] __device_attach+0x1e5/0x2d0
+    [<0000000043f83c5d>] bus_probe_device+0x126/0x140
+    [<00000000ee0f3046>] device_add+0x810/0x1130
+    [<00000000e0278184>] i2c_new_client_device+0x359/0x4f0
+    [<0000000070baf34f>] of_i2c_register_device+0xf1/0x110
 
-ov5675_init_controls() won't clean all the allocated resources in fail
-path, which may causes the memleaks. Add v4l2_ctrl_handler_free() to
-prevent memleak.
+The reason is that if priv->hdl.error is set, ov772x_probe() jumps to the
+error_mutex_destroy without doing v4l2_ctrl_handler_free(), and all
+resources allocated in v4l2_ctrl_handler_init() and v4l2_ctrl_new_std()
+are leaked.
 
-Fixes: bf27502b1f3b ("media: ov5675: Add support for OV5675 sensor")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Fixes: 1112babde214 ("media: i2c: Copy ov772x soc_camera sensor driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5675.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/i2c/ov772x.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5675.c b/drivers/media/i2c/ov5675.c
-index 9540ce8918f0c..aa35a9546177a 100644
---- a/drivers/media/i2c/ov5675.c
-+++ b/drivers/media/i2c/ov5675.c
-@@ -791,8 +791,10 @@ static int ov5675_init_controls(struct ov5675 *ov5675)
- 	v4l2_ctrl_new_std(ctrl_hdlr, &ov5675_ctrl_ops,
- 			  V4L2_CID_VFLIP, 0, 1, 1, 0);
+diff --git a/drivers/media/i2c/ov772x.c b/drivers/media/i2c/ov772x.c
+index 2cc6a678069a2..5033950a48ab6 100644
+--- a/drivers/media/i2c/ov772x.c
++++ b/drivers/media/i2c/ov772x.c
+@@ -1397,7 +1397,7 @@ static int ov772x_probe(struct i2c_client *client)
+ 	priv->subdev.ctrl_handler = &priv->hdl;
+ 	if (priv->hdl.error) {
+ 		ret = priv->hdl.error;
+-		goto error_mutex_destroy;
++		goto error_ctrl_free;
+ 	}
  
--	if (ctrl_hdlr->error)
-+	if (ctrl_hdlr->error) {
-+		v4l2_ctrl_handler_free(ctrl_hdlr);
- 		return ctrl_hdlr->error;
-+	}
+ 	priv->clk = clk_get(&client->dev, NULL);
+@@ -1446,7 +1446,6 @@ static int ov772x_probe(struct i2c_client *client)
+ 	clk_put(priv->clk);
+ error_ctrl_free:
+ 	v4l2_ctrl_handler_free(&priv->hdl);
+-error_mutex_destroy:
+ 	mutex_destroy(&priv->lock);
  
- 	ov5675->sd.ctrl_handler = ctrl_hdlr;
- 
+ 	return ret;
 -- 
 2.39.2
 
