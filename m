@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 636EA6B4A7B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:23:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E55E86B4B08
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232101AbjCJPXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:23:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44008 "EHLO
+        id S234260AbjCJPaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:30:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234183AbjCJPXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:23:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237395B5D2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:21 -0800 (PST)
+        with ESMTP id S234162AbjCJP3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:29:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A70A6515DA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:18:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB31661745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE08AC4339B;
-        Fri, 10 Mar 2023 14:52:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 764626197F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:51:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E406C433A4;
+        Fri, 10 Mar 2023 14:51:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459928;
-        bh=8JK2gKWvLJ1HEKbL8QI6uqQExWKk+gT3nB30IisO/GY=;
+        s=korg; t=1678459897;
+        bh=Jq5PD/8pF/W8fAe2diH5ny8ln+MUEP/FGZzcRbZ1JqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwHj7C5wsT9FpZpKa4fwWRBd8svIifw41mNIUX69KJBzZQD4wpqyyPbKh1joUy7Du
-         Bd4A21/vwT7DQ7nbF92CP78wBqYa49mkPOGrmnZa6FECSXarEhNEUDr/PemNirbc42
-         Vv8zFz9+FJQ+WQ4bE+ZefHYdjWOAsl60RwHPw/JU=
+        b=sAg7wDmIHjr2aGvkSiEFnW2pXNV94Xghp9G2sVlioHYKUWh32KNqmqni8tGsEqqSM
+         yeRocmp9i5fZ4ccTC7rO90vCzEwakgBtPbl9/clrWhcseaBqVcJjoCJKNIPWkZBeO1
+         iJ4N8UbcXVirQ/jy3RB8XqRjULIkSJewtXAzXAW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 149/529] drm/fourcc: Add missing big-endian XRGB1555 and RGB565 formats
-Date:   Fri, 10 Mar 2023 14:34:52 +0100
-Message-Id: <20230310133811.850205722@linuxfoundation.org>
+Subject: [PATCH 5.10 157/529] drm/msm/hdmi: Add missing check for alloc_ordered_workqueue
+Date:   Fri, 10 Mar 2023 14:35:00 +0100
+Message-Id: <20230310133812.230317137@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,48 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 6fb6c979ca628583d4d0c59a0f8ff977e581ecc0 ]
+[ Upstream commit afe4cb96153a0d8003e4e4ebd91b5c543e10df84 ]
 
-As of commit eae06120f1974e1a ("drm: refuse ADDFB2 ioctl for broken
-bigendian drivers"), drivers must set the
-quirk_addfb_prefer_host_byte_order quirk to make the drm_mode_addfb()
-compat code work correctly on big-endian machines.
+Add check for the return value of alloc_ordered_workqueue as it may return
+NULL pointer and cause NULL pointer dereference in `hdmi_hdcp.c` and
+`hdmi_hpd.c`.
 
-While that works fine for big-endian XRGB8888 and ARGB8888, which are
-mapped to the existing little-endian BGRX8888 and BGRA8888 formats, it
-does not work for big-endian XRGB1555 and RGB565, as the latter are not
-listed in the format database.
-
-Fix this by adding the missing formats.  Limit this to big-endian
-platforms, as there is currently no need to support these formats on
-little-endian platforms.
-
-Fixes: 6960e6da9cec3f66 ("drm: fix drm_mode_addfb() on big endian machines.")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/3ee1f8144feb96c28742b22384189f1f83bcfc1a.1669221671.git.geert@linux-m68k.org
+Fixes: c6a57a50ad56 ("drm/msm/hdmi: add hdmi hdcp support (V3)")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/517211/
+Link: https://lore.kernel.org/r/20230106023011.3985-1-jiasheng@iscas.ac.cn
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_fourcc.c | 4 ++++
+ drivers/gpu/drm/msm/hdmi/hdmi.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
-index 92152c06b75b7..8d1064061e836 100644
---- a/drivers/gpu/drm/drm_fourcc.c
-+++ b/drivers/gpu/drm/drm_fourcc.c
-@@ -178,6 +178,10 @@ const struct drm_format_info *__drm_format_info(u32 format)
- 		{ .format = DRM_FORMAT_BGRA5551,	.depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1, .has_alpha = true },
- 		{ .format = DRM_FORMAT_RGB565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_BGR565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+#ifdef __BIG_ENDIAN
-+		{ .format = DRM_FORMAT_XRGB1555 | DRM_FORMAT_BIG_ENDIAN, .depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+		{ .format = DRM_FORMAT_RGB565 | DRM_FORMAT_BIG_ENDIAN, .depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
-+#endif
- 		{ .format = DRM_FORMAT_RGB888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_BGR888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
- 		{ .format = DRM_FORMAT_XRGB8888,	.depth = 24, .num_planes = 1, .cpp = { 4, 0, 0 }, .hsub = 1, .vsub = 1 },
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
+index efb14043a6ec4..bee208773beec 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -264,6 +264,10 @@ static struct hdmi *msm_hdmi_init(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 
+ 	hdmi->workq = alloc_ordered_workqueue("msm_hdmi", 0);
++	if (!hdmi->workq) {
++		ret = -ENOMEM;
++		goto fail;
++	}
+ 
+ 	hdmi->i2c = msm_hdmi_i2c_init(hdmi);
+ 	if (IS_ERR(hdmi->i2c)) {
 -- 
 2.39.2
 
