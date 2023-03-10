@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1086B40FE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E88EA6B4212
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230346AbjCJNs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49084 "EHLO
+        id S231175AbjCJN70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:59:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230355AbjCJNs1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A62150703
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:26 -0800 (PST)
+        with ESMTP id S231426AbjCJN7Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83385C113
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 273F7B822B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7519FC433D2;
-        Fri, 10 Mar 2023 13:48:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 820BAB822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6175C433EF;
+        Fri, 10 Mar 2023 13:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456103;
-        bh=ispWD84bYAq1RKsHiylyJfx6c1rTy4PQteYQ9CJ+FxI=;
+        s=korg; t=1678456761;
+        bh=CHzhDt5YKfpnCveuLrDX8+WCuQozbGmrFhgFSp4fLoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgVZL+yrDy4iq9EhZl7r4jkRYdr468iRphzlJk9rYOjpUkPUEXYVUY61cm5Hki4On
-         O8xyOofbdykmHTMhEY2hE1UMGY2n1LrMOw36h2XGqAibKOqrE2NICRV+DSPx48pwMV
-         w1gjs8gbxhzqda3oZK0iyv7ODLfUyL6IYJGzFxNc=
+        b=zRkytJ/QNdccRataCKq6syyV6DeyQLIRq2ekCuaHWxm4++6FjiMb6+mCYpuH5wgpL
+         FqAowS72HvVgPYEoJvHjfcilDwUJTyPDMfJPgjfSgjg0YMYhJLSaOGKvESLPSradnR
+         Xr6aRzZ0eiJayJYjASf8nGyWI+i1xmwKXNIwkT1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Breno Leitao <leitao@debian.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 082/193] x86/bugs: Reset speculation control settings on init
+Subject: [PATCH 6.2 084/211] 9p/xen: fix connection sequence
 Date:   Fri, 10 Mar 2023 14:37:44 +0100
-Message-Id: <20230310133713.791882043@linuxfoundation.org>
+Message-Id: <20230310133721.338123686@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,73 +56,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 0125acda7d76b943ca55811df40ed6ec0ecf670f ]
+[ Upstream commit c15fe55d14b3b4ded5af2a3260877460a6ffb8ad ]
 
-Currently, x86_spec_ctrl_base is read at boot time and speculative bits
-are set if Kconfig items are enabled. For example, IBRS is enabled if
-CONFIG_CPU_IBRS_ENTRY is configured, etc. These MSR bits are not cleared
-if the mitigations are disabled.
+Today the connection sequence of the Xen 9pfs frontend doesn't match
+the documented sequence. It can work reliably only for a PV 9pfs device
+having been added at boot time already, as the frontend is not waiting
+for the backend to have set its state to "XenbusStateInitWait" before
+reading the backend properties from Xenstore.
 
-This is a problem when kexec-ing a kernel that has the mitigation
-disabled from a kernel that has the mitigation enabled. In this case,
-the MSR bits are not cleared during the new kernel boot. As a result,
-this might have some performance degradation that is hard to pinpoint.
+Fix that by following the documented sequence [1] (the documentation
+has a bug, so the reference is for the patch fixing that).
 
-This problem does not happen if the machine is (hard) rebooted because
-the bit will be cleared by default.
+[1]: https://lore.kernel.org/xen-devel/20230130090937.31623-1-jgross@suse.com/T/#u
 
-  [ bp: Massage. ]
-
-Suggested-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20221128153148.1129350-1-leitao@debian.org
+Link: https://lkml.kernel.org/r/20230130113036.7087-3-jgross@suse.com
+Fixes: 868eb122739a ("xen/9pfs: introduce Xen 9pfs transport driver")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/msr-index.h |  4 ++++
- arch/x86/kernel/cpu/bugs.c       | 10 +++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ net/9p/trans_xen.c | 38 +++++++++++++++++++++++---------------
+ 1 file changed, 23 insertions(+), 15 deletions(-)
 
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index d7a344e0a8519..c71862d340485 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -50,6 +50,10 @@
- #define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
- #define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
+index ad2947a3b3760..c64050e839ac6 100644
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -372,12 +372,11 @@ static int xen_9pfs_front_alloc_dataring(struct xenbus_device *dev,
+ 	return ret;
+ }
  
-+/* A mask for bits which the kernel toggles when controlling mitigations */
-+#define SPEC_CTRL_MITIGATIONS_MASK	(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD \
-+							| SPEC_CTRL_RRSBA_DIS_S)
+-static int xen_9pfs_front_probe(struct xenbus_device *dev,
+-				const struct xenbus_device_id *id)
++static int xen_9pfs_front_init(struct xenbus_device *dev)
+ {
+ 	int ret, i;
+ 	struct xenbus_transaction xbt;
+-	struct xen_9pfs_front_priv *priv = NULL;
++	struct xen_9pfs_front_priv *priv = dev_get_drvdata(&dev->dev);
+ 	char *versions, *v;
+ 	unsigned int max_rings, max_ring_order, len = 0;
+ 
+@@ -405,11 +404,6 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
+ 	if (p9_xen_trans.maxsize > XEN_FLEX_RING_SIZE(max_ring_order))
+ 		p9_xen_trans.maxsize = XEN_FLEX_RING_SIZE(max_ring_order) / 2;
+ 
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
+-
+-	priv->dev = dev;
+ 	priv->num_rings = XEN_9PFS_NUM_RINGS;
+ 	priv->rings = kcalloc(priv->num_rings, sizeof(*priv->rings),
+ 			      GFP_KERNEL);
+@@ -468,23 +462,35 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
+ 		goto error;
+ 	}
+ 
+-	write_lock(&xen_9pfs_lock);
+-	list_add_tail(&priv->list, &xen_9pfs_devs);
+-	write_unlock(&xen_9pfs_lock);
+-	dev_set_drvdata(&dev->dev, priv);
+-	xenbus_switch_state(dev, XenbusStateInitialised);
+-
+ 	return 0;
+ 
+  error_xenbus:
+ 	xenbus_transaction_end(xbt, 1);
+ 	xenbus_dev_fatal(dev, ret, "writing xenstore");
+  error:
+-	dev_set_drvdata(&dev->dev, NULL);
+ 	xen_9pfs_front_free(priv);
+ 	return ret;
+ }
+ 
++static int xen_9pfs_front_probe(struct xenbus_device *dev,
++				const struct xenbus_device_id *id)
++{
++	struct xen_9pfs_front_priv *priv = NULL;
 +
- #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
- #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
- 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 80dfd84c3ca82..166c9e28f7bfe 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -135,9 +135,17 @@ void __init check_bugs(void)
- 	 * have unknown values. AMD64_LS_CFG MSR is cached in the early AMD
- 	 * init code as it is not enumerated and depends on the family.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
-+	if (cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL)) {
- 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
- 
-+		/*
-+		 * Previously running kernel (kexec), may have some controls
-+		 * turned ON. Clear them and let the mitigations setup below
-+		 * rediscover them based on configuration.
-+		 */
-+		x86_spec_ctrl_base &= ~SPEC_CTRL_MITIGATIONS_MASK;
-+	}
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
 +
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
- 	spectre_v2_select_mitigation();
++	priv->dev = dev;
++	dev_set_drvdata(&dev->dev, priv);
++
++	write_lock(&xen_9pfs_lock);
++	list_add_tail(&priv->list, &xen_9pfs_devs);
++	write_unlock(&xen_9pfs_lock);
++
++	return 0;
++}
++
+ static int xen_9pfs_front_resume(struct xenbus_device *dev)
+ {
+ 	dev_warn(&dev->dev, "suspend/resume unsupported\n");
+@@ -503,6 +509,8 @@ static void xen_9pfs_front_changed(struct xenbus_device *dev,
+ 		break;
+ 
+ 	case XenbusStateInitWait:
++		if (!xen_9pfs_front_init(dev))
++			xenbus_switch_state(dev, XenbusStateInitialised);
+ 		break;
+ 
+ 	case XenbusStateConnected:
 -- 
 2.39.2
 
