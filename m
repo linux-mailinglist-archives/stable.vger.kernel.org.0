@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98BFD6B40CB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:46:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 421906B419D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230232AbjCJNqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:46:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44586 "EHLO
+        id S231240AbjCJNyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:54:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230199AbjCJNqQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:46:16 -0500
+        with ESMTP id S231250AbjCJNyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B1F10A2B2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:46:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0595F10FB95
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B328B82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:46:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A92CAC433D2;
-        Fri, 10 Mar 2023 13:46:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADC01B822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E5C5C4339E;
+        Fri, 10 Mar 2023 13:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455972;
-        bh=OmxWNCV8SP08sIO5rpzDjqIm+AN6Akcyz2mI6esh3WU=;
+        s=korg; t=1678456482;
+        bh=XAuJ/h1GVB4Czg9NFM4xX7yxATTwkKwsl8BuDxxv/Og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jk6koF4ai+Qez3Og+FgprnC+fEz99HXl8Ag2NyU3W0F4hw88gpHM7XHeSGz9YUoMj
-         uJ7rBjWngczNvOAv2qd3/L/lun0VITOJOuJwb3lUxi6ewci0ObuMOzZSXjH6D0wc6N
-         eHfmgg+asGyr43IOcNECHrQPgRNhlqxWrZJwY81k=
+        b=uUv9CnyEyJZk0KQXrnotVwBUXP480dvxU5WHiBioLv+j6QwJL697z9QMoOTK/vTKs
+         wbr8UfXQ4syf46sQXRv6xwrE0B1fdErO8TmO/TKchF87JQGxhBoiuhOl/rW5OpXyH9
+         H2gK3lRKxlPXS4aXQjLMKjBjnlaK1UMuadS5VAVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Edward Liaw <edliaw@google.com>
-Subject: [PATCH 4.14 008/193] bpf: Fix truncation handling for mod32 dst reg wrt zero
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 010/211] memory: renesas-rpc-if: Split-off private data from struct rpcif
 Date:   Fri, 10 Mar 2023 14:36:30 +0100
-Message-Id: <20230310133711.199169219@linuxfoundation.org>
+Message-Id: <20230310133719.040095444@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,128 +56,266 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Commit 9b00f1b78809309163dda2d044d9e94a3c0248a3 upstream.
+[ Upstream commit 51de3fc9a84d8e99dd3f02536a623f9fb95d0c0a ]
 
-Recently noticed that when mod32 with a known src reg of 0 is performed,
-then the dst register is 32-bit truncated in verifier:
+The rpcif structure is used as a common data structure, shared by the
+RPC-IF core driver and by the HyperBus and SPI child drivers.
+This poses several problems:
+  - Most structure members describe private core driver state, which
+    should not be accessible by the child drivers,
+  - The structure's lifetime is controlled by the child drivers,
+    complicating use by the core driver.
 
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (b7) r0 = 0
-  1: R0_w=inv0 R1=ctx(id=0,off=0,imm=0) R10=fp0
-  1: (b7) r1 = -1
-  2: R0_w=inv0 R1_w=inv-1 R10=fp0
-  2: (b4) w2 = -1
-  3: R0_w=inv0 R1_w=inv-1 R2_w=inv4294967295 R10=fp0
-  3: (9c) w1 %= w0
-  4: R0_w=inv0 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  4: (b7) r0 = 1
-  5: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  5: (1d) if r1 == r2 goto pc+1
-   R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: (b7) r0 = 2
-  7: R0_w=inv2 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  7: (95) exit
-  7: R0=inv1 R1=inv(id=0,umin_value=4294967295,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2=inv4294967295 R10=fp0
-  7: (95) exit
+Fix this by moving the private core driver state to its own structure,
+managed by the RPC-IF core driver, and store it in the core driver's
+private data field.  This requires absorbing the child's platform
+device, as that was stored in the driver's private data field before.
 
-However, as a runtime result, we get 2 instead of 1, meaning the dst
-register does not contain (u32)-1 in this case. The reason is fairly
-straight forward given the 0 test leaves the dst register as-is:
-
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+1
-   4: (9c) w1 %= w0
-   5: (b7) r0 = 1
-   6: (1d) if r1 == r2 goto pc+1
-   7: (b7) r0 = 2
-   8: (95) exit
-
-This was originally not an issue given the dst register was marked as
-completely unknown (aka 64 bit unknown). However, after 468f6eafa6c4
-("bpf: fix 32-bit ALU op verification") the verifier casts the register
-output to 32 bit, and hence it becomes 32 bit unknown. Note that for
-the case where the src register is unknown, the dst register is marked
-64 bit unknown. After the fix, the register is truncated by the runtime
-and the test passes:
-
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+2
-   4: (9c) w1 %= w0
-   5: (05) goto pc+1
-   6: (bc) w1 = w1
-   7: (b7) r0 = 1
-   8: (1d) if r1 == r2 goto pc+1
-   9: (b7) r0 = 2
-  10: (95) exit
-
-Semantics also match with {R,W}x mod{64,32} 0 -> {R,W}x. Invalid div
-has always been {R,W}x div{64,32} 0 -> 0. Rewrites are as follows:
-
-  mod32:                            mod64:
-
-  (16) if w0 == 0x0 goto pc+2       (15) if r0 == 0x0 goto pc+1
-  (9c) w1 %= w0                     (9f) r1 %= r0
-  (05) goto pc+1
-  (bc) w1 = w1
-
-[Salvatore Bonaccorso: This is an earlier version based on work by
-Daniel and John which does not rely on availability of the BPF_JMP32
-instruction class. This means it is not even strictly a backport of the
-upstream commit mentioned but based on Daniel's and John's work to
-address the issue and was finalized by Thadeu Lima de Souza Cascardo.]
-
-Fixes: 468f6eafa6c4 ("bpf: fix 32-bit ALU op verification")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Edward Liaw <edliaw@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/09fbb6fa67d5a8cd48a08808c9afa2f6a499aa42.1669213027.git.geert+renesas@glider.be
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/memory/renesas-rpc-if.c | 75 +++++++++++++++++++++++++--------
+ include/memory/renesas-rpc-if.h | 16 -------
+ 2 files changed, 57 insertions(+), 34 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4846,7 +4846,7 @@ static int fixup_bpf_calls(struct bpf_ve
- 			bool is64 = BPF_CLASS(insn->code) == BPF_ALU64;
- 			struct bpf_insn mask_and_div[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx div 0 -> 0 */
-+				/* [R,W]x div 0 -> 0 */
- 				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 2),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
- 				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-@@ -4854,9 +4854,10 @@ static int fixup_bpf_calls(struct bpf_ve
- 			};
- 			struct bpf_insn mask_and_mod[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx mod 0 -> Rx */
--				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1),
-+				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1 + (is64 ? 0 : 1)),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
-+				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-+				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
- 			};
- 			struct bpf_insn *patchlet;
+diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
+index 09cd4318a83d8..ded80caec1678 100644
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -163,14 +163,36 @@ static const struct regmap_access_table rpcif_volatile_table = {
+ 	.n_yes_ranges	= ARRAY_SIZE(rpcif_volatile_ranges),
+ };
  
-@@ -4866,7 +4867,7 @@ static int fixup_bpf_calls(struct bpf_ve
- 				cnt = ARRAY_SIZE(mask_and_div);
- 			} else {
- 				patchlet = mask_and_mod;
--				cnt = ARRAY_SIZE(mask_and_mod);
-+				cnt = ARRAY_SIZE(mask_and_mod) - (is64 ? 2 : 0);
- 			}
++struct rpcif_priv {
++	struct device *dev;
++	void __iomem *base;
++	void __iomem *dirmap;
++	struct regmap *regmap;
++	struct reset_control *rstc;
++	struct platform_device *vdev;
++	size_t size;
++	enum rpcif_type type;
++	enum rpcif_data_dir dir;
++	u8 bus_size;
++	u8 xfer_size;
++	void *buffer;
++	u32 xferlen;
++	u32 smcr;
++	u32 smadr;
++	u32 command;		/* DRCMR or SMCMR */
++	u32 option;		/* DROPR or SMOPR */
++	u32 enable;		/* DRENR or SMENR */
++	u32 dummy;		/* DRDMCR or SMDMCR */
++	u32 ddr;		/* DRDRENR or SMDRENR */
++};
  
- 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
+ /*
+  * Custom accessor functions to ensure SM[RW]DR[01] are always accessed with
+- * proper width.  Requires rpcif.xfer_size to be correctly set before!
++ * proper width.  Requires rpcif_priv.xfer_size to be correctly set before!
+  */
+ static int rpcif_reg_read(void *context, unsigned int reg, unsigned int *val)
+ {
+-	struct rpcif *rpc = context;
++	struct rpcif_priv *rpc = context;
+ 
+ 	switch (reg) {
+ 	case RPCIF_SMRDR0:
+@@ -206,7 +228,7 @@ static int rpcif_reg_read(void *context, unsigned int reg, unsigned int *val)
+ 
+ static int rpcif_reg_write(void *context, unsigned int reg, unsigned int val)
+ {
+-	struct rpcif *rpc = context;
++	struct rpcif_priv *rpc = context;
+ 
+ 	switch (reg) {
+ 	case RPCIF_SMWDR0:
+@@ -253,13 +275,12 @@ static const struct regmap_config rpcif_regmap_config = {
+ 	.volatile_table	= &rpcif_volatile_table,
+ };
+ 
+-int rpcif_sw_init(struct rpcif *rpc, struct device *dev)
++int rpcif_sw_init(struct rpcif *rpcif, struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
++	struct rpcif_priv *rpc = dev_get_drvdata(dev);
+ 	struct resource *res;
+ 
+-	rpc->dev = dev;
+-
+ 	rpc->base = devm_platform_ioremap_resource_byname(pdev, "regs");
+ 	if (IS_ERR(rpc->base))
+ 		return PTR_ERR(rpc->base);
+@@ -280,12 +301,17 @@ int rpcif_sw_init(struct rpcif *rpc, struct device *dev)
+ 
+ 	rpc->type = (uintptr_t)of_device_get_match_data(dev);
+ 	rpc->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
++	if (IS_ERR(rpc->rstc))
++		return PTR_ERR(rpc->rstc);
+ 
+-	return PTR_ERR_OR_ZERO(rpc->rstc);
++	rpcif->dev = dev;
++	rpcif->dirmap = rpc->dirmap;
++	rpcif->size = rpc->size;
++	return 0;
+ }
+ EXPORT_SYMBOL(rpcif_sw_init);
+ 
+-static void rpcif_rzg2l_timing_adjust_sdr(struct rpcif *rpc)
++static void rpcif_rzg2l_timing_adjust_sdr(struct rpcif_priv *rpc)
+ {
+ 	regmap_write(rpc->regmap, RPCIF_PHYWR, 0xa5390000);
+ 	regmap_write(rpc->regmap, RPCIF_PHYADD, 0x80000000);
+@@ -299,8 +325,9 @@ static void rpcif_rzg2l_timing_adjust_sdr(struct rpcif *rpc)
+ 	regmap_write(rpc->regmap, RPCIF_PHYADD, 0x80000032);
+ }
+ 
+-int rpcif_hw_init(struct rpcif *rpc, bool hyperflash)
++int rpcif_hw_init(struct rpcif *rpcif, bool hyperflash)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
+ 	u32 dummy;
+ 
+ 	pm_runtime_get_sync(rpc->dev);
+@@ -364,7 +391,7 @@ int rpcif_hw_init(struct rpcif *rpc, bool hyperflash)
+ }
+ EXPORT_SYMBOL(rpcif_hw_init);
+ 
+-static int wait_msg_xfer_end(struct rpcif *rpc)
++static int wait_msg_xfer_end(struct rpcif_priv *rpc)
+ {
+ 	u32 sts;
+ 
+@@ -373,7 +400,7 @@ static int wait_msg_xfer_end(struct rpcif *rpc)
+ 					USEC_PER_SEC);
+ }
+ 
+-static u8 rpcif_bits_set(struct rpcif *rpc, u32 nbytes)
++static u8 rpcif_bits_set(struct rpcif_priv *rpc, u32 nbytes)
+ {
+ 	if (rpc->bus_size == 2)
+ 		nbytes /= 2;
+@@ -386,9 +413,11 @@ static u8 rpcif_bit_size(u8 buswidth)
+ 	return buswidth > 4 ? 2 : ilog2(buswidth);
+ }
+ 
+-void rpcif_prepare(struct rpcif *rpc, const struct rpcif_op *op, u64 *offs,
++void rpcif_prepare(struct rpcif *rpcif, const struct rpcif_op *op, u64 *offs,
+ 		   size_t *len)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
++
+ 	rpc->smcr = 0;
+ 	rpc->smadr = 0;
+ 	rpc->enable = 0;
+@@ -472,8 +501,9 @@ void rpcif_prepare(struct rpcif *rpc, const struct rpcif_op *op, u64 *offs,
+ }
+ EXPORT_SYMBOL(rpcif_prepare);
+ 
+-int rpcif_manual_xfer(struct rpcif *rpc)
++int rpcif_manual_xfer(struct rpcif *rpcif)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
+ 	u32 smenr, smcr, pos = 0, max = rpc->bus_size == 2 ? 8 : 4;
+ 	int ret = 0;
+ 
+@@ -593,7 +623,7 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ err_out:
+ 	if (reset_control_reset(rpc->rstc))
+ 		dev_err(rpc->dev, "Failed to reset HW\n");
+-	rpcif_hw_init(rpc, rpc->bus_size == 2);
++	rpcif_hw_init(rpcif, rpc->bus_size == 2);
+ 	goto exit;
+ }
+ EXPORT_SYMBOL(rpcif_manual_xfer);
+@@ -640,8 +670,9 @@ static void memcpy_fromio_readw(void *to,
+ 	}
+ }
+ 
+-ssize_t rpcif_dirmap_read(struct rpcif *rpc, u64 offs, size_t len, void *buf)
++ssize_t rpcif_dirmap_read(struct rpcif *rpcif, u64 offs, size_t len, void *buf)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
+ 	loff_t from = offs & (rpc->size - 1);
+ 	size_t size = rpc->size - from;
+ 
+@@ -676,6 +707,7 @@ static int rpcif_probe(struct platform_device *pdev)
+ {
+ 	struct platform_device *vdev;
+ 	struct device_node *flash;
++	struct rpcif_priv *rpc;
+ 	const char *name;
+ 	int ret;
+ 
+@@ -696,11 +728,18 @@ static int rpcif_probe(struct platform_device *pdev)
+ 	}
+ 	of_node_put(flash);
+ 
++	rpc = devm_kzalloc(&pdev->dev, sizeof(*rpc), GFP_KERNEL);
++	if (!rpc)
++		return -ENOMEM;
++
+ 	vdev = platform_device_alloc(name, pdev->id);
+ 	if (!vdev)
+ 		return -ENOMEM;
+ 	vdev->dev.parent = &pdev->dev;
+-	platform_set_drvdata(pdev, vdev);
++
++	rpc->dev = &pdev->dev;
++	rpc->vdev = vdev;
++	platform_set_drvdata(pdev, rpc);
+ 
+ 	ret = platform_device_add(vdev);
+ 	if (ret) {
+@@ -713,9 +752,9 @@ static int rpcif_probe(struct platform_device *pdev)
+ 
+ static int rpcif_remove(struct platform_device *pdev)
+ {
+-	struct platform_device *vdev = platform_get_drvdata(pdev);
++	struct rpcif_priv *rpc = platform_get_drvdata(pdev);
+ 
+-	platform_device_unregister(vdev);
++	platform_device_unregister(rpc->vdev);
+ 
+ 	return 0;
+ }
+diff --git a/include/memory/renesas-rpc-if.h b/include/memory/renesas-rpc-if.h
+index 862eff613dc79..2dcb82df0d176 100644
+--- a/include/memory/renesas-rpc-if.h
++++ b/include/memory/renesas-rpc-if.h
+@@ -65,24 +65,8 @@ enum rpcif_type {
+ 
+ struct rpcif {
+ 	struct device *dev;
+-	void __iomem *base;
+ 	void __iomem *dirmap;
+-	struct regmap *regmap;
+-	struct reset_control *rstc;
+ 	size_t size;
+-	enum rpcif_type type;
+-	enum rpcif_data_dir dir;
+-	u8 bus_size;
+-	u8 xfer_size;
+-	void *buffer;
+-	u32 xferlen;
+-	u32 smcr;
+-	u32 smadr;
+-	u32 command;		/* DRCMR or SMCMR */
+-	u32 option;		/* DROPR or SMOPR */
+-	u32 enable;		/* DRENR or SMENR */
+-	u32 dummy;		/* DRDMCR or SMDMCR */
+-	u32 ddr;		/* DRDRENR or SMDRENR */
+ };
+ 
+ int rpcif_sw_init(struct rpcif *rpc, struct device *dev);
+-- 
+2.39.2
+
 
 
