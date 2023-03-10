@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F346B4579
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61DD46B42B6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232408AbjCJOeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:34:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
+        id S231720AbjCJOGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232415AbjCJOdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C56A1ABD3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:33:39 -0800 (PST)
+        with ESMTP id S231493AbjCJOGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5062010FBB5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDCF2B822BF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:33:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07CCDC433D2;
-        Fri, 10 Mar 2023 14:33:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01592B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5115DC433EF;
+        Fri, 10 Mar 2023 14:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458816;
-        bh=8pS1iz809DRF+lLoMZNhcG0nBDd26a1JoSXQmvAOk/s=;
+        s=korg; t=1678457133;
+        bh=wC8R+wNu6Gk+Oet3H6S30cGHJYid4YHFtSzjJFUWOi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqXUNuXRY6Dy85CvZCinhO6UYY1Wye48yQ+CCOmHI//lfrcKCZnerlRd8K3J/Ik7i
-         RIxl9UI+6Pyd8FWOvUg97MkSwZL0gpe+AhCz0S5kAEtlck0NA9QLGeem2gosEzpmZg
-         iM03OLsZl1JuLbbbpLL4LO0T9ZeuLHBMIo5tjIyM=
+        b=hXIUnNt2pGAs+fOhpMkPcSGKymwcco5iRFrRKqgGLJhFqEI4MFqiYM+5KvLWMq5ZM
+         qF2wujKRaFa/0tY7krLOdv1Y8CfqTdPHhwLg61Xbffqto+sMGLiNI6kvzdLtnSPnGF
+         8bAJtFMSUC1GR8AdrYkJ2XiTZpwklcXPOhJHBGlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Mark Brown <broonie@kernel.org>,
+        syzbot+4793f6096d174c90b4f7@syzkaller.appspotmail.com,
+        Chao Yu <chao@kernel.org>, Eric Biggers <ebiggers@google.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 124/357] spi: bcm63xx-hsspi: fix pm_runtime
+Subject: [PATCH 6.1 006/200] f2fs: fix to avoid potential deadlock
 Date:   Fri, 10 Mar 2023 14:36:53 +0100
-Message-Id: <20230310133740.129067443@linuxfoundation.org>
+Message-Id: <20230310133717.250133328@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,55 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 216e8e80057a9f0b6366327881acf88eaf9f1fd4 ]
+[ Upstream commit 5eaac835f27f2de6b73412d7c24e755733b49de0 ]
 
-The driver sets auto_runtime_pm to true, but it doesn't call
-pm_runtime_enable(), which results in "Failed to power device" when PM support
-is enabled.
+There is a potential deadlock reported by syzbot as below:
 
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Link: https://lore.kernel.org/r/20210223151851.4110-3-noltari@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Stable-dep-of: 811ff802aaf8 ("spi: bcm63xx-hsspi: Fix multi-bit mode setting")
+F2FS-fs (loop2): invalid crc value
+F2FS-fs (loop2): Found nat_bits in checkpoint
+F2FS-fs (loop2): Mounted with checkpoint version = 48b305e4
+======================================================
+WARNING: possible circular locking dependency detected
+6.1.0-rc8-syzkaller-33330-ga5541c0811a0 #0 Not tainted
+------------------------------------------------------
+syz-executor.2/32123 is trying to acquire lock:
+ffff0000c0e1a608 (&mm->mmap_lock){++++}-{3:3}, at: __might_fault+0x54/0xb4 mm/memory.c:5644
+
+but task is already holding lock:
+ffff0001317c6088 (&sbi->sb_lock){++++}-{3:3}, at: f2fs_down_write fs/f2fs/f2fs.h:2205 [inline]
+ffff0001317c6088 (&sbi->sb_lock){++++}-{3:3}, at: f2fs_ioc_get_encryption_pwsalt fs/f2fs/file.c:2334 [inline]
+ffff0001317c6088 (&sbi->sb_lock){++++}-{3:3}, at: __f2fs_ioctl+0x1370/0x3318 fs/f2fs/file.c:4151
+
+which lock already depends on the new lock.
+
+Chain exists of:
+  &mm->mmap_lock --> &nm_i->nat_tree_lock --> &sbi->sb_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&sbi->sb_lock);
+                               lock(&nm_i->nat_tree_lock);
+                               lock(&sbi->sb_lock);
+  lock(&mm->mmap_lock);
+
+Let's try to avoid above deadlock condition by moving __might_fault()
+out of sbi->sb_lock coverage.
+
+Fixes: 95fa90c9e5a7 ("f2fs: support recording errors into superblock")
+Link: https://lore.kernel.org/linux-f2fs-devel/000000000000cd5fe305ef617fe2@google.com/T/#u
+Reported-by: syzbot+4793f6096d174c90b4f7@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <chao@kernel.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm63xx-hsspi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/f2fs/file.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm63xx-hsspi.c b/drivers/spi/spi-bcm63xx-hsspi.c
-index 657855c56c1cb..b2b6ae4749568 100644
---- a/drivers/spi/spi-bcm63xx-hsspi.c
-+++ b/drivers/spi/spi-bcm63xx-hsspi.c
-@@ -20,6 +20,8 @@
- #include <linux/spi/spi.h>
- #include <linux/mutex.h>
- #include <linux/of.h>
-+#include <linux/reset.h>
-+#include <linux/pm_runtime.h>
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index f96bbfa8b3991..a03c61bd70165 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -2326,6 +2326,7 @@ static int f2fs_ioc_get_encryption_pwsalt(struct file *filp, unsigned long arg)
+ {
+ 	struct inode *inode = file_inode(filp);
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
++	u8 encrypt_pw_salt[16];
+ 	int err;
  
- #define HSSPI_GLOBAL_CTRL_REG			0x0
- #define GLOBAL_CTRL_CS_POLARITY_SHIFT		0
-@@ -428,13 +430,17 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto out_put_master;
- 
-+	pm_runtime_enable(&pdev->dev);
+ 	if (!f2fs_sb_has_encrypt(sbi))
+@@ -2350,12 +2351,14 @@ static int f2fs_ioc_get_encryption_pwsalt(struct file *filp, unsigned long arg)
+ 		goto out_err;
+ 	}
+ got_it:
+-	if (copy_to_user((__u8 __user *)arg, sbi->raw_super->encrypt_pw_salt,
+-									16))
+-		err = -EFAULT;
++	memcpy(encrypt_pw_salt, sbi->raw_super->encrypt_pw_salt, 16);
+ out_err:
+ 	f2fs_up_write(&sbi->sb_lock);
+ 	mnt_drop_write_file(filp);
 +
- 	/* register and we are done */
- 	ret = devm_spi_register_master(dev, master);
- 	if (ret)
--		goto out_put_master;
-+		goto out_pm_disable;
++	if (!err && copy_to_user((__u8 __user *)arg, encrypt_pw_salt, 16))
++		err = -EFAULT;
++
+ 	return err;
+ }
  
- 	return 0;
- 
-+out_pm_disable:
-+	pm_runtime_disable(&pdev->dev);
- out_put_master:
- 	spi_master_put(master);
- out_disable_pll_clk:
 -- 
 2.39.2
 
