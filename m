@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD136B44AC
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCBE6B44AD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232314AbjCJO1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:27:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50200 "EHLO
+        id S232356AbjCJO1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:27:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232324AbjCJO0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:26:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578B711E6C1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:16 -0800 (PST)
+        with ESMTP id S232358AbjCJO0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:26:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5EC411D087
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13C6EB822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 619DEC4339B;
-        Fri, 10 Mar 2023 14:25:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F9C3B822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EF39C433D2;
+        Fri, 10 Mar 2023 14:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458313;
-        bh=uS+YupRx4mGbpp4bKhIlzft/qTvehTAjlNntYH3YC3M=;
+        s=korg; t=1678458316;
+        bh=qgeCQRjGsIKhjVG4XE2Nzt7Z4eC9JqSynobBXDT/Ln0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUM2AhSXmuVlen0GNcdpQ8Egai4pIm0Ix1rLS/tsfIJ99z5BtuBUQkQI5sAWwTbMg
-         nSZvrzFSkfXgOqZmVh+7JO/hf1zlguBHXZD8L8uKzyQIy3cFVre+pAOde+8obOm3Pr
-         p4eGhDn6XJWA9o4kuGsMYfdV+uGOYhHbanFsEmmQ=
+        b=I8+bKtuE2QuK33FqV5IXM8m/qhfwsU7CqH+KQvhiEwaojXrSw+cYN6T5dX9YbwqA4
+         3yB1yVwhJ3r5Mi5nq1yXgyE72Ohp4auJ/Yq5YjNrMBfNyRZioze6vGoTSoCLSpy160
+         S7YhqWWOVxMfdTioEQfOss5+C/b6dLjHFslCnBDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
+        patches@lists.linux.dev, Yulong Zhang <yulong.zhang@metoak.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 237/252] mei: bus-fixup:upon error print return values of send and receive
-Date:   Fri, 10 Mar 2023 14:40:07 +0100
-Message-Id: <20230310133726.572954754@linuxfoundation.org>
+Subject: [PATCH 4.19 238/252] tools/iio/iio_utils:fix memory leak
+Date:   Fri, 10 Mar 2023 14:40:08 +0100
+Message-Id: <20230310133726.623550089@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
 References: <20230310133718.803482157@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,62 +54,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Yulong Zhang <yulong.zhang@metoak.net>
 
-[ Upstream commit 4b8659e2c258e4fdac9ccdf06cc20c0677894ef9 ]
+[ Upstream commit f2edf0c819a4823cd6c288801ce737e8d4fcde06 ]
 
-For easier debugging, upon error, print also return values
-from __mei_cl_recv() and __mei_cl_send() functions.
+1. fopen sysfs without fclose.
+2. asprintf filename without free.
+3. if asprintf return error,do not need to free the buffer.
 
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20221212214933.275434-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yulong Zhang <yulong.zhang@metoak.net>
+Link: https://lore.kernel.org/r/20230117025147.69890-1-yulong.zhang@metoak.net
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mei/bus-fixup.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/iio/iio_utils.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/misc/mei/bus-fixup.c b/drivers/misc/mei/bus-fixup.c
-index 198e030e5b3d5..14f3e05643fc3 100644
---- a/drivers/misc/mei/bus-fixup.c
-+++ b/drivers/misc/mei/bus-fixup.c
-@@ -174,7 +174,7 @@ static int mei_fwver(struct mei_cl_device *cldev)
- 	ret = __mei_cl_send(cldev->cl, buf, sizeof(struct mkhi_msg_hdr),
- 			    MEI_CL_IO_TX_BLOCKING);
- 	if (ret < 0) {
--		dev_err(&cldev->dev, "Could not send ReqFWVersion cmd\n");
-+		dev_err(&cldev->dev, "Could not send ReqFWVersion cmd ret = %d\n", ret);
- 		return ret;
- 	}
+diff --git a/tools/iio/iio_utils.c b/tools/iio/iio_utils.c
+index d60a252577f0b..d174487b2f226 100644
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -265,6 +265,7 @@ int iioutils_get_param_float(float *output, const char *param_name,
+ 			if (fscanf(sysfsfp, "%f", output) != 1)
+ 				ret = errno ? -errno : -ENODATA;
  
-@@ -186,7 +186,7 @@ static int mei_fwver(struct mei_cl_device *cldev)
- 		 * Should be at least one version block,
- 		 * error out if nothing found
- 		 */
--		dev_err(&cldev->dev, "Could not read FW version\n");
-+		dev_err(&cldev->dev, "Could not read FW version ret = %d\n", bytes_recv);
- 		return -EIO;
- 	}
++			fclose(sysfsfp);
+ 			break;
+ 		}
+ error_free_filename:
+@@ -345,9 +346,9 @@ int build_channel_array(const char *device_dir,
+ 			}
  
-@@ -335,7 +335,7 @@ static int mei_nfc_if_version(struct mei_cl *cl,
- 	ret = __mei_cl_send(cl, (u8 *)&cmd, sizeof(struct mei_nfc_cmd),
- 			    MEI_CL_IO_TX_BLOCKING);
- 	if (ret < 0) {
--		dev_err(bus->dev, "Could not send IF version cmd\n");
-+		dev_err(bus->dev, "Could not send IF version cmd ret = %d\n", ret);
- 		return ret;
- 	}
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
  
-@@ -350,7 +350,7 @@ static int mei_nfc_if_version(struct mei_cl *cl,
- 	ret = 0;
- 	bytes_recv = __mei_cl_recv(cl, (u8 *)reply, if_version_length, 0, 0);
- 	if (bytes_recv < 0 || (size_t)bytes_recv < if_version_length) {
--		dev_err(bus->dev, "Could not read IF version\n");
-+		dev_err(bus->dev, "Could not read IF version ret = %d\n", bytes_recv);
- 		ret = -EIO;
- 		goto err;
- 	}
+@@ -357,7 +358,6 @@ int build_channel_array(const char *device_dir,
+ 				if (fclose(sysfsfp))
+ 					perror("build_channel_array(): Failed to close file");
+ 
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
+ 			if (ret == 1)
+@@ -365,11 +365,9 @@ int build_channel_array(const char *device_dir,
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
+ 
+-			free(filename);
+ 		}
+ 
+ 	*ci_array = malloc(sizeof(**ci_array) * (*counter));
+@@ -395,9 +393,9 @@ int build_channel_array(const char *device_dir,
+ 			}
+ 
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+@@ -405,20 +403,17 @@ int build_channel_array(const char *device_dir,
+ 			errno = 0;
+ 			if (fscanf(sysfsfp, "%i", &current_enabled) != 1) {
+ 				ret = errno ? -errno : -ENODATA;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (!current_enabled) {
+-				free(filename);
+ 				count--;
+ 				continue;
+ 			}
+@@ -429,7 +424,6 @@ int build_channel_array(const char *device_dir,
+ 						strlen(ent->d_name) -
+ 						strlen("_en"));
+ 			if (!current->name) {
+-				free(filename);
+ 				ret = -ENOMEM;
+ 				count--;
+ 				goto error_cleanup_array;
+@@ -439,7 +433,6 @@ int build_channel_array(const char *device_dir,
+ 			ret = iioutils_break_up_name(current->name,
+ 						     &current->generic_name);
+ 			if (ret) {
+-				free(filename);
+ 				free(current->name);
+ 				count--;
+ 				goto error_cleanup_array;
+@@ -450,17 +443,16 @@ int build_channel_array(const char *device_dir,
+ 				       scan_el_dir,
+ 				       current->name);
+ 			if (ret < 0) {
+-				free(filename);
+ 				ret = -ENOMEM;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				fprintf(stderr, "failed to open %s\n",
+-					filename);
+-				free(filename);
++				fprintf(stderr, "failed to open %s/%s_index\n",
++					scan_el_dir, current->name);
+ 				goto error_cleanup_array;
+ 			}
+ 
+@@ -470,17 +462,14 @@ int build_channel_array(const char *device_dir,
+ 				if (fclose(sysfsfp))
+ 					perror("build_channel_array(): Failed to close file");
+ 
+-				free(filename);
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_cleanup_array;
+ 			}
+ 
+-			free(filename);
+ 			/* Find the scale */
+ 			ret = iioutils_get_param_float(&current->scale,
+ 						       "scale",
 -- 
 2.39.2
 
