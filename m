@@ -2,48 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44EC66B45E4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD1336B431D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232708AbjCJOi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49412 "EHLO
+        id S231820AbjCJOKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232720AbjCJOiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01E246581
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:37:58 -0800 (PST)
+        with ESMTP id S231826AbjCJOKU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65691112A4C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E144B822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:37:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D94C433A0;
-        Fri, 10 Mar 2023 14:37:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 177EAB822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B45FC4339B;
+        Fri, 10 Mar 2023 14:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459073;
-        bh=DnzvdBgtUq78er1gpvlD+rEpjrckOBMfuDXf8hRiTl0=;
+        s=korg; t=1678457392;
+        bh=qoUPov/LwG4fTq+fCprYQLwZsufLMu3JpSfvfCBm0hE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUQGIguCLmtbKDBYrXOK/OpSnySz15xGxExIzN8AqXpaGutZwCPH27iquLbGmEDUm
-         76kORSofAdTdu9nKupqxq2+aXbbFv9cFASebNALWhVR4zOuMRckCryar7YFkFzMuRB
-         zwHgIMU/Vx24Sbzc3GkcPWJhy38uEWnaYQRlkc2s=
+        b=jCRltpmVm9ZR/Y+ScNWJYCRL0XSg5IMsjhpICtSuc+tMOV8Nuc5Pytd2Qf+wUpS4r
+         QXhw38VjRgySBpanDxvjnC0PDuDfJxOo/U5B9sdY/L11ALJ1wLFFftQVXluP3PRQZg
+         lFDrrUliVQiddGmSejyVU3o/MagnE9Va2deKVXLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 5.4 239/357] x86/microcode/amd: Remove load_microcode_amd()s bsp parameter
+        patches@lists.linux.dev, Matt Fagnani <matt.fagnani@bell.net>,
+        Vasant Hegde <vasant.hegde@amd.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 121/200] iommu/amd: Fix error handling for pdev_pri_ats_enable()
 Date:   Fri, 10 Mar 2023 14:38:48 +0100
-Message-Id: <20230310133745.293561131@linuxfoundation.org>
+Message-Id: <20230310133720.833980298@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -52,85 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Vasant Hegde <vasant.hegde@amd.com>
 
-commit 2355370cd941cbb20882cc3f34460f9f2b8f9a18 upstream.
+[ Upstream commit 080920e52148b4fbbf9360d5345fdcd7846e4841 ]
 
-It is always the BSP.
+Current code throws kernel warning if it fails to enable pasid/pri [1].
+Do not call pci_disable_[pasid/pri] if pci_enable_[pasid/pri] failed.
 
-No functional changes.
+[1] https://lore.kernel.org/linux-iommu/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
 
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20230130161709.11615-2-bp@alien8.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Matt Fagnani <matt.fagnani@bell.net>
+Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
+Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20230111121503.5931-1-vasant.hegde@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/microcode/amd.c |   17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ drivers/iommu/amd/iommu.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -548,8 +548,7 @@ void load_ucode_amd_ap(unsigned int cpui
- 	apply_microcode_early_amd(cpuid_1_eax, cp.data, cp.size, false);
- }
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index 968e5e6668b26..20adb9b323d82 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -1712,27 +1712,29 @@ static int pdev_pri_ats_enable(struct pci_dev *pdev)
+ 	/* Only allow access to user-accessible pages */
+ 	ret = pci_enable_pasid(pdev, 0);
+ 	if (ret)
+-		goto out_err;
++		return ret;
  
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size);
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size);
+ 	/* First reset the PRI state of the device */
+ 	ret = pci_reset_pri(pdev);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
  
- int __init save_microcode_in_initrd_amd(unsigned int cpuid_1_eax)
- {
-@@ -567,7 +566,7 @@ int __init save_microcode_in_initrd_amd(
- 	if (!desc.mc)
- 		return -EINVAL;
+ 	/* Enable PRI */
+ 	/* FIXME: Hardcode number of outstanding requests for now */
+ 	ret = pci_enable_pri(pdev, 32);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
  
--	ret = load_microcode_amd(true, x86_family(cpuid_1_eax), desc.data, desc.size);
-+	ret = load_microcode_amd(x86_family(cpuid_1_eax), desc.data, desc.size);
- 	if (ret > UCODE_UPDATED)
- 		return -EINVAL;
+ 	ret = pci_enable_ats(pdev, PAGE_SHIFT);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pri;
  
-@@ -845,8 +844,7 @@ static enum ucode_state __load_microcode
- 	return UCODE_OK;
- }
+ 	return 0;
  
--static enum ucode_state
--load_microcode_amd(bool save, u8 family, const u8 *data, size_t size)
-+static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
- {
- 	struct ucode_patch *p;
- 	enum ucode_state ret;
-@@ -870,10 +868,6 @@ load_microcode_amd(bool save, u8 family,
- 		ret = UCODE_NEW;
- 	}
+-out_err:
++out_err_pri:
+ 	pci_disable_pri(pdev);
++
++out_err_pasid:
+ 	pci_disable_pasid(pdev);
  
--	/* save BSP's matching patch for early load */
--	if (!save)
--		return ret;
--
- 	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
- 	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
- 
-@@ -901,12 +895,11 @@ static enum ucode_state request_microcod
- {
- 	char fw_name[36] = "amd-ucode/microcode_amd.bin";
- 	struct cpuinfo_x86 *c = &cpu_data(cpu);
--	bool bsp = c->cpu_index == boot_cpu_data.cpu_index;
- 	enum ucode_state ret = UCODE_NFOUND;
- 	const struct firmware *fw;
- 
- 	/* reload ucode container only on the boot cpu */
--	if (!refresh_fw || !bsp)
-+	if (!refresh_fw)
- 		return UCODE_OK;
- 
- 	if (c->x86 >= 0x15)
-@@ -921,7 +914,7 @@ static enum ucode_state request_microcod
- 	if (!verify_container(fw->data, fw->size, false))
- 		goto fw_release;
- 
--	ret = load_microcode_amd(bsp, c->x86, fw->data, fw->size);
-+	ret = load_microcode_amd(c->x86, fw->data, fw->size);
- 
-  fw_release:
- 	release_firmware(fw);
+ 	return ret;
+-- 
+2.39.2
+
 
 
