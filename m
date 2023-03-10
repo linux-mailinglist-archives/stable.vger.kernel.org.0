@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 200716B4651
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC96C6B4367
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbjCJOmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:42:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59212 "EHLO
+        id S232020AbjCJOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232845AbjCJOmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:42:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE606120E8D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:54 -0800 (PST)
+        with ESMTP id S231835AbjCJOOE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A771BE3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E9A0B822DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46744C433D2;
-        Fri, 10 Mar 2023 14:41:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1E8261948
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE5CC4339C;
+        Fri, 10 Mar 2023 14:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459311;
-        bh=8E18eDaXP2YlRI1Uu/mmTr15LUGEm2IV5/DEGOX4k34=;
+        s=korg; t=1678457536;
+        bh=GDmLQ+aTiJGcMD1+TPY0cS8W5hJPVFzQLOpB0ioHuiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2cM1qT0nrnFxbP9eQc5qzL2WVA78QlYiLyb4JAtQH6HkQCmEVs/5YlCHShVo29xW
-         2hQYa7dR1dzOm36hdlqkSh3Q9+4PBgI15AbphohsZizkWfeILza6ueETVr8G83/2C/
-         6UI80yFi3a56IjzBXPnUx/Vur4acf3vb/mHggV7g=
+        b=OVUhTRm8XUlT8GpPSuqKbmd4YTa60JQLepJ5dYGJQDwaYCIuQmxag3Bu2LiRu3adR
+         N42ic6NNUenaqdqyj5hZQMp2VJuXRPrsDrvVj+1QHHhZLYUOu4PcN8bR8t30txfIAj
+         8iKqDGW3ITBa4MXULivJrxDOt3681eORCuxNlbus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 289/357] fs: f2fs: initialize fsdata in pagecache_write()
+        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 171/200] phy: rockchip-typec: Fix unsigned comparison with less than zero
 Date:   Fri, 10 Mar 2023 14:39:38 +0100
-Message-Id: <20230310133747.506954825@linuxfoundation.org>
+Message-Id: <20230310133722.354508049@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,38 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit b1b9896718bc1a212dc288ad66a5fa2fef11353d ]
+[ Upstream commit f765c59c5a72546a2d74a92ae5d0eb0329d8e247 ]
 
-When aops->write_begin() does not initialize fsdata, KMSAN may report
-an error passing the latter to aops->write_end().
+The dp and ufp are defined as bool type, the return value type of
+function extcon_get_state should be int, so the type of dp and ufp
+are modified to int.
 
-Fix this by unconditionally initializing fsdata.
+./drivers/phy/rockchip/phy-rockchip-typec.c:827:12-14: WARNING: Unsigned expression compared with zero: dp > 0.
 
-Suggested-by: Eric Biggers <ebiggers@kernel.org>
-Fixes: 95ae251fe828 ("f2fs: add fs-verity support")
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3962
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20230213035709.99027-1-jiapeng.chong@linux.alibaba.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/verity.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/rockchip/phy-rockchip-typec.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/verity.c b/fs/f2fs/verity.c
-index e5a47782a97ef..c4bd5a1542524 100644
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -76,7 +76,7 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
- 		size_t n = min_t(size_t, count,
- 				 PAGE_SIZE - offset_in_page(pos));
- 		struct page *page;
--		void *fsdata;
-+		void *fsdata = NULL;
- 		int res;
+diff --git a/drivers/phy/rockchip/phy-rockchip-typec.c b/drivers/phy/rockchip/phy-rockchip-typec.c
+index 6aea512e5d4ee..39db8acde61af 100644
+--- a/drivers/phy/rockchip/phy-rockchip-typec.c
++++ b/drivers/phy/rockchip/phy-rockchip-typec.c
+@@ -808,9 +808,8 @@ static int tcphy_get_mode(struct rockchip_typec_phy *tcphy)
+ 	struct extcon_dev *edev = tcphy->extcon;
+ 	union extcon_property_value property;
+ 	unsigned int id;
+-	bool ufp, dp;
+ 	u8 mode;
+-	int ret;
++	int ret, ufp, dp;
  
- 		res = pagecache_write_begin(NULL, inode->i_mapping, pos, n, 0,
+ 	if (!edev)
+ 		return MODE_DFP_USB;
 -- 
 2.39.2
 
