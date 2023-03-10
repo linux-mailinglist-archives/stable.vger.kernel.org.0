@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F806B42FD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B51F16B443C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231828AbjCJOJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:09:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33772 "EHLO
+        id S232267AbjCJOW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231830AbjCJOJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CAAF248C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:40 -0800 (PST)
+        with ESMTP id S232110AbjCJOWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09384119403
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C475B822C8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71441C433D2;
-        Fri, 10 Mar 2023 14:08:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3E4EB822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8FA6C433EF;
+        Fri, 10 Mar 2023 14:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457288;
-        bh=dKrz7kU27bUbPOR2Cfrp+nKYGHZXrtgkSoaPoNk/cU0=;
+        s=korg; t=1678458073;
+        bh=B2OdWDeAIeLomM8j4XUxO5pa8Bv/4raKs5njJgC/nqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSl9gjZRgIokuY6P8QYLRWMeuRxVsA7sNlelaklUH+px7QFQFYpo9a57BMBNBtAJV
-         NcoO5W0YT9den6/uaT3GOlpfiG7q+FAFK8tipTNyqMQ1S75PJJul+NaTMxK/jNvHbC
-         oD+EWU0scV5ksmgzYsn/LGwyufsb+tsDuVe3RmLE=
+        b=gPkLoXYjvfMm6Gje9rljcxBNNH3ooaPd1p8Ke8OJz2PkUvvRdpcA2I745zPBAvuOo
+         q1ohTImZxgNOEtBs4dhRt55UV2C2PkvNQA1rQNPe7bAFkrJ7aEFU4x5abqiz+QS/gi
+         NkfGmy1Qzcr+s4uew6692JqUA71nttW76Z0MAD/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+df64c0a2e8d68e78a4fa@syzkaller.appspotmail.com,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        "David S. Miller" <davem@davemloft.net>,
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 085/200] nfc: fix memory leak of se_io context in nfc_genl_se_io
-Date:   Fri, 10 Mar 2023 14:38:12 +0100
-Message-Id: <20230310133719.713854540@linuxfoundation.org>
+Subject: [PATCH 4.19 123/252] inet: fix fast path in __inet_hash_connect()
+Date:   Fri, 10 Mar 2023 14:38:13 +0100
+Message-Id: <20230310133722.520707141@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -57,83 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 25ff6f8a5a3b8dc48e8abda6f013e8cc4b14ffea ]
+[ Upstream commit 21cbd90a6fab7123905386985e3e4a80236b8714 ]
 
-The callback context for sending/receiving APDUs to/from the selected
-secure element is allocated inside nfc_genl_se_io and supposed to be
-eventually freed in se_io_cb callback function. However, there are several
-error paths where the bwi_timer is not charged to call se_io_cb later, and
-the cb_context is leaked.
+__inet_hash_connect() has a fast path taken if sk_head(&tb->owners) is
+equal to the sk parameter.
+sk_head() returns the hlist_entry() with respect to the sk_node field.
+However entries in the tb->owners list are inserted with respect to the
+sk_bind_node field with sk_add_bind_node().
+Thus the check would never pass and the fast path never execute.
 
-The patch proposes to free the cb_context explicitly on those error paths.
+This fast path has never been executed or tested as this bug seems
+to be present since commit 1da177e4c3f4 ("Linux-2.6.12-rc2"), thus
+remove it to reduce code complexity.
 
-At the moment we can't simply check 'dev->ops->se_io()' return value as it
-may be negative in both cases: when the timer was charged and was not.
-
-Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
-Reported-by: syzbot+df64c0a2e8d68e78a4fa@syzkaller.appspotmail.com
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230112-inet_hash_connect_bind_head-v3-1-b591fd212b93@diag.uniroma1.it
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/st-nci/se.c   | 6 ++++++
- drivers/nfc/st21nfca/se.c | 6 ++++++
- net/nfc/netlink.c         | 4 ++++
- 3 files changed, 16 insertions(+)
+ net/ipv4/inet_hashtables.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/nfc/st-nci/se.c b/drivers/nfc/st-nci/se.c
-index ec87dd21e054a..b2f1ced8e6dd2 100644
---- a/drivers/nfc/st-nci/se.c
-+++ b/drivers/nfc/st-nci/se.c
-@@ -672,6 +672,12 @@ int st_nci_se_io(struct nci_dev *ndev, u32 se_idx,
- 					ST_NCI_EVT_TRANSMIT_DATA, apdu,
- 					apdu_length);
- 	default:
-+		/* Need to free cb_context here as at the moment we can't
-+		 * clearly indicate to the caller if the callback function
-+		 * would be called (and free it) or not. In both cases a
-+		 * negative value may be returned to the caller.
-+		 */
-+		kfree(cb_context);
- 		return -ENODEV;
- 	}
- }
-diff --git a/drivers/nfc/st21nfca/se.c b/drivers/nfc/st21nfca/se.c
-index df8d27cf2956b..dae288bebcb5a 100644
---- a/drivers/nfc/st21nfca/se.c
-+++ b/drivers/nfc/st21nfca/se.c
-@@ -236,6 +236,12 @@ int st21nfca_hci_se_io(struct nfc_hci_dev *hdev, u32 se_idx,
- 					ST21NFCA_EVT_TRANSMIT_DATA,
- 					apdu, apdu_length);
- 	default:
-+		/* Need to free cb_context here as at the moment we can't
-+		 * clearly indicate to the caller if the callback function
-+		 * would be called (and free it) or not. In both cases a
-+		 * negative value may be returned to the caller.
-+		 */
-+		kfree(cb_context);
- 		return -ENODEV;
- 	}
- }
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 1fc339084d897..348bf561bc9fb 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1442,7 +1442,11 @@ static int nfc_se_io(struct nfc_dev *dev, u32 se_idx,
- 	rc = dev->ops->se_io(dev, se_idx, apdu,
- 			apdu_length, cb, cb_context);
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index d64522af9c3a8..5a272d09b8248 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -756,17 +756,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	u32 index;
  
-+	device_unlock(&dev->dev);
-+	return rc;
-+
- error:
-+	kfree(cb_context);
- 	device_unlock(&dev->dev);
- 	return rc;
- }
+ 	if (port) {
+-		head = &hinfo->bhash[inet_bhashfn(net, port,
+-						  hinfo->bhash_size)];
+-		tb = inet_csk(sk)->icsk_bind_hash;
+-		spin_lock_bh(&head->lock);
+-		if (sk_head(&tb->owners) == sk && !sk->sk_bind_node.next) {
+-			inet_ehash_nolisten(sk, NULL, NULL);
+-			spin_unlock_bh(&head->lock);
+-			return 0;
+-		}
+-		spin_unlock(&head->lock);
+-		/* No definite answer... Walk to established hash table */
++		local_bh_disable();
+ 		ret = check_established(death_row, sk, port, NULL);
+ 		local_bh_enable();
+ 		return ret;
 -- 
 2.39.2
 
