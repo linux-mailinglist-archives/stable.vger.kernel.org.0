@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 470EC6B4146
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACC456B45AE
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230477AbjCJNvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:51:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54894 "EHLO
+        id S232572AbjCJOgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:36:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229774AbjCJNvN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04313DABB0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:12 -0800 (PST)
+        with ESMTP id S232633AbjCJOgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7685118BE9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B429EB822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E38C433D2;
-        Fri, 10 Mar 2023 13:51:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C5A761948
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C3DEC433EF;
+        Fri, 10 Mar 2023 14:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456269;
-        bh=CHmQsQVxXqQdmBOa8Q7J5NMME4QZQiGIWIVD0eQOt9c=;
+        s=korg; t=1678458951;
+        bh=a4XnejVhHZEIY7WqnVFsAnIBpEc3qJHBjsHngNgeekM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqxjn4rxeBhMO4lxKIKSb0h5lmEdwKMYSNllL8+2n6ODuJG0LZKzpnj1LbrAZQmwc
-         1kPP8i5fsCRYNfqb4CjAPj4fsIzURHaKN73Rvz+zYUa00hfb/WxuWAmG93RbWt5TBK
-         zeb0IYgMPeXzuDpNAGIRi6P1MuNAhQ3wBzs1f9xs=
+        b=cYvhy9glO3LmBHhKRnzZSaSXW1HjJkD76j6cvy4v9/s99KqPV4LJ0W/DG2ld1C7vZ
+         XOU7mvAqkEq5hvUrYM7Yr/JE9CtOHF68RoZziMwqCefMpyxW4TKGI8D+UB0RSK1web
+         dxSn1A5+Kz+OOi86oZcjVLe0wsHaJYEXKP9mB/94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 106/193] ocfs2: fix non-auto defrag path not working issue
+        patches@lists.linux.dev, Liwei Song <liwei.song@windriver.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 199/357] drm/radeon: free iio for atombios when driver shutdown
 Date:   Fri, 10 Mar 2023 14:38:08 +0100
-Message-Id: <20230310133714.799087839@linuxfoundation.org>
+Message-Id: <20230310133743.507414660@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,91 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Liwei Song <liwei.song@windriver.com>
 
-commit 236b9254f8d1edc273ad88b420aa85fbd84f492d upstream.
+[ Upstream commit 4773fadedca918faec443daaca5e4ea1c0ced144 ]
 
-This fixes three issues on move extents ioctl without auto defrag:
+Fix below kmemleak when unload radeon driver:
 
-a) In ocfs2_find_victim_alloc_group(), we have to convert bits to block
-   first in case of global bitmap.
+unreferenced object 0xffff9f8608ede200 (size 512):
+  comm "systemd-udevd", pid 326, jiffies 4294682822 (age 716.338s)
+  hex dump (first 32 bytes):
+    00 00 00 00 c4 aa ec aa 14 ab 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000062fadebe>] kmem_cache_alloc_trace+0x2f1/0x500
+    [<00000000b6883cea>] atom_parse+0x117/0x230 [radeon]
+    [<00000000158c23fd>] radeon_atombios_init+0xab/0x170 [radeon]
+    [<00000000683f672e>] si_init+0x57/0x750 [radeon]
+    [<00000000566cc31f>] radeon_device_init+0x559/0x9c0 [radeon]
+    [<0000000046efabb3>] radeon_driver_load_kms+0xc1/0x1a0 [radeon]
+    [<00000000b5155064>] drm_dev_register+0xdd/0x1d0
+    [<0000000045fec835>] radeon_pci_probe+0xbd/0x100 [radeon]
+    [<00000000e69ecca3>] pci_device_probe+0xe1/0x160
+    [<0000000019484b76>] really_probe.part.0+0xc1/0x2c0
+    [<000000003f2649da>] __driver_probe_device+0x96/0x130
+    [<00000000231c5bb1>] driver_probe_device+0x24/0xf0
+    [<0000000000a42377>] __driver_attach+0x77/0x190
+    [<00000000d7574da6>] bus_for_each_dev+0x7f/0xd0
+    [<00000000633166d2>] driver_attach+0x1e/0x30
+    [<00000000313b05b8>] bus_add_driver+0x12c/0x1e0
 
-b) In ocfs2_probe_alloc_group(), when finding enough bits in block
-   group bitmap, we have to back off move_len to start pos as well,
-   otherwise it may corrupt filesystem.
+iio was allocated in atom_index_iio() called by atom_parse(),
+but it doesn't got released when the dirver is shutdown.
+Fix this kmemleak by free it in radeon_atombios_fini().
 
-c) In ocfs2_ioctl_move_extents(), set me_threshold both for non-auto
-   and auto defrag paths.  Otherwise it will set move_max_hop to 0 and
-   finally cause unexpectedly ENOSPC error.
-
-Currently there are no tools triggering the above issues since
-defragfs.ocfs2 enables auto defrag by default.  Tested with manually
-changing defragfs.ocfs2 to run non auto defrag path.
-
-Link: https://lkml.kernel.org/r/20230220050526.22020-1-heming.zhao@suse.com
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Liwei Song <liwei.song@windriver.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/move_extents.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/radeon/radeon_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ocfs2/move_extents.c
-+++ b/fs/ocfs2/move_extents.c
-@@ -444,7 +444,7 @@ static int ocfs2_find_victim_alloc_group
- 			bg = (struct ocfs2_group_desc *)gd_bh->b_data;
- 
- 			if (vict_blkno < (le64_to_cpu(bg->bg_blkno) +
--						le16_to_cpu(bg->bg_bits))) {
-+						(le16_to_cpu(bg->bg_bits) << bits_per_unit))) {
- 
- 				*ret_bh = gd_bh;
- 				*vict_bit = (vict_blkno - blkno) >>
-@@ -559,6 +559,7 @@ static void ocfs2_probe_alloc_group(stru
- 			last_free_bits++;
- 
- 		if (last_free_bits == move_len) {
-+			i -= move_len;
- 			*goal_bit = i;
- 			*phys_cpos = base_cpos + i;
- 			break;
-@@ -1030,18 +1031,19 @@ int ocfs2_ioctl_move_extents(struct file
- 
- 	context->range = &range;
- 
-+	/*
-+	 * ok, the default theshold for the defragmentation
-+	 * is 1M, since our maximum clustersize was 1M also.
-+	 * any thought?
-+	 */
-+	if (!range.me_threshold)
-+		range.me_threshold = 1024 * 1024;
-+
-+	if (range.me_threshold > i_size_read(inode))
-+		range.me_threshold = i_size_read(inode);
-+
- 	if (range.me_flags & OCFS2_MOVE_EXT_FL_AUTO_DEFRAG) {
- 		context->auto_defrag = 1;
--		/*
--		 * ok, the default theshold for the defragmentation
--		 * is 1M, since our maximum clustersize was 1M also.
--		 * any thought?
--		 */
--		if (!range.me_threshold)
--			range.me_threshold = 1024 * 1024;
--
--		if (range.me_threshold > i_size_read(inode))
--			range.me_threshold = i_size_read(inode);
- 
- 		if (range.me_flags & OCFS2_MOVE_EXT_FL_PART_DEFRAG)
- 			context->partial = 1;
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index e892582e847b5..0d0ae89a85686 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1022,6 +1022,7 @@ void radeon_atombios_fini(struct radeon_device *rdev)
+ {
+ 	if (rdev->mode_info.atom_context) {
+ 		kfree(rdev->mode_info.atom_context->scratch);
++		kfree(rdev->mode_info.atom_context->iio);
+ 	}
+ 	kfree(rdev->mode_info.atom_context);
+ 	rdev->mode_info.atom_context = NULL;
+-- 
+2.39.2
+
 
 
