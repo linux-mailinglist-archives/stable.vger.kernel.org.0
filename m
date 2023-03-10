@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 781326B4308
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 379DF6B41F5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231760AbjCJOKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S231401AbjCJN6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231771AbjCJOJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB81117226
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:02 -0800 (PST)
+        with ESMTP id S231400AbjCJN6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAB426EB7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AA9260F11
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F8CFC433AE;
-        Fri, 10 Mar 2023 14:08:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BCFAB822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C44C4339B;
+        Fri, 10 Mar 2023 13:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457336;
-        bh=72tda5Bq54i/bgcXazaNCif40nUS7+6vbhfS2PnsuSc=;
+        s=korg; t=1678456686;
+        bh=UKEoYjS25wgGroJqPbxWtKDzt69mI2UKt5Q+dewr1z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yggj0QQuUkmBFaXPcAZuil6piZQt5IL0wQcupF4avdOFW73YYpsAFJmwbYdKf0OtG
-         /m0+gJI0NTNfaj3AoMs3kYJag/ZN1/gJDi2tYZJn48KOSTFkK1s6BAD13iW4mDY7Bp
-         6T99BxLTHksD/O1B8oh82cgNvl87L3gCCL0haIM4=
+        b=2lj66c8BBM2X6FS7+P0VzJOCN8OENWGamP3zrMbnzjt2LSi6am6kUSYJMnIgOiarD
+         Nt0EFVsqB8+4veHvIFLKwrVDGLv3owS3ENnEMx0eMpZQxhbXvdNCtY56reOa3plIUp
+         XnPwJmorwvg483KHNEbJWYxh+45QQ8BuOtSx8Dgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 062/200] netfilter: ip6t_rpfilter: Fix regression with VRF interfaces
+Subject: [PATCH 6.2 089/211] net/mlx5: ECPF, wait for VF pages only after disabling host PFs
 Date:   Fri, 10 Mar 2023 14:37:49 +0100
-Message-Id: <20230310133719.031268160@linuxfoundation.org>
+Message-Id: <20230310133721.491004758@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-[ Upstream commit efb056e5f1f0036179b2f92c1c15f5ea7a891d70 ]
+[ Upstream commit e1ed30c8c09abc85a01c897845bdbd08c0333353 ]
 
-When calling ip6_route_lookup() for the packet arriving on the VRF
-interface, the result is always the real (slave) interface. Expect this
-when validating the result.
+Currently,  during the early stages of their unloading, particularly
+during SRIOV disablement, PFs/ECPFs wait on the release of all of
+their VFs memory pages. Furthermore, ECPFs are considered the page
+supplier for host VFs, hence the host VFs memory pages are freed only
+during ECPF cleanup when host interfaces get disabled.
 
-Fixes: acc641ab95b66 ("netfilter: rpfilter/fib: Populate flowic_l3mdev field")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Thus, disabling SRIOV early in unload timeline causes the DPU ECPF
+to stall on driver unload while waiting on the release of host VF pages
+that won't be freed before host interfaces get disabled later on.
+
+Therefore, for ECPFs, wait on the release of VFs pages only after the
+disablement of host PFs during ECPF cleanup flow. Then, host PFs and VFs
+are disabled and their memory shall be freed accordingly.
+
+Fixes: 143a41d7623d ("net/mlx5: Disable SRIOV before PF removal")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/netfilter/ip6t_rpfilter.c         |  4 ++-
- tools/testing/selftests/netfilter/rpath.sh | 32 ++++++++++++++++++----
- 2 files changed, 29 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/ecpf.c  | 4 ++++
+ drivers/net/ethernet/mellanox/mlx5/core/sriov.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/net/ipv6/netfilter/ip6t_rpfilter.c b/net/ipv6/netfilter/ip6t_rpfilter.c
-index a01d9b842bd07..67c87a88cde4f 100644
---- a/net/ipv6/netfilter/ip6t_rpfilter.c
-+++ b/net/ipv6/netfilter/ip6t_rpfilter.c
-@@ -72,7 +72,9 @@ static bool rpfilter_lookup_reverse6(struct net *net, const struct sk_buff *skb,
- 		goto out;
- 	}
- 
--	if (rt->rt6i_idev->dev == dev || (flags & XT_RPFILTER_LOOSE))
-+	if (rt->rt6i_idev->dev == dev ||
-+	    l3mdev_master_ifindex_rcu(rt->rt6i_idev->dev) == dev->ifindex ||
-+	    (flags & XT_RPFILTER_LOOSE))
- 		ret = true;
-  out:
- 	ip6_rt_put(rt);
-diff --git a/tools/testing/selftests/netfilter/rpath.sh b/tools/testing/selftests/netfilter/rpath.sh
-index f7311e66d2193..5289c8447a419 100755
---- a/tools/testing/selftests/netfilter/rpath.sh
-+++ b/tools/testing/selftests/netfilter/rpath.sh
-@@ -62,10 +62,16 @@ ip -net "$ns1" a a fec0:42::2/64 dev v0 nodad
- ip -net "$ns2" a a fec0:42::1/64 dev d0 nodad
- 
- # firewall matches to test
--[ -n "$iptables" ] && ip netns exec "$ns2" \
--	"$iptables" -t raw -A PREROUTING -s 192.168.0.0/16 -m rpfilter
--[ -n "$ip6tables" ] && ip netns exec "$ns2" \
--	"$ip6tables" -t raw -A PREROUTING -s fec0::/16 -m rpfilter
-+[ -n "$iptables" ] && {
-+	common='-t raw -A PREROUTING -s 192.168.0.0/16'
-+	ip netns exec "$ns2" "$iptables" $common -m rpfilter
-+	ip netns exec "$ns2" "$iptables" $common -m rpfilter --invert
-+}
-+[ -n "$ip6tables" ] && {
-+	common='-t raw -A PREROUTING -s fec0::/16'
-+	ip netns exec "$ns2" "$ip6tables" $common -m rpfilter
-+	ip netns exec "$ns2" "$ip6tables" $common -m rpfilter --invert
-+}
- [ -n "$nft" ] && ip netns exec "$ns2" $nft -f - <<EOF
- table inet t {
- 	chain c {
-@@ -89,6 +95,11 @@ ipt_zero_rule() { # (command)
- 	[ -n "$1" ] || return 0
- 	ip netns exec "$ns2" "$1" -t raw -vS | grep -q -- "-m rpfilter -c 0 0"
- }
-+ipt_zero_reverse_rule() { # (command)
-+	[ -n "$1" ] || return 0
-+	ip netns exec "$ns2" "$1" -t raw -vS | \
-+		grep -q -- "-m rpfilter --invert -c 0 0"
-+}
- nft_zero_rule() { # (family)
- 	[ -n "$nft" ] || return 0
- 	ip netns exec "$ns2" "$nft" list chain inet t c | \
-@@ -101,8 +112,7 @@ netns_ping() { # (netns, args...)
- 	ip netns exec "$netns" ping -q -c 1 -W 1 "$@" >/dev/null
- }
- 
--testrun() {
--	# clear counters first
-+clear_counters() {
- 	[ -n "$iptables" ] && ip netns exec "$ns2" "$iptables" -t raw -Z
- 	[ -n "$ip6tables" ] && ip netns exec "$ns2" "$ip6tables" -t raw -Z
- 	if [ -n "$nft" ]; then
-@@ -111,6 +121,10 @@ testrun() {
- 			ip netns exec "$ns2" $nft -s list table inet t;
- 		) | ip netns exec "$ns2" $nft -f -
- 	fi
-+}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c b/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
+index cdc87ecae5d39..d000236ddbac5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
+@@ -90,4 +90,8 @@ void mlx5_ec_cleanup(struct mlx5_core_dev *dev)
+ 	err = mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_HOST_PF]);
+ 	if (err)
+ 		mlx5_core_warn(dev, "Timeout reclaiming external host PF pages err(%d)\n", err);
 +
-+testrun() {
-+	clear_counters
++	err = mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_VF]);
++	if (err)
++		mlx5_core_warn(dev, "Timeout reclaiming external host VFs pages err(%d)\n", err);
+ }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/sriov.c b/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
+index 3008e9ce2bbff..20d7662c10fb6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
+@@ -147,6 +147,10 @@ mlx5_device_disable_sriov(struct mlx5_core_dev *dev, int num_vfs, bool clear_vf)
  
- 	# test 1: martian traffic should fail rpfilter matches
- 	netns_ping "$ns1" -I v0 192.168.42.1 && \
-@@ -120,9 +134,13 @@ testrun() {
+ 	mlx5_eswitch_disable_sriov(dev->priv.eswitch, clear_vf);
  
- 	ipt_zero_rule "$iptables" || die "iptables matched martian"
- 	ipt_zero_rule "$ip6tables" || die "ip6tables matched martian"
-+	ipt_zero_reverse_rule "$iptables" && die "iptables not matched martian"
-+	ipt_zero_reverse_rule "$ip6tables" && die "ip6tables not matched martian"
- 	nft_zero_rule ip || die "nft IPv4 matched martian"
- 	nft_zero_rule ip6 || die "nft IPv6 matched martian"
- 
-+	clear_counters
++	/* For ECPFs, skip waiting for host VF pages until ECPF is destroyed */
++	if (mlx5_core_is_ecpf(dev))
++		return;
 +
- 	# test 2: rpfilter match should pass for regular traffic
- 	netns_ping "$ns1" 192.168.23.1 || \
- 		die "regular ping 192.168.23.1 failed"
-@@ -131,6 +149,8 @@ testrun() {
- 
- 	ipt_zero_rule "$iptables" && die "iptables match not effective"
- 	ipt_zero_rule "$ip6tables" && die "ip6tables match not effective"
-+	ipt_zero_reverse_rule "$iptables" || die "iptables match over-effective"
-+	ipt_zero_reverse_rule "$ip6tables" || die "ip6tables match over-effective"
- 	nft_zero_rule ip && die "nft IPv4 match not effective"
- 	nft_zero_rule ip6 && die "nft IPv6 match not effective"
- 
+ 	if (mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_VF]))
+ 		mlx5_core_warn(dev, "timeout reclaiming VFs pages\n");
+ }
 -- 
 2.39.2
 
