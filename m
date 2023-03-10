@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8940C6B40F3
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2440C6B42B7
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbjCJNr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
+        id S231726AbjCJOGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230293AbjCJNr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD16E46AF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:56 -0800 (PST)
+        with ESMTP id S231656AbjCJOGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E28116B96
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AC65B822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E76ECC433EF;
-        Fri, 10 Mar 2023 13:47:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51C8A617C7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DCC3C433EF;
+        Fri, 10 Mar 2023 14:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456074;
-        bh=aPBrPNFTgYK3zYYXSDcNTUMkvzQhyMoF07UgeJ3ylPk=;
+        s=korg; t=1678457136;
+        bh=n9SKXHsAiKzB4lwgf7LpC7XKRDC3wD6c2/YrtV/ycls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZMXC7Iyw9jTaCvEByhy27Jcht28tYbGeHI8w01R6A0gL5/bWw0Z3ZMJ/KSd4NMMR
-         4RwUZlaFzHsedav7TgrLx2c5JaKkVHiOeUzTDuTEUnYQfEwdJZB6NmvpzA4srgbDkZ
-         UfhXTUr2H4sGWeSivk/DCx6sSRuOL6qaP6eKAEu4=
+        b=qH6FKHSkBgBVLiaAnD3rDPqbvsbxNC59d12FaENQw8QzXekPg9NlnV0ePaaX6fbZT
+         J5HlGVoqtqlJG/PpiIocp7Sn9PnB8bcnsmLrPSoz/KEwjPAtEWgomceb/o0wCFkZau
+         D5kDwLeN+94PqgA7HT5lY5RKU09RKk8sjKjS+z9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 032/193] wifi: wl3501_cs: dont call kfree_skb() under spin_lock_irqsave()
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 007/200] objtool: Fix memory leak in create_static_call_sections()
 Date:   Fri, 10 Mar 2023 14:36:54 +0100
-Message-Id: <20230310133712.013824323@linuxfoundation.org>
+Message-Id: <20230310133717.278571070@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 44bacbdf9066c590423259dbd6d520baac99c1a8 ]
+[ Upstream commit 3da73f102309fe29150e5c35acd20dd82063ff67 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
-tested only.
+strdup() allocates memory for key_name. We need to release the memory in
+the following error paths. Add free() to avoid memory leak.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207150453.114742-1-yangyingliang@huawei.com
+Fixes: 1e7e47883830 ("x86/static_call: Add inline static call implementation for x86-64")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20221205080642.558583-1-linmq006@gmail.com
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/wl3501_cs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/objtool/check.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
-index f33ece9370473..cfde9b94b4b60 100644
---- a/drivers/net/wireless/wl3501_cs.c
-+++ b/drivers/net/wireless/wl3501_cs.c
-@@ -1329,7 +1329,7 @@ static netdev_tx_t wl3501_hard_start_xmit(struct sk_buff *skb,
- 	} else {
- 		++dev->stats.tx_packets;
- 		dev->stats.tx_bytes += skb->len;
--		kfree_skb(skb);
-+		dev_kfree_skb_irq(skb);
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 0c1b6acad141f..730b49e255e44 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -668,6 +668,7 @@ static int create_static_call_sections(struct objtool_file *file)
+ 		if (strncmp(key_name, STATIC_CALL_TRAMP_PREFIX_STR,
+ 			    STATIC_CALL_TRAMP_PREFIX_LEN)) {
+ 			WARN("static_call: trampoline name malformed: %s", key_name);
++			free(key_name);
+ 			return -1;
+ 		}
+ 		tmp = key_name + STATIC_CALL_TRAMP_PREFIX_LEN - STATIC_CALL_KEY_PREFIX_LEN;
+@@ -677,6 +678,7 @@ static int create_static_call_sections(struct objtool_file *file)
+ 		if (!key_sym) {
+ 			if (!opts.module) {
+ 				WARN("static_call: can't find static_call_key symbol: %s", tmp);
++				free(key_name);
+ 				return -1;
+ 			}
  
- 		if (this->tx_buffer_cnt < 2)
- 			netif_stop_queue(dev);
 -- 
 2.39.2
 
