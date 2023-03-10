@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 538B16B4558
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3130C6B42B8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232395AbjCJOdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55622 "EHLO
+        id S231666AbjCJOGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232560AbjCJOdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E99EF8F01
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:13 -0800 (PST)
+        with ESMTP id S231673AbjCJOGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 982B8117239
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A2F3B822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82593C433D2;
-        Fri, 10 Mar 2023 14:32:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 308AD61771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 282C2C433D2;
+        Fri, 10 Mar 2023 14:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458730;
-        bh=zz/PTPwM8i//+kMyOt9rE7zmlKll+ty7ismdgbou/WQ=;
+        s=korg; t=1678457139;
+        bh=++Tar65/IL/mM1cxN7n/aRBBTvtuMvpPnoG6fWLHT/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5DOJNOvou+Vrmt44sxFL3y5+8ZyGKPUmKnlt8k1VrX7mCoFIQJRaVhiEw7wb0NaG
-         OAKeRIPaf6my2taiFdQRv6vPqnSZhUGf/OrYFQpTcLlEVzl17ph7OdAFB1995/hPgU
-         OIPwIX8USnX+8n+I1jiNoXa8TJg6xB3bZP7Ox6+o=
+        b=0q18zqu49jeqTr0gAPYfWdP2072NBPn+n5gWS6gzD0gyuaYIBL3IgUaNn/imWSUDf
+         raRjvWvMRq9GFhUFyIC718tKkK2Rak6O2SqR/bOqx+NPSaNK/VQVznVH102KOrG1Mj
+         VHngPKfdRQbnOh1gH8UruNWwvv1MzfKuxBB1515w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vadim Pasternak <vadimp@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Tinghan Shen <tinghan.shen@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 126/357] hwmon: (mlxreg-fan) Return zero speed for broken fan
+Subject: [PATCH 6.1 008/200] soc: mediatek: mtk-pm-domains: Allow mt8186 ADSP default power on
 Date:   Fri, 10 Mar 2023 14:36:55 +0100
-Message-Id: <20230310133740.225112835@linuxfoundation.org>
+Message-Id: <20230310133717.307854047@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,44 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Tinghan Shen <tinghan.shen@mediatek.com>
 
-[ Upstream commit a1ffd3c46267ee5c807acd780e15df9bb692223f ]
+[ Upstream commit 0d08c56d97a614f56d74f490d693faf8038db125 ]
 
-Currently for broken fan driver returns value calculated based on error
-code (0xFF) in related fan speed register.
-Thus, for such fan user gets fan{n}_fault to 1 and fan{n}_input with
-misleading value.
+In the use case of configuring the access permissions of the ADSP core,
+the mt8186 SoC ADSP power will be switched on in the bootloader because
+the permission control registers are located in the ADSP subsys.
 
-Add check for fan fault prior return speed value and return zero if
-fault is detected.
-
-Fixes: 65afb4c8e7e4 ("hwmon: (mlxreg-fan) Add support for Mellanox FAN driver")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Link: https://lore.kernel.org/r/20230212145730.24247-1-vadimp@nvidia.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Tinghan Shen <tinghan.shen@mediatek.com>
+Fixes: 88590cbc1703 ("soc: mediatek: pm-domains: Add support for mt8186")
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221012075434.30009-1-tinghan.shen@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/mlxreg-fan.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/soc/mediatek/mt8186-pm-domains.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/mlxreg-fan.c b/drivers/hwmon/mlxreg-fan.c
-index bd8f5a3aaad9c..052c897a635d5 100644
---- a/drivers/hwmon/mlxreg-fan.c
-+++ b/drivers/hwmon/mlxreg-fan.c
-@@ -127,6 +127,12 @@ mlxreg_fan_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
- 			if (err)
- 				return err;
+diff --git a/drivers/soc/mediatek/mt8186-pm-domains.h b/drivers/soc/mediatek/mt8186-pm-domains.h
+index 108af61854a38..fce86f79c5055 100644
+--- a/drivers/soc/mediatek/mt8186-pm-domains.h
++++ b/drivers/soc/mediatek/mt8186-pm-domains.h
+@@ -304,7 +304,6 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
+ 		.ctl_offs = 0x9FC,
+ 		.pwr_sta_offs = 0x16C,
+ 		.pwr_sta2nd_offs = 0x170,
+-		.caps = MTK_SCPD_KEEP_DEFAULT_OFF,
+ 	},
+ 	[MT8186_POWER_DOMAIN_ADSP_INFRA] = {
+ 		.name = "adsp_infra",
+@@ -312,7 +311,6 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
+ 		.ctl_offs = 0x9F8,
+ 		.pwr_sta_offs = 0x16C,
+ 		.pwr_sta2nd_offs = 0x170,
+-		.caps = MTK_SCPD_KEEP_DEFAULT_OFF,
+ 	},
+ 	[MT8186_POWER_DOMAIN_ADSP_TOP] = {
+ 		.name = "adsp_top",
+@@ -332,7 +330,7 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
+ 				MT8186_TOP_AXI_PROT_EN_3_CLR,
+ 				MT8186_TOP_AXI_PROT_EN_3_STA),
+ 		},
+-		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_KEEP_DEFAULT_OFF | MTK_SCPD_ACTIVE_WAKEUP,
++		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_ACTIVE_WAKEUP,
+ 	},
+ };
  
-+			if (MLXREG_FAN_GET_FAULT(regval, tacho->mask)) {
-+				/* FAN is broken - return zero for FAN speed. */
-+				*val = 0;
-+				return 0;
-+			}
-+
- 			*val = MLXREG_FAN_GET_RPM(regval, fan->divider,
- 						  fan->samples);
- 			break;
 -- 
 2.39.2
 
