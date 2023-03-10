@@ -2,173 +2,299 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0E126B4E1A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 18:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C24E6B4F56
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 18:46:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229645AbjCJRLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 12:11:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57830 "EHLO
+        id S229924AbjCJRqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 12:46:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229998AbjCJRLi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 12:11:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FFA177E28;
-        Fri, 10 Mar 2023 09:11:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9303461B8E;
-        Fri, 10 Mar 2023 17:11:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C86C433EF;
-        Fri, 10 Mar 2023 17:11:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678468268;
-        bh=5Ps2RalLOWwRL7VZ/7Agz0Am91ib0CqxqZSPVfmLHsE=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=ebf0S7YvPAivJq+cxogI40xhVoaqoxZUgG9dkyAxZNwuvF64+waW1ffGJ/iW/udOx
-         Z1wVz83Q/lYKOE3fO8NbpUZBV/S4zmJFUZan+zuk3AwFAmwiGtzi74MzdiuksyDaLO
-         uYJRJvoo+PfJx8JNuvOs8J+q3x9b30+bUbX++3B4XFApzWkPNogjxoVbgenbNrb7fL
-         GZfvMV+L9R16kT7fZz8qrqUXCLHaIuQkQFFA6D++n7s2dXa8f61AoTLQKbS56tl5xj
-         u7bFlIZU0RwdsrGJs0kXjHqDZNpysx7x9dU7BwGg4E269+LhvRfgtJkK2NeUG14gKU
-         sX8A9AifaMNGA==
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id 82FA9154034B; Fri, 10 Mar 2023 09:11:07 -0800 (PST)
-Date:   Fri, 10 Mar 2023 09:11:07 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Antonio Paolillo <antonio.paolillo@huawei.com>
-Cc:     longman@redhat.com, David.Laight@aculab.com, akpm@osdl.org,
-        arjan@linux.intel.com, boqun.feng@gmail.com,
-        diogo.behrens@huawei.com, hernan.poncedeleon@huaweicloud.com,
-        hernanl.leon@huawei.com, joel@joelfernandes.org,
-        jonas.oberhauser@huawei.com, jonas.oberhauser@huaweicloud.com,
-        linux-kernel@vger.kernel.org, mingo@redhat.com,
-        peterz@infradead.org, stable@vger.kernel.org,
-        stern@rowland.harvard.edu, tglx@linutronix.de, will@kernel.org
-Subject: Re: lock_torture results for different patches:
-Message-ID: <bd01e9aa-bcf5-4ac1-961d-e969cff2b3f1@paulmck-laptop>
-Reply-To: paulmck@kernel.org
-References: <4122ef0d-1508-8ce2-df80-874565a612ce@redhat.com>
- <20230301163214.17530-1-antonio.paolillo@huawei.com>
+        with ESMTP id S230203AbjCJRqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 12:46:17 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D4512C71D;
+        Fri, 10 Mar 2023 09:45:28 -0800 (PST)
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1pagmT-0007jH-Km; Fri, 10 Mar 2023 18:43:49 +0100
+Message-ID: <85df6dda-c1c9-f08e-9e64-2007d44f6683@leemhuis.info>
+Date:   Fri, 10 Mar 2023 18:43:47 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230301163214.17530-1-antonio.paolillo@huawei.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH v3] tpm: disable hwrng for fTPM on some AMD designs
+Content-Language: en-US, de-DE
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+To:     Jarkko Sakkinen <jarkko@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        reach622@mailcuk.com, Bell <1138267643@qq.com>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Linux kernel regressions list <regressions@lists.linux.dev>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+References: <20230228024439.27156-1-mario.limonciello@amd.com>
+ <Y/1wuXbaPcG9olkt@kernel.org>
+ <5e535bf9-c662-c133-7837-308d67dfac94@leemhuis.info>
+In-Reply-To: <5e535bf9-c662-c133-7837-308d67dfac94@leemhuis.info>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1678470328;7130823b;
+X-HE-SMSGID: 1pagmT-0007jH-Km
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 01, 2023 at 05:32:14PM +0100, Antonio Paolillo wrote:
-> Dear all,
-> 
-> I want to provide some support to Hernan regarding performance claims.
-> 
-> I used lock_torture to evaluate the different proposed patches on two
-> different server machines:
-> - a Huawei TaiShan 200 (Model 2280) rack server that has 128 GB of RAM
->   and 2x Kunpeng 920-4826 processors, a HiSilicon chip with 48 ARMv8.2
->   64-bit cores totaling 96 cores (no SMT) [1, 2],
->   denoted as taishan200-96c;
-> - a GIGABYTE R182-Z91-00 rack server that has 128 GB of RAM and 2x
->   EPYC 7352 processors, an AMD chip with 24 x86_64 cores, totaling 48
->   cores (96 CPUs when counting hyperthreading) [3, 4],
->   denoted as gigabyte-96c.
-> 
-> I ran the evaluation on a Ubuntu 22.04 distro, with custom kernels based
-> on v6.2-rc6 (6d796c50f84ca79f1722bb131799e5a5710c4700).
-> The different kernels are combination of patches:
-> - (0) Stock kernel;
-> - (1) With relaxed set owner barrier (as discussed in [5] and questioned
->   by Peter, the barrier seems not to be needed);
-> - (2) With READ_ONCE(), as originally proposed in this thread;
-> - (3) With atomic_long_or() as proposed by Peter;
-> - (4) With relaxed set owner barrier and READ_ONCE();
-> - (5) With relaxed set owner barrier and atomic_long_or().
-> 
-> I ran lock_torture several times, exploring the following parameter
-> space:
-> - torture_type="rtmutex_lock",
-> - nwriters_stress=[1, 2, 3, 4, 8, 16, 32, 64, 95],
-> - stat_interval=4,
-> - stutter=0,
-> - shuffle_interval=0.
-> For each value of "nwriters_stress", I ran the configuration 5 times.
-> 
-> By feeding the lock_torture kthread pids to "taskset -p", I overruled
-> the scheduling such that the distribution of kthreads to CPUs is fixed.
-> I also disabled "irq balance" and "numa balance" daemons, fixed the
-> frequency to 1.5GHz using the "userspace" cpufreq governor and isolated
-> all the cores used (using isolcpus=1-95 at boot-time) to avoid any
-> source of interference.
-> 
-> As a warm-up phase, I ignored the first reported results and only
-> considered the latest 60 seconds of execution (after all kthreads
-> migrated to their final CPU).
-> The reported throughput is computed by dividing the reported number of
-> operations by the duration of the measurement for each dot (60 seconds),
-> so higher is better.
-> 
-> Here follows the results on taishan200-96c (the 'rel' column is the mean
-> relative to the mean of the stock kernel, in percent, and each mean is
-> the average over 5 independent runs):
-> 
-> Kernel:             k0-stock-6.2.0-rc6       k1-rmacq             k2-readonce             k3-alongor             k4-rmacq+readonce             k5-rmacq+alongor            
-> Statistic (kops/s):               mean   std     mean   std   rel        mean   std   rel       mean   std   rel              mean   std   rel             mean   std   rel
-> nwriters_stress:                                                                                                                                                           
-> 1                               899.91 24.95   880.10 29.62   -2%      871.57 44.27   -3%     888.65 37.90   -1%            898.63 29.82   -0%           889.83 25.64   -1%
-> 2                               359.30 25.92   416.83 32.77  +16%      360.65 28.32   +0%     404.79 42.64  +13%            380.65 21.29   +6%           404.37 23.27  +13%
-> 3                               314.97 24.32   308.41  9.68   -2%      315.00  9.97   +0%     313.86 13.47   -0%            313.47  4.01   -0%           322.77 20.82   +2%
-> 4                               328.02 15.09   330.65 29.33   +1%      314.83 24.28   -4%     305.71 12.72   -7%            322.95 10.39   -2%           343.32 13.73   +5%
-> 8                               292.16 22.03   288.85 10.50   -1%      288.28 18.84   -1%     285.42 24.58   -2%            310.23 26.08   +6%           285.67 20.03   -2%
-> 16                              297.03 26.89   281.89 29.22   -5%      265.19 33.73  -11%     279.02 22.43   -6%            284.40 36.21   -4%           285.21 36.33   -4%
-> 32                              187.36 28.59   175.71 19.77   -6%      186.44 48.15   -0%     206.59 14.11  +10%            174.08 24.30   -7%           185.80 45.12   -1%
-> 64                              148.13 48.65   172.48 34.29  +16%      154.59 47.05   +4%     164.22 29.81  +11%            142.13 47.40   -4%           136.39 29.95   -8%
-> 95                              174.35 57.89   148.59 38.03  -15%      156.85 43.64  -10%     132.92 32.35  -24%            126.44 28.24  -27%           146.82 60.04  -16%
-> 
-> And the results on gigabyte-96c:
-> 
-> Kernel:             k0-stock-6.2.0-rc6       k1-rmacq               k2-readonce             k3-alongor             k4-rmacq+readonce             k5-rmacq+alongor            
-> Statistic (kops/s):               mean   std     mean    std    rel        mean   std   rel       mean   std   rel              mean   std   rel             mean    std  rel
-> nwriters_stress:                                                                                                                                                             
-> 1                               713.72 25.68   707.32  17.73    -1%      718.81 12.63   +1%     712.80 13.57   -0%            709.17 14.10   -1%           730.33   9.14  +2%
-> 2                               376.25  8.19   400.09  16.24    +6%      396.71 26.09   +5%     412.61 17.80  +10%            396.48  7.02   +5%           409.90  14.61  +9%
-> 3                               415.07 16.83   410.19  19.82    -1%      423.39  9.68   +2%     417.28 10.23   +1%            424.94 17.48   +2%           422.92  11.75  +2%
-> 4                               286.77 26.63   285.13   6.80    -1%      297.33 23.62   +4%     296.49 16.60   +3%            303.99 30.38   +6%           296.93   9.90  +4%
-> 8                               296.56 20.45   308.97  12.53    +4%      305.49 19.91   +3%     294.24 17.24   -1%            294.71 24.03   -1%           294.09  25.20  -1%
-> 16                              257.34 33.94   266.03  29.60    +3%      270.72 35.22   +5%     252.28 50.16   -2%            263.83 45.84   +3%           247.42  41.01  -4%
-> 32                              278.78 51.45   215.35  68.40   -23%      259.77 87.44   -7%     217.26 79.67  -22%            201.23 70.46  -28%           282.47 116.65  +1%
-> 64                               75.82 64.87   194.52 137.19  +157%       35.57 12.14  -53%      74.24 72.04   -2%             71.29 45.55   -6%            77.93  43.57  +3%
-> 95                               60.37 68.13   198.38 116.93  +229%       43.12 17.60  -29%      58.80 36.47   -3%             57.78 63.00   -4%            61.33  71.18  +2%
-> 
-> We can safely conclude that the patches do not significatively affect
-> the throughput of the lock_torture benchmark for rtmutex_lock.
-> The values for nwriters_stress>=64 can safely be ignored as they are too
-> spread.
+[adding Linux to the list of recipients]
 
-Just so you know, locktorture is intended to be a stress test rather
-than a performance benchmark.  Hugo Guiroux's dissertation gives a
-much better locking performance methodology:
+On 08.03.23 10:42, Linux regression tracking (Thorsten Leemhuis) wrote:
+> Hi, Thorsten here, the Linux kernel's regression tracker. Top-posting
+> for once, to make this easily accessible to everyone.
+> 
+> Jarkko, thx for reviewing and picking below fix up. Are you planning to
+> send this to Linus anytime soon, now that the patch was a few days in
+> next? It would be good to get this 6.1 regression finally fixed, it
+> already took way longer then the time frame
+> Documentation/process/handling-regressions.rst outlines for a case like
+> this. But well, that's how it is sometimes...
 
-https://hugoguiroux.github.io/assets/these.pdf
+Linus, would you consider picking this fix up directly from here or from
+linux-next (8699d5244e37)? It's been in the latter for 9 days now
+afaics. And the issue seems to bug more than just one or two users, so
+it IMHO would be good to get this finally resolved.
 
-							Thanx, Paul
+Jarkko didn't reply to my inquiry, guess something else keeps him busy.
 
-> Please notice that I pushed a landing page [6] with results in HTML that
-> may be more convenient to browse together with interactive charts.
-> 
-> Cheers,
-> 
-> Antonio
-> 
-> [1] https://e.huawei.com/uk/products/servers/taishan-server/taishan-2280-v2
-> [2] https://en.wikichip.org/wiki/hisilicon/kunpeng/920-4826
-> [3] https://www.gigabyte.com/Rack-Server/R182-Z91-rev-100
-> [4] https://www.amd.com/en/products/cpu/amd-epyc-7352
-> [5] https://lkml.org/lkml/2023/1/22/160
-> [6] https://antonio.paolillo.be/public/rtlocks-locktorture-patches.html
-> 
+Ciao, Thorsten
+
+> On 28.02.23 04:10, Jarkko Sakkinen wrote:
+>> On Mon, Feb 27, 2023 at 08:44:39PM -0600, Mario Limonciello wrote:
+>>> AMD has issued an advisory indicating that having fTPM enabled in
+>>> BIOS can cause "stuttering" in the OS.  This issue has been fixed
+>>> in newer versions of the fTPM firmware, but it's up to system
+>>> designers to decide whether to distribute it.
+>>>
+>>> This issue has existed for a while, but is more prevalent starting
+>>> with kernel 6.1 because commit b006c439d58db ("hwrng: core - start
+>>> hwrng kthread also for untrusted sources") started to use the fTPM
+>>> for hwrng by default. However, all uses of /dev/hwrng result in
+>>> unacceptable stuttering.
+>>>
+>>> So, simply disable registration of the defective hwrng when detecting
+>>> these faulty fTPM versions.  As this is caused by faulty firmware, it
+>>> is plausible that such a problem could also be reproduced by other TPM
+>>> interactions, but this hasn't been shown by any user's testing or reports.
+>>>
+>>> It is hypothesized to be triggered more frequently by the use of the RNG
+>>> because userspace software will fetch random numbers regularly.
+>>>
+>>> Intentionally continue to register other TPM functionality so that users
+>>> that rely upon PCR measurements or any storage of data will still have
+>>> access to it.  If it's found later that another TPM functionality is
+>>> exacerbating this problem a module parameter it can be turned off entirely
+>>> and a module parameter can be introduced to allow users who rely upon
+>>> fTPM functionality to turn it on even though this problem is present.
+>>>
+>>> Link: https://www.amd.com/en/support/kb/faq/pa-410
+>>> Link: https://bugzilla.kernel.org/show_bug.cgi?id=216989
+>>> Link: https://lore.kernel.org/all/20230209153120.261904-1-Jason@zx2c4.com/
+>>> Fixes: b006c439d58d ("hwrng: core - start hwrng kthread also for untrusted sources")
+>>> Cc: stable@vger.kernel.org
+>>> Cc: Jarkko Sakkinen <jarkko@kernel.org>
+>>> Cc: Thorsten Leemhuis <regressions@leemhuis.info>
+>>> Cc: James Bottomley <James.Bottomley@hansenpartnership.com>
+>>> Tested-by: reach622@mailcuk.com
+>>> Tested-by: Bell <1138267643@qq.com>
+>>> Co-developed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+>>> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+>>> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+>>> ---
+>>> v2->v3:
+>>>  * Revert extra curl braces back to behavior in v1
+>>>  * Remove needless goto
+>>>  * Pick up 2 tested tags
+>>> ---
+>>>  drivers/char/tpm/tpm-chip.c | 60 +++++++++++++++++++++++++++++-
+>>>  drivers/char/tpm/tpm.h      | 73 +++++++++++++++++++++++++++++++++++++
+>>>  2 files changed, 132 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+>>> index 741d8f3e8fb3..c467eeae9973 100644
+>>> --- a/drivers/char/tpm/tpm-chip.c
+>>> +++ b/drivers/char/tpm/tpm-chip.c
+>>> @@ -512,6 +512,63 @@ static int tpm_add_legacy_sysfs(struct tpm_chip *chip)
+>>>  	return 0;
+>>>  }
+>>>  
+>>> +/*
+>>> + * Some AMD fTPM versions may cause stutter
+>>> + * https://www.amd.com/en/support/kb/faq/pa-410
+>>> + *
+>>> + * Fixes are available in two series of fTPM firmware:
+>>> + * 6.x.y.z series: 6.0.18.6 +
+>>> + * 3.x.y.z series: 3.57.y.5 +
+>>> + */
+>>> +static bool tpm_amd_is_rng_defective(struct tpm_chip *chip)
+>>> +{
+>>> +	u32 val1, val2;
+>>> +	u64 version;
+>>> +	int ret;
+>>> +
+>>> +	if (!(chip->flags & TPM_CHIP_FLAG_TPM2))
+>>> +		return false;
+>>> +
+>>> +	ret = tpm_request_locality(chip);
+>>> +	if (ret)
+>>> +		return false;
+>>> +
+>>> +	ret = tpm2_get_tpm_pt(chip, TPM2_PT_MANUFACTURER, &val1, NULL);
+>>> +	if (ret)
+>>> +		goto release;
+>>> +	if (val1 != 0x414D4400U /* AMD */) {
+>>> +		ret = -ENODEV;
+>>> +		goto release;
+>>> +	}
+>>> +	ret = tpm2_get_tpm_pt(chip, TPM2_PT_FIRMWARE_VERSION_1, &val1, NULL);
+>>> +	if (ret)
+>>> +		goto release;
+>>> +	ret = tpm2_get_tpm_pt(chip, TPM2_PT_FIRMWARE_VERSION_2, &val2, NULL);
+>>> +
+>>> +release:
+>>> +	tpm_relinquish_locality(chip);
+>>> +
+>>> +	if (ret)
+>>> +		return false;
+>>> +
+>>> +	version = ((u64)val1 << 32) | val2;
+>>> +	if ((version >> 48) == 6) {
+>>> +		if (version >= 0x0006000000180006ULL)
+>>> +			return false;
+>>> +	} else if ((version >> 48) == 3) {
+>>> +		if (version >= 0x0003005700000005ULL)
+>>> +			return false;
+>>> +	} else {
+>>> +		return false;
+>>> +	}
+>>> +
+>>> +	dev_warn(&chip->dev,
+>>> +		 "AMD fTPM version 0x%llx causes system stutter; hwrng disabled\n",
+>>> +		 version);
+>>> +
+>>> +	return true;
+>>> +}
+>>> +
+>>>  static int tpm_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
+>>>  {
+>>>  	struct tpm_chip *chip = container_of(rng, struct tpm_chip, hwrng);
+>>> @@ -521,7 +578,8 @@ static int tpm_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
+>>>  
+>>>  static int tpm_add_hwrng(struct tpm_chip *chip)
+>>>  {
+>>> -	if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM) || tpm_is_firmware_upgrade(chip))
+>>> +	if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM) || tpm_is_firmware_upgrade(chip) ||
+>>> +	    tpm_amd_is_rng_defective(chip))
+>>>  		return 0;
+>>>  
+>>>  	snprintf(chip->hwrng_name, sizeof(chip->hwrng_name),
+>>> diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+>>> index 24ee4e1cc452..830014a26609 100644
+>>> --- a/drivers/char/tpm/tpm.h
+>>> +++ b/drivers/char/tpm/tpm.h
+>>> @@ -150,6 +150,79 @@ enum tpm_sub_capabilities {
+>>>  	TPM_CAP_PROP_TIS_DURATION = 0x120,
+>>>  };
+>>>  
+>>> +enum tpm2_pt_props {
+>>> +	TPM2_PT_NONE = 0x00000000,
+>>> +	TPM2_PT_GROUP = 0x00000100,
+>>> +	TPM2_PT_FIXED = TPM2_PT_GROUP * 1,
+>>> +	TPM2_PT_FAMILY_INDICATOR = TPM2_PT_FIXED + 0,
+>>> +	TPM2_PT_LEVEL = TPM2_PT_FIXED + 1,
+>>> +	TPM2_PT_REVISION = TPM2_PT_FIXED + 2,
+>>> +	TPM2_PT_DAY_OF_YEAR = TPM2_PT_FIXED + 3,
+>>> +	TPM2_PT_YEAR = TPM2_PT_FIXED + 4,
+>>> +	TPM2_PT_MANUFACTURER = TPM2_PT_FIXED + 5,
+>>> +	TPM2_PT_VENDOR_STRING_1 = TPM2_PT_FIXED + 6,
+>>> +	TPM2_PT_VENDOR_STRING_2 = TPM2_PT_FIXED + 7,
+>>> +	TPM2_PT_VENDOR_STRING_3 = TPM2_PT_FIXED + 8,
+>>> +	TPM2_PT_VENDOR_STRING_4 = TPM2_PT_FIXED + 9,
+>>> +	TPM2_PT_VENDOR_TPM_TYPE = TPM2_PT_FIXED + 10,
+>>> +	TPM2_PT_FIRMWARE_VERSION_1 = TPM2_PT_FIXED + 11,
+>>> +	TPM2_PT_FIRMWARE_VERSION_2 = TPM2_PT_FIXED + 12,
+>>> +	TPM2_PT_INPUT_BUFFER = TPM2_PT_FIXED + 13,
+>>> +	TPM2_PT_HR_TRANSIENT_MIN = TPM2_PT_FIXED + 14,
+>>> +	TPM2_PT_HR_PERSISTENT_MIN = TPM2_PT_FIXED + 15,
+>>> +	TPM2_PT_HR_LOADED_MIN = TPM2_PT_FIXED + 16,
+>>> +	TPM2_PT_ACTIVE_SESSIONS_MAX = TPM2_PT_FIXED + 17,
+>>> +	TPM2_PT_PCR_COUNT = TPM2_PT_FIXED + 18,
+>>> +	TPM2_PT_PCR_SELECT_MIN = TPM2_PT_FIXED + 19,
+>>> +	TPM2_PT_CONTEXT_GAP_MAX = TPM2_PT_FIXED + 20,
+>>> +	TPM2_PT_NV_COUNTERS_MAX = TPM2_PT_FIXED + 22,
+>>> +	TPM2_PT_NV_INDEX_MAX = TPM2_PT_FIXED + 23,
+>>> +	TPM2_PT_MEMORY = TPM2_PT_FIXED + 24,
+>>> +	TPM2_PT_CLOCK_UPDATE = TPM2_PT_FIXED + 25,
+>>> +	TPM2_PT_CONTEXT_HASH = TPM2_PT_FIXED + 26,
+>>> +	TPM2_PT_CONTEXT_SYM = TPM2_PT_FIXED + 27,
+>>> +	TPM2_PT_CONTEXT_SYM_SIZE = TPM2_PT_FIXED + 28,
+>>> +	TPM2_PT_ORDERLY_COUNT = TPM2_PT_FIXED + 29,
+>>> +	TPM2_PT_MAX_COMMAND_SIZE = TPM2_PT_FIXED + 30,
+>>> +	TPM2_PT_MAX_RESPONSE_SIZE = TPM2_PT_FIXED + 31,
+>>> +	TPM2_PT_MAX_DIGEST = TPM2_PT_FIXED + 32,
+>>> +	TPM2_PT_MAX_OBJECT_CONTEXT = TPM2_PT_FIXED + 33,
+>>> +	TPM2_PT_MAX_SESSION_CONTEXT = TPM2_PT_FIXED + 34,
+>>> +	TPM2_PT_PS_FAMILY_INDICATOR = TPM2_PT_FIXED + 35,
+>>> +	TPM2_PT_PS_LEVEL = TPM2_PT_FIXED + 36,
+>>> +	TPM2_PT_PS_REVISION = TPM2_PT_FIXED + 37,
+>>> +	TPM2_PT_PS_DAY_OF_YEAR = TPM2_PT_FIXED + 38,
+>>> +	TPM2_PT_PS_YEAR = TPM2_PT_FIXED + 39,
+>>> +	TPM2_PT_SPLIT_MAX = TPM2_PT_FIXED + 40,
+>>> +	TPM2_PT_TOTAL_COMMANDS = TPM2_PT_FIXED + 41,
+>>> +	TPM2_PT_LIBRARY_COMMANDS = TPM2_PT_FIXED + 42,
+>>> +	TPM2_PT_VENDOR_COMMANDS = TPM2_PT_FIXED + 43,
+>>> +	TPM2_PT_NV_BUFFER_MAX = TPM2_PT_FIXED + 44,
+>>> +	TPM2_PT_MODES = TPM2_PT_FIXED + 45,
+>>> +	TPM2_PT_MAX_CAP_BUFFER = TPM2_PT_FIXED + 46,
+>>> +	TPM2_PT_VAR = TPM2_PT_GROUP * 2,
+>>> +	TPM2_PT_PERMANENT = TPM2_PT_VAR + 0,
+>>> +	TPM2_PT_STARTUP_CLEAR = TPM2_PT_VAR + 1,
+>>> +	TPM2_PT_HR_NV_INDEX = TPM2_PT_VAR + 2,
+>>> +	TPM2_PT_HR_LOADED = TPM2_PT_VAR + 3,
+>>> +	TPM2_PT_HR_LOADED_AVAIL = TPM2_PT_VAR + 4,
+>>> +	TPM2_PT_HR_ACTIVE = TPM2_PT_VAR + 5,
+>>> +	TPM2_PT_HR_ACTIVE_AVAIL = TPM2_PT_VAR + 6,
+>>> +	TPM2_PT_HR_TRANSIENT_AVAIL = TPM2_PT_VAR + 7,
+>>> +	TPM2_PT_HR_PERSISTENT = TPM2_PT_VAR + 8,
+>>> +	TPM2_PT_HR_PERSISTENT_AVAIL = TPM2_PT_VAR + 9,
+>>> +	TPM2_PT_NV_COUNTERS = TPM2_PT_VAR + 10,
+>>> +	TPM2_PT_NV_COUNTERS_AVAIL = TPM2_PT_VAR + 11,
+>>> +	TPM2_PT_ALGORITHM_SET = TPM2_PT_VAR + 12,
+>>> +	TPM2_PT_LOADED_CURVES = TPM2_PT_VAR + 13,
+>>> +	TPM2_PT_LOCKOUT_COUNTER = TPM2_PT_VAR + 14,
+>>> +	TPM2_PT_MAX_AUTH_FAIL = TPM2_PT_VAR + 15,
+>>> +	TPM2_PT_LOCKOUT_INTERVAL = TPM2_PT_VAR + 16,
+>>> +	TPM2_PT_LOCKOUT_RECOVERY = TPM2_PT_VAR + 17,
+>>> +	TPM2_PT_NV_WRITE_RECOVERY = TPM2_PT_VAR + 18,
+>>> +	TPM2_PT_AUDIT_COUNTER_0 = TPM2_PT_VAR + 19,
+>>> +	TPM2_PT_AUDIT_COUNTER_1 = TPM2_PT_VAR + 20,
+>>> +};
+>>>  
+>>>  /* 128 bytes is an arbitrary cap. This could be as large as TPM_BUFSIZE - 18
+>>>   * bytes, but 128 is still a relatively large number of random bytes and
+>>> -- 
+>>> 2.34.1
+>>>
+>>
+>>
+>> Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+>>
+>> BR, Jarkko
