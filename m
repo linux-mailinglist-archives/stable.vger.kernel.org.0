@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E42C6B4613
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F3B6B417D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232725AbjCJOjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:39:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55440 "EHLO
+        id S231219AbjCJNxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:53:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232745AbjCJOjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:39:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56129E679
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:46 -0800 (PST)
+        with ESMTP id S231211AbjCJNx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542C712CE4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5964EB822BF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91E21C4339C;
-        Fri, 10 Mar 2023 14:39:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00650B822B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6154FC433D2;
+        Fri, 10 Mar 2023 13:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459184;
-        bh=RVLTcJhYJntpUregILNp9hVDn8VK0ojAgvqQ2pfK1lY=;
+        s=korg; t=1678456394;
+        bh=k5XWIl5XB4f65o6A0XZFfzI5aSXS0CJa1Wdvb80QDis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaTLDJoQ3fNpYMa/PmD3t8wQiuZbMP35EkGInvn8eztkYATORXfr6IyQV3xR8b2HC
-         IWxchrNRLESKAUw6hdbr8uTubv71Z6vSeNjSNsCUqBIlZY1mcSwxiZf1g/W0kiHUzF
-         5M/MnePRpmVaV0h3sy393oTuR83/3lK8u8t3AtxU=
+        b=TpmsD6cdmq3eNQERU0x4jflIIgjRq5JoOzx/mpkYAsW/5a6mRdHIhLSR3mY9GrlyI
+         rCbxFYTSuimbWkXWnQE2iaK8YTRLprLbtzp7Q2wrjzpOWC1iuYxu1Xexr7MDtgD18G
+         6kuaOP/pZsreZHifx3v4jnq1Wys+Ly0n0Em5dSlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: [PATCH 5.4 276/357] PCI/PM: Observe reset delay irrespective of bridge_d3
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 183/193] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_status_word()
 Date:   Fri, 10 Mar 2023 14:39:25 +0100
-Message-Id: <20230310133746.926663594@linuxfoundation.org>
+Message-Id: <20230310133717.172678772@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,57 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-commit 8ef0217227b42e2c34a18de316cee3da16c9bf1e upstream.
+[ Upstream commit e56d2c34ce9dc122b1a618172ec0e05e50adb9e9 ]
 
-If a PCI bridge is suspended to D3cold upon entering system sleep,
-resuming it entails a Fundamental Reset per PCIe r6.0 sec 5.8.
+Smatch Warns: drivers/iio/accel/mma9551_core.c:357
+	mma9551_read_status_word() error: uninitialized symbol 'v'.
 
-The delay prescribed after a Fundamental Reset in PCIe r6.0 sec 6.6.1
-is sought to be observed by:
+When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
+without 'v' being initialized, so check for the error and return.
 
-  pci_pm_resume_noirq()
-    pci_pm_bridge_power_up_actions()
-      pci_bridge_wait_for_secondary_bus()
+Note: Not a bug as such because the caller checks return value and
+doesn't not use this parameter in the problem case.
 
-However, pci_bridge_wait_for_secondary_bus() bails out if the bridge_d3
-flag is not set.  That flag indicates whether a bridge is allowed to
-suspend to D3cold at *runtime*.
-
-Hence *no* delay is observed on resume from system sleep if runtime
-D3cold is forbidden.  That doesn't make any sense, so drop the bridge_d3
-check from pci_bridge_wait_for_secondary_bus().
-
-The purpose of the bridge_d3 check was probably to avoid delays if a
-bridge remained in D0 during suspend.  However the sole caller of
-pci_bridge_wait_for_secondary_bus(), pci_pm_bridge_power_up_actions(),
-is only invoked if the previous power state was D3cold.  Hence the
-additional bridge_d3 check seems superfluous.
-
-Fixes: ad9001f2f411 ("PCI/PM: Add missing link delays required by the PCIe spec")
-Link: https://lore.kernel.org/r/eb37fa345285ec8bacabbf06b020b803f77bdd3d.1673769517.git.lukas@wunner.de
-Tested-by: Ravi Kishore Koppuravuri <ravi.kishore.koppuravuri@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20230126152147.3585874-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/mma9551_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4743,7 +4743,7 @@ void pci_bridge_wait_for_secondary_bus(s
- 	if (pci_dev_is_disconnected(dev))
- 		return;
+diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
+index c34c5ce8123b0..b4bbc83be4310 100644
+--- a/drivers/iio/accel/mma9551_core.c
++++ b/drivers/iio/accel/mma9551_core.c
+@@ -362,9 +362,12 @@ int mma9551_read_status_word(struct i2c_client *client, u8 app_id,
  
--	if (!pci_is_bridge(dev) || !dev->bridge_d3)
-+	if (!pci_is_bridge(dev))
- 		return;
+ 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_STATUS,
+ 			       reg, NULL, 0, (u8 *)&v, 2);
++	if (ret < 0)
++		return ret;
++
+ 	*val = be16_to_cpu(v);
  
- 	down_read(&pci_bus_sem);
+-	return ret;
++	return 0;
+ }
+ EXPORT_SYMBOL(mma9551_read_status_word);
+ 
+-- 
+2.39.2
+
 
 
