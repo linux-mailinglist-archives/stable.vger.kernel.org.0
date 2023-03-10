@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CFF6B42FE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 856EE6B45B8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231557AbjCJOJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:09:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33770 "EHLO
+        id S232634AbjCJOga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:36:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231833AbjCJOJT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB131719
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:42 -0800 (PST)
+        with ESMTP id S232636AbjCJOgX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AAE71188FA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 296DCB822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 968B0C433D2;
-        Fri, 10 Mar 2023 14:08:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04F7361948
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2228C4339B;
+        Fri, 10 Mar 2023 14:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457286;
-        bh=Ee1y8A6nDfdqR+9Rsyrbw+XNkkE5/pHUDG8G7vgpae0=;
+        s=korg; t=1678458966;
+        bh=sP0DEDAVyxqPmniB1L/clxILwd4W528DtTbX2r+2pY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2UphsAEnBQ5pi5cgGN6c3fvnKnipRNn2bCnIPuq3FEgxAJ0nRD5FprGtf1TLXGkG
-         ZzP1BXA1sObO0PJwmTY2UVQu+H5nqfl0ZpKJTPst7+k8adIgEiCf59uxFOyqbIEC49
-         aYD545U4Pj0fvDW8Ve/GSvzSoRGPc+O7WyD7Yf6k=
+        b=f/zFAHEt0KZD+GK9Wy34/yk1JYmZpuA32cdCEaZl2rJHK0txYb3KZcTW4AcKe/LEF
+         xZGKP15TdsuavDfEbqYhtVT7c+ftX54EUdwNr8ndO6wFBCsEZybyK6MmowKqQ/jTym
+         u5zMMZ8kLwgkSMqSqzg0UsduklYeAweEeEO1WooQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Yi <yi.zhang@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        patches@lists.linux.dev,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Javier Martinez Canillas <javierm@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 084/200] ext4: fix incorrect options show of original mount_opt and extend mount_opt2
-Date:   Fri, 10 Mar 2023 14:38:11 +0100
-Message-Id: <20230310133719.685191770@linuxfoundation.org>
+Subject: [PATCH 5.4 203/357] regulator: max77802: Bounds check regulator id against opmode
+Date:   Fri, 10 Mar 2023 14:38:12 +0100
+Message-Id: <20230310133743.678996702@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,113 +58,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit e3645d72f8865ffe36f9dc811540d40aa3c848d3 ]
+[ Upstream commit 4fd8bcec5fd7c0d586206fa2f42bd67b06cdaa7e ]
 
-Current _ext4_show_options() do not distinguish MOPT_2 flag, so it mixed
-extend sbi->s_mount_opt2 options with sbi->s_mount_opt, it could lead to
-show incorrect options, e.g. show fc_debug_force if we mount with
-errors=continue mode and miss it if we set.
+Explicitly bounds-check the id before accessing the opmode array. Seen
+with GCC 13:
 
-  $ mkfs.ext4 /dev/pmem0
-  $ mount -o errors=remount-ro /dev/pmem0 /mnt
-  $ cat /proc/fs/ext4/pmem0/options | grep fc_debug_force
-    #empty
-  $ mount -o remount,errors=continue /mnt
-  $ cat /proc/fs/ext4/pmem0/options | grep fc_debug_force
-    fc_debug_force
-  $ mount -o remount,errors=remount-ro,fc_debug_force /mnt
-  $ cat /proc/fs/ext4/pmem0/options | grep fc_debug_force
-    #empty
+../drivers/regulator/max77802-regulator.c: In function 'max77802_enable':
+../drivers/regulator/max77802-regulator.c:217:29: warning: array subscript [0, 41] is outside array bounds of 'unsigned int[42]' [-Warray-bounds=]
+  217 |         if (max77802->opmode[id] == MAX77802_OFF_PWRREQ)
+      |             ~~~~~~~~~~~~~~~~^~~~
+../drivers/regulator/max77802-regulator.c:62:22: note: while referencing 'opmode'
+   62 |         unsigned int opmode[MAX77802_REG_MAX];
+      |                      ^~~~~~
 
-Fixes: 995a3ed67fc8 ("ext4: add fast_commit feature and handling for extended mount options")
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230129034939.3702550-1-yi.zhang@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://lore.kernel.org/r/20230127225203.never.864-kees@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h  |  1 +
- fs/ext4/super.c | 28 +++++++++++++++++++++-------
- 2 files changed, 22 insertions(+), 7 deletions(-)
+ drivers/regulator/max77802-regulator.c | 34 ++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 4e739902dc03a..a2bc440743ae4 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1529,6 +1529,7 @@ struct ext4_sb_info {
- 	unsigned int s_mount_opt2;
- 	unsigned long s_mount_flags;
- 	unsigned int s_def_mount_opt;
-+	unsigned int s_def_mount_opt2;
- 	ext4_fsblk_t s_sb_block;
- 	atomic64_t s_resv_clusters;
- 	kuid_t s_resuid;
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 22ddd89c868aa..8011600999586 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2894,7 +2894,7 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
+diff --git a/drivers/regulator/max77802-regulator.c b/drivers/regulator/max77802-regulator.c
+index 7b8ec8c0bd151..660e179a82a2c 100644
+--- a/drivers/regulator/max77802-regulator.c
++++ b/drivers/regulator/max77802-regulator.c
+@@ -95,9 +95,11 @@ static int max77802_set_suspend_disable(struct regulator_dev *rdev)
  {
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_super_block *es = sbi->s_es;
--	int def_errors, def_mount_opt = sbi->s_def_mount_opt;
-+	int def_errors;
- 	const struct mount_opts *m;
- 	char sep = nodefs ? '\n' : ',';
+ 	unsigned int val = MAX77802_OFF_PWRREQ;
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	int shift = max77802_get_opmode_shift(id);
  
-@@ -2906,15 +2906,28 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
+ 	max77802->opmode[id] = val;
+ 	return regmap_update_bits(rdev->regmap, rdev->desc->enable_reg,
+ 				  rdev->desc->enable_mask, val << shift);
+@@ -111,7 +113,7 @@ static int max77802_set_suspend_disable(struct regulator_dev *rdev)
+ static int max77802_set_mode(struct regulator_dev *rdev, unsigned int mode)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	unsigned int val;
+ 	int shift = max77802_get_opmode_shift(id);
  
- 	for (m = ext4_mount_opts; m->token != Opt_err; m++) {
- 		int want_set = m->flags & MOPT_SET;
-+		int opt_2 = m->flags & MOPT_2;
-+		unsigned int mount_opt, def_mount_opt;
-+
- 		if (((m->flags & (MOPT_SET|MOPT_CLEAR)) == 0) ||
- 		    m->flags & MOPT_SKIP)
- 			continue;
--		if (!nodefs && !(m->mount_opt & (sbi->s_mount_opt ^ def_mount_opt)))
--			continue; /* skip if same as the default */
-+
-+		if (opt_2) {
-+			mount_opt = sbi->s_mount_opt2;
-+			def_mount_opt = sbi->s_def_mount_opt2;
-+		} else {
-+			mount_opt = sbi->s_mount_opt;
-+			def_mount_opt = sbi->s_def_mount_opt;
-+		}
-+		/* skip if same as the default */
-+		if (!nodefs && !(m->mount_opt & (mount_opt ^ def_mount_opt)))
-+			continue;
-+		/* select Opt_noFoo vs Opt_Foo */
- 		if ((want_set &&
--		     (sbi->s_mount_opt & m->mount_opt) != m->mount_opt) ||
--		    (!want_set && (sbi->s_mount_opt & m->mount_opt)))
--			continue; /* select Opt_noFoo vs Opt_Foo */
-+		     (mount_opt & m->mount_opt) != m->mount_opt) ||
-+		    (!want_set && (mount_opt & m->mount_opt)))
-+			continue;
- 		SEQ_OPTS_PRINT("%s", token2str(m->token));
+@@ -128,6 +130,9 @@ static int max77802_set_mode(struct regulator_dev *rdev, unsigned int mode)
+ 		return -EINVAL;
  	}
  
-@@ -2942,7 +2955,7 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
- 	if (nodefs || sbi->s_stripe)
- 		SEQ_OPTS_PRINT("stripe=%lu", sbi->s_stripe);
- 	if (nodefs || EXT4_MOUNT_DATA_FLAGS &
--			(sbi->s_mount_opt ^ def_mount_opt)) {
-+			(sbi->s_mount_opt ^ sbi->s_def_mount_opt)) {
- 		if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA)
- 			SEQ_OPTS_PUTS("data=journal");
- 		else if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_ORDERED_DATA)
-@@ -5087,6 +5100,7 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 		goto failed_mount;
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
++
+ 	max77802->opmode[id] = val;
+ 	return regmap_update_bits(rdev->regmap, rdev->desc->enable_reg,
+ 				  rdev->desc->enable_mask, val << shift);
+@@ -136,8 +141,10 @@ static int max77802_set_mode(struct regulator_dev *rdev, unsigned int mode)
+ static unsigned max77802_get_mode(struct regulator_dev *rdev)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
  
- 	sbi->s_def_mount_opt = sbi->s_mount_opt;
-+	sbi->s_def_mount_opt2 = sbi->s_mount_opt2;
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
+ 	return max77802_map_mode(max77802->opmode[id]);
+ }
  
- 	err = ext4_check_opt_consistency(fc, sb);
- 	if (err < 0)
+@@ -161,10 +168,13 @@ static int max77802_set_suspend_mode(struct regulator_dev *rdev,
+ 				     unsigned int mode)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	unsigned int val;
+ 	int shift = max77802_get_opmode_shift(id);
+ 
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
++
+ 	/*
+ 	 * If the regulator has been disabled for suspend
+ 	 * then is invalid to try setting a suspend mode.
+@@ -210,9 +220,11 @@ static int max77802_set_suspend_mode(struct regulator_dev *rdev,
+ static int max77802_enable(struct regulator_dev *rdev)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	int shift = max77802_get_opmode_shift(id);
+ 
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
+ 	if (max77802->opmode[id] == MAX77802_OFF_PWRREQ)
+ 		max77802->opmode[id] = MAX77802_OPMODE_NORMAL;
+ 
+@@ -541,7 +553,7 @@ static int max77802_pmic_probe(struct platform_device *pdev)
+ 
+ 	for (i = 0; i < MAX77802_REG_MAX; i++) {
+ 		struct regulator_dev *rdev;
+-		int id = regulators[i].id;
++		unsigned int id = regulators[i].id;
+ 		int shift = max77802_get_opmode_shift(id);
+ 		int ret;
+ 
+@@ -559,10 +571,12 @@ static int max77802_pmic_probe(struct platform_device *pdev)
+ 		 * the hardware reports OFF as the regulator operating mode.
+ 		 * Default to operating mode NORMAL in that case.
+ 		 */
+-		if (val == MAX77802_STATUS_OFF)
+-			max77802->opmode[id] = MAX77802_OPMODE_NORMAL;
+-		else
+-			max77802->opmode[id] = val;
++		if (id < ARRAY_SIZE(max77802->opmode)) {
++			if (val == MAX77802_STATUS_OFF)
++				max77802->opmode[id] = MAX77802_OPMODE_NORMAL;
++			else
++				max77802->opmode[id] = val;
++		}
+ 
+ 		rdev = devm_regulator_register(&pdev->dev,
+ 					       &regulators[i], &config);
 -- 
 2.39.2
 
