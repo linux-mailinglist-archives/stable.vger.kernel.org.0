@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A3E56B455A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5D46B42B9
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232014AbjCJOdT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
+        id S231694AbjCJOGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232564AbjCJOdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 696641E5C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:16 -0800 (PST)
+        with ESMTP id S231703AbjCJOGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1A210FBB7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24B2EB822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F5F9C433EF;
-        Fri, 10 Mar 2023 14:32:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 461E3B822C8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B049C433A1;
+        Fri, 10 Mar 2023 14:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458733;
-        bh=6zhjW/dmDLAgHvp74HUxrTczAgBFAH8J3BMFCeY1aKo=;
+        s=korg; t=1678457142;
+        bh=6U3LoitI2aKoqXfmysdc7zxk54J+OfqA271V2+C+qCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eV81c4ZK6XM04oMj4sn1m/IvoOF9HomQJZroBA9+d9uI9NfcVcBKvTa7xnbGMVBU
-         hDdagHwQG/P8XpSvw6Hr9vIeGlfZ0b94b+Kb8SgFS6e5jdMi0CLggfXmcTEBg320qv
-         vy1k/NgBXKkOdBhox4PBWpv7nVlNrr/Z0IQbinG0=
+        b=YdaCzf6hermwco6eQv7MU4mPrEgeRYbnLuhALaRaouiKM4hyzq469pZA92S+FkeTO
+         HA/QNYKT1XNY8t6NjGS6hIr6983YduaKnMHWVqyowOycM+uh+Xj8jSvgKlu3XvlqhY
+         VAAbXb9eCtCTSJMW5sfaHqfY3YM2FCrlJI2+Xnh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Snitzer <snitzer@kernel.org>,
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 127/357] dm: remove flush_scheduled_work() during local_exit()
+Subject: [PATCH 6.1 009/200] memory: renesas-rpc-if: Split-off private data from struct rpcif
 Date:   Fri, 10 Mar 2023 14:36:56 +0100
-Message-Id: <20230310133740.275382159@linuxfoundation.org>
+Message-Id: <20230310133717.336754846@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,41 +56,264 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@kernel.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 0b22ff5360f5c4e11050b89206370fdf7dc0a226 ]
+[ Upstream commit 51de3fc9a84d8e99dd3f02536a623f9fb95d0c0a ]
 
-Commit acfe0ad74d2e1 ("dm: allocate a special workqueue for deferred
-device removal") switched from using system workqueue to a single
-workqueue local to DM.  But it didn't eliminate the call to
-flush_scheduled_work() that was introduced purely for the benefit of
-deferred device removal with commit 2c140a246dc ("dm: allow remove to
-be deferred").
+The rpcif structure is used as a common data structure, shared by the
+RPC-IF core driver and by the HyperBus and SPI child drivers.
+This poses several problems:
+  - Most structure members describe private core driver state, which
+    should not be accessible by the child drivers,
+  - The structure's lifetime is controlled by the child drivers,
+    complicating use by the core driver.
 
-Since DM core uses its own workqueue (and queue_work) there is no need
-to call flush_scheduled_work() from local_exit().  local_exit()'s
-destroy_workqueue(deferred_remove_workqueue) handles flushing work
-started with queue_work().
+Fix this by moving the private core driver state to its own structure,
+managed by the RPC-IF core driver, and store it in the core driver's
+private data field.  This requires absorbing the child's platform
+device, as that was stored in the driver's private data field before.
 
-Fixes: acfe0ad74d2e1 ("dm: allocate a special workqueue for deferred device removal")
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/09fbb6fa67d5a8cd48a08808c9afa2f6a499aa42.1669213027.git.geert+renesas@glider.be
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/memory/renesas-rpc-if.c | 75 +++++++++++++++++++++++++--------
+ include/memory/renesas-rpc-if.h | 16 -------
+ 2 files changed, 57 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index d4cebb38709bd..b58ff1a0fda7d 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -263,7 +263,6 @@ static int __init local_init(void)
+diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
+index 61c288d403750..309c0b59f3a2f 100644
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -162,14 +162,36 @@ static const struct regmap_access_table rpcif_volatile_table = {
+ 	.n_yes_ranges	= ARRAY_SIZE(rpcif_volatile_ranges),
+ };
  
- static void local_exit(void)
++struct rpcif_priv {
++	struct device *dev;
++	void __iomem *base;
++	void __iomem *dirmap;
++	struct regmap *regmap;
++	struct reset_control *rstc;
++	struct platform_device *vdev;
++	size_t size;
++	enum rpcif_type type;
++	enum rpcif_data_dir dir;
++	u8 bus_size;
++	u8 xfer_size;
++	void *buffer;
++	u32 xferlen;
++	u32 smcr;
++	u32 smadr;
++	u32 command;		/* DRCMR or SMCMR */
++	u32 option;		/* DROPR or SMOPR */
++	u32 enable;		/* DRENR or SMENR */
++	u32 dummy;		/* DRDMCR or SMDMCR */
++	u32 ddr;		/* DRDRENR or SMDRENR */
++};
+ 
+ /*
+  * Custom accessor functions to ensure SM[RW]DR[01] are always accessed with
+- * proper width.  Requires rpcif.xfer_size to be correctly set before!
++ * proper width.  Requires rpcif_priv.xfer_size to be correctly set before!
+  */
+ static int rpcif_reg_read(void *context, unsigned int reg, unsigned int *val)
  {
--	flush_scheduled_work();
- 	destroy_workqueue(deferred_remove_workqueue);
+-	struct rpcif *rpc = context;
++	struct rpcif_priv *rpc = context;
  
- 	unregister_blkdev(_major, _name);
+ 	switch (reg) {
+ 	case RPCIF_SMRDR0:
+@@ -205,7 +227,7 @@ static int rpcif_reg_read(void *context, unsigned int reg, unsigned int *val)
+ 
+ static int rpcif_reg_write(void *context, unsigned int reg, unsigned int val)
+ {
+-	struct rpcif *rpc = context;
++	struct rpcif_priv *rpc = context;
+ 
+ 	switch (reg) {
+ 	case RPCIF_SMWDR0:
+@@ -252,13 +274,12 @@ static const struct regmap_config rpcif_regmap_config = {
+ 	.volatile_table	= &rpcif_volatile_table,
+ };
+ 
+-int rpcif_sw_init(struct rpcif *rpc, struct device *dev)
++int rpcif_sw_init(struct rpcif *rpcif, struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
++	struct rpcif_priv *rpc = dev_get_drvdata(dev);
+ 	struct resource *res;
+ 
+-	rpc->dev = dev;
+-
+ 	rpc->base = devm_platform_ioremap_resource_byname(pdev, "regs");
+ 	if (IS_ERR(rpc->base))
+ 		return PTR_ERR(rpc->base);
+@@ -279,12 +300,17 @@ int rpcif_sw_init(struct rpcif *rpc, struct device *dev)
+ 
+ 	rpc->type = (uintptr_t)of_device_get_match_data(dev);
+ 	rpc->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
++	if (IS_ERR(rpc->rstc))
++		return PTR_ERR(rpc->rstc);
+ 
+-	return PTR_ERR_OR_ZERO(rpc->rstc);
++	rpcif->dev = dev;
++	rpcif->dirmap = rpc->dirmap;
++	rpcif->size = rpc->size;
++	return 0;
+ }
+ EXPORT_SYMBOL(rpcif_sw_init);
+ 
+-static void rpcif_rzg2l_timing_adjust_sdr(struct rpcif *rpc)
++static void rpcif_rzg2l_timing_adjust_sdr(struct rpcif_priv *rpc)
+ {
+ 	regmap_write(rpc->regmap, RPCIF_PHYWR, 0xa5390000);
+ 	regmap_write(rpc->regmap, RPCIF_PHYADD, 0x80000000);
+@@ -298,8 +324,9 @@ static void rpcif_rzg2l_timing_adjust_sdr(struct rpcif *rpc)
+ 	regmap_write(rpc->regmap, RPCIF_PHYADD, 0x80000032);
+ }
+ 
+-int rpcif_hw_init(struct rpcif *rpc, bool hyperflash)
++int rpcif_hw_init(struct rpcif *rpcif, bool hyperflash)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
+ 	u32 dummy;
+ 
+ 	pm_runtime_get_sync(rpc->dev);
+@@ -360,7 +387,7 @@ int rpcif_hw_init(struct rpcif *rpc, bool hyperflash)
+ }
+ EXPORT_SYMBOL(rpcif_hw_init);
+ 
+-static int wait_msg_xfer_end(struct rpcif *rpc)
++static int wait_msg_xfer_end(struct rpcif_priv *rpc)
+ {
+ 	u32 sts;
+ 
+@@ -369,7 +396,7 @@ static int wait_msg_xfer_end(struct rpcif *rpc)
+ 					USEC_PER_SEC);
+ }
+ 
+-static u8 rpcif_bits_set(struct rpcif *rpc, u32 nbytes)
++static u8 rpcif_bits_set(struct rpcif_priv *rpc, u32 nbytes)
+ {
+ 	if (rpc->bus_size == 2)
+ 		nbytes /= 2;
+@@ -382,9 +409,11 @@ static u8 rpcif_bit_size(u8 buswidth)
+ 	return buswidth > 4 ? 2 : ilog2(buswidth);
+ }
+ 
+-void rpcif_prepare(struct rpcif *rpc, const struct rpcif_op *op, u64 *offs,
++void rpcif_prepare(struct rpcif *rpcif, const struct rpcif_op *op, u64 *offs,
+ 		   size_t *len)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
++
+ 	rpc->smcr = 0;
+ 	rpc->smadr = 0;
+ 	rpc->enable = 0;
+@@ -468,8 +497,9 @@ void rpcif_prepare(struct rpcif *rpc, const struct rpcif_op *op, u64 *offs,
+ }
+ EXPORT_SYMBOL(rpcif_prepare);
+ 
+-int rpcif_manual_xfer(struct rpcif *rpc)
++int rpcif_manual_xfer(struct rpcif *rpcif)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
+ 	u32 smenr, smcr, pos = 0, max = rpc->bus_size == 2 ? 8 : 4;
+ 	int ret = 0;
+ 
+@@ -589,7 +619,7 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ err_out:
+ 	if (reset_control_reset(rpc->rstc))
+ 		dev_err(rpc->dev, "Failed to reset HW\n");
+-	rpcif_hw_init(rpc, rpc->bus_size == 2);
++	rpcif_hw_init(rpcif, rpc->bus_size == 2);
+ 	goto exit;
+ }
+ EXPORT_SYMBOL(rpcif_manual_xfer);
+@@ -636,8 +666,9 @@ static void memcpy_fromio_readw(void *to,
+ 	}
+ }
+ 
+-ssize_t rpcif_dirmap_read(struct rpcif *rpc, u64 offs, size_t len, void *buf)
++ssize_t rpcif_dirmap_read(struct rpcif *rpcif, u64 offs, size_t len, void *buf)
+ {
++	struct rpcif_priv *rpc = dev_get_drvdata(rpcif->dev);
+ 	loff_t from = offs & (rpc->size - 1);
+ 	size_t size = rpc->size - from;
+ 
+@@ -672,6 +703,7 @@ static int rpcif_probe(struct platform_device *pdev)
+ {
+ 	struct platform_device *vdev;
+ 	struct device_node *flash;
++	struct rpcif_priv *rpc;
+ 	const char *name;
+ 	int ret;
+ 
+@@ -692,11 +724,18 @@ static int rpcif_probe(struct platform_device *pdev)
+ 	}
+ 	of_node_put(flash);
+ 
++	rpc = devm_kzalloc(&pdev->dev, sizeof(*rpc), GFP_KERNEL);
++	if (!rpc)
++		return -ENOMEM;
++
+ 	vdev = platform_device_alloc(name, pdev->id);
+ 	if (!vdev)
+ 		return -ENOMEM;
+ 	vdev->dev.parent = &pdev->dev;
+-	platform_set_drvdata(pdev, vdev);
++
++	rpc->dev = &pdev->dev;
++	rpc->vdev = vdev;
++	platform_set_drvdata(pdev, rpc);
+ 
+ 	ret = platform_device_add(vdev);
+ 	if (ret) {
+@@ -709,9 +748,9 @@ static int rpcif_probe(struct platform_device *pdev)
+ 
+ static int rpcif_remove(struct platform_device *pdev)
+ {
+-	struct platform_device *vdev = platform_get_drvdata(pdev);
++	struct rpcif_priv *rpc = platform_get_drvdata(pdev);
+ 
+-	platform_device_unregister(vdev);
++	platform_device_unregister(rpc->vdev);
+ 
+ 	return 0;
+ }
+diff --git a/include/memory/renesas-rpc-if.h b/include/memory/renesas-rpc-if.h
+index 9c0ad64b8d292..ddf94356752d3 100644
+--- a/include/memory/renesas-rpc-if.h
++++ b/include/memory/renesas-rpc-if.h
+@@ -64,24 +64,8 @@ enum rpcif_type {
+ 
+ struct rpcif {
+ 	struct device *dev;
+-	void __iomem *base;
+ 	void __iomem *dirmap;
+-	struct regmap *regmap;
+-	struct reset_control *rstc;
+ 	size_t size;
+-	enum rpcif_type type;
+-	enum rpcif_data_dir dir;
+-	u8 bus_size;
+-	u8 xfer_size;
+-	void *buffer;
+-	u32 xferlen;
+-	u32 smcr;
+-	u32 smadr;
+-	u32 command;		/* DRCMR or SMCMR */
+-	u32 option;		/* DROPR or SMOPR */
+-	u32 enable;		/* DRENR or SMENR */
+-	u32 dummy;		/* DRDMCR or SMDMCR */
+-	u32 ddr;		/* DRDRENR or SMDRENR */
+ };
+ 
+ int rpcif_sw_init(struct rpcif *rpc, struct device *dev);
 -- 
 2.39.2
 
