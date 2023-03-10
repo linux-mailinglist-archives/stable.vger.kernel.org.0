@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9BC6B40EB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F1A86B43DC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230259AbjCJNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
+        id S232156AbjCJOTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:19:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230293AbjCJNrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA9F528E7D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:33 -0800 (PST)
+        with ESMTP id S232057AbjCJOSs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:18:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5195B1ABE6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:17:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C641617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA1C9C433D2;
-        Fri, 10 Mar 2023 13:47:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C35B2B822CC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:17:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED902C433D2;
+        Fri, 10 Mar 2023 14:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456053;
-        bh=AHH8+V25j04dYhHbB6RZNyhY6wrLnlvtMgRictoQFyc=;
+        s=korg; t=1678457839;
+        bh=cH20vsidyE9GU0I90u2Zyy/9JjiCnxfD8mgCSl3AK4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFAM0tLHvKbVAxlc+/g81xKN4EoXdmPyfnBO8CuOCTng4gYHulu7L4NAqk+qzk7Zt
-         /K1K8OLZ2yoPnOYO5YwEZFrjCI2BDKZy62SmdPU2hoay+UM+eCwyu7SI6mMZwtPmEz
-         C+GKOeOGuhneQh8kYcSbIHx4+Bzt9hOpbYnvW00k=
+        b=PwzHZmdV9+dVMmlcwB4wYQhAjiTdChLLjzhzJquuj0lwvCFfl52RUi5j13e5PnFox
+         9iY83xpnJFu+rTZ0Xg7r5Vh2SqG+y464MyQNWq0Chvgne2oPnzfRDZXOgkWe83bJ5S
+         3HIh6RvH4QEV2s76lVC9xvLw43IDYgtyIN9GxvJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jason Yan <yanaijie@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 063/193] scsi: aic94xx: Add missing check for dma_map_single()
+        patches@lists.linux.dev,
+        "Alexey V. Vissarionov" <gremlin@altlinux.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 075/252] ALSA: hda/ca0132: minor fix for allocation size
 Date:   Fri, 10 Mar 2023 14:37:25 +0100
-Message-Id: <20230310133713.130983965@linuxfoundation.org>
+Message-Id: <20230310133721.099473852@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Alexey V. Vissarionov <gremlin@altlinux.org>
 
-[ Upstream commit 32fe45274edb5926abc0fac7263d9f889d02d9cf ]
+[ Upstream commit 3ee0fe7fa39b14d1cea455b7041f2df933bd97d2 ]
 
-Add check for dma_map_single() and return error if it fails in order to
-avoid invalid DMA address.
+Although the "dma_chan" pointer occupies more or equal space compared
+to "*dma_chan", the allocation size should use the size of variable
+itself.
 
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Link: https://lore.kernel.org/r/20230128110832.6792-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 01ef7dbffb41 ("ALSA: hda - Update CA0132 codec to load DSP firmware binary")
+Signed-off-by: Alexey V. Vissarionov <gremlin@altlinux.org>
+Link: https://lore.kernel.org/r/20230117111522.GA15213@altlinux.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic94xx/aic94xx_task.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_ca0132.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/aic94xx/aic94xx_task.c b/drivers/scsi/aic94xx/aic94xx_task.c
-index cdd4ab683be98..4de4bbca1f925 100644
---- a/drivers/scsi/aic94xx/aic94xx_task.c
-+++ b/drivers/scsi/aic94xx/aic94xx_task.c
-@@ -68,6 +68,9 @@ static int asd_map_scatterlist(struct sas_task *task,
- 		dma_addr_t dma = pci_map_single(asd_ha->pcidev, p,
- 						task->total_xfer_len,
- 						task->data_dir);
-+		if (dma_mapping_error(&asd_ha->pcidev->dev, dma))
-+			return -ENOMEM;
-+
- 		sg_arr[0].bus_addr = cpu_to_le64((u64)dma);
- 		sg_arr[0].size = cpu_to_le32(task->total_xfer_len);
- 		sg_arr[0].flags |= ASD_SG_EL_LIST_EOL;
+diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
+index 23f00ba993cb7..ca8a37388d565 100644
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1917,7 +1917,7 @@ static int dspio_set_uint_param_no_source(struct hda_codec *codec, int mod_id,
+ static int dspio_alloc_dma_chan(struct hda_codec *codec, unsigned int *dma_chan)
+ {
+ 	int status = 0;
+-	unsigned int size = sizeof(dma_chan);
++	unsigned int size = sizeof(*dma_chan);
+ 
+ 	codec_dbg(codec, "     dspio_alloc_dma_chan() -- begin\n");
+ 	status = dspio_scp(codec, MASTERCONTROL, 0x20,
 -- 
 2.39.2
 
