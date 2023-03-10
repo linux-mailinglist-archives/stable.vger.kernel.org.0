@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 528FA6B4465
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 318CF6B433D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:11:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232250AbjCJOXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:23:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40726 "EHLO
+        id S231962AbjCJOL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:11:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231648AbjCJOXL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:23:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C82D7120871
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:35 -0800 (PST)
+        with ESMTP id S231907AbjCJOL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:11:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD52117589
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C699B8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 991ABC4339B;
-        Fri, 10 Mar 2023 14:22:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEE91618B8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9DC2C4339B;
+        Fri, 10 Mar 2023 14:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458153;
-        bh=vU9G4G+Llss0uSFhzJX5rkdwUweQyaXWZsSvTMpTHb8=;
+        s=korg; t=1678457455;
+        bh=FUCWLS/7vbF+P+R1E0PQ2GUZNu+Szjwa/c5dSR33D+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ev3gp/5R5ozYEfb6ibBHWdUnqV6nbvGzeOCwLbYyDIcPNxNFDTkzvqiAhq+ARMdxd
-         PqxtVMOAJVQDl/ripro3ok5dsBc4lYOhp/2QJgXqCoHHTH4+bGo7qcKF/9otngHrhE
-         jtWL6Se6tWSc6VqXNbwZHaZf+AXjPNqSYb6tXt3Y=
+        b=mUl7ERTUycEI4/WHJFV2x9VJNNUvY9LWvpw4yVdOUXFy7f0OjXN6LMnFTxJNp53pk
+         SS/Z4WVD9AvGgTGd5XnF/QO8cooeirB+CAzRbRF9KpD+jAhLsGNpWy5nxf5vQoz7Jx
+         HokpNw95OESlbtt/4NEHvSFUI6lldzaoqFcs14z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Dmitry V. Levin" <ldv@strace.io>,
-        Elvira Khabirova <lineprinter0@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 4.19 181/252] mips: fix syscall_get_nr
+        patches@lists.linux.dev, Peter Chen <peter.chen@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 144/200] USB: chipidea: fix memory leak with using debugfs_lookup()
 Date:   Fri, 10 Mar 2023 14:39:11 +0100
-Message-Id: <20230310133724.367769306@linuxfoundation.org>
+Message-Id: <20230310133721.552526847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elvira Khabirova <lineprinter0@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 85cc91e2ba4262a602ec65e2b76c4391a9e60d3d upstream.
+[ Upstream commit ff35f3ea3baba5b81416ac02d005cfbf6dd182fa ]
 
-The implementation of syscall_get_nr on mips used to ignore the task
-argument and return the syscall number of the calling thread instead of
-the target thread.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-The bug was exposed to user space by commit 201766a20e30f ("ptrace: add
-PTRACE_GET_SYSCALL_INFO request") and detected by strace test suite.
-
-Link: https://github.com/strace/strace/issues/235
-Fixes: c2d9f1775731 ("MIPS: Fix syscall_get_nr for the syscall exit tracing.")
-Cc: <stable@vger.kernel.org> # v3.19+
-Co-developed-by: Dmitry V. Levin <ldv@strace.io>
-Signed-off-by: Dmitry V. Levin <ldv@strace.io>
-Signed-off-by: Elvira Khabirova <lineprinter0@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Peter Chen <peter.chen@kernel.org>
+Link: https://lore.kernel.org/r/20230202153235.2412790-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/syscall.h |    2 +-
+ drivers/usb/chipidea/debug.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/include/asm/syscall.h
-+++ b/arch/mips/include/asm/syscall.h
-@@ -38,7 +38,7 @@ static inline bool mips_syscall_is_indir
- static inline long syscall_get_nr(struct task_struct *task,
- 				  struct pt_regs *regs)
+diff --git a/drivers/usb/chipidea/debug.c b/drivers/usb/chipidea/debug.c
+index faf6b078b6c44..bbc610e5bd69c 100644
+--- a/drivers/usb/chipidea/debug.c
++++ b/drivers/usb/chipidea/debug.c
+@@ -364,5 +364,5 @@ void dbg_create_files(struct ci_hdrc *ci)
+  */
+ void dbg_remove_files(struct ci_hdrc *ci)
  {
--	return current_thread_info()->syscall;
-+	return task_thread_info(task)->syscall;
+-	debugfs_remove(debugfs_lookup(dev_name(ci->dev), usb_debug_root));
++	debugfs_lookup_and_remove(dev_name(ci->dev), usb_debug_root);
  }
- 
- static inline void mips_syscall_update_nr(struct task_struct *task,
+-- 
+2.39.2
+
 
 
