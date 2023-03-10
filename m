@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 742C16B43BF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 292CE6B40EF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231733AbjCJORT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:17:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50874 "EHLO
+        id S230310AbjCJNrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:47:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231713AbjCJOQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CB635B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:04 -0800 (PST)
+        with ESMTP id S230248AbjCJNrq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C3528E4C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5660D6182F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60602C433D2;
-        Fri, 10 Mar 2023 14:16:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02555B822B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D693C433D2;
+        Fri, 10 Mar 2023 13:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457763;
-        bh=PtBprJ9XsFi/ywJ6L7Ncb08ObdmaseqEDbAtl1kEXP0=;
+        s=korg; t=1678456062;
+        bh=QlMMytY0IFdi34GO+x2Ao2VqScghxDXdCrFZoVa8gyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbrcHjXQkHt41vLh97ijJk/IyKE80lLLPzmZU7oyowuS4ZCBRdX+pbx9pQHxnWULC
-         mjZBb7yNXaL6WX1TJxGlk8EnWXROl7LGuD287MUXNk5YBKArtuQukr5EsAU/4QW8TC
-         4BM7czNi5dbNFVJpgZYJCsbHhz+I7BgMPgQ01p34=
+        b=oBY+e/4dunJiUEgUeecPhCyqWCErmN404fJa/o6B9vUtOE+/zLT1gfWasrxWFUIh5
+         42PYyX7LP4Yk2JB/klg9EUlOhw+P1dA8R1SVEQIK3u+AALCUgIxdu00b385g4Mfvur
+         lk0XCJR4nmlfMBwFUoBF/ZpCcF1RWnZPVLu2SdOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 049/252] irqchip/alpine-msi: Fix refcount leak in alpine_msix_init_domains
-Date:   Fri, 10 Mar 2023 14:36:59 +0100
-Message-Id: <20230310133720.299057059@linuxfoundation.org>
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 038/193] wifi: ath9k: Fix potential stack-out-of-bounds write in ath9k_wmi_rsp_callback()
+Date:   Fri, 10 Mar 2023 14:37:00 +0100
+Message-Id: <20230310133712.232259060@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit 071d068b89e95d1b078aa6bbcb9d0961b77d6aa1 ]
+[ Upstream commit 8a2f35b9830692f7a616f2f627f943bc748af13a ]
 
-of_irq_find_parent() returns a node pointer with refcount incremented,
-We should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+Fix a stack-out-of-bounds write that occurs in a WMI response callback
+function that is called after a timeout occurs in ath9k_wmi_cmd().
+The callback writes to wmi->cmd_rsp_buf, a stack-allocated buffer that
+could no longer be valid when a timeout occurs. Set wmi->last_seq_id to
+0 when a timeout occurred.
 
-Fixes: e6b78f2c3e14 ("irqchip: Add the Alpine MSIX interrupt controller")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230102082811.3947760-1-linmq006@gmail.com
+Found by a modified version of syzkaller.
+
+BUG: KASAN: stack-out-of-bounds in ath9k_wmi_ctrl_rx
+Write of size 4
+Call Trace:
+ memcpy
+ ath9k_wmi_ctrl_rx
+ ath9k_htc_rx_msg
+ ath9k_hif_usb_reg_in_cb
+ __usb_hcd_giveback_urb
+ usb_hcd_giveback_urb
+ dummy_timer
+ call_timer_fn
+ run_timer_softirq
+ __do_softirq
+ irq_exit_rcu
+ sysvec_apic_timer_interrupt
+
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20230104124130.10996-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-alpine-msi.c | 1 +
+ drivers/net/wireless/ath/ath9k/wmi.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/irqchip/irq-alpine-msi.c b/drivers/irqchip/irq-alpine-msi.c
-index ede02dc2bcd0b..1819bb1d27230 100644
---- a/drivers/irqchip/irq-alpine-msi.c
-+++ b/drivers/irqchip/irq-alpine-msi.c
-@@ -199,6 +199,7 @@ static int alpine_msix_init_domains(struct alpine_msix_data *priv,
- 	}
- 
- 	gic_domain = irq_find_host(gic_node);
-+	of_node_put(gic_node);
- 	if (!gic_domain) {
- 		pr_err("Failed to find the GIC domain\n");
- 		return -ENXIO;
+diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
+index 4b68804f3742e..9a17f7a07b1e8 100644
+--- a/drivers/net/wireless/ath/ath9k/wmi.c
++++ b/drivers/net/wireless/ath/ath9k/wmi.c
+@@ -337,6 +337,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
+ 	if (!time_left) {
+ 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
+ 			wmi_cmd_to_name(cmd_id));
++		wmi->last_seq_id = 0;
+ 		mutex_unlock(&wmi->op_mutex);
+ 		kfree_skb(skb);
+ 		return -ETIMEDOUT;
 -- 
 2.39.2
 
