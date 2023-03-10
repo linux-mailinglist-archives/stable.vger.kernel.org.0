@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 581A56B4503
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9C416B4823
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232402AbjCJOaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:30:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57580 "EHLO
+        id S233597AbjCJO73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:59:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232434AbjCJOaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1D4DB480B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:45 -0800 (PST)
+        with ESMTP id S233679AbjCJO7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:59:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B58865098E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:53:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90AEF6187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85051C433D2;
-        Fri, 10 Mar 2023 14:28:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2625FB82303
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B68BC433A0;
+        Fri, 10 Mar 2023 14:52:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458525;
-        bh=7E6PmYC1dZdp8pvdREm7Vi2uzSTcQ0f0uCX9whM6cxM=;
+        s=korg; t=1678459943;
+        bh=V/NKCi/fxG1NnUo+e3tbEbovrFW2pa+udvzYoKWUXZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRbWc7nLFfQ4m7EH1SKla+6Aga86MnXxf7aY+vXiTG5TfDWjQN8rHG+4ineuJuFWp
-         p/SwBOxfQczxqWjdHcpDR0XYppFzBcLQjKja1SOzYqdycbcfCGDL2k4gm6Sjpizwr9
-         ESTfLTpsWtyESVC3kwrjtoQCgK6j0eF89eJ6RRhc=
+        b=zfkUpNhUyOULBGzUndVOzRWw00vdxYJ3X5vwWwyjrMKcnokXHIBehN0R+LMti5Jvy
+         HYMe2vPP1XSB7K48RDN4ALMmoO68Qo9Rc583GIT0a04OPLPCyTmKRP9XNG8fJDVlC8
+         Tdvf+JVI88a0hXgsqOvwEL4KSAQh+gY77s8gYuw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Kemeng Shi <shikemeng@huaweicloud.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 025/357] blk-mq: wait on correct sbitmap_queue in blk_mq_mark_tag_wait
+        patches@lists.linux.dev,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 171/529] drm/bridge: lt9611: fix HPD reenablement
 Date:   Fri, 10 Mar 2023 14:35:14 +0100
-Message-Id: <20230310133735.113250994@linuxfoundation.org>
+Message-Id: <20230310133812.855009764@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kemeng Shi <shikemeng@huaweicloud.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 98b99e9412d0cde8c7b442bf5efb09528a2ede8b ]
+[ Upstream commit a7790f6bd38f3642b60ae3504a2c749135b89451 ]
 
-For shared queues case, we will only wait on bitmap_tags if we fail to get
-driver tag. However, rq could be from breserved_tags, then two problems
-will occur:
-1. io hung if no tag is currently allocated from bitmap_tags.
-2. unnecessary wakeup when tag is freed to bitmap_tags while no tag is
-freed to breserved_tags.
-Wait on the bitmap which rq from to fix this.
+The driver will reset the bridge in the atomic_pre_enable(). However
+this will also drop the HPD interrupt state. Instead of resetting the
+bridge, properly wake it up. This fixes the HPD interrupt delivery after
+the disable/enable cycle.
 
-Fixes: f906a6a0f426 ("blk-mq: improve tag waiting setup for non-shared tags")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 23278bf54afe ("drm/bridge: Introduce LT9611 DSI to HDMI bridge")
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230118081658.2198520-3-dmitry.baryshkov@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/lontium-lt9611.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 84798d09ca464..325a5944b4cb2 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1112,7 +1112,7 @@ static int blk_mq_dispatch_wake(wait_queue_entry_t *wait, unsigned mode,
- static bool blk_mq_mark_tag_wait(struct blk_mq_hw_ctx *hctx,
- 				 struct request *rq)
+diff --git a/drivers/gpu/drm/bridge/lontium-lt9611.c b/drivers/gpu/drm/bridge/lontium-lt9611.c
+index 5e5641ac5ea3d..fe660d667daf6 100644
+--- a/drivers/gpu/drm/bridge/lontium-lt9611.c
++++ b/drivers/gpu/drm/bridge/lontium-lt9611.c
+@@ -880,12 +880,18 @@ static enum drm_mode_status lt9611_bridge_mode_valid(struct drm_bridge *bridge,
+ static void lt9611_bridge_pre_enable(struct drm_bridge *bridge)
  {
--	struct sbitmap_queue *sbq = &hctx->tags->bitmap_tags;
-+	struct sbitmap_queue *sbq;
- 	struct wait_queue_head *wq;
- 	wait_queue_entry_t *wait;
- 	bool ret;
-@@ -1135,6 +1135,10 @@ static bool blk_mq_mark_tag_wait(struct blk_mq_hw_ctx *hctx,
- 	if (!list_empty_careful(&wait->entry))
- 		return false;
+ 	struct lt9611 *lt9611 = bridge_to_lt9611(bridge);
++	static const struct reg_sequence reg_cfg[] = {
++		{ 0x8102, 0x12 },
++		{ 0x8123, 0x40 },
++		{ 0x8130, 0xea },
++		{ 0x8011, 0xfa },
++	};
  
-+	if (blk_mq_tag_is_reserved(rq->mq_hctx->sched_tags, rq->internal_tag))
-+		sbq = &hctx->tags->breserved_tags;
-+	else
-+		sbq = &hctx->tags->bitmap_tags;
- 	wq = &bt_wait_ptr(sbq, hctx)->wait;
+ 	if (!lt9611->sleep)
+ 		return;
  
- 	spin_lock_irq(&wq->lock);
+-	lt9611_reset(lt9611);
+-	regmap_write(lt9611->regmap, 0x80ee, 0x01);
++	regmap_multi_reg_write(lt9611->regmap,
++			       reg_cfg, ARRAY_SIZE(reg_cfg));
+ 
+ 	lt9611->sleep = false;
+ }
 -- 
 2.39.2
 
