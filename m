@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0886B40E0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 133976B4360
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230001AbjCJNrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45570 "EHLO
+        id S231984AbjCJOOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230259AbjCJNrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC6228E57
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:01 -0800 (PST)
+        with ESMTP id S231920AbjCJONr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:13:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5176B1194F3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9B84617D5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C464CC4339B;
-        Fri, 10 Mar 2023 13:46:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F03BCB822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63828C433D2;
+        Fri, 10 Mar 2023 14:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456020;
-        bh=RDVHfFsRKPSe2pOEMh0COdjqiVwCq5yoqhTKfwjMMPE=;
+        s=korg; t=1678457243;
+        bh=cS+DtdsVu+fYrOFvYk2bwSQL9yt3KSAJFFbJxu8sRaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qf+c0Vqp9NRptJ2Z0gtQRk0zDI1BsKrh9/Ouq+lBWfkuIddq8s6eFKy1/FhSDZPW6
-         Qp6p5em3AoPSpvwI7n+BkyKLZonOqlANz3WYYEZJp4EnTI5ZfDbhVOaTpJhN7eumap
-         +fhXi9r42H2a0Dd61P/j0WeC8HlrobHjAgpW+5Tw=
+        b=TflovSLSbuPCDfdGny8FHVNTYsdqKGfI8GYin+zvB12bgW1nAblCnZ3sFnc0nkaEK
+         IpeeY1rh0oQFGRRkLJsFDMOhu3XgXpjP5yhq8fDGVBH1TIw+cAgMFyttgevRU03WNu
+         8sl9vQ8FpvWiCZaFJHs9SJS7wqf7jMl8QQFaAdpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Ian Ray <ian.ray@ge.com>, Robert Foss <robert.foss@linaro.org>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 053/193] drm/bridge: megachips: Fix error handling in i2c_register_driver()
+Subject: [PATCH 6.1 028/200] ubifs: Rectify space budget for ubifs_xrename()
 Date:   Fri, 10 Mar 2023 14:37:15 +0100
-Message-Id: <20230310133712.773647070@linuxfoundation.org>
+Message-Id: <20230310133717.907059657@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 4ecff954c370b82bce45bdca2846c5c5563e8a8a ]
+[ Upstream commit 1b2ba09060e41adb356b9ae58ef94a7390928004 ]
 
-A problem about insmod megachips-stdpxxxx-ge-b850v3-fw.ko failed is
-triggered with the following log given:
+There is no space budget for ubifs_xrename(). It may let
+make_reservation() return with -ENOSPC, which could turn
+ubifs to read-only mode in do_writepage() process.
+Fix it by adding space budget for ubifs_xrename().
 
-[ 4497.981497] Error: Driver 'stdp4028-ge-b850v3-fw' is already registered, aborting...
-insmod: ERROR: could not insert module megachips-stdpxxxx-ge-b850v3-fw.ko: Device or resource busy
+Fetch a reproducer in [Link].
 
-The reason is that stdpxxxx_ge_b850v3_init() returns i2c_add_driver()
-directly without checking its return value, if i2c_add_driver() failed,
-it returns without calling i2c_del_driver() on the previous i2c driver,
-resulting the megachips-stdpxxxx-ge-b850v3-fw can never be installed
-later.
-A simple call graph is shown as below:
-
- stdpxxxx_ge_b850v3_init()
-   i2c_add_driver(&stdp4028_ge_b850v3_fw_driver)
-   i2c_add_driver(&stdp2690_ge_b850v3_fw_driver)
-     i2c_register_driver()
-       driver_register()
-         bus_add_driver()
-           priv = kzalloc(...) # OOM happened
-   # return without delete stdp4028_ge_b850v3_fw_driver
-
-Fix by calling i2c_del_driver() on stdp4028_ge_b850v3_fw_driver when
-i2c_add_driver() returns error.
-
-Fixes: fcfa0ddc18ed ("drm/bridge: Drivers for megachips-stdpxxxx-ge-b850v3-fw (LVDS-DP++)")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Tested-by: Ian Ray <ian.ray@ge.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221108091226.114524-1-yuancan@huawei.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216569
+Fixes: 9ec64962afb170 ("ubifs: Implement RENAME_EXCHANGE")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ubifs/dir.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-index 313c80f299722..89454d1d2d998 100644
---- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-+++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
-@@ -437,7 +437,11 @@ static int __init stdpxxxx_ge_b850v3_init(void)
- 	if (ret)
- 		return ret;
+diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+index aaff3f3f0aa3b..94634b872e382 100644
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1576,6 +1576,10 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
+ 		return err;
+ 	}
  
--	return i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	ret = i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
-+	if (ret)
-+		i2c_del_driver(&stdp4028_ge_b850v3_fw_driver);
++	err = ubifs_budget_space(c, &req);
++	if (err)
++		goto out;
 +
-+	return ret;
- }
- module_init(stdpxxxx_ge_b850v3_init);
+ 	lock_4_inodes(old_dir, new_dir, NULL, NULL);
  
+ 	time = current_time(old_dir);
+@@ -1601,6 +1605,7 @@ static int ubifs_xrename(struct inode *old_dir, struct dentry *old_dentry,
+ 	unlock_4_inodes(old_dir, new_dir, NULL, NULL);
+ 	ubifs_release_budget(c, &req);
+ 
++out:
+ 	fscrypt_free_filename(&fst_nm);
+ 	fscrypt_free_filename(&snd_nm);
+ 	return err;
 -- 
 2.39.2
 
