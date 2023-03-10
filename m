@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A016B4368
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED896B449A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231955AbjCJOO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43360 "EHLO
+        id S232191AbjCJOZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231956AbjCJOOF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:05 -0500
+        with ESMTP id S232258AbjCJOZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A9A4205
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5688F4B83E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9385BB822CC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E936C4339E;
-        Fri, 10 Mar 2023 14:12:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0C5CB822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05A9AC433D2;
+        Fri, 10 Mar 2023 14:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457571;
-        bh=sUiRhxewCgC3dtqFzN+Sq11Vm+nXjivcxsoRaI+Rd/A=;
+        s=korg; t=1678458270;
+        bh=ijCXFOkYf7aFyvpDhcEbtPNUyJC71TCcohMI/0GejNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZNbz3yaMo4ne3ITBXukHp5d7XYxbe9J92m3/ZQF7adjheTUre7TT3+jNaYO0XjfZ
-         8PllXcEhtC+He3vjlQbf6+4seUviDjyaKt2+QjEtnlDbV19d05iadrq5OBa6Czwj5p
-         P/jizOtC3byuWfejprQ1x81r9rgW9Y7qBn0+jg1A=
+        b=nmJPvonT79KBn3/tc+OPbIIvnetFKInK9CPo2Eg1z5VUBqd1wOavBR5fBbybNLp0/
+         2xP9NhC/wfhGcHwKVeGb+PIbC7d90B0hEvb6x8hBCc5W6rmzmKCNxwe/ipPRUPYl61
+         QpHElBioQ+1b31Ho1Beg6n+T+N4af9R+dCA24Fzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6.1 183/200] vDPA/ifcvf: decouple vq irq requester from the adapter
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Yunsheng Lin <linyunsheng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 220/252] net: fix __dev_kfree_skb_any() vs drop monitor
 Date:   Fri, 10 Mar 2023 14:39:50 +0100
-Message-Id: <20230310133722.718669057@linuxfoundation.org>
+Message-Id: <20230310133725.864122826@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit f9a9ffb2e4dbde81090416fc51662441c2a7b73b upstream.
+[ Upstream commit ac3ad19584b26fae9ac86e4faebe790becc74491 ]
 
-This commit decouples the vq irq requester from the adapter,
-so that these functions can be invoked since probe.
+dev_kfree_skb() is aliased to consume_skb().
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20221125145724.1129962-7-lingshan.zhu@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When a driver is dropping a packet by calling dev_kfree_skb_any()
+we should propagate the drop reason instead of pretending
+the packet was consumed.
+
+Note: Now we have enum skb_drop_reason we could remove
+enum skb_free_reason (for linux-6.4)
+
+v2: added an unlikely(), suggested by Yunsheng Lin.
+
+Fixes: e6247027e517 ("net: introduce dev_consume_skb_any()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Yunsheng Lin <linyunsheng@huawei.com>
+Reviewed-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c |   19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+ net/core/dev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -155,10 +155,9 @@ static int ifcvf_alloc_vectors(struct if
- 	return ret;
- }
- 
--static int ifcvf_request_per_vq_irq(struct ifcvf_adapter *adapter)
-+static int ifcvf_request_per_vq_irq(struct ifcvf_hw *vf)
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 880b096eef8a6..b778f35965433 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2794,8 +2794,10 @@ void __dev_kfree_skb_any(struct sk_buff *skb, enum skb_free_reason reason)
  {
--	struct pci_dev *pdev = adapter->pdev;
--	struct ifcvf_hw *vf = &adapter->vf;
-+	struct pci_dev *pdev = vf->pdev;
- 	int i, vector, ret, irq;
- 
- 	vf->vqs_reused_irq = -EINVAL;
-@@ -190,10 +189,9 @@ err:
- 	return -EFAULT;
- }
- 
--static int ifcvf_request_vqs_reused_irq(struct ifcvf_adapter *adapter)
-+static int ifcvf_request_vqs_reused_irq(struct ifcvf_hw *vf)
- {
--	struct pci_dev *pdev = adapter->pdev;
--	struct ifcvf_hw *vf = &adapter->vf;
-+	struct pci_dev *pdev = vf->pdev;
- 	int i, vector, ret, irq;
- 
- 	vector = 0;
-@@ -266,15 +264,14 @@ err:
- 
- }
- 
--static int ifcvf_request_vq_irq(struct ifcvf_adapter *adapter)
-+static int ifcvf_request_vq_irq(struct ifcvf_hw *vf)
- {
--	struct ifcvf_hw *vf = &adapter->vf;
- 	int ret;
- 
- 	if (vf->msix_vector_status == MSIX_VECTOR_PER_VQ_AND_CONFIG)
--		ret = ifcvf_request_per_vq_irq(adapter);
-+		ret = ifcvf_request_per_vq_irq(vf);
+ 	if (in_irq() || irqs_disabled())
+ 		__dev_kfree_skb_irq(skb, reason);
++	else if (unlikely(reason == SKB_REASON_DROPPED))
++		kfree_skb(skb);
  	else
--		ret = ifcvf_request_vqs_reused_irq(adapter);
-+		ret = ifcvf_request_vqs_reused_irq(vf);
- 
- 	return ret;
+-		dev_kfree_skb(skb);
++		consume_skb(skb);
  }
-@@ -341,7 +338,7 @@ static int ifcvf_request_irq(struct ifcv
- 		return ret;
- 	}
+ EXPORT_SYMBOL(__dev_kfree_skb_any);
  
--	ret = ifcvf_request_vq_irq(adapter);
-+	ret = ifcvf_request_vq_irq(vf);
- 	if (ret)
- 		return ret;
- 
+-- 
+2.39.2
+
 
 
