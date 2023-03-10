@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D496B44A6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:26:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4144F6B4643
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232030AbjCJO0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:26:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
+        id S232795AbjCJOlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:41:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232398AbjCJOZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:59 -0500
+        with ESMTP id S232788AbjCJOlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D0B8574C8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F67211F608
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2606A616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ADD7C433EF;
-        Fri, 10 Mar 2023 14:24:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87EBD60F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 683E0C4339C;
+        Fri, 10 Mar 2023 14:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458296;
-        bh=DebMMl5JVaCccNPwj0VWexdoM2ZHUJyfI0s2IbXJf2A=;
+        s=korg; t=1678459291;
+        bh=FCgScRlM72MltdQ+mo8KH/ZsFaRwcGswPop5arSTEsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0buUWFvdxtgHvFEdu6uBwnBjtcPirhFci214/uopaKHx3XthuZnjrTjXZgjUesmK
-         Nb4ODZK+hzRzgnkayVga2/ft61plIUqKQAoyldULUw0He/l9GvuWvTJJT3v7gV+KBH
-         lSrEQ3IN/GMSAZWSuWPlgiKW3SnmOTeAZQfvWeFA=
+        b=ngR44u90cegEQN4dNvhsi0bYcvc1aHopDyLgP8o0d9vmGAZqbAhyx0E4cRQtyIfVN
+         hjvRBBx+B4IzmC980+J8/o9+M7tbhmEnoKLcDRQRKnZj/J9/3IiBO3oI9/+ylN12op
+         BRGnI8iQVN5jeAuO7zF8CADYc6CVpdb2IYeLU/M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Darrell Kavanagh <darrell.kavanagh@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        patches@lists.linux.dev, Lu Wei <luwei32@huawei.com>,
+        David Ahern <dsahern@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 231/252] firmware/efi sysfb_efi: Add quirk for Lenovo IdeaPad Duet 3
+Subject: [PATCH 5.4 312/357] ipv6: Add lwtunnel encap size of all siblings in nexthop calculation
 Date:   Fri, 10 Mar 2023 14:40:01 +0100
-Message-Id: <20230310133726.307139706@linuxfoundation.org>
+Message-Id: <20230310133748.467951445@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+From: Lu Wei <luwei32@huawei.com>
 
-[ Upstream commit e1d447157f232c650e6f32c9fb89ff3d0207c69a ]
+[ Upstream commit 4cc59f386991ec9374cb4bc83dbe1c0b5a95033f ]
 
-Another Lenovo convertable which reports a landscape resolution of
-1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
-has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
+In function rt6_nlmsg_size(), the length of nexthop is calculated
+by multipling the nexthop length of fib6_info and the number of
+siblings. However if the fib6_info has no lwtunnel but the siblings
+have lwtunnels, the nexthop length is less than it should be, and
+it will trigger a warning in inet6_rt_notify() as follows:
 
-Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+WARNING: CPU: 0 PID: 6082 at net/ipv6/route.c:6180 inet6_rt_notify+0x120/0x130
+......
+Call Trace:
+ <TASK>
+ fib6_add_rt2node+0x685/0xa30
+ fib6_add+0x96/0x1b0
+ ip6_route_add+0x50/0xd0
+ inet6_rtm_newroute+0x97/0xa0
+ rtnetlink_rcv_msg+0x156/0x3d0
+ netlink_rcv_skb+0x5a/0x110
+ netlink_unicast+0x246/0x350
+ netlink_sendmsg+0x250/0x4c0
+ sock_sendmsg+0x66/0x70
+ ___sys_sendmsg+0x7c/0xd0
+ __sys_sendmsg+0x5d/0xb0
+ do_syscall_64+0x3f/0x90
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
+
+This bug can be reproduced by script:
+
+ip -6 addr add 2002::2/64 dev ens2
+ip -6 route add 100::/64 via 2002::1 dev ens2 metric 100
+
+for i in 10 20 30 40 50 60 70;
+do
+	ip link add link ens2 name ipv_$i type ipvlan
+	ip -6 addr add 2002::$i/64 dev ipv_$i
+	ifconfig ipv_$i up
+done
+
+for i in 10 20 30 40 50 60;
+do
+	ip -6 route append 100::/64 encap ip6 dst 2002::$i via 2002::1
+dev ipv_$i metric 100
+done
+
+ip -6 route append 100::/64 via 2002::1 dev ipv_70 metric 100
+
+This patch fixes it by adding nexthop_len of every siblings using
+rt6_nh_nlmsg_size().
+
+Fixes: beb1afac518d ("net: ipv6: Add support to dump multipath routes via RTA_MULTIPATH attribute")
+Signed-off-by: Lu Wei <luwei32@huawei.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20230222083629.335683-2-luwei32@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sysfb_efi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/ipv6/route.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
-index 897da526e40e6..dd8d7636c5420 100644
---- a/arch/x86/kernel/sysfb_efi.c
-+++ b/arch/x86/kernel/sysfb_efi.c
-@@ -265,6 +265,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
- 					"Lenovo ideapad D330-10IGM"),
- 		},
- 	},
-+	{
-+		/* Lenovo IdeaPad Duet 3 10IGL5 with 1200x1920 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"IdeaPad Duet 3 10IGL5"),
-+		},
-+	},
- 	{},
- };
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index badfe69396387..209d52ebbd199 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -5408,16 +5408,17 @@ static size_t rt6_nlmsg_size(struct fib6_info *f6i)
+ 		nexthop_for_each_fib6_nh(f6i->nh, rt6_nh_nlmsg_size,
+ 					 &nexthop_len);
+ 	} else {
++		struct fib6_info *sibling, *next_sibling;
+ 		struct fib6_nh *nh = f6i->fib6_nh;
  
+ 		nexthop_len = 0;
+ 		if (f6i->fib6_nsiblings) {
+-			nexthop_len = nla_total_size(0)	 /* RTA_MULTIPATH */
+-				    + NLA_ALIGN(sizeof(struct rtnexthop))
+-				    + nla_total_size(16) /* RTA_GATEWAY */
+-				    + lwtunnel_get_encap_size(nh->fib_nh_lws);
++			rt6_nh_nlmsg_size(nh, &nexthop_len);
+ 
+-			nexthop_len *= f6i->fib6_nsiblings;
++			list_for_each_entry_safe(sibling, next_sibling,
++						 &f6i->fib6_siblings, fib6_siblings) {
++				rt6_nh_nlmsg_size(sibling->fib6_nh, &nexthop_len);
++			}
+ 		}
+ 		nexthop_len += lwtunnel_get_encap_size(nh->fib_nh_lws);
+ 	}
 -- 
 2.39.2
 
