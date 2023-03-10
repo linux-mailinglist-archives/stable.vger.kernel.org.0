@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9AF56B4569
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99ADF6B41ED
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232554AbjCJOdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:33:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
+        id S231388AbjCJN6A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232555AbjCJOdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:13 -0500
+        with ESMTP id S231384AbjCJN5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F45C12BE4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED86C112DDC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F108618C9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D736C433D2;
-        Fri, 10 Mar 2023 14:32:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 896F761771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95847C433EF;
+        Fri, 10 Mar 2023 13:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458778;
-        bh=Poo/Q7nkTtotvq40FZiZcKSw/o6ZG8Y5J9B0B2WJqSw=;
+        s=korg; t=1678456664;
+        bh=sjTCY6DiJKy+05lhXb0ZWq6h3nG7hU3WJ7x5I0zLqQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cn6RdegUdqkU5JngIOrf2EUZIOzjYMPPCrDNgGb5V1k0z//ugzix0lZowYI3bTzha
-         9pbNWvjdZOLgXPMXoZXDgPMMD2p7poNvkq9q4P6f3VmUp8OohTHpOk6iTYk30I7FcN
-         1lhkZdtrB6bIk4r/A/AtLDVimiqPllDNNscalM2w=
+        b=WuiVB0kjJ4DrOZxjRE/BHuQuj6d11nP4vuamJQufcAd4In5Vsj7IOuTmik7YtxKuf
+         PfYbPkmbX+Hne8zQZjRBAslRbYXaGPHVc2jcIY61DK6vJNTNupa5RZEQOSiI5NJp5y
+         VkeU9FxK7j9gMEyzzekcVqBlAjpuNbcWW0NIUSAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Tom Talpey <tom@talpey.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Yangtao Li <frank.li@vivo.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 141/357] cifs: Fix warning and UAF when destroy the MR list
+Subject: [PATCH 6.2 050/211] f2fs: fix to set ipu policy
 Date:   Fri, 10 Mar 2023 14:37:10 +0100
-Message-Id: <20230310133740.910706363@linuxfoundation.org>
+Message-Id: <20230310133720.259506044@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,131 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Yangtao Li <frank.li@vivo.com>
 
-[ Upstream commit 3e161c2791f8e661eed24a2c624087084d910215 ]
+[ Upstream commit c5bf83483382600988d7db5ffe9fcd1936b491fd ]
 
-If the MR allocate failed, the MR recovery work not initialized
-and list not cleared. Then will be warning and UAF when release
-the MR:
+For LFS mode, it should update outplace and no need inplace update.
+When using LFS mode for small-volume devices, IPU will not be used,
+and the OPU writing method is actually used, but F2FS_IPU_FORCE can
+be read from the ipu_policy node, which is different from the actual
+situation. And remount to lfs mode should be disallowed when
+f2fs ipu is enabled, let's fix it.
 
-  WARNING: CPU: 4 PID: 824 at kernel/workqueue.c:3066 __flush_work.isra.0+0xf7/0x110
-  CPU: 4 PID: 824 Comm: mount.cifs Not tainted 6.1.0-rc5+ #82
-  RIP: 0010:__flush_work.isra.0+0xf7/0x110
-  Call Trace:
-   <TASK>
-   __cancel_work_timer+0x2ba/0x2e0
-   smbd_destroy+0x4e1/0x990
-   _smbd_get_connection+0x1cbd/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-  BUG: KASAN: use-after-free in smbd_destroy+0x4fc/0x990
-  Read of size 8 at addr ffff88810b156a08 by task mount.cifs/824
-  CPU: 4 PID: 824 Comm: mount.cifs Tainted: G        W          6.1.0-rc5+ #82
-  Call Trace:
-   dump_stack_lvl+0x34/0x44
-   print_report+0x171/0x472
-   kasan_report+0xad/0x130
-   smbd_destroy+0x4fc/0x990
-   _smbd_get_connection+0x1cbd/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-  Allocated by task 824:
-   kasan_save_stack+0x1e/0x40
-   kasan_set_track+0x21/0x30
-   __kasan_kmalloc+0x7a/0x90
-   _smbd_get_connection+0x1b6f/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-  Freed by task 824:
-   kasan_save_stack+0x1e/0x40
-   kasan_set_track+0x21/0x30
-   kasan_save_free_info+0x2a/0x40
-   ____kasan_slab_free+0x143/0x1b0
-   __kmem_cache_free+0xc8/0x330
-   _smbd_get_connection+0x1c6a/0x2110
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Let's initialize the MR recovery work before MR allocate to prevent
-the warning, remove the MRs from the list to prevent the UAF.
-
-Fixes: c7398583340a ("CIFS: SMBD: Implement RDMA memory registration")
-Acked-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 84b89e5d943d ("f2fs: add auto tuning for small devices")
+Signed-off-by: Yangtao Li <frank.li@vivo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smbdirect.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/f2fs/segment.h | 10 +++++++++-
+ fs/f2fs/super.c   | 15 +++++++++++----
+ fs/f2fs/sysfs.c   |  9 +++++++++
+ 3 files changed, 29 insertions(+), 5 deletions(-)
 
-diff --git a/fs/cifs/smbdirect.c b/fs/cifs/smbdirect.c
-index 66265e7303cd4..2f2a1d980cdf4 100644
---- a/fs/cifs/smbdirect.c
-+++ b/fs/cifs/smbdirect.c
-@@ -2348,6 +2348,7 @@ static int allocate_mr_list(struct smbd_connection *info)
- 	atomic_set(&info->mr_ready_count, 0);
- 	atomic_set(&info->mr_used_count, 0);
- 	init_waitqueue_head(&info->wait_for_mr_cleanup);
-+	INIT_WORK(&info->mr_recovery_work, smbd_mr_recovery_work);
- 	/* Allocate more MRs (2x) than hardware responder_resources */
- 	for (i = 0; i < info->responder_resources * 2; i++) {
- 		smbdirect_mr = kzalloc(sizeof(*smbdirect_mr), GFP_KERNEL);
-@@ -2376,13 +2377,13 @@ static int allocate_mr_list(struct smbd_connection *info)
- 		list_add_tail(&smbdirect_mr->list, &info->mr_list);
- 		atomic_inc(&info->mr_ready_count);
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index e77518c49f388..6eb5922a25361 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -670,6 +670,8 @@ static inline int utilization(struct f2fs_sb_info *sbi)
+ 
+ #define SMALL_VOLUME_SEGMENTS	(16 * 512)	/* 16GB */
+ 
++#define F2FS_IPU_DISABLE	0
++
+ enum {
+ 	F2FS_IPU_FORCE,
+ 	F2FS_IPU_SSR,
+@@ -679,10 +681,16 @@ enum {
+ 	F2FS_IPU_ASYNC,
+ 	F2FS_IPU_NOCACHE,
+ 	F2FS_IPU_HONOR_OPU_WRITE,
++	F2FS_IPU_MAX,
+ };
+ 
++static inline bool IS_F2FS_IPU_DISABLE(struct f2fs_sb_info *sbi)
++{
++	return SM_I(sbi)->ipu_policy == F2FS_IPU_DISABLE;
++}
++
+ #define F2FS_IPU_POLICY(name)					\
+-static inline int IS_##name(struct f2fs_sb_info *sbi)		\
++static inline bool IS_##name(struct f2fs_sb_info *sbi)		\
+ {								\
+ 	return SM_I(sbi)->ipu_policy & BIT(name);		\
+ }
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 87d56a9883e65..53878feb69d33 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1347,12 +1347,12 @@ static int parse_options(struct super_block *sb, char *options, bool is_remount)
  	}
--	INIT_WORK(&info->mr_recovery_work, smbd_mr_recovery_work);
- 	return 0;
  
- out:
- 	kfree(smbdirect_mr);
+ 	if (test_opt(sbi, DISABLE_CHECKPOINT) && f2fs_lfs_mode(sbi)) {
+-		f2fs_err(sbi, "LFS not compatible with checkpoint=disable");
++		f2fs_err(sbi, "LFS is not compatible with checkpoint=disable");
+ 		return -EINVAL;
+ 	}
  
- 	list_for_each_entry_safe(smbdirect_mr, tmp, &info->mr_list, list) {
-+		list_del(&smbdirect_mr->list);
- 		ib_dereg_mr(smbdirect_mr->mr);
- 		kfree(smbdirect_mr->sgl);
- 		kfree(smbdirect_mr);
+ 	if (test_opt(sbi, ATGC) && f2fs_lfs_mode(sbi)) {
+-		f2fs_err(sbi, "LFS not compatible with ATGC");
++		f2fs_err(sbi, "LFS is not compatible with ATGC");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -2306,6 +2306,12 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+ 		}
+ 	}
+ #endif
++	if (f2fs_lfs_mode(sbi) && !IS_F2FS_IPU_DISABLE(sbi)) {
++		err = -EINVAL;
++		f2fs_warn(sbi, "LFS is not compatible with IPU");
++		goto restore_opts;
++	}
++
+ 	/* disallow enable atgc dynamically */
+ 	if (no_atgc == !!test_opt(sbi, ATGC)) {
+ 		err = -EINVAL;
+@@ -4089,8 +4095,9 @@ static void f2fs_tuning_parameters(struct f2fs_sb_info *sbi)
+ 		if (f2fs_block_unit_discard(sbi))
+ 			SM_I(sbi)->dcc_info->discard_granularity =
+ 						MIN_DISCARD_GRANULARITY;
+-		SM_I(sbi)->ipu_policy = BIT(F2FS_IPU_FORCE) |
+-					BIT(F2FS_IPU_HONOR_OPU_WRITE);
++		if (!f2fs_lfs_mode(sbi))
++			SM_I(sbi)->ipu_policy = BIT(F2FS_IPU_FORCE) |
++						BIT(F2FS_IPU_HONOR_OPU_WRITE);
+ 	}
+ 
+ 	sbi->readdir_ra = true;
+diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
+index 83a366f3ee80e..088b816127ecb 100644
+--- a/fs/f2fs/sysfs.c
++++ b/fs/f2fs/sysfs.c
+@@ -686,6 +686,15 @@ static ssize_t __sbi_store(struct f2fs_attr *a,
+ 		return count;
+ 	}
+ 
++	if (!strcmp(a->attr.name, "ipu_policy")) {
++		if (t >= BIT(F2FS_IPU_MAX))
++			return -EINVAL;
++		if (t && f2fs_lfs_mode(sbi))
++			return -EINVAL;
++		SM_I(sbi)->ipu_policy = (unsigned int)t;
++		return count;
++	}
++
+ 	*ui = (unsigned int)t;
+ 
+ 	return count;
 -- 
 2.39.2
 
