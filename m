@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 341916B4145
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA6A6B42F8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230480AbjCJNvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:51:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
+        id S231848AbjCJOJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:09:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbjCJNvK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5C9104AF6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:09 -0800 (PST)
+        with ESMTP id S231817AbjCJOI5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915B185B28
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18032B822B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25116C433D2;
-        Fri, 10 Mar 2023 13:51:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40591B822C3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18BEC433D2;
+        Fri, 10 Mar 2023 14:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456266;
-        bh=SPh9Cr0VLqWYefx9jhcVnscVgtjzDfdP9eEjl8T4Ftc=;
+        s=korg; t=1678457272;
+        bh=glR3WvKNXYByI7nWKoEqFRBH+SXx0nZO071j7vFh4Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvyTY2IvFAEnAbqseLliS8Luf9gRZT7wfVNbyWgtkdyKjDeIGXSv2G7/Vl5ITyyCt
-         09H8ItbQieCOBO5gv+9DYm+0e9NWu8NtmHLvxNKYdZ6Hgk8qxrHfWCE7p16ae7zRso
-         pg4Q78CsnNeoqTNXPTmeKGoOey9PmwZxU+IQ9pik=
+        b=OIJJ055LAzNQ3vZIUYB8D7IWiccs5d3yWC/N2M9VG2OTBccpTkERK6cHacUruYu5S
+         Y5MpSFWEMd8XXsN6q1c/Z3MjxjjtP4FBtzil81094WX+o8LDnUv+1XdRb9Wvt4/bjb
+         StlItXheCxtqdBvT55gIeokwnjsnGG0DTxpfCZUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 105/193] ocfs2: fix defrag path triggering jbd2 ASSERT
+        patches@lists.linux.dev, Vadim Fedorenko <vadfed@meta.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 080/200] mlx5: fix possible ptp queue fifo use-after-free
 Date:   Fri, 10 Mar 2023 14:38:07 +0100
-Message-Id: <20230310133714.767754282@linuxfoundation.org>
+Message-Id: <20230310133719.559597295@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,100 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Vadim Fedorenko <vadfed@meta.com>
 
-commit 60eed1e3d45045623e46944ebc7c42c30a4350f0 upstream.
+[ Upstream commit 3a50cf1e8e5157b82268eee7e330dbe5736a0948 ]
 
-code path:
+Fifo indexes are not checked during pop operations and it leads to
+potential use-after-free when poping from empty queue. Such case was
+possible during re-sync action. WARN_ON_ONCE covers future cases.
 
-ocfs2_ioctl_move_extents
- ocfs2_move_extents
-  ocfs2_defrag_extent
-   __ocfs2_move_extent
-    + ocfs2_journal_access_di
-    + ocfs2_split_extent  //sub-paths call jbd2_journal_restart
-    + ocfs2_journal_dirty //crash by jbs2 ASSERT
+There were out-of-order cqe spotted which lead to drain of the queue and
+use-after-free because of lack of fifo pointers check. Special check and
+counter are added to avoid resync operation if SKB could not exist in the
+fifo because of OOO cqe (skb_id must be between consumer and producer
+index).
 
-crash stacks:
-
-PID: 11297  TASK: ffff974a676dcd00  CPU: 67  COMMAND: "defragfs.ocfs2"
- #0 [ffffb25d8dad3900] machine_kexec at ffffffff8386fe01
- #1 [ffffb25d8dad3958] __crash_kexec at ffffffff8395959d
- #2 [ffffb25d8dad3a20] crash_kexec at ffffffff8395a45d
- #3 [ffffb25d8dad3a38] oops_end at ffffffff83836d3f
- #4 [ffffb25d8dad3a58] do_trap at ffffffff83833205
- #5 [ffffb25d8dad3aa0] do_invalid_op at ffffffff83833aa6
- #6 [ffffb25d8dad3ac0] invalid_op at ffffffff84200d18
-    [exception RIP: jbd2_journal_dirty_metadata+0x2ba]
-    RIP: ffffffffc09ca54a  RSP: ffffb25d8dad3b70  RFLAGS: 00010207
-    RAX: 0000000000000000  RBX: ffff9706eedc5248  RCX: 0000000000000000
-    RDX: 0000000000000001  RSI: ffff97337029ea28  RDI: ffff9706eedc5250
-    RBP: ffff9703c3520200   R8: 000000000f46b0b2   R9: 0000000000000000
-    R10: 0000000000000001  R11: 00000001000000fe  R12: ffff97337029ea28
-    R13: 0000000000000000  R14: ffff9703de59bf60  R15: ffff9706eedc5250
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb25d8dad3ba8] ocfs2_journal_dirty at ffffffffc137fb95 [ocfs2]
- #8 [ffffb25d8dad3be8] __ocfs2_move_extent at ffffffffc139a950 [ocfs2]
- #9 [ffffb25d8dad3c80] ocfs2_defrag_extent at ffffffffc139b2d2 [ocfs2]
-
-Analysis
-
-This bug has the same root cause of 'commit 7f27ec978b0e ("ocfs2: call
-ocfs2_journal_access_di() before ocfs2_journal_dirty() in
-ocfs2_write_end_nolock()")'.  For this bug, jbd2_journal_restart() is
-called by ocfs2_split_extent() during defragmenting.
-
-How to fix
-
-For ocfs2_split_extent() can handle journal operations totally by itself.
-Caller doesn't need to call journal access/dirty pair, and caller only
-needs to call journal start/stop pair.  The fix method is to remove
-journal access/dirty from __ocfs2_move_extent().
-
-The discussion for this patch:
-https://oss.oracle.com/pipermail/ocfs2-devel/2023-February/000647.html
-
-Link: https://lkml.kernel.org/r/20230217003717.32469-1-heming.zhao@suse.com
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 58a518948f60 ("net/mlx5e: Add resiliency for PTP TX port timestamp")
+Signed-off-by: Vadim Fedorenko <vadfed@meta.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/move_extents.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en/ptp.c  | 19 ++++++++++++++++++-
+ .../net/ethernet/mellanox/mlx5/core/en/txrx.h |  2 ++
+ .../ethernet/mellanox/mlx5/core/en_stats.c    |  1 +
+ .../ethernet/mellanox/mlx5/core/en_stats.h    |  1 +
+ 4 files changed, 22 insertions(+), 1 deletion(-)
 
---- a/fs/ocfs2/move_extents.c
-+++ b/fs/ocfs2/move_extents.c
-@@ -115,14 +115,6 @@ static int __ocfs2_move_extent(handle_t
- 	 */
- 	replace_rec.e_flags = ext_flags & ~OCFS2_EXT_REFCOUNTED;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
+index b72de2b520ecb..ae75e230170b5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
+@@ -86,6 +86,17 @@ static bool mlx5e_ptp_ts_cqe_drop(struct mlx5e_ptpsq *ptpsq, u16 skb_cc, u16 skb
+ 	return (ptpsq->ts_cqe_ctr_mask && (skb_cc != skb_id));
+ }
  
--	ret = ocfs2_journal_access_di(handle, INODE_CACHE(inode),
--				      context->et.et_root_bh,
--				      OCFS2_JOURNAL_ACCESS_WRITE);
--	if (ret) {
--		mlog_errno(ret);
--		goto out;
--	}
--
- 	ret = ocfs2_split_extent(handle, &context->et, path, index,
- 				 &replace_rec, context->meta_ac,
- 				 &context->dealloc);
-@@ -131,8 +123,6 @@ static int __ocfs2_move_extent(handle_t
++static bool mlx5e_ptp_ts_cqe_ooo(struct mlx5e_ptpsq *ptpsq, u16 skb_id)
++{
++	u16 skb_cc = PTP_WQE_CTR2IDX(ptpsq->skb_fifo_cc);
++	u16 skb_pc = PTP_WQE_CTR2IDX(ptpsq->skb_fifo_pc);
++
++	if (PTP_WQE_CTR2IDX(skb_id - skb_cc) >= PTP_WQE_CTR2IDX(skb_pc - skb_cc))
++		return true;
++
++	return false;
++}
++
+ static void mlx5e_ptp_skb_fifo_ts_cqe_resync(struct mlx5e_ptpsq *ptpsq, u16 skb_cc,
+ 					     u16 skb_id, int budget)
+ {
+@@ -120,8 +131,14 @@ static void mlx5e_ptp_handle_ts_cqe(struct mlx5e_ptpsq *ptpsq,
  		goto out;
  	}
  
--	ocfs2_journal_dirty(handle, context->et.et_root_bh);
--
- 	context->new_phys_cpos = new_p_cpos;
+-	if (mlx5e_ptp_ts_cqe_drop(ptpsq, skb_cc, skb_id))
++	if (mlx5e_ptp_ts_cqe_drop(ptpsq, skb_cc, skb_id)) {
++		if (mlx5e_ptp_ts_cqe_ooo(ptpsq, skb_id)) {
++			/* already handled by a previous resync */
++			ptpsq->cq_stats->ooo_cqe_drop++;
++			return;
++		}
+ 		mlx5e_ptp_skb_fifo_ts_cqe_resync(ptpsq, skb_cc, skb_id, budget);
++	}
  
- 	/*
+ 	skb = mlx5e_skb_fifo_pop(&ptpsq->skb_fifo);
+ 	hwtstamp = mlx5e_cqe_ts_to_ns(sq->ptp_cyc2time, sq->clock, get_cqe_ts(cqe));
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+index 15a5a57b47b85..1b3a65325ece1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+@@ -297,6 +297,8 @@ void mlx5e_skb_fifo_push(struct mlx5e_skb_fifo *fifo, struct sk_buff *skb)
+ static inline
+ struct sk_buff *mlx5e_skb_fifo_pop(struct mlx5e_skb_fifo *fifo)
+ {
++	WARN_ON_ONCE(*fifo->pc == *fifo->cc);
++
+ 	return *mlx5e_skb_fifo_get(fifo, (*fifo->cc)++);
+ }
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+index 03c1841970f14..f7f54550a8bbc 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
+@@ -2121,6 +2121,7 @@ static const struct counter_desc ptp_cq_stats_desc[] = {
+ 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, abort_abs_diff_ns) },
+ 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, resync_cqe) },
+ 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, resync_event) },
++	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, ooo_cqe_drop) },
+ };
+ 
+ static const struct counter_desc ptp_rq_stats_desc[] = {
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
+index 9f781085be471..52a67efafcd37 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
+@@ -459,6 +459,7 @@ struct mlx5e_ptp_cq_stats {
+ 	u64 abort_abs_diff_ns;
+ 	u64 resync_cqe;
+ 	u64 resync_event;
++	u64 ooo_cqe_drop;
+ };
+ 
+ struct mlx5e_stats {
+-- 
+2.39.2
+
 
 
