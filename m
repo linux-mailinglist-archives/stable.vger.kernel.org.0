@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2C76B44E9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:29:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5609F6B481E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:59:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbjCJO3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:29:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55438 "EHLO
+        id S230430AbjCJO7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:59:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232014AbjCJO3M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2365D1CBFA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:27:34 -0800 (PST)
+        with ESMTP id S233663AbjCJO6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:58:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23F06C6BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:53:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC5B0B8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0446C4339B;
-        Fri, 10 Mar 2023 14:27:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B70446196E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD7EBC433D2;
+        Fri, 10 Mar 2023 14:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458451;
-        bh=CcP5LYOwVFnlVTm+leKXpZ/wLPDpZvvsaX2P0EAwDQo=;
+        s=korg; t=1678459965;
+        bh=U4lQkayqNFi2LP5VIpImFVejCjPmdhAP4wDlQtn8OdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUp0l56lBPzleQNjbAHxCYYuUkipGq3eBCtr+Wv0H22E2edglZXktzsBLaBykoJ3r
-         A1ciHBeO6G8dLY9brQHVRN7RivGFWZvW5H18v/SKv2sK7MT7zd+W9EXTYuinQYzaLF
-         kKWgOUV5vDT6gQnL0IN7IxF4f8/q+GuGm6c7LB94=
+        b=Kc80xBI561tUZYT5WZ0rY6A4/lrAMk8/DmgClndPLyUJq+QndVNW+pL2rB1eLAXrr
+         JAkCpN7p/HlAiE2deIzul1fLoqUCUEVJL09Xm/wfqPFht+iUGBeCoRsi5Stvx99QZa
+         JD4Fjhd0ME/KOUz8uepFibAMhNT2gbJsXGLn03O0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Saurav Kashyap <skashyap@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 031/357] block: bio-integrity: Copy flags when bio_integrity_payload is cloned
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 177/529] drm/msm: use strscpy instead of strncpy
 Date:   Fri, 10 Mar 2023 14:35:20 +0100
-Message-Id: <20230310133735.388047316@linuxfoundation.org>
+Message-Id: <20230310133813.133713033@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin K. Petersen <martin.petersen@oracle.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit b6a4bdcda430e3ca43bbb9cb1d4d4d34ebe15c40 ]
+[ Upstream commit d7fd8634f48d76aa799ed57beb7d87dab91bde80 ]
 
-Make sure to copy the flags when a bio_integrity_payload is cloned.
-Otherwise per-I/O properties such as IP checksum flag will not be
-passed down to the HBA driver. Since the integrity buffer is owned by
-the original bio, the BIP_BLOCK_INTEGRITY flag needs to be masked off
-to avoid a double free in the completion path.
+Using strncpy can result in non-NULL-terminated destination string. Use
+strscpy instead. This fixes following warning:
 
-Fixes: aae7df50190a ("block: Integrity checksum flag")
-Fixes: b1f01388574c ("block: Relocate bio integrity flags")
-Reported-by: Saurav Kashyap <skashyap@marvell.com>
-Tested-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20230215171801.21062-1-martin.petersen@oracle.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+drivers/gpu/drm/msm/msm_fence.c: In function ‘msm_fence_context_alloc’:
+drivers/gpu/drm/msm/msm_fence.c:25:9: warning: ‘strncpy’ specified bound 32 equals destination size [-Wstringop-truncation]
+   25 |         strncpy(fctx->name, name, sizeof(fctx->name));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fixes: f97decac5f4c ("drm/msm: Support multiple ringbuffers")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/518787/
+Link: https://lore.kernel.org/r/20230118020152.1689213-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio-integrity.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/msm_fence.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bio-integrity.c b/block/bio-integrity.c
-index ec295be93ca0d..247f7c480e662 100644
---- a/block/bio-integrity.c
-+++ b/block/bio-integrity.c
-@@ -424,6 +424,7 @@ int bio_integrity_clone(struct bio *bio, struct bio *bio_src,
+diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
+index cd59a59180385..50a25c119f4d9 100644
+--- a/drivers/gpu/drm/msm/msm_fence.c
++++ b/drivers/gpu/drm/msm/msm_fence.c
+@@ -20,7 +20,7 @@ msm_fence_context_alloc(struct drm_device *dev, const char *name)
+ 		return ERR_PTR(-ENOMEM);
  
- 	bip->bip_vcnt = bip_src->bip_vcnt;
- 	bip->bip_iter = bip_src->bip_iter;
-+	bip->bip_flags = bip_src->bip_flags & ~BIP_BLOCK_INTEGRITY;
- 
- 	return 0;
- }
+ 	fctx->dev = dev;
+-	strncpy(fctx->name, name, sizeof(fctx->name));
++	strscpy(fctx->name, name, sizeof(fctx->name));
+ 	fctx->context = dma_fence_context_alloc(1);
+ 	init_waitqueue_head(&fctx->event);
+ 	spin_lock_init(&fctx->spinlock);
 -- 
 2.39.2
 
