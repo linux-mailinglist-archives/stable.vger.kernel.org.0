@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DF256B4197
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B76E6B4537
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231231AbjCJNyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:54:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35732 "EHLO
+        id S232508AbjCJOcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:32:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231214AbjCJNye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:34 -0500
+        with ESMTP id S232565AbjCJObf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1100412875
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319DBF6C5D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A085D617D5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE2DDC433EF;
-        Fri, 10 Mar 2023 13:54:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B711E61745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA583C433EF;
+        Fri, 10 Mar 2023 14:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456473;
-        bh=QnUHI5LBCcAy/kdv7Y3sD6nd8AzqimP2Of9ufRjUfak=;
+        s=korg; t=1678458647;
+        bh=HPD4wT44TXc6FJkK6bysETcJ69toq5QgoIfAwP/SNOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QFEpCgp8XTzfDPE7J6a4DTnOa8Bi5xtUgkR68sUje2mNjPvBCW/C7WRrMZS0PMpy/
-         xl5u+CmoIYXz8GtmCey0hYxqeAG88CJBHQWKY8Gq+lenBj+yQC8oSsTpRM6rGiK0OF
-         Xl6op8apDSu4saQUJX74/ZnpC31sU0ULYPAarfMs=
+        b=pGCdpiRjQRDZY6TFXuq8tF0Qw/lTHNV57YV/J63szMgoF3XNJv65OrOULy9bdZQ2/
+         rz3DRUO2rhjW0d7lbLr6YHVbCvM6eC0Gcsodg/hzfVvVXuj9+1tNm+Z+h6S/66J27q
+         iT6UsdROX3qM+Z+ag+WvlQgPEqiQ4fCxH3umaXmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Ian Ray <ian.ray@ge.com>, Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 007/211] objtool: Fix memory leak in create_static_call_sections()
+Subject: [PATCH 5.4 098/357] drm/bridge: megachips: Fix error handling in i2c_register_driver()
 Date:   Fri, 10 Mar 2023 14:36:27 +0100
-Message-Id: <20230310133718.944315713@linuxfoundation.org>
+Message-Id: <20230310133738.328326637@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 3da73f102309fe29150e5c35acd20dd82063ff67 ]
+[ Upstream commit 4ecff954c370b82bce45bdca2846c5c5563e8a8a ]
 
-strdup() allocates memory for key_name. We need to release the memory in
-the following error paths. Add free() to avoid memory leak.
+A problem about insmod megachips-stdpxxxx-ge-b850v3-fw.ko failed is
+triggered with the following log given:
 
-Fixes: 1e7e47883830 ("x86/static_call: Add inline static call implementation for x86-64")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20221205080642.558583-1-linmq006@gmail.com
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
+[ 4497.981497] Error: Driver 'stdp4028-ge-b850v3-fw' is already registered, aborting...
+insmod: ERROR: could not insert module megachips-stdpxxxx-ge-b850v3-fw.ko: Device or resource busy
+
+The reason is that stdpxxxx_ge_b850v3_init() returns i2c_add_driver()
+directly without checking its return value, if i2c_add_driver() failed,
+it returns without calling i2c_del_driver() on the previous i2c driver,
+resulting the megachips-stdpxxxx-ge-b850v3-fw can never be installed
+later.
+A simple call graph is shown as below:
+
+ stdpxxxx_ge_b850v3_init()
+   i2c_add_driver(&stdp4028_ge_b850v3_fw_driver)
+   i2c_add_driver(&stdp2690_ge_b850v3_fw_driver)
+     i2c_register_driver()
+       driver_register()
+         bus_add_driver()
+           priv = kzalloc(...) # OOM happened
+   # return without delete stdp4028_ge_b850v3_fw_driver
+
+Fix by calling i2c_del_driver() on stdp4028_ge_b850v3_fw_driver when
+i2c_add_driver() returns error.
+
+Fixes: fcfa0ddc18ed ("drm/bridge: Drivers for megachips-stdpxxxx-ge-b850v3-fw (LVDS-DP++)")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Tested-by: Ian Ray <ian.ray@ge.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221108091226.114524-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index b1a5f658673f0..ea1e7cdeb1b34 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -688,6 +688,7 @@ static int create_static_call_sections(struct objtool_file *file)
- 		if (strncmp(key_name, STATIC_CALL_TRAMP_PREFIX_STR,
- 			    STATIC_CALL_TRAMP_PREFIX_LEN)) {
- 			WARN("static_call: trampoline name malformed: %s", key_name);
-+			free(key_name);
- 			return -1;
- 		}
- 		tmp = key_name + STATIC_CALL_TRAMP_PREFIX_LEN - STATIC_CALL_KEY_PREFIX_LEN;
-@@ -697,6 +698,7 @@ static int create_static_call_sections(struct objtool_file *file)
- 		if (!key_sym) {
- 			if (!opts.module) {
- 				WARN("static_call: can't find static_call_key symbol: %s", tmp);
-+				free(key_name);
- 				return -1;
- 			}
+diff --git a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+index b72f6f541d4ef..14d578fce09f9 100644
+--- a/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
++++ b/drivers/gpu/drm/bridge/megachips-stdpxxxx-ge-b850v3-fw.c
+@@ -426,7 +426,11 @@ static int __init stdpxxxx_ge_b850v3_init(void)
+ 	if (ret)
+ 		return ret;
+ 
+-	return i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
++	ret = i2c_add_driver(&stdp2690_ge_b850v3_fw_driver);
++	if (ret)
++		i2c_del_driver(&stdp4028_ge_b850v3_fw_driver);
++
++	return ret;
+ }
+ module_init(stdpxxxx_ge_b850v3_init);
  
 -- 
 2.39.2
