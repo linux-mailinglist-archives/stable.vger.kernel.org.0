@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B746B40F0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6196B43C4
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230248AbjCJNru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46950 "EHLO
+        id S231769AbjCJORh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:17:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230246AbjCJNrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:49 -0500
+        with ESMTP id S232036AbjCJORT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:17:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2994828E46
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2721188EB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D881FB822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D397C4339B;
-        Fri, 10 Mar 2023 13:47:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4E0B822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC310C433EF;
+        Fri, 10 Mar 2023 14:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456065;
-        bh=GG9W4kIAXUe5z6QezJ+9k0p395mQHEKeIA27QxfSA9I=;
+        s=korg; t=1678457775;
+        bh=r3R0pKyDDLULWjJjRmPaBgwtEd0dbnEJV2wAA1P6tEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cB9UdM2SRfCxcEoc81LZ7UQ/7ebsHXVtUVh0YJEOoxxDngsgfs2acrNotjr4UhzxH
-         8ndXcSnJkr/YoOZhDuYE9Ee8eekBZTbOxh/BFvv04DhDe4Bw3i9/tpoyEqlnp8FSBp
-         oTMlQMlmEYX5ZAsNm+rb+yyj9zr5ORSG0TYsLa04=
+        b=V++u5FxOvVpcNnsTLx1QWgVjXruNQmfQ4npAJDtuQCVfvfVRwTFr8OX2SHu4G5GtQ
+         Epa39JvA7mkVV51j/VZCrgaLhgd1ZvESJuOS5u2oCk/3XsiiEGiScJ1qkfJ7HXWti/
+         e2uHjE47flyUiAtDtgyOZiXCZAgc5ZIdxyKhg1kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 039/193] ACPI: battery: Fix missing NUL-termination with large strings
-Date:   Fri, 10 Mar 2023 14:37:01 +0100
-Message-Id: <20230310133712.262756241@linuxfoundation.org>
+Subject: [PATCH 4.19 052/252] libbpf: Fix alen calculation in libbpf_nla_dump_errormsg()
+Date:   Fri, 10 Mar 2023 14:37:02 +0100
+Message-Id: <20230310133720.384966750@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit f2ac14b5f197e4a2dec51e5ceaa56682ff1592bc ]
+[ Upstream commit 17bcd27a08a21397698edf143084d7c87ce17946 ]
 
-When encountering a string bigger than the destination buffer (32 bytes),
-the string is not properly NUL-terminated, causing buffer overreads later.
+The code assumes that everything that comes after nlmsgerr are nlattrs.
+When calculating their size, it does not account for the initial
+nlmsghdr. This may lead to accessing uninitialized memory.
 
-This for example happens on the Inspiron 3505, where the battery
-model name is larger than 32 bytes, which leads to sysfs showing
-the model name together with the serial number string (which is
-NUL-terminated and thus prevents worse).
-
-Fix this by using strscpy() which ensures that the result is
-always NUL-terminated.
-
-Fixes: 106449e870b3 ("ACPI: Battery: Allow extract string from integer")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: bbf48c18ee0c ("libbpf: add error reporting in XDP")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20230210001210.395194-8-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/battery.c | 2 +-
+ tools/lib/bpf/nlattr.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 42fba8493854f..96aeb0c8cc0e9 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -415,7 +415,7 @@ static int extract_package(struct acpi_battery *battery,
- 			u8 *ptr = (u8 *)battery + offsets[i].offset;
- 			if (element->type == ACPI_TYPE_STRING ||
- 			    element->type == ACPI_TYPE_BUFFER)
--				strncpy(ptr, element->string.pointer, 32);
-+				strscpy(ptr, element->string.pointer, 32);
- 			else if (element->type == ACPI_TYPE_INTEGER) {
- 				strncpy(ptr, (u8 *)&element->integer.value,
- 					sizeof(u64));
+diff --git a/tools/lib/bpf/nlattr.c b/tools/lib/bpf/nlattr.c
+index 4719434278b20..ac979b4290559 100644
+--- a/tools/lib/bpf/nlattr.c
++++ b/tools/lib/bpf/nlattr.c
+@@ -170,7 +170,7 @@ int nla_dump_errormsg(struct nlmsghdr *nlh)
+ 		hlen += nlmsg_len(&err->msg);
+ 
+ 	attr = (struct nlattr *) ((void *) err + hlen);
+-	alen = nlh->nlmsg_len - hlen;
++	alen = (void *)nlh + nlh->nlmsg_len - (void *)attr;
+ 
+ 	if (nla_parse(tb, NLMSGERR_ATTR_MAX, attr, alen, extack_policy) != 0) {
+ 		fprintf(stderr,
 -- 
 2.39.2
 
