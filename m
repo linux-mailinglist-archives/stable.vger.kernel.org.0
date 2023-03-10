@@ -2,104 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E066B3373
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 02:02:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F556B33F8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 03:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbjCJBCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Mar 2023 20:02:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
+        id S229614AbjCJCIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Mar 2023 21:08:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229654AbjCJBCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 20:02:30 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F306115B73;
-        Thu,  9 Mar 2023 17:02:26 -0800 (PST)
-Received: from dggpemm500005.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4PXnks5rRbznVNR;
-        Fri, 10 Mar 2023 08:59:33 +0800 (CST)
-Received: from [10.69.30.204] (10.69.30.204) by dggpemm500005.china.huawei.com
- (7.185.36.74) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Fri, 10 Mar
- 2023 09:02:24 +0800
-Subject: Re: [PATCH net] vmxnet3: use gro callback when UPT is enabled
-To:     Ronak Doshi <doshir@vmware.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Pv-drivers <Pv-drivers@vmware.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Guolin Yang <gyang@vmware.com>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20230308222504.25675-1-doshir@vmware.com>
- <e3768ae9-6a2b-3b5e-9381-21407f96dd63@huawei.com>
- <4DF8ED21-92C2-404F-9766-691AEA5C4E8B@vmware.com>
-From:   Yunsheng Lin <linyunsheng@huawei.com>
-Message-ID: <252026f5-f979-2c8d-90d9-7ba396d495c8@huawei.com>
-Date:   Fri, 10 Mar 2023 09:02:23 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.2.0
+        with ESMTP id S229621AbjCJCIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Mar 2023 21:08:14 -0500
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C872B1DB8C
+        for <stable@vger.kernel.org>; Thu,  9 Mar 2023 18:08:12 -0800 (PST)
+Received: by mail-lf1-x12f.google.com with SMTP id d36so4767991lfv.8
+        for <stable@vger.kernel.org>; Thu, 09 Mar 2023 18:08:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678414091;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+5SNm4lOHHU7wShff2ch965COCwpdhcw8gwXQ/+p/Ko=;
+        b=C0Ji1rsS/E3jgtCk6insuFs5fYpP6b+hYbsAlz+SMRLtgPsiKjLFqrJp/uePbNYZ/4
+         2qx9bm4AcB9MZRNkdPllO0/bJpRDRDAdlwF2V1p1aPTl30hXkzyWa8eTycUNWS3lq2Ul
+         C0V6XfMkxSmcL/PgCpO1GzL4a/Ldx0Vq0imtRES8D0aQd2z7rhB+JYTWnJ5bt5eacChv
+         qtrNasOoXSnZj68uLm0dkNLY0Oth+ENftWZuWikkYeyPFSFqmAMM0yr8HCybs+Bo+8aV
+         cE8aE0A/buImW4nRRIRjMHA+K8Envqysp65/wWUzPj5Hj932fwi9HvNZcMWpSn7/Rz57
+         C2Bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678414091;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+5SNm4lOHHU7wShff2ch965COCwpdhcw8gwXQ/+p/Ko=;
+        b=SJpGTJ/9K9AfuC0t/qz/4ki8luSuX4sIYx6UYrr0Epffzx0VMY6T6tjPUfDqBvRUog
+         HdZ00uooghlLIh2EQP3pOFmEz9DRlooX1dbYu+fqXgnDdQQs8gk4L8UpxgARShWgmxAI
+         O4SzJYZfVbKBEuSSvK0i/pvKDfftzJX3zK3q35vRaHEJC7zP21ih5deibotDOT5HTniR
+         FdP2qNKzQEOERRx6spFQy4HVAlwZiAL++9iDT6QYcHJ6u6cu4RmgNbbvNAo558IaMKqo
+         mfe7TGqs2YWqFmALtsa5vKCDilnjFbLHTb5yUjgw6NWXmklTSr6HFov0vzs1LipbzyfB
+         LxkA==
+X-Gm-Message-State: AO0yUKWpknTBU9JwT5JmgwJHVmgqDcMRy7YMZwPmOlrT2askX8jvFIvt
+        RqUyYDgweW8ZFKW1OJ2UpysF1w==
+X-Google-Smtp-Source: AK7set9yl2SsmuKBBFb/VWC7gdEdVqofHMmy7RFNyAoY3Mt9PXE5cIJWAyxNDDABR93PXHxwguNx9A==
+X-Received: by 2002:ac2:4315:0:b0:4cf:e904:bba5 with SMTP id l21-20020ac24315000000b004cfe904bba5mr6131386lfh.29.1678414091049;
+        Thu, 09 Mar 2023 18:08:11 -0800 (PST)
+Received: from [192.168.1.101] (abyj16.neoplus.adsl.tpnet.pl. [83.9.29.16])
+        by smtp.gmail.com with ESMTPSA id d8-20020a05651221c800b004dc4e3f02aasm90331lft.53.2023.03.09.18.08.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 Mar 2023 18:08:10 -0800 (PST)
+Message-ID: <bd829dcb-0b06-9edb-65f9-35ad240c5f17@linaro.org>
+Date:   Fri, 10 Mar 2023 03:08:09 +0100
 MIME-Version: 1.0
-In-Reply-To: <4DF8ED21-92C2-404F-9766-691AEA5C4E8B@vmware.com>
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH 1/4] pinctrl: qcom: lpass-lpi: set output value before
+ enabling output
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20230309154949.658380-1-krzysztof.kozlowski@linaro.org>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.69.30.204]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500005.china.huawei.com (7.185.36.74)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+From:   Konrad Dybcio <konrad.dybcio@linaro.org>
+In-Reply-To: <20230309154949.658380-1-krzysztof.kozlowski@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_SORBS_HTTP,RCVD_IN_SORBS_SOCKS,SPF_HELO_NONE,SPF_PASS,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/3/10 6:50, Ronak Doshi wrote:
+
+
+On 9.03.2023 16:49, Krzysztof Kozlowski wrote:
+> As per Hardware Programming Guide, when configuring pin as output,
+> set the pin value before setting output-enable (OE).  Similar approach
+> is in main SoC TLMM pin controller.
 > 
-> ﻿> > On 3/8/23, 4:34 PM, "Yunsheng Lin" <linyunsheng@huawei.com <mailto:linyunsheng@huawei.com>> wrote:
->>>
->>> - if (adapter->netdev->features & NETIF_F_LRO)
->>> + /* Use GRO callback if UPT is enabled */
->>> + if ((adapter->netdev->features & NETIF_F_LRO) && !rq->shared->updateRxProd)
->>>
->>>
->> If UPT devicve does not support LRO, why not just clear the NETIF_F_LRO from
->> adapter->netdev->features?
->>
->>
->> With above change, it seems that LRO is supported for user' POV, but the GRO
->> is actually being done.
->>
->>
->> Also, if NETIF_F_LRO is set, do we need to clear the NETIF_F_GRO bit, so that
->> there is no confusion for user?
+> Cc: <stable@vger.kernel.org>
+> Fixes: 6e261d1090d6 ("pinctrl: qcom: Add sm8250 lpass lpi pinctrl driver")
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> ---
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+
+Konrad
+>  drivers/pinctrl/qcom/pinctrl-lpass-lpi.c | 14 +++++++++-----
+>  1 file changed, 9 insertions(+), 5 deletions(-)
 > 
-> We cannot clear LRO bit as the virtual nic can run in either emulation or UPT mode.
-> When the vnic switches the mode between UPT and emulation, the guest vm is not
-> notified. Hence, we use updateRxProd which is shared in datapath to check what mode
-> is being run.
-
-So it is a run time thing? What happens if some LRO'ed packet is put in the rx queue,
-and the the vnic switches the mode to UPT, is it ok for those LRO'ed packets to go through
-the software GSO processing? If yes, why not just call napi_gro_receive() for LRO case too?
-
-Looking closer, it seems vnic is implementing hw GRO from driver' view, as the driver is
-setting skb_shinfo(skb)->gso_* accordingly:
-
-https://elixir.bootlin.com/linux/latest/source/drivers/net/vmxnet3/vmxnet3_drv.c#L1665
-
-In that case, you may call napi_gro_receive() for those GRO'ed skb too, see:
-
-https://lore.kernel.org/netdev/166479721495.20474.5436625882203781290.git-patchwork-notify@kernel.org/T/
-
-> 
-> Also, we plan to add an event to notify the guest about this but that is for separate patch
-> and may take some time.
-> 
-> Thanks, 
-> Ronak 
-> 
+> diff --git a/drivers/pinctrl/qcom/pinctrl-lpass-lpi.c b/drivers/pinctrl/qcom/pinctrl-lpass-lpi.c
+> index 87920257bb73..27fc8b671954 100644
+> --- a/drivers/pinctrl/qcom/pinctrl-lpass-lpi.c
+> +++ b/drivers/pinctrl/qcom/pinctrl-lpass-lpi.c
+> @@ -221,6 +221,15 @@ static int lpi_config_set(struct pinctrl_dev *pctldev, unsigned int group,
+>  		}
+>  	}
+>  
+> +	/*
+> +	 * As per Hardware Programming Guide, when configuring pin as output,
+> +	 * set the pin value before setting output-enable (OE).
+> +	 */
+> +	if (output_enabled) {
+> +		val = u32_encode_bits(value ? 1 : 0, LPI_GPIO_VALUE_OUT_MASK);
+> +		lpi_gpio_write(pctrl, group, LPI_GPIO_VALUE_REG, val);
+> +	}
+> +
+>  	val = lpi_gpio_read(pctrl, group, LPI_GPIO_CFG_REG);
+>  
+>  	u32p_replace_bits(&val, pullup, LPI_GPIO_PULL_MASK);
+> @@ -230,11 +239,6 @@ static int lpi_config_set(struct pinctrl_dev *pctldev, unsigned int group,
+>  
+>  	lpi_gpio_write(pctrl, group, LPI_GPIO_CFG_REG, val);
+>  
+> -	if (output_enabled) {
+> -		val = u32_encode_bits(value ? 1 : 0, LPI_GPIO_VALUE_OUT_MASK);
+> -		lpi_gpio_write(pctrl, group, LPI_GPIO_VALUE_REG, val);
+> -	}
+> -
+>  	return 0;
+>  }
+>  
