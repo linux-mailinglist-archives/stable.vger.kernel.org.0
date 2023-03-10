@@ -2,52 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B9F6B45AA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F716B4142
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232603AbjCJOf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44784 "EHLO
+        id S230473AbjCJNvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:51:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232625AbjCJOfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:52 -0500
+        with ESMTP id S230468AbjCJNvB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31EDE118BC7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA66DABB0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD5C0B822E5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9575C4339B;
-        Fri, 10 Mar 2023 14:35:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B5E3B822B5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C0E0C433D2;
+        Fri, 10 Mar 2023 13:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458939;
-        bh=/yzfvrZyqxBoRkFzD/Ki9tffHSLmWGN7t6q4PB/PVo4=;
+        s=korg; t=1678456257;
+        bh=sS/J0QfHfYSCcas+e46117j1oKncpAgH6kr++MmvCvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXnRa62reohvuryh6NM1QX7LebO+OnB9beaZSfMJ/tj6feh2/ub/PvNsKvxH2IZhS
-         MRp6KOfJZ2ojOwGRH7npzqWtXzD51jmKyOGv5Lsrj0LV5028nNkpWRWIK9nEYdI/T0
-         NvybzqAS0E9U731Zw9TyaHkhZPjrDP8dl46NKHbI=
+        b=vOa4uzknvMzPJtOeOItgEqsCh4lrF0pMHX8E4TsQKY+FDPAR1sYfPtDfu199hFwJG
+         QMZpj7Z/Z65573K8CO5eQ/MTk4AJ/AEBCv0czHWOcQ0LK4FNUzAMh8Nvevws10WwhV
+         QIE0XkMYl4svgjHIQYkvgWlBX/Pn2W8IjyEQ8ZiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christian Brauner <brauner@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alexander Potapenko <glider@google.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 195/357] uaccess: Add minimum bounds check on kernel buffer size
+        patches@lists.linux.dev,
+        syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com,
+        Liu Shixin <liushixin2@huawei.com>,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 102/193] hfs: fix missing hfs_bnode_get() in __hfs_bnode_create
 Date:   Fri, 10 Mar 2023 14:38:04 +0100
-Message-Id: <20230310133743.325969449@linuxfoundation.org>
+Message-Id: <20230310133714.662385929@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,70 +57,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 04ffde1319a715bd0550ded3580d4ea3bc003776 ]
+commit a9dc087fd3c484fd1ed18c5efb290efaaf44ce03 upstream.
 
-While there is logic about the difference between ksize and usize,
-copy_struct_from_user() didn't check the size of the destination buffer
-(when it was known) against ksize. Add this check so there is an upper
-bounds check on the possible memset() call, otherwise lower bounds
-checks made by callers will trigger bounds warnings under -Warray-bounds.
-Seen under GCC 13:
+Syzbot found a kernel BUG in hfs_bnode_put():
 
-In function 'copy_struct_from_user',
-    inlined from 'iommufd_fops_ioctl' at
-../drivers/iommu/iommufd/main.c:333:8:
-../include/linux/fortify-string.h:59:33: warning: '__builtin_memset' offset [57, 4294967294] is out of the bounds [0, 56] of object 'buf' with type 'union ucmd_buffer' [-Warray-bounds=]
-   59 | #define __underlying_memset     __builtin_memset
-      |                                 ^
-../include/linux/fortify-string.h:453:9: note: in expansion of macro '__underlying_memset'
-  453 |         __underlying_memset(p, c, __fortify_size); \
-      |         ^~~~~~~~~~~~~~~~~~~
-../include/linux/fortify-string.h:461:25: note: in expansion of macro '__fortify_memset_chk'
-  461 | #define memset(p, c, s) __fortify_memset_chk(p, c, s, \
-      |                         ^~~~~~~~~~~~~~~~~~~~
-../include/linux/uaccess.h:334:17: note: in expansion of macro 'memset'
-  334 |                 memset(dst + size, 0, rest);
-      |                 ^~~~~~
-../drivers/iommu/iommufd/main.c: In function 'iommufd_fops_ioctl':
-../drivers/iommu/iommufd/main.c:311:27: note: 'buf' declared here
-  311 |         union ucmd_buffer buf;
-      |                           ^~~
+ kernel BUG at fs/hfs/bnode.c:466!
+ invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+ CPU: 0 PID: 3634 Comm: kworker/u4:5 Not tainted 6.1.0-rc7-syzkaller-00190-g97ee9d1c1696 #0
+ Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+ Workqueue: writeback wb_workfn (flush-7:0)
+ RIP: 0010:hfs_bnode_put+0x46f/0x480 fs/hfs/bnode.c:466
+ Code: 8a 80 ff e9 73 fe ff ff 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c a0 fe ff ff 48 89 df e8 db 8a 80 ff e9 93 fe ff ff e8 a1 68 2c ff <0f> 0b e8 9a 68 2c ff 0f 0b 0f 1f 84 00 00 00 00 00 55 41 57 41 56
+ RSP: 0018:ffffc90003b4f258 EFLAGS: 00010293
+ RAX: ffffffff825e318f RBX: 0000000000000000 RCX: ffff8880739dd7c0
+ RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+ RBP: ffffc90003b4f430 R08: ffffffff825e2d9b R09: ffffed10045157d1
+ R10: ffffed10045157d1 R11: 1ffff110045157d0 R12: ffff8880228abe80
+ R13: ffff88807016c000 R14: dffffc0000000000 R15: ffff8880228abe00
+ FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007fa6ebe88718 CR3: 000000001e93d000 CR4: 00000000003506f0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  hfs_write_inode+0x1bc/0xb40
+  write_inode fs/fs-writeback.c:1440 [inline]
+  __writeback_single_inode+0x4d6/0x670 fs/fs-writeback.c:1652
+  writeback_sb_inodes+0xb3b/0x18f0 fs/fs-writeback.c:1878
+  __writeback_inodes_wb+0x125/0x420 fs/fs-writeback.c:1949
+  wb_writeback+0x440/0x7b0 fs/fs-writeback.c:2054
+  wb_check_start_all fs/fs-writeback.c:2176 [inline]
+  wb_do_writeback fs/fs-writeback.c:2202 [inline]
+  wb_workfn+0x827/0xef0 fs/fs-writeback.c:2235
+  process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
+  worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
+  kthread+0x266/0x300 kernel/kthread.c:376
+  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+  </TASK>
 
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dinh Nguyen <dinguyen@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alexander Potapenko <glider@google.com>
-Acked-by: Aleksa Sarai <cyphar@cyphar.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/lkml/20230203193523.never.667-kees@kernel.org/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The BUG_ON() is triggered at here:
+
+/* Dispose of resources used by a node */
+void hfs_bnode_put(struct hfs_bnode *node)
+{
+	if (node) {
+ 		<skipped>
+ 		BUG_ON(!atomic_read(&node->refcnt)); <- we have issue here!!!!
+ 		<skipped>
+ 	}
+}
+
+By tracing the refcnt, I found the node is created by hfs_bmap_alloc()
+with refcnt 1.  Then the node is used by hfs_btree_write().  There is a
+missing of hfs_bnode_get() after find the node.  The issue happened in
+following path:
+
+<alloc>
+ hfs_bmap_alloc
+   hfs_bnode_find
+     __hfs_bnode_create   <- allocate a new node with refcnt 1.
+   hfs_bnode_put          <- decrease the refcnt
+
+<write>
+ hfs_btree_write
+   hfs_bnode_find
+     __hfs_bnode_create
+       hfs_bnode_findhash <- find the node without refcnt increased.
+   hfs_bnode_put	  <- trigger the BUG_ON() since refcnt is 0.
+
+Link: https://lkml.kernel.org/r/20221212021627.3766829-1-liushixin2@huawei.com
+Reported-by: syzbot+5b04b49a7ec7226c7426@syzkaller.appspotmail.com
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Cc: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/uaccess.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/hfs/bnode.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
-index 38555435a64a3..70941f49d66ee 100644
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -287,6 +287,10 @@ copy_struct_from_user(void *dst, size_t ksize, const void __user *src,
- 	size_t size = min(ksize, usize);
- 	size_t rest = max(ksize, usize) - size;
- 
-+	/* Double check if ksize is larger than a known object size. */
-+	if (WARN_ON_ONCE(ksize > __builtin_object_size(dst, 1)))
-+		return -E2BIG;
-+
- 	/* Deal with trailing bytes. */
- 	if (usize < ksize) {
- 		memset(dst + size, 0, rest);
--- 
-2.39.2
-
+--- a/fs/hfs/bnode.c
++++ b/fs/hfs/bnode.c
+@@ -285,6 +285,7 @@ static struct hfs_bnode *__hfs_bnode_cre
+ 		tree->node_hash[hash] = node;
+ 		tree->node_hash_cnt++;
+ 	} else {
++		hfs_bnode_get(node2);
+ 		spin_unlock(&tree->hash_lock);
+ 		kfree(node);
+ 		wait_event(node2->lock_wq, !test_bit(HFS_BNODE_NEW, &node2->flags));
 
 
