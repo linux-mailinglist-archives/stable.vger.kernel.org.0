@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D995B6B42BD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D32D6B459F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbjCJOG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:06:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S232577AbjCJOfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:35:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbjCJOGR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 327FB10FB9D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:55 -0800 (PST)
+        with ESMTP id S232602AbjCJOfZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB784EFF6D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C80460F11
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4765C433EF;
-        Fri, 10 Mar 2023 14:05:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75E6961745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE50C433EF;
+        Fri, 10 Mar 2023 14:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457155;
-        bh=Y/F9FQehCBtrVJAaGZyYyQ8NBoZzhC7l6nfbBagWduk=;
+        s=korg; t=1678458920;
+        bh=/5qzUNehwR6VOaUQTzxrEyfDJdliRzDYisWRPDqXMk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWTTkivVnCYAWWU2/ACSVPxtisei5m8fw6sNG6KHiaOG4enJdTsod2o4dUhUwBYeM
-         BzZQn+5TAZtmdmotCfo/56h8Z6WqddgGv0OrG5TFO7CIyvAdvWKO+zugKFUhzDmqzV
-         T6d3CdLKHya6FE++pQx3PBsEZ4qJ7n8vkAuW1YDQ=
+        b=SH7kJe1jmJ1pxL2XjeAxMX8va7HZWlnALqn4iTaKEUa8XmTNGIimnWuZPndQiLIhd
+         urPe8xa7W1cBscLDUuaTtEh36tpWuiY6CvJd7XBT5fTv2y396Wb2BlnyiZ1KSCH4Rl
+         x9dwi5uLwweO9lAr0CStBPHOuB2uMeFiC1rvvFqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Andrew Jeffery <andrew@aj.id.au>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 039/200] ubifs: ubifs_releasepage: Remove ubifs_assert(0) to valid this process
+Subject: [PATCH 5.4 157/357] powerpc/powernv/ioda: Skip unallocated resources when mapping to PE
 Date:   Fri, 10 Mar 2023 14:37:26 +0100
-Message-Id: <20230310133718.258011499@linuxfoundation.org>
+Message-Id: <20230310133741.635948839@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,113 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Frederic Barrat <fbarrat@linux.ibm.com>
 
-[ Upstream commit 66f4742e93523ab2f062d9d9828b3e590bc61536 ]
+[ Upstream commit e64e71056f323a1e178dccf04d4c0f032d84436c ]
 
-There are two states for ubifs writing pages:
-1. Dirty, Private
-2. Not Dirty, Not Private
+pnv_ioda_setup_pe_res() calls opal to map a resource with a PE. However,
+the code assumes the resource is allocated and it uses the resource
+address to find out the segment(s) which need to be mapped to the
+PE. In the unlikely case where the resource hasn't been allocated, the
+computation for the segment number is garbage, which can lead to
+invalid memory access and potentially a kernel crash, such as:
 
-The normal process cannot go to ubifs_releasepage() which means there
-exists pages being private but not dirty. Reproducer[1] shows that it
-could occur (which maybe related to [2]) with following process:
+[ ] pci_bus 0002:02: Configuring PE for bus
+[ ] pci 0002:02     : [PE# fc] Secondary bus 0x0000000000000002..0x0000000000000002 associated with PE#fc
+[ ] BUG: Kernel NULL pointer dereference on write at 0x00000000
+[ ] Faulting instruction address: 0xc00000000005eac4
+[ ] Oops: Kernel access of bad area, sig: 7 [#1]
+[ ] LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
+[ ] Modules linked in:
+[ ] CPU: 12 PID: 1 Comm: swapper/20 Not tainted 5.10.50-openpower1 #2
+[ ] NIP:  c00000000005eac4 LR: c00000000005ea44 CTR: 0000000030061b9c
+[ ] REGS: c000200007383650 TRAP: 0300   Not tainted  (5.10.50-openpower1)
+[ ] MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44000224  XER: 20040000
+[ ] CFAR: c00000000005eaa0 DAR: 0000000000000000 DSISR: 02080000 IRQMASK: 0
+[ ] GPR00: c00000000005dd98 c0002000073838e0 c00000000185de00 c000200fff018960
+[ ] GPR04: 00000000000000fc 0000000000000003 0000000000000000 0000000000000000
+[ ] GPR08: 0000000000000000 0000000000000000 0000000000000000 9000000000001033
+[ ] GPR12: 0000000031cb0000 c000000ffffe6a80 c000000000010a58 0000000000000000
+[ ] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[ ] GPR20: 0000000000000000 0000000000000000 0000000000000000 c00000000711e200
+[ ] GPR24: 0000000000000100 c000200009501120 c00020000cee2800 00000000000003ff
+[ ] GPR28: c000200fff018960 0000000000000000 c000200ffcb7fd00 0000000000000000
+[ ] NIP [c00000000005eac4] pnv_ioda_setup_pe_res+0x94/0x1a0
+[ ] LR [c00000000005ea44] pnv_ioda_setup_pe_res+0x14/0x1a0
+[ ] Call Trace:
+[ ] [c0002000073838e0] [c00000000005eb98] pnv_ioda_setup_pe_res+0x168/0x1a0 (unreliable)
+[ ] [c000200007383970] [c00000000005dd98] pnv_pci_ioda_dma_dev_setup+0x43c/0x970
+[ ] [c000200007383a60] [c000000000032cdc] pcibios_bus_add_device+0x78/0x18c
+[ ] [c000200007383aa0] [c00000000028f2bc] pci_bus_add_device+0x28/0xbc
+[ ] [c000200007383b10] [c00000000028f3a0] pci_bus_add_devices+0x50/0x7c
+[ ] [c000200007383b50] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
+[ ] [c000200007383b90] [c00000000028f3c4] pci_bus_add_devices+0x74/0x7c
+[ ] [c000200007383bd0] [c00000000069ad0c] pcibios_init+0xf0/0x104
+[ ] [c000200007383c50] [c0000000000106d8] do_one_initcall+0x84/0x1c4
+[ ] [c000200007383d20] [c0000000006910b8] kernel_init_freeable+0x264/0x268
+[ ] [c000200007383dc0] [c000000000010a68] kernel_init+0x18/0x138
+[ ] [c000200007383e20] [c00000000000cbfc] ret_from_kernel_thread+0x5c/0x80
+[ ] Instruction dump:
+[ ] 7f89e840 409d000c 7fbbf840 409c000c 38210090 4848f448 809c002c e95e0120
+[ ] 7ba91764 38a00003 57a7043e 38c00000 <7c8a492e> 5484043e e87e0018 4bff23bd
 
-     PA                     PB                    PC
-lock(page)[PA]
-ubifs_write_end
-  attach_page_private         // set Private
-  __set_page_dirty_nobuffers  // set Dirty
-unlock(page)
+Hitting the problem is not that easy. It was seen with a (semi-bogus)
+PCI device with a class code of 0. The generic PCI framework doesn't
+allocate resources in such a case.
 
-write_cache_pages[PA]
-  lock(page)
-  clear_page_dirty_for_io(page)	// clear Dirty
-  ubifs_writepage
+The patch is simply skipping resources which are still flagged with
+IORESOURCE_UNSET.
 
-                        do_truncation[PB]
-			  truncate_setsize
-			    i_size_write(inode, newsize) // newsize = 0
+We don't have the problem with 64-bit mem resources, as the address of
+the resource is checked to be within the range of the 64-bit mmio
+window. See pnv_ioda_reserve_dev_m64_pe() and pnv_pci_is_m64().
 
-    i_size = i_size_read(inode)	// i_size = 0
-    end_index = i_size >> PAGE_SHIFT
-    if (page->index > end_index)
-      goto out // jump
-out:
-unlock(page)   // Private, Not Dirty
-
-						generic_fadvise[PC]
-						  lock(page)
-						  invalidate_inode_page
-						    try_to_release_page
-						      ubifs_releasepage
-						        ubifs_assert(c, 0)
-		                                        // bad assertion!
-						  unlock(page)
-			  truncate_pagecache[PB]
-
-Then we may get following assertion failed:
-  UBIFS error (ubi0:0 pid 1683): ubifs_assert_failed [ubifs]:
-  UBIFS assert failed: 0, in fs/ubifs/file.c:1513
-  UBIFS warning (ubi0:0 pid 1683): ubifs_ro_mode [ubifs]:
-  switched to read-only mode, error -22
-  CPU: 2 PID: 1683 Comm: aa Not tainted 5.16.0-rc5-00184-g0bca5994cacc-dirty #308
-  Call Trace:
-    dump_stack+0x13/0x1b
-    ubifs_ro_mode+0x54/0x60 [ubifs]
-    ubifs_assert_failed+0x4b/0x80 [ubifs]
-    ubifs_releasepage+0x67/0x1d0 [ubifs]
-    try_to_release_page+0x57/0xe0
-    invalidate_inode_page+0xfb/0x130
-    __invalidate_mapping_pages+0xb9/0x280
-    invalidate_mapping_pagevec+0x12/0x20
-    generic_fadvise+0x303/0x3c0
-    ksys_fadvise64_64+0x4c/0xb0
-
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=215373
-[2] https://linux-mtd.infradead.narkive.com/NQoBeT1u/patch-rfc-ubifs-fix-assert-failed-in-ubifs-set-page-dirty
-
-Fixes: 1e51764a3c2ac0 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Reported-by: Andrew Jeffery <andrew@aj.id.au>
+Fixes: 23e79425fe7c ("powerpc/powernv: Simplify pnv_ioda_setup_pe_seg()")
+Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230120093215.19496-1-fbarrat@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ arch/powerpc/platforms/powernv/pci-ioda.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index 1f429260a85fc..10c1779af9c51 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -1472,14 +1472,23 @@ static bool ubifs_release_folio(struct folio *folio, gfp_t unused_gfp_flags)
- 	struct inode *inode = folio->mapping->host;
- 	struct ubifs_info *c = inode->i_sb->s_fs_info;
+diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+index 058223233088e..df4457e743d33 100644
+--- a/arch/powerpc/platforms/powernv/pci-ioda.c
++++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+@@ -3008,7 +3008,8 @@ static void pnv_ioda_setup_pe_res(struct pnv_ioda_pe *pe,
+ 	int index;
+ 	int64_t rc;
  
--	/*
--	 * An attempt to release a dirty page without budgeting for it - should
--	 * not happen.
--	 */
- 	if (folio_test_writeback(folio))
- 		return false;
-+
-+	/*
-+	 * Page is private but not dirty, weird? There is one condition
-+	 * making it happened. ubifs_writepage skipped the page because
-+	 * page index beyonds isize (for example. truncated by other
-+	 * process named A), then the page is invalidated by fadvise64
-+	 * syscall before being truncated by process A.
-+	 */
- 	ubifs_assert(c, folio_test_private(folio));
--	ubifs_assert(c, 0);
-+	if (folio_test_checked(folio))
-+		release_new_page_budget(c);
-+	else
-+		release_existing_page_budget(c);
-+
-+	atomic_long_dec(&c->dirty_pg_cnt);
- 	folio_detach_private(folio);
- 	folio_clear_checked(folio);
- 	return true;
+-	if (!res || !res->flags || res->start > res->end)
++	if (!res || !res->flags || res->start > res->end ||
++	    res->flags & IORESOURCE_UNSET)
+ 		return;
+ 
+ 	if (res->flags & IORESOURCE_IO) {
 -- 
 2.39.2
 
