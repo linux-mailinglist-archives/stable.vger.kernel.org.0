@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13CD76B45F8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 301E26B4228
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232694AbjCJOjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:39:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51162 "EHLO
+        id S231445AbjCJOA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:00:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbjCJOiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:52 -0500
+        with ESMTP id S231478AbjCJOAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C79D9E679
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDDB116B80
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0568B822DE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2591CC4339E;
-        Fri, 10 Mar 2023 14:38:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71E6AB822BE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02ACC433EF;
+        Fri, 10 Mar 2023 14:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459118;
-        bh=j3uMb5TGfwkIElInFn2WVdoViw7VLToFNvcIgUad+6A=;
+        s=korg; t=1678456812;
+        bh=c0BcERzg5mF7NYDYXKq4lbEnyuY36ja+gkncF1XNcI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmnmzjFcht8pgoIdkoRN9O8JWEoOR4xcZxHaK/ki2NfdUiOM+kpNhmGJjXchQOoI/
-         qqwf069HVjDlnFtO3TZJIuUnwDy1NtGGIr3XlsZbcKyvpbrevH6nCkwggnxaZ6t2xl
-         z70aIMf5bbxUXVOMZehyXhdmv9BPpfE9oOP5n1fY=
+        b=kZ1htX/s+JEBSddpgmU0XyxUN+4rP6nXRPNfmjjysI/4LEMEsdKXvhtomBuk0Bubo
+         zfpMCjXAxW3xpN8R4I3orsHsGrdfAPXS0CIDUJFJxshTMh+jQdRaF1bcfCO4LijSww
+         5IB3+RLhJAOHEua3J0ooyr7+tRvNh7V2Kb7GEH68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 223/357] ocfs2: fix defrag path triggering jbd2 ASSERT
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 132/211] PCI/ACPI: Account for _S0W of the target bridge in acpi_pci_bridge_d3()
 Date:   Fri, 10 Mar 2023 14:38:32 +0100
-Message-Id: <20230310133744.585128844@linuxfoundation.org>
+Message-Id: <20230310133722.753428655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,100 +56,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 60eed1e3d45045623e46944ebc7c42c30a4350f0 upstream.
+[ Upstream commit 8133844a8f2434be9576850c6978179d7cca5c81 ]
 
-code path:
+It is questionable to allow a PCI bridge to go into D3 if it has _S0W
+returning D2 or a shallower power state, so modify acpi_pci_bridge_d3(() to
+always take the return value of _S0W for the target bridge into account.
+That is, make it return 'false' if _S0W returns D2 or a shallower power
+state for the target bridge regardless of its ancestor Root Port
+properties.  Of course, this also causes 'false' to be returned if the Root
+Port itself is the target and its _S0W returns D2 or a shallower power
+state.
 
-ocfs2_ioctl_move_extents
- ocfs2_move_extents
-  ocfs2_defrag_extent
-   __ocfs2_move_extent
-    + ocfs2_journal_access_di
-    + ocfs2_split_extent  //sub-paths call jbd2_journal_restart
-    + ocfs2_journal_dirty //crash by jbs2 ASSERT
+However, still allow bridges without _S0W that are power-manageable via
+ACPI to enter D3 to retain the current code behavior in that case.
 
-crash stacks:
+This fixes problems where a hotplug notification is missed because a bridge
+is in D3.  That means hot-added devices such as USB4 docks (and the devices
+they contain) and Thunderbolt 3 devices may not work.
 
-PID: 11297  TASK: ffff974a676dcd00  CPU: 67  COMMAND: "defragfs.ocfs2"
- #0 [ffffb25d8dad3900] machine_kexec at ffffffff8386fe01
- #1 [ffffb25d8dad3958] __crash_kexec at ffffffff8395959d
- #2 [ffffb25d8dad3a20] crash_kexec at ffffffff8395a45d
- #3 [ffffb25d8dad3a38] oops_end at ffffffff83836d3f
- #4 [ffffb25d8dad3a58] do_trap at ffffffff83833205
- #5 [ffffb25d8dad3aa0] do_invalid_op at ffffffff83833aa6
- #6 [ffffb25d8dad3ac0] invalid_op at ffffffff84200d18
-    [exception RIP: jbd2_journal_dirty_metadata+0x2ba]
-    RIP: ffffffffc09ca54a  RSP: ffffb25d8dad3b70  RFLAGS: 00010207
-    RAX: 0000000000000000  RBX: ffff9706eedc5248  RCX: 0000000000000000
-    RDX: 0000000000000001  RSI: ffff97337029ea28  RDI: ffff9706eedc5250
-    RBP: ffff9703c3520200   R8: 000000000f46b0b2   R9: 0000000000000000
-    R10: 0000000000000001  R11: 00000001000000fe  R12: ffff97337029ea28
-    R13: 0000000000000000  R14: ffff9703de59bf60  R15: ffff9706eedc5250
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb25d8dad3ba8] ocfs2_journal_dirty at ffffffffc137fb95 [ocfs2]
- #8 [ffffb25d8dad3be8] __ocfs2_move_extent at ffffffffc139a950 [ocfs2]
- #9 [ffffb25d8dad3c80] ocfs2_defrag_extent at ffffffffc139b2d2 [ocfs2]
-
-Analysis
-
-This bug has the same root cause of 'commit 7f27ec978b0e ("ocfs2: call
-ocfs2_journal_access_di() before ocfs2_journal_dirty() in
-ocfs2_write_end_nolock()")'.  For this bug, jbd2_journal_restart() is
-called by ocfs2_split_extent() during defragmenting.
-
-How to fix
-
-For ocfs2_split_extent() can handle journal operations totally by itself.
-Caller doesn't need to call journal access/dirty pair, and caller only
-needs to call journal start/stop pair.  The fix method is to remove
-journal access/dirty from __ocfs2_move_extent().
-
-The discussion for this patch:
-https://oss.oracle.com/pipermail/ocfs2-devel/2023-February/000647.html
-
-Link: https://lkml.kernel.org/r/20230217003717.32469-1-heming.zhao@suse.com
-Signed-off-by: Heming Zhao <heming.zhao@suse.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/linux-pci/20221031223356.32570-1-mario.limonciello@amd.com/
+Link: https://lore.kernel.org/r/12155458.O9o76ZdvQC@kreacher
+Reported-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/move_extents.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/acpi/device_pm.c | 19 +++++++++++++++++
+ drivers/pci/pci-acpi.c   | 45 +++++++++++++++++++++++++++-------------
+ include/acpi/acpi_bus.h  |  1 +
+ 3 files changed, 51 insertions(+), 14 deletions(-)
 
---- a/fs/ocfs2/move_extents.c
-+++ b/fs/ocfs2/move_extents.c
-@@ -107,14 +107,6 @@ static int __ocfs2_move_extent(handle_t
- 	 */
- 	replace_rec.e_flags = ext_flags & ~OCFS2_EXT_REFCOUNTED;
+diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+index 97450f4003cc9..f007116a84276 100644
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -484,6 +484,25 @@ void acpi_dev_power_up_children_with_adr(struct acpi_device *adev)
+ 	acpi_dev_for_each_child(adev, acpi_power_up_if_adr_present, NULL);
+ }
  
--	ret = ocfs2_journal_access_di(handle, INODE_CACHE(inode),
--				      context->et.et_root_bh,
--				      OCFS2_JOURNAL_ACCESS_WRITE);
--	if (ret) {
--		mlog_errno(ret);
--		goto out;
--	}
--
- 	ret = ocfs2_split_extent(handle, &context->et, path, index,
- 				 &replace_rec, context->meta_ac,
- 				 &context->dealloc);
-@@ -123,8 +115,6 @@ static int __ocfs2_move_extent(handle_t
- 		goto out;
- 	}
++/**
++ * acpi_dev_power_state_for_wake - Deepest power state for wakeup signaling
++ * @adev: ACPI companion of the target device.
++ *
++ * Evaluate _S0W for @adev and return the value produced by it or return
++ * ACPI_STATE_UNKNOWN on errors (including _S0W not present).
++ */
++u8 acpi_dev_power_state_for_wake(struct acpi_device *adev)
++{
++	unsigned long long state;
++	acpi_status status;
++
++	status = acpi_evaluate_integer(adev->handle, "_S0W", NULL, &state);
++	if (ACPI_FAILURE(status))
++		return ACPI_STATE_UNKNOWN;
++
++	return state;
++}
++
+ #ifdef CONFIG_PM
+ static DEFINE_MUTEX(acpi_pm_notifier_lock);
+ static DEFINE_MUTEX(acpi_pm_notifier_install_lock);
+diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
+index 068d6745bf98c..052a611081ecd 100644
+--- a/drivers/pci/pci-acpi.c
++++ b/drivers/pci/pci-acpi.c
+@@ -976,24 +976,41 @@ bool acpi_pci_power_manageable(struct pci_dev *dev)
+ bool acpi_pci_bridge_d3(struct pci_dev *dev)
+ {
+ 	struct pci_dev *rpdev;
+-	struct acpi_device *adev;
+-	acpi_status status;
+-	unsigned long long state;
++	struct acpi_device *adev, *rpadev;
+ 	const union acpi_object *obj;
  
--	ocfs2_journal_dirty(handle, context->et.et_root_bh);
--
- 	context->new_phys_cpos = new_p_cpos;
+ 	if (acpi_pci_disabled || !dev->is_hotplug_bridge)
+ 		return false;
+ 
+-	/* Assume D3 support if the bridge is power-manageable by ACPI. */
+-	if (acpi_pci_power_manageable(dev))
+-		return true;
++	adev = ACPI_COMPANION(&dev->dev);
++	if (adev) {
++		/*
++		 * If the bridge has _S0W, whether or not it can go into D3
++		 * depends on what is returned by that object.  In particular,
++		 * if the power state returned by _S0W is D2 or shallower,
++		 * entering D3 should not be allowed.
++		 */
++		if (acpi_dev_power_state_for_wake(adev) <= ACPI_STATE_D2)
++			return false;
++
++		/*
++		 * Otherwise, assume that the bridge can enter D3 so long as it
++		 * is power-manageable via ACPI.
++		 */
++		if (acpi_device_power_manageable(adev))
++			return true;
++	}
+ 
+ 	rpdev = pcie_find_root_port(dev);
+ 	if (!rpdev)
+ 		return false;
+ 
+-	adev = ACPI_COMPANION(&rpdev->dev);
+-	if (!adev)
++	if (rpdev == dev)
++		rpadev = adev;
++	else
++		rpadev = ACPI_COMPANION(&rpdev->dev);
++
++	if (!rpadev)
+ 		return false;
  
  	/*
+@@ -1001,15 +1018,15 @@ bool acpi_pci_bridge_d3(struct pci_dev *dev)
+ 	 * doesn't supply a wakeup GPE via _PRW, it cannot signal hotplug
+ 	 * events from low-power states including D3hot and D3cold.
+ 	 */
+-	if (!adev->wakeup.flags.valid)
++	if (!rpadev->wakeup.flags.valid)
+ 		return false;
+ 
+ 	/*
+-	 * If the Root Port cannot wake itself from D3hot or D3cold, we
+-	 * can't use D3.
++	 * In the bridge-below-a-Root-Port case, evaluate _S0W for the Root Port
++	 * to verify whether or not it can signal wakeup from D3.
+ 	 */
+-	status = acpi_evaluate_integer(adev->handle, "_S0W", NULL, &state);
+-	if (ACPI_SUCCESS(status) && state < ACPI_STATE_D3_HOT)
++	if (rpadev != adev &&
++	    acpi_dev_power_state_for_wake(rpadev) <= ACPI_STATE_D2)
+ 		return false;
+ 
+ 	/*
+@@ -1018,7 +1035,7 @@ bool acpi_pci_bridge_d3(struct pci_dev *dev)
+ 	 * bridges *below* that Root Port can also signal hotplug events
+ 	 * while in D3.
+ 	 */
+-	if (!acpi_dev_get_property(adev, "HotPlugSupportInD3",
++	if (!acpi_dev_get_property(rpadev, "HotPlugSupportInD3",
+ 				   ACPI_TYPE_INTEGER, &obj) &&
+ 	    obj->integer.value == 1)
+ 		return true;
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index e44be31115a67..0584e9f6e3397 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -534,6 +534,7 @@ int acpi_bus_update_power(acpi_handle handle, int *state_p);
+ int acpi_device_update_power(struct acpi_device *device, int *state_p);
+ bool acpi_bus_power_manageable(acpi_handle handle);
+ void acpi_dev_power_up_children_with_adr(struct acpi_device *adev);
++u8 acpi_dev_power_state_for_wake(struct acpi_device *adev);
+ int acpi_device_power_add_dependent(struct acpi_device *adev,
+ 				    struct device *dev);
+ void acpi_device_power_remove_dependent(struct acpi_device *adev,
+-- 
+2.39.2
+
 
 
