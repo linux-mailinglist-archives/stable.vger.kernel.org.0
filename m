@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE87D6B40F6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A90D6B41F0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230321AbjCJNsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47588 "EHLO
+        id S231374AbjCJN6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230372AbjCJNsH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B428414E80
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:03 -0800 (PST)
+        with ESMTP id S231382AbjCJN55 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489DF19BD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F888B822BC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C69C433D2;
-        Fri, 10 Mar 2023 13:47:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFB68B822B9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 419E7C433EF;
+        Fri, 10 Mar 2023 13:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456080;
-        bh=NJr4Jlz+Wm5B1Y3epwKPx9NuGFv5vifzyg9uh7SkL4I=;
+        s=korg; t=1678456672;
+        bh=89kLqNFJ0hrxS5Oc2xYEgYj0r17B4qM49aReNgKqrek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUpN3JEyNTiQ1Kfl3I9vSBK5COSnGpabYGqFasuRd/nLSQerSyZ3rl8OoxBDfwIp5
-         XiXfNRQo+muIYsq6AOiYWESdnRcXYnY/vMHVhtGwg4ubveE2Q2IDd18LdKvV6e/em9
-         L14Lk2SsFT1axQS41g9ynfZgX4rQisHGvA2W7KUM=
+        b=pxwzDQgixN87m/zUnl0ShPiBympxXwSPDfwlZycPTb1qmA8pTqqPYzZ+xQD8NyO0D
+         xy72788VB+ggRYRbmAjmEh3vJOToc5IGd7UH6ERwEI1Qi7S5AzRHHLDNMy4aIK8FsA
+         SCfwyepnm5vS5exi4L74QJWH+yBH2GVUwR8F5sQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Lu Wei <luwei32@huawei.com>,
+        David Ahern <dsahern@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 074/193] media: usb: siano: Fix use after free bugs caused by do_submit_urb
+Subject: [PATCH 6.2 076/211] ipv6: Add lwtunnel encap size of all siblings in nexthop calculation
 Date:   Fri, 10 Mar 2023 14:37:36 +0100
-Message-Id: <20230310133713.494615446@linuxfoundation.org>
+Message-Id: <20230310133721.092827277@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,231 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Lu Wei <luwei32@huawei.com>
 
-[ Upstream commit ebad8e731c1c06adf04621d6fd327b860c0861b5 ]
+[ Upstream commit 4cc59f386991ec9374cb4bc83dbe1c0b5a95033f ]
 
-There are UAF bugs caused by do_submit_urb(). One of the KASan reports
-is shown below:
+In function rt6_nlmsg_size(), the length of nexthop is calculated
+by multipling the nexthop length of fib6_info and the number of
+siblings. However if the fib6_info has no lwtunnel but the siblings
+have lwtunnels, the nexthop length is less than it should be, and
+it will trigger a warning in inet6_rt_notify() as follows:
 
-[   36.403605] BUG: KASAN: use-after-free in worker_thread+0x4a2/0x890
-[   36.406105] Read of size 8 at addr ffff8880059600e8 by task kworker/0:2/49
-[   36.408316]
-[   36.408867] CPU: 0 PID: 49 Comm: kworker/0:2 Not tainted 6.2.0-rc3-15798-g5a41237ad1d4-dir8
-[   36.411696] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g15584
-[   36.416157] Workqueue:  0x0 (events)
-[   36.417654] Call Trace:
-[   36.418546]  <TASK>
-[   36.419320]  dump_stack_lvl+0x96/0xd0
-[   36.420522]  print_address_description+0x75/0x350
-[   36.421992]  print_report+0x11b/0x250
-[   36.423174]  ? _raw_spin_lock_irqsave+0x87/0xd0
-[   36.424806]  ? __virt_addr_valid+0xcf/0x170
-[   36.426069]  ? worker_thread+0x4a2/0x890
-[   36.427355]  kasan_report+0x131/0x160
-[   36.428556]  ? worker_thread+0x4a2/0x890
-[   36.430053]  worker_thread+0x4a2/0x890
-[   36.431297]  ? worker_clr_flags+0x90/0x90
-[   36.432479]  kthread+0x166/0x190
-[   36.433493]  ? kthread_blkcg+0x50/0x50
-[   36.434669]  ret_from_fork+0x22/0x30
-[   36.435923]  </TASK>
-[   36.436684]
-[   36.437215] Allocated by task 24:
-[   36.438289]  kasan_set_track+0x50/0x80
-[   36.439436]  __kasan_kmalloc+0x89/0xa0
-[   36.440566]  smsusb_probe+0x374/0xc90
-[   36.441920]  usb_probe_interface+0x2d1/0x4c0
-[   36.443253]  really_probe+0x1d5/0x580
-[   36.444539]  __driver_probe_device+0xe3/0x130
-[   36.446085]  driver_probe_device+0x49/0x220
-[   36.447423]  __device_attach_driver+0x19e/0x1b0
-[   36.448931]  bus_for_each_drv+0xcb/0x110
-[   36.450217]  __device_attach+0x132/0x1f0
-[   36.451470]  bus_probe_device+0x59/0xf0
-[   36.452563]  device_add+0x4ec/0x7b0
-[   36.453830]  usb_set_configuration+0xc63/0xe10
-[   36.455230]  usb_generic_driver_probe+0x3b/0x80
-[   36.456166] printk: console [ttyGS0] disabled
-[   36.456569]  usb_probe_device+0x90/0x110
-[   36.459523]  really_probe+0x1d5/0x580
-[   36.461027]  __driver_probe_device+0xe3/0x130
-[   36.462465]  driver_probe_device+0x49/0x220
-[   36.463847]  __device_attach_driver+0x19e/0x1b0
-[   36.465229]  bus_for_each_drv+0xcb/0x110
-[   36.466466]  __device_attach+0x132/0x1f0
-[   36.467799]  bus_probe_device+0x59/0xf0
-[   36.469010]  device_add+0x4ec/0x7b0
-[   36.470125]  usb_new_device+0x863/0xa00
-[   36.471374]  hub_event+0x18c7/0x2220
-[   36.472746]  process_one_work+0x34c/0x5b0
-[   36.474041]  worker_thread+0x4b7/0x890
-[   36.475216]  kthread+0x166/0x190
-[   36.476267]  ret_from_fork+0x22/0x30
-[   36.477447]
-[   36.478160] Freed by task 24:
-[   36.479239]  kasan_set_track+0x50/0x80
-[   36.480512]  kasan_save_free_info+0x2b/0x40
-[   36.481808]  ____kasan_slab_free+0x122/0x1a0
-[   36.483173]  __kmem_cache_free+0xc4/0x200
-[   36.484563]  smsusb_term_device+0xcd/0xf0
-[   36.485896]  smsusb_probe+0xc85/0xc90
-[   36.486976]  usb_probe_interface+0x2d1/0x4c0
-[   36.488303]  really_probe+0x1d5/0x580
-[   36.489498]  __driver_probe_device+0xe3/0x130
-[   36.491140]  driver_probe_device+0x49/0x220
-[   36.492475]  __device_attach_driver+0x19e/0x1b0
-[   36.493988]  bus_for_each_drv+0xcb/0x110
-[   36.495171]  __device_attach+0x132/0x1f0
-[   36.496617]  bus_probe_device+0x59/0xf0
-[   36.497875]  device_add+0x4ec/0x7b0
-[   36.498972]  usb_set_configuration+0xc63/0xe10
-[   36.500264]  usb_generic_driver_probe+0x3b/0x80
-[   36.501740]  usb_probe_device+0x90/0x110
-[   36.503084]  really_probe+0x1d5/0x580
-[   36.504241]  __driver_probe_device+0xe3/0x130
-[   36.505548]  driver_probe_device+0x49/0x220
-[   36.506766]  __device_attach_driver+0x19e/0x1b0
-[   36.508368]  bus_for_each_drv+0xcb/0x110
-[   36.509646]  __device_attach+0x132/0x1f0
-[   36.510911]  bus_probe_device+0x59/0xf0
-[   36.512103]  device_add+0x4ec/0x7b0
-[   36.513215]  usb_new_device+0x863/0xa00
-[   36.514736]  hub_event+0x18c7/0x2220
-[   36.516130]  process_one_work+0x34c/0x5b0
-[   36.517396]  worker_thread+0x4b7/0x890
-[   36.518591]  kthread+0x166/0x190
-[   36.519599]  ret_from_fork+0x22/0x30
-[   36.520851]
-[   36.521405] Last potentially related work creation:
-[   36.523143]  kasan_save_stack+0x3f/0x60
-[   36.524275]  kasan_record_aux_stack_noalloc+0x9d/0xb0
-[   36.525831]  insert_work+0x25/0x130
-[   36.527039]  __queue_work+0x4d4/0x620
-[   36.528236]  queue_work_on+0x72/0xb0
-[   36.529344]  __usb_hcd_giveback_urb+0x13f/0x1b0
-[   36.530819]  dummy_timer+0x350/0x1a40
-[   36.532149]  call_timer_fn+0x2c/0x190
-[   36.533567]  expire_timers+0x69/0x1f0
-[   36.534736]  __run_timers+0x289/0x2d0
-[   36.535841]  run_timer_softirq+0x2d/0x60
-[   36.537110]  __do_softirq+0x116/0x380
-[   36.538377]
-[   36.538950] Second to last potentially related work creation:
-[   36.540855]  kasan_save_stack+0x3f/0x60
-[   36.542084]  kasan_record_aux_stack_noalloc+0x9d/0xb0
-[   36.543592]  insert_work+0x25/0x130
-[   36.544891]  __queue_work+0x4d4/0x620
-[   36.546168]  queue_work_on+0x72/0xb0
-[   36.547328]  __usb_hcd_giveback_urb+0x13f/0x1b0
-[   36.548805]  dummy_timer+0x350/0x1a40
-[   36.550116]  call_timer_fn+0x2c/0x190
-[   36.551570]  expire_timers+0x69/0x1f0
-[   36.552762]  __run_timers+0x289/0x2d0
-[   36.553916]  run_timer_softirq+0x2d/0x60
-[   36.555118]  __do_softirq+0x116/0x380
-[   36.556239]
-[   36.556807] The buggy address belongs to the object at ffff888005960000
-[   36.556807]  which belongs to the cache kmalloc-4k of size 4096
-[   36.560652] The buggy address is located 232 bytes inside of
-[   36.560652]  4096-byte region [ffff888005960000, ffff888005961000)
-[   36.564791]
-[   36.565355] The buggy address belongs to the physical page:
-[   36.567212] page:000000004f0a0731 refcount:1 mapcount:0 mapping:0000000000000000 index:0x00
-[   36.570534] head:000000004f0a0731 order:3 compound_mapcount:0 subpages_mapcount:0 compound0
-[   36.573717] flags: 0x100000000010200(slab|head|node=0|zone=1)
-[   36.575481] raw: 0100000000010200 ffff888001042140 dead000000000122 0000000000000000
-[   36.577842] raw: 0000000000000000 0000000000040004 00000001ffffffff 0000000000000000
-[   36.580175] page dumped because: kasan: bad access detected
-[   36.581994]
-[   36.582548] Memory state around the buggy address:
-[   36.583983]  ffff88800595ff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[   36.586240]  ffff888005960000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   36.588884] >ffff888005960080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   36.591071]                                                           ^
-[   36.593295]  ffff888005960100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   36.595705]  ffff888005960180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[   36.598026] ==================================================================
-[   36.600224] Disabling lock debugging due to kernel taint
-[   36.602681] general protection fault, probably for non-canonical address 0x43600a000000060I
-[   36.607129] CPU: 0 PID: 49 Comm: kworker/0:2 Tainted: G    B              6.2.0-rc3-15798-8
-[   36.611115] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g15584
-[   36.615026] Workqueue: events do_submit_urb
-[   36.616290] RIP: 0010:_raw_spin_lock_irqsave+0x8a/0xd0
-[   36.618107] Code: 24 00 00 00 00 48 89 df be 04 00 00 00 e8 9e b5 c6 fe 48 89 ef be 04 00 5
-[   36.623522] RSP: 0018:ffff888004b6fcf0 EFLAGS: 00010046
-[   36.625072] RAX: 0000000000000000 RBX: 043600a000000060 RCX: ffffffff9fc0e0d7
-[   36.627206] RDX: 0000000000000000 RSI: dffffc0000000000 RDI: ffff888004b6fcf0
-[   36.629813] RBP: ffff888004b6fcf0 R08: dffffc0000000000 R09: ffffed100096df9f
-[   36.631974] R10: dfffe9100096dfa0 R11: 1ffff1100096df9e R12: ffff888005960020
-[   36.634285] R13: ffff8880059600f0 R14: 0000000000000246 R15: 0000000000000001
-[   36.636438] FS:  0000000000000000(0000) GS:ffff88806d600000(0000) knlGS:0000000000000000
-[   36.639092] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   36.640951] CR2: 00007f07476819a3 CR3: 0000000004a34000 CR4: 00000000000006f0
-[   36.643411] Call Trace:
-[   36.644215]  <TASK>
-[   36.644902]  smscore_getbuffer+0x3e/0x1e0
-[   36.646147]  do_submit_urb+0x4f/0x190
-[   36.647449]  process_one_work+0x34c/0x5b0
-[   36.648777]  worker_thread+0x4b7/0x890
-[   36.649984]  ? worker_clr_flags+0x90/0x90
-[   36.651166]  kthread+0x166/0x190
-[   36.652151]  ? kthread_blkcg+0x50/0x50
-[   36.653547]  ret_from_fork+0x22/0x30
-[   36.655051]  </TASK>
-[   36.655733] Modules linked in:
-[   36.656787] ---[ end trace 0000000000000000 ]---
-[   36.658328] RIP: 0010:_raw_spin_lock_irqsave+0x8a/0xd0
-[   36.660045] Code: 24 00 00 00 00 48 89 df be 04 00 00 00 e8 9e b5 c6 fe 48 89 ef be 04 00 5
-[   36.665730] RSP: 0018:ffff888004b6fcf0 EFLAGS: 00010046
-[   36.667448] RAX: 0000000000000000 RBX: 043600a000000060 RCX: ffffffff9fc0e0d7
-[   36.669675] RDX: 0000000000000000 RSI: dffffc0000000000 RDI: ffff888004b6fcf0
-[   36.672645] RBP: ffff888004b6fcf0 R08: dffffc0000000000 R09: ffffed100096df9f
-[   36.674921] R10: dfffe9100096dfa0 R11: 1ffff1100096df9e R12: ffff888005960020
-[   36.677034] R13: ffff8880059600f0 R14: 0000000000000246 R15: 0000000000000001
-[   36.679184] FS:  0000000000000000(0000) GS:ffff88806d600000(0000) knlGS:0000000000000000
-[   36.681655] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   36.683383] CR2: 00007f07476819a3 CR3: 0000000004a34000 CR4: 00000000000006f0
-[   36.685733] Kernel panic - not syncing: Fatal exception
-[   36.688585] Kernel Offset: 0x1d400000 from 0xffffffff81000000 (relocation range: 0xfffffff)
-[   36.692199] ---[ end Kernel panic - not syncing: Fatal exception ]---
+WARNING: CPU: 0 PID: 6082 at net/ipv6/route.c:6180 inet6_rt_notify+0x120/0x130
+......
+Call Trace:
+ <TASK>
+ fib6_add_rt2node+0x685/0xa30
+ fib6_add+0x96/0x1b0
+ ip6_route_add+0x50/0xd0
+ inet6_rtm_newroute+0x97/0xa0
+ rtnetlink_rcv_msg+0x156/0x3d0
+ netlink_rcv_skb+0x5a/0x110
+ netlink_unicast+0x246/0x350
+ netlink_sendmsg+0x250/0x4c0
+ sock_sendmsg+0x66/0x70
+ ___sys_sendmsg+0x7c/0xd0
+ __sys_sendmsg+0x5d/0xb0
+ do_syscall_64+0x3f/0x90
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-When the siano device is plugged in, it may call the following functions
-to initialize the device.
+This bug can be reproduced by script:
 
-smsusb_probe()-->smsusb_init_device()-->smscore_start_device().
+ip -6 addr add 2002::2/64 dev ens2
+ip -6 route add 100::/64 via 2002::1 dev ens2 metric 100
 
-When smscore_start_device() gets failed, the function smsusb_term_device()
-will be called and smsusb_device_t will be deallocated. Although we use
-usb_kill_urb() in smsusb_stop_streaming() to cancel transfer requests
-and wait for them to finish, the worker threads that are scheduled by
-smsusb_onresponse() may be still running. As a result, the UAF bugs
-could happen.
+for i in 10 20 30 40 50 60 70;
+do
+	ip link add link ens2 name ipv_$i type ipvlan
+	ip -6 addr add 2002::$i/64 dev ipv_$i
+	ifconfig ipv_$i up
+done
 
-We add cancel_work_sync() in smsusb_stop_streaming() in order that the
-worker threads could finish before the smsusb_device_t is deallocated.
+for i in 10 20 30 40 50 60;
+do
+	ip -6 route append 100::/64 encap ip6 dst 2002::$i via 2002::1
+dev ipv_$i metric 100
+done
 
-Fixes: dd47fbd40e6e ("[media] smsusb: don't sleep while atomic")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+ip -6 route append 100::/64 via 2002::1 dev ipv_70 metric 100
+
+This patch fixes it by adding nexthop_len of every siblings using
+rt6_nh_nlmsg_size().
+
+Fixes: beb1afac518d ("net: ipv6: Add support to dump multipath routes via RTA_MULTIPATH attribute")
+Signed-off-by: Lu Wei <luwei32@huawei.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20230222083629.335683-2-luwei32@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/siano/smsusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/route.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/usb/siano/smsusb.c b/drivers/media/usb/siano/smsusb.c
-index ec759f43c634d..cdbc636e8ff88 100644
---- a/drivers/media/usb/siano/smsusb.c
-+++ b/drivers/media/usb/siano/smsusb.c
-@@ -191,6 +191,7 @@ static void smsusb_stop_streaming(struct smsusb_device_t *dev)
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index e74e0361fd921..a6983a13dd205 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -5540,16 +5540,17 @@ static size_t rt6_nlmsg_size(struct fib6_info *f6i)
+ 		nexthop_for_each_fib6_nh(f6i->nh, rt6_nh_nlmsg_size,
+ 					 &nexthop_len);
+ 	} else {
++		struct fib6_info *sibling, *next_sibling;
+ 		struct fib6_nh *nh = f6i->fib6_nh;
  
- 	for (i = 0; i < MAX_URBS; i++) {
- 		usb_kill_urb(&dev->surbs[i].urb);
-+		cancel_work_sync(&dev->surbs[i].wq);
+ 		nexthop_len = 0;
+ 		if (f6i->fib6_nsiblings) {
+-			nexthop_len = nla_total_size(0)	 /* RTA_MULTIPATH */
+-				    + NLA_ALIGN(sizeof(struct rtnexthop))
+-				    + nla_total_size(16) /* RTA_GATEWAY */
+-				    + lwtunnel_get_encap_size(nh->fib_nh_lws);
++			rt6_nh_nlmsg_size(nh, &nexthop_len);
  
- 		if (dev->surbs[i].cb) {
- 			smscore_putbuffer(dev->coredev, dev->surbs[i].cb);
+-			nexthop_len *= f6i->fib6_nsiblings;
++			list_for_each_entry_safe(sibling, next_sibling,
++						 &f6i->fib6_siblings, fib6_siblings) {
++				rt6_nh_nlmsg_size(sibling->fib6_nh, &nexthop_len);
++			}
+ 		}
+ 		nexthop_len += lwtunnel_get_encap_size(nh->fib_nh_lws);
+ 	}
 -- 
 2.39.2
 
