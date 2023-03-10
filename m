@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA296B4164
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44D386B422E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231143AbjCJNwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:52:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56680 "EHLO
+        id S231512AbjCJOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:00:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbjCJNwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:52:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4992B115654
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:20 -0800 (PST)
+        with ESMTP id S231489AbjCJOA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29079112A66
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBC57B822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A67C433EF;
-        Fri, 10 Mar 2023 13:52:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B578C616F0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8E9EC4339C;
+        Fri, 10 Mar 2023 14:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456337;
-        bh=BQ9Skkjq+REIP476nYzqPXBPPNhVOGC16g6URGwTH08=;
+        s=korg; t=1678456826;
+        bh=27YCleqUjTg3cu6L16iWgrj9g+J8Xmv6fZe8VvJvwjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOKDJnFfdl1RSWdPeeTtBi7n0HKE6zuu44QSJkWYHg4w5azD72OnSlx/aRWto72e/
-         WSVWuSBeCfKer6r7Jxj8dfJsPSf7nMow62YfE/Hlio+4BH0XyWdJ1qwdbXa4HwNRn1
-         A4DoBYsT4UgWwiEArW07zLoThi7ejstvcsjraZck=
+        b=WMgcFjhOTrKFRkU7uyW32rzaPHwnQzcRJEfEQAl/YyulAe6RD8W/0nDp/Fiu9ZJ9F
+         J9+OTpqLVpmvUeJll1fwC5qtUOd4zStf//0IGuvu4FNLTzUdZPYsgKXvHTFFZmRwHj
+         h9WU84QxaVRw8Y1KH7p6ABCoh5vlAJ88PA3BTfSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 4.14 135/193] rbd: avoid use-after-free in do_rbd_add() when rbd_dev_create() fails
+        patches@lists.linux.dev, ionut_n2001@yahoo.com,
+        Kees Cook <keescook@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 137/211] media: uvcvideo: Silence memcpy() run-time false positive warnings
 Date:   Fri, 10 Mar 2023 14:38:37 +0100
-Message-Id: <20230310133715.730479366@linuxfoundation.org>
+Message-Id: <20230310133722.905130332@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,94 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit f7c4d9b133c7a04ca619355574e96b6abf209fba upstream.
+[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
 
-If getting an ID or setting up a work queue in rbd_dev_create() fails,
-use-after-free on rbd_dev->rbd_client, rbd_dev->spec and rbd_dev->opts
-is triggered in do_rbd_add().  The root cause is that the ownership of
-these structures is transfered to rbd_dev prematurely and they all end
-up getting freed when rbd_dev_create() calls rbd_dev_free() prior to
-returning to do_rbd_add().
+The memcpy() in uvc_video_decode_meta() intentionally copies across the
+length and flags members and into the trailing buf flexible array.
+Split the copy so that the compiler can better reason about (the lack
+of) buffer overflows here. Avoid the run-time false positive warning:
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE, an
-incomplete patch submitted by Natalia Petrova <n.petrova@fintech.ru>.
+  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
 
-Cc: stable@vger.kernel.org
-Fixes: 1643dfa4c2c8 ("rbd: introduce a per-device ordered workqueue")
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Additionally fix a typo in the documentation for struct uvc_meta_buf.
+
+Reported-by: ionut_n2001@yahoo.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/rbd.c |   20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ drivers/media/usb/uvc/uvc_video.c | 4 +++-
+ include/uapi/linux/uvcvideo.h     | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -4778,8 +4778,7 @@ static void rbd_dev_release(struct devic
- 		module_put(THIS_MODULE);
- }
+diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
+index 53ea225972478..0d3a3b697b2d8 100644
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -1352,7 +1352,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
+ 	if (has_scr)
+ 		memcpy(stream->clock.last_scr, scr, 6);
  
--static struct rbd_device *__rbd_dev_create(struct rbd_client *rbdc,
--					   struct rbd_spec *spec)
-+static struct rbd_device *__rbd_dev_create(struct rbd_spec *spec)
- {
- 	struct rbd_device *rbd_dev;
+-	memcpy(&meta->length, mem, length);
++	meta->length = mem[0];
++	meta->flags  = mem[1];
++	memcpy(meta->buf, &mem[2], length - 2);
+ 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
  
-@@ -4812,9 +4811,6 @@ static struct rbd_device *__rbd_dev_crea
- 	rbd_dev->dev.parent = &rbd_root_dev;
- 	device_initialize(&rbd_dev->dev);
- 
--	rbd_dev->rbd_client = rbdc;
--	rbd_dev->spec = spec;
--
- 	return rbd_dev;
- }
- 
-@@ -4827,12 +4823,10 @@ static struct rbd_device *rbd_dev_create
- {
- 	struct rbd_device *rbd_dev;
- 
--	rbd_dev = __rbd_dev_create(rbdc, spec);
-+	rbd_dev = __rbd_dev_create(spec);
- 	if (!rbd_dev)
- 		return NULL;
- 
--	rbd_dev->opts = opts;
--
- 	/* get an id and fill in device name */
- 	rbd_dev->dev_id = ida_simple_get(&rbd_dev_id_ida, 0,
- 					 minor_to_rbd_dev_id(1 << MINORBITS),
-@@ -4849,6 +4843,10 @@ static struct rbd_device *rbd_dev_create
- 	/* we have a ref from do_rbd_add() */
- 	__module_get(THIS_MODULE);
- 
-+	rbd_dev->rbd_client = rbdc;
-+	rbd_dev->spec = spec;
-+	rbd_dev->opts = opts;
-+
- 	dout("%s rbd_dev %p dev_id %d\n", __func__, rbd_dev, rbd_dev->dev_id);
- 	return rbd_dev;
- 
-@@ -5934,7 +5932,7 @@ static int rbd_dev_probe_parent(struct r
- 		goto out_err;
- 	}
- 
--	parent = __rbd_dev_create(rbd_dev->rbd_client, rbd_dev->parent_spec);
-+	parent = __rbd_dev_create(rbd_dev->parent_spec);
- 	if (!parent) {
- 		ret = -ENOMEM;
- 		goto out_err;
-@@ -5944,8 +5942,8 @@ static int rbd_dev_probe_parent(struct r
- 	 * Images related by parent/child relationships always share
- 	 * rbd_client and spec/parent_spec, so bump their refcounts.
- 	 */
--	__rbd_get_client(rbd_dev->rbd_client);
--	rbd_spec_get(rbd_dev->parent_spec);
-+	parent->rbd_client = __rbd_get_client(rbd_dev->rbd_client);
-+	parent->spec = rbd_spec_get(rbd_dev->parent_spec);
- 
- 	ret = rbd_dev_image_probe(parent, depth);
- 	if (ret < 0)
+ 	uvc_dbg(stream->dev, FRAME,
+diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
+index 8288137387c0d..a9d0a64007ba5 100644
+--- a/include/uapi/linux/uvcvideo.h
++++ b/include/uapi/linux/uvcvideo.h
+@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
+  * struct. The first two fields are added by the driver, they can be used for
+  * clock synchronisation. The rest is an exact copy of a UVC payload header.
+  * Only complete objects with complete buffers are included. Therefore it's
+- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
++ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
+  */
+ struct uvc_meta_buf {
+ 	__u64 ns;
+-- 
+2.39.2
+
 
 
