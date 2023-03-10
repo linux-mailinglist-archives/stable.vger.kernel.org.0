@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 846846B4AC9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:26:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D40536B4ACD
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:27:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232974AbjCJP0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:26:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
+        id S234254AbjCJP1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:27:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234159AbjCJP00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:26:26 -0500
+        with ESMTP id S233009AbjCJP0i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:26:38 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D75DE133A4F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:15:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65BFD12B7D9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:15:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC5BA61A47
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:14:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3031C433D2;
-        Fri, 10 Mar 2023 15:14:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD6ED61A32
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C494AC4339C;
+        Fri, 10 Mar 2023 15:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461294;
-        bh=On8oB+fQZKHmgucBg7uQ1++v7dwDwEHMPyHGR/TMvPo=;
+        s=korg; t=1678461297;
+        bh=Q+6+wmmmyD48r8kIuLpM/fK00F7Q73yRK4lzpYFxDqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ps5m5zONVp2c8nRKAuSSSAmf1CJzd8ReSR7VCS28Jc4O+yEaAk8G4jhl+XtqDdOYc
-         TNpt/+l8JkLDuAg+BsZYTHl5brPZfkANFNrlO7YFmgF+JYLirz94TlWuPuxxW3D9Z5
-         QEFbvbbqrSVNkgIbDB/fsknvozIxVxBrFrUSwfiE=
+        b=SKd2DBCxSiFXcnKMZrlGjwEx/Rav6TBZ6NC+DJ2Wqgf1JloQuziCsLX3ZmxmOXZDC
+         WuE+JF/6AJKuAgt4PCZ7IOVS8+YUVArlGL0lLBYTMhXeH4nDWlqv5F2z0uzOCX4qHi
+         BSCtS24iSBboaZh4mMKA55OKK3aX/dh/HPzSoRkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
+        patches@lists.linux.dev,
+        Wen-chien Jesse Sung <jesse.sung@canonical.com>,
+        Isaac True <isaac.true@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/136] tty: serial: fsl_lpuart: disable the CTS when send break signal
-Date:   Fri, 10 Mar 2023 14:43:30 +0100
-Message-Id: <20230310133709.824662204@linuxfoundation.org>
+Subject: [PATCH 5.15 089/136] serial: sc16is7xx: setup GPIO controller later in probe
+Date:   Fri, 10 Mar 2023 14:43:31 +0100
+Message-Id: <20230310133709.853631834@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -53,74 +55,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Isaac True <isaac.true@canonical.com>
 
-[ Upstream commit c4c81db5cf8bc53d6160c3abf26d382c841aa434 ]
+[ Upstream commit c8f71b49ee4d28930c4a6798d1969fa91dc4ef3e ]
 
-LPUART IP has a bug that it treats the CTS as higher priority than the
-break signal, which cause the break signal sending through UARTCTRL_SBK
-may impacted by the CTS input if the HW flow control is enabled.
+The GPIO controller component of the sc16is7xx driver is setup too
+early, which can result in a race condition where another device tries
+to utilise the GPIO lines before the sc16is7xx device has finished
+initialising.
 
-Add this workaround patch to fix the IP bug, we can disable CTS before
-asserting SBK to avoid any interference from CTS, and re-enable it when
-break off.
+This issue manifests itself as an Oops when the GPIO lines are configured:
 
-Such as for the bluetooth chip power save feature, host can let the BT
-chip get into sleep state by sending a UART break signal, and wake it up
-by turning off the UART break. If the BT chip enters the sleep mode
-successfully, it will pull up the CTS line, if the BT chip is woken up,
-it will pull down the CTS line. If without this workaround patch, the
-UART TX pin cannot send the break signal successfully as it affected by
-the BT CTS pin. After adding this patch, the BT power save feature can
-work well.
+    Unable to handle kernel read from unreadable memory at virtual address
+    ...
+    pc : sc16is7xx_gpio_direction_output+0x68/0x108 [sc16is7xx]
+    lr : sc16is7xx_gpio_direction_output+0x4c/0x108 [sc16is7xx]
+    ...
+    Call trace:
+    sc16is7xx_gpio_direction_output+0x68/0x108 [sc16is7xx]
+    gpiod_direction_output_raw_commit+0x64/0x318
+    gpiod_direction_output+0xb0/0x170
+    create_gpio_led+0xec/0x198
+    gpio_led_probe+0x16c/0x4f0
+    platform_drv_probe+0x5c/0xb0
+    really_probe+0xe8/0x448
+    driver_probe_device+0xe8/0x138
+    __device_attach_driver+0x94/0x118
+    bus_for_each_drv+0x8c/0xe0
+    __device_attach+0x100/0x1b8
+    device_initial_probe+0x28/0x38
+    bus_probe_device+0xa4/0xb0
+    deferred_probe_work_func+0x90/0xe0
+    process_one_work+0x1c4/0x480
+    worker_thread+0x54/0x430
+    kthread+0x138/0x150
+    ret_from_fork+0x10/0x1c
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20221214031137.28815-2-sherry.sun@nxp.com
+This patch moves the setup of the GPIO controller functions to later in the
+probe function, ensuring the sc16is7xx device has already finished
+initialising by the time other devices try to make use of the GPIO lines.
+The error handling has also been reordered to reflect the new
+initialisation order.
+
+Co-developed-by: Wen-chien Jesse Sung <jesse.sung@canonical.com>
+Signed-off-by: Wen-chien Jesse Sung <jesse.sung@canonical.com>
+Signed-off-by: Isaac True <isaac.true@canonical.com>
+Link: https://lore.kernel.org/r/20221130105529.698385-1-isaac.true@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sc16is7xx.c | 51 +++++++++++++++++-----------------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index f4d9dc4648da4..8a1d5c5d4c09f 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1484,12 +1484,32 @@ static void lpuart_break_ctl(struct uart_port *port, int break_state)
+diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
+index 0ab788058fa2a..b57cf8ddbf63b 100644
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -1245,25 +1245,6 @@ static int sc16is7xx_probe(struct device *dev,
+ 	}
+ 	sched_set_fifo(s->kworker_task);
  
- static void lpuart32_break_ctl(struct uart_port *port, int break_state)
- {
--	unsigned long temp;
-+	unsigned long temp, modem;
-+	struct tty_struct *tty;
-+	unsigned int cflag = 0;
+-#ifdef CONFIG_GPIOLIB
+-	if (devtype->nr_gpio) {
+-		/* Setup GPIO cotroller */
+-		s->gpio.owner		 = THIS_MODULE;
+-		s->gpio.parent		 = dev;
+-		s->gpio.label		 = dev_name(dev);
+-		s->gpio.direction_input	 = sc16is7xx_gpio_direction_input;
+-		s->gpio.get		 = sc16is7xx_gpio_get;
+-		s->gpio.direction_output = sc16is7xx_gpio_direction_output;
+-		s->gpio.set		 = sc16is7xx_gpio_set;
+-		s->gpio.base		 = -1;
+-		s->gpio.ngpio		 = devtype->nr_gpio;
+-		s->gpio.can_sleep	 = 1;
+-		ret = gpiochip_add_data(&s->gpio, s);
+-		if (ret)
+-			goto out_thread;
+-	}
+-#endif
+-
+ 	/* reset device, purging any pending irq / data */
+ 	regmap_write(s->regmap, SC16IS7XX_IOCONTROL_REG << SC16IS7XX_REG_SHIFT,
+ 			SC16IS7XX_IOCONTROL_SRESET_BIT);
+@@ -1329,6 +1310,25 @@ static int sc16is7xx_probe(struct device *dev,
+ 				s->p[u].irda_mode = true;
+ 	}
+ 
++#ifdef CONFIG_GPIOLIB
++	if (devtype->nr_gpio) {
++		/* Setup GPIO cotroller */
++		s->gpio.owner		 = THIS_MODULE;
++		s->gpio.parent		 = dev;
++		s->gpio.label		 = dev_name(dev);
++		s->gpio.direction_input	 = sc16is7xx_gpio_direction_input;
++		s->gpio.get		 = sc16is7xx_gpio_get;
++		s->gpio.direction_output = sc16is7xx_gpio_direction_output;
++		s->gpio.set		 = sc16is7xx_gpio_set;
++		s->gpio.base		 = -1;
++		s->gpio.ngpio		 = devtype->nr_gpio;
++		s->gpio.can_sleep	 = 1;
++		ret = gpiochip_add_data(&s->gpio, s);
++		if (ret)
++			goto out_thread;
++	}
++#endif
 +
-+	tty = tty_port_tty_get(&port->state->port);
-+	if (tty) {
-+		cflag = tty->termios.c_cflag;
-+		tty_kref_put(tty);
+ 	/*
+ 	 * Setup interrupt. We first try to acquire the IRQ line as level IRQ.
+ 	 * If that succeeds, we can allow sharing the interrupt as well.
+@@ -1348,18 +1348,19 @@ static int sc16is7xx_probe(struct device *dev,
+ 	if (!ret)
+ 		return 0;
+ 
+-out_ports:
+-	for (i--; i >= 0; i--) {
+-		uart_remove_one_port(&sc16is7xx_uart, &s->p[i].port);
+-		clear_bit(s->p[i].port.line, &sc16is7xx_lines);
+-	}
+-
+ #ifdef CONFIG_GPIOLIB
+ 	if (devtype->nr_gpio)
+ 		gpiochip_remove(&s->gpio);
+ 
+ out_thread:
+ #endif
++
++out_ports:
++	for (i--; i >= 0; i--) {
++		uart_remove_one_port(&sc16is7xx_uart, &s->p[i].port);
++		clear_bit(s->p[i].port.line, &sc16is7xx_lines);
 +	}
++
+ 	kthread_stop(s->kworker_task);
  
- 	temp = lpuart32_read(port, UARTCTRL) & ~UARTCTRL_SBK;
-+	modem = lpuart32_read(port, UARTMODIR);
- 
--	if (break_state != 0)
-+	if (break_state != 0) {
- 		temp |= UARTCTRL_SBK;
-+		/*
-+		 * LPUART CTS has higher priority than SBK, need to disable CTS before
-+		 * asserting SBK to avoid any interference if flow control is enabled.
-+		 */
-+		if (cflag & CRTSCTS && modem & UARTMODIR_TXCTSE)
-+			lpuart32_write(port, modem & ~UARTMODIR_TXCTSE, UARTMODIR);
-+	} else {
-+		/* Re-enable the CTS when break off. */
-+		if (cflag & CRTSCTS && !(modem & UARTMODIR_TXCTSE))
-+			lpuart32_write(port, modem | UARTMODIR_TXCTSE, UARTMODIR);
-+	}
- 
- 	lpuart32_write(port, temp, UARTCTRL);
- }
+ out_clk:
 -- 
 2.39.2
 
