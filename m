@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2290D6B42D4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:07:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 536916B458D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231768AbjCJOHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:07:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34588 "EHLO
+        id S231515AbjCJOel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:34:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231644AbjCJOHX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:23 -0500
+        with ESMTP id S232484AbjCJOej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:34:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B261184D4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F31499E53F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:34:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17CB56192E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBAE9C433D2;
-        Fri, 10 Mar 2023 14:06:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85EC16187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:34:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EF77C433A4;
+        Fri, 10 Mar 2023 14:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457200;
-        bh=aRt7IUzICRpx12TUtqvx6RnBWQGAPDdz3FJYOgArrAQ=;
+        s=korg; t=1678458877;
+        bh=GOO+5daKcvgCJqX2TW7Ow94BY1PLOJrsyOhdMpXME5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0w84/wtrDlD3d0Q1Fw1CXYQx1hYQ4JXPepW4CsqXyO3xgBRrpq8ULvxftcU9WIO4
-         Y29rWEIA3JAZpQdBmpV2CkrcO742xWyiMh/m50tb7vBmLU6LFwuUJBeWpWxC0XKks3
-         DZ/yEUMHr0u4UtDN2/fMhEYHl9wLTznDDqiCdaSk=
+        b=ySBME7Fb0uW14a+9A7L/BhelGg4rencrbl569kryhhy4FuKpD8L63rak9sLqENRYD
+         ccFRt+a++3slIt6pH4uk7TbB659Us8m2DJ/jGbKuB2RPB1w1sRDzZjx/6wd2yNX3IE
+         eoQiYRcOxCdSCG6/0TGkV6ZvDpS88dpg3LMN1ULw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 054/200] watchdog: rzg2l_wdt: Issue a reset before we put the PM clocks
-Date:   Fri, 10 Mar 2023 14:37:41 +0100
-Message-Id: <20230310133718.779008454@linuxfoundation.org>
+Subject: [PATCH 5.4 173/357] media: i2c: ov7670: 0 instead of -EINVAL was returned
+Date:   Fri, 10 Mar 2023 14:37:42 +0100
+Message-Id: <20230310133742.365882490@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,68 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 6ba6f0f5910d5916539268c0ad55657bb8940616 ]
+[ Upstream commit 6a4c664539e6de9b32b65ddcf767ec1bcc1d7f8a ]
 
-On RZ/Five SoC it was observed that setting timeout (to say 1 sec) wouldn't
-reset the system.
+If the media bus is unsupported, then return -EINVAL. Instead it
+returned 'ret' which happened to be 0.
 
-The procedure described in the HW manual (Procedure for Activating Modules)
-for activating the target module states we need to start supply of the
-clock module before applying the reset signal. This patch makes sure we
-follow the same procedure to clear the registers of the WDT module, fixing
-the issues seen on RZ/Five SoC.
+This fixes a smatch warning:
 
-While at it re-used rzg2l_wdt_stop() in rzg2l_wdt_set_timeout() as it has
-the same function calls.
+ov7670.c:1843 ov7670_parse_dt() warn: missing error code? 'ret'
 
-Fixes: 4055ee81009e ("watchdog: rzg2l_wdt: Add set_timeout callback")
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Link: https://lore.kernel.org/r/20221117114907.138583-2-fabrizio.castro.jz@renesas.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 01b8444828fc ("media: v4l2: i2c: ov7670: Implement OF mbus configuration")
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/rzg2l_wdt.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/media/i2c/ov7670.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/rzg2l_wdt.c b/drivers/watchdog/rzg2l_wdt.c
-index 974a4194a8fd6..ceca42db08374 100644
---- a/drivers/watchdog/rzg2l_wdt.c
-+++ b/drivers/watchdog/rzg2l_wdt.c
-@@ -115,25 +115,23 @@ static int rzg2l_wdt_stop(struct watchdog_device *wdev)
- {
- 	struct rzg2l_wdt_priv *priv = watchdog_get_drvdata(wdev);
+diff --git a/drivers/media/i2c/ov7670.c b/drivers/media/i2c/ov7670.c
+index 154776d0069ea..e47800cb6c0f7 100644
+--- a/drivers/media/i2c/ov7670.c
++++ b/drivers/media/i2c/ov7670.c
+@@ -1824,7 +1824,7 @@ static int ov7670_parse_dt(struct device *dev,
  
--	pm_runtime_put(wdev->parent);
- 	reset_control_reset(priv->rstc);
-+	pm_runtime_put(wdev->parent);
- 
- 	return 0;
- }
- 
- static int rzg2l_wdt_set_timeout(struct watchdog_device *wdev, unsigned int timeout)
- {
--	struct rzg2l_wdt_priv *priv = watchdog_get_drvdata(wdev);
--
- 	wdev->timeout = timeout;
- 
- 	/*
- 	 * If the watchdog is active, reset the module for updating the WDTSET
--	 * register so that it is updated with new timeout values.
-+	 * register by calling rzg2l_wdt_stop() (which internally calls reset_control_reset()
-+	 * to reset the module) so that it is updated with new timeout values.
- 	 */
- 	if (watchdog_active(wdev)) {
--		pm_runtime_put(wdev->parent);
--		reset_control_reset(priv->rstc);
-+		rzg2l_wdt_stop(wdev);
- 		rzg2l_wdt_start(wdev);
+ 	if (bus_cfg.bus_type != V4L2_MBUS_PARALLEL) {
+ 		dev_err(dev, "Unsupported media bus type\n");
+-		return ret;
++		return -EINVAL;
  	}
+ 	info->mbus_config = bus_cfg.bus.parallel.flags;
  
 -- 
 2.39.2
