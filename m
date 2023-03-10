@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1746B4480
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1DDB6B426B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232238AbjCJOY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:24:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
+        id S231657AbjCJODU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:03:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232227AbjCJOYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F0E94ECF2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:26 -0800 (PST)
+        with ESMTP id S231546AbjCJODA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E71BCA0B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDBB46187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C385EC433D2;
-        Fri, 10 Mar 2023 14:23:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22679B822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87052C4339E;
+        Fri, 10 Mar 2023 14:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458203;
-        bh=iKVQPWO1uRe7XlP+pAt0xGPjBWMrnU1CzF1f5lNF7qk=;
+        s=korg; t=1678456972;
+        bh=7++CaNJPou4HECccnvXg20nu6jpxpsYURDpEWgDM21k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaHtwcGfFcg/vbB2W89+yQLyEoOfbyJhJLS3A/jQM1383D1Ubgba0aIzzAy6P6ELE
-         FQnbyatT1gKYl1adztkYMqQ15vXFWhk2p3fNXazDYVW2xwnXXjCdw/KjAxBZxOPJwf
-         ATQMBIfiNqCEfhhXqW/9wrtJVN+ezyChd4y19KNY=
+        b=SPoKBSXkIaFhGYqUHCllsVmcBwDaBkjKSi9zagi3oo8qawrMSrSZ6bvCCbZD9DYtk
+         hK9hczIAzkgLzEHU0kQkyb4mY4ZqU3KpXIe7hX6HKhSlg8V1o8J3rooKIsba2YUNGX
+         JolxzslZd0lFRLahGoEwhirciYe9aQjdYo4tIEdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 199/252] pwm: stm32-lp: fix the check on arr and cmp registers update
+        syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.2 189/211] net: tls: avoid hanging tasks on the tx_lock
 Date:   Fri, 10 Mar 2023 14:39:29 +0100
-Message-Id: <20230310133725.046754774@linuxfoundation.org>
+Message-Id: <20230310133724.594421140@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,41 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 3066bc2d58be31275afb51a589668f265e419c37 ]
+commit f3221361dc85d4de22586ce8441ec2c67b454f5d upstream.
 
-The ARR (auto reload register) and CMP (compare) registers are
-successively written. The status bits to check the update of these
-registers are polled together with regmap_read_poll_timeout().
-The condition to end the loop may become true, even if one of the
-register isn't correctly updated.
-So ensure both status bits are set before clearing them.
+syzbot sent a hung task report and Eric explains that adversarial
+receiver may keep RWIN at 0 for a long time, so we are not guaranteed
+to make forward progress. Thread which took tx_lock and went to sleep
+may not release tx_lock for hours. Use interruptible sleep where
+possible and reschedule the work if it can't take the lock.
 
-Fixes: e70a540b4e02 ("pwm: Add STM32 LPTimer PWM driver")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Testing: existing selftest passes
+
+Reported-by: syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com
+Fixes: 79ffe6087e91 ("net/tls: add a TX lock")
+Link: https://lore.kernel.org/all/000000000000e412e905f5b46201@google.com/
+Cc: stable@vger.kernel.org # wait 4 weeks
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230301002857.2101894-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-stm32-lp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tls/tls_sw.c |   26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pwm/pwm-stm32-lp.c b/drivers/pwm/pwm-stm32-lp.c
-index e92a140074221..7c8c2bb8f6a28 100644
---- a/drivers/pwm/pwm-stm32-lp.c
-+++ b/drivers/pwm/pwm-stm32-lp.c
-@@ -126,7 +126,7 @@ static int stm32_pwm_lp_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -941,7 +941,9 @@ int tls_sw_sendmsg(struct sock *sk, stru
+ 			       MSG_CMSG_COMPAT))
+ 		return -EOPNOTSUPP;
  
- 	/* ensure CMP & ARR registers are properly written */
- 	ret = regmap_read_poll_timeout(priv->regmap, STM32_LPTIM_ISR, val,
--				       (val & STM32_LPTIM_CMPOK_ARROK),
-+				       (val & STM32_LPTIM_CMPOK_ARROK) == STM32_LPTIM_CMPOK_ARROK,
- 				       100, 1000);
- 	if (ret) {
- 		dev_err(priv->chip.dev, "ARR/CMP registers write issue\n");
--- 
-2.39.2
-
+-	mutex_lock(&tls_ctx->tx_lock);
++	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
++	if (ret)
++		return ret;
+ 	lock_sock(sk);
+ 
+ 	if (unlikely(msg->msg_controllen)) {
+@@ -1275,7 +1277,9 @@ int tls_sw_sendpage(struct sock *sk, str
+ 		      MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&tls_ctx->tx_lock);
++	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
++	if (ret)
++		return ret;
+ 	lock_sock(sk);
+ 	ret = tls_sw_do_sendpage(sk, page, offset, size, flags);
+ 	release_sock(sk);
+@@ -2416,11 +2420,19 @@ static void tx_work_handler(struct work_
+ 
+ 	if (!test_and_clear_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask))
+ 		return;
+-	mutex_lock(&tls_ctx->tx_lock);
+-	lock_sock(sk);
+-	tls_tx_records(sk, -1);
+-	release_sock(sk);
+-	mutex_unlock(&tls_ctx->tx_lock);
++
++	if (mutex_trylock(&tls_ctx->tx_lock)) {
++		lock_sock(sk);
++		tls_tx_records(sk, -1);
++		release_sock(sk);
++		mutex_unlock(&tls_ctx->tx_lock);
++	} else if (!test_and_set_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask)) {
++		/* Someone is holding the tx_lock, they will likely run Tx
++		 * and cancel the work on their way out of the lock section.
++		 * Schedule a long delay just in case.
++		 */
++		schedule_delayed_work(&ctx->tx_work.work, msecs_to_jiffies(10));
++	}
+ }
+ 
+ static bool tls_is_tx_ready(struct tls_sw_context_tx *ctx)
 
 
