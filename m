@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC996B45EC
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1966B4325
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232690AbjCJOit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
+        id S231567AbjCJOK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232725AbjCJOid (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 498FE24BD2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:14 -0800 (PST)
+        with ESMTP id S231878AbjCJOKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 250E411758B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B056195F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 481B3C4339B;
-        Fri, 10 Mar 2023 14:38:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD728617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B690BC433D2;
+        Fri, 10 Mar 2023 14:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459091;
-        bh=QveCxSwGOQ4oACMGx9NkE95m4nXoKBO+3mQuxrd4/zE=;
+        s=korg; t=1678457413;
+        bh=27YCleqUjTg3cu6L16iWgrj9g+J8Xmv6fZe8VvJvwjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Um/GwDjACXSV7ZgPoYsbeUhz+Hw4Yikxsppp/vD5UEUJA+5PNQFYlGCpr66qJAIzZ
-         pPZR0S1DzQD78wzu8egc0QUZRasIZAOmswzu+YdvVTALl5vtURlQZjCz7/8kGjE6sS
-         uftKfSawuQfHBt2/j7Low4s5DZuAR4dZX/1a5H1A=
+        b=Ld44vyABzeUDRHArs9wpPCKTN2NhGaSHkrP7Rvnc/L9n11CkTnKzag7IkBcNyRt7i
+         A+nt0cpVwwK6q/PTBe9W2B/EROZGMmlbzSjN2Xs3HJeilinCnUqByAMlwUlKPfEppg
+         AnryVK4k8Y+HaC3PcDRcRqkDOsDOLO3kzELoJhfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 245/357] irqdomain: Fix association race
+        patches@lists.linux.dev, ionut_n2001@yahoo.com,
+        Kees Cook <keescook@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 127/200] media: uvcvideo: Silence memcpy() run-time false positive warnings
 Date:   Fri, 10 Mar 2023 14:38:54 +0100
-Message-Id: <20230310133745.552993336@linuxfoundation.org>
+Message-Id: <20230310133721.028912700@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,83 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit b06730a571a9ff1ba5bd6b20bf9e50e5a12f1ec6 upstream.
+[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
 
-The sanity check for an already mapped virq is done outside of the
-irq_domain_mutex-protected section which means that an (unlikely) racing
-association may not be detected.
+The memcpy() in uvc_video_decode_meta() intentionally copies across the
+length and flags members and into the trailing buf flexible array.
+Split the copy so that the compiler can better reason about (the lack
+of) buffer overflows here. Avoid the run-time false positive warning:
 
-Fix this by factoring out the association implementation, which will
-also be used in a follow-on change to fix a shared-interrupt mapping
-race.
+  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
 
-Fixes: ddaf144c61da ("irqdomain: Refactor irq_domain_associate_many()")
-Cc: stable@vger.kernel.org      # 3.11
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-2-johan+linaro@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Additionally fix a typo in the documentation for struct uvc_meta_buf.
+
+Reported-by: ionut_n2001@yahoo.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irqdomain.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/media/usb/uvc/uvc_video.c | 4 +++-
+ include/uapi/linux/uvcvideo.h     | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -530,8 +530,8 @@ void irq_domain_disassociate(struct irq_
- 	irq_domain_clear_mapping(domain, hwirq);
- }
+diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
+index 53ea225972478..0d3a3b697b2d8 100644
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -1352,7 +1352,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
+ 	if (has_scr)
+ 		memcpy(stream->clock.last_scr, scr, 6);
  
--int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
--			 irq_hw_number_t hwirq)
-+static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
-+				       irq_hw_number_t hwirq)
- {
- 	struct irq_data *irq_data = irq_get_irq_data(virq);
- 	int ret;
-@@ -544,7 +544,6 @@ int irq_domain_associate(struct irq_doma
- 	if (WARN(irq_data->domain, "error: virq%i is already associated", virq))
- 		return -EINVAL;
+-	memcpy(&meta->length, mem, length);
++	meta->length = mem[0];
++	meta->flags  = mem[1];
++	memcpy(meta->buf, &mem[2], length - 2);
+ 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
  
--	mutex_lock(&irq_domain_mutex);
- 	irq_data->hwirq = hwirq;
- 	irq_data->domain = domain;
- 	if (domain->ops->map) {
-@@ -561,7 +560,6 @@ int irq_domain_associate(struct irq_doma
- 			}
- 			irq_data->domain = NULL;
- 			irq_data->hwirq = 0;
--			mutex_unlock(&irq_domain_mutex);
- 			return ret;
- 		}
- 
-@@ -572,12 +570,23 @@ int irq_domain_associate(struct irq_doma
- 
- 	domain->mapcount++;
- 	irq_domain_set_mapping(domain, hwirq, irq_data);
--	mutex_unlock(&irq_domain_mutex);
- 
- 	irq_clear_status_flags(virq, IRQ_NOREQUEST);
- 
- 	return 0;
- }
-+
-+int irq_domain_associate(struct irq_domain *domain, unsigned int virq,
-+			 irq_hw_number_t hwirq)
-+{
-+	int ret;
-+
-+	mutex_lock(&irq_domain_mutex);
-+	ret = irq_domain_associate_locked(domain, virq, hwirq);
-+	mutex_unlock(&irq_domain_mutex);
-+
-+	return ret;
-+}
- EXPORT_SYMBOL_GPL(irq_domain_associate);
- 
- void irq_domain_associate_many(struct irq_domain *domain, unsigned int irq_base,
+ 	uvc_dbg(stream->dev, FRAME,
+diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
+index 8288137387c0d..a9d0a64007ba5 100644
+--- a/include/uapi/linux/uvcvideo.h
++++ b/include/uapi/linux/uvcvideo.h
+@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
+  * struct. The first two fields are added by the driver, they can be used for
+  * clock synchronisation. The rest is an exact copy of a UVC payload header.
+  * Only complete objects with complete buffers are included. Therefore it's
+- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
++ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
+  */
+ struct uvc_meta_buf {
+ 	__u64 ns;
+-- 
+2.39.2
+
 
 
