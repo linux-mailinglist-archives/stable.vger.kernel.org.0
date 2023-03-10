@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D3E66B442C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DC46B432C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232235AbjCJOWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32798 "EHLO
+        id S231931AbjCJOLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:11:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232237AbjCJOVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE5AF1E280
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:31 -0800 (PST)
+        with ESMTP id S231778AbjCJOKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A141184F9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61F57B822B5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9661DC433D2;
-        Fri, 10 Mar 2023 14:20:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9B7D617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD8B7C4339B;
+        Fri, 10 Mar 2023 14:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458029;
-        bh=PEMsqGfsAuRIdJY+Edvm4oz69OaJXFHKVjN/iPU84i4=;
+        s=korg; t=1678457427;
+        bh=G3s1v7hp0nHzMqtrFwH/DPZEXwDj67FX7Dpdq62oZ7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0JVjVMjQKXDcewfw5AOhTxb+6DaDjskl6yhMkDU4wBlct+pHPuVbVftLLBr9szCFG
-         jHcBxtRrdtylqmNWCj3+m5xTwNg3JQXsgtkP7Oa4YQ30EtmTBoBTQt2Rs4Tf8Y0b+3
-         lXRj54qH7Y3EtlaD+E/4/8ogKkz8WdUOxujulxI0=
+        b=1JgU293AzGBuuyWLH1k+BZXjw5gl1XywngwmBEQ8QIAaKqGFilTPQbUIRsOLiUNH9
+         TwcRnG40pfsXN8Rc26r8IfMZ6S5IOO64Qxlwd6pQLefhLhMa6FxzilJNJu2UIrSjFd
+         +7rYa2xzivr/bfK2K0VDEJ1IFiF3xWUfm+M1gMIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun ASAKA <JunASAKA@zzy040330.moe>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.19 139/252] wifi: rtl8xxxu: fixing transmisison failure for rtl8192eu
-Date:   Fri, 10 Mar 2023 14:38:29 +0100
-Message-Id: <20230310133723.001728288@linuxfoundation.org>
+        patches@lists.linux.dev, Zhong Jinghua <zhongjinghua@huawei.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 103/200] loop: loop_set_status_from_info() check before assignment
+Date:   Fri, 10 Mar 2023 14:38:30 +0100
+Message-Id: <20230310133720.265704732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,36 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun ASAKA <JunASAKA@zzy040330.moe>
+From: Zhong Jinghua <zhongjinghua@huawei.com>
 
-commit c6015bf3ff1ffb3caa27eb913797438a0fc634a0 upstream.
+[ Upstream commit 9f6ad5d533d1c71e51bdd06a5712c4fbc8768dfa ]
 
-Fixing transmission failure which results in
-"authentication with ... timed out". This can be
-fixed by disable the REG_TXPAUSE.
+In loop_set_status_from_info(), lo->lo_offset and lo->lo_sizelimit should
+be checked before reassignment, because if an overflow error occurs, the
+original correct value will be changed to the wrong value, and it will not
+be changed back.
 
-Signed-off-by: Jun ASAKA <JunASAKA@zzy040330.moe>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221217030659.12577-1-JunASAKA@zzy040330.moe
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+More, the original patch did not solve the problem, the value was set and
+ioctl returned an error, but the subsequent io used the value in the loop
+driver, which still caused an alarm:
+
+loop_handle_cmd
+ do_req_filebacked
+  loff_t pos = ((loff_t) blk_rq_pos(rq) << 9) + lo->lo_offset;
+  lo_rw_aio
+   cmd->iocb.ki_pos = pos
+
+Fixes: c490a0b5a4f3 ("loop: Check for overflow while configuring loop")
+Signed-off-by: Zhong Jinghua <zhongjinghua@huawei.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20230221095027.3656193-1-zhongjinghua@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/block/loop.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-@@ -1679,6 +1679,11 @@ static void rtl8192e_enable_rf(struct rt
- 	val8 = rtl8xxxu_read8(priv, REG_PAD_CTRL1);
- 	val8 &= ~BIT(0);
- 	rtl8xxxu_write8(priv, REG_PAD_CTRL1, val8);
-+
-+	/*
-+	 * Fix transmission failure of rtl8192e.
-+	 */
-+	rtl8xxxu_write8(priv, REG_TXPAUSE, 0x00);
- }
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index df628e30bca41..981464e561df1 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -977,13 +977,13 @@ loop_set_status_from_info(struct loop_device *lo,
+ 		return -EINVAL;
+ 	}
  
- struct rtl8xxxu_fileops rtl8192eu_fops = {
++	/* Avoid assigning overflow values */
++	if (info->lo_offset > LLONG_MAX || info->lo_sizelimit > LLONG_MAX)
++		return -EOVERFLOW;
++
+ 	lo->lo_offset = info->lo_offset;
+ 	lo->lo_sizelimit = info->lo_sizelimit;
+ 
+-	/* loff_t vars have been assigned __u64 */
+-	if (lo->lo_offset < 0 || lo->lo_sizelimit < 0)
+-		return -EOVERFLOW;
+-
+ 	memcpy(lo->lo_file_name, info->lo_file_name, LO_NAME_SIZE);
+ 	lo->lo_file_name[LO_NAME_SIZE-1] = 0;
+ 	lo->lo_flags = info->lo_flags;
+-- 
+2.39.2
+
 
 
