@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA6A6B42F8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C63CE6B420A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbjCJOJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:09:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33674 "EHLO
+        id S231398AbjCJN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:59:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231817AbjCJOI5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915B185B28
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:31 -0800 (PST)
+        with ESMTP id S231392AbjCJN7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71ED212F0D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40591B822C3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18BEC433D2;
-        Fri, 10 Mar 2023 14:07:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EB1BB822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D87EC4339B;
+        Fri, 10 Mar 2023 13:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457272;
-        bh=glR3WvKNXYByI7nWKoEqFRBH+SXx0nZO071j7vFh4Cg=;
+        s=korg; t=1678456743;
+        bh=9kj2c9l6jOQhUMEtZZWXwSksuyOkTZy7xGtWlof1MaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIJJ055LAzNQ3vZIUYB8D7IWiccs5d3yWC/N2M9VG2OTBccpTkERK6cHacUruYu5S
-         Y5MpSFWEMd8XXsN6q1c/Z3MjxjjtP4FBtzil81094WX+o8LDnUv+1XdRb9Wvt4/bjb
-         StlItXheCxtqdBvT55gIeokwnjsnGG0DTxpfCZUw=
+        b=f6Y2gIaSKCqYV+ltu3kAHDaikDgaOMUZn0bGvi660mYItQCBQDfojXwRn35AJ1vSA
+         qmByjmB4FBIpoMIQRB1SmmRyfO3G9rgLLUlYgR0L7yuO3KG1/e7UR4yAmwX81/wP1r
+         2pPMfSpQ0K9ZSP7ucQmGAb633+1zCfx3CKeSOuCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vadim Fedorenko <vadfed@meta.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Kees Cook <keescook@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 080/200] mlx5: fix possible ptp queue fifo use-after-free
+Subject: [PATCH 6.2 107/211] scsi: ipr: Work around fortify-string warning
 Date:   Fri, 10 Mar 2023 14:38:07 +0100
-Message-Id: <20230310133719.559597295@linuxfoundation.org>
+Message-Id: <20230310133722.012113047@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,106 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Fedorenko <vadfed@meta.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3a50cf1e8e5157b82268eee7e330dbe5736a0948 ]
+[ Upstream commit ee4e7dfe4ffc9ca50c6875757bd119abfe22b5c5 ]
 
-Fifo indexes are not checked during pop operations and it leads to
-potential use-after-free when poping from empty queue. Such case was
-possible during re-sync action. WARN_ON_ONCE covers future cases.
+The ipr_log_vpd_compact() function triggers a fortified memcpy() warning
+about a potential string overflow with all versions of clang:
 
-There were out-of-order cqe spotted which lead to drain of the queue and
-use-after-free because of lack of fifo pointers check. Special check and
-counter are added to avoid resync operation if SKB could not exist in the
-fifo because of OOO cqe (skb_id must be between consumer and producer
-index).
+In file included from drivers/scsi/ipr.c:43:
+In file included from include/linux/string.h:254:
+include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+                        __write_overflow_field(p_size_field, size);
+                        ^
+include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+2 errors generated.
 
-Fixes: 58a518948f60 ("net/mlx5e: Add resiliency for PTP TX port timestamp")
-Signed-off-by: Vadim Fedorenko <vadfed@meta.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+I don't see anything actually wrong with the function, but this is the only
+instance I can reproduce of the fortification going wrong in the kernel at
+the moment, so the easiest solution may be to rewrite the function into
+something that does not trigger the warning.
+
+Instead of having a combined buffer for vendor/device/serial strings, use
+three separate local variables and just truncate the whitespace
+individually.
+
+Link: https://lore.kernel.org/r/20230214132831.2118392-1-arnd@kernel.org
+Cc: Kees Cook <keescook@chromium.org>
+Fixes: 8cf093e275d0 ("[SCSI] ipr: Improved dual adapter errors")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/ptp.c  | 19 ++++++++++++++++++-
- .../net/ethernet/mellanox/mlx5/core/en/txrx.h |  2 ++
- .../ethernet/mellanox/mlx5/core/en_stats.c    |  1 +
- .../ethernet/mellanox/mlx5/core/en_stats.h    |  1 +
- 4 files changed, 22 insertions(+), 1 deletion(-)
+ drivers/scsi/ipr.c | 41 +++++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-index b72de2b520ecb..ae75e230170b5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/ptp.c
-@@ -86,6 +86,17 @@ static bool mlx5e_ptp_ts_cqe_drop(struct mlx5e_ptpsq *ptpsq, u16 skb_cc, u16 skb
- 	return (ptpsq->ts_cqe_ctr_mask && (skb_cc != skb_id));
+diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
+index 2022ffb450417..8c062afb2918d 100644
+--- a/drivers/scsi/ipr.c
++++ b/drivers/scsi/ipr.c
+@@ -1516,23 +1516,22 @@ static void ipr_process_ccn(struct ipr_cmnd *ipr_cmd)
  }
  
-+static bool mlx5e_ptp_ts_cqe_ooo(struct mlx5e_ptpsq *ptpsq, u16 skb_id)
-+{
-+	u16 skb_cc = PTP_WQE_CTR2IDX(ptpsq->skb_fifo_cc);
-+	u16 skb_pc = PTP_WQE_CTR2IDX(ptpsq->skb_fifo_pc);
-+
-+	if (PTP_WQE_CTR2IDX(skb_id - skb_cc) >= PTP_WQE_CTR2IDX(skb_pc - skb_cc))
-+		return true;
-+
-+	return false;
-+}
-+
- static void mlx5e_ptp_skb_fifo_ts_cqe_resync(struct mlx5e_ptpsq *ptpsq, u16 skb_cc,
- 					     u16 skb_id, int budget)
+ /**
+- * strip_and_pad_whitespace - Strip and pad trailing whitespace.
+- * @i:		index into buffer
+- * @buf:		string to modify
++ * strip_whitespace - Strip and pad trailing whitespace.
++ * @i:		size of buffer
++ * @buf:	string to modify
+  *
+- * This function will strip all trailing whitespace, pad the end
+- * of the string with a single space, and NULL terminate the string.
++ * This function will strip all trailing whitespace and
++ * NUL terminate the string.
+  *
+- * Return value:
+- * 	new length of string
+  **/
+-static int strip_and_pad_whitespace(int i, char *buf)
++static void strip_whitespace(int i, char *buf)
  {
-@@ -120,8 +131,14 @@ static void mlx5e_ptp_handle_ts_cqe(struct mlx5e_ptpsq *ptpsq,
- 		goto out;
- 	}
- 
--	if (mlx5e_ptp_ts_cqe_drop(ptpsq, skb_cc, skb_id))
-+	if (mlx5e_ptp_ts_cqe_drop(ptpsq, skb_cc, skb_id)) {
-+		if (mlx5e_ptp_ts_cqe_ooo(ptpsq, skb_id)) {
-+			/* already handled by a previous resync */
-+			ptpsq->cq_stats->ooo_cqe_drop++;
-+			return;
-+		}
- 		mlx5e_ptp_skb_fifo_ts_cqe_resync(ptpsq, skb_cc, skb_id, budget);
-+	}
- 
- 	skb = mlx5e_skb_fifo_pop(&ptpsq->skb_fifo);
- 	hwtstamp = mlx5e_cqe_ts_to_ns(sq->ptp_cyc2time, sq->clock, get_cqe_ts(cqe));
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-index 15a5a57b47b85..1b3a65325ece1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-@@ -297,6 +297,8 @@ void mlx5e_skb_fifo_push(struct mlx5e_skb_fifo *fifo, struct sk_buff *skb)
- static inline
- struct sk_buff *mlx5e_skb_fifo_pop(struct mlx5e_skb_fifo *fifo)
- {
-+	WARN_ON_ONCE(*fifo->pc == *fifo->cc);
-+
- 	return *mlx5e_skb_fifo_get(fifo, (*fifo->cc)++);
++	if (i < 1)
++		return;
++	i--;
+ 	while (i && buf[i] == ' ')
+ 		i--;
+-	buf[i+1] = ' ';
+-	buf[i+2] = '\0';
+-	return i + 2;
++	buf[i+1] = '\0';
  }
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-index 03c1841970f14..f7f54550a8bbc 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.c
-@@ -2121,6 +2121,7 @@ static const struct counter_desc ptp_cq_stats_desc[] = {
- 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, abort_abs_diff_ns) },
- 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, resync_cqe) },
- 	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, resync_event) },
-+	{ MLX5E_DECLARE_PTP_CQ_STAT(struct mlx5e_ptp_cq_stats, ooo_cqe_drop) },
- };
+ /**
+@@ -1547,19 +1546,21 @@ static int strip_and_pad_whitespace(int i, char *buf)
+ static void ipr_log_vpd_compact(char *prefix, struct ipr_hostrcb *hostrcb,
+ 				struct ipr_vpd *vpd)
+ {
+-	char buffer[IPR_VENDOR_ID_LEN + IPR_PROD_ID_LEN + IPR_SERIAL_NUM_LEN + 3];
+-	int i = 0;
++	char vendor_id[IPR_VENDOR_ID_LEN + 1];
++	char product_id[IPR_PROD_ID_LEN + 1];
++	char sn[IPR_SERIAL_NUM_LEN + 1];
  
- static const struct counter_desc ptp_rq_stats_desc[] = {
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
-index 9f781085be471..52a67efafcd37 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_stats.h
-@@ -459,6 +459,7 @@ struct mlx5e_ptp_cq_stats {
- 	u64 abort_abs_diff_ns;
- 	u64 resync_cqe;
- 	u64 resync_event;
-+	u64 ooo_cqe_drop;
- };
+-	memcpy(buffer, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
+-	i = strip_and_pad_whitespace(IPR_VENDOR_ID_LEN - 1, buffer);
++	memcpy(vendor_id, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
++	strip_whitespace(IPR_VENDOR_ID_LEN, vendor_id);
  
- struct mlx5e_stats {
+-	memcpy(&buffer[i], vpd->vpids.product_id, IPR_PROD_ID_LEN);
+-	i = strip_and_pad_whitespace(i + IPR_PROD_ID_LEN - 1, buffer);
++	memcpy(product_id, vpd->vpids.product_id, IPR_PROD_ID_LEN);
++	strip_whitespace(IPR_PROD_ID_LEN, product_id);
+ 
+-	memcpy(&buffer[i], vpd->sn, IPR_SERIAL_NUM_LEN);
+-	buffer[IPR_SERIAL_NUM_LEN + i] = '\0';
++	memcpy(sn, vpd->sn, IPR_SERIAL_NUM_LEN);
++	strip_whitespace(IPR_SERIAL_NUM_LEN, sn);
+ 
+-	ipr_hcam_err(hostrcb, "%s VPID/SN: %s\n", prefix, buffer);
++	ipr_hcam_err(hostrcb, "%s VPID/SN: %s %s %s\n", prefix,
++		     vendor_id, product_id, sn);
+ }
+ 
+ /**
 -- 
 2.39.2
 
