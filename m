@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5966B4597
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39CD56B4104
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232597AbjCJOfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43852 "EHLO
+        id S230355AbjCJNsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:48:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232606AbjCJOfE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B198BEFF6D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:02 -0800 (PST)
+        with ESMTP id S230251AbjCJNss (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9ED7042A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 667E4B822DD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C630EC433A0;
-        Fri, 10 Mar 2023 14:34:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E796A60D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7C70C4339C;
+        Fri, 10 Mar 2023 13:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458900;
-        bh=uVzkbQnU8y61ZlIBt9r8EbfrInfDtktuAPbEq3+6eG4=;
+        s=korg; t=1678456121;
+        bh=5p2iuU/ksDFrYJxijReyaF+9H7LBkdE31r5hE0k5b7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=loK87V97xIvtuntPmqy2zj1qhKkLCGEfYrQ1HTrNELbYZMuiClwNQhvWGXrsvwDlN
-         zGYJzEWhkqSOe3jEOOqmplaB13c/LG52OChVFy45CnGwg97Z9zzKIZjCIzsThYoTVD
-         f4TCfo7Q0Ql8rVG1dn1vkJOeQxiUSml9sbVs20RA=
+        b=pAtpNkXUeBq3jzwhNPyWzrsSfd8MaTGtmJsl+sn69trS5jO1BCDDXNO5WX9sQYrek
+         wmMwPwUqHdtPy1WIPZeQJbbKIstr45Rp0UBjn7OEWRCZyfdDBRGXW7RAv2vHuXFxrg
+         yBrtNnAHyjO+NkWhen/vJzHAvgjLuLcVnSXLF5CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 180/357] rcu: Suppress smp_processor_id() complaint in synchronize_rcu_expedited_wait()
+Subject: [PATCH 4.14 087/193] ACPI: video: Fix Lenovo Ideapad Z570 DMI match
 Date:   Fri, 10 Mar 2023 14:37:49 +0100
-Message-Id: <20230310133742.695638135@linuxfoundation.org>
+Message-Id: <20230310133714.026813362@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,40 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2d7f00b2f01301d6e41fd4a28030dab0442265be ]
+[ Upstream commit 2d11eae42d52a131f06061015e49dc0f085c5bfc ]
 
-The normal grace period's RCU CPU stall warnings are invoked from the
-scheduling-clock interrupt handler, and can thus invoke smp_processor_id()
-with impunity, which allows them to directly invoke dump_cpu_task().
-In contrast, the expedited grace period's RCU CPU stall warnings are
-invoked from process context, which causes the dump_cpu_task() function's
-calls to smp_processor_id() to complain bitterly in debug kernels.
+Multiple Ideapad Z570 variants need acpi_backlight=native to force native
+use on these pre Windows 8 machines since acpi_video backlight control
+does not work here.
 
-This commit therefore causes synchronize_rcu_expedited_wait() to disable
-preemption around its call to dump_cpu_task().
+The original DMI quirk matches on a product_name of "102434U" but other
+variants may have different product_name-s such as e.g. "1024D9U".
 
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Move to checking product_version instead as is more or less standard for
+Lenovo DMI quirks for similar reasons.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/video_detect.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index 173e3ce607900..eca3df7f041c5 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -523,7 +523,9 @@ static void synchronize_sched_expedited_wait(void)
- 				mask = leaf_node_cpu_bit(rnp, cpu);
- 				if (!(READ_ONCE(rnp->expmask) & mask))
- 					continue;
-+				preempt_disable(); // For smp_processor_id() in dump_cpu_task().
- 				dump_cpu_task(cpu);
-+				preempt_enable();
- 			}
- 		}
- 		jiffies_stall = 3 * rcu_jiffies_till_stall_check() + 3;
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index 0ec74ab2a3995..b4f16073ef432 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -300,7 +300,7 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 	 .ident = "Lenovo Ideapad Z570",
+ 	 .matches = {
+ 		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+-		DMI_MATCH(DMI_PRODUCT_NAME, "102434U"),
++		DMI_MATCH(DMI_PRODUCT_VERSION, "Ideapad Z570"),
+ 		},
+ 	},
+ 	{
 -- 
 2.39.2
 
