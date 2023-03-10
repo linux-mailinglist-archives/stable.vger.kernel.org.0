@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDB56B413C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD236B432D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230462AbjCJNuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:50:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54328 "EHLO
+        id S231794AbjCJOLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:11:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230464AbjCJNus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75695E7EC2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:47 -0800 (PST)
+        with ESMTP id S231802AbjCJOKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FA75243
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14B3F60D29
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26F4DC4339B;
-        Fri, 10 Mar 2023 13:50:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7336F6187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 848A4C4339B;
+        Fri, 10 Mar 2023 14:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456246;
-        bh=AupI8DZLa6c/BV/RNHMnzl3sW9pXeR1CABduRzjM2Mw=;
+        s=korg; t=1678457429;
+        bh=LOYjDsy62Hb8HMECGXe/ToF4xlSzflh09K6bV4/KwfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAskiEJ5Wop1jKlP7Ef4OvH5umn3aT1CfodB3lBO+om9JR1E5UhE6EzrFpqXrTCx5
-         hjMFIS/awDM18G6NPZVAZggV6E1sQKGBZjvpnM9XfKZm74QF3rtm0tNhuNXTBM9sFg
-         q0/wtBURlF35+X38gm/uujQfa5oSVpLiASA4VLKY=
+        b=NKnhXKYB4wmnftfVDaAou5ipAVfwNk6kA5Z5DyR7T5Gi3Bv3k6nLa46AVGm3jo5BN
+         w2+XHivPh37vdVs81kRh5f6iq62ddgbSEwn0ulwctz9PSCLdILUcJzhnJnw6No/Ld3
+         V2ZRCpStPOJlZUTvBX+qRuPqTJtjZe0M1kRKHeqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.14 129/193] wifi: rtl8xxxu: Use a longer retry limit of 48
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 104/200] ASoC: adau7118: dont disable regulators on device unbind
 Date:   Fri, 10 Mar 2023 14:38:31 +0100
-Message-Id: <20230310133715.531816549@linuxfoundation.org>
+Message-Id: <20230310133720.294247444@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,59 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit 2a86aa9a1892d60ef2e3f310f5b42b8b05546d65 upstream.
+[ Upstream commit b5bfa7277ee7d944421e0ef193586c6e34d7492c ]
 
-The Realtek rate control algorithm goes back and forth a lot between
-the highest and the lowest rate it's allowed to use. This is due to
-a lot of frames being dropped because the retry limits set by
-IEEE80211_CONF_CHANGE_RETRY_LIMITS are too low. (Experimentally, they
-are 4 for long frames and 7 for short frames.)
+The regulators are supposed to be controlled through the
+set_bias_level() component callback. Moreover, the regulators are not
+enabled during probe and so, this would lead to a regulator unbalanced
+use count.
 
-The vendor drivers hardcode the value 48 for both retry limits (for
-station mode), which makes dropped frames very rare and thus the rate
-control is more stable.
-
-Because most Realtek chips handle the rate control in the firmware,
-which can't be modified, ignore the limits set by
-IEEE80211_CONF_CHANGE_RETRY_LIMITS and use the value 48 (set during
-chip initialisation), same as the vendor drivers.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/477d745b-6bac-111d-403c-487fc19aa30d@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ca514c0f12b02 ("ASOC: Add ADAU7118 8 Channel PDM-to-I2S/TDM Converter driver")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20230224104551.1139981-1-nuno.sa@analog.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ sound/soc/codecs/adau7118.c | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -5500,7 +5500,6 @@ static int rtl8xxxu_config(struct ieee80
- {
- 	struct rtl8xxxu_priv *priv = hw->priv;
- 	struct device *dev = &priv->udev->dev;
--	u16 val16;
- 	int ret = 0, channel;
- 	bool ht40;
+diff --git a/sound/soc/codecs/adau7118.c b/sound/soc/codecs/adau7118.c
+index bbb0972498876..a663d37e57760 100644
+--- a/sound/soc/codecs/adau7118.c
++++ b/sound/soc/codecs/adau7118.c
+@@ -444,22 +444,6 @@ static const struct snd_soc_component_driver adau7118_component_driver = {
+ 	.endianness		= 1,
+ };
  
-@@ -5510,14 +5509,6 @@ static int rtl8xxxu_config(struct ieee80
- 			 __func__, hw->conf.chandef.chan->hw_value,
- 			 changed, hw->conf.chandef.width);
- 
--	if (changed & IEEE80211_CONF_CHANGE_RETRY_LIMITS) {
--		val16 = ((hw->conf.long_frame_max_tx_count <<
--			  RETRY_LIMIT_LONG_SHIFT) & RETRY_LIMIT_LONG_MASK) |
--			((hw->conf.short_frame_max_tx_count <<
--			  RETRY_LIMIT_SHORT_SHIFT) & RETRY_LIMIT_SHORT_MASK);
--		rtl8xxxu_write16(priv, REG_RETRY_LIMIT, val16);
--	}
+-static void adau7118_regulator_disable(void *data)
+-{
+-	struct adau7118_data *st = data;
+-	int ret;
+-	/*
+-	 * If we fail to disable DVDD, don't bother in trying IOVDD. We
+-	 * actually don't want to be left in the situation where DVDD
+-	 * is enabled and IOVDD is disabled.
+-	 */
+-	ret = regulator_disable(st->dvdd);
+-	if (ret)
+-		return;
 -
- 	if (changed & IEEE80211_CONF_CHANGE_CHANNEL) {
- 		switch (hw->conf.chandef.width) {
- 		case NL80211_CHAN_WIDTH_20_NOHT:
+-	regulator_disable(st->iovdd);
+-}
+-
+ static int adau7118_regulator_setup(struct adau7118_data *st)
+ {
+ 	st->iovdd = devm_regulator_get(st->dev, "iovdd");
+@@ -481,8 +465,7 @@ static int adau7118_regulator_setup(struct adau7118_data *st)
+ 		regcache_cache_only(st->map, true);
+ 	}
+ 
+-	return devm_add_action_or_reset(st->dev, adau7118_regulator_disable,
+-					st);
++	return 0;
+ }
+ 
+ static int adau7118_parset_dt(const struct adau7118_data *st)
+-- 
+2.39.2
+
 
 
