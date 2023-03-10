@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A43B56B417A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C09C86B4611
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231194AbjCJNxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:53:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58948 "EHLO
+        id S232683AbjCJOjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231267AbjCJNxY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:53:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642B72FCE2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:11 -0800 (PST)
+        with ESMTP id S232725AbjCJOjk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:39:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2BA4420F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68F3DB822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC445C4339C;
-        Fri, 10 Mar 2023 13:53:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D0AC60F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E89C433D2;
+        Fri, 10 Mar 2023 14:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456389;
-        bh=Wjfb+YRLC1NEK8zBuLN+wCNzsONaxtttRw0Vlt7BWmY=;
+        s=korg; t=1678459178;
+        bh=xgPvzfDy+s9/jfebMR/uI5TEh8mSleRWqfZVrNRaobg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jq+O97L++oCE5/IKXSt+kmIyhz9E0ZQx+PCMiIM5k52Bbk4MUxbR28THzIvamKXv1
-         1w2VDuuusubkPyw/ihhntecKHQg76zxs41MRX3JOJtMT+TeycA56VqmURhVNJnuKWH
-         u2y4d3d8yDnDf8FANCROy/e0CXS83TedcunqVgF4=
+        b=IW6ylChZhri63G/SRwI8P3ezVzFc3mP1BBKaguQgQ8UjRpv9zbvxYV9iu+UbrMLa7
+         evTw1CTGpsejLUzrJ6NeVp11Ay3go6HwKvlGYdjnanEqhcL9Jj69I6AMbmfqbzE9FB
+         1YrMK2GqdEOPKfE7JthF8xleVhticmHQWPswTEgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sherry Sun <sherry.sun@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 181/193] tty: serial: fsl_lpuart: disable the CTS when send break signal
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 274/357] scsi: ses: Fix possible desc_ptr out-of-bounds accesses
 Date:   Fri, 10 Mar 2023 14:39:23 +0100
-Message-Id: <20230310133717.115064121@linuxfoundation.org>
+Message-Id: <20230310133746.834729261@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit c4c81db5cf8bc53d6160c3abf26d382c841aa434 ]
+commit 801ab13d50cf3d26170ee073ea8bb4eececb76ab upstream.
 
-LPUART IP has a bug that it treats the CTS as higher priority than the
-break signal, which cause the break signal sending through UARTCTRL_SBK
-may impacted by the CTS input if the HW flow control is enabled.
+Sanitize possible desc_ptr out-of-bounds accesses in
+ses_enclosure_data_process().
 
-Add this workaround patch to fix the IP bug, we can disable CTS before
-asserting SBK to avoid any interference from CTS, and re-enable it when
-break off.
-
-Such as for the bluetooth chip power save feature, host can let the BT
-chip get into sleep state by sending a UART break signal, and wake it up
-by turning off the UART break. If the BT chip enters the sleep mode
-successfully, it will pull up the CTS line, if the BT chip is woken up,
-it will pull down the CTS line. If without this workaround patch, the
-UART TX pin cannot send the break signal successfully as it affected by
-the BT CTS pin. After adding this patch, the BT power save feature can
-work well.
-
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20221214031137.28815-2-sherry.sun@nxp.com
+Link: https://lore.kernel.org/r/20230202162451.15346-4-thenzl@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ drivers/scsi/ses.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index cbbdb94592ce7..20dd476e4d1a1 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1199,12 +1199,32 @@ static void lpuart_break_ctl(struct uart_port *port, int break_state)
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -572,15 +572,19 @@ static void ses_enclosure_data_process(s
+ 			int max_desc_len;
  
- static void lpuart32_break_ctl(struct uart_port *port, int break_state)
- {
--	unsigned long temp;
-+	unsigned long temp, modem;
-+	struct tty_struct *tty;
-+	unsigned int cflag = 0;
-+
-+	tty = tty_port_tty_get(&port->state->port);
-+	if (tty) {
-+		cflag = tty->termios.c_cflag;
-+		tty_kref_put(tty);
-+	}
- 
- 	temp = lpuart32_read(port, UARTCTRL) & ~UARTCTRL_SBK;
-+	modem = lpuart32_read(port, UARTMODIR);
- 
--	if (break_state != 0)
-+	if (break_state != 0) {
- 		temp |= UARTCTRL_SBK;
-+		/*
-+		 * LPUART CTS has higher priority than SBK, need to disable CTS before
-+		 * asserting SBK to avoid any interference if flow control is enabled.
-+		 */
-+		if (cflag & CRTSCTS && modem & UARTMODIR_TXCTSE)
-+			lpuart32_write(port, modem & ~UARTMODIR_TXCTSE, UARTMODIR);
-+	} else {
-+		/* Re-enable the CTS when break off. */
-+		if (cflag & CRTSCTS && !(modem & UARTMODIR_TXCTSE))
-+			lpuart32_write(port, modem | UARTMODIR_TXCTSE, UARTMODIR);
-+	}
- 
- 	lpuart32_write(port, temp, UARTCTRL);
- }
--- 
-2.39.2
-
+ 			if (desc_ptr) {
+-				if (desc_ptr >= buf + page7_len) {
++				if (desc_ptr + 3 >= buf + page7_len) {
+ 					desc_ptr = NULL;
+ 				} else {
+ 					len = (desc_ptr[2] << 8) + desc_ptr[3];
+ 					desc_ptr += 4;
+-					/* Add trailing zero - pushes into
+-					 * reserved space */
+-					desc_ptr[len] = '\0';
+-					name = desc_ptr;
++					if (desc_ptr + len > buf + page7_len)
++						desc_ptr = NULL;
++					else {
++						/* Add trailing zero - pushes into
++						 * reserved space */
++						desc_ptr[len] = '\0';
++						name = desc_ptr;
++					}
+ 				}
+ 			}
+ 			if (type_ptr[0] == ENCLOSURE_COMPONENT_DEVICE ||
 
 
