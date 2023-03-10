@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AC76B4645
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4405C6B44A8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:26:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232775AbjCJOlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:41:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58318 "EHLO
+        id S232364AbjCJO0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:26:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232798AbjCJOlj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:41:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5A511F626
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:41:34 -0800 (PST)
+        with ESMTP id S232386AbjCJO0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:26:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A539311ABB9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 638F36187C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:41:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72F53C433D2;
-        Fri, 10 Mar 2023 14:41:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B5AAB82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95E9C433EF;
+        Fri, 10 Mar 2023 14:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459293;
-        bh=Wsliuq6EncgVX/jgZHLrq2mud/OzRX0mj/JQZD0YDpA=;
+        s=korg; t=1678458302;
+        bh=UoW+VK+Ba2DkuZLUWDncou493SkWTYE2Mwft5wjiCF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FrmY84P6n5/RPgxQ6lNl9cah4AnwZNenZKnN2VXmnr5aX0S03CkVayLjE+/eEAOcP
-         ex7plGwMKzEszbUMQ/7P6to0itdp8lPdEgEeMrGpsWJPQaH544gush+j0GR2ngFBpx
-         419bbwHXaOM4OB0QNvPnqZRMnENlJRXZtzAvARpc=
+        b=jJyQpnOybeOPAdpCRo/WRhTkNPDGyWtS6yyrb6/FNG83qIBtNmUDxkapY6nSh7n4V
+         bgfnzaY1eVJV3zrJgSEQpETAJp08JpVm9tpHZUtfYOywiVe7bThyAm2msSWLUM5C7U
+         Ag7mtBPnjY2dMaV4B9TmjrVvc8jKSbztS6fWwvB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ying Xu <yinxu@redhat.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 313/357] sctp: add a refcnt in sctp_stream_priorities to avoid a nested loop
-Date:   Fri, 10 Mar 2023 14:40:02 +0100
-Message-Id: <20230310133748.508033152@linuxfoundation.org>
+Subject: [PATCH 4.19 233/252] media: uvcvideo: Handle errors from calls to usb_string
+Date:   Fri, 10 Mar 2023 14:40:03 +0100
+Message-Id: <20230310133726.395690462@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,164 +54,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 68ba44639537de6f91fe32783766322d41848127 ]
+[ Upstream commit 4867bb590ae445bcfaa711a86b603c97e94574b3 ]
 
-With this refcnt added in sctp_stream_priorities, we don't need to
-traverse all streams to check if the prio is used by other streams
-when freeing one stream's prio in sctp_sched_prio_free_sid(). This
-can avoid a nested loop (up to 65535 * 65535), which may cause a
-stuck as Ying reported:
+On a Webcam from Quanta, we see the following error.
 
-    watchdog: BUG: soft lockup - CPU#23 stuck for 26s! [ksoftirqd/23:136]
-    Call Trace:
-     <TASK>
-     sctp_sched_prio_free_sid+0xab/0x100 [sctp]
-     sctp_stream_free_ext+0x64/0xa0 [sctp]
-     sctp_stream_free+0x31/0x50 [sctp]
-     sctp_association_free+0xa5/0x200 [sctp]
+usb 3-5: New USB device found, idVendor=0408, idProduct=30d2, bcdDevice= 0.03
+usb 3-5: New USB device strings: Mfr=3, Product=1, SerialNumber=2
+usb 3-5: Product: USB2.0 HD UVC WebCam
+usb 3-5: Manufacturer: Quanta
+usb 3-5: SerialNumber: 0x0001
+...
+uvcvideo: Found UVC 1.10 device USB2.0 HD UVC WebCam (0408:30d2)
+uvcvideo: Failed to initialize entity for entity 5
+uvcvideo: Failed to register entities (-22).
 
-Note that it doesn't need to use refcount_t type for this counter,
-as its accessing is always protected under the sock lock.
+The Webcam reports an entity of type UVC_VC_EXTENSION_UNIT. It reports a
+string index of '7' associated with that entity. The attempt to read that
+string from the camera fails with error -32 (-EPIPE). usb_string() returns
+that error, but it is ignored. As result, the entity name is empty. This
+later causes v4l2_device_register_subdev() to return -EINVAL, and no
+entities are registered as result.
 
-v1->v2:
- - add a check in sctp_sched_prio_set to avoid the possible prio_head
-   refcnt overflow.
+While this appears to be a firmware problem with the camera, the kernel
+should still handle the situation gracefully. To do that, check the return
+value from usb_string(). If it reports an error, assign the entity's
+default name.
 
-Fixes: 9ed7bfc79542 ("sctp: fix memory leak in sctp_stream_outq_migrate()")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/825eb0c905cb864991eba335f4a2b780e543f06b.1677085641.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sctp/structs.h   |  1 +
- net/sctp/stream_sched_prio.c | 52 +++++++++++++++---------------------
- 2 files changed, 22 insertions(+), 31 deletions(-)
+ drivers/media/usb/uvc/uvc_driver.c | 48 ++++++++++++------------------
+ 1 file changed, 19 insertions(+), 29 deletions(-)
 
-diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
-index cb05e503c9cd1..48cbf3352042f 100644
---- a/include/net/sctp/structs.h
-+++ b/include/net/sctp/structs.h
-@@ -1400,6 +1400,7 @@ struct sctp_stream_priorities {
- 	/* The next stream stream in line */
- 	struct sctp_stream_out_ext *next;
- 	__u16 prio;
-+	__u16 users;
- };
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 998ce712978ae..775d677206484 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -1033,10 +1033,8 @@ static int uvc_parse_vendor_control(struct uvc_device *dev,
+ 					       + n;
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], 2*n);
  
- struct sctp_stream_out_ext {
-diff --git a/net/sctp/stream_sched_prio.c b/net/sctp/stream_sched_prio.c
-index 4fc9f2923ed11..7dd9f8b387cca 100644
---- a/net/sctp/stream_sched_prio.c
-+++ b/net/sctp/stream_sched_prio.c
-@@ -25,6 +25,18 @@
+-		if (buffer[24+p+2*n] != 0)
+-			usb_string(udev, buffer[24+p+2*n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[24+p+2*n] == 0 ||
++		    usb_string(udev, buffer[24+p+2*n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
  
- static void sctp_sched_prio_unsched_all(struct sctp_stream *stream);
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1161,15 +1159,15 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 			memcpy(term->media.bmTransportModes, &buffer[10+n], p);
+ 		}
  
-+static struct sctp_stream_priorities *sctp_sched_prio_head_get(struct sctp_stream_priorities *p)
-+{
-+	p->users++;
-+	return p;
-+}
-+
-+static void sctp_sched_prio_head_put(struct sctp_stream_priorities *p)
-+{
-+	if (p && --p->users == 0)
-+		kfree(p);
-+}
-+
- static struct sctp_stream_priorities *sctp_sched_prio_new_head(
- 			struct sctp_stream *stream, int prio, gfp_t gfp)
- {
-@@ -38,6 +50,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_new_head(
- 	INIT_LIST_HEAD(&p->active);
- 	p->next = NULL;
- 	p->prio = prio;
-+	p->users = 1;
+-		if (buffer[7] != 0)
+-			usb_string(udev, buffer[7], term->name,
+-				   sizeof(term->name));
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
+-			sprintf(term->name, "Camera %u", buffer[3]);
+-		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
+-			sprintf(term->name, "Media %u", buffer[3]);
+-		else
+-			sprintf(term->name, "Input %u", buffer[3]);
++		if (buffer[7] == 0 ||
++		    usb_string(udev, buffer[7], term->name, sizeof(term->name)) < 0) {
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
++				sprintf(term->name, "Camera %u", buffer[3]);
++			if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
++				sprintf(term->name, "Media %u", buffer[3]);
++			else
++				sprintf(term->name, "Input %u", buffer[3]);
++		}
  
- 	return p;
- }
-@@ -53,7 +66,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_get_head(
- 	 */
- 	list_for_each_entry(p, &stream->prio_list, prio_sched) {
- 		if (p->prio == prio)
--			return p;
-+			return sctp_sched_prio_head_get(p);
- 		if (p->prio > prio)
- 			break;
- 	}
-@@ -70,7 +83,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_get_head(
- 			 */
- 			break;
- 		if (p->prio == prio)
--			return p;
-+			return sctp_sched_prio_head_get(p);
- 	}
+ 		list_add_tail(&term->list, &dev->entities);
+ 		break;
+@@ -1201,10 +1199,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
  
- 	/* If not even there, allocate a new one. */
-@@ -154,32 +167,21 @@ static int sctp_sched_prio_set(struct sctp_stream *stream, __u16 sid,
- 	struct sctp_stream_out_ext *soute = sout->ext;
- 	struct sctp_stream_priorities *prio_head, *old;
- 	bool reschedule = false;
--	int i;
-+
-+	old = soute->prio_head;
-+	if (old && old->prio == prio)
-+		return 0;
+ 		memcpy(term->baSourceID, &buffer[7], 1);
  
- 	prio_head = sctp_sched_prio_get_head(stream, prio, gfp);
- 	if (!prio_head)
- 		return -ENOMEM;
+-		if (buffer[8] != 0)
+-			usb_string(udev, buffer[8], term->name,
+-				   sizeof(term->name));
+-		else
++		if (buffer[8] == 0 ||
++		    usb_string(udev, buffer[8], term->name, sizeof(term->name)) < 0)
+ 			sprintf(term->name, "Output %u", buffer[3]);
  
- 	reschedule = sctp_sched_prio_unsched(soute);
--	old = soute->prio_head;
- 	soute->prio_head = prio_head;
- 	if (reschedule)
- 		sctp_sched_prio_sched(stream, soute);
+ 		list_add_tail(&term->list, &dev->entities);
+@@ -1226,10 +1222,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
  
--	if (!old)
--		/* Happens when we set the priority for the first time */
--		return 0;
--
--	for (i = 0; i < stream->outcnt; i++) {
--		soute = SCTP_SO(stream, i)->ext;
--		if (soute && soute->prio_head == old)
--			/* It's still in use, nothing else to do here. */
--			return 0;
--	}
--
--	/* No hits, we are good to free it. */
--	kfree(old);
--
-+	sctp_sched_prio_head_put(old);
- 	return 0;
- }
+ 		memcpy(unit->baSourceID, &buffer[5], p);
  
-@@ -206,20 +208,8 @@ static int sctp_sched_prio_init_sid(struct sctp_stream *stream, __u16 sid,
+-		if (buffer[5+p] != 0)
+-			usb_string(udev, buffer[5+p], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[5+p] == 0 ||
++		    usb_string(udev, buffer[5+p], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Selector %u", buffer[3]);
  
- static void sctp_sched_prio_free_sid(struct sctp_stream *stream, __u16 sid)
- {
--	struct sctp_stream_priorities *prio = SCTP_SO(stream, sid)->ext->prio_head;
--	int i;
--
--	if (!prio)
--		return;
--
-+	sctp_sched_prio_head_put(SCTP_SO(stream, sid)->ext->prio_head);
- 	SCTP_SO(stream, sid)->ext->prio_head = NULL;
--	for (i = 0; i < stream->outcnt; i++) {
--		if (SCTP_SO(stream, i)->ext &&
--		    SCTP_SO(stream, i)->ext->prio_head == prio)
--			return;
--	}
--
--	kfree(prio);
- }
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1259,10 +1253,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		if (dev->uvc_version >= 0x0110)
+ 			unit->processing.bmVideoStandards = buffer[9+n];
  
- static void sctp_sched_prio_free(struct sctp_stream *stream)
+-		if (buffer[8+n] != 0)
+-			usb_string(udev, buffer[8+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[8+n] == 0 ||
++		    usb_string(udev, buffer[8+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Processing %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
+@@ -1290,10 +1282,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
+ 		unit->extension.bmControls = (u8 *)unit + sizeof(*unit);
+ 		memcpy(unit->extension.bmControls, &buffer[23+p], n);
+ 
+-		if (buffer[23+p+n] != 0)
+-			usb_string(udev, buffer[23+p+n], unit->name,
+-				   sizeof(unit->name));
+-		else
++		if (buffer[23+p+n] == 0 ||
++		    usb_string(udev, buffer[23+p+n], unit->name, sizeof(unit->name)) < 0)
+ 			sprintf(unit->name, "Extension %u", buffer[3]);
+ 
+ 		list_add_tail(&unit->list, &dev->entities);
 -- 
 2.39.2
 
