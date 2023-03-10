@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C48D6B437C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 412E96B44C2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:28:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231977AbjCJOPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:15:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46458 "EHLO
+        id S232419AbjCJO2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:28:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232013AbjCJOOl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456BF55538
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:25 -0800 (PST)
+        with ESMTP id S232253AbjCJO1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87D89121431
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:26:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9692060D29
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87750C4339E;
-        Fri, 10 Mar 2023 14:13:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF3FF61745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE58C433D2;
+        Fri, 10 Mar 2023 14:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457591;
-        bh=U9LwCidUUgPKBYh/I/AUlqjiF+BElbC3N7KpNePoHkQ=;
+        s=korg; t=1678458371;
+        bh=h8x5Ys3GcAwhkVCB6D8L7pZJidYLCZKoqGpbrnPzUhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xh5iwpQshJU3LBc4xBkUDn1q4lC0Y8UqP7hXmKsg+yYhD/TbXkanEIT0nNhymerMH
-         QIDwL35u8NVv/yIZDxz2cvmDmqSpShsHg4rhOXAdK9Uh8SRv9pQdxCXuhVnIr2zXo1
-         Dul06k6ncVXackFT2bUoaEk88gWl3y5Tiaq3srbY=
+        b=yEBCZqBHtBC72XqyQ4jhRkN65xOwMKKfRQ6MbLuuIJmi1aymT9dHXZ5wLW5nHZLtT
+         MlC4IAEJPuyQtBbBEG3nrCNSxjaVPrTHnPEj7QjvPT9voZdPbiGlm4BQKlKKXNVLnk
+         WqH9QostPxIFL+KhBOTzGap+N13MYwPTy5O35GjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lyude Paul <lyude@redhat.com>,
-        Imre Deak <imre.deak@intel.com>
-Subject: [PATCH 6.1 190/200] drm/display/dp_mst: Fix down message handling after a packet reception error
+        patches@lists.linux.dev, Jiri Slaby <jirislaby@kernel.org>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 227/252] vc_screen: modify vcs_size() handling in vcs_read()
 Date:   Fri, 10 Mar 2023 14:39:57 +0100
-Message-Id: <20230310133722.926583480@linuxfoundation.org>
+Message-Id: <20230310133726.146605026@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,38 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 1241aedb6b5c7a5a8ad73e5eb3a41cfe18a3e00e upstream.
+[ Upstream commit 46d733d0efc79bc8430d63b57ab88011806d5180 ]
 
-After an error during receiving a packet for a multi-packet DP MST
-sideband message, the state tracking which packets have been received
-already is not reset. This prevents the reception of subsequent down
-messages (due to the pending message not yet completed with an
-end-of-message-transfer packet).
+Restore the vcs_size() handling in vcs_read() to what
+it had been in previous version.
 
-Fix the above by resetting the reception state after a packet error.
-
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: <stable@vger.kernel.org> # v3.17+
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221214184258.2869417-2-imre.deak@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 226fae124b2d ("vc_screen: move load of struct vc_data pointer in vcs_read() to avoid UAF")
+Suggested-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/display/drm_dp_mst_topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/vt/vc_screen.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-@@ -3859,7 +3859,7 @@ static int drm_dp_mst_handle_down_rep(st
- 	struct drm_dp_sideband_msg_rx *msg = &mgr->down_rep_recv;
- 
- 	if (!drm_dp_get_one_sb_msg(mgr, false, &mstb))
--		goto out;
-+		goto out_clear_reply;
- 
- 	/* Multi-packet message transmission, don't clear the reply */
- 	if (!msg->have_eomt)
+diff --git a/drivers/tty/vt/vc_screen.c b/drivers/tty/vt/vc_screen.c
+index 5b5e800ab1549..28bc9c70de3ec 100644
+--- a/drivers/tty/vt/vc_screen.c
++++ b/drivers/tty/vt/vc_screen.c
+@@ -278,10 +278,8 @@ vcs_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+ 		 */
+ 		size = vcs_size(inode);
+ 		if (size < 0) {
+-			if (read)
+-				break;
+ 			ret = size;
+-			goto unlock_out;
++			break;
+ 		}
+ 		if (pos >= size)
+ 			break;
+-- 
+2.39.2
+
 
 
