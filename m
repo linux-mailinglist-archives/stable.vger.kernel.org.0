@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C63CE6B420A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C6B6B42E9
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231398AbjCJN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:59:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45832 "EHLO
+        id S231685AbjCJOIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:08:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231392AbjCJN7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71ED212F0D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:06 -0800 (PST)
+        with ESMTP id S231838AbjCJOIW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EBE53A86
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EB1BB822B7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D87EC4339B;
-        Fri, 10 Mar 2023 13:59:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 783D261771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A640C433EF;
+        Fri, 10 Mar 2023 14:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456743;
-        bh=9kj2c9l6jOQhUMEtZZWXwSksuyOkTZy7xGtWlof1MaQ=;
+        s=korg; t=1678457274;
+        bh=UKEoYjS25wgGroJqPbxWtKDzt69mI2UKt5Q+dewr1z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6Y2gIaSKCqYV+ltu3kAHDaikDgaOMUZn0bGvi660mYItQCBQDfojXwRn35AJ1vSA
-         qmByjmB4FBIpoMIQRB1SmmRyfO3G9rgLLUlYgR0L7yuO3KG1/e7UR4yAmwX81/wP1r
-         2pPMfSpQ0K9ZSP7ucQmGAb633+1zCfx3CKeSOuCE=
+        b=j4QJoZ+DxqgjCBNKD64yuDKrxdjy2zeh5LZLVrCMktzd1qaB9N2+XYeywwQ90lFjM
+         LPqZaLio/34E1zKOoDJJAEtFQaSbsI4DtTHEL8FwKS9iramx9dIYd6LuWf2DWh5M3I
+         6V5D2f0SE724JohFs+3pLR/68+iGgF1kidqFtzfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kees Cook <keescook@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Maher Sanalla <msanalla@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 107/211] scsi: ipr: Work around fortify-string warning
-Date:   Fri, 10 Mar 2023 14:38:07 +0100
-Message-Id: <20230310133722.012113047@linuxfoundation.org>
+Subject: [PATCH 6.1 081/200] net/mlx5: ECPF, wait for VF pages only after disabling host PFs
+Date:   Fri, 10 Mar 2023 14:38:08 +0100
+Message-Id: <20230310133719.589390329@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,112 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-[ Upstream commit ee4e7dfe4ffc9ca50c6875757bd119abfe22b5c5 ]
+[ Upstream commit e1ed30c8c09abc85a01c897845bdbd08c0333353 ]
 
-The ipr_log_vpd_compact() function triggers a fortified memcpy() warning
-about a potential string overflow with all versions of clang:
+Currently,  during the early stages of their unloading, particularly
+during SRIOV disablement, PFs/ECPFs wait on the release of all of
+their VFs memory pages. Furthermore, ECPFs are considered the page
+supplier for host VFs, hence the host VFs memory pages are freed only
+during ECPF cleanup when host interfaces get disabled.
 
-In file included from drivers/scsi/ipr.c:43:
-In file included from include/linux/string.h:254:
-include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
-                        __write_overflow_field(p_size_field, size);
-                        ^
-include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
-2 errors generated.
+Thus, disabling SRIOV early in unload timeline causes the DPU ECPF
+to stall on driver unload while waiting on the release of host VF pages
+that won't be freed before host interfaces get disabled later on.
 
-I don't see anything actually wrong with the function, but this is the only
-instance I can reproduce of the fortification going wrong in the kernel at
-the moment, so the easiest solution may be to rewrite the function into
-something that does not trigger the warning.
+Therefore, for ECPFs, wait on the release of VFs pages only after the
+disablement of host PFs during ECPF cleanup flow. Then, host PFs and VFs
+are disabled and their memory shall be freed accordingly.
 
-Instead of having a combined buffer for vendor/device/serial strings, use
-three separate local variables and just truncate the whitespace
-individually.
-
-Link: https://lore.kernel.org/r/20230214132831.2118392-1-arnd@kernel.org
-Cc: Kees Cook <keescook@chromium.org>
-Fixes: 8cf093e275d0 ("[SCSI] ipr: Improved dual adapter errors")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 143a41d7623d ("net/mlx5: Disable SRIOV before PF removal")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ipr.c | 41 +++++++++++++++++++++--------------------
- 1 file changed, 21 insertions(+), 20 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/ecpf.c  | 4 ++++
+ drivers/net/ethernet/mellanox/mlx5/core/sriov.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index 2022ffb450417..8c062afb2918d 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -1516,23 +1516,22 @@ static void ipr_process_ccn(struct ipr_cmnd *ipr_cmd)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c b/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
+index cdc87ecae5d39..d000236ddbac5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ecpf.c
+@@ -90,4 +90,8 @@ void mlx5_ec_cleanup(struct mlx5_core_dev *dev)
+ 	err = mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_HOST_PF]);
+ 	if (err)
+ 		mlx5_core_warn(dev, "Timeout reclaiming external host PF pages err(%d)\n", err);
++
++	err = mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_VF]);
++	if (err)
++		mlx5_core_warn(dev, "Timeout reclaiming external host VFs pages err(%d)\n", err);
  }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/sriov.c b/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
+index 3008e9ce2bbff..20d7662c10fb6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/sriov.c
+@@ -147,6 +147,10 @@ mlx5_device_disable_sriov(struct mlx5_core_dev *dev, int num_vfs, bool clear_vf)
  
- /**
-- * strip_and_pad_whitespace - Strip and pad trailing whitespace.
-- * @i:		index into buffer
-- * @buf:		string to modify
-+ * strip_whitespace - Strip and pad trailing whitespace.
-+ * @i:		size of buffer
-+ * @buf:	string to modify
-  *
-- * This function will strip all trailing whitespace, pad the end
-- * of the string with a single space, and NULL terminate the string.
-+ * This function will strip all trailing whitespace and
-+ * NUL terminate the string.
-  *
-- * Return value:
-- * 	new length of string
-  **/
--static int strip_and_pad_whitespace(int i, char *buf)
-+static void strip_whitespace(int i, char *buf)
- {
-+	if (i < 1)
+ 	mlx5_eswitch_disable_sriov(dev->priv.eswitch, clear_vf);
+ 
++	/* For ECPFs, skip waiting for host VF pages until ECPF is destroyed */
++	if (mlx5_core_is_ecpf(dev))
 +		return;
-+	i--;
- 	while (i && buf[i] == ' ')
- 		i--;
--	buf[i+1] = ' ';
--	buf[i+2] = '\0';
--	return i + 2;
-+	buf[i+1] = '\0';
++
+ 	if (mlx5_wait_for_pages(dev, &dev->priv.page_counters[MLX5_VF]))
+ 		mlx5_core_warn(dev, "timeout reclaiming VFs pages\n");
  }
- 
- /**
-@@ -1547,19 +1546,21 @@ static int strip_and_pad_whitespace(int i, char *buf)
- static void ipr_log_vpd_compact(char *prefix, struct ipr_hostrcb *hostrcb,
- 				struct ipr_vpd *vpd)
- {
--	char buffer[IPR_VENDOR_ID_LEN + IPR_PROD_ID_LEN + IPR_SERIAL_NUM_LEN + 3];
--	int i = 0;
-+	char vendor_id[IPR_VENDOR_ID_LEN + 1];
-+	char product_id[IPR_PROD_ID_LEN + 1];
-+	char sn[IPR_SERIAL_NUM_LEN + 1];
- 
--	memcpy(buffer, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
--	i = strip_and_pad_whitespace(IPR_VENDOR_ID_LEN - 1, buffer);
-+	memcpy(vendor_id, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
-+	strip_whitespace(IPR_VENDOR_ID_LEN, vendor_id);
- 
--	memcpy(&buffer[i], vpd->vpids.product_id, IPR_PROD_ID_LEN);
--	i = strip_and_pad_whitespace(i + IPR_PROD_ID_LEN - 1, buffer);
-+	memcpy(product_id, vpd->vpids.product_id, IPR_PROD_ID_LEN);
-+	strip_whitespace(IPR_PROD_ID_LEN, product_id);
- 
--	memcpy(&buffer[i], vpd->sn, IPR_SERIAL_NUM_LEN);
--	buffer[IPR_SERIAL_NUM_LEN + i] = '\0';
-+	memcpy(sn, vpd->sn, IPR_SERIAL_NUM_LEN);
-+	strip_whitespace(IPR_SERIAL_NUM_LEN, sn);
- 
--	ipr_hcam_err(hostrcb, "%s VPID/SN: %s\n", prefix, buffer);
-+	ipr_hcam_err(hostrcb, "%s VPID/SN: %s %s %s\n", prefix,
-+		     vendor_id, product_id, sn);
- }
- 
- /**
 -- 
 2.39.2
 
