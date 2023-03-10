@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F1D6B45CC
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:37:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FCC6B4110
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232679AbjCJOhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:37:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46584 "EHLO
+        id S230400AbjCJNtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:49:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232647AbjCJOhO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:37:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8FE11D089
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:50 -0800 (PST)
+        with ESMTP id S230415AbjCJNtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105068A394
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF758B822DE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A736C4339B;
-        Fri, 10 Mar 2023 14:36:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98273B822B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D7EC433EF;
+        Fri, 10 Mar 2023 13:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459007;
-        bh=1OyiesipED1Dj6TzOUPesX9mNkH/QdufO8gAHpiMW8o=;
+        s=korg; t=1678456144;
+        bh=PLgIX3DKemUadsWicDYg7z1Gy0jtCcuhxvzJsBwNGrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/y1SVsvIGZtnqTIVZkng0xlvVKI5VeK2uCmwQYhOrLyUEim8G6gLGCKSoi/amIDN
-         acN5LNiYPl5ZlIMBIP2ZD/yZMaJnYglHxHnGZpbFXpE+MiPPWWGJtIAHzXp+1nDcEz
-         nlMRTqBlHrZHARqBicvHmb6GzzMVwRvL5TkI/7rw=
+        b=MY6SXj9+AQBRHMs9ZzDoau/aM3ZGGlpRjpV7hA74nW37gQFeg6RLyOKx6va+lmcNM
+         WIeCcSbxVymAo/c5PVvOjIp9UG/xDhUjvRhUsNHRPXDYsKJTxyMC/jC6hUA+OUOmLJ
+         L+49p9uL/0Eqqg6MS/KWY+rvQcXunbJnxSW13WrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 5.4 187/357] ice: add missing checks for PF vsi type
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 094/193] pinctrl: at91: use devm_kasprintf() to avoid potential leaks
 Date:   Fri, 10 Mar 2023 14:37:56 +0100
-Message-Id: <20230310133742.992340795@linuxfoundation.org>
+Message-Id: <20230310133714.353901563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,70 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 6a8d013e904ad9a66706fcc926ec9993bed7d190 ]
+[ Upstream commit 1c4e5c470a56f7f7c649c0c70e603abc1eab15c4 ]
 
-There were a few places we had missed checking the VSI type to make sure
-it was definitely a PF VSI, before calling setup functions intended only
-for the PF VSI.
+Use devm_kasprintf() instead of kasprintf() to avoid any potential
+leaks. At the moment drivers have no remove functionality thus
+there is no need for fixes tag.
 
-This doesn't fix any explicit bugs but cleans up the code in a few
-places and removes one explicit != vsi->type check that can be
-superseded by this code (it's a super set)
-
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20230203132714.1931596-1-claudiu.beznea@microchip.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/pinctrl/pinctrl-at91-pio4.c | 4 ++--
+ drivers/pinctrl/pinctrl-at91.c      | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index ae1d305672259..209ae96875849 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -3492,15 +3492,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
- {
- 	int err;
+diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
+index e9d7977072553..78aeb882f1cad 100644
+--- a/drivers/pinctrl/pinctrl-at91-pio4.c
++++ b/drivers/pinctrl/pinctrl-at91-pio4.c
+@@ -981,8 +981,8 @@ static int atmel_pinctrl_probe(struct platform_device *pdev)
  
--	if (vsi->netdev) {
-+	if (vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_set_rx_mode(vsi->netdev);
+ 		pin_desc[i].number = i;
+ 		/* Pin naming convention: P(bank_name)(bank_pin_number). */
+-		pin_desc[i].name = kasprintf(GFP_KERNEL, "P%c%d",
+-					     bank + 'A', line);
++		pin_desc[i].name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "P%c%d",
++						  bank + 'A', line);
  
--		if (vsi->type != ICE_VSI_LB) {
--			err = ice_vsi_vlan_setup(vsi);
--
--			if (err)
--				return err;
--		}
-+		err = ice_vsi_vlan_setup(vsi);
-+		if (err)
-+			return err;
+ 		group->name = group_names[i] = pin_desc[i].name;
+ 		group->pin = pin_desc[i].number;
+diff --git a/drivers/pinctrl/pinctrl-at91.c b/drivers/pinctrl/pinctrl-at91.c
+index 404711f0985aa..3173e1f5bcb69 100644
+--- a/drivers/pinctrl/pinctrl-at91.c
++++ b/drivers/pinctrl/pinctrl-at91.c
+@@ -1774,7 +1774,7 @@ static int at91_gpio_probe(struct platform_device *pdev)
  	}
- 	ice_vsi_cfg_dcb_rings(vsi);
  
-@@ -3557,7 +3554,7 @@ static int ice_up_complete(struct ice_vsi *vsi)
+ 	for (i = 0; i < chip->ngpio; i++)
+-		names[i] = kasprintf(GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
++		names[i] = devm_kasprintf(&pdev->dev, GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
  
- 	if (vsi->port_info &&
- 	    (vsi->port_info->phy.link_info.link_info & ICE_AQ_LINK_UP) &&
--	    vsi->netdev) {
-+	    vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_print_link_msg(vsi, true);
- 		netif_tx_start_all_queues(vsi->netdev);
- 		netif_carrier_on(vsi->netdev);
-@@ -3567,7 +3564,9 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 	 * set the baseline so counters are ready when interface is up
- 	 */
- 	ice_update_eth_stats(vsi);
--	ice_service_task_schedule(pf);
-+
-+	if (vsi->type == ICE_VSI_PF)
-+		ice_service_task_schedule(pf);
+ 	chip->names = (const char *const *)names;
  
- 	return 0;
- }
 -- 
 2.39.2
 
