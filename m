@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09EC86B4229
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 860F76B430A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231484AbjCJOA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:00:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
+        id S231774AbjCJOKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231496AbjCJOAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDCCB112A64
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:17 -0800 (PST)
+        with ESMTP id S231811AbjCJOJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:09:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE6B11786F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E4BAB822C0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF8E9C4339B;
-        Fri, 10 Mar 2023 14:00:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86A6F61948
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93935C4339E;
+        Fri, 10 Mar 2023 14:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456815;
-        bh=B8nEV4KOCrLZOIy7dCR6uEXXxAHsgzhY9gkRZzxqpbA=;
+        s=korg; t=1678457346;
+        bh=I9LMU2nZLKl9c1k1I1vIBYQRQYDE/9gFVnCwbePCPKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EB4xDPwoNKjg5spey4PQ72F7xXOWGy5WZR2EihdcKKYI8SveiIdTvukKACrbv92Ql
-         UCVVXV43MTpZeUzgg1TRfxpDK8nDrU9i2SklD57vyZOgZIs+gbQ9xIMoERFNkSqohn
-         1kDweN8ymXAXnB9yq9R7UIOoCq5GOq334Eaikrhs=
+        b=sBnd+4VjeuvvdLdvrR8K91YmbyFlT9vHfSjVKY64OwGVNcO3h1PhnpHvENaGKTTL5
+         MyRGCWSPoy4YfS+hGJtoXo0ot/DdfwXKxE+VK+rgwK7COxQz4RNh3u6d7MP3zEshy3
+         CNtRmzeiytbo8rRYkdRRWRIuH+9/g8Z2kDkaZqgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 133/211] media: uvcvideo: Remove format descriptions
+Subject: [PATCH 6.1 106/200] ASoC: apple: mca: Fix SERDES reset sequence
 Date:   Fri, 10 Mar 2023 14:38:33 +0100
-Message-Id: <20230310133722.782433293@linuxfoundation.org>
+Message-Id: <20230310133720.351076307@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,134 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 50459f103edfe47c9a599d766a850ef6014936c5 ]
+[ Upstream commit d8b3e396088d787771f19fd3b7949e080dc31d6f ]
 
-The V4L2 core overwrites format descriptions in v4l_fill_fmtdesc(),
-there's no need to manually set the descriptions in the driver. This
-prepares for removal of the format descriptions from the uvc_fmts table.
+Fix the reset sequence of reads and writes that we invoke from within
+the early trigger. It looks like there never was a SERDES_CONF_SOME_RST
+bit that should be involved in the reset sequence, and its presence in
+the driver code is a mistake from earlier.
 
-Unlike V4L2, UVC makes a distinction between the SD-DV, SDL-DV and HD-DV
-formats. It also indicates whether the DV format uses 50Hz or 60Hz. This
-information is parsed by the driver to construct a format name string
-that is printed in a debug message, but serves no other purpose as V4L2
-has a single V4L2_PIX_FMT_DV pixel format that covers all those cases.
+Instead, the reset sequence should go as follows: We should switch the
+the SERDES unit's SYNC_SEL mux to the value of 7 (so outside the range
+of 1...6 representing cluster's SYNCGEN units), then raise the RST bit
+in SERDES_STATUS and wait for it to clear.
 
-As the information is available in the UVC descriptors, and thus
-accessible to users with lsusb if they really care, don't log it in a
-debug message and drop the format name string to simplify the code.
+Properly resetting the SERDES unit fixes frame desynchronization hazard
+in case of long frames (longer than 4 used slots). The desynchronization
+manifests itself by rotating the PCM channels.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Fixes: 3df5d0d97289 ("ASoC: apple: mca: Start new platform driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20230224153302.45365-2-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 24 ++----------------------
- drivers/media/usb/uvc/uvc_v4l2.c   |  2 --
- drivers/media/usb/uvc/uvcvideo.h   |  2 --
- 3 files changed, 2 insertions(+), 26 deletions(-)
+ sound/soc/apple/mca.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index d5ff8df20f18a..d30f77d89598c 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -252,14 +252,10 @@ static int uvc_parse_format(struct uvc_device *dev,
- 		fmtdesc = uvc_format_by_guid(&buffer[5]);
- 
- 		if (fmtdesc != NULL) {
--			strscpy(format->name, fmtdesc->name,
--				sizeof(format->name));
- 			format->fcc = fmtdesc->fcc;
- 		} else {
- 			dev_info(&streaming->intf->dev,
- 				 "Unknown video format %pUl\n", &buffer[5]);
--			snprintf(format->name, sizeof(format->name), "%pUl\n",
--				&buffer[5]);
- 			format->fcc = 0;
- 		}
- 
-@@ -271,8 +267,6 @@ static int uvc_parse_format(struct uvc_device *dev,
- 		 */
- 		if (dev->quirks & UVC_QUIRK_FORCE_Y8) {
- 			if (format->fcc == V4L2_PIX_FMT_YUYV) {
--				strscpy(format->name, "Greyscale 8-bit (Y8  )",
--					sizeof(format->name));
- 				format->fcc = V4L2_PIX_FMT_GREY;
- 				format->bpp = 8;
- 				width_multiplier = 2;
-@@ -313,7 +307,6 @@ static int uvc_parse_format(struct uvc_device *dev,
- 			return -EINVAL;
- 		}
- 
--		strscpy(format->name, "MJPEG", sizeof(format->name));
- 		format->fcc = V4L2_PIX_FMT_MJPEG;
- 		format->flags = UVC_FMT_FLAG_COMPRESSED;
- 		format->bpp = 0;
-@@ -329,17 +322,7 @@ static int uvc_parse_format(struct uvc_device *dev,
- 			return -EINVAL;
- 		}
- 
--		switch (buffer[8] & 0x7f) {
--		case 0:
--			strscpy(format->name, "SD-DV", sizeof(format->name));
--			break;
--		case 1:
--			strscpy(format->name, "SDL-DV", sizeof(format->name));
--			break;
--		case 2:
--			strscpy(format->name, "HD-DV", sizeof(format->name));
--			break;
--		default:
-+		if ((buffer[8] & 0x7f) > 2) {
- 			uvc_dbg(dev, DESCR,
- 				"device %d videostreaming interface %d: unknown DV format %u\n",
- 				dev->udev->devnum,
-@@ -347,9 +330,6 @@ static int uvc_parse_format(struct uvc_device *dev,
- 			return -EINVAL;
- 		}
- 
--		strlcat(format->name, buffer[8] & (1 << 7) ? " 60Hz" : " 50Hz",
--			sizeof(format->name));
--
- 		format->fcc = V4L2_PIX_FMT_DV;
- 		format->flags = UVC_FMT_FLAG_COMPRESSED | UVC_FMT_FLAG_STREAM;
- 		format->bpp = 0;
-@@ -376,7 +356,7 @@ static int uvc_parse_format(struct uvc_device *dev,
- 		return -EINVAL;
- 	}
- 
--	uvc_dbg(dev, DESCR, "Found format %s\n", format->name);
-+	uvc_dbg(dev, DESCR, "Found format %p4cc", &format->fcc);
- 
- 	buflen -= buffer[0];
- 	buffer += buffer[0];
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index 0774a11360c03..950b42d78a107 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -661,8 +661,6 @@ static int uvc_ioctl_enum_fmt(struct uvc_streaming *stream,
- 	fmt->flags = 0;
- 	if (format->flags & UVC_FMT_FLAG_COMPRESSED)
- 		fmt->flags |= V4L2_FMT_FLAG_COMPRESSED;
--	strscpy(fmt->description, format->name, sizeof(fmt->description));
--	fmt->description[sizeof(fmt->description) - 1] = 0;
- 	fmt->pixelformat = format->fcc;
- 	return 0;
- }
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index 1227ae63f85b7..4c89bf08171f2 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -264,8 +264,6 @@ struct uvc_format {
- 	u32 fcc;
- 	u32 flags;
- 
--	char name[32];
--
- 	unsigned int nframes;
- 	struct uvc_frame *frame;
- };
+diff --git a/sound/soc/apple/mca.c b/sound/soc/apple/mca.c
+index 9cceeb2599524..aea08c7b2ee85 100644
+--- a/sound/soc/apple/mca.c
++++ b/sound/soc/apple/mca.c
+@@ -101,7 +101,6 @@
+ #define SERDES_CONF_UNK3	BIT(14)
+ #define SERDES_CONF_NO_DATA_FEEDBACK	BIT(15)
+ #define SERDES_CONF_SYNC_SEL	GENMASK(18, 16)
+-#define SERDES_CONF_SOME_RST	BIT(19)
+ #define REG_TX_SERDES_BITSTART	0x08
+ #define REG_RX_SERDES_BITSTART	0x0c
+ #define REG_TX_SERDES_SLOTMASK	0x0c
+@@ -203,15 +202,24 @@ static void mca_fe_early_trigger(struct snd_pcm_substream *substream, int cmd,
+ 	case SNDRV_PCM_TRIGGER_START:
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 0));
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 7));
+ 		mca_modify(cl, serdes_unit + REG_SERDES_STATUS,
+ 			   SERDES_STATUS_EN | SERDES_STATUS_RST,
+ 			   SERDES_STATUS_RST);
+-		mca_modify(cl, serdes_conf, SERDES_CONF_SOME_RST,
+-			   SERDES_CONF_SOME_RST);
+-		readl_relaxed(cl->base + serdes_conf);
+-		mca_modify(cl, serdes_conf, SERDES_STATUS_RST, 0);
++		/*
++		 * Experiments suggest that it takes at most ~1 us
++		 * for the bit to clear, so wait 2 us for good measure.
++		 */
++		udelay(2);
+ 		WARN_ON(readl_relaxed(cl->base + serdes_unit + REG_SERDES_STATUS) &
+ 			SERDES_STATUS_RST);
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 0));
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, cl->no + 1));
+ 		break;
+ 	default:
+ 		break;
 -- 
 2.39.2
 
