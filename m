@@ -2,203 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 444AA6B3B9F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 11:03:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7875A6B3BBF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 11:10:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230000AbjCJKDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 05:03:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46398 "EHLO
+        id S229544AbjCJKKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 05:10:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229922AbjCJKDd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 05:03:33 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 470EB4C6F1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 02:03:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678442611; x=1709978611;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=eP0YCTCAptTv7pP6RC1xoEguOd6vW+VfaR1cffo4ETM=;
-  b=L6zLyf45Psh/XzI/6iqIjkLQzDY0FB8fmb9MNenwSIyJkG3Y4mUhF1cy
-   Y1MLMWDF/yajESR8r6FsKODcp9Pezm83KjXBz+QvbdFQ+gWHivNPuf9ho
-   RTmxqumvRXYjg5cPt07Tx0/nwyUGMeoAFB5r9ZV221NkHQyeI/weihHAp
-   iB6CYebgkvIONuMMYAVVXgLO5BIPxHUDp/ESywDpR4RWT2FgEmYZx+A9N
-   aX7/bJ1Dd0Y02yWrpmIImhFMeZncZWKEYZRmH8HbNsReWpYWRoAZ91g38
-   w6NuomTFStwWWE4QvclUOvpcd/WfVkPAgGvYgSFj6gQoCYDXcRDrkOrNr
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10644"; a="325046882"
-X-IronPort-AV: E=Sophos;i="5.98,249,1673942400"; 
-   d="scan'208";a="325046882"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2023 02:03:30 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10644"; a="627754539"
-X-IronPort-AV: E=Sophos;i="5.98,249,1673942400"; 
-   d="scan'208";a="627754539"
-Received: from mnatali-mobl1.ger.corp.intel.com (HELO [10.252.14.224]) ([10.252.14.224])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2023 02:03:28 -0800
-Message-ID: <2f708245-bfef-65b1-1c55-0e4ae48a3994@intel.com>
-Date:   Fri, 10 Mar 2023 10:03:26 +0000
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.8.0
-Subject: Re: [PATCH v4 5/5] drm/i915/gt: Make sure that errors are propagated
- through request chains
-Content-Language: en-GB
-To:     Andi Shyti <andi.shyti@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        with ESMTP id S229754AbjCJKKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 05:10:11 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49023943B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 02:10:09 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id g3so18419349eda.1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 02:10:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678443008;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=VES88RDu68rL5NDUHr3sXnSGJ9TXEfu2GH9TAuqlmkU=;
+        b=Ozr1iPXoEGvcAHwAy9H9S8GCoun0lCmweQbD8YnbUqziy2u/98BqZPBfzPbRnLPABx
+         nUWc5FrRdihvGHgCfjrqZPsD6V9xwGYOtcCbmoB+6DVL280iKMrB1gIdz0YBcOUR3OIN
+         HSME51Il8c5yPqHjdS1detBGS/ZTEl9SWOkFovseOvMYGbvXGa7aiXgUEXWJujXap3Es
+         70eqsFq6rsMnYTAy8/+vBxTFHEe/eDuueJgjnT3atKSChkJnq/t/GNZQK8W5z5sUNkgx
+         82jtG7DdKnmVYLKXQGGxRUaQVEgKS+tkvwpLP7lCJ+ytuj+m8sbcvWc39sJJXMhASmKR
+         svdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678443008;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=VES88RDu68rL5NDUHr3sXnSGJ9TXEfu2GH9TAuqlmkU=;
+        b=07ZdXDj2koAveBvrJJcAZqj5Coz1X3D858fncqj+fRO1j2eGKhpvfCGOOD/tcHzARf
+         FT5vzh1NpnSY2RJJwMvugrvwbF53ptNUeQZFoP/icG8bgbpi86OsW3OexxU3yXcY8vOG
+         SnrbpgVqjMyfIPdHDS2D6tvqpQ0yx8dAlgM3dnfCry4X2uMqjwJVVaj6xlieftcH0q1O
+         b3skGh72VWLu5Fh8NRhNR9zreUPDXQCDc86UqavvGkpYOm5vQpAzRVfwqPpvrP7lipA/
+         Gxx9SVa1H+iF19LW/xZotkBv8+igmnpAPWyeuctwj0Di+spbO2pg+NwjnMHj9tIyTvYb
+         xNOg==
+X-Gm-Message-State: AO0yUKWaUyTIy704cTTa7PB7yLa9Z91OWbvOjZL6CA4UOxw5ItjTjCFZ
+        tlDEyqqprSU4yR1AIPMAzTylJw==
+X-Google-Smtp-Source: AK7set/S605bhmLAtsmVPrUq/mepr0q5FJC+/eV4WvNFS5d4216qWzvQbfEOofPJqPaTziJ7CzL1Bg==
+X-Received: by 2002:a17:907:1b1e:b0:8b2:8876:2a11 with SMTP id mp30-20020a1709071b1e00b008b288762a11mr1368992ejc.28.1678443007804;
+        Fri, 10 Mar 2023 02:10:07 -0800 (PST)
+Received: from krzk-bin.. ([2a02:810d:15c0:828:2a59:841a:ebc:7974])
+        by smtp.gmail.com with ESMTPSA id a20-20020a17090680d400b008c979c74732sm761350ejx.156.2023.03.10.02.10.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Mar 2023 02:10:07 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Banajit Goswami <bgoswami@quicinc.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Srinivasa Rao Mandadapu <quic_srivasam@quicinc.com>,
+        Venkata Prasad Potturu <quic_potturu@quicinc.com>,
+        linux-arm-msm@vger.kernel.org, alsa-devel@alsa-project.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         stable@vger.kernel.org
-Cc:     Maciej Patelczyk <maciej.patelczyk@intel.com>,
-        Chris Wilson <chris.p.wilson@linux.intel.com>,
-        Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
-        Andi Shyti <andi.shyti@kernel.org>
-References: <20230308094106.203686-1-andi.shyti@linux.intel.com>
- <20230308094106.203686-6-andi.shyti@linux.intel.com>
-From:   Matthew Auld <matthew.auld@intel.com>
-In-Reply-To: <20230308094106.203686-6-andi.shyti@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Subject: [PATCH] ASoC: dt-bindings: qcom,lpass-rx-macro: correct minItems for clocks
+Date:   Fri, 10 Mar 2023 11:09:37 +0100
+Message-Id: <20230310100937.32485-1-krzysztof.kozlowski@linaro.org>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/03/2023 09:41, Andi Shyti wrote:
-> Currently, when we perform operations such as clearing or copying
-> large blocks of memory, we generate multiple requests that are
-> executed in a chain.
-> 
-> However, if one of these requests fails, we may not realize it
-> unless it happens to be the last request in the chain. This is
-> because errors are not properly propagated.
-> 
-> For this we need to keep propagating the chain of fence
-> notification in order to always reach the final fence associated
-> to the final request.
-> 
-> To address this issue, we need to ensure that the chain of fence
-> notifications is always propagated so that we can reach the final
-> fence associated with the last request. By doing so, we will be
-> able to detect any memory operation  failures and determine
-> whether the memory is still invalid.
-> 
-> On copy and clear migration signal fences upon completion.
-> 
-> On copy and clear migration, signal fences upon request
-> completion to ensure that we have a reliable perpetuation of the
-> operation outcome.
-> 
-> Fixes: cf586021642d80 ("drm/i915/gt: Pipelined page migration")
-> Reported-by: Matthew Auld <matthew.auld@intel.com>
-> Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-> ---
->   drivers/gpu/drm/i915/gt/intel_migrate.c | 41 ++++++++++++++++++-------
->   1 file changed, 30 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_migrate.c b/drivers/gpu/drm/i915/gt/intel_migrate.c
-> index 3f638f1987968..0031e7b1b4704 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_migrate.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
-> @@ -742,13 +742,19 @@ intel_context_migrate_copy(struct intel_context *ce,
->   			dst_offset = 2 * CHUNK_SZ;
->   	}
->   
-> +	/*
-> +	 * While building the chain of requests, we need to ensure
-> +	 * that no one can sneak into the timeline unnoticed.
-> +	 */
-> +	mutex_lock(&ce->timeline->mutex);
-> +
+The RX macro codec comes on some platforms in two variants - ADSP
+and ADSP bypassed - thus the clock-names varies from 3 to 5.  The clocks
+must vary as well:
 
-Hmm, this looks different/new from the previous version. Why do we only 
-do this for the copy and not the clear btw? Both should be conceptually 
-the same. Sorry if I'm misunderstanding something here.
+  sc7280-idp.dtb: codec@3200000: clocks: [[202, 8], [202, 7], [203]] is too short
 
->   	do {
->   		int len;
->   
-> -		rq = i915_request_create(ce);
-> +		rq = i915_request_create_locked(ce);
->   		if (IS_ERR(rq)) {
->   			err = PTR_ERR(rq);
-> -			goto out_ce;
-> +			break;
->   		}
->   
->   		if (deps) {
-> @@ -878,10 +884,14 @@ intel_context_migrate_copy(struct intel_context *ce,
->   
->   		/* Arbitration is re-enabled between requests. */
->   out_rq:
-> -		if (*out)
-> +		i915_sw_fence_await(&rq->submit);
-> +		i915_request_get(rq);
-> +		i915_request_add_locked(rq);
-> +		if (*out) {
-> +			i915_sw_fence_complete(&(*out)->submit);
->   			i915_request_put(*out);
-> -		*out = i915_request_get(rq);
-> -		i915_request_add(rq);
-> +		}
-> +		*out = rq;
->   
->   		if (err)
->   			break;
-> @@ -905,7 +915,10 @@ intel_context_migrate_copy(struct intel_context *ce,
->   		cond_resched();
->   	} while (1);
->   
-> -out_ce:
-> +	mutex_unlock(&ce->timeline->mutex);
-> +
-> +	if (*out)
-> +		i915_sw_fence_complete(&(*out)->submit);
->   	return err;
->   }
->   
-> @@ -1005,7 +1018,7 @@ intel_context_migrate_clear(struct intel_context *ce,
->   		rq = i915_request_create(ce);
->   		if (IS_ERR(rq)) {
->   			err = PTR_ERR(rq);
-> -			goto out_ce;
-> +			break;
->   		}
->   
->   		if (deps) {
-> @@ -1056,17 +1069,23 @@ intel_context_migrate_clear(struct intel_context *ce,
->   
->   		/* Arbitration is re-enabled between requests. */
->   out_rq:
-> -		if (*out)
-> -			i915_request_put(*out);
-> -		*out = i915_request_get(rq);
-> +		i915_sw_fence_await(&rq->submit);
-> +		i915_request_get(rq);
->   		i915_request_add(rq);
-> +		if (*out) {
-> +			i915_sw_fence_complete(&(*out)->submit);
-> +			i915_request_put(*out);
-> +		}
-> +		*out = rq;
-> +
->   		if (err || !it.sg || !sg_dma_len(it.sg))
->   			break;
->   
->   		cond_resched();
->   	} while (1);
->   
-> -out_ce:
-> +	if (*out)
-> +		i915_sw_fence_complete(&(*out)->submit);
->   	return err;
->   }
->   
+Fixes: 852fda58d99a ("ASoC: qcom: dt-bindings: Update bindings for clocks in lpass digital codes")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ Documentation/devicetree/bindings/sound/qcom,lpass-rx-macro.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/sound/qcom,lpass-rx-macro.yaml b/Documentation/devicetree/bindings/sound/qcom,lpass-rx-macro.yaml
+index 79c6f8da1319..b0b95689d78b 100644
+--- a/Documentation/devicetree/bindings/sound/qcom,lpass-rx-macro.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,lpass-rx-macro.yaml
+@@ -30,6 +30,7 @@ properties:
+     const: 0
+ 
+   clocks:
++    minItems: 3
+     maxItems: 5
+ 
+   clock-names:
+-- 
+2.34.1
+
