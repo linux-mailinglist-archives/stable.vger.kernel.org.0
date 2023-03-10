@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A1B6B4421
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6286B42FB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232118AbjCJOVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:21:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34430 "EHLO
+        id S231824AbjCJOJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:09:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232117AbjCJOVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2824812F1D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:01 -0800 (PST)
+        with ESMTP id S231841AbjCJOI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4F58536C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B73E861745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B45FDC433EF;
-        Fri, 10 Mar 2023 14:19:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4487360F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C07FC4339E;
+        Fri, 10 Mar 2023 14:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458000;
-        bh=E7k2bQuUMyvfckanWP/LNTeJuDGI/+LLY58Gwk88QhY=;
+        s=korg; t=1678457313;
+        bh=emy8baK3Mnps5seGLKzeo6KYD63z5idEWPVYVw+j/fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9EBF2/VOLAy4eOe9/Pz/fFmEgBzIP8Aaf2DxUunp7ovFrBfgMegLgRHJqKIAMbHd
-         Ba367eFnoFD0fPq0YSK+zDIh4qT53xpZ93YAIqhDljgcgRhKLR8uud0fMngPmVs/0H
-         4DhzZi2oCjz27OjwydVgEPiNK6nW/xU3XeBIjYi0=
+        b=FM2SJqGsjgSyZutaYrVE/vIcqXsFnBmqc399zRAprdhaMTD+VC+XGNi2wU7lFnPRN
+         UYYfnoGh6naqMVsluB1J56ESaUxlnLMTrWfH2PUFvBSzYu0xAiBoGBbVzOnU+FD8bQ
+         8Mi+E/VuApi7THdoCIxKh+jjrLWr+f+hafNipVyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liwei Song <liwei.song@windriver.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Frederick Lawler <fred@cloudflare.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 130/252] drm/radeon: free iio for atombios when driver shutdown
+Subject: [PATCH 6.1 093/200] tcp: tcp_check_req() can be called from process context
 Date:   Fri, 10 Mar 2023 14:38:20 +0100
-Message-Id: <20230310133722.744632971@linuxfoundation.org>
+Message-Id: <20230310133719.968885481@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,58 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liwei Song <liwei.song@windriver.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 4773fadedca918faec443daaca5e4ea1c0ced144 ]
+[ Upstream commit 580f98cc33a260bb8c6a39ae2921b29586b84fdf ]
 
-Fix below kmemleak when unload radeon driver:
+This is a follow up of commit 0a375c822497 ("tcp: tcp_rtx_synack()
+can be called from process context").
 
-unreferenced object 0xffff9f8608ede200 (size 512):
-  comm "systemd-udevd", pid 326, jiffies 4294682822 (age 716.338s)
-  hex dump (first 32 bytes):
-    00 00 00 00 c4 aa ec aa 14 ab 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000062fadebe>] kmem_cache_alloc_trace+0x2f1/0x500
-    [<00000000b6883cea>] atom_parse+0x117/0x230 [radeon]
-    [<00000000158c23fd>] radeon_atombios_init+0xab/0x170 [radeon]
-    [<00000000683f672e>] si_init+0x57/0x750 [radeon]
-    [<00000000566cc31f>] radeon_device_init+0x559/0x9c0 [radeon]
-    [<0000000046efabb3>] radeon_driver_load_kms+0xc1/0x1a0 [radeon]
-    [<00000000b5155064>] drm_dev_register+0xdd/0x1d0
-    [<0000000045fec835>] radeon_pci_probe+0xbd/0x100 [radeon]
-    [<00000000e69ecca3>] pci_device_probe+0xe1/0x160
-    [<0000000019484b76>] really_probe.part.0+0xc1/0x2c0
-    [<000000003f2649da>] __driver_probe_device+0x96/0x130
-    [<00000000231c5bb1>] driver_probe_device+0x24/0xf0
-    [<0000000000a42377>] __driver_attach+0x77/0x190
-    [<00000000d7574da6>] bus_for_each_dev+0x7f/0xd0
-    [<00000000633166d2>] driver_attach+0x1e/0x30
-    [<00000000313b05b8>] bus_add_driver+0x12c/0x1e0
+Frederick Lawler reported another "__this_cpu_add() in preemptible"
+warning caused by the same reason.
 
-iio was allocated in atom_index_iio() called by atom_parse(),
-but it doesn't got released when the dirver is shutdown.
-Fix this kmemleak by free it in radeon_atombios_fini().
+In my former patch I took care of tcp_rtx_synack()
+but forgot that tcp_check_req() also contained some SNMP updates.
 
-Signed-off-by: Liwei Song <liwei.song@windriver.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Note that some parts of tcp_check_req() always run in BH context,
+I added a comment to clarify this.
+
+Fixes: 8336886f786f ("tcp: TCP Fast Open Server - support TFO listeners")
+Link: https://lore.kernel.org/netdev/8cd33923-a21d-397c-e46b-2a068c287b03@cloudflare.com/T/
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Frederick Lawler <fred@cloudflare.com>
+Tested-by: Frederick Lawler <fred@cloudflare.com>
+Link: https://lore.kernel.org/r/20230227083336.4153089-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_minisocks.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index cc1c07963116c..bcca0dd67fd15 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1015,6 +1015,7 @@ void radeon_atombios_fini(struct radeon_device *rdev)
- {
- 	if (rdev->mode_info.atom_context) {
- 		kfree(rdev->mode_info.atom_context->scratch);
-+		kfree(rdev->mode_info.atom_context->iio);
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index c375f603a16cf..7f37e7da64671 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -580,6 +580,9 @@ EXPORT_SYMBOL(tcp_create_openreq_child);
+  * validation and inside tcp_v4_reqsk_send_ack(). Can we do better?
+  *
+  * We don't need to initialize tmp_opt.sack_ok as we don't use the results
++ *
++ * Note: If @fastopen is true, this can be called from process context.
++ *       Otherwise, this is from BH context.
+  */
+ 
+ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+@@ -731,7 +734,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 					  &tcp_rsk(req)->last_oow_ack_time))
+ 			req->rsk_ops->send_ack(sk, skb, req);
+ 		if (paws_reject)
+-			__NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
++			NET_INC_STATS(sock_net(sk), LINUX_MIB_PAWSESTABREJECTED);
+ 		return NULL;
  	}
- 	kfree(rdev->mode_info.atom_context);
- 	rdev->mode_info.atom_context = NULL;
+ 
+@@ -750,7 +753,7 @@ struct sock *tcp_check_req(struct sock *sk, struct sk_buff *skb,
+ 	 *	   "fourth, check the SYN bit"
+ 	 */
+ 	if (flg & (TCP_FLAG_RST|TCP_FLAG_SYN)) {
+-		__TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
++		TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
+ 		goto embryonic_reset;
+ 	}
+ 
 -- 
 2.39.2
 
