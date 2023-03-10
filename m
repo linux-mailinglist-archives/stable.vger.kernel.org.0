@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F346B465E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:42:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 353FE6B44B8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232801AbjCJOmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:42:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59144 "EHLO
+        id S232149AbjCJO1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:27:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232842AbjCJOmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:42:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7742E120EBE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:42:16 -0800 (PST)
+        with ESMTP id S231893AbjCJO1T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D447118BEF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1488E617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:42:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 269A9C433EF;
-        Fri, 10 Mar 2023 14:42:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B779BB822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BADDC433EF;
+        Fri, 10 Mar 2023 14:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459335;
-        bh=D/4oeywm5q55fB7T4McNKMiC7CfEvxEX1f3NZYKC098=;
+        s=korg; t=1678458345;
+        bh=hF4hl+PiB54fj2eP5WAJ/hubAjNYnXfBgXRcFGe6bXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uo6cTUVBXxwt5Eu2deCDuMYxS+LkhEdCrAP06OXzeVMjUa99DlSlZBunr/nouRN+Q
-         9Kn0hB7CdlKZzyp+SqqtFgs5PMkWUunzIzOvgYkmMA+Q5uPju78a7K+7U6ZvdOVQKb
-         u1SlrJfTin6GfQbqaisxW2lLPA3qmZTCWl2LGbqU=
+        b=KpOXhyPMexH1f15e8W0eMr/jGqRdUENQm5c+euox5r8XL5WwNO7CVlgDbVWIRxpyt
+         TXL9GMp5On4mDWR8T7r7eS+zSTBl7DBizLxhisx86IsWnmYujXNceWK4SelcX2yxxp
+         UyqK0Ym5G6t55FUEngls5IiWkIgSkGEhSgCHv4Ck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 328/357] thermal: intel: BXT_PMIC: select REGMAP instead of depending on it
+        patches@lists.linux.dev,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 247/252] s390/setup: init jump labels before command line parsing
 Date:   Fri, 10 Mar 2023 14:40:17 +0100
-Message-Id: <20230310133749.124958777@linuxfoundation.org>
+Message-Id: <20230310133727.057926104@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 1467fb960349dfa5e300658f1a409dde2cfb0c51 ]
+commit 95e61b1b5d6394b53d147c0fcbe2ae70fbe09446 upstream.
 
-REGMAP is a hidden (not user visible) symbol. Users cannot set it
-directly thru "make *config", so drivers should select it instead of
-depending on it if they need it.
+Command line parameters might set static keys. This is true for s390 at
+least since commit 6471384af2a6 ("mm: security: introduce init_on_alloc=1
+and init_on_free=1 boot options"). To avoid the following WARN:
 
-Consistently using "select" or "depends on" can also help reduce
-Kconfig circular dependency issues.
+static_key_enable_cpuslocked(): static key 'init_on_alloc+0x0/0x40' used
+before call to jump_label_init()
 
-Therefore, change the use of "depends on REGMAP" to "select REGMAP".
+call jump_label_init() just before parse_early_param().
+jump_label_init() is safe to call multiple times (x86 does that), doesn't
+do any memory allocations and hence should be safe to call that early.
 
-Fixes: b474303ffd57 ("thermal: add Intel BXT WhiskeyCove PMIC thermal driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6471384af2a6 ("mm: security: introduce init_on_alloc=1 and init_on_free=1 boot options")
+Cc: <stable@vger.kernel.org> # 5.3: d6df52e9996d: s390/maccess: add no DAT mode to kernel_write
+Cc: <stable@vger.kernel.org> # 5.3
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/intel/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/kernel/setup.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/thermal/intel/Kconfig b/drivers/thermal/intel/Kconfig
-index 8025b21f43fa5..b5427579fae59 100644
---- a/drivers/thermal/intel/Kconfig
-+++ b/drivers/thermal/intel/Kconfig
-@@ -60,7 +60,8 @@ endmenu
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -909,6 +909,7 @@ void __init setup_arch(char **cmdline_p)
+ 	if (IS_ENABLED(CONFIG_EXPOLINE_AUTO))
+ 		nospec_auto_detect();
  
- config INTEL_BXT_PMIC_THERMAL
- 	tristate "Intel Broxton PMIC thermal driver"
--	depends on X86 && INTEL_SOC_PMIC_BXTWC && REGMAP
-+	depends on X86 && INTEL_SOC_PMIC_BXTWC
-+	select REGMAP
- 	help
- 	  Select this driver for Intel Broxton PMIC with ADC channels monitoring
- 	  system temperature measurements and alerts.
--- 
-2.39.2
-
++	jump_label_init();
+ 	parse_early_param();
+ #ifdef CONFIG_CRASH_DUMP
+ 	/* Deactivate elfcorehdr= kernel parameter */
 
 
