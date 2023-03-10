@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 840146B4447
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8476B45F0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232053AbjCJOWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
+        id S232654AbjCJOjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232191AbjCJOWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 383D511997B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:39 -0800 (PST)
+        with ESMTP id S232718AbjCJOio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6E765DCB4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0F17B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49F16C433D2;
-        Fri, 10 Mar 2023 14:21:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A2DA618A6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EE59C4339C;
+        Fri, 10 Mar 2023 14:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458096;
-        bh=zPct63Z4+AehcZ6OMqHS+3OlfTiG22VT9D5oSjBaZAE=;
+        s=korg; t=1678459088;
+        bh=YPj4pktAb3ycLvXGODEkNJrl6pgfVCVzfAxuIQtn8cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usdBXlPv8czB9lS6E1rFXsrmctdRcmQaReJRYjpo50IH6o0qWAaZM8P7y/AcOwZFM
-         x5JLJrJiRxsHDRfgj+4m3l6y0uF6hA9O/ZElqDY+axlvfzRqPFWdxnOPHlxpI9OjlE
-         mnJgBkHM3di69sW7to3AvuxvEJCB+IjoMFtNuksY=
+        b=yJjJNjHB+nWzPmIFqd0qvPI0aQ68KbH3Hztlf9oc6VF02Za0FalDhLmp6Uu9ISCtr
+         R6h8yzeidN0Cm++EyPERMW3wJqERbbtlpV0fNWZffL88ngtBOhylIQKlFyjo+vvXsp
+         K/F+0h76dbaHXiviJVBFptFfHUcSzbgmboKUd7rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
-        stable@kernel.org
-Subject: [PATCH 4.19 163/252] x86/microcode/AMD: Fix mixed steppings support
+        patches@lists.linux.dev, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.4 244/357] ima: Align ima_file_mmap() parameters with mmap_file LSM hook
 Date:   Fri, 10 Mar 2023 14:38:53 +0100
-Message-Id: <20230310133723.782874925@linuxfoundation.org>
+Message-Id: <20230310133745.507545017@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,106 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 7ff6edf4fef38ab404ee7861f257e28eaaeed35f upstream.
+commit 4971c268b85e1c7a734a61622fc0813c86e2362e upstream.
 
-The AMD side of the loader has always claimed to support mixed
-steppings. But somewhere along the way, it broke that by assuming that
-the cached patch blob is a single one instead of it being one per
-*node*.
+Commit 98de59bfe4b2f ("take calculation of final prot in
+security_mmap_file() into a helper") moved the code to update prot, to be
+the actual protections applied to the kernel, to a new helper called
+mmap_prot().
 
-So turn it into a per-node one so that each node can stash the blob
-relevant for it.
+However, while without the helper ima_file_mmap() was getting the updated
+prot, with the helper ima_file_mmap() gets the original prot, which
+contains the protections requested by the application.
 
-  [ NB: Fixes tag is not really the exactly correct one but it is good
-    enough. ]
+A possible consequence of this change is that, if an application calls
+mmap() with only PROT_READ, and the kernel applies PROT_EXEC in addition,
+that application would have access to executable memory without having this
+event recorded in the IMA measurement list. This situation would occur for
+example if the application, before mmap(), calls the personality() system
+call with READ_IMPLIES_EXEC as the first argument.
 
-Fixes: fe055896c040 ("x86/microcode: Merge the early microcode loader")
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Cc: <stable@kernel.org> # 2355370cd941 ("x86/microcode/amd: Remove load_microcode_amd()'s bsp parameter")
-Cc: <stable@kernel.org> # a5ad92134bd1 ("x86/microcode/AMD: Add a @cpu parameter to the reloading functions")
-Link: https://lore.kernel.org/r/20230130161709.11615-4-bp@alien8.de
+Align ima_file_mmap() parameters with those of the mmap_file LSM hook, so
+that IMA can receive both the requested prot and the final prot. Since the
+requested protections are stored in a new variable, and the final
+protections are stored in the existing variable, this effectively restores
+the original behavior of the MMAP_CHECK hook.
+
+Cc: stable@vger.kernel.org
+Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/microcode/amd.c |   34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ include/linux/ima.h               |    6 ++++--
+ security/integrity/ima/ima_main.c |    7 +++++--
+ security/security.c               |    7 ++++---
+ 3 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -54,7 +54,9 @@ struct cont_desc {
- };
- 
- static u32 ucode_new_rev;
--static u8 amd_ucode_patch[PATCH_MAX_SIZE];
-+
-+/* One blob per node. */
-+static u8 amd_ucode_patch[MAX_NUMNODES][PATCH_MAX_SIZE];
- 
- /*
-  * Microcode patch container file is prepended to the initrd in cpio
-@@ -210,7 +212,7 @@ apply_microcode_early_amd(u32 cpuid_1_ea
- 	patch	= (u8 (*)[PATCH_MAX_SIZE])__pa_nodebug(&amd_ucode_patch);
- #else
- 	new_rev = &ucode_new_rev;
--	patch	= &amd_ucode_patch;
-+	patch	= &amd_ucode_patch[0];
- #endif
- 
- 	desc.cpuid_1_eax = cpuid_1_eax;
-@@ -356,10 +358,10 @@ int __init save_microcode_in_initrd_amd(
- 
- void reload_ucode_amd(unsigned int cpu)
- {
--	struct microcode_amd *mc;
- 	u32 rev, dummy;
-+	struct microcode_amd *mc;
- 
--	mc = (struct microcode_amd *)amd_ucode_patch;
-+	mc = (struct microcode_amd *)amd_ucode_patch[cpu_to_node(cpu)];
- 
- 	rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
- 
-@@ -699,6 +701,8 @@ static enum ucode_state __load_microcode
- 
- static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
- {
-+	struct cpuinfo_x86 *c;
-+	unsigned int nid, cpu;
- 	struct ucode_patch *p;
- 	enum ucode_state ret;
- 
-@@ -711,18 +715,22 @@ static enum ucode_state load_microcode_a
- 		return ret;
- 	}
- 
--	p = find_patch(0);
--	if (!p) {
--		return ret;
--	} else {
--		if (boot_cpu_data.microcode >= p->patch_id)
--			return ret;
-+	for_each_node(nid) {
-+		cpu = cpumask_first(cpumask_of_node(nid));
-+		c = &cpu_data(cpu);
-+
-+		p = find_patch(cpu);
-+		if (!p)
-+			continue;
-+
-+		if (c->microcode >= p->patch_id)
-+			continue;
- 
- 		ret = UCODE_NEW;
--	}
- 
--	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
--	memcpy(amd_ucode_patch, p->data, min_t(u32, ksize(p->data), PATCH_MAX_SIZE));
-+		memset(&amd_ucode_patch[nid], 0, PATCH_MAX_SIZE);
-+		memcpy(&amd_ucode_patch[nid], p->data, min_t(u32, ksize(p->data), PATCH_MAX_SIZE));
-+	}
- 
- 	return ret;
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -17,7 +17,8 @@ extern int ima_bprm_check(struct linux_b
+ extern int ima_file_check(struct file *file, int mask);
+ extern void ima_post_create_tmpfile(struct inode *inode);
+ extern void ima_file_free(struct file *file);
+-extern int ima_file_mmap(struct file *file, unsigned long prot);
++extern int ima_file_mmap(struct file *file, unsigned long reqprot,
++			 unsigned long prot, unsigned long flags);
+ extern int ima_load_data(enum kernel_load_data_id id);
+ extern int ima_read_file(struct file *file, enum kernel_read_file_id id);
+ extern int ima_post_read_file(struct file *file, void *buf, loff_t size,
+@@ -64,7 +65,8 @@ static inline void ima_file_free(struct
+ 	return;
  }
+ 
+-static inline int ima_file_mmap(struct file *file, unsigned long prot)
++static inline int ima_file_mmap(struct file *file, unsigned long reqprot,
++				unsigned long prot, unsigned long flags)
+ {
+ 	return 0;
+ }
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -370,7 +370,9 @@ out:
+ /**
+  * ima_file_mmap - based on policy, collect/store measurement.
+  * @file: pointer to the file to be measured (May be NULL)
+- * @prot: contains the protection that will be applied by the kernel.
++ * @reqprot: protection requested by the application
++ * @prot: protection that will be applied by the kernel
++ * @flags: operational flags
+  *
+  * Measure files being mmapped executable based on the ima_must_measure()
+  * policy decision.
+@@ -378,7 +380,8 @@ out:
+  * On success return 0.  On integrity appraisal error, assuming the file
+  * is in policy and IMA-appraisal is in enforcing mode, return -EACCES.
+  */
+-int ima_file_mmap(struct file *file, unsigned long prot)
++int ima_file_mmap(struct file *file, unsigned long reqprot,
++		  unsigned long prot, unsigned long flags)
+ {
+ 	u32 secid;
+ 
+--- a/security/security.c
++++ b/security/security.c
+@@ -1458,12 +1458,13 @@ static inline unsigned long mmap_prot(st
+ int security_mmap_file(struct file *file, unsigned long prot,
+ 			unsigned long flags)
+ {
++	unsigned long prot_adj = mmap_prot(file, prot);
+ 	int ret;
+-	ret = call_int_hook(mmap_file, 0, file, prot,
+-					mmap_prot(file, prot), flags);
++
++	ret = call_int_hook(mmap_file, 0, file, prot, prot_adj, flags);
+ 	if (ret)
+ 		return ret;
+-	return ima_file_mmap(file, prot);
++	return ima_file_mmap(file, prot, prot_adj, flags);
+ }
+ 
+ int security_mmap_addr(unsigned long addr)
 
 
