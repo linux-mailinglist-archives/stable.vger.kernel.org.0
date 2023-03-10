@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1DD96B45BF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:36:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0AA16B4441
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232670AbjCJOgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:36:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46562 "EHLO
+        id S232216AbjCJOWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232673AbjCJOgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B3011C8C1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:18 -0800 (PST)
+        with ESMTP id S232030AbjCJOWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822D71C5A5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7430861965
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84DEAC4339B;
-        Fri, 10 Mar 2023 14:36:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 355DAB822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF98C433EF;
+        Fri, 10 Mar 2023 14:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458977;
-        bh=5nBtOqBX7CELuTjsU21MbpUa4HYnMjtHkG7giifslIo=;
+        s=korg; t=1678458081;
+        bh=Z0NxsGNxpNeaLfUDIH62MZCxCtFaynYX0FYTsLoDios=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sezu0hBXOAiejCGWPfc2Q1sX9AKdKapS5lOJV2iDzVlDE9nUCVXTe7tKhRJFmjyUE
-         d259N7o8yhzRk7CmWUB4cfn9d79rV9x6met++Hh15b358hggSnuggzdbeWx4sO+zuc
-         4e5TvB+87TiFBIbzuTcFsVgX4Om+OTDmUSOdCt5Q=
+        b=iwQArzrhD/unXzPTsWr/oekTgoLnREMHSaivKGxmhWznlnu2G3i4wU0fa0jbMaet2
+         WDZkwLPDDuX2fICKe3tRLVyrW9VpciI2Uos3WYhCuxzsKYpDoyTKfmpwu1Fayht+I4
+         5BG0O1HU53VJjuKuy8fKPmXQEY7lev6oKhfmNNyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Darrell Kavanagh <darrell.kavanagh@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Michael Schmitz <schmitzmic@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 207/357] drm: panel-orientation-quirks: Add quirk for Lenovo IdeaPad Duet 3 10IGL5
+Subject: [PATCH 4.19 126/252] m68k: Check syscall_trace_enter() return code
 Date:   Fri, 10 Mar 2023 14:38:16 +0100
-Message-Id: <20230310133743.842176978@linuxfoundation.org>
+Message-Id: <20230310133722.625422253@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-[ Upstream commit 38b2d8efd03d2e56431b611e3523f0158306451d ]
+[ Upstream commit 2ca8a1de4437f21562e57f9ac123914747a8e7a1 ]
 
-Another Lenovo convertable where the panel is installed landscape but is
-reported to the kernel as portrait.
+Check return code of syscall_trace_enter(), and skip syscall
+if -1. Return code will be left at what had been set by
+ptrace or seccomp (in regs->d0).
 
-Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230214164659.3583-1-darrell.kavanagh@gmail.com
+No regression seen in testing with strace on ARAnyM.
+
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20230112035529.13521-2-schmitzmic@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/m68k/68000/entry.S    | 2 ++
+ arch/m68k/coldfire/entry.S | 2 ++
+ arch/m68k/kernel/entry.S   | 3 +++
+ 3 files changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index ce739ba45c551..8768073794fbf 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -278,6 +278,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGL"),
- 		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* Lenovo IdeaPad Duet 3 10IGL5 */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "IdeaPad Duet 3 10IGL5"),
-+		},
-+		.driver_data = (void *)&lcd1200x1920_rightside_up,
- 	}, {	/* Lenovo Yoga Book X90F / X91F / X91L */
- 		.matches = {
- 		  /* Non exact match to match all versions */
+diff --git a/arch/m68k/68000/entry.S b/arch/m68k/68000/entry.S
+index 259b3661b6141..94abf3d8afc52 100644
+--- a/arch/m68k/68000/entry.S
++++ b/arch/m68k/68000/entry.S
+@@ -47,6 +47,8 @@ do_trace:
+ 	jbsr	syscall_trace_enter
+ 	RESTORE_SWITCH_STACK
+ 	addql	#4,%sp
++	addql	#1,%d0
++	jeq	ret_from_exception
+ 	movel	%sp@(PT_OFF_ORIG_D0),%d1
+ 	movel	#-ENOSYS,%d0
+ 	cmpl	#NR_syscalls,%d1
+diff --git a/arch/m68k/coldfire/entry.S b/arch/m68k/coldfire/entry.S
+index 52d312d5b4d4f..fb3b065677459 100644
+--- a/arch/m68k/coldfire/entry.S
++++ b/arch/m68k/coldfire/entry.S
+@@ -92,6 +92,8 @@ ENTRY(system_call)
+ 	jbsr	syscall_trace_enter
+ 	RESTORE_SWITCH_STACK
+ 	addql	#4,%sp
++	addql	#1,%d0
++	jeq	ret_from_exception
+ 	movel	%d3,%a0
+ 	jbsr	%a0@
+ 	movel	%d0,%sp@(PT_OFF_D0)		/* save the return value */
+diff --git a/arch/m68k/kernel/entry.S b/arch/m68k/kernel/entry.S
+index 97cd3ea5f10b8..9a66657773beb 100644
+--- a/arch/m68k/kernel/entry.S
++++ b/arch/m68k/kernel/entry.S
+@@ -160,9 +160,12 @@ do_trace_entry:
+ 	jbsr	syscall_trace
+ 	RESTORE_SWITCH_STACK
+ 	addql	#4,%sp
++	addql	#1,%d0			| optimization for cmpil #-1,%d0
++	jeq	ret_from_syscall
+ 	movel	%sp@(PT_OFF_ORIG_D0),%d0
+ 	cmpl	#NR_syscalls,%d0
+ 	jcs	syscall
++	jra	ret_from_syscall
+ badsys:
+ 	movel	#-ENOSYS,%sp@(PT_OFF_D0)
+ 	jra	ret_from_syscall
 -- 
 2.39.2
 
