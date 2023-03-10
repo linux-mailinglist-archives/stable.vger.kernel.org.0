@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1113B6B4469
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E1266B418B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232321AbjCJOXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:23:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43368 "EHLO
+        id S231150AbjCJNyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:54:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232307AbjCJOXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:23:19 -0500
+        with ESMTP id S231262AbjCJNyH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:07 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59EA3119422
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:22:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA1A113F61
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16CC7B82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762F0C433EF;
-        Fri, 10 Mar 2023 14:22:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48562B822BC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D50CC433D2;
+        Fri, 10 Mar 2023 13:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458161;
-        bh=YWCsMAj4Y+Ykmv89GZUoCpQZXgbbx4ta0JnN5VKTQaY=;
+        s=korg; t=1678456435;
+        bh=gK7V0rnWsctmtKHaiIwmAgaGVyU08nM1EhXuLcEXXdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=On6KaYNIAeyUV7da3lAJt97eG1RKTQpcoJh7cmhFiWTy7pVL7xDA9npN4RMY0dZFo
-         TRdPqAZ2qUiHpsXJASOhgygxvaDGc7J8koikLqLSa8XTy07UQiCFjAbPwInWSTeXA5
-         rCSymVXaPh4/tO2NH+lfC7XmW3Dc71kr7mCKpDHY=
+        b=RDiYxJ1nKczYC3VDds7OPibi57gAu1q9cNTkmkMxGePeZil+h9KT01XdmS2q/rj1m
+         lQvAFShoq3LtMW/t1cd7iGiFEb6MczKGqksBqOG/Dxg38AQfb3z14GGxWJFrEHhltN
+         wMEmXGoK7+091ftVn5pRXYAQfQL8lDnFPBuBnR24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 4.19 183/252] ktest.pl: Give back console on Ctrt^C on monitor
+        patches@lists.linux.dev, Juergen Gross <jgross@suse.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 171/193] 9p/xen: fix connection sequence
 Date:   Fri, 10 Mar 2023 14:39:13 +0100
-Message-Id: <20230310133724.448282485@linuxfoundation.org>
+Message-Id: <20230310133716.820252055@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +56,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 83d29d439cd3ef23041570d55841f814af2ecac0 upstream.
+[ Upstream commit c15fe55d14b3b4ded5af2a3260877460a6ffb8ad ]
 
-When monitoring the console output, the stdout is being redirected to do
-so. If Ctrl^C is hit during this mode, the stdout is not back to the
-console, the user does not see anything they type (no echo).
+Today the connection sequence of the Xen 9pfs frontend doesn't match
+the documented sequence. It can work reliably only for a PV 9pfs device
+having been added at boot time already, as the frontend is not waiting
+for the backend to have set its state to "XenbusStateInitWait" before
+reading the backend properties from Xenstore.
 
-Add "end_monitor" to the SIGINT interrupt handler to give back the console
-on Ctrl^C.
+Fix that by following the documented sequence [1] (the documentation
+has a bug, so the reference is for the patch fixing that).
 
-Cc: stable@vger.kernel.org
-Fixes: 9f2cdcbbb90e7 ("ktest: Give console process a dedicated tty")
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1]: https://lore.kernel.org/xen-devel/20230130090937.31623-1-jgross@suse.com/T/#u
+
+Link: https://lkml.kernel.org/r/20230130113036.7087-3-jgross@suse.com
+Fixes: 868eb122739a ("xen/9pfs: introduce Xen 9pfs transport driver")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/ktest/ktest.pl |    3 +++
- 1 file changed, 3 insertions(+)
+ net/9p/trans_xen.c | 38 +++++++++++++++++++++++---------------
+ 1 file changed, 23 insertions(+), 15 deletions(-)
 
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -4243,6 +4243,9 @@ sub send_email {
+diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
+index 6bb14f33b1b5d..ebe232fd45f74 100644
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -380,12 +380,11 @@ static int xen_9pfs_front_alloc_dataring(struct xenbus_device *dev,
+ 	return ret;
  }
  
- sub cancel_test {
-+    if ($monitor_cnt) {
-+	end_monitor;
-+    }
-     if ($email_when_canceled) {
-         send_email("KTEST: Your [$test_type] test was cancelled",
-                 "Your test started at $script_start_time was cancelled: sig int");
+-static int xen_9pfs_front_probe(struct xenbus_device *dev,
+-				const struct xenbus_device_id *id)
++static int xen_9pfs_front_init(struct xenbus_device *dev)
+ {
+ 	int ret, i;
+ 	struct xenbus_transaction xbt;
+-	struct xen_9pfs_front_priv *priv = NULL;
++	struct xen_9pfs_front_priv *priv = dev_get_drvdata(&dev->dev);
+ 	char *versions, *v;
+ 	unsigned int max_rings, max_ring_order, len = 0;
+ 
+@@ -411,11 +410,6 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
+ 	if (max_ring_order < XEN_9PFS_RING_ORDER)
+ 		return -EINVAL;
+ 
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
+-
+-	priv->dev = dev;
+ 	priv->num_rings = XEN_9PFS_NUM_RINGS;
+ 	priv->rings = kcalloc(priv->num_rings, sizeof(*priv->rings),
+ 			      GFP_KERNEL);
+@@ -473,23 +467,35 @@ static int xen_9pfs_front_probe(struct xenbus_device *dev,
+ 		goto error;
+ 	}
+ 
+-	write_lock(&xen_9pfs_lock);
+-	list_add_tail(&priv->list, &xen_9pfs_devs);
+-	write_unlock(&xen_9pfs_lock);
+-	dev_set_drvdata(&dev->dev, priv);
+-	xenbus_switch_state(dev, XenbusStateInitialised);
+-
+ 	return 0;
+ 
+  error_xenbus:
+ 	xenbus_transaction_end(xbt, 1);
+ 	xenbus_dev_fatal(dev, ret, "writing xenstore");
+  error:
+-	dev_set_drvdata(&dev->dev, NULL);
+ 	xen_9pfs_front_free(priv);
+ 	return ret;
+ }
+ 
++static int xen_9pfs_front_probe(struct xenbus_device *dev,
++				const struct xenbus_device_id *id)
++{
++	struct xen_9pfs_front_priv *priv = NULL;
++
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->dev = dev;
++	dev_set_drvdata(&dev->dev, priv);
++
++	write_lock(&xen_9pfs_lock);
++	list_add_tail(&priv->list, &xen_9pfs_devs);
++	write_unlock(&xen_9pfs_lock);
++
++	return 0;
++}
++
+ static int xen_9pfs_front_resume(struct xenbus_device *dev)
+ {
+ 	dev_warn(&dev->dev, "suspsend/resume unsupported\n");
+@@ -508,6 +514,8 @@ static void xen_9pfs_front_changed(struct xenbus_device *dev,
+ 		break;
+ 
+ 	case XenbusStateInitWait:
++		if (!xen_9pfs_front_init(dev))
++			xenbus_switch_state(dev, XenbusStateInitialised);
+ 		break;
+ 
+ 	case XenbusStateConnected:
+-- 
+2.39.2
+
 
 
