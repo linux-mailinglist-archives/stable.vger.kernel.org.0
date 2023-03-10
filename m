@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8A06B4512
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 860F26B4515
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232360AbjCJOav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
+        id S232429AbjCJOax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232146AbjCJOaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E8B118BEF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:23 -0800 (PST)
+        with ESMTP id S232329AbjCJOa1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 168F311D08A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD5B3B822DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1434C433EF;
-        Fri, 10 Mar 2023 14:29:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D81E61380
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3683C433EF;
+        Fri, 10 Mar 2023 14:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458560;
-        bh=mzJ/Gxe0zHEIlrhaDFm7JoAcc+yqQyk25WhQ9qX1pbM=;
+        s=korg; t=1678458566;
+        bh=PtBprJ9XsFi/ywJ6L7Ncb08ObdmaseqEDbAtl1kEXP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vJ7rNKg4oI0VlUMv4hsCuSrU5sqO9nnivLWjIlva/yiFmPqjzZZQzbSMpWWG9MLX
-         vcCNWVnHGrwtul+Px389PRhvjMXVvuG6WgvJBCV5pfGwAccaOATqXDgbz4yCAOzFV0
-         Iml8gXoTofPQnzWD/zusNAD/RYA+h3gUHdVo2fjk=
+        b=2N6cGqeKX3Q1bfCO60HvdCMTDXz55uG0aYkoZJGoh+K3LhhtWAOimnU8AUBTHumiV
+         BPUPx5eGAc4DkwoSC8KpOjQIygL6pgnxbJ1DylaghJYqawxZ+lHg3YKPErGsNFkgk/
+         MkvwLzaPNDOkU5jXTQkP1RBPJlQ8U+UHLYdsdCcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eran Ben Elisha <eranbe@nvidia.com>,
-        Majd Dibbiny <majd@nvidia.com>,
-        Jack Morgenstein <jackm@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/357] net/mlx5: Enhance debug print in page allocation failure
-Date:   Fri, 10 Mar 2023 14:35:57 +0100
-Message-Id: <20230310133736.967505394@linuxfoundation.org>
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 069/357] irqchip/alpine-msi: Fix refcount leak in alpine_msix_init_domains
+Date:   Fri, 10 Mar 2023 14:35:58 +0100
+Message-Id: <20230310133737.016032209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -56,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@nvidia.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 7eef93003e5d20e1a6a6e59e12d914b5431cbda2 ]
+[ Upstream commit 071d068b89e95d1b078aa6bbcb9d0961b77d6aa1 ]
 
-Provide more details to aid debugging.
+of_irq_find_parent() returns a node pointer with refcount incremented,
+We should use of_node_put() on it when not needed anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: bf0bf77f6519 ("mlx5: Support communicating arbitrary host page size to firmware")
-Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Majd Dibbiny <majd@nvidia.com>
-Signed-off-by: Jack Morgenstein <jackm@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: e6b78f2c3e14 ("irqchip: Add the Alpine MSIX interrupt controller")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230102082811.3947760-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-alpine-msi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-index db76c92b75e29..7f7693b709d72 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c
-@@ -167,7 +167,8 @@ static int alloc_4k(struct mlx5_core_dev *dev, u64 *addr)
- 	fp = list_entry(dev->priv.free_list.next, struct fw_page, list);
- 	n = find_first_bit(&fp->bitmask, 8 * sizeof(fp->bitmask));
- 	if (n >= MLX5_NUM_4K_IN_PAGE) {
--		mlx5_core_warn(dev, "alloc 4k bug\n");
-+		mlx5_core_warn(dev, "alloc 4k bug: fw page = 0x%llx, n = %u, bitmask: %lu, max num of 4K pages: %d\n",
-+			       fp->addr, n, fp->bitmask,  MLX5_NUM_4K_IN_PAGE);
- 		return -ENOENT;
+diff --git a/drivers/irqchip/irq-alpine-msi.c b/drivers/irqchip/irq-alpine-msi.c
+index ede02dc2bcd0b..1819bb1d27230 100644
+--- a/drivers/irqchip/irq-alpine-msi.c
++++ b/drivers/irqchip/irq-alpine-msi.c
+@@ -199,6 +199,7 @@ static int alpine_msix_init_domains(struct alpine_msix_data *priv,
  	}
- 	clear_bit(n, &fp->bitmask);
+ 
+ 	gic_domain = irq_find_host(gic_node);
++	of_node_put(gic_node);
+ 	if (!gic_domain) {
+ 		pr_err("Failed to find the GIC domain\n");
+ 		return -ENXIO;
 -- 
 2.39.2
 
