@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA2316B411C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CFF86B4202
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230407AbjCJNti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:49:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52410 "EHLO
+        id S231393AbjCJN6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230401AbjCJNth (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:37 -0500
+        with ESMTP id S231398AbjCJN6r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01E4385684
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BFFA61A9B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AED00B822B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02AC7C433D2;
-        Fri, 10 Mar 2023 13:49:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E9FBB822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB487C4339B;
+        Fri, 10 Mar 2023 13:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456173;
-        bh=ScYuq9JgJnBnS8GzXZwY+7wFFiHFiTJUrnlfqmlmXUw=;
+        s=korg; t=1678456724;
+        bh=35tNpUgvmGiPXTi0O8sbowS2JZkvEaR4P1nZWV4frg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Chl0hVbs+lrEWRhor5PVLQP44O/l7KzDCW1S64TD39lihTWzBwA4l5Q/vt63sWUry
-         so2KG8GWj5zGA4L9FfkFq7HirTj4PnX8LvIHVmH5J3XMkZpqWHDdv8eQ8u8Vpsjwze
-         ibW2Uxyz8l51GTg93da1UpbrnXIsXamY+tgzAfNg=
+        b=M5nw1zADaG7RyICQVq9m7ZLHFLY7o+Y8hMnAXc63ew9wtcEz64txbP6rm6SlbneiL
+         mLXPJ9WfrTDdyaM7xysz3gfrgY7UXS9Xpda519KU8HPfFNH7li+8mbjkKM9DYvYPV9
+         hlJTO69rrp+wGF3EWDfSk6G+NQbCr8i1ZL9szcls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun ASAKA <JunASAKA@zzy040330.moe>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.14 098/193] wifi: rtl8xxxu: fixing transmisison failure for rtl8192eu
-Date:   Fri, 10 Mar 2023 14:38:00 +0100
-Message-Id: <20230310133714.508155090@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 101/211] ARM: dts: spear320-hmi: correct STMPE GPIO compatible
+Date:   Fri, 10 Mar 2023 14:38:01 +0100
+Message-Id: <20230310133721.839104440@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun ASAKA <JunASAKA@zzy040330.moe>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit c6015bf3ff1ffb3caa27eb913797438a0fc634a0 upstream.
+[ Upstream commit 33a0c1b850c8c85f400531dab3a0b022cdb164b1 ]
 
-Fixing transmission failure which results in
-"authentication with ... timed out". This can be
-fixed by disable the REG_TXPAUSE.
+The compatible is st,stmpe-gpio.
 
-Signed-off-by: Jun ASAKA <JunASAKA@zzy040330.moe>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221217030659.12577-1-JunASAKA@zzy040330.moe
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e2eb69183ec4 ("ARM: SPEAr320: DT: Add SPEAr 320 HMI board support")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20230225162237.40242-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/boot/dts/spear320-hmi.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-@@ -1629,6 +1629,11 @@ static void rtl8192e_enable_rf(struct rt
- 	val8 = rtl8xxxu_read8(priv, REG_PAD_CTRL1);
- 	val8 &= ~BIT(0);
- 	rtl8xxxu_write8(priv, REG_PAD_CTRL1, val8);
-+
-+	/*
-+	 * Fix transmission failure of rtl8192e.
-+	 */
-+	rtl8xxxu_write8(priv, REG_TXPAUSE, 0x00);
- }
+diff --git a/arch/arm/boot/dts/spear320-hmi.dts b/arch/arm/boot/dts/spear320-hmi.dts
+index 34503ac9c51c2..721e5ee7b6803 100644
+--- a/arch/arm/boot/dts/spear320-hmi.dts
++++ b/arch/arm/boot/dts/spear320-hmi.dts
+@@ -241,7 +241,7 @@
+ 					irq-trigger = <0x1>;
  
- struct rtl8xxxu_fileops rtl8192eu_fops = {
+ 					stmpegpio: stmpe-gpio {
+-						compatible = "stmpe,gpio";
++						compatible = "st,stmpe-gpio";
+ 						reg = <0>;
+ 						gpio-controller;
+ 						#gpio-cells = <2>;
+-- 
+2.39.2
+
 
 
