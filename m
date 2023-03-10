@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D046B43FD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 460556B410C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232163AbjCJOUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:20:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
+        id S230387AbjCJNtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:49:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232168AbjCJOUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:20 -0500
+        with ESMTP id S230383AbjCJNtA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F315D90D3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD528569C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:48:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA3F9B822B5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03F17C4339B;
-        Fri, 10 Mar 2023 14:18:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BAE6B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:48:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C26CC4339C;
+        Fri, 10 Mar 2023 13:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457922;
-        bh=i6gaGnVzRcWf31hXLHgvuw0jX/qrWoHwBTtRwgqO1M4=;
+        s=korg; t=1678456135;
+        bh=mQ1SAbwXOoQ3lQ50uFmvbyh1HkRhL+aGnMkDW1i1H+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M93mcNZ15LqnEEsAxvwsSyPM+AE+zyDzEKBfFPM+Bq6hY565iVJ0+pnulKe9/el1E
-         znpMgEW9q9j68RILKweIjexlg1k8dTMd9iaSzIKavxT6iVgSrPzdt8A2pTCqEHuVHK
-         7ImoGssr0K8VqlYB3B7VGMYE4wDvo6Kvgm2sgx/o=
+        b=P5TY2HgQzGA5MGlP2XG7TOtPYoEyBkTNr8xt5LhheAwquoCPXGVi4mYO3wFE0F11B
+         RBFkAfJ+bs8Yf3zwYIkh1zWCz0wyyntaGMV/UmOHVTtEoV0BL9SP+kvlqFGRF/r7sm
+         sVW9qTczTgieUroDniXCkbGt6Qe5n2qz9b/OqU3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Javier Martinez Canillas <javierm@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/252] powerpc/pseries/lparcfg: add missing RTAS retry status handling
+Subject: [PATCH 4.14 092/193] regulator: max77802: Bounds check regulator id against opmode
 Date:   Fri, 10 Mar 2023 14:37:54 +0100
-Message-Id: <20230310133721.957569412@linuxfoundation.org>
+Message-Id: <20230310133714.258203520@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +58,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 5d08633e5f6564b60f1cbe09af3af40a74d66431 ]
+[ Upstream commit 4fd8bcec5fd7c0d586206fa2f42bd67b06cdaa7e ]
 
-The ibm,get-system-parameter RTAS function may return -2 or 990x,
-which indicate that the caller should try again.
+Explicitly bounds-check the id before accessing the opmode array. Seen
+with GCC 13:
 
-lparcfg's parse_system_parameter_string() ignores this, making it
-possible to intermittently report incorrect SPLPAR characteristics.
+../drivers/regulator/max77802-regulator.c: In function 'max77802_enable':
+../drivers/regulator/max77802-regulator.c:217:29: warning: array subscript [0, 41] is outside array bounds of 'unsigned int[42]' [-Warray-bounds=]
+  217 |         if (max77802->opmode[id] == MAX77802_OFF_PWRREQ)
+      |             ~~~~~~~~~~~~~~~~^~~~
+../drivers/regulator/max77802-regulator.c:62:22: note: while referencing 'opmode'
+   62 |         unsigned int opmode[MAX77802_REG_MAX];
+      |                      ^~~~~~
 
-Move the RTAS call into a coventional rtas_busy_delay()-based loop.
-
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230125-b4-powerpc-rtas-queue-v3-4-26929c8cce78@linux.ibm.com
+Cc: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Javier Martinez Canillas <javierm@redhat.com>
+Link: https://lore.kernel.org/r/20230127225203.never.864-kees@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/lparcfg.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/regulator/max77802-regulator.c | 34 ++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/lparcfg.c b/arch/powerpc/platforms/pseries/lparcfg.c
-index 7c872dc01bdb0..d1b338b7dbded 100644
---- a/arch/powerpc/platforms/pseries/lparcfg.c
-+++ b/arch/powerpc/platforms/pseries/lparcfg.c
-@@ -291,6 +291,7 @@ static void parse_mpp_x_data(struct seq_file *m)
-  */
- static void parse_system_parameter_string(struct seq_file *m)
+diff --git a/drivers/regulator/max77802-regulator.c b/drivers/regulator/max77802-regulator.c
+index b6261903818c6..e12bab733e186 100644
+--- a/drivers/regulator/max77802-regulator.c
++++ b/drivers/regulator/max77802-regulator.c
+@@ -107,9 +107,11 @@ static int max77802_set_suspend_disable(struct regulator_dev *rdev)
  {
-+	const s32 token = rtas_token("ibm,get-system-parameter");
- 	int call_status;
+ 	unsigned int val = MAX77802_OFF_PWRREQ;
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	int shift = max77802_get_opmode_shift(id);
  
- 	unsigned char *local_buffer = kmalloc(SPLPAR_MAXLENGTH, GFP_KERNEL);
-@@ -300,16 +301,15 @@ static void parse_system_parameter_string(struct seq_file *m)
- 		return;
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
+ 	max77802->opmode[id] = val;
+ 	return regmap_update_bits(rdev->regmap, rdev->desc->enable_reg,
+ 				  rdev->desc->enable_mask, val << shift);
+@@ -123,7 +125,7 @@ static int max77802_set_suspend_disable(struct regulator_dev *rdev)
+ static int max77802_set_mode(struct regulator_dev *rdev, unsigned int mode)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	unsigned int val;
+ 	int shift = max77802_get_opmode_shift(id);
+ 
+@@ -140,6 +142,9 @@ static int max77802_set_mode(struct regulator_dev *rdev, unsigned int mode)
+ 		return -EINVAL;
  	}
  
--	spin_lock(&rtas_data_buf_lock);
--	memset(rtas_data_buf, 0, SPLPAR_MAXLENGTH);
--	call_status = rtas_call(rtas_token("ibm,get-system-parameter"), 3, 1,
--				NULL,
--				SPLPAR_CHARACTERISTICS_TOKEN,
--				__pa(rtas_data_buf),
--				RTAS_DATA_BUF_SIZE);
--	memcpy(local_buffer, rtas_data_buf, SPLPAR_MAXLENGTH);
--	local_buffer[SPLPAR_MAXLENGTH - 1] = '\0';
--	spin_unlock(&rtas_data_buf_lock);
-+	do {
-+		spin_lock(&rtas_data_buf_lock);
-+		memset(rtas_data_buf, 0, SPLPAR_MAXLENGTH);
-+		call_status = rtas_call(token, 3, 1, NULL, SPLPAR_CHARACTERISTICS_TOKEN,
-+					__pa(rtas_data_buf), RTAS_DATA_BUF_SIZE);
-+		memcpy(local_buffer, rtas_data_buf, SPLPAR_MAXLENGTH);
-+		local_buffer[SPLPAR_MAXLENGTH - 1] = '\0';
-+		spin_unlock(&rtas_data_buf_lock);
-+	} while (rtas_busy_delay(call_status));
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
++
+ 	max77802->opmode[id] = val;
+ 	return regmap_update_bits(rdev->regmap, rdev->desc->enable_reg,
+ 				  rdev->desc->enable_mask, val << shift);
+@@ -148,8 +153,10 @@ static int max77802_set_mode(struct regulator_dev *rdev, unsigned int mode)
+ static unsigned max77802_get_mode(struct regulator_dev *rdev)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
  
- 	if (call_status != 0) {
- 		printk(KERN_INFO
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
+ 	return max77802_map_mode(max77802->opmode[id]);
+ }
+ 
+@@ -173,10 +180,13 @@ static int max77802_set_suspend_mode(struct regulator_dev *rdev,
+ 				     unsigned int mode)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	unsigned int val;
+ 	int shift = max77802_get_opmode_shift(id);
+ 
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
++
+ 	/*
+ 	 * If the regulator has been disabled for suspend
+ 	 * then is invalid to try setting a suspend mode.
+@@ -222,9 +232,11 @@ static int max77802_set_suspend_mode(struct regulator_dev *rdev,
+ static int max77802_enable(struct regulator_dev *rdev)
+ {
+ 	struct max77802_regulator_prv *max77802 = rdev_get_drvdata(rdev);
+-	int id = rdev_get_id(rdev);
++	unsigned int id = rdev_get_id(rdev);
+ 	int shift = max77802_get_opmode_shift(id);
+ 
++	if (WARN_ON_ONCE(id >= ARRAY_SIZE(max77802->opmode)))
++		return -EINVAL;
+ 	if (max77802->opmode[id] == MAX77802_OFF_PWRREQ)
+ 		max77802->opmode[id] = MAX77802_OPMODE_NORMAL;
+ 
+@@ -553,7 +565,7 @@ static int max77802_pmic_probe(struct platform_device *pdev)
+ 
+ 	for (i = 0; i < MAX77802_REG_MAX; i++) {
+ 		struct regulator_dev *rdev;
+-		int id = regulators[i].id;
++		unsigned int id = regulators[i].id;
+ 		int shift = max77802_get_opmode_shift(id);
+ 		int ret;
+ 
+@@ -571,10 +583,12 @@ static int max77802_pmic_probe(struct platform_device *pdev)
+ 		 * the hardware reports OFF as the regulator operating mode.
+ 		 * Default to operating mode NORMAL in that case.
+ 		 */
+-		if (val == MAX77802_STATUS_OFF)
+-			max77802->opmode[id] = MAX77802_OPMODE_NORMAL;
+-		else
+-			max77802->opmode[id] = val;
++		if (id < ARRAY_SIZE(max77802->opmode)) {
++			if (val == MAX77802_STATUS_OFF)
++				max77802->opmode[id] = MAX77802_OPMODE_NORMAL;
++			else
++				max77802->opmode[id] = val;
++		}
+ 
+ 		rdev = devm_regulator_register(&pdev->dev,
+ 					       &regulators[i], &config);
 -- 
 2.39.2
 
