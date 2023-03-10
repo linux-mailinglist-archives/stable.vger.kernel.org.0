@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D2A6B4369
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1DEF6B4292
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:04:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbjCJOO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49908 "EHLO
+        id S231549AbjCJOEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:04:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231874AbjCJOOH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D294230
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:12:56 -0800 (PST)
+        with ESMTP id S231648AbjCJOEY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D8A954CA6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8F5CB822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 516A9C433D2;
-        Fri, 10 Mar 2023 14:12:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E88C60D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43E92C4339C;
+        Fri, 10 Mar 2023 14:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457568;
-        bh=WHWFpoQ1nrjbpody8adXpagBLdlcYWceEFt87NMVy4Q=;
+        s=korg; t=1678457054;
+        bh=ZrtyA0A7hrz6MWSDZccImiLlC87UAiLyjk0epvMRlh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cR35B1ZSjQ725C7w4xqCxXQ1W7vmGymAfitk0VNrkeePfWWrgbjtrp+ckRH2v6IxC
-         FevE3XmvimbXUA74y5HE5KHVyZDaUvIE94hMhX2LEe9dz7QYlfGGJlGLZY7o/MtHCc
-         PKuRUwDM6WielMXehf9uWEjVOWRbu6i26QHQGLkY=
+        b=vMeDdvOn8mA17huL+ikq1GnQrNNCoOKclroIaboOy5NKBnfH08tnYlIT9i8Hjy3kG
+         qgnKIgJBzzeZ4Mxc3TCXYxbmjGuAL40Re5DR9jWTBLbCCDYX/Lc+qdE8U73tjt3QEA
+         FqSNX14LeJA76LK6Dbtw6k6G1PO9JYDoPTH2fD6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6.1 182/200] vDPA/ifcvf: decouple config IRQ releaser from the adapter
+        patches@lists.linux.dev, Yunke Cao <yunkec@chromium.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 6.2 209/211] media: uvcvideo: Fix race condition with usb_kill_urb
 Date:   Fri, 10 Mar 2023 14:39:49 +0100
-Message-Id: <20230310133722.691107721@linuxfoundation.org>
+Message-Id: <20230310133725.308420734@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 23dac55cec3afdbc1b4eaed1c79f2cee00477f8b upstream.
+commit 619d9b710cf06f7a00a17120ca92333684ac45a8 upstream.
 
-This commit decouples config IRQ releaser from the adapter,
-so that it could be invoked once probe or in err handlers.
-ifcvf_free_irq() works on ifcvf_hw in this commit
+usb_kill_urb warranties that all the handlers are finished when it
+returns, but does not protect against threads that might be handling
+asynchronously the urb.
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+For UVC, the function uvc_ctrl_status_event_async() takes care of
+control changes asynchronously.
+
+If the code is executed in the following order:
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+uvc_ctrl_status_event_work()
+					uvc_status_start() -> FAIL
+
+Then uvc_status_start will keep failing and this error will be shown:
+
+<4>[    5.540139] URB 0000000000000000 submitted while active
+drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
+
+Let's improve the current situation, by not re-submiting the urb if
+we are stopping the status event. Also process the queued work
+(if any) during stop.
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+					uvc_status_start()
+uvc_ctrl_status_event_work() -> FAIL
+
+Hopefully, with the usb layer protection this should be enough to cover
+all the cases.
+
 Cc: stable@vger.kernel.org
-Message-Id: <20221125145724.1129962-6-lingshan.zhu@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
+Reviewed-by: Yunke Cao <yunkec@chromium.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c   |    5 +++++
+ drivers/media/usb/uvc/uvc_status.c |   37 +++++++++++++++++++++++++++++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |    1 +
+ 3 files changed, 43 insertions(+)
 
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -101,10 +101,9 @@ static void ifcvf_free_vq_irq(struct ifc
- 		ifcvf_free_vqs_reused_irq(vf);
- }
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
  
--static void ifcvf_free_config_irq(struct ifcvf_adapter *adapter)
-+static void ifcvf_free_config_irq(struct ifcvf_hw *vf)
++#include <asm/barrier.h>
+ #include <linux/bitops.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+@@ -1509,6 +1510,10 @@ static void uvc_ctrl_status_event_work(s
+ 
+ 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
+ 
++	/* The barrier is needed to synchronize with uvc_status_stop(). */
++	if (smp_load_acquire(&dev->flush_status))
++		return;
++
+ 	/* Resubmit the URB. */
+ 	w->urb->interval = dev->int_ep->desc.bInterval;
+ 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
+--- a/drivers/media/usb/uvc/uvc_status.c
++++ b/drivers/media/usb/uvc/uvc_status.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
+ 
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+@@ -309,5 +310,41 @@ int uvc_status_start(struct uvc_device *
+ 
+ void uvc_status_stop(struct uvc_device *dev)
  {
--	struct pci_dev *pdev = adapter->pdev;
--	struct ifcvf_hw *vf = &adapter->vf;
-+	struct pci_dev *pdev = vf->pdev;
- 
- 	if (vf->config_irq == -EINVAL)
- 		return;
-@@ -119,13 +118,12 @@ static void ifcvf_free_config_irq(struct
- 	}
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++
++	/*
++	 * Prevent the asynchronous control handler from requeing the URB. The
++	 * barrier is needed so the flush_status change is visible to other
++	 * CPUs running the asynchronous handler before usb_kill_urb() is
++	 * called below.
++	 */
++	smp_store_release(&dev->flush_status, true);
++
++	/*
++	 * Cancel any pending asynchronous work. If any status event was queued,
++	 * process it synchronously.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/* Kill the urb. */
+ 	usb_kill_urb(dev->int_urb);
++
++	/*
++	 * The URB completion handler may have queued asynchronous work. This
++	 * won't resubmit the URB as flush_status is set, but it needs to be
++	 * cancelled before returning or it could then race with a future
++	 * uvc_status_start() call.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/*
++	 * From this point, there are no events on the queue and the status URB
++	 * is dead. No events will be queued until uvc_status_start() is called.
++	 * The barrier is needed to make sure that flush_status is visible to
++	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
++	 * again.
++	 */
++	smp_store_release(&dev->flush_status, false);
  }
- 
--static void ifcvf_free_irq(struct ifcvf_adapter *adapter)
-+static void ifcvf_free_irq(struct ifcvf_hw *vf)
- {
--	struct pci_dev *pdev = adapter->pdev;
--	struct ifcvf_hw *vf = &adapter->vf;
-+	struct pci_dev *pdev = vf->pdev;
- 
- 	ifcvf_free_vq_irq(vf);
--	ifcvf_free_config_irq(adapter);
-+	ifcvf_free_config_irq(vf);
- 	ifcvf_free_irq_vectors(pdev);
- }
- 
-@@ -187,7 +185,7 @@ static int ifcvf_request_per_vq_irq(stru
- 
- 	return 0;
- err:
--	ifcvf_free_irq(adapter);
-+	ifcvf_free_irq(vf);
- 
- 	return -EFAULT;
- }
-@@ -221,7 +219,7 @@ static int ifcvf_request_vqs_reused_irq(
- 
- 	return 0;
- err:
--	ifcvf_free_irq(adapter);
-+	ifcvf_free_irq(vf);
- 
- 	return -EFAULT;
- }
-@@ -262,7 +260,7 @@ static int ifcvf_request_dev_irq(struct
- 
- 	return 0;
- err:
--	ifcvf_free_irq(adapter);
-+	ifcvf_free_irq(vf);
- 
- 	return -EFAULT;
- 
-@@ -317,7 +315,7 @@ static int ifcvf_request_config_irq(stru
- 
- 	return 0;
- err:
--	ifcvf_free_irq(adapter);
-+	ifcvf_free_irq(vf);
- 
- 	return -EFAULT;
- }
-@@ -508,7 +506,7 @@ static int ifcvf_vdpa_reset(struct vdpa_
- 
- 	if (status_old & VIRTIO_CONFIG_S_DRIVER_OK) {
- 		ifcvf_stop_datapath(adapter);
--		ifcvf_free_irq(adapter);
-+		ifcvf_free_irq(vf);
- 	}
- 
- 	ifcvf_reset_vring(adapter);
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -558,6 +558,7 @@ struct uvc_device {
+ 	/* Status Interrupt Endpoint */
+ 	struct usb_host_endpoint *int_ep;
+ 	struct urb *int_urb;
++	bool flush_status;
+ 	u8 *status;
+ 	struct input_dev *input;
+ 	char input_phys[64];
 
 
