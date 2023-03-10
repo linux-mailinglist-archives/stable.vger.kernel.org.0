@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75A246B46AA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:45:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43CB06B469B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbjCJOpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:45:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
+        id S231624AbjCJOo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:44:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232966AbjCJOpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:45:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E03D210C100
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:44:56 -0800 (PST)
+        with ESMTP id S232792AbjCJOoU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:44:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9091091DC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:44:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59E8661745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:44:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6374CC4339E;
-        Fri, 10 Mar 2023 14:44:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AC97B822BF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:44:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A2EC4339C;
+        Fri, 10 Mar 2023 14:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459495;
-        bh=0jHJqBg+SacLjaKX4pE63h9foHMIcJ2ZpgqbFs9CJ6Y=;
+        s=korg; t=1678459455;
+        bh=soLU0T4d9G4mvTJHtO+h9hFqZnELfE4DFTQE0qyzeAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylFd0B/VdV7/HyQopVzZsO643ftAuEWrHFrBv9RBP5ijOc/FkZZqKS+Alo1kkdIcP
-         36zSrz5cWCcnpIdBn8BTWb5yCo06z5dqA3dxl7OxRsiwzQiwexRXrDlrn6Qjns9AmX
-         v9LLaOhHD3fzuRzciCtG3V5lJgxfoPTxrfOQgW24=
+        b=fkgnLrQ6yVDezAM2yBlP6hC7Cz+M4Fb1tmy2jpxOEbeTfx41CLAPMHUseBapHlwKk
+         UkmzFAd9Fn7d+kp9f6vYb4WADiHJGuKcutn+4zky5iLIK80eeDbQTLucaiJV9rr/dz
+         TdbzdadIb9vFEVfUMiwomRKfcDz8LLbR5cZLQcaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Doug Anderson <dianders@chromium.org>,
+        patches@lists.linux.dev,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/529] arm64: dts: qcom: sdm845-db845c: fix audio codec interrupt pin name
-Date:   Fri, 10 Mar 2023 14:32:32 +0100
-Message-Id: <20230310133805.462018226@linuxfoundation.org>
+Subject: [PATCH 5.10 010/529] arm64: dts: qcom: sc7180: correct SPMI bus address cells
+Date:   Fri, 10 Mar 2023 14:32:33 +0100
+Message-Id: <20230310133805.503146106@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -46,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,36 +59,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 740862bb5f59b93efb390a417995f88a64bdc323 ]
+[ Upstream commit 1f75745537222172f84783d369bbd1fb2d4b6414 ]
 
-The pin config entry should have a string, not number, for the GPIO used
-as WCD9340 audio codec interrupt.
+The SPMI bus uses two address cells and zero size cells (second reg
+entry - SPMI_USID - is not the size):
 
-Fixes: 89a32a4e769c ("arm64: dts: qcom: db845c: add analog audio support")
-Reported-by: Doug Anderson <dianders@chromium.org>
+  spmi@c440000: #address-cells:0:0: 2 was expected
+
+Fixes: 0f9dc5f09fbd ("arm64: dts: qcom: sc7180: Add SPMI PMIC arbiter device")
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221222151319.122398-1-krzysztof.kozlowski@linaro.org
+Link: https://lore.kernel.org/r/20221213101921.47924-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-db845c.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sc7180.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-index c6691bdc81002..1e889ca932e41 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-@@ -896,7 +896,7 @@ sdc2_card_det_n: sd-card-det-n {
- 	};
- 
- 	wcd_intr_default: wcd_intr_default {
--		pins = <54>;
-+		pins = "gpio54";
- 		function = "gpio";
- 
- 		input-enable;
+diff --git a/arch/arm64/boot/dts/qcom/sc7180.dtsi b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+index c71f3afc1cc9f..eb07a882d43b3 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+@@ -3066,8 +3066,8 @@ spmi_bus: spmi@c440000 {
+ 			interrupts-extended = <&pdc 1 IRQ_TYPE_LEVEL_HIGH>;
+ 			qcom,ee = <0>;
+ 			qcom,channel = <0>;
+-			#address-cells = <1>;
+-			#size-cells = <1>;
++			#address-cells = <2>;
++			#size-cells = <0>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <4>;
+ 			cell-index = <0>;
 -- 
 2.39.2
 
