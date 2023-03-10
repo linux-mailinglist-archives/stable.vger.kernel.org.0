@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2055A6B496A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CDD6B49B1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233709AbjCJPMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:12:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46812 "EHLO
+        id S233357AbjCJPPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:15:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234036AbjCJPLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:11:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20239D332C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:03:41 -0800 (PST)
+        with ESMTP id S233542AbjCJPOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF9F125AE4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7653761A4E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:56:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A36C4339C;
-        Fri, 10 Mar 2023 14:56:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0864AB82303
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64395C4339B;
+        Fri, 10 Mar 2023 14:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460216;
-        bh=cdoGp7VnpGH1rs8tAGy0dvnuR/BqSmia8wupWPQCxkw=;
+        s=korg; t=1678460219;
+        bh=/XlHwpKnBlsOxotJvp6PPz3TOLrNtpT1McSsI53qTqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6MqNwwjDC5+gQd0IwJmJhCWvkUAYbJdKWYihHydED3O7VVM/zM8ovD346e02aW6z
-         qxewWbh+BXChAxzc3Ve0eS7On8kan5mE23xG4r5fzzlAK+WgZJFTrwry1GLoAntBCb
-         nqG9Ilhxs/BgXsVQbhszd6VsSCAov9PlIc7c8+e8=
+        b=TvOSBky8i+giYi0ZopgpMfKXxBlczIYGfCx0WdI12XL+zmnZtiE8yclxl/PzttMKj
+         52XrCNLssRXazjUhxUqXSrDBiFqPA5fd3P36hNTlgWD9/NvKYFN1krtr6vU2Nr6ERp
+         uLeGAfI5mwaaYsQcP5XV/HE9VlRr5+ifmrFc0noY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mattijs Korpershoek <mkorpershoek@baylibre.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 262/529] Input: iqs269a - do not poll during suspend or resume
-Date:   Fri, 10 Mar 2023 14:36:45 +0100
-Message-Id: <20230310133817.101336723@linuxfoundation.org>
+Subject: [PATCH 5.10 263/529] Input: iqs269a - do not poll during ATI
+Date:   Fri, 10 Mar 2023 14:36:46 +0100
+Message-Id: <20230310133817.147463135@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -57,215 +57,281 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit 18ab69c8ca5678324efbeed874b707ce7b2feae1 ]
+[ Upstream commit b08134eb254db56e9ce8170d9b82f0d7a616b6f8 ]
 
-Polling the device while it transitions from automatic to manual
-power mode switching may keep the device from actually finishing
-the transition. The process appears to time out depending on the
-polling rate and the device's core clock frequency.
+After initial start-up, the driver triggers ATI (calibration) with
+the newly loaded register configuration in place. Next, the driver
+polls a register field to ensure ATI completed in a timely fashion
+and that the device is ready to sense.
 
-This is ultimately unnecessary in the first place; instead it is
-sufficient to write the desired mode during initialization, then
-disable automatic switching at suspend. This eliminates the need
-to ensure the device is prepared for a manual change and removes
-the 'suspend_mode' variable.
+However, communicating with the device over I2C while ATI is under-
+way may induce noise in the device and cause ATI to fail. As such,
+the vendor recommends not to poll the device during ATI.
 
-Similarly, polling the device while it transitions from one mode
-to another under manual control may time out as well. This added
-step does not appear to be necessary either, so drop it.
+To solve this problem, let the device naturally signal to the host
+that ATI is complete by way of an interrupt. A completion prevents
+the device from successfully probing until this happens.
+
+As an added benefit, initial switch states are now reported in the
+interrupt handler at the same time ATI status is checked. As such,
+duplicate code that reports initial switch states has been removed
+from iqs269_input_init().
+
+The former logic that scaled ATI timeout and filter settling delay
+is not carried forward with the new implementation, as it produces
+overly conservative delays at the lower clock rate.
+
+Rather, a single timeout that covers both clock rates is used. The
+filter settling delay does not happen to be necessary and has been
+removed as well.
 
 Fixes: 04e49867fad1 ("Input: add support for Azoteq IQS269A")
 Signed-off-by: Jeff LaBundy <jeff@labundy.com>
 Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Link: https://lore.kernel.org/r/Y7Rs+eEXlRw4Vq57@nixie71
+Link: https://lore.kernel.org/r/Y7RtB2T7AF9rYMjK@nixie71
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/iqs269a.c | 118 +++++++++--------------------------
- 1 file changed, 31 insertions(+), 87 deletions(-)
+ drivers/input/misc/iqs269a.c | 97 +++++++++++++++++-------------------
+ 1 file changed, 46 insertions(+), 51 deletions(-)
 
 diff --git a/drivers/input/misc/iqs269a.c b/drivers/input/misc/iqs269a.c
-index 1530efd301c24..814d1a898e7ff 100644
+index 814d1a898e7ff..8b30c911f7899 100644
 --- a/drivers/input/misc/iqs269a.c
 +++ b/drivers/input/misc/iqs269a.c
-@@ -148,9 +148,6 @@
- #define IQS269_ATI_POLL_TIMEOUT_US		(iqs269->delay_mult * 500000)
- #define IQS269_ATI_STABLE_DELAY_MS		(iqs269->delay_mult * 150)
+@@ -9,6 +9,7 @@
+  * axial sliders presented by the device.
+  */
  
--#define IQS269_PWR_MODE_POLL_SLEEP_US		IQS269_ATI_POLL_SLEEP_US
--#define IQS269_PWR_MODE_POLL_TIMEOUT_US		IQS269_ATI_POLL_TIMEOUT_US
++#include <linux/completion.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+@@ -144,10 +145,6 @@
+ #define IQS269_NUM_CH				8
+ #define IQS269_NUM_SL				2
+ 
+-#define IQS269_ATI_POLL_SLEEP_US		(iqs269->delay_mult * 10000)
+-#define IQS269_ATI_POLL_TIMEOUT_US		(iqs269->delay_mult * 500000)
+-#define IQS269_ATI_STABLE_DELAY_MS		(iqs269->delay_mult * 150)
 -
  #define iqs269_irq_wait()			usleep_range(200, 250)
  
  enum iqs269_local_cap_size {
-@@ -295,7 +292,6 @@ struct iqs269_private {
+@@ -289,10 +286,10 @@ struct iqs269_private {
+ 	struct mutex lock;
+ 	struct iqs269_switch_desc switches[ARRAY_SIZE(iqs269_events)];
+ 	struct iqs269_sys_reg sys_reg;
++	struct completion ati_done;
  	struct input_dev *keypad;
  	struct input_dev *slider[IQS269_NUM_SL];
  	unsigned int keycode[ARRAY_SIZE(iqs269_events) * IQS269_NUM_CH];
--	unsigned int suspend_mode;
- 	unsigned int delay_mult;
+-	unsigned int delay_mult;
  	unsigned int ch_num;
  	bool hall_enable;
-@@ -767,17 +763,6 @@ static int iqs269_parse_prop(struct iqs269_private *iqs269)
- 	iqs269->hall_enable = device_property_present(&client->dev,
- 						      "azoteq,hall-enable");
+ 	bool ati_current;
+@@ -973,13 +970,8 @@ static int iqs269_parse_prop(struct iqs269_private *iqs269)
  
--	if (!device_property_read_u32(&client->dev, "azoteq,suspend-mode",
--				      &val)) {
--		if (val > IQS269_SYS_SETTINGS_PWR_MODE_MAX) {
--			dev_err(&client->dev, "Invalid suspend mode: %u\n",
--				val);
--			return -EINVAL;
+ 	general = be16_to_cpu(sys_reg->general);
+ 
+-	if (device_property_present(&client->dev, "azoteq,clk-div")) {
++	if (device_property_present(&client->dev, "azoteq,clk-div"))
+ 		general |= IQS269_SYS_SETTINGS_CLK_DIV;
+-		iqs269->delay_mult = 4;
+-	} else {
+-		general &= ~IQS269_SYS_SETTINGS_CLK_DIV;
+-		iqs269->delay_mult = 1;
+-	}
+ 
+ 	/*
+ 	 * Configure the device to automatically switch between normal and low-
+@@ -1036,7 +1028,6 @@ static int iqs269_parse_prop(struct iqs269_private *iqs269)
+ 
+ static int iqs269_dev_init(struct iqs269_private *iqs269)
+ {
+-	unsigned int val;
+ 	int error;
+ 
+ 	mutex_lock(&iqs269->lock);
+@@ -1052,14 +1043,12 @@ static int iqs269_dev_init(struct iqs269_private *iqs269)
+ 	if (error)
+ 		goto err_mutex;
+ 
+-	error = regmap_read_poll_timeout(iqs269->regmap, IQS269_SYS_FLAGS, val,
+-					!(val & IQS269_SYS_FLAGS_IN_ATI),
+-					 IQS269_ATI_POLL_SLEEP_US,
+-					 IQS269_ATI_POLL_TIMEOUT_US);
+-	if (error)
+-		goto err_mutex;
++	/*
++	 * The following delay gives the device time to deassert its RDY output
++	 * so as to prevent an interrupt from being serviced prematurely.
++	 */
++	usleep_range(2000, 2100);
+ 
+-	msleep(IQS269_ATI_STABLE_DELAY_MS);
+ 	iqs269->ati_current = true;
+ 
+ err_mutex:
+@@ -1071,10 +1060,8 @@ static int iqs269_dev_init(struct iqs269_private *iqs269)
+ static int iqs269_input_init(struct iqs269_private *iqs269)
+ {
+ 	struct i2c_client *client = iqs269->client;
+-	struct iqs269_flags flags;
+ 	unsigned int sw_code, keycode;
+ 	int error, i, j;
+-	u8 dir_mask, state;
+ 
+ 	iqs269->keypad = devm_input_allocate_device(&client->dev);
+ 	if (!iqs269->keypad)
+@@ -1087,23 +1074,7 @@ static int iqs269_input_init(struct iqs269_private *iqs269)
+ 	iqs269->keypad->name = "iqs269a_keypad";
+ 	iqs269->keypad->id.bustype = BUS_I2C;
+ 
+-	if (iqs269->hall_enable) {
+-		error = regmap_raw_read(iqs269->regmap, IQS269_SYS_FLAGS,
+-					&flags, sizeof(flags));
+-		if (error) {
+-			dev_err(&client->dev,
+-				"Failed to read initial status: %d\n", error);
+-			return error;
 -		}
--
--		iqs269->suspend_mode = val;
 -	}
 -
- 	error = regmap_raw_read(iqs269->regmap, IQS269_SYS_SETTINGS, sys_reg,
- 				sizeof(*sys_reg));
- 	if (error)
-@@ -1005,6 +990,17 @@ static int iqs269_parse_prop(struct iqs269_private *iqs269)
- 	general &= ~IQS269_SYS_SETTINGS_DIS_AUTO;
- 	general &= ~IQS269_SYS_SETTINGS_PWR_MODE_MASK;
+ 	for (i = 0; i < ARRAY_SIZE(iqs269_events); i++) {
+-		dir_mask = flags.states[IQS269_ST_OFFS_DIR];
+-		if (!iqs269_events[i].dir_up)
+-			dir_mask = ~dir_mask;
+-
+-		state = flags.states[iqs269_events[i].st_offs] & dir_mask;
+-
+ 		sw_code = iqs269->switches[i].code;
  
-+	if (!device_property_read_u32(&client->dev, "azoteq,suspend-mode",
-+				      &val)) {
-+		if (val > IQS269_SYS_SETTINGS_PWR_MODE_MAX) {
-+			dev_err(&client->dev, "Invalid suspend mode: %u\n",
-+				val);
-+			return -EINVAL;
-+		}
+ 		for (j = 0; j < IQS269_NUM_CH; j++) {
+@@ -1116,13 +1087,9 @@ static int iqs269_input_init(struct iqs269_private *iqs269)
+ 			switch (j) {
+ 			case IQS269_CHx_HALL_ACTIVE:
+ 				if (iqs269->hall_enable &&
+-				    iqs269->switches[i].enabled) {
++				    iqs269->switches[i].enabled)
+ 					input_set_capability(iqs269->keypad,
+ 							     EV_SW, sw_code);
+-					input_report_switch(iqs269->keypad,
+-							    sw_code,
+-							    state & BIT(j));
+-				}
+ 				fallthrough;
+ 
+ 			case IQS269_CHx_HALL_INACTIVE:
+@@ -1138,14 +1105,6 @@ static int iqs269_input_init(struct iqs269_private *iqs269)
+ 		}
+ 	}
+ 
+-	input_sync(iqs269->keypad);
+-
+-	error = input_register_device(iqs269->keypad);
+-	if (error) {
+-		dev_err(&client->dev, "Failed to register keypad: %d\n", error);
+-		return error;
+-	}
+-
+ 	for (i = 0; i < IQS269_NUM_SL; i++) {
+ 		if (!iqs269->sys_reg.slider_select[i])
+ 			continue;
+@@ -1205,6 +1164,9 @@ static int iqs269_report(struct iqs269_private *iqs269)
+ 		return error;
+ 	}
+ 
++	if (be16_to_cpu(flags.system) & IQS269_SYS_FLAGS_IN_ATI)
++		return 0;
 +
-+		general |= (val << IQS269_SYS_SETTINGS_PWR_MODE_SHIFT);
-+	}
+ 	error = regmap_raw_read(iqs269->regmap, IQS269_SLIDER_X, slider_x,
+ 				sizeof(slider_x));
+ 	if (error) {
+@@ -1267,6 +1229,12 @@ static int iqs269_report(struct iqs269_private *iqs269)
+ 
+ 	input_sync(iqs269->keypad);
+ 
++	/*
++	 * The following completion signals that ATI has finished, any initial
++	 * switch states have been reported and the keypad can be registered.
++	 */
++	complete_all(&iqs269->ati_done);
 +
- 	if (!device_property_read_u32(&client->dev, "azoteq,ulp-update",
- 				      &val)) {
- 		if (val > IQS269_SYS_SETTINGS_ULP_UPDATE_MAX) {
-@@ -1687,59 +1683,30 @@ static int iqs269_probe(struct i2c_client *client)
- 	return error;
+ 	return 0;
  }
  
-+static u16 iqs269_general_get(struct iqs269_private *iqs269)
-+{
-+	u16 general = be16_to_cpu(iqs269->sys_reg.general);
+@@ -1298,6 +1266,9 @@ static ssize_t counts_show(struct device *dev,
+ 	if (!iqs269->ati_current || iqs269->hall_enable)
+ 		return -EPERM;
+ 
++	if (!completion_done(&iqs269->ati_done))
++		return -EBUSY;
 +
-+	general &= ~IQS269_SYS_SETTINGS_REDO_ATI;
-+	general &= ~IQS269_SYS_SETTINGS_ACK_RESET;
-+
-+	return general | IQS269_SYS_SETTINGS_DIS_AUTO;
-+}
-+
- static int __maybe_unused iqs269_suspend(struct device *dev)
+ 	/*
+ 	 * Unsolicited I2C communication prompts the device to assert its RDY
+ 	 * pin, so disable the interrupt line until the operation is finished
+@@ -1554,7 +1525,9 @@ static ssize_t ati_trigger_show(struct device *dev,
  {
  	struct iqs269_private *iqs269 = dev_get_drvdata(dev);
- 	struct i2c_client *client = iqs269->client;
--	unsigned int val;
- 	int error;
-+	u16 general = iqs269_general_get(iqs269);
  
--	if (!iqs269->suspend_mode)
-+	if (!(general & IQS269_SYS_SETTINGS_PWR_MODE_MASK))
- 		return 0;
+-	return scnprintf(buf, PAGE_SIZE, "%u\n", iqs269->ati_current);
++	return scnprintf(buf, PAGE_SIZE, "%u\n",
++			 iqs269->ati_current &&
++			 completion_done(&iqs269->ati_done));
+ }
  
- 	disable_irq(client->irq);
- 
--	/*
--	 * Automatic power mode switching must be disabled before the device is
--	 * forced into any particular power mode. In this case, the device will
--	 * transition into normal-power mode.
--	 */
--	error = regmap_update_bits(iqs269->regmap, IQS269_SYS_SETTINGS,
--				   IQS269_SYS_SETTINGS_DIS_AUTO, ~0);
--	if (error)
--		goto err_irq;
--
--	/*
--	 * The following check ensures the device has completed its transition
--	 * into normal-power mode before a manual mode switch is performed.
--	 */
--	error = regmap_read_poll_timeout(iqs269->regmap, IQS269_SYS_FLAGS, val,
--					!(val & IQS269_SYS_FLAGS_PWR_MODE_MASK),
--					 IQS269_PWR_MODE_POLL_SLEEP_US,
--					 IQS269_PWR_MODE_POLL_TIMEOUT_US);
--	if (error)
--		goto err_irq;
--
--	error = regmap_update_bits(iqs269->regmap, IQS269_SYS_SETTINGS,
--				   IQS269_SYS_SETTINGS_PWR_MODE_MASK,
--				   iqs269->suspend_mode <<
--				   IQS269_SYS_SETTINGS_PWR_MODE_SHIFT);
--	if (error)
--		goto err_irq;
--
--	/*
--	 * This last check ensures the device has completed its transition into
--	 * the desired power mode to prevent any spurious interrupts from being
--	 * triggered after iqs269_suspend has already returned.
--	 */
--	error = regmap_read_poll_timeout(iqs269->regmap, IQS269_SYS_FLAGS, val,
--					 (val & IQS269_SYS_FLAGS_PWR_MODE_MASK)
--					 == (iqs269->suspend_mode <<
--					     IQS269_SYS_FLAGS_PWR_MODE_SHIFT),
--					 IQS269_PWR_MODE_POLL_SLEEP_US,
--					 IQS269_PWR_MODE_POLL_TIMEOUT_US);
-+	error = regmap_write(iqs269->regmap, IQS269_SYS_SETTINGS, general);
- 
--err_irq:
- 	iqs269_irq_wait();
- 	enable_irq(client->irq);
- 
-@@ -1750,43 +1717,20 @@ static int __maybe_unused iqs269_resume(struct device *dev)
- {
- 	struct iqs269_private *iqs269 = dev_get_drvdata(dev);
- 	struct i2c_client *client = iqs269->client;
--	unsigned int val;
- 	int error;
-+	u16 general = iqs269_general_get(iqs269);
- 
--	if (!iqs269->suspend_mode)
-+	if (!(general & IQS269_SYS_SETTINGS_PWR_MODE_MASK))
- 		return 0;
+ static ssize_t ati_trigger_store(struct device *dev,
+@@ -1574,6 +1547,7 @@ static ssize_t ati_trigger_store(struct device *dev,
+ 		return count;
  
  	disable_irq(client->irq);
++	reinit_completion(&iqs269->ati_done);
  
--	error = regmap_update_bits(iqs269->regmap, IQS269_SYS_SETTINGS,
--				   IQS269_SYS_SETTINGS_PWR_MODE_MASK, 0);
--	if (error)
--		goto err_irq;
--
--	/*
--	 * This check ensures the device has returned to normal-power mode
--	 * before automatic power mode switching is re-enabled.
--	 */
--	error = regmap_read_poll_timeout(iqs269->regmap, IQS269_SYS_FLAGS, val,
--					!(val & IQS269_SYS_FLAGS_PWR_MODE_MASK),
--					 IQS269_PWR_MODE_POLL_SLEEP_US,
--					 IQS269_PWR_MODE_POLL_TIMEOUT_US);
--	if (error)
--		goto err_irq;
--
--	error = regmap_update_bits(iqs269->regmap, IQS269_SYS_SETTINGS,
--				   IQS269_SYS_SETTINGS_DIS_AUTO, 0);
--	if (error)
--		goto err_irq;
--
--	/*
--	 * This step reports any events that may have been "swallowed" as a
--	 * result of polling PWR_MODE (which automatically acknowledges any
--	 * pending interrupts).
--	 */
--	error = iqs269_report(iqs269);
-+	error = regmap_write(iqs269->regmap, IQS269_SYS_SETTINGS,
-+			     general & ~IQS269_SYS_SETTINGS_PWR_MODE_MASK);
-+	if (!error)
-+		error = regmap_write(iqs269->regmap, IQS269_SYS_SETTINGS,
-+				     general & ~IQS269_SYS_SETTINGS_DIS_AUTO);
+ 	error = iqs269_dev_init(iqs269);
  
--err_irq:
- 	iqs269_irq_wait();
- 	enable_irq(client->irq);
+@@ -1583,6 +1557,10 @@ static ssize_t ati_trigger_store(struct device *dev,
+ 	if (error)
+ 		return error;
  
++	if (!wait_for_completion_timeout(&iqs269->ati_done,
++					 msecs_to_jiffies(2000)))
++		return -ETIMEDOUT;
++
+ 	return count;
+ }
+ 
+@@ -1641,6 +1619,7 @@ static int iqs269_probe(struct i2c_client *client)
+ 	}
+ 
+ 	mutex_init(&iqs269->lock);
++	init_completion(&iqs269->ati_done);
+ 
+ 	error = regmap_raw_read(iqs269->regmap, IQS269_VER_INFO, &ver_info,
+ 				sizeof(ver_info));
+@@ -1676,6 +1655,22 @@ static int iqs269_probe(struct i2c_client *client)
+ 		return error;
+ 	}
+ 
++	if (!wait_for_completion_timeout(&iqs269->ati_done,
++					 msecs_to_jiffies(2000))) {
++		dev_err(&client->dev, "Failed to complete ATI\n");
++		return -ETIMEDOUT;
++	}
++
++	/*
++	 * The keypad may include one or more switches and is not registered
++	 * until ATI is complete and the initial switch states are read.
++	 */
++	error = input_register_device(iqs269->keypad);
++	if (error) {
++		dev_err(&client->dev, "Failed to register keypad: %d\n", error);
++		return error;
++	}
++
+ 	error = devm_device_add_group(&client->dev, &iqs269_attr_group);
+ 	if (error)
+ 		dev_err(&client->dev, "Failed to add attributes: %d\n", error);
 -- 
 2.39.2
 
