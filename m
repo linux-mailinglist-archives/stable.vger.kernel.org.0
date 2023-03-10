@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A7C6B41BB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B8F6B43BB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231272AbjCJN4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:56:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37358 "EHLO
+        id S231960AbjCJORJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:17:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231295AbjCJN4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE5D71151DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:38 -0800 (PST)
+        with ESMTP id S231846AbjCJOQs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CCBF35245
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D57EB822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02A5C433D2;
-        Fri, 10 Mar 2023 13:55:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0DB560D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA8D9C433D2;
+        Fri, 10 Mar 2023 14:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456536;
-        bh=mpqJt5zJ7CPvSkDyBW2VufNE4cqUl48yhJW3ZkM8w90=;
+        s=korg; t=1678457755;
+        bh=Ow8oS7myItr+rGPZnrLY9dSkLx/rPUrh4hb7O61uRoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhm3D35fvWinuzRYNKPDlD4Qtn+ycNYGnD7y2unSwRPaHK+c2yt7rFsaU7E6ylImC
-         vV2hYi6P+XZ+P1I3yAHiX5KdhSRHW7TZEKpEtAdDJHPHDOVxOL2xkm9fim0ClS+9fe
-         FxmC5io8HnOQM2ad+tAb/fUQtIh9v/RFCoRvEoeM=
+        b=xC9iLgRV3/jJ4hiQ1zVP0dO4FroUGDyqACTbFxLdrVmPKB2IHPVy75jTmydIrq5tk
+         sur6SqjTfY9LGqVRf4eSnte6nUtRJ9vpTSQcF93dY2jIwjTIAgwq+zVJYicR0Gi4Mm
+         nZ2OJu87ME19cEB+YxDhOB9UiLMMM2kw39u1dSDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 036/211] ubi: Fix possible null-ptr-deref in ubi_free_volume()
+Subject: [PATCH 4.19 046/252] crypto: seqiv - Handle EBUSY correctly
 Date:   Fri, 10 Mar 2023 14:36:56 +0100
-Message-Id: <20230310133719.833932765@linuxfoundation.org>
+Message-Id: <20230310133720.213713934@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,87 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit c15859bfd326c10230f09cb48a17f8a35f190342 ]
+[ Upstream commit 32e62025e5e52fbe4812ef044759de7010b15dbc ]
 
-It willl cause null-ptr-deref in the following case:
+As it is seqiv only handles the special return value of EINPROGERSS,
+which means that in all other cases it will free data related to the
+request.
 
-uif_init()
-  ubi_add_volume()
-    cdev_add() -> if it fails, call kill_volumes()
-    device_register()
+However, as the caller of seqiv may specify MAY_BACKLOG, we also need
+to expect EBUSY and treat it in the same way.  Otherwise backlogged
+requests will trigger a use-after-free.
 
-kill_volumes() -> if ubi_add_volume() fails call this function
-  ubi_free_volume()
-    cdev_del()
-    device_unregister() -> trying to delete a not added device,
-			   it causes null-ptr-deref
-
-So in ubi_free_volume(), it delete devices whether they are added
-or not, it will causes null-ptr-deref.
-
-Handle the error case whlie calling ubi_add_volume() to fix this
-problem. If add volume fails, set the corresponding vol to null,
-so it can not be accessed in kill_volumes() and release the
-resource in ubi_add_volume() error path.
-
-Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
-Suggested-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 0a270321dbf9 ("[CRYPTO] seqiv: Add Sequence Number IV Generator")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/build.c |  1 +
- drivers/mtd/ubi/vmt.c   | 12 ++++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ crypto/seqiv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
-index 2178eb4115b36..7f65af1697519 100644
---- a/drivers/mtd/ubi/build.c
-+++ b/drivers/mtd/ubi/build.c
-@@ -468,6 +468,7 @@ static int uif_init(struct ubi_device *ubi)
- 			err = ubi_add_volume(ubi, ubi->volumes[i]);
- 			if (err) {
- 				ubi_err(ubi, "cannot add volume %d", i);
-+				ubi->volumes[i] = NULL;
- 				goto out_volumes;
- 			}
- 		}
-diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
-index 9fbc64b997cef..2c867d16f89f7 100644
---- a/drivers/mtd/ubi/vmt.c
-+++ b/drivers/mtd/ubi/vmt.c
-@@ -582,6 +582,7 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	if (err) {
- 		ubi_err(ubi, "cannot add character device for volume %d, error %d",
- 			vol_id, err);
-+		vol_release(&vol->dev);
- 		return err;
- 	}
+diff --git a/crypto/seqiv.c b/crypto/seqiv.c
+index 39dbf2f7e5f5c..ca68608ab14e1 100644
+--- a/crypto/seqiv.c
++++ b/crypto/seqiv.c
+@@ -30,7 +30,7 @@ static void seqiv_aead_encrypt_complete2(struct aead_request *req, int err)
+ 	struct aead_request *subreq = aead_request_ctx(req);
+ 	struct crypto_aead *geniv;
  
-@@ -592,15 +593,14 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
- 	vol->dev.groups = volume_dev_groups;
- 	dev_set_name(&vol->dev, "%s_%d", ubi->ubi_name, vol->vol_id);
- 	err = device_register(&vol->dev);
--	if (err)
--		goto out_cdev;
-+	if (err) {
-+		cdev_del(&vol->cdev);
-+		put_device(&vol->dev);
-+		return err;
-+	}
+-	if (err == -EINPROGRESS)
++	if (err == -EINPROGRESS || err == -EBUSY)
+ 		return;
  
- 	self_check_volumes(ubi);
- 	return err;
--
--out_cdev:
--	cdev_del(&vol->cdev);
--	return err;
- }
- 
- /**
+ 	if (err)
 -- 
 2.39.2
 
