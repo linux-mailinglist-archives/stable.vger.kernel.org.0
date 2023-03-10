@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBDDE6B45C6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:37:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A1B6B4421
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232667AbjCJOhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:37:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46176 "EHLO
+        id S232118AbjCJOVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:21:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232638AbjCJOg5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:36:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B1511CBED
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:36:38 -0800 (PST)
+        with ESMTP id S232117AbjCJOVV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:21:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2824812F1D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:20:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A26AB822E1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:36:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC28FC4339C;
-        Fri, 10 Mar 2023 14:36:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B73E861745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B45FDC433EF;
+        Fri, 10 Mar 2023 14:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458989;
-        bh=cCH7VQG9oHwEHtMIfZAQ+VE25nBoMuZ8zCtrHLV57SI=;
+        s=korg; t=1678458000;
+        bh=E7k2bQuUMyvfckanWP/LNTeJuDGI/+LLY58Gwk88QhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LrmBHJRoEGDWiZyNi+L1jcZ3424842O9s+WqOkf7m8aZuMxHRxlNWk0wwby8gpBB7
-         lxwwA2j1/nuhluhDxcwPnndz8TZQ3H13aIlqyA22ugTp/uYy1MpdDeA5W82M2bhBZR
-         C98QM38moq97TMrGge5WcuNtAfVl7AXU1TeDO3QQ=
+        b=d9EBF2/VOLAy4eOe9/Pz/fFmEgBzIP8Aaf2DxUunp7ovFrBfgMegLgRHJqKIAMbHd
+         Ba367eFnoFD0fPq0YSK+zDIh4qT53xpZ93YAIqhDljgcgRhKLR8uud0fMngPmVs/0H
+         4DhzZi2oCjz27OjwydVgEPiNK6nW/xU3XeBIjYi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun ASAKA <JunASAKA@zzy040330.moe>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.4 211/357] wifi: rtl8xxxu: fixing transmisison failure for rtl8192eu
+        patches@lists.linux.dev, Liwei Song <liwei.song@windriver.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 130/252] drm/radeon: free iio for atombios when driver shutdown
 Date:   Fri, 10 Mar 2023 14:38:20 +0100
-Message-Id: <20230310133744.023961556@linuxfoundation.org>
+Message-Id: <20230310133722.744632971@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,36 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun ASAKA <JunASAKA@zzy040330.moe>
+From: Liwei Song <liwei.song@windriver.com>
 
-commit c6015bf3ff1ffb3caa27eb913797438a0fc634a0 upstream.
+[ Upstream commit 4773fadedca918faec443daaca5e4ea1c0ced144 ]
 
-Fixing transmission failure which results in
-"authentication with ... timed out". This can be
-fixed by disable the REG_TXPAUSE.
+Fix below kmemleak when unload radeon driver:
 
-Signed-off-by: Jun ASAKA <JunASAKA@zzy040330.moe>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221217030659.12577-1-JunASAKA@zzy040330.moe
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+unreferenced object 0xffff9f8608ede200 (size 512):
+  comm "systemd-udevd", pid 326, jiffies 4294682822 (age 716.338s)
+  hex dump (first 32 bytes):
+    00 00 00 00 c4 aa ec aa 14 ab 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000062fadebe>] kmem_cache_alloc_trace+0x2f1/0x500
+    [<00000000b6883cea>] atom_parse+0x117/0x230 [radeon]
+    [<00000000158c23fd>] radeon_atombios_init+0xab/0x170 [radeon]
+    [<00000000683f672e>] si_init+0x57/0x750 [radeon]
+    [<00000000566cc31f>] radeon_device_init+0x559/0x9c0 [radeon]
+    [<0000000046efabb3>] radeon_driver_load_kms+0xc1/0x1a0 [radeon]
+    [<00000000b5155064>] drm_dev_register+0xdd/0x1d0
+    [<0000000045fec835>] radeon_pci_probe+0xbd/0x100 [radeon]
+    [<00000000e69ecca3>] pci_device_probe+0xe1/0x160
+    [<0000000019484b76>] really_probe.part.0+0xc1/0x2c0
+    [<000000003f2649da>] __driver_probe_device+0x96/0x130
+    [<00000000231c5bb1>] driver_probe_device+0x24/0xf0
+    [<0000000000a42377>] __driver_attach+0x77/0x190
+    [<00000000d7574da6>] bus_for_each_dev+0x7f/0xd0
+    [<00000000633166d2>] driver_attach+0x1e/0x30
+    [<00000000313b05b8>] bus_add_driver+0x12c/0x1e0
+
+iio was allocated in atom_index_iio() called by atom_parse(),
+but it doesn't got released when the dirver is shutdown.
+Fix this kmemleak by free it in radeon_atombios_fini().
+
+Signed-off-by: Liwei Song <liwei.song@windriver.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/radeon/radeon_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
-@@ -1671,6 +1671,11 @@ static void rtl8192e_enable_rf(struct rt
- 	val8 = rtl8xxxu_read8(priv, REG_PAD_CTRL1);
- 	val8 &= ~BIT(0);
- 	rtl8xxxu_write8(priv, REG_PAD_CTRL1, val8);
-+
-+	/*
-+	 * Fix transmission failure of rtl8192e.
-+	 */
-+	rtl8xxxu_write8(priv, REG_TXPAUSE, 0x00);
- }
- 
- struct rtl8xxxu_fileops rtl8192eu_fops = {
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index cc1c07963116c..bcca0dd67fd15 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -1015,6 +1015,7 @@ void radeon_atombios_fini(struct radeon_device *rdev)
+ {
+ 	if (rdev->mode_info.atom_context) {
+ 		kfree(rdev->mode_info.atom_context->scratch);
++		kfree(rdev->mode_info.atom_context->iio);
+ 	}
+ 	kfree(rdev->mode_info.atom_context);
+ 	rdev->mode_info.atom_context = NULL;
+-- 
+2.39.2
+
 
 
