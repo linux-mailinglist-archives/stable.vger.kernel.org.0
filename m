@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3742B6B4B00
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50FAF6B4B06
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:30:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234344AbjCJP3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:29:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
+        id S233425AbjCJPaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:30:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233146AbjCJP24 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:28:56 -0500
+        with ESMTP id S234151AbjCJP3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:29:48 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB2D75A69
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:17:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F3C01A4B0
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:18:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 50D49CE2958
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53763C4339C;
-        Fri, 10 Mar 2023 15:16:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4DC44CE2946
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:16:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B96DC433D2;
+        Fri, 10 Mar 2023 15:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461403;
-        bh=twRW6s5X6vEw/jzmVuet0MAG3HnBfgrqkkzX6Uzv9+o=;
+        s=korg; t=1678461406;
+        bh=5pTpqzmPf7Uhv2rZkssKMsxFAkAyMhw+dRFRyeHeA9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cugC+pToJkeg4BZR+AqfnuyxrjO5mHaK1ICKr5GhbzdW10ejNxa8+E7VbWmM1BFoi
-         wV6Q58Qiwl6VMgAzYWIyayXCTlSjnTM0eQVfdCvT1O2LdatBdxSus6gqihBom87BzI
-         I7WxhpeN3bsF3/MuVnGhi5CnxxJkeiYVz5P17A88=
+        b=TTbul7OD7EZ11dg4J8420wWjyyUA2nNdCYtInMPX5HTWyogHSqhzriLWXQcgRMye8
+         UJ0eGGXWQNqXhmVPIbjVSvOpha9DFqPGGNlKV8EvOPk6MuasWfJbbjDUkrj02iRyy1
+         th7WXKOroNxEkykt2xBEAAkmjzX7DCFNXDp/9bJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        patches@lists.linux.dev, Bruce Chen <bruce.chen@unisoc.com>,
+        Cixi Geng <cixi.geng1@unisoc.com>,
+        Cixi Geng <gengcixi@gmail.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 095/136] PCI: loongson: Prevent LS7A MRRS increases
-Date:   Fri, 10 Mar 2023 14:43:37 +0100
-Message-Id: <20230310133710.029192244@linuxfoundation.org>
+Subject: [PATCH 5.15 096/136] USB: dwc3: fix memory leak with using debugfs_lookup()
+Date:   Fri, 10 Mar 2023 14:43:38 +0100
+Message-Id: <20230310133710.058096334@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -54,139 +56,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 8b3517f88ff2983f52698893519227c10aac90b2 ]
+[ Upstream commit be308d68785b205e483b3a0c61ba3a82da468f2c ]
 
-Except for isochronous-configured devices, software may set
-Max_Read_Request_Size (MRRS) to any value up to 4096.  If a device issues a
-read request with size greater than the completer's Max_Payload_Size (MPS),
-the completer is required to break the response into multiple completions.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-Instead of correctly responding with multiple completions to a large read
-request, some LS7A Root Ports respond with a Completer Abort.  To prevent
-this, the MRRS must be limited to an implementation-specific value.
+Note, the root dentry for the debugfs directory for the device needs to
+be saved so we don't have to keep looking it up, which required a bit
+more refactoring to properly create and remove it when needed.
 
-The OS cannot detect that value, so rely on BIOS to configure MRRS before
-booting, and quirk the Root Ports so we never set an MRRS larger than that
-BIOS value for any downstream device.
-
-N.B. Hot-added devices are not configured by BIOS, and they power up with
-MRRS = 512 bytes, so these devices will be limited to 512 bytes.  If the
-LS7A limit is smaller, those hot-added devices may not work correctly, but
-per [1], hotplug is not supported with this chipset revision.
-
-[1] https://lore.kernel.org/r/073638a7-ae68-2847-ac3d-29e5e760d6af@loongson.cn
-
-[bhelgaas: commit log]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216884
-Link: https://lore.kernel.org/r/20230201043018.778499-3-chenhuacai@loongson.cn
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reported-by: Bruce Chen <bruce.chen@unisoc.com>
+Reported-by: Cixi Geng <cixi.geng1@unisoc.com>
+Tested-by: Cixi Geng <gengcixi@gmail.com>
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/20230202152820.2409908-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-loongson.c | 44 +++++++++------------------
- drivers/pci/pci.c                     | 10 ++++++
- include/linux/pci.h                   |  1 +
- 3 files changed, 26 insertions(+), 29 deletions(-)
+ drivers/usb/dwc3/core.h    |  2 ++
+ drivers/usb/dwc3/debug.h   |  3 +++
+ drivers/usb/dwc3/debugfs.c | 19 ++++++++-----------
+ drivers/usb/dwc3/gadget.c  |  4 +---
+ 4 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
-index 48169b1e38171..dc7b4e4293ced 100644
---- a/drivers/pci/controller/pci-loongson.c
-+++ b/drivers/pci/controller/pci-loongson.c
-@@ -60,37 +60,23 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
- 			DEV_LS7A_LPC, system_bus_quirk);
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index e82e4cbe4ec70..725653711411d 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -1092,6 +1092,7 @@ struct dwc3_scratchpad_array {
+  *		     address.
+  * @num_ep_resized: carries the current number endpoints which have had its tx
+  *		    fifo resized.
++ * @debug_root: root debugfs directory for this device to put its files in.
+  */
+ struct dwc3 {
+ 	struct work_struct	drd_work;
+@@ -1303,6 +1304,7 @@ struct dwc3 {
+ 	int			max_cfg_eps;
+ 	int			last_fifo_depth;
+ 	int			num_ep_resized;
++	struct dentry		*debug_root;
+ };
  
--static void loongson_mrrs_quirk(struct pci_dev *dev)
-+static void loongson_mrrs_quirk(struct pci_dev *pdev)
+ #define INCRX_BURST_MODE 0
+diff --git a/drivers/usb/dwc3/debug.h b/drivers/usb/dwc3/debug.h
+index d223c54115f4a..01d0366bf93ae 100644
+--- a/drivers/usb/dwc3/debug.h
++++ b/drivers/usb/dwc3/debug.h
+@@ -414,11 +414,14 @@ static inline const char *dwc3_gadget_generic_cmd_status_string(int status)
+ 
+ #ifdef CONFIG_DEBUG_FS
+ extern void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep);
++extern void dwc3_debugfs_remove_endpoint_dir(struct dwc3_ep *dep);
+ extern void dwc3_debugfs_init(struct dwc3 *d);
+ extern void dwc3_debugfs_exit(struct dwc3 *d);
+ #else
+ static inline void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
+ {  }
++static inline void dwc3_debugfs_remove_endpoint_dir(struct dwc3_ep *dep)
++{  }
+ static inline void dwc3_debugfs_init(struct dwc3 *d)
+ {  }
+ static inline void dwc3_debugfs_exit(struct dwc3 *d)
+diff --git a/drivers/usb/dwc3/debugfs.c b/drivers/usb/dwc3/debugfs.c
+index f2b7675c7f621..850df0e6bcabf 100644
+--- a/drivers/usb/dwc3/debugfs.c
++++ b/drivers/usb/dwc3/debugfs.c
+@@ -873,27 +873,23 @@ static const struct dwc3_ep_file_map dwc3_ep_file_map[] = {
+ 	{ "GDBGEPINFO", &dwc3_ep_info_register_fops, },
+ };
+ 
+-static void dwc3_debugfs_create_endpoint_files(struct dwc3_ep *dep,
+-		struct dentry *parent)
++void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
  {
--	struct pci_bus *bus = dev->bus;
--	struct pci_dev *bridge;
--	static const struct pci_device_id bridge_devids[] = {
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_0) },
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_1) },
--		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_2) },
--		{ 0, },
--	};
--
--	/* look for the matching bridge */
--	while (!pci_is_root_bus(bus)) {
--		bridge = bus->self;
--		bus = bus->parent;
--		/*
--		 * Some Loongson PCIe ports have a h/w limitation of
--		 * 256 bytes maximum read request size. They can't handle
--		 * anything larger than this. So force this limit on
--		 * any devices attached under these ports.
--		 */
--		if (pci_match_id(bridge_devids, bridge)) {
--			if (pcie_get_readrq(dev) > 256) {
--				pci_info(dev, "limiting MRRS to 256\n");
--				pcie_set_readrq(dev, 256);
--			}
--			break;
--		}
--	}
-+	/*
-+	 * Some Loongson PCIe ports have h/w limitations of maximum read
-+	 * request size. They can't handle anything larger than this. So
-+	 * force this limit on any devices attached under these ports.
-+	 */
-+	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
-+
-+	bridge->no_inc_mrrs = 1;
++	struct dentry		*dir;
+ 	int			i;
+ 
++	dir = debugfs_create_dir(dep->name, dep->dwc->debug_root);
+ 	for (i = 0; i < ARRAY_SIZE(dwc3_ep_file_map); i++) {
+ 		const struct file_operations *fops = dwc3_ep_file_map[i].fops;
+ 		const char *name = dwc3_ep_file_map[i].name;
+ 
+-		debugfs_create_file(name, 0444, parent, dep, fops);
++		debugfs_create_file(name, 0444, dir, dep, fops);
+ 	}
  }
--DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_0, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_1, loongson_mrrs_quirk);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
-+			DEV_PCIE_PORT_2, loongson_mrrs_quirk);
  
- static void __iomem *cfg1_map(struct loongson_pci *priv, int bus,
- 				unsigned int devfn, int where)
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 778ae3c861f45..ce0988513fdaf 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -5970,6 +5970,7 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
+-void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
++void dwc3_debugfs_remove_endpoint_dir(struct dwc3_ep *dep)
  {
- 	u16 v;
- 	int ret;
-+	struct pci_host_bridge *bridge = pci_find_host_bridge(dev->bus);
+-	struct dentry		*dir;
+-	struct dentry		*root;
+-
+-	root = debugfs_lookup(dev_name(dep->dwc->dev), usb_debug_root);
+-	dir = debugfs_create_dir(dep->name, root);
+-	dwc3_debugfs_create_endpoint_files(dep, dir);
++	debugfs_lookup_and_remove(dep->name, dep->dwc->debug_root);
+ }
  
- 	if (rq < 128 || rq > 4096 || !is_power_of_2(rq))
- 		return -EINVAL;
-@@ -5988,6 +5989,15 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
+ void dwc3_debugfs_init(struct dwc3 *dwc)
+@@ -911,6 +907,7 @@ void dwc3_debugfs_init(struct dwc3 *dwc)
+ 	dwc->regset->base = dwc->regs - DWC3_GLOBALS_REGS_START;
  
- 	v = (ffs(rq) - 8) << 12;
+ 	root = debugfs_create_dir(dev_name(dwc->dev), usb_debug_root);
++	dwc->debug_root = root;
+ 	debugfs_create_regset32("regdump", 0444, root, dwc->regset);
+ 	debugfs_create_file("lsp_dump", 0644, root, dwc, &dwc3_lsp_fops);
  
-+	if (bridge->no_inc_mrrs) {
-+		int max_mrrs = pcie_get_readrq(dev);
-+
-+		if (rq > max_mrrs) {
-+			pci_info(dev, "can't set Max_Read_Request_Size to %d; max is %d\n", rq, max_mrrs);
-+			return -EINVAL;
-+		}
-+	}
-+
- 	ret = pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
- 						  PCI_EXP_DEVCTL_READRQ, v);
+@@ -929,6 +926,6 @@ void dwc3_debugfs_init(struct dwc3 *dwc)
  
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 9d6e75222868f..34dd24c991804 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -557,6 +557,7 @@ struct pci_host_bridge {
- 	void		*release_data;
- 	unsigned int	ignore_reset_delay:1;	/* For entire hierarchy */
- 	unsigned int	no_ext_tags:1;		/* No Extended Tags */
-+	unsigned int	no_inc_mrrs:1;		/* No Increase MRRS */
- 	unsigned int	native_aer:1;		/* OS may use PCIe AER */
- 	unsigned int	native_pcie_hotplug:1;	/* OS may use PCIe hotplug */
- 	unsigned int	native_shpc_hotplug:1;	/* OS may use SHPC hotplug */
+ void dwc3_debugfs_exit(struct dwc3 *dwc)
+ {
+-	debugfs_remove(debugfs_lookup(dev_name(dwc->dev), usb_debug_root));
++	debugfs_lookup_and_remove(dev_name(dwc->dev), usb_debug_root);
+ 	kfree(dwc->regset);
+ }
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 4812ba4bbedd7..a0100d26de8e1 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3081,9 +3081,7 @@ static void dwc3_gadget_free_endpoints(struct dwc3 *dwc)
+ 			list_del(&dep->endpoint.ep_list);
+ 		}
+ 
+-		debugfs_remove_recursive(debugfs_lookup(dep->name,
+-				debugfs_lookup(dev_name(dep->dwc->dev),
+-					       usb_debug_root)));
++		dwc3_debugfs_remove_endpoint_dir(dep);
+ 		kfree(dep);
+ 	}
+ }
 -- 
 2.39.2
 
