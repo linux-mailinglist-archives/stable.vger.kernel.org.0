@@ -2,93 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C775F6B3DCA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:31:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 954706B3DDB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229767AbjCJLb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 06:31:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52132 "EHLO
+        id S229523AbjCJLdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 06:33:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229737AbjCJLb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:31:27 -0500
-Received: from 167-179-156-38.a7b39c.syd.nbn.aussiebb.net (167-179-156-38.a7b39c.syd.nbn.aussiebb.net [167.179.156.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 261E25FD6;
-        Fri, 10 Mar 2023 03:31:26 -0800 (PST)
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
-        id 1paaxt-002Y86-Su; Fri, 10 Mar 2023 19:31:14 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 10 Mar 2023 19:31:13 +0800
-Date:   Fri, 10 Mar 2023 19:31:13 +0800
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-crypto@vger.kernel.org,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>,
-        linux-kernel@vger.kernel.org, Yann Droneaud <ydroneaud@opteya.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] crypto: testmgr - fix RNG performance in fuzz tests
-Message-ID: <ZAsVAXRGjM/fREEn@gondor.apana.org.au>
-References: <20230227182947.61733-1-ebiggers@kernel.org>
+        with ESMTP id S230415AbjCJLdq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:33:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CF8F2089
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:33:41 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 412D26137B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:33:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 323DAC4339B;
+        Fri, 10 Mar 2023 11:33:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1678448020;
+        bh=O7IIs2d6LAOeCQK1JnAl4x7jV7mH7h+p0oEV95z99Wc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=KnoY8N8W9IxJFcsyqRr/PY5lWs7viof3T0FhFh66fjv1eR7rYm2ysaj5j83LRMgPV
+         XL5hb59DPTfejYTyfmriieAMTTf7Ga8q3TKVaMThuyJVOlUv9aiwZLkvNiFAwACqkx
+         5HpDk49KYreq7SktPL9HDBQujmo6UW1J2taueUAw=
+Subject: FAILED: patch "[PATCH] drm/display/dp_mst: Fix down/up message handling after sink" failed to apply to 5.4-stable tree
+To:     imre.deak@intel.com, lyude@redhat.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 10 Mar 2023 12:33:37 +0100
+Message-ID: <1678448017136169@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230227182947.61733-1-ebiggers@kernel.org>
-X-Spam-Status: No, score=2.7 required=5.0 tests=BAYES_00,HELO_DYNAMIC_IPADDR2,
-        PDS_RDNS_DYNAMIC_FP,RDNS_DYNAMIC,SPF_HELO_NONE,SPF_PASS,TVD_RCVD_IP,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: **
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 27, 2023 at 10:29:47AM -0800, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> The performance of the crypto fuzz tests has greatly regressed since
-> v5.18.  When booting a kernel on an arm64 dev board with all software
-> crypto algorithms and CONFIG_CRYPTO_MANAGER_EXTRA_TESTS enabled, the
-> fuzz tests now take about 200 seconds to run, or about 325 seconds with
-> lockdep enabled, compared to about 5 seconds before.
-> 
-> The root cause is that the random number generation has become much
-> slower due to commit d4150779e60f ("random32: use real rng for
-> non-deterministic randomness").  On my same arm64 dev board, at the time
-> the fuzz tests are run, get_random_u8() is about 345x slower than
-> prandom_u32_state(), or about 469x if lockdep is enabled.
-> 
-> Lockdep makes a big difference, but much of the rest comes from the
-> get_random_*() functions taking a *very* slow path when the CRNG is not
-> yet initialized.  Since the crypto self-tests run early during boot,
-> even having a hardware RNG driver enabled (CONFIG_CRYPTO_DEV_QCOM_RNG in
-> my case) doesn't prevent this.  x86 systems don't have this issue, but
-> they still see a significant regression if lockdep is enabled.
-> 
-> Converting the "Fully random bytes" case in generate_random_bytes() to
-> use get_random_bytes() helps significantly, improving the test time to
-> about 27 seconds.  But that's still over 5x slower than before.
-> 
-> This is all a bit silly, though, since the fuzz tests don't actually
-> need cryptographically secure random numbers.  So let's just make them
-> use a non-cryptographically-secure RNG as they did before.  The original
-> prandom_u32() is gone now, so let's use prandom_u32_state() instead,
-> with an explicitly managed state, like various other self-tests in the
-> kernel source tree (rbtree_test.c, test_scanf.c, etc.) already do.  This
-> also has the benefit that no locking is required anymore, so performance
-> should be even better than the original version that used prandom_u32().
-> 
-> Fixes: d4150779e60f ("random32: use real rng for non-deterministic randomness")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
-> 
-> v2: made init_rnd_state() use get_random_u64()
-> 
->  crypto/testmgr.c | 266 ++++++++++++++++++++++++++++++-----------------
->  1 file changed, 169 insertions(+), 97 deletions(-)
 
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+To reproduce the conflict and resubmit, you may use the following commands:
+
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git checkout FETCH_HEAD
+git cherry-pick -x 1d082618bbf3b6755b8cc68c0a8122af2842d593
+# <resolve conflicts, build, test, etc.>
+git commit -s
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678448017136169@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+
+Possible dependencies:
+
+1d082618bbf3 ("drm/display/dp_mst: Fix down/up message handling after sink disconnect")
+da68386d9edb ("drm: Rename dp/ to display/")
+6c64ae228f08 ("Backmerge tag 'v5.17-rc6' into drm-next")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 1d082618bbf3b6755b8cc68c0a8122af2842d593 Mon Sep 17 00:00:00 2001
+From: Imre Deak <imre.deak@intel.com>
+Date: Wed, 14 Dec 2022 20:42:56 +0200
+Subject: [PATCH] drm/display/dp_mst: Fix down/up message handling after sink
+ disconnect
+
+If the sink gets disconnected during receiving a multi-packet DP MST AUX
+down-reply/up-request sideband message, the state keeping track of which
+packets have been received already is not reset. This results in a failed
+sanity check for the subsequent message packet received after a sink is
+reconnected (due to the pending message not yet completed with an
+end-of-message-transfer packet), indicated by the
+
+"sideband msg set header failed"
+
+error.
+
+Fix the above by resetting the up/down message reception state after a
+disconnect event.
+
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: <stable@vger.kernel.org> # v3.17+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221214184258.2869417-1-imre.deak@intel.com
+
+diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+index 51a46689cda7..90819fff2c9b 100644
+--- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+@@ -3641,6 +3641,9 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
+ 		ret = 0;
+ 		mgr->payload_id_table_cleared = false;
++
++		memset(&mgr->down_rep_recv, 0, sizeof(mgr->down_rep_recv));
++		memset(&mgr->up_req_recv, 0, sizeof(mgr->up_req_recv));
+ 	}
+ 
+ out_unlock:
+
