@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FCC6B4110
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:49:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A59116B45D6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:37:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230400AbjCJNtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:49:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51140 "EHLO
+        id S232681AbjCJOhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:37:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230415AbjCJNtI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:49:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105068A394
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:49:07 -0800 (PST)
+        with ESMTP id S232637AbjCJOhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:37:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C21711EEBF;
+        Fri, 10 Mar 2023 06:37:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98273B822B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D7EC433EF;
-        Fri, 10 Mar 2023 13:49:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6B1E6195F;
+        Fri, 10 Mar 2023 14:36:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3ECDC4339B;
+        Fri, 10 Mar 2023 14:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456144;
-        bh=PLgIX3DKemUadsWicDYg7z1Gy0jtCcuhxvzJsBwNGrA=;
+        s=korg; t=1678459010;
+        bh=9Rd0waOKcoTHm8nXq0CQ+JjvJSAFcyFasPghAfRA24Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MY6SXj9+AQBRHMs9ZzDoau/aM3ZGGlpRjpV7hA74nW37gQFeg6RLyOKx6va+lmcNM
-         WIeCcSbxVymAo/c5PVvOjIp9UG/xDhUjvRhUsNHRPXDYsKJTxyMC/jC6hUA+OUOmLJ
-         L+49p9uL/0Eqqg6MS/KWY+rvQcXunbJnxSW13WrM=
+        b=UhVV+97OkEH2tuePGAJFC/ATCaYGuiaIN+/8faK5P2kqfRWrWImLui8ms/8zgj2iB
+         3XqZuzUKKSpUJkjMfKBKjqwQg3EF+xDSD1opaWpNZX3b6Ti2++e5H/C+drKvhMQRJA
+         5nlqhbCpwZgy/l79GsBloRkXdVnDUQcHbr6C6MDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Florent Revest <revest@chromium.org>,
+        Len Brown <lenb@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Robert Moore <robert.moore@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 094/193] pinctrl: at91: use devm_kasprintf() to avoid potential leaks
-Date:   Fri, 10 Mar 2023 14:37:56 +0100
-Message-Id: <20230310133714.353901563@linuxfoundation.org>
+Subject: [PATCH 5.4 188/357] ACPI: Dont build ACPICA with -Os
+Date:   Fri, 10 Mar 2023 14:37:57 +0100
+Message-Id: <20230310133743.032877291@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +62,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 1c4e5c470a56f7f7c649c0c70e603abc1eab15c4 ]
+[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
 
-Use devm_kasprintf() instead of kasprintf() to avoid any potential
-leaks. At the moment drivers have no remove functionality thus
-there is no need for fixes tag.
+The ACPICA code has been built with '-Os' since the beginning of git
+history, though there's no explanatory comment as to why.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230203132714.1931596-1-claudiu.beznea@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This is unfortunate as GCC drops the alignment specificed by
+'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
+
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
+
+This prevents CONFIG_FUNCTION_ALIGNMENT and
+CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
+on the ACPICA code. This is doubly unfortunate as in subsequent patches
+arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
+implementation.
+
+Drop the '-Os' flag when building the ACPICA code. With this removed,
+the code builds cleanly and works correctly in testing so far.
+
+I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
+building and booting a kernel using ACPI, and looking for misaligned
+text symbols:
+
+* arm64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    5009
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    919
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    323
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+* x86_64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    11537
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    2805
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    1357
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+With the patch applied, the remaining unaligned text labels are a
+combination of static call trampolines and labels in assembly, which can
+be dealt with in subsequent patches.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Robert Moore <robert.moore@intel.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-acpi@vger.kernel.org
+Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-at91-pio4.c | 4 ++--
- drivers/pinctrl/pinctrl-at91.c      | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/acpica/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
-index e9d7977072553..78aeb882f1cad 100644
---- a/drivers/pinctrl/pinctrl-at91-pio4.c
-+++ b/drivers/pinctrl/pinctrl-at91-pio4.c
-@@ -981,8 +981,8 @@ static int atmel_pinctrl_probe(struct platform_device *pdev)
+diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
+index 59700433a96e5..f919811156b1f 100644
+--- a/drivers/acpi/acpica/Makefile
++++ b/drivers/acpi/acpica/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for ACPICA Core interpreter
+ #
  
- 		pin_desc[i].number = i;
- 		/* Pin naming convention: P(bank_name)(bank_pin_number). */
--		pin_desc[i].name = kasprintf(GFP_KERNEL, "P%c%d",
--					     bank + 'A', line);
-+		pin_desc[i].name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "P%c%d",
-+						  bank + 'A', line);
+-ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
++ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
+ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
  
- 		group->name = group_names[i] = pin_desc[i].name;
- 		group->pin = pin_desc[i].number;
-diff --git a/drivers/pinctrl/pinctrl-at91.c b/drivers/pinctrl/pinctrl-at91.c
-index 404711f0985aa..3173e1f5bcb69 100644
---- a/drivers/pinctrl/pinctrl-at91.c
-+++ b/drivers/pinctrl/pinctrl-at91.c
-@@ -1774,7 +1774,7 @@ static int at91_gpio_probe(struct platform_device *pdev)
- 	}
- 
- 	for (i = 0; i < chip->ngpio; i++)
--		names[i] = kasprintf(GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
-+		names[i] = devm_kasprintf(&pdev->dev, GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
- 
- 	chip->names = (const char *const *)names;
- 
+ # use acpi.o to put all files here into acpi.o modparam namespace
 -- 
 2.39.2
 
