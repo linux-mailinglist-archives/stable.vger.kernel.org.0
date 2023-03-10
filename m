@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 388626B40D9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14CBE6B43F0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229997AbjCJNrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45564 "EHLO
+        id S231923AbjCJOUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:20:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230296AbjCJNqy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:46:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF03C28E70
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:46:41 -0800 (PST)
+        with ESMTP id S232136AbjCJOTj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8247712F1D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3207DB822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 653FFC433D2;
-        Fri, 10 Mar 2023 13:46:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67ECB6195B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A38C433D2;
+        Fri, 10 Mar 2023 14:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455998;
-        bh=AAqE9qz1cOEJHa3AHWEZ8e8dMnNGRDwHnT5OtzQQdxM=;
+        s=korg; t=1678457886;
+        bh=Ym3Cy3jSvals939UdmMvlfezLDv05VBE5VVkmQFwUiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BApFdOnPFN6vzXdKwXtiOdG8Fo/YJ0/EM9B4+YCWp931lT2Hm1jHXvP2x4bWzvFA7
-         y49plGZotUfFamQTNSoiU0UASiiAUym6GIpz5BQ1F5K8qAiRSAkv8OOz5zITzaJoly
-         H6ff97LMMnvGKM33ID6YrZR2mKMkSn0B6I4Lnnes=
+        b=zlubuyg+UI71tQDtlPv3YXTJsaQsVv25bXeXG4CnbS0OFxVSfNa7sANltfOpIbXRh
+         9LmhfjMRIM8687e9lw6C0vfUJdPtILDQ/qHs91mA8SAMUOKRHAfuFFGmcABsw7Mut2
+         eXtIr3iGhQ0GTOHRC8VrDz/r1/moFbc6q5nCykac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
+        Christian Lamparter <chunkeey@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/193] crypto: rsa-pkcs1pad - Use akcipher_request_complete
-Date:   Fri, 10 Mar 2023 14:37:09 +0100
-Message-Id: <20230310133712.557179094@linuxfoundation.org>
+Subject: [PATCH 4.19 060/252] crypto: crypto4xx - Call dma_unmap_page when done
+Date:   Fri, 10 Mar 2023 14:37:10 +0100
+Message-Id: <20230310133720.641296082@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,87 +56,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 564cabc0ca0bdfa8f0fc1ae74b24d0a7554522c5 ]
+[ Upstream commit bcdda4301bdc4955d45f7e1ffefb6207967b067e ]
 
-Use the akcipher_request_complete helper instead of calling the
-completion function directly.  In fact the previous code was buggy
-in that EINPROGRESS was never passed back to the original caller.
+In crypto4xx_cipher_done, we should be unmapping the dst page, not
+mapping it.
 
-Fixes: 3d5b1ecdea6f ("crypto: rsa - RSA padding algorithm")
+This was flagged by a sparse warning about the unused addr variable.
+While we're at it, also fix a sparse warning regarding the unused
+ctx variable in crypto4xx_ahash_done (by actually using it).
+
+Fixes: 049359d65527 ("crypto: amcc - Add crypt4xx driver")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Tested-by: Christian Lamparter <chunkeey@gmail.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/rsa-pkcs1pad.c | 34 +++++++++++++++-------------------
- 1 file changed, 15 insertions(+), 19 deletions(-)
+ drivers/crypto/amcc/crypto4xx_core.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
-index 3279b457c4ede..0c70fbcd293d9 100644
---- a/crypto/rsa-pkcs1pad.c
-+++ b/crypto/rsa-pkcs1pad.c
-@@ -216,16 +216,14 @@ static void pkcs1pad_encrypt_sign_complete_cb(
- 		struct crypto_async_request *child_async_req, int err)
+diff --git a/drivers/crypto/amcc/crypto4xx_core.c b/drivers/crypto/amcc/crypto4xx_core.c
+index cd00afb5786e8..2c70a64cc8317 100644
+--- a/drivers/crypto/amcc/crypto4xx_core.c
++++ b/drivers/crypto/amcc/crypto4xx_core.c
+@@ -529,7 +529,6 @@ static void crypto4xx_cipher_done(struct crypto4xx_device *dev,
  {
- 	struct akcipher_request *req = child_async_req->data;
--	struct crypto_async_request async_req;
+ 	struct skcipher_request *req;
+ 	struct scatterlist *dst;
+-	dma_addr_t addr;
  
- 	if (err == -EINPROGRESS)
--		return;
-+		goto out;
-+
-+	err = pkcs1pad_encrypt_sign_complete(req, err);
+ 	req = skcipher_request_cast(pd_uinfo->async_req);
  
--	async_req.data = req->base.data;
--	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
--	async_req.flags = child_async_req->flags;
--	req->base.complete(&async_req,
--			pkcs1pad_encrypt_sign_complete(req, err));
-+out:
-+	akcipher_request_complete(req, err);
- }
+@@ -538,8 +537,8 @@ static void crypto4xx_cipher_done(struct crypto4xx_device *dev,
+ 					  req->cryptlen, req->dst);
+ 	} else {
+ 		dst = pd_uinfo->dest_va;
+-		addr = dma_map_page(dev->core_dev->device, sg_page(dst),
+-				    dst->offset, dst->length, DMA_FROM_DEVICE);
++		dma_unmap_page(dev->core_dev->device, pd->dest, dst->length,
++			       DMA_FROM_DEVICE);
+ 	}
  
- static int pkcs1pad_encrypt(struct akcipher_request *req)
-@@ -336,15 +334,14 @@ static void pkcs1pad_decrypt_complete_cb(
- 		struct crypto_async_request *child_async_req, int err)
- {
- 	struct akcipher_request *req = child_async_req->data;
--	struct crypto_async_request async_req;
+ 	if (pd_uinfo->sa_va->sa_command_0.bf.save_iv == SA_SAVE_IV) {
+@@ -564,10 +563,9 @@ static void crypto4xx_ahash_done(struct crypto4xx_device *dev,
+ 	struct ahash_request *ahash_req;
  
- 	if (err == -EINPROGRESS)
--		return;
-+		goto out;
-+
-+	err = pkcs1pad_decrypt_complete(req, err);
+ 	ahash_req = ahash_request_cast(pd_uinfo->async_req);
+-	ctx  = crypto_tfm_ctx(ahash_req->base.tfm);
++	ctx = crypto_ahash_ctx(crypto_ahash_reqtfm(ahash_req));
  
--	async_req.data = req->base.data;
--	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
--	async_req.flags = child_async_req->flags;
--	req->base.complete(&async_req, pkcs1pad_decrypt_complete(req, err));
-+out:
-+	akcipher_request_complete(req, err);
- }
+-	crypto4xx_copy_digest_to_dst(ahash_req->result, pd_uinfo,
+-				     crypto_tfm_ctx(ahash_req->base.tfm));
++	crypto4xx_copy_digest_to_dst(ahash_req->result, pd_uinfo, ctx);
+ 	crypto4xx_ret_sg_desc(dev, pd_uinfo);
  
- static int pkcs1pad_decrypt(struct akcipher_request *req)
-@@ -506,15 +503,14 @@ static void pkcs1pad_verify_complete_cb(
- 		struct crypto_async_request *child_async_req, int err)
- {
- 	struct akcipher_request *req = child_async_req->data;
--	struct crypto_async_request async_req;
- 
- 	if (err == -EINPROGRESS)
--		return;
-+		goto out;
- 
--	async_req.data = req->base.data;
--	async_req.tfm = crypto_akcipher_tfm(crypto_akcipher_reqtfm(req));
--	async_req.flags = child_async_req->flags;
--	req->base.complete(&async_req, pkcs1pad_verify_complete(req, err));
-+	err = pkcs1pad_verify_complete(req, err);
-+
-+out:
-+	akcipher_request_complete(req, err);
- }
- 
- /*
+ 	if (pd_uinfo->state & PD_ENTRY_BUSY)
 -- 
 2.39.2
 
