@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C406B427B
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:03:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB49E6B448E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231682AbjCJOD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:03:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51522 "EHLO
+        id S232183AbjCJOZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231684AbjCJOD3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:03:29 -0500
+        with ESMTP id S231893AbjCJOY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:24:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8284C62FD6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:03:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0B461814C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30F6BB82291
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:03:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CD1AC433EF;
-        Fri, 10 Mar 2023 14:03:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AB79B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6AC7C433EF;
+        Fri, 10 Mar 2023 14:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457005;
-        bh=cvci2CIgjhUYpoLQqTiU0LVo7ik06hSSnpDB3PV9V98=;
+        s=korg; t=1678458235;
+        bh=rorcVIFM7Y99ByvZHfjoSx9Txw7IXsxCBzE/mDJadeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+WJH8RFwg7kd1te+EOz7yTffFt1fhIUeS9d2oBWWxJcMd5X3fEF+jpnVw+QkKES9
-         rOrYUiIwtf5v0V5wHwxA+yAKym3aMj8/Nvc2cSUE94IgRJ4s3CBxfrLJGx7sB+mdzh
-         kx2Ko73VgX4j5DATlOtmQ9WJG28FYk7vbwoIrcow=
+        b=qOHWFUdQWYaip5hIGQvwFRuqAycZqPP3cyy5w/ir1ridFRC9JBzuQMuH99HG2lNPs
+         eXvSzpOH+VMIgWLJFHRFvM8a1YmQQLdJzwzouSqXQA8zBiZHdYYbv/1MQudQsrwI7s
+         1PwZnV3CfBPM3/dQvhln41Gn3e7XWT4sosxQ0Icc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 6.2 199/211] vDPA/ifcvf: manage ifcvf_hw in the mgmt_dev
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 209/252] ubi: Fix possible null-ptr-deref in ubi_free_volume()
 Date:   Fri, 10 Mar 2023 14:39:39 +0100
-Message-Id: <20230310133724.947973691@linuxfoundation.org>
+Message-Id: <20230310133725.421529303@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,85 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 6a3b2f179b49f2c6452ecc37b4778a43848b454c upstream.
+[ Upstream commit c15859bfd326c10230f09cb48a17f8a35f190342 ]
 
-This commit allocates the hw structure in the
-management device structure. So the hardware
-can be initialized once the management device
-is allocated in probe.
+It willl cause null-ptr-deref in the following case:
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20221125145724.1129962-10-lingshan.zhu@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+uif_init()
+  ubi_add_volume()
+    cdev_add() -> if it fails, call kill_volumes()
+    device_register()
+
+kill_volumes() -> if ubi_add_volume() fails call this function
+  ubi_free_volume()
+    cdev_del()
+    device_unregister() -> trying to delete a not added device,
+			   it causes null-ptr-deref
+
+So in ubi_free_volume(), it delete devices whether they are added
+or not, it will causes null-ptr-deref.
+
+Handle the error case whlie calling ubi_add_volume() to fix this
+problem. If add volume fails, set the corresponding vol to null,
+so it can not be accessed in kill_volumes() and release the
+resource in ubi_add_volume() error path.
+
+Fixes: 801c135ce73d ("UBI: Unsorted Block Images")
+Suggested-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/ifcvf/ifcvf_base.h |    5 +++--
- drivers/vdpa/ifcvf/ifcvf_main.c |    7 ++++---
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/mtd/ubi/build.c |  1 +
+ drivers/mtd/ubi/vmt.c   | 12 ++++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/vdpa/ifcvf/ifcvf_base.h
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-@@ -39,7 +39,7 @@
- #define IFCVF_INFO(pdev, fmt, ...)	dev_info(&pdev->dev, fmt, ##__VA_ARGS__)
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index bb3a87cbebf5e..3d0241f8f3ec7 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -480,6 +480,7 @@ static int uif_init(struct ubi_device *ubi)
+ 			err = ubi_add_volume(ubi, ubi->volumes[i]);
+ 			if (err) {
+ 				ubi_err(ubi, "cannot add volume %d", i);
++				ubi->volumes[i] = NULL;
+ 				goto out_volumes;
+ 			}
+ 		}
+diff --git a/drivers/mtd/ubi/vmt.c b/drivers/mtd/ubi/vmt.c
+index 405cc5289d89f..c5dec58846ce8 100644
+--- a/drivers/mtd/ubi/vmt.c
++++ b/drivers/mtd/ubi/vmt.c
+@@ -595,6 +595,7 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
+ 	if (err) {
+ 		ubi_err(ubi, "cannot add character device for volume %d, error %d",
+ 			vol_id, err);
++		vol_release(&vol->dev);
+ 		return err;
+ 	}
  
- #define ifcvf_private_to_vf(adapter) \
--	(&((struct ifcvf_adapter *)adapter)->vf)
-+	(((struct ifcvf_adapter *)adapter)->vf)
+@@ -605,15 +606,14 @@ int ubi_add_volume(struct ubi_device *ubi, struct ubi_volume *vol)
+ 	vol->dev.groups = volume_dev_groups;
+ 	dev_set_name(&vol->dev, "%s_%d", ubi->ubi_name, vol->vol_id);
+ 	err = device_register(&vol->dev);
+-	if (err)
+-		goto out_cdev;
++	if (err) {
++		cdev_del(&vol->cdev);
++		put_device(&vol->dev);
++		return err;
++	}
  
- /* all vqs and config interrupt has its own vector */
- #define MSIX_VECTOR_PER_VQ_AND_CONFIG		1
-@@ -95,7 +95,7 @@ struct ifcvf_hw {
- struct ifcvf_adapter {
- 	struct vdpa_device vdpa;
- 	struct pci_dev *pdev;
--	struct ifcvf_hw vf;
-+	struct ifcvf_hw *vf;
- };
- 
- struct ifcvf_vring_lm_cfg {
-@@ -110,6 +110,7 @@ struct ifcvf_lm_cfg {
- 
- struct ifcvf_vdpa_mgmt_dev {
- 	struct vdpa_mgmt_dev mdev;
-+	struct ifcvf_hw vf;
- 	struct ifcvf_adapter *adapter;
- 	struct pci_dev *pdev;
- };
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -402,7 +402,7 @@ static struct ifcvf_hw *vdpa_to_vf(struc
- {
- 	struct ifcvf_adapter *adapter = vdpa_to_adapter(vdpa_dev);
- 
--	return &adapter->vf;
-+	return adapter->vf;
+ 	self_check_volumes(ubi);
+ 	return err;
+-
+-out_cdev:
+-	cdev_del(&vol->cdev);
+-	return err;
  }
  
- static u64 ifcvf_vdpa_get_device_features(struct vdpa_device *vdpa_dev)
-@@ -750,7 +750,7 @@ static int ifcvf_vdpa_dev_add(struct vdp
- 		return -EOPNOTSUPP;
- 
- 	adapter = ifcvf_mgmt_dev->adapter;
--	vf = &adapter->vf;
-+	vf = adapter->vf;
- 	pdev = adapter->pdev;
- 	vdpa_dev = &adapter->vdpa;
- 
-@@ -838,10 +838,11 @@ static int ifcvf_probe(struct pci_dev *p
- 	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
- 	ifcvf_mgmt_dev->adapter = adapter;
- 
--	vf = &adapter->vf;
-+	vf = &ifcvf_mgmt_dev->vf;
- 	vf->dev_type = get_dev_type(pdev);
- 	vf->base = pcim_iomap_table(pdev);
- 	vf->pdev = pdev;
-+	adapter->vf = vf;
- 
- 	ret = ifcvf_init_hw(vf, pdev);
- 	if (ret) {
+ /**
+-- 
+2.39.2
+
 
 
