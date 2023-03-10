@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 084966B4440
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E69246B423A
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:00:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232135AbjCJOWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:22:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40708 "EHLO
+        id S231524AbjCJOA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:00:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232204AbjCJOWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 150FF199F1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:21 -0800 (PST)
+        with ESMTP id S231531AbjCJOAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:00:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76EE8114EF4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:00:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D8E8B822BB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89694C433D2;
-        Fri, 10 Mar 2023 14:21:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11F286187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BFE9C433EF;
+        Fri, 10 Mar 2023 14:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458078;
-        bh=cZxhBg16qGzB+FIpxHKUC6XRrEFLSBYyZioOKDIxHz4=;
+        s=korg; t=1678456848;
+        bh=I9LMU2nZLKl9c1k1I1vIBYQRQYDE/9gFVnCwbePCPKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9gHHiOFcj4LAUHPoTTaOiHJ7vSVLcxNsxFPin+XEgEm8g794V+4nsn3V/eD4S0p3
-         IZqzkJJBHH9lPGdqNIvgM8HnP8dUDIa7YROvpdsAGEWWpVDooOBzNOYmFuQhBQxHKm
-         Neov/ov9posbqTk6gqYZnyRxlUg0tXirkTEWrx38=
+        b=r+jZi4nDy2wyhNPkfwJYNI7eSLIFm42s35Rpez2qAoSnOwL20x9hw3ael8K35zG4D
+         3D8BecGB2Lwd+a9+lB1FwONlPTKaErDxsrmPdAjdy4r+Ll+3L7sO5UYjgDmC0NDMVC
+         oKxFlY5bMWugY7uwGM/ooxKwERJM6hJToVgcPBVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 125/252] net: bcmgenet: Add a check for oversized packets
+Subject: [PATCH 6.2 115/211] ASoC: apple: mca: Fix SERDES reset sequence
 Date:   Fri, 10 Mar 2023 14:38:15 +0100
-Message-Id: <20230310133722.596925462@linuxfoundation.org>
+Message-Id: <20230310133722.240730893@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,41 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-[ Upstream commit 5c0862c2c962052ed5055220a00ac1cefb92fbcd ]
+[ Upstream commit d8b3e396088d787771f19fd3b7949e080dc31d6f ]
 
-Occasionnaly we may get oversized packets from the hardware which
-exceed the nomimal 2KiB buffer size we allocate SKBs with. Add an early
-check which drops the packet to avoid invoking skb_over_panic() and move
-on to processing the next packet.
+Fix the reset sequence of reads and writes that we invoke from within
+the early trigger. It looks like there never was a SERDES_CONF_SOME_RST
+bit that should be involved in the reset sequence, and its presence in
+the driver code is a mistake from earlier.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Instead, the reset sequence should go as follows: We should switch the
+the SERDES unit's SYNC_SEL mux to the value of 7 (so outside the range
+of 1...6 representing cluster's SYNCGEN units), then raise the RST bit
+in SERDES_STATUS and wait for it to clear.
+
+Properly resetting the SERDES unit fixes frame desynchronization hazard
+in case of long frames (longer than 4 used slots). The desynchronization
+manifests itself by rotating the PCM channels.
+
+Fixes: 3df5d0d97289 ("ASoC: apple: mca: Start new platform driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Link: https://lore.kernel.org/r/20230224153302.45365-2-povik+lin@cutebit.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/soc/apple/mca.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 96ef2dd46c78c..84bcb3ce00f73 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1825,6 +1825,14 @@ static unsigned int bcmgenet_desc_rx(struct bcmgenet_rx_ring *ring,
- 			  __func__, p_index, ring->c_index,
- 			  ring->read_ptr, dma_length_status);
- 
-+		if (unlikely(len > RX_BUF_LENGTH)) {
-+			netif_err(priv, rx_status, dev, "oversized packet\n");
-+			dev->stats.rx_length_errors++;
-+			dev->stats.rx_errors++;
-+			dev_kfree_skb_any(skb);
-+			goto next;
-+		}
-+
- 		if (unlikely(!(dma_flag & DMA_EOP) || !(dma_flag & DMA_SOP))) {
- 			netif_err(priv, rx_status, dev,
- 				  "dropping fragmented packet!\n");
+diff --git a/sound/soc/apple/mca.c b/sound/soc/apple/mca.c
+index 9cceeb2599524..aea08c7b2ee85 100644
+--- a/sound/soc/apple/mca.c
++++ b/sound/soc/apple/mca.c
+@@ -101,7 +101,6 @@
+ #define SERDES_CONF_UNK3	BIT(14)
+ #define SERDES_CONF_NO_DATA_FEEDBACK	BIT(15)
+ #define SERDES_CONF_SYNC_SEL	GENMASK(18, 16)
+-#define SERDES_CONF_SOME_RST	BIT(19)
+ #define REG_TX_SERDES_BITSTART	0x08
+ #define REG_RX_SERDES_BITSTART	0x0c
+ #define REG_TX_SERDES_SLOTMASK	0x0c
+@@ -203,15 +202,24 @@ static void mca_fe_early_trigger(struct snd_pcm_substream *substream, int cmd,
+ 	case SNDRV_PCM_TRIGGER_START:
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 0));
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 7));
+ 		mca_modify(cl, serdes_unit + REG_SERDES_STATUS,
+ 			   SERDES_STATUS_EN | SERDES_STATUS_RST,
+ 			   SERDES_STATUS_RST);
+-		mca_modify(cl, serdes_conf, SERDES_CONF_SOME_RST,
+-			   SERDES_CONF_SOME_RST);
+-		readl_relaxed(cl->base + serdes_conf);
+-		mca_modify(cl, serdes_conf, SERDES_STATUS_RST, 0);
++		/*
++		 * Experiments suggest that it takes at most ~1 us
++		 * for the bit to clear, so wait 2 us for good measure.
++		 */
++		udelay(2);
+ 		WARN_ON(readl_relaxed(cl->base + serdes_unit + REG_SERDES_STATUS) &
+ 			SERDES_STATUS_RST);
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, 0));
++		mca_modify(cl, serdes_conf, SERDES_CONF_SYNC_SEL,
++			   FIELD_PREP(SERDES_CONF_SYNC_SEL, cl->no + 1));
+ 		break;
+ 	default:
+ 		break;
 -- 
 2.39.2
 
