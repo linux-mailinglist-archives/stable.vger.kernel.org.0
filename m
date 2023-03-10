@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75EA96B49C5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 974056B49FA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbjCJPPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:15:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
+        id S233843AbjCJPR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:17:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234162AbjCJPPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:15:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE62111FBE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:23 -0800 (PST)
+        with ESMTP id S234150AbjCJPRJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:17:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30FAE233C9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:08:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1DE8B822F6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC40C433D2;
-        Fri, 10 Mar 2023 14:59:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2CBD61A70
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B468FC433D2;
+        Fri, 10 Mar 2023 14:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460360;
-        bh=RIsyR6whMXbKg3k1cPpKB6A48PtvOEvB6i6xg1+up/Q=;
+        s=korg; t=1678460363;
+        bh=pEAlfa+O1MsVxXEsfjgsHU5MpNo4FIzVQEsK1Uk5iao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPYJmiJ3ApCU1i0cELrobhZjTQFl5Df/Pcf22VVfRt3W34R4xwmZyl3lKSn5/Dc30
-         LvDPnU0ofVdQnOZJTa28IkQ5QahR0BjeJMc3BeCfkr47TnIWIlVKoZqzYEwxezZwVP
-         mhAQqVPG5gaBrCXlLf9NKFmvvAAa8uZPa3RSlSrs=
+        b=ae0XhEOhinzfN+mEyMnOAJ5DUASmFv+cnhavflAYTE4v6jUAYwHRW/hWIsDTzAHFk
+         qo4vkaMinXyHvXjCnuVU4rAFTi4TBMYagw3tpXCe9fhv6oCEYrGO90lise/Yd9K140
+         ibW0LAb4aXDyCMKo+YRd2jLWOaLNzJyoDgndCYdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Moises Cardona <moisesmcardona@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 307/529] PM: EM: fix memory leak with using debugfs_lookup()
-Date:   Fri, 10 Mar 2023 14:37:30 +0100
-Message-Id: <20230310133819.233282680@linuxfoundation.org>
+Subject: [PATCH 5.10 308/529] Bluetooth: btusb: Add VID:PID 13d3:3529 for Realtek RTL8821CE
+Date:   Fri, 10 Mar 2023 14:37:31 +0100
+Message-Id: <20230310133819.273310363@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,38 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Moises Cardona <moisesmcardona@gmail.com>
 
-[ Upstream commit a0e8c13ccd6a9a636d27353da62c2410c4eca337 ]
+[ Upstream commit 1eec3b95b5ce7fb2cdd273ac4f8b24b1ed6776a1 ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+This patch adds VID:PID 13d3:3529 to the btusb.c file.
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This VID:PID is found in the Realtek RTL8821CE module
+(M.2 module AW-CB304NF on an ASUS E210MA laptop)
+
+Output of /sys/kernel/debug/usb/devices:
+
+T:  Bus=01 Lev=01 Prnt=01 Port=07 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
+D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=13d3 ProdID=3529 Rev= 1.10
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+
+Signed-off-by: Moises Cardona <moisesmcardona@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/energy_model.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/bluetooth/btusb.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
-index 119b929dcff0f..334173fe6940e 100644
---- a/kernel/power/energy_model.c
-+++ b/kernel/power/energy_model.c
-@@ -72,10 +72,7 @@ static void em_debug_create_pd(struct device *dev)
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 3d905fda9b29a..2695ece47eb0e 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -393,6 +393,10 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x8087, 0xe0, 0x01, 0x01),
+ 	  .driver_info = BTUSB_IGNORE },
  
- static void em_debug_remove_pd(struct device *dev)
- {
--	struct dentry *debug_dir;
--
--	debug_dir = debugfs_lookup(dev_name(dev), rootdir);
--	debugfs_remove_recursive(debug_dir);
-+	debugfs_lookup_and_remove(dev_name(dev), rootdir);
- }
- 
- static int __init em_debug_init(void)
++	/* Realtek 8821CE Bluetooth devices */
++	{ USB_DEVICE(0x13d3, 0x3529), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
++
+ 	/* Realtek 8822CE Bluetooth devices */
+ 	{ USB_DEVICE(0x0bda, 0xb00c), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
 -- 
 2.39.2
 
