@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21D0F6B429E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:05:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2B56B455F
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:33:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231643AbjCJOE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:04:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51020 "EHLO
+        id S232617AbjCJOdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:33:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231633AbjCJOEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:47 -0500
+        with ESMTP id S232577AbjCJOdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:33:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DBF110CE9B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5429811EE85
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:32:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1866B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D909C433D2;
-        Fri, 10 Mar 2023 14:04:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1574CB822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:32:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B73C433EF;
+        Fri, 10 Mar 2023 14:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457083;
-        bh=pAHOiRv1acAep9lqC+jb4KyruDC/EaZKQwy/gSdNyJg=;
+        s=korg; t=1678458751;
+        bh=6/OwhqZEoCnWMvzWTG606iTH0y7ZrDpAltPe5w4+44o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwEyD2ZvnufBg+0oRU3IN7pCOvMDJNNxcf+Jw5aB1mQroDWznpoZeZtEzqIp6QY1h
-         MP8Z5dgQHOHXPM9WK8zNnO3ZWlprnTIJsasP4w8aiJRi0ZS4MY5pc3laEpameFZ9rC
-         FOlpzYCaD2zJFJpk6oQBpndw7mdS4916eNvIg+AQ=
+        b=MQlPcDC/i0lP2NkLI8w/mqOYveTmZVel5bkc0MVlyVdcIJPcA1nngxgNFhcJHVPRm
+         RY0KSHpULNGUBYFFZTQghzXPkvJ7JcmDcY4BrUa9pgja5Zez4BrPxsGiFhKaLUY8C0
+         FcsNge3fj+cns0oEngfa+5CwwX2QVaSlG1Vh/wG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daeho Jeong <daehojeong@google.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev,
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 015/200] f2fs: correct i_size change for atomic writes
+Subject: [PATCH 5.4 133/357] HID: bigben: use spinlock to safely schedule workers
 Date:   Fri, 10 Mar 2023 14:37:02 +0100
-Message-Id: <20230310133717.512401232@linuxfoundation.org>
+Message-Id: <20230310133740.557076941@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,169 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daeho Jeong <daehojeong@google.com>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 4d8d45df2252980f800c1b2fde941a103a18a70e ]
+[ Upstream commit 76ca8da989c7d97a7f76c75d475fe95a584439d7 ]
 
-We need to make sure i_size doesn't change until atomic write commit is
-successful and restore it when commit is failed.
+Use spinlocks to deal with workers introducing a wrapper
+bigben_schedule_work(), and several spinlock checks.
+Otherwise, bigben_set_led() may schedule bigben->worker after the
+structure has been freed, causing a use-after-free.
 
-Signed-off-by: Daeho Jeong <daehojeong@google.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Stable-dep-of: 0e8d040bfa4c ("f2fs: clear atomic_write_task in f2fs_abort_atomic_write()")
+Fixes: 4eb1b01de5b9 ("HID: hid-bigbenff: fix race condition for scheduled work during removal")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-3-7860c5763c38@diag.uniroma1.it
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h    |  8 ++++++++
- fs/f2fs/file.c    | 18 +++++++++++-------
- fs/f2fs/inode.c   |  5 ++++-
- fs/f2fs/segment.c | 14 ++++++++++----
- 4 files changed, 33 insertions(+), 12 deletions(-)
+ drivers/hid/hid-bigbenff.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 8b9f0b3c77232..87664c309b3c8 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -764,6 +764,7 @@ enum {
- 	FI_COMPRESS_RELEASED,	/* compressed blocks were released */
- 	FI_ALIGNED_WRITE,	/* enable aligned write */
- 	FI_COW_FILE,		/* indicate COW file */
-+	FI_ATOMIC_COMMITTED,	/* indicate atomic commit completed except disk sync */
- 	FI_MAX,			/* max flag, never be used */
+diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
+index b98c5f31c184b..9d6560db762b1 100644
+--- a/drivers/hid/hid-bigbenff.c
++++ b/drivers/hid/hid-bigbenff.c
+@@ -185,6 +185,15 @@ struct bigben_device {
+ 	struct work_struct worker;
  };
  
-@@ -822,6 +823,7 @@ struct f2fs_inode_info {
- 	unsigned int i_cluster_size;		/* cluster size */
- 
- 	unsigned int atomic_write_cnt;
-+	loff_t original_i_size;		/* original i_size before atomic write */
- };
- 
- static inline void get_extent_info(struct extent_info *ext,
-@@ -3072,6 +3074,8 @@ static inline void f2fs_i_blocks_write(struct inode *inode,
- 		set_inode_flag(inode, FI_AUTO_RECOVER);
- }
- 
-+static inline bool f2fs_is_atomic_file(struct inode *inode);
++static inline void bigben_schedule_work(struct bigben_device *bigben)
++{
++	unsigned long flags;
 +
- static inline void f2fs_i_size_write(struct inode *inode, loff_t i_size)
++	spin_lock_irqsave(&bigben->lock, flags);
++	if (!bigben->removed)
++		schedule_work(&bigben->worker);
++	spin_unlock_irqrestore(&bigben->lock, flags);
++}
+ 
+ static void bigben_worker(struct work_struct *work)
  {
- 	bool clean = !is_inode_flag_set(inode, FI_DIRTY_INODE);
-@@ -3081,6 +3085,10 @@ static inline void f2fs_i_size_write(struct inode *inode, loff_t i_size)
- 		return;
+@@ -197,9 +206,6 @@ static void bigben_worker(struct work_struct *work)
+ 	u32 len;
+ 	unsigned long flags;
  
- 	i_size_write(inode, i_size);
-+
-+	if (f2fs_is_atomic_file(inode))
-+		return;
-+
- 	f2fs_mark_inode_dirty_sync(inode, true);
- 	if (clean || recover)
- 		set_inode_flag(inode, FI_AUTO_RECOVER);
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index a03c61bd70165..7bb0c05e943cf 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -2041,6 +2041,7 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
- 	struct f2fs_inode_info *fi = F2FS_I(inode);
- 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 	struct inode *pinode;
-+	loff_t isize;
- 	int ret;
- 
- 	if (!inode_owner_or_capable(mnt_userns, inode))
-@@ -2099,7 +2100,12 @@ static int f2fs_ioc_start_atomic_write(struct file *filp)
- 		f2fs_up_write(&fi->i_gc_rwsem[WRITE]);
- 		goto out;
- 	}
--	f2fs_i_size_write(fi->cow_inode, i_size_read(inode));
-+
-+	f2fs_write_inode(inode, NULL);
-+
-+	isize = i_size_read(inode);
-+	fi->original_i_size = isize;
-+	f2fs_i_size_write(fi->cow_inode, isize);
- 
- 	stat_inc_atomic_inode(inode);
- 
-@@ -2137,16 +2143,14 @@ static int f2fs_ioc_commit_atomic_write(struct file *filp)
- 
- 	if (f2fs_is_atomic_file(inode)) {
- 		ret = f2fs_commit_atomic_write(inode);
--		if (ret)
--			goto unlock_out;
+-	if (bigben->removed)
+-		return;
 -
--		ret = f2fs_do_sync_file(filp, 0, LLONG_MAX, 0, true);
- 		if (!ret)
--			f2fs_abort_atomic_write(inode, false);
-+			ret = f2fs_do_sync_file(filp, 0, LLONG_MAX, 0, true);
-+
-+		f2fs_abort_atomic_write(inode, ret);
- 	} else {
- 		ret = f2fs_do_sync_file(filp, 0, LLONG_MAX, 1, false);
- 	}
--unlock_out:
-+
- 	inode_unlock(inode);
- 	mnt_drop_write_file(filp);
- 	return ret;
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index 5d6fd824f74f2..e8413b080e0a7 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -621,9 +621,12 @@ void f2fs_update_inode(struct inode *inode, struct page *node_page)
- 	ri->i_uid = cpu_to_le32(i_uid_read(inode));
- 	ri->i_gid = cpu_to_le32(i_gid_read(inode));
- 	ri->i_links = cpu_to_le32(inode->i_nlink);
--	ri->i_size = cpu_to_le64(i_size_read(inode));
- 	ri->i_blocks = cpu_to_le64(SECTOR_TO_BLOCK(inode->i_blocks) + 1);
- 
-+	if (!f2fs_is_atomic_file(inode) ||
-+			is_inode_flag_set(inode, FI_ATOMIC_COMMITTED))
-+		ri->i_size = cpu_to_le64(i_size_read(inode));
-+
- 	if (et) {
- 		read_lock(&et->lock);
- 		set_raw_extent(&et->largest, &ri->i_ext);
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index af9a3b7996b4d..60d79e427f988 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -192,14 +192,18 @@ void f2fs_abort_atomic_write(struct inode *inode, bool clean)
- 	if (!f2fs_is_atomic_file(inode))
+ 	buf = hid_alloc_report_buf(bigben->report, GFP_KERNEL);
+ 	if (!buf)
  		return;
+@@ -285,7 +291,7 @@ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
+ 		bigben->work_ff = true;
+ 		spin_unlock_irqrestore(&bigben->lock, flags);
  
--	if (clean)
--		truncate_inode_pages_final(inode->i_mapping);
- 	clear_inode_flag(fi->cow_inode, FI_COW_FILE);
- 	iput(fi->cow_inode);
- 	fi->cow_inode = NULL;
- 	release_atomic_write_cnt(inode);
-+	clear_inode_flag(inode, FI_ATOMIC_COMMITTED);
- 	clear_inode_flag(inode, FI_ATOMIC_FILE);
- 	stat_dec_atomic_inode(inode);
-+
-+	if (clean) {
-+		truncate_inode_pages_final(inode->i_mapping);
-+		f2fs_i_size_write(inode, fi->original_i_size);
-+	}
- }
- 
- static int __replace_atomic_write_block(struct inode *inode, pgoff_t index,
-@@ -338,10 +342,12 @@ static int __f2fs_commit_atomic_write(struct inode *inode)
+-		schedule_work(&bigben->worker);
++		bigben_schedule_work(bigben);
  	}
  
- out:
--	if (ret)
-+	if (ret) {
- 		sbi->revoked_atomic_block += fi->atomic_write_cnt;
--	else
-+	} else {
- 		sbi->committed_atomic_block += fi->atomic_write_cnt;
-+		set_inode_flag(inode, FI_ATOMIC_COMMITTED);
-+	}
+ 	return 0;
+@@ -320,7 +326,7 @@ static void bigben_set_led(struct led_classdev *led,
  
- 	__complete_revoke_list(inode, &revoke_list, ret ? true : false);
+ 			if (work) {
+ 				bigben->work_led = true;
+-				schedule_work(&bigben->worker);
++				bigben_schedule_work(bigben);
+ 			}
+ 			return;
+ 		}
+@@ -450,7 +456,7 @@ static int bigben_probe(struct hid_device *hid,
+ 	bigben->left_motor_force = 0;
+ 	bigben->work_led = true;
+ 	bigben->work_ff = true;
+-	schedule_work(&bigben->worker);
++	bigben_schedule_work(bigben);
+ 
+ 	hid_info(hid, "LED and force feedback support for BigBen gamepad\n");
  
 -- 
 2.39.2
