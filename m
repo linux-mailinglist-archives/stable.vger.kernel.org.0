@@ -2,51 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2B36B43B7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5566B40D0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:46:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbjCJORA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:17:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46468 "EHLO
+        id S230245AbjCJNqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:46:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232102AbjCJOQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C100511ACAB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:51 -0800 (PST)
+        with ESMTP id S229968AbjCJNqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:46:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF66810A2B2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:46:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7275EB822B5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1815C433D2;
-        Fri, 10 Mar 2023 14:15:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A2BA617CB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:46:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 628E2C433EF;
+        Fri, 10 Mar 2023 13:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457749;
-        bh=BBWcFGUeqzVUPxo0YqPn4eZNNepN3HyabSuVBrPsSWk=;
+        s=korg; t=1678455980;
+        bh=ypIDq0iQ70tueb0cdm8lg82AZoQf2hLq1XJqU3C7UQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tyb9//wHjG+koeYs20ROeOlfC6K0qXbGArwfKBXFJhWTD/aLvlZ/I4O22lzpsc1cU
-         3Tdnbin+6IOANqSfI6oAGkxq0Dr5//jh8BUH6lYV3WIsXo+JVe4bxgG1hpnKI6UmBx
-         0uZ7LeZ+i5juR3bIdLTx/PaInb6lERpmt4ImJ93U=
+        b=LFZY/mEKY+iOOgdaHemkZOEpdiD4nEr8aRIs4+j5BV2HDOdub8eRpjcgcGQFsL+J1
+         59n78aVlOM/SUQnvNhj3UdUQl/4yvOGUVjDpxxOIDIyBa+d/qxwqFUKBGDAtsAX5pG
+         qsJUhdJoC+F5OqvAz7W31mzGkeO8taixlhuKRAAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 044/252] wifi: ath9k: Fix potential stack-out-of-bounds write in ath9k_wmi_rsp_callback()
-Date:   Fri, 10 Mar 2023 14:36:54 +0100
-Message-Id: <20230310133720.157287218@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Elliott, Robert (Servers)" <elliott@hpe.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Tejun Heo <tj@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Don <joshdon@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, Elliott@vger.kernel.org
+Subject: [PATCH 4.14 033/193] genirq: Fix the return type of kstat_cpu_irqs_sum()
+Date:   Fri, 10 Mar 2023 14:36:55 +0100
+Message-Id: <20230310133712.043127222@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,56 +61,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 8a2f35b9830692f7a616f2f627f943bc748af13a ]
+[ Upstream commit 47904aed898a08f028572b9b5a5cc101ddfb2d82 ]
 
-Fix a stack-out-of-bounds write that occurs in a WMI response callback
-function that is called after a timeout occurs in ath9k_wmi_cmd().
-The callback writes to wmi->cmd_rsp_buf, a stack-allocated buffer that
-could no longer be valid when a timeout occurs. Set wmi->last_seq_id to
-0 when a timeout occurred.
+The type of member ->irqs_sum is unsigned long, but kstat_cpu_irqs_sum()
+returns int, which can result in truncation.  Therefore, change the
+kstat_cpu_irqs_sum() function's return value to unsigned long to avoid
+truncation.
 
-Found by a modified version of syzkaller.
-
-BUG: KASAN: stack-out-of-bounds in ath9k_wmi_ctrl_rx
-Write of size 4
-Call Trace:
- memcpy
- ath9k_wmi_ctrl_rx
- ath9k_htc_rx_msg
- ath9k_hif_usb_reg_in_cb
- __usb_hcd_giveback_urb
- usb_hcd_giveback_urb
- dummy_timer
- call_timer_fn
- run_timer_softirq
- __do_softirq
- irq_exit_rcu
- sysvec_apic_timer_interrupt
-
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230104124130.10996-1-linuxlovemin@yonsei.ac.kr
+Fixes: f2c66cd8eedd ("/proc/stat: scalability of irq num per cpu")
+Reported-by: Elliott, Robert (Servers) <elliott@hpe.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Josh Don <joshdon@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/kernel_stat.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
-index 066677bb83eb0..e4ea6f5cc78ab 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.c
-+++ b/drivers/net/wireless/ath/ath9k/wmi.c
-@@ -338,6 +338,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
- 	if (!time_left) {
- 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
- 			wmi_cmd_to_name(cmd_id));
-+		wmi->last_seq_id = 0;
- 		mutex_unlock(&wmi->op_mutex);
- 		kfree_skb(skb);
- 		return -ETIMEDOUT;
+diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
+index 7ee2bb43b251a..f7f20cf1bd3b1 100644
+--- a/include/linux/kernel_stat.h
++++ b/include/linux/kernel_stat.h
+@@ -73,7 +73,7 @@ extern unsigned int kstat_irqs_usr(unsigned int irq);
+ /*
+  * Number of interrupts per cpu, since bootup
+  */
+-static inline unsigned int kstat_cpu_irqs_sum(unsigned int cpu)
++static inline unsigned long kstat_cpu_irqs_sum(unsigned int cpu)
+ {
+ 	return kstat_cpu(cpu).irqs_sum;
+ }
 -- 
 2.39.2
 
