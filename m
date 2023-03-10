@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8C26B459C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A306B42E0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232560AbjCJOfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:35:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44068 "EHLO
+        id S231739AbjCJOIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:08:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232565AbjCJOfP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:15 -0500
+        with ESMTP id S231826AbjCJOH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C262EDB59
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492B1116C27
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:07:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1E5BB822DA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A84C4339B;
-        Fri, 10 Mar 2023 14:35:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C11AB822C3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:07:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D78AC433D2;
+        Fri, 10 Mar 2023 14:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458911;
-        bh=CFUyqoyYXzNG4RiPHWKdvSInzvglVcJhrUQhYfXSyuA=;
+        s=korg; t=1678457241;
+        bh=8lY5SP0eMFjUYMDwZ22966vW7MGBnjlSuuYs2z0LYfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBvwTmGBB2XcFILPL3JTQUeW0uMKsAlvUe/l1EJdXbENd4buDcPS6kperwdV4/K0S
-         aUVsssNUz7P0zj234iZAcr/dbS2QbPlCOxOuaPiuE7xb9wPUfNSPzlLdrvkk2YKMnn
-         P2TDjlhpXMokPwTw7NVdqPvyhWra/XJxHJlVxOlI=
+        b=rjaddWNxHeAtAPzOU6IFXIW2WGC5ODfHLMt+Ez+3AKSDq+H6sYEEdIuSKE1pqa+6g
+         EuO5NL0Dh9IRrukgORVsyhMtOJfAzCSJT0/hXPrOw3bDevYc/c8i71chfhea4c0uWk
+         XG9ARVcgxBg9ZEsDfE/uLLSk8St9ZwHDAANBBmSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Ellero <l.ellero@asem.it>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 154/357] Input: ads7846 - dont report pressure for ads7845
-Date:   Fri, 10 Mar 2023 14:37:23 +0100
-Message-Id: <20230310133741.509994395@linuxfoundation.org>
+Subject: [PATCH 6.1 037/200] ubifs: dirty_cow_znode: Fix memleak in error handling path
+Date:   Fri, 10 Mar 2023 14:37:24 +0100
+Message-Id: <20230310133718.190673390@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ellero <l.ellero@asem.it>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit d50584d783313c8b05b84d0b07a2142f1bde46dd ]
+[ Upstream commit 122deabfe1428bffe95e2bf364ff8a5059bdf089 ]
 
-ADS7845 doesn't support pressure.
-Avoid the following error reported by libinput-list-devices:
-"ADS7845 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE".
+Following process will cause a memleak for copied up znode:
 
-Fixes: ffa458c1bd9b ("spi: ads7846 driver")
-Signed-off-by: Luca Ellero <l.ellero@asem.it>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20230126105227.47648-2-l.ellero@asem.it
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+dirty_cow_znode
+  zn = copy_znode(c, znode);
+  err = insert_old_idx(c, zbr->lnum, zbr->offs);
+  if (unlikely(err))
+     return ERR_PTR(err);   // No one refers to zn.
+
+Fix it by adding copied znode back to tnc, then it will be freed
+by ubifs_destroy_tnc_subtree() while closing tnc.
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216705
+Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/ads7846.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ubifs/tnc.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index d247d0ae82d26..feaacd86d19e4 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1376,8 +1376,9 @@ static int ads7846_probe(struct spi_device *spi)
- 			pdata->y_min ? : 0,
- 			pdata->y_max ? : MAX_12BIT,
- 			0, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE,
--			pdata->pressure_min, pdata->pressure_max, 0, 0);
-+	if (ts->model != 7845)
-+		input_set_abs_params(input_dev, ABS_PRESSURE,
-+				pdata->pressure_min, pdata->pressure_max, 0, 0);
+diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
+index 2df56bbc68657..2469f72eeaabb 100644
+--- a/fs/ubifs/tnc.c
++++ b/fs/ubifs/tnc.c
+@@ -267,11 +267,18 @@ static struct ubifs_znode *dirty_cow_znode(struct ubifs_info *c,
+ 	if (zbr->len) {
+ 		err = insert_old_idx(c, zbr->lnum, zbr->offs);
+ 		if (unlikely(err))
+-			return ERR_PTR(err);
++			/*
++			 * Obsolete znodes will be freed by tnc_destroy_cnext()
++			 * or free_obsolete_znodes(), copied up znodes should
++			 * be added back to tnc and freed by
++			 * ubifs_destroy_tnc_subtree().
++			 */
++			goto out;
+ 		err = add_idx_dirt(c, zbr->lnum, zbr->len);
+ 	} else
+ 		err = 0;
  
- 	/*
- 	 * Parse common framework properties. Must be done here to ensure the
++out:
+ 	zbr->znode = zn;
+ 	zbr->lnum = 0;
+ 	zbr->offs = 0;
 -- 
 2.39.2
 
