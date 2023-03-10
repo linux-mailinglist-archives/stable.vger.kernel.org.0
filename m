@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6945A6B4529
+	by mail.lfdr.de (Postfix) with ESMTP id 1DFC56B4528
 	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232489AbjCJObf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:31:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53408 "EHLO
+        id S232529AbjCJObi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:31:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232452AbjCJObS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFDE61219E7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:14 -0800 (PST)
+        with ESMTP id S232527AbjCJObU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1CBB3282
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 708AAB822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FCEC433EF;
-        Fri, 10 Mar 2023 14:30:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F48FB822DD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1B99C433EF;
+        Fri, 10 Mar 2023 14:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458612;
-        bh=kd/SeC9jIRhLgozTPhc7Y7tsg4XYWE5Fr9tTqQgpTjw=;
+        s=korg; t=1678458615;
+        bh=PYK8onxS01aT7/GWezj3mKdLWGMe20WrEM3Y7ElsjeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RMPcfStTbEkCKQWoWHuQQZ6YDHvova99FrUGXJF8E0o25CuWL4q/Yk2fz0W8AXoq1
-         acgP+oHDoJRswrrDYlHldFzh07CFvkAEWYdmosnAeXz7Ba1LHbE6vnZ+DCuPusFs4h
-         kkuhVhS96oQbtwxuMJ1R/1oqj1ofR6y6JQp7T8q8=
+        b=pNKNA8qu6SOmGn/eMo0k/4rUiFcSuKpU7lLAclCyen+ubMCRe56CCaIVAgL1pyl1v
+         0uIdPloWje7S9nz8qnqRUg16+0T6FO2KJZ5aSMTksHrHG/aIQixG3leBiVUxeGt2iK
+         Dhrmr9HpYdj5ydV9JrvNu2IfadQrTdGWft+W9AS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Eric Biggers <ebiggers@google.com>,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/357] lib/mpi: Fix buffer overrun when SG is too long
-Date:   Fri, 10 Mar 2023 14:35:43 +0100
-Message-Id: <20230310133736.347386562@linuxfoundation.org>
+Subject: [PATCH 5.4 055/357] ACPICA: nsrepair: handle cases without a return value correctly
+Date:   Fri, 10 Mar 2023 14:35:44 +0100
+Message-Id: <20230310133736.396789972@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,39 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit 7361d1bc307b926cbca214ab67b641123c2d6357 ]
+[ Upstream commit ca843a4c79486e99a19b859ef0b9887854afe146 ]
 
-The helper mpi_read_raw_from_sgl sets the number of entries in
-the SG list according to nbytes.  However, if the last entry
-in the SG list contains more data than nbytes, then it may overrun
-the buffer because it only allocates enough memory for nbytes.
+Previously acpi_ns_simple_repair() would crash if expected_btypes
+contained any combination of ACPI_RTYPE_NONE with a different type,
+e.g | ACPI_RTYPE_INTEGER because of slightly incorrect logic in the
+!return_object branch, which wouldn't return AE_AML_NO_RETURN_VALUE
+for such cases.
 
-Fixes: 2d4d1eea540b ("lib/mpi: Add mpi sgl helpers")
-Reported-by: Roberto Sassu <roberto.sassu@huaweicloud.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
+
+Link: https://github.com/acpica/acpica/pull/811
+Fixes: 61db45ca2163 ("ACPICA: Restore code that repairs NULL package elements in return values.")
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/mpicoder.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/acpica/nsrepair.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/lib/mpi/mpicoder.c b/lib/mpi/mpicoder.c
-index eead4b3394668..4f73db248009e 100644
---- a/lib/mpi/mpicoder.c
-+++ b/lib/mpi/mpicoder.c
-@@ -397,7 +397,8 @@ MPI mpi_read_raw_from_sgl(struct scatterlist *sgl, unsigned int nbytes)
+diff --git a/drivers/acpi/acpica/nsrepair.c b/drivers/acpi/acpica/nsrepair.c
+index be86fea8e4d48..57e6488f6933f 100644
+--- a/drivers/acpi/acpica/nsrepair.c
++++ b/drivers/acpi/acpica/nsrepair.c
+@@ -181,8 +181,9 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
+ 	 * Try to fix if there was no return object. Warning if failed to fix.
+ 	 */
+ 	if (!return_object) {
+-		if (expected_btypes && (!(expected_btypes & ACPI_RTYPE_NONE))) {
+-			if (package_index != ACPI_NOT_PACKAGE_ELEMENT) {
++		if (expected_btypes) {
++			if (!(expected_btypes & ACPI_RTYPE_NONE) &&
++			    package_index != ACPI_NOT_PACKAGE_ELEMENT) {
+ 				ACPI_WARN_PREDEFINED((AE_INFO,
+ 						      info->full_pathname,
+ 						      ACPI_WARN_ALWAYS,
+@@ -196,14 +197,15 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
+ 				if (ACPI_SUCCESS(status)) {
+ 					return (AE_OK);	/* Repair was successful */
+ 				}
+-			} else {
++			}
++
++			if (expected_btypes != ACPI_RTYPE_NONE) {
+ 				ACPI_WARN_PREDEFINED((AE_INFO,
+ 						      info->full_pathname,
+ 						      ACPI_WARN_ALWAYS,
+ 						      "Missing expected return value"));
++				return (AE_AML_NO_RETURN_VALUE);
+ 			}
+-
+-			return (AE_AML_NO_RETURN_VALUE);
+ 		}
+ 	}
  
- 	while (sg_miter_next(&miter)) {
- 		buff = miter.addr;
--		len = miter.length;
-+		len = min_t(unsigned, miter.length, nbytes);
-+		nbytes -= len;
- 
- 		for (x = 0; x < len; x++) {
- 			a <<= 8;
 -- 
 2.39.2
 
