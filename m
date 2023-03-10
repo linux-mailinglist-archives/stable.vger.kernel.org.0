@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D114B6B4131
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DEEE6B4322
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230422AbjCJNu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:50:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53862 "EHLO
+        id S231852AbjCJOKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:10:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230450AbjCJNu0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA4FE5018
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:24 -0800 (PST)
+        with ESMTP id S231853AbjCJOKY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B5B117219
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADA9B60F11
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A42A1C433A0;
-        Fri, 10 Mar 2023 13:50:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9D49B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E0FC4339B;
+        Fri, 10 Mar 2023 14:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456223;
-        bh=Iqiq++vbitb9GcrMB8hKTHTqm8c52kbGCuOxrQ5jZko=;
+        s=korg; t=1678457404;
+        bh=9kj2c9l6jOQhUMEtZZWXwSksuyOkTZy7xGtWlof1MaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRg3AsPrGpBcDMK44gIU6rUPIeNAMnMQwqh80/EEa0YfS/L8RUEudSLDrPATqx93z
-         cyABaclWMwyUUjvJgeF9aKb80AWF/fyX7MKZIorBgoSP6BdJI+BHgPezwM/+riz2vZ
-         1oFN6jEqPbkA0vrDJowldhLHaNJjduFwrPZ4RN/Q=
+        b=J2f1+XrHoInGnqce14iT3pZRRI1efjI9d5VFo3pAZHLxVFgFnnepCyim1KWsvE893
+         UoSLACeT0R2WVge0hZdmhu1DzaLMgl68QkrYk3D6vZLub4eCqjUY6Gc5xtz9Dvz+fU
+         ixvxyjOQZCApf0WSpzpt2u3MqcmiziD9tsT6snfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roberto Sassu <roberto.sassu@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.14 122/193] ima: Align ima_file_mmap() parameters with mmap_file LSM hook
-Date:   Fri, 10 Mar 2023 14:38:24 +0100
-Message-Id: <20230310133715.316949036@linuxfoundation.org>
+        patches@lists.linux.dev, Kees Cook <keescook@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 098/200] scsi: ipr: Work around fortify-string warning
+Date:   Fri, 10 Mar 2023 14:38:25 +0100
+Message-Id: <20230310133720.122480060@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +57,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 4971c268b85e1c7a734a61622fc0813c86e2362e upstream.
+[ Upstream commit ee4e7dfe4ffc9ca50c6875757bd119abfe22b5c5 ]
 
-Commit 98de59bfe4b2f ("take calculation of final prot in
-security_mmap_file() into a helper") moved the code to update prot, to be
-the actual protections applied to the kernel, to a new helper called
-mmap_prot().
+The ipr_log_vpd_compact() function triggers a fortified memcpy() warning
+about a potential string overflow with all versions of clang:
 
-However, while without the helper ima_file_mmap() was getting the updated
-prot, with the helper ima_file_mmap() gets the original prot, which
-contains the protections requested by the application.
+In file included from drivers/scsi/ipr.c:43:
+In file included from include/linux/string.h:254:
+include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+                        __write_overflow_field(p_size_field, size);
+                        ^
+include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+2 errors generated.
 
-A possible consequence of this change is that, if an application calls
-mmap() with only PROT_READ, and the kernel applies PROT_EXEC in addition,
-that application would have access to executable memory without having this
-event recorded in the IMA measurement list. This situation would occur for
-example if the application, before mmap(), calls the personality() system
-call with READ_IMPLIES_EXEC as the first argument.
+I don't see anything actually wrong with the function, but this is the only
+instance I can reproduce of the fortification going wrong in the kernel at
+the moment, so the easiest solution may be to rewrite the function into
+something that does not trigger the warning.
 
-Align ima_file_mmap() parameters with those of the mmap_file LSM hook, so
-that IMA can receive both the requested prot and the final prot. Since the
-requested protections are stored in a new variable, and the final
-protections are stored in the existing variable, this effectively restores
-the original behavior of the MMAP_CHECK hook.
+Instead of having a combined buffer for vendor/device/serial strings, use
+three separate local variables and just truncate the whitespace
+individually.
 
-Cc: stable@vger.kernel.org
-Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230214132831.2118392-1-arnd@kernel.org
+Cc: Kees Cook <keescook@chromium.org>
+Fixes: 8cf093e275d0 ("[SCSI] ipr: Improved dual adapter errors")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ima.h               |    6 ++++--
- security/integrity/ima/ima_main.c |    7 +++++--
- security/security.c               |    7 ++++---
- 3 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/scsi/ipr.c | 41 +++++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
---- a/include/linux/ima.h
-+++ b/include/linux/ima.h
-@@ -18,7 +18,8 @@ struct linux_binprm;
- extern int ima_bprm_check(struct linux_binprm *bprm);
- extern int ima_file_check(struct file *file, int mask, int opened);
- extern void ima_file_free(struct file *file);
--extern int ima_file_mmap(struct file *file, unsigned long prot);
-+extern int ima_file_mmap(struct file *file, unsigned long reqprot,
-+			 unsigned long prot, unsigned long flags);
- extern int ima_read_file(struct file *file, enum kernel_read_file_id id);
- extern int ima_post_read_file(struct file *file, void *buf, loff_t size,
- 			      enum kernel_read_file_id id);
-@@ -44,7 +45,8 @@ static inline void ima_file_free(struct
- 	return;
+diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
+index 2022ffb450417..8c062afb2918d 100644
+--- a/drivers/scsi/ipr.c
++++ b/drivers/scsi/ipr.c
+@@ -1516,23 +1516,22 @@ static void ipr_process_ccn(struct ipr_cmnd *ipr_cmd)
  }
  
--static inline int ima_file_mmap(struct file *file, unsigned long prot)
-+static inline int ima_file_mmap(struct file *file, unsigned long reqprot,
-+				unsigned long prot, unsigned long flags)
- {
- 	return 0;
- }
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -303,7 +303,9 @@ out:
  /**
-  * ima_file_mmap - based on policy, collect/store measurement.
-  * @file: pointer to the file to be measured (May be NULL)
-- * @prot: contains the protection that will be applied by the kernel.
-+ * @reqprot: protection requested by the application
-+ * @prot: protection that will be applied by the kernel
-+ * @flags: operational flags
+- * strip_and_pad_whitespace - Strip and pad trailing whitespace.
+- * @i:		index into buffer
+- * @buf:		string to modify
++ * strip_whitespace - Strip and pad trailing whitespace.
++ * @i:		size of buffer
++ * @buf:	string to modify
   *
-  * Measure files being mmapped executable based on the ima_must_measure()
-  * policy decision.
-@@ -311,7 +313,8 @@ out:
-  * On success return 0.  On integrity appraisal error, assuming the file
-  * is in policy and IMA-appraisal is in enforcing mode, return -EACCES.
-  */
--int ima_file_mmap(struct file *file, unsigned long prot)
-+int ima_file_mmap(struct file *file, unsigned long reqprot,
-+		  unsigned long prot, unsigned long flags)
+- * This function will strip all trailing whitespace, pad the end
+- * of the string with a single space, and NULL terminate the string.
++ * This function will strip all trailing whitespace and
++ * NUL terminate the string.
+  *
+- * Return value:
+- * 	new length of string
+  **/
+-static int strip_and_pad_whitespace(int i, char *buf)
++static void strip_whitespace(int i, char *buf)
  {
- 	if (file && (prot & PROT_EXEC))
- 		return process_measurement(file, NULL, 0, MAY_EXEC,
---- a/security/security.c
-+++ b/security/security.c
-@@ -920,12 +920,13 @@ static inline unsigned long mmap_prot(st
- int security_mmap_file(struct file *file, unsigned long prot,
- 			unsigned long flags)
- {
-+	unsigned long prot_adj = mmap_prot(file, prot);
- 	int ret;
--	ret = call_int_hook(mmap_file, 0, file, prot,
--					mmap_prot(file, prot), flags);
-+
-+	ret = call_int_hook(mmap_file, 0, file, prot, prot_adj, flags);
- 	if (ret)
- 		return ret;
--	return ima_file_mmap(file, prot);
-+	return ima_file_mmap(file, prot, prot_adj, flags);
++	if (i < 1)
++		return;
++	i--;
+ 	while (i && buf[i] == ' ')
+ 		i--;
+-	buf[i+1] = ' ';
+-	buf[i+2] = '\0';
+-	return i + 2;
++	buf[i+1] = '\0';
  }
  
- int security_mmap_addr(unsigned long addr)
+ /**
+@@ -1547,19 +1546,21 @@ static int strip_and_pad_whitespace(int i, char *buf)
+ static void ipr_log_vpd_compact(char *prefix, struct ipr_hostrcb *hostrcb,
+ 				struct ipr_vpd *vpd)
+ {
+-	char buffer[IPR_VENDOR_ID_LEN + IPR_PROD_ID_LEN + IPR_SERIAL_NUM_LEN + 3];
+-	int i = 0;
++	char vendor_id[IPR_VENDOR_ID_LEN + 1];
++	char product_id[IPR_PROD_ID_LEN + 1];
++	char sn[IPR_SERIAL_NUM_LEN + 1];
+ 
+-	memcpy(buffer, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
+-	i = strip_and_pad_whitespace(IPR_VENDOR_ID_LEN - 1, buffer);
++	memcpy(vendor_id, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
++	strip_whitespace(IPR_VENDOR_ID_LEN, vendor_id);
+ 
+-	memcpy(&buffer[i], vpd->vpids.product_id, IPR_PROD_ID_LEN);
+-	i = strip_and_pad_whitespace(i + IPR_PROD_ID_LEN - 1, buffer);
++	memcpy(product_id, vpd->vpids.product_id, IPR_PROD_ID_LEN);
++	strip_whitespace(IPR_PROD_ID_LEN, product_id);
+ 
+-	memcpy(&buffer[i], vpd->sn, IPR_SERIAL_NUM_LEN);
+-	buffer[IPR_SERIAL_NUM_LEN + i] = '\0';
++	memcpy(sn, vpd->sn, IPR_SERIAL_NUM_LEN);
++	strip_whitespace(IPR_SERIAL_NUM_LEN, sn);
+ 
+-	ipr_hcam_err(hostrcb, "%s VPID/SN: %s\n", prefix, buffer);
++	ipr_hcam_err(hostrcb, "%s VPID/SN: %s %s %s\n", prefix,
++		     vendor_id, product_id, sn);
+ }
+ 
+ /**
+-- 
+2.39.2
+
 
 
