@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E5B6B4547
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 095AF6B40B4
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:45:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232499AbjCJOcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56088 "EHLO
+        id S230085AbjCJNpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:45:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232535AbjCJOc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E071A4AE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:31:24 -0800 (PST)
+        with ESMTP id S230185AbjCJNpH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:45:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4D59545C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B612AB822DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:31:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDDBEC433D2;
-        Fri, 10 Mar 2023 14:31:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEB59617AF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:45:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BA1C4339B;
+        Fri, 10 Mar 2023 13:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458681;
-        bh=oqrqsASdeRUYV/mpQ11zTQl9e+xYzmR1buiruzbiio4=;
+        s=korg; t=1678455906;
+        bh=66dWPDY6YQiRJZ/wdMnTaRXpUh5VpRssfKqmzur64bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPqcGRLBFYYKk6B9J7o5evePOmQBIRHitPVHBDdcyy/qzQQptd7aecLqYHTy30tej
-         F22ZWluGxJZkF5T9wz3xibXHixUzSaV5BWwPsCZKx/l3EnFyCJn56hS5kE9yp31azm
-         1Y3x3KWV4f6q+8AGBaY3ouQcuHZDXRjdNt/qr39U=
+        b=g6bvX1Q/WN7mYefCbHnyYVkVqJdJ1k5n3Gms/nmXqVe8OI1a57vi3O6JhGbXL976T
+         AAa7CeOaQBuLPKCNRmbRSLgpYXLcirqogay15FWqaexPWlvWGIuxyShUbcUMMTYCS7
+         TsI7TYF8ADewj9Irwj/fjJpKct967jUGEhUMSMhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
+        Michal Simek <michal.simek@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 109/357] drm/msm/dpu: Add check for pstates
+Subject: [PATCH 4.14 016/193] ARM: zynq: Fix refcount leak in zynq_early_slcr_init
 Date:   Fri, 10 Mar 2023 14:36:38 +0100
-Message-Id: <20230310133739.458424684@linuxfoundation.org>
+Message-Id: <20230310133711.471146109@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Qiheng Lin <linqiheng@huawei.com>
 
-[ Upstream commit 93340e10b9c5fc86730d149636e0aa8b47bb5a34 ]
+[ Upstream commit 9eedb910a3be0005b88c696a8552c0d4c9937cd4 ]
 
-As kzalloc may fail and return NULL pointer,
-it should be better to check pstates
-in order to avoid the NULL pointer dereference.
+of_find_compatible_node() returns a node pointer with refcount incremented,
+we should use of_node_put() on error path.
+Add missing of_node_put() to avoid refcount leak.
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/514160/
-Link: https://lore.kernel.org/r/20221206080236.43687-1-jiasheng@iscas.ac.cn
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 3329659df030 ("ARM: zynq: Simplify SLCR initialization")
+Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
+Link: https://lore.kernel.org/r/20221129140544.41293-1-linqiheng@huawei.com
+Signed-off-by: Michal Simek <michal.simek@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-zynq/slcr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index d61c3855670dd..2e28db60f4d2f 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -836,6 +836,8 @@ static int dpu_crtc_atomic_check(struct drm_crtc *crtc,
+diff --git a/arch/arm/mach-zynq/slcr.c b/arch/arm/mach-zynq/slcr.c
+index f0292a30e6f69..6b75ef7be3fda 100644
+--- a/arch/arm/mach-zynq/slcr.c
++++ b/arch/arm/mach-zynq/slcr.c
+@@ -222,6 +222,7 @@ int __init zynq_early_slcr_init(void)
+ 	zynq_slcr_regmap = syscon_regmap_lookup_by_compatible("xlnx,zynq-slcr");
+ 	if (IS_ERR(zynq_slcr_regmap)) {
+ 		pr_err("%s: failed to find zynq-slcr\n", __func__);
++		of_node_put(np);
+ 		return -ENODEV;
  	}
  
- 	pstates = kzalloc(sizeof(*pstates) * DPU_STAGE_MAX * 4, GFP_KERNEL);
-+	if (!pstates)
-+		return -ENOMEM;
- 
- 	dpu_crtc = to_dpu_crtc(crtc);
- 	cstate = to_dpu_crtc_state(state);
 -- 
 2.39.2
 
