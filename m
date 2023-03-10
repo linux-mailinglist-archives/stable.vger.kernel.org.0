@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2EA76B44E7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:29:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85A516B4835
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232387AbjCJO3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:29:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
+        id S233675AbjCJPAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:00:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232415AbjCJO3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:11 -0500
+        with ESMTP id S233848AbjCJPAN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:00:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D505119970
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:27:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98045135956
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18EF061380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F547C433EF;
-        Fri, 10 Mar 2023 14:27:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76B0761A47
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70FDDC433D2;
+        Fri, 10 Mar 2023 14:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458448;
-        bh=43NltWjxz6IrNrf3liamglzjREjqK25Zn5kwODxAtgs=;
+        s=korg; t=1678459958;
+        bh=uNnGhA/nBH2HyfW6rkLj8D4Dgda4hFNjm76cjDnTi2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsPCWsLCTqDFivbk+YGKhTKPPCb6SQoGerzVmL8CWdBYW8rSkE2scHTd5hMBEd0tT
-         X8A0xomi+rFlCRPacfWrAfCrP5GjkEmwCP/L6lmea4XXDAXB9/hI/Sti/gxSd4uoLM
-         kVHlTe91AlB+M/1WL6om/wJeKRlu772G0vKZpezI=
+        b=Qs5vVXlwIuSDYmysPmOaFZZwPDdlc63HFi0hi4D+l+SsQwVt+FVtHIULm32Z3fKco
+         2qaNjIduOxzr9tbdSdZoYB7wmEGnzuWkhpYxZR5G37q2JU/ltQW4QRKutSAsl6+fAX
+         BA9inSDsSngxmKuLSp4vymx5TYSccBdyAJoL3VFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Phil Auld <pauld@redhat.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        patches@lists.linux.dev, Daniel Mentz <danielmentz@google.com>,
+        Richard Acayan <mailingradian@gmail.com>,
+        Caleb Connolly <caleb@connolly.tech>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/357] sched/rt: pick_next_rt_entity(): check list_entry
+Subject: [PATCH 5.10 176/529] drm/mipi-dsi: Fix byte order of 16-bit DCS set/get brightness
 Date:   Fri, 10 Mar 2023 14:35:19 +0100
-Message-Id: <20230310133735.348339085@linuxfoundation.org>
+Message-Id: <20230310133813.087348703@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
+References: <20230310133804.978589368@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,53 +57,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Daniel Mentz <danielmentz@google.com>
 
-[ Upstream commit 7c4a5b89a0b5a57a64b601775b296abf77a9fe97 ]
+[ Upstream commit c9d27c6be518b4ef2966d9564654ef99292ea1b3 ]
 
-Commit 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
-removed any path which could make pick_next_rt_entity() return NULL.
-However, BUG_ON(!rt_se) in _pick_next_task_rt() (the only caller of
-pick_next_rt_entity()) still checks the error condition, which can
-never happen, since list_entry() never returns NULL.
-Remove the BUG_ON check, and instead emit a warning in the only
-possible error condition here: the queue being empty which should
-never happen.
+The MIPI DCS specification demands that brightness values are sent in
+big endian byte order. It also states that one parameter (i.e. one byte)
+shall be sent/received for 8 bit wide values, and two parameters shall
+be used for values that are between 9 and 16 bits wide.
 
-Fixes: 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/r/20230128-list-entry-null-check-sched-v3-1-b1a71bd1ac6b@diag.uniroma1.it
+Add new functions to properly handle 16-bit brightness in big endian,
+since the two 8- and 16-bit cases are distinct from each other.
+
+[richard: use separate functions instead of switch/case]
+[richard: split into 16-bit component]
+
+Fixes: 1a9d759331b8 ("drm/dsi: Implement DCS set/get display brightness")
+Signed-off-by: Daniel Mentz <danielmentz@google.com>
+Link: https://android.googlesource.com/kernel/msm/+/754affd62d0ee268c686c53169b1dbb7deac8550
+[richard: fix 16-bit brightness_get]
+Signed-off-by: Richard Acayan <mailingradian@gmail.com>
+Tested-by: Caleb Connolly <caleb@connolly.tech>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230116224909.23884-2-mailingradian@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_mipi_dsi.c | 52 ++++++++++++++++++++++++++++++++++
+ include/drm/drm_mipi_dsi.h     |  4 +++
+ 2 files changed, 56 insertions(+)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index e5d42947e57ab..186e7d78ded5c 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -1561,6 +1561,8 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
- 	BUG_ON(idx >= MAX_RT_PRIO);
+diff --git a/drivers/gpu/drm/drm_mipi_dsi.c b/drivers/gpu/drm/drm_mipi_dsi.c
+index 2c43d54766f34..19fb1d93a4f07 100644
+--- a/drivers/gpu/drm/drm_mipi_dsi.c
++++ b/drivers/gpu/drm/drm_mipi_dsi.c
+@@ -1143,6 +1143,58 @@ int mipi_dsi_dcs_get_display_brightness(struct mipi_dsi_device *dsi,
+ }
+ EXPORT_SYMBOL(mipi_dsi_dcs_get_display_brightness);
  
- 	queue = array->queue + idx;
-+	if (SCHED_WARN_ON(list_empty(queue)))
-+		return NULL;
- 	next = list_entry(queue->next, struct sched_rt_entity, run_list);
++/**
++ * mipi_dsi_dcs_set_display_brightness_large() - sets the 16-bit brightness value
++ *    of the display
++ * @dsi: DSI peripheral device
++ * @brightness: brightness value
++ *
++ * Return: 0 on success or a negative error code on failure.
++ */
++int mipi_dsi_dcs_set_display_brightness_large(struct mipi_dsi_device *dsi,
++					     u16 brightness)
++{
++	u8 payload[2] = { brightness >> 8, brightness & 0xff };
++	ssize_t err;
++
++	err = mipi_dsi_dcs_write(dsi, MIPI_DCS_SET_DISPLAY_BRIGHTNESS,
++				 payload, sizeof(payload));
++	if (err < 0)
++		return err;
++
++	return 0;
++}
++EXPORT_SYMBOL(mipi_dsi_dcs_set_display_brightness_large);
++
++/**
++ * mipi_dsi_dcs_get_display_brightness_large() - gets the current 16-bit
++ *    brightness value of the display
++ * @dsi: DSI peripheral device
++ * @brightness: brightness value
++ *
++ * Return: 0 on success or a negative error code on failure.
++ */
++int mipi_dsi_dcs_get_display_brightness_large(struct mipi_dsi_device *dsi,
++					     u16 *brightness)
++{
++	u8 brightness_be[2];
++	ssize_t err;
++
++	err = mipi_dsi_dcs_read(dsi, MIPI_DCS_GET_DISPLAY_BRIGHTNESS,
++				brightness_be, sizeof(brightness_be));
++	if (err <= 0) {
++		if (err == 0)
++			err = -ENODATA;
++
++		return err;
++	}
++
++	*brightness = (brightness_be[0] << 8) | brightness_be[1];
++
++	return 0;
++}
++EXPORT_SYMBOL(mipi_dsi_dcs_get_display_brightness_large);
++
+ static int mipi_dsi_drv_probe(struct device *dev)
+ {
+ 	struct mipi_dsi_driver *drv = to_mipi_dsi_driver(dev->driver);
+diff --git a/include/drm/drm_mipi_dsi.h b/include/drm/drm_mipi_dsi.h
+index 360e6377e84ba..31ba85a4110a8 100644
+--- a/include/drm/drm_mipi_dsi.h
++++ b/include/drm/drm_mipi_dsi.h
+@@ -283,6 +283,10 @@ int mipi_dsi_dcs_set_display_brightness(struct mipi_dsi_device *dsi,
+ 					u16 brightness);
+ int mipi_dsi_dcs_get_display_brightness(struct mipi_dsi_device *dsi,
+ 					u16 *brightness);
++int mipi_dsi_dcs_set_display_brightness_large(struct mipi_dsi_device *dsi,
++					     u16 brightness);
++int mipi_dsi_dcs_get_display_brightness_large(struct mipi_dsi_device *dsi,
++					     u16 *brightness);
  
- 	return next;
-@@ -1573,7 +1575,8 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
- 
- 	do {
- 		rt_se = pick_next_rt_entity(rt_rq);
--		BUG_ON(!rt_se);
-+		if (unlikely(!rt_se))
-+			return NULL;
- 		rt_rq = group_rt_rq(rt_se);
- 	} while (rt_rq);
- 
+ /**
+  * struct mipi_dsi_driver - DSI driver
 -- 
 2.39.2
 
