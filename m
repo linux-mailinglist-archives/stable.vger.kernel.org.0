@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 175866B40F4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:48:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B920E6B42BF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230303AbjCJNsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:48:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47628 "EHLO
+        id S231660AbjCJOG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:06:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230325AbjCJNsC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:48:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 633CD10420
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:47:59 -0800 (PST)
+        with ESMTP id S231732AbjCJOGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D0CF10F84F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 956E2B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:47:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9DA1C433EF;
-        Fri, 10 Mar 2023 13:47:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C5FB617D5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC18C433D2;
+        Fri, 10 Mar 2023 14:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456077;
-        bh=JwiaiJePlYKy+Z6LmfFH7t3aPBmB+Po3NczqPZBfy58=;
+        s=korg; t=1678457157;
+        bh=+9GtUFLrq2JWqwYfiSAIwqSNcX+otGgpJwthgRTfhlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mt9EmjSA2I56yJI+WfnzZOcpG9/+7sRAXfZptyxSwO6pKYo4YBlD9aH2wsiM2hr8Y
-         6YLq463kBZfyKSpAFjw5LdV4EHtKlqSR74HNP187PKkM0fySolOVTmV002Xgnc/IAX
-         gj9nw+n95YW87rMo6fgZTSam4S5KGBuNHOabIURc=
+        b=Remnh/8b+n/3KXOmvptgnmxLawCUbViyn1orkpDXvH7/waqe9/17qaf6uiwIRw1Yg
+         pvI1oTjFuzu2AIyPzamMeM0frs6lPB6sT40K4BAKwSTgYnf7+0LKBTe/P35Un1W6Ab
+         /OaJQY15BQzY2bn82pBGBAWDOwUomXDQ7GUUx1Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiheng Lin <linqiheng@huawei.com>,
-        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 065/193] mfd: pcf50633-adc: Fix potential memleak in pcf50633_adc_async_read()
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 040/200] ubi: fastmap: Fix missed fm_anchor PEB in wear-leveling after disabling fastmap
 Date:   Fri, 10 Mar 2023 14:37:27 +0100
-Message-Id: <20230310133713.200023687@linuxfoundation.org>
+Message-Id: <20230310133718.292064331@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiheng Lin <linqiheng@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 8b450dcff23aa254844492831a8e2b508a9d522d ]
+[ Upstream commit 76f9476ece445a07aeb72df9d896cd563fb5b50f ]
 
-`req` is allocated in pcf50633_adc_async_read(), but
-adc_enqueue_request() could fail to insert the `req` into queue.
-We need to check the return value and free it in the case of failure.
+After disabling fastmap(ubi->fm_disabled = 1), fastmap won't be updated,
+fm_anchor PEB is missed being scheduled for erasing. Besides, fm_anchor
+PEB may have smallest erase count, it doesn't participate wear-leveling.
+The difference of erase count between fm_anchor PEB and other PEBs will
+be larger and larger later on.
 
-Fixes: 08c3e06a5eb2 ("mfd: PCF50633 adc driver")
-Signed-off-by: Qiheng Lin <linqiheng@huawei.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
-Link: https://lore.kernel.org/r/20221208061555.8776-1-linqiheng@huawei.com
+In which situation fastmap can be disabled? Initially, we have an UBI
+image with fastmap. Then the image will be atttached without module
+parameter 'fm_autoconvert', ubi turns to full scanning mode in one
+random attaching process(eg. bad fastmap caused by powercut), ubi
+fastmap is disabled since then.
+
+Fix it by not getting fm_anchor if fastmap is disabled in
+ubi_refill_pools().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216341
+Fixes: 4b68bf9a69d22d ("ubi: Select fastmap anchor PEBs considering ...")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/pcf50633-adc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mtd/ubi/fastmap-wl.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mfd/pcf50633-adc.c b/drivers/mfd/pcf50633-adc.c
-index c1984b0d1b652..a4a765055ee6b 100644
---- a/drivers/mfd/pcf50633-adc.c
-+++ b/drivers/mfd/pcf50633-adc.c
-@@ -140,6 +140,7 @@ int pcf50633_adc_async_read(struct pcf50633 *pcf, int mux, int avg,
- 			     void *callback_param)
- {
- 	struct pcf50633_adc_request *req;
-+	int ret;
+diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
+index 0ee452275578d..863f571f1adb5 100644
+--- a/drivers/mtd/ubi/fastmap-wl.c
++++ b/drivers/mtd/ubi/fastmap-wl.c
+@@ -146,13 +146,15 @@ void ubi_refill_pools(struct ubi_device *ubi)
+ 	if (ubi->fm_anchor) {
+ 		wl_tree_add(ubi->fm_anchor, &ubi->free);
+ 		ubi->free_count++;
++		ubi->fm_anchor = NULL;
+ 	}
  
- 	/* req is freed when the result is ready, in interrupt handler */
- 	req = kmalloc(sizeof(*req), GFP_KERNEL);
-@@ -151,7 +152,11 @@ int pcf50633_adc_async_read(struct pcf50633 *pcf, int mux, int avg,
- 	req->callback = callback;
- 	req->callback_param = callback_param;
+-	/*
+-	 * All available PEBs are in ubi->free, now is the time to get
+-	 * the best anchor PEBs.
+-	 */
+-	ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
++	if (!ubi->fm_disabled)
++		/*
++		 * All available PEBs are in ubi->free, now is the time to get
++		 * the best anchor PEBs.
++		 */
++		ubi->fm_anchor = ubi_wl_get_fm_peb(ubi, 1);
  
--	return adc_enqueue_request(pcf, req);
-+	ret = adc_enqueue_request(pcf, req);
-+	if (ret)
-+		kfree(req);
-+
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(pcf50633_adc_async_read);
- 
+ 	for (;;) {
+ 		enough = 0;
 -- 
 2.39.2
 
