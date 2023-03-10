@@ -2,59 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE9C26B4419
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C256B42D5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:07:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232153AbjCJOV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:21:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58054 "EHLO
+        id S231799AbjCJOHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:07:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232171AbjCJOU6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFAD41E1E0;
-        Fri, 10 Mar 2023 06:19:43 -0800 (PST)
+        with ESMTP id S231771AbjCJOHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 700C211785E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 410A760D29;
-        Fri, 10 Mar 2023 14:19:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 178A6C433EF;
-        Fri, 10 Mar 2023 14:19:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A79A60D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37080C433D2;
+        Fri, 10 Mar 2023 14:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457982;
-        bh=PWCVTMAtb7lR3ibJwAzfRbnIR8hV1DXYUS5UqAvsxPk=;
+        s=korg; t=1678457214;
+        bh=n1qF7fzpWNzZ5zZTD0zbhX1zKEYefHOlgum6rwpaJD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNyVHj5A3AWwtcLCiPVGK9mypT/+kNOp5tjH8e2UD60CGQE3reBCbk49ODZi8ipZL
-         b6K0oJDFBlm6S9fsWnmo4dCLU+LHuDj9iIX4cwlP+17NUVHaFRsic/927iJ5gQA5Fx
-         auIIrWy9kyOExnqNOdUa6McyRmfdePdRAP5C+zgM=
+        b=uSvBC9aZJqUjNiidLPhjF29/p7WJzWSqC3FnUE/jLkMu8ARw0/q5Wp6bHPzIVTEiI
+         nFQK4CX2Se5WNFte++I+LjC6FSneA2SYRo7RpLyGGjKGJZ/w0vSS5bNVxI0GNHXs54
+         cY85NWOUtg/DPyJ0OY43fbx2KvFfIE57lT2dV1OE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        llvm@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Tom Rix <trix@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 094/252] perf llvm: Fix inadvertent file creation
-Date:   Fri, 10 Mar 2023 14:37:44 +0100
-Message-Id: <20230310133721.663982365@linuxfoundation.org>
+Subject: [PATCH 6.1 058/200] watchdog: pcwd_usb: Fix attempting to access uninitialized memory
+Date:   Fri, 10 Mar 2023 14:37:45 +0100
+Message-Id: <20230310133718.901249627@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,89 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Li Hua <hucool.lihua@huawei.com>
 
-[ Upstream commit 9f19aab47ced012eddef1e2bc96007efc7713b61 ]
+[ Upstream commit 7d06c07c67100fd0f8e6b3ab7145ce789f788117 ]
 
-The LLVM template is first echo-ed into command_out and then
-command_out executed. The echo surrounds the template with double
-quotes, however, the template itself may contain quotes. This is
-generally innocuous but in tools/perf/tests/bpf-script-test-prologue.c
-we see:
-...
-SEC("func=null_lseek file->f_mode offset orig")
-...
-where the first double quote ends the double quote of the echo, then
-the > redirects output into a file called f_mode.
+The stack variable msb and lsb may be used uninitialized in function
+usb_pcwd_get_temperature and usb_pcwd_get_timeleft when usb card no response.
 
-To avoid this inadvertent behavior substitute redirects and similar
-characters to be ASCII control codes, then substitute the output in
-the echo back again.
+The build waring is:
+drivers/watchdog/pcwd_usb.c:336:22: error: ‘lsb’ is used uninitialized in this function [-Werror=uninitialized]
+  *temperature = (lsb * 9 / 5) + 32;
+                  ~~~~^~~
+drivers/watchdog/pcwd_usb.c:328:21: note: ‘lsb’ was declared here
+  unsigned char msb, lsb;
+                     ^~~
+cc1: all warnings being treated as errors
+scripts/Makefile.build:250: recipe for target 'drivers/watchdog/pcwd_usb.o' failed
+make[3]: *** [drivers/watchdog/pcwd_usb.o] Error 1
 
-Fixes: 5eab5a7ee032acaa ("perf llvm: Display eBPF compiling command in debug output")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: bpf@vger.kernel.org
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: llvm@lists.linux.dev
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/20230105082609.344538-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: b7e04f8c61a4 ("mv watchdog tree under drivers")
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20221116020706.70847-1-hucool.lihua@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/llvm-utils.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ drivers/watchdog/pcwd_usb.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/llvm-utils.c b/tools/perf/util/llvm-utils.c
-index 46ec9a1bb94cc..1ff4788bcb4e5 100644
---- a/tools/perf/util/llvm-utils.c
-+++ b/tools/perf/util/llvm-utils.c
-@@ -521,14 +521,37 @@ int llvm__compile_bpf(const char *path, void **p_obj_buf,
+diff --git a/drivers/watchdog/pcwd_usb.c b/drivers/watchdog/pcwd_usb.c
+index 1bdaf17c1d38d..8202f0a6b0935 100644
+--- a/drivers/watchdog/pcwd_usb.c
++++ b/drivers/watchdog/pcwd_usb.c
+@@ -325,7 +325,8 @@ static int usb_pcwd_set_heartbeat(struct usb_pcwd_private *usb_pcwd, int t)
+ static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd,
+ 							int *temperature)
+ {
+-	unsigned char msb, lsb;
++	unsigned char msb = 0x00;
++	unsigned char lsb = 0x00;
  
- 	pr_debug("llvm compiling command template: %s\n", template);
+ 	usb_pcwd_send_command(usb_pcwd, CMD_READ_TEMP, &msb, &lsb);
  
-+	/*
-+	 * Below, substitute control characters for values that can cause the
-+	 * echo to misbehave, then substitute the values back.
-+	 */
- 	err = -ENOMEM;
--	if (asprintf(&command_echo, "echo -n \"%s\"", template) < 0)
-+	if (asprintf(&command_echo, "echo -n \a%s\a", template) < 0)
- 		goto errout;
+@@ -341,7 +342,8 @@ static int usb_pcwd_get_temperature(struct usb_pcwd_private *usb_pcwd,
+ static int usb_pcwd_get_timeleft(struct usb_pcwd_private *usb_pcwd,
+ 								int *time_left)
+ {
+-	unsigned char msb, lsb;
++	unsigned char msb = 0x00;
++	unsigned char lsb = 0x00;
  
-+#define SWAP_CHAR(a, b) do { if (*p == a) *p = b; } while (0)
-+	for (char *p = command_echo; *p; p++) {
-+		SWAP_CHAR('<', '\001');
-+		SWAP_CHAR('>', '\002');
-+		SWAP_CHAR('"', '\003');
-+		SWAP_CHAR('\'', '\004');
-+		SWAP_CHAR('|', '\005');
-+		SWAP_CHAR('&', '\006');
-+		SWAP_CHAR('\a', '"');
-+	}
- 	err = read_from_pipe(command_echo, (void **) &command_out, NULL);
- 	if (err)
- 		goto errout;
- 
-+	for (char *p = command_out; *p; p++) {
-+		SWAP_CHAR('\001', '<');
-+		SWAP_CHAR('\002', '>');
-+		SWAP_CHAR('\003', '"');
-+		SWAP_CHAR('\004', '\'');
-+		SWAP_CHAR('\005', '|');
-+		SWAP_CHAR('\006', '&');
-+	}
-+#undef SWAP_CHAR
- 	pr_debug("llvm compiling command : %s\n", command_out);
- 
- 	err = read_from_pipe(template, &obj_buf, &obj_buf_sz);
+ 	/* Read the time that's left before rebooting */
+ 	/* Note: if the board is not yet armed then we will read 0xFFFF */
 -- 
 2.39.2
 
