@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 652CF6B4701
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:48:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6E5F6B4720
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232904AbjCJOsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:48:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36952 "EHLO
+        id S233071AbjCJOs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:48:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232975AbjCJOr2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:47:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A45141091DC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:47:12 -0800 (PST)
+        with ESMTP id S233053AbjCJOrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:47:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB71122CFC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:47:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D153DB822E8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:47:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8726C433A1;
-        Fri, 10 Mar 2023 14:47:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E9EF618A6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:47:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 135DFC4339B;
+        Fri, 10 Mar 2023 14:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459629;
-        bh=e1FTUrSPGA2FkHOgGUIbzLJkXA6lgGLOdKXamCp5CVo=;
+        s=korg; t=1678459635;
+        bh=3DwLHOYp38wdLyy+Ft282z31473iRxPK0HdVsTsI04U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=voGmNcTz3PcgSbXKPDMtxNK1PYi9jpGvyJmdmb6L6V6YTABYc85692NNrtok6GFBf
-         LNCgA9KcMRXhBZB1T3gTZECQG9zkdzrIeYGlFqiYORRjoWBXwSKdIY7ILjRmVZlOCk
-         Dtrw21vKHw7AoSJPq0Hyh0xRKgNa7HAjzqKZ6Ruo=
+        b=kgXF3f3kGeQG2ijBa9Xee/cA0QOR+Snv85vLLzc0+zEHKM45oBf1NtgSQBGf4jd+X
+         P0e51O6IIb6Z9tpOTEaitnJ6XKyG12MSlM52apo6n7Dp/O/oQ1mK9lqe7ujhctX9A4
+         2kQ/R8vwOrpJoOyfxK5npUxP27fmzca0e3qooK4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/529] wifi: wl3501_cs: dont call kfree_skb() under spin_lock_irqsave()
-Date:   Fri, 10 Mar 2023 14:33:31 +0100
-Message-Id: <20230310133808.124571340@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 069/529] crypto: x86/ghash - fix unaligned access in ghash_setkey()
+Date:   Fri, 10 Mar 2023 14:33:32 +0100
+Message-Id: <20230310133808.161586781@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -43,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,37 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 44bacbdf9066c590423259dbd6d520baac99c1a8 ]
+[ Upstream commit 116db2704c193fff6d73ea6c2219625f0c9bdfc8 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
-tested only.
+The key can be unaligned, so use the unaligned memory access helpers.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221207150453.114742-1-yangyingliang@huawei.com
+Fixes: 8ceee72808d1 ("crypto: ghash-clmulni-intel - use C implementation for setkey()")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/wl3501_cs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/crypto/ghash-clmulni-intel_glue.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
-index ff1701adbb179..ccf6344ed6fd2 100644
---- a/drivers/net/wireless/wl3501_cs.c
-+++ b/drivers/net/wireless/wl3501_cs.c
-@@ -1330,7 +1330,7 @@ static netdev_tx_t wl3501_hard_start_xmit(struct sk_buff *skb,
- 	} else {
- 		++dev->stats.tx_packets;
- 		dev->stats.tx_bytes += skb->len;
--		kfree_skb(skb);
-+		dev_kfree_skb_irq(skb);
+diff --git a/arch/x86/crypto/ghash-clmulni-intel_glue.c b/arch/x86/crypto/ghash-clmulni-intel_glue.c
+index 1f1a95f3dd0ca..c0ab0ff4af655 100644
+--- a/arch/x86/crypto/ghash-clmulni-intel_glue.c
++++ b/arch/x86/crypto/ghash-clmulni-intel_glue.c
+@@ -19,6 +19,7 @@
+ #include <crypto/internal/simd.h>
+ #include <asm/cpu_device_id.h>
+ #include <asm/simd.h>
++#include <asm/unaligned.h>
  
- 		if (this->tx_buffer_cnt < 2)
- 			netif_stop_queue(dev);
+ #define GHASH_BLOCK_SIZE	16
+ #define GHASH_DIGEST_SIZE	16
+@@ -54,15 +55,14 @@ static int ghash_setkey(struct crypto_shash *tfm,
+ 			const u8 *key, unsigned int keylen)
+ {
+ 	struct ghash_ctx *ctx = crypto_shash_ctx(tfm);
+-	be128 *x = (be128 *)key;
+ 	u64 a, b;
+ 
+ 	if (keylen != GHASH_BLOCK_SIZE)
+ 		return -EINVAL;
+ 
+ 	/* perform multiplication by 'x' in GF(2^128) */
+-	a = be64_to_cpu(x->a);
+-	b = be64_to_cpu(x->b);
++	a = get_unaligned_be64(key);
++	b = get_unaligned_be64(key + 8);
+ 
+ 	ctx->shash.a = (b << 1) | (a >> 63);
+ 	ctx->shash.b = (a << 1) | (b >> 63);
 -- 
 2.39.2
 
