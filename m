@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE76B6B4374
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDE26B4493
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:25:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231869AbjCJOOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:14:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46502 "EHLO
+        id S232357AbjCJOZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:25:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231831AbjCJOO0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:26 -0500
+        with ESMTP id S232358AbjCJOZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:25:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE2D22108
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456281C300
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:24:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87E7861959
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 999DAC4339C;
-        Fri, 10 Mar 2023 14:12:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B74A1617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C13E9C433D2;
+        Fri, 10 Mar 2023 14:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457550;
-        bh=7++CaNJPou4HECccnvXg20nu6jpxpsYURDpEWgDM21k=;
+        s=korg; t=1678458250;
+        bh=QK2AtM9y/RedJkHIpFnYOaJz1UyvDNos/o8/oKSuOMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=voVsr2QxitbTTg7OJ5vzqF4+otOt6BYjf0rLltAIw0RjSJzVtkBAGq+YtTMCjxSDj
-         OVQY22IbG3h9tBK41arFE5NzOJo0Nv2D2uikjPAWTLpcDWwgAeH4CaJG9vO9HB1Tnq
-         g9raTOjghFFqHFChzR5oOlW3Hjl+PII1yBc5MK24=
+        b=U42AkQZLfgfhVFHtJM72N7WZgk8agcV5mCHhhuOhFhU22UFXHB/lIQT4raP7N7O09
+         RKKlGiKJjNruGTBj/gjLLKiIcGlAlhSYnJogPkIVPOktCSFX0yQETgUCkfVWKjSk7R
+         uTgtjVvcVL/HrSEMTdXl2RM5U/9ADmKnAOdGbBko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 176/200] net: tls: avoid hanging tasks on the tx_lock
-Date:   Fri, 10 Mar 2023 14:39:43 +0100
-Message-Id: <20230310133722.510394675@linuxfoundation.org>
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 214/252] ubi: ubi_wl_put_peb: Fix infinite loop when wear-leveling work failed
+Date:   Fri, 10 Mar 2023 14:39:44 +0100
+Message-Id: <20230310133725.613255779@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit f3221361dc85d4de22586ce8441ec2c67b454f5d upstream.
+[ Upstream commit 4d57a7333e26040f2b583983e1970d9d460e56b0 ]
 
-syzbot sent a hung task report and Eric explains that adversarial
-receiver may keep RWIN at 0 for a long time, so we are not guaranteed
-to make forward progress. Thread which took tx_lock and went to sleep
-may not release tx_lock for hours. Use interruptible sleep where
-possible and reschedule the work if it can't take the lock.
+Following process will trigger an infinite loop in ubi_wl_put_peb():
 
-Testing: existing selftest passes
+	ubifs_bgt		ubi_bgt
+ubifs_leb_unmap
+  ubi_leb_unmap
+    ubi_eba_unmap_leb
+      ubi_wl_put_peb	wear_leveling_worker
+                          e1 = rb_entry(rb_first(&ubi->used)
+			  e2 = get_peb_for_wl(ubi)
+			  ubi_io_read_vid_hdr  // return err (flash fault)
+			  out_error:
+			    ubi->move_from = ubi->move_to = NULL
+			    wl_entry_destroy(ubi, e1)
+			      ubi->lookuptbl[e->pnum] = NULL
+      retry:
+        e = ubi->lookuptbl[pnum];	// return NULL
+	if (e == ubi->move_from) {	// NULL == NULL gets true
+	  goto retry;			// infinite loop !!!
 
-Reported-by: syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com
-Fixes: 79ffe6087e91 ("net/tls: add a TX lock")
-Link: https://lore.kernel.org/all/000000000000e412e905f5b46201@google.com/
-Cc: stable@vger.kernel.org # wait 4 weeks
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230301002857.2101894-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+$ top
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     COMMAND
+  7676 root     20   0       0      0      0 R 100.0  0.0  ubifs_bgt0_0
+
+Fix it by:
+ 1) Letting ubi_wl_put_peb() returns directly if wearl leveling entry has
+    been removed from 'ubi->lookuptbl'.
+ 2) Using 'ubi->wl_lock' protecting wl entry deletion to preventing an
+    use-after-free problem for wl entry in ubi_wl_put_peb().
+
+Fetch a reproducer in [Link].
+
+Fixes: 43f9b25a9cdd7b1 ("UBI: bugfix: protect from volume removal")
+Fixes: ee59ba8b064f692 ("UBI: Fix stale pointers in ubi->lookuptbl")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216111
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c |   26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/mtd/ubi/wl.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -941,7 +941,9 @@ int tls_sw_sendmsg(struct sock *sk, stru
- 			       MSG_CMSG_COMPAT))
- 		return -EOPNOTSUPP;
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index f1142a2d8bd22..7f0847ee53f28 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -951,11 +951,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 	spin_lock(&ubi->wl_lock);
+ 	ubi->move_from = ubi->move_to = NULL;
+ 	ubi->move_to_put = ubi->wl_scheduled = 0;
++	wl_entry_destroy(ubi, e1);
++	wl_entry_destroy(ubi, e2);
+ 	spin_unlock(&ubi->wl_lock);
  
--	mutex_lock(&tls_ctx->tx_lock);
-+	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
-+	if (ret)
-+		return ret;
- 	lock_sock(sk);
+ 	ubi_free_vid_buf(vidb);
+-	wl_entry_destroy(ubi, e1);
+-	wl_entry_destroy(ubi, e2);
  
- 	if (unlikely(msg->msg_controllen)) {
-@@ -1275,7 +1277,9 @@ int tls_sw_sendpage(struct sock *sk, str
- 		      MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
- 		return -EOPNOTSUPP;
- 
--	mutex_lock(&tls_ctx->tx_lock);
-+	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
-+	if (ret)
-+		return ret;
- 	lock_sock(sk);
- 	ret = tls_sw_do_sendpage(sk, page, offset, size, flags);
- 	release_sock(sk);
-@@ -2416,11 +2420,19 @@ static void tx_work_handler(struct work_
- 
- 	if (!test_and_clear_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask))
- 		return;
--	mutex_lock(&tls_ctx->tx_lock);
--	lock_sock(sk);
--	tls_tx_records(sk, -1);
--	release_sock(sk);
--	mutex_unlock(&tls_ctx->tx_lock);
-+
-+	if (mutex_trylock(&tls_ctx->tx_lock)) {
-+		lock_sock(sk);
-+		tls_tx_records(sk, -1);
-+		release_sock(sk);
-+		mutex_unlock(&tls_ctx->tx_lock);
-+	} else if (!test_and_set_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask)) {
-+		/* Someone is holding the tx_lock, they will likely run Tx
-+		 * and cancel the work on their way out of the lock section.
-+		 * Schedule a long delay just in case.
+ out_ro:
+ 	ubi_ro_mode(ubi);
+@@ -1226,6 +1226,18 @@ int ubi_wl_put_peb(struct ubi_device *ubi, int vol_id, int lnum,
+ retry:
+ 	spin_lock(&ubi->wl_lock);
+ 	e = ubi->lookuptbl[pnum];
++	if (!e) {
++		/*
++		 * This wl entry has been removed for some errors by other
++		 * process (eg. wear leveling worker), corresponding process
++		 * (except __erase_worker, which cannot concurrent with
++		 * ubi_wl_put_peb) will set ubi ro_mode at the same time,
++		 * just ignore this wl entry.
 +		 */
-+		schedule_delayed_work(&ctx->tx_work.work, msecs_to_jiffies(10));
++		spin_unlock(&ubi->wl_lock);
++		up_read(&ubi->fm_protect);
++		return 0;
 +	}
- }
- 
- static bool tls_is_tx_ready(struct tls_sw_context_tx *ctx)
+ 	if (e == ubi->move_from) {
+ 		/*
+ 		 * User is putting the physical eraseblock which was selected to
+-- 
+2.39.2
+
 
 
