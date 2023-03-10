@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 212F46B46C0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2661D6B46C1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233013AbjCJOqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:46:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41026 "EHLO
+        id S232990AbjCJOqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:46:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232979AbjCJOpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:45:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5557010D306
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:45:51 -0800 (PST)
+        with ESMTP id S232996AbjCJOp5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:45:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FF68120E84
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:45:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67B2C6195B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:45:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A978C4339B;
-        Fri, 10 Mar 2023 14:45:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23B64B822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:45:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5394DC4339B;
+        Fri, 10 Mar 2023 14:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459549;
-        bh=r04xi4aDOH6slUELGHI4fwYELErhuHz4DKUwrZiOYb8=;
+        s=korg; t=1678459552;
+        bh=oLY7hPbCis5K26plMTC8JwfPXXOtOyEaDl+eMWbdJHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGnNXf/fjijwhmr03bGVgKM+ZhHOQTuTQVrFNMKdn5IP04K6CR08CgWBhtCoVNPPn
-         nl/WCSHccY02XCPAwV48nD8SU8HWnRJF9AqNQXeYuddNiq2Da61XL2MPhGQ/4ugV8P
-         szoxo4A9YqAzoLRFJZPkmyM47jF49jzjH9YctinI=
+        b=mWPUr5Y/zcil3h3dJVasHYwxi6KuBTutyi0mD//YtRCUJiSs9CgzjioKT3Y2a/l/6
+         FiabPGnr5Dh8jrXQrcwds5sMMuCepq59cLfYg/awIsL8GHgbWi0QL2r1pvJGYi1WhA
+         ZknCivaxT8rBa0WB0FFarR5dU5zOB6GZf7SFVx70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
         Kemeng Shi <shikemeng@huaweicloud.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/529] blk-mq: avoid sleep in blk_mq_alloc_request_hctx
-Date:   Fri, 10 Mar 2023 14:33:03 +0100
-Message-Id: <20230310133806.845698615@linuxfoundation.org>
+Subject: [PATCH 5.10 041/529] blk-mq: remove stale comment for blk_mq_sched_mark_restart_hctx
+Date:   Fri, 10 Mar 2023 14:33:04 +0100
+Message-Id: <20230310133806.884082559@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -56,49 +56,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kemeng Shi <shikemeng@huaweicloud.com>
 
-[ Upstream commit 6ee858a3d3270a68902d66bb47c151a83622535c ]
+[ Upstream commit c31e76bcc379182fe67a82c618493b7b8868c672 ]
 
-Commit 1f5bd336b9150 ("blk-mq: add blk_mq_alloc_request_hctx") add
-blk_mq_alloc_request_hctx to send commands to a specific queue. If
-BLK_MQ_REQ_NOWAIT is not set in tag allocation, we may change to different
-hctx after sleep and get tag from unexpected hctx. So BLK_MQ_REQ_NOWAIT
-must be set in flags for blk_mq_alloc_request_hctx.
-After commit 600c3b0cea784 ("blk-mq: open code __blk_mq_alloc_request in
-blk_mq_alloc_request_hctx"), blk_mq_alloc_request_hctx return -EINVAL
-if both BLK_MQ_REQ_NOWAIT and BLK_MQ_REQ_RESERVED are not set instead of
-if BLK_MQ_REQ_NOWAIT is not set. So if BLK_MQ_REQ_NOWAIT is not set and
-BLK_MQ_REQ_RESERVED is set, blk_mq_alloc_request_hctx could alloc tag
-from unexpected hctx. I guess what we need here is that return -EINVAL
-if either BLK_MQ_REQ_NOWAIT or BLK_MQ_REQ_RESERVED is not set.
+Commit 97889f9ac24f8 ("blk-mq: remove synchronize_rcu() from
+blk_mq_del_queue_tag_set()") remove handle of TAG_SHARED in restart,
+then shared_hctx_restart counted for how many hardware queues are marked
+for restart is removed too.
+Remove the stale comment that we still count hardware queues need restart.
 
-Currently both BLK_MQ_REQ_NOWAIT and BLK_MQ_REQ_RESERVED will be set if
-specific hctx is needed in nvme_auth_submit, nvmf_connect_io_queue
-and nvmf_connect_admin_queue. Fix the potential BLK_MQ_REQ_NOWAIT missed
-case in future.
-
-Fixes: 600c3b0cea78 ("blk-mq: open code __blk_mq_alloc_request in blk_mq_alloc_request_hctx")
+Fixes: 97889f9ac24f ("blk-mq: remove synchronize_rcu() from blk_mq_del_queue_tag_set()")
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/blk-mq-sched.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index e37ba792902af..cf66de0f00fd3 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -448,7 +448,8 @@ struct request *blk_mq_alloc_request_hctx(struct request_queue *q,
- 	 * allocator for this for the rare use case of a command tied to
- 	 * a specific queue.
- 	 */
--	if (WARN_ON_ONCE(!(flags & (BLK_MQ_REQ_NOWAIT | BLK_MQ_REQ_RESERVED))))
-+	if (WARN_ON_ONCE(!(flags & BLK_MQ_REQ_NOWAIT)) ||
-+	    WARN_ON_ONCE(!(flags & BLK_MQ_REQ_RESERVED)))
- 		return ERR_PTR(-EINVAL);
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index 72e64ba661fc7..862acb5a84523 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -45,8 +45,7 @@ void blk_mq_sched_assign_ioc(struct request *rq)
+ }
  
- 	if (hctx_idx >= q->nr_hw_queues)
+ /*
+- * Mark a hardware queue as needing a restart. For shared queues, maintain
+- * a count of how many hardware queues are marked for restart.
++ * Mark a hardware queue as needing a restart.
+  */
+ void blk_mq_sched_mark_restart_hctx(struct blk_mq_hw_ctx *hctx)
+ {
 -- 
 2.39.2
 
