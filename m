@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B58F6B499A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:14:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 636EA6B4A7B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:23:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233990AbjCJPOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:14:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47468 "EHLO
+        id S232101AbjCJPXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:23:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233986AbjCJPN4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:13:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B07C12801B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:13 -0800 (PST)
+        with ESMTP id S234183AbjCJPXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:23:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237395B5D2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:13:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41369B822F4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A40AEC433A7;
-        Fri, 10 Mar 2023 14:50:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB31661745
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE08AC4339B;
+        Fri, 10 Mar 2023 14:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459859;
-        bh=s45eB0R8juTjlWTD+m+madG1BptmyRT70x9JDqDwhck=;
+        s=korg; t=1678459928;
+        bh=8JK2gKWvLJ1HEKbL8QI6uqQExWKk+gT3nB30IisO/GY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JphxXBi2usHPhzCxbrrzUNzi5vr+Bf6Lo7AgqYxAzU4HOZ7SSCCYXDmbikZED8JG7
-         lcwB7mZj6KIkrCUZQ0djcetzbiwdjBa0ZYWn8F/ruhB2eTtiDTuDkV+1kwdSNH6MIk
-         FMrTH2TB/fTXZ6B08TrWKwbleG2SX6WU90lQPtJM=
+        b=gwHj7C5wsT9FpZpKa4fwWRBd8svIifw41mNIUX69KJBzZQD4wpqyyPbKh1joUy7Du
+         Bd4A21/vwT7DQ7nbF92CP78wBqYa49mkPOGrmnZa6FECSXarEhNEUDr/PemNirbc42
+         Vv8zFz9+FJQ+WQ4bE+ZefHYdjWOAsl60RwHPw/JU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 143/529] selftests/net: Interpret UDP_GRO cmsg data as an int value
-Date:   Fri, 10 Mar 2023 14:34:46 +0100
-Message-Id: <20230310133811.600021189@linuxfoundation.org>
+Subject: [PATCH 5.10 149/529] drm/fourcc: Add missing big-endian XRGB1555 and RGB565 formats
+Date:   Fri, 10 Mar 2023 14:34:52 +0100
+Message-Id: <20230310133811.850205722@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,64 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 436864095a95fcc611c20c44a111985fa9848730 ]
+[ Upstream commit 6fb6c979ca628583d4d0c59a0f8ff977e581ecc0 ]
 
-Data passed to user-space with a (SOL_UDP, UDP_GRO) cmsg carries an
-int (see udp_cmsg_recv), not a u16 value, as strace confirms:
+As of commit eae06120f1974e1a ("drm: refuse ADDFB2 ioctl for broken
+bigendian drivers"), drivers must set the
+quirk_addfb_prefer_host_byte_order quirk to make the drm_mode_addfb()
+compat code work correctly on big-endian machines.
 
-  recvmsg(8, {msg_name=...,
-              msg_iov=[{iov_base="\0\0..."..., iov_len=96000}],
-              msg_iovlen=1,
-              msg_control=[{cmsg_len=20,         <-- sizeof(cmsghdr) + 4
-                            cmsg_level=SOL_UDP,
-                            cmsg_type=0x68}],    <-- UDP_GRO
-                            msg_controllen=24,
-                            msg_flags=0}, 0) = 11200
+While that works fine for big-endian XRGB8888 and ARGB8888, which are
+mapped to the existing little-endian BGRX8888 and BGRA8888 formats, it
+does not work for big-endian XRGB1555 and RGB565, as the latter are not
+listed in the format database.
 
-Interpreting the data as an u16 value won't work on big-endian platforms.
-Since it is too late to back out of this API decision [1], fix the test.
+Fix this by adding the missing formats.  Limit this to big-endian
+platforms, as there is currently no need to support these formats on
+little-endian platforms.
 
-[1]: https://lore.kernel.org/netdev/20230131174601.203127-1-jakub@cloudflare.com/
-
-Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6960e6da9cec3f66 ("drm: fix drm_mode_addfb() on big endian machines.")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/3ee1f8144feb96c28742b22384189f1f83bcfc1a.1669221671.git.geert@linux-m68k.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/udpgso_bench_rx.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/drm_fourcc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
-index 4058c7451e70d..f35a924d4a303 100644
---- a/tools/testing/selftests/net/udpgso_bench_rx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_rx.c
-@@ -214,11 +214,10 @@ static void do_verify_udp(const char *data, int len)
- 
- static int recv_msg(int fd, char *buf, int len, int *gso_size)
- {
--	char control[CMSG_SPACE(sizeof(uint16_t))] = {0};
-+	char control[CMSG_SPACE(sizeof(int))] = {0};
- 	struct msghdr msg = {0};
- 	struct iovec iov = {0};
- 	struct cmsghdr *cmsg;
--	uint16_t *gsosizeptr;
- 	int ret;
- 
- 	iov.iov_base = buf;
-@@ -237,8 +236,7 @@ static int recv_msg(int fd, char *buf, int len, int *gso_size)
- 		     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
- 			if (cmsg->cmsg_level == SOL_UDP
- 			    && cmsg->cmsg_type == UDP_GRO) {
--				gsosizeptr = (uint16_t *) CMSG_DATA(cmsg);
--				*gso_size = *gsosizeptr;
-+				*gso_size = *(int *)CMSG_DATA(cmsg);
- 				break;
- 			}
- 		}
+diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
+index 92152c06b75b7..8d1064061e836 100644
+--- a/drivers/gpu/drm/drm_fourcc.c
++++ b/drivers/gpu/drm/drm_fourcc.c
+@@ -178,6 +178,10 @@ const struct drm_format_info *__drm_format_info(u32 format)
+ 		{ .format = DRM_FORMAT_BGRA5551,	.depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1, .has_alpha = true },
+ 		{ .format = DRM_FORMAT_RGB565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
+ 		{ .format = DRM_FORMAT_BGR565,		.depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
++#ifdef __BIG_ENDIAN
++		{ .format = DRM_FORMAT_XRGB1555 | DRM_FORMAT_BIG_ENDIAN, .depth = 15, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
++		{ .format = DRM_FORMAT_RGB565 | DRM_FORMAT_BIG_ENDIAN, .depth = 16, .num_planes = 1, .cpp = { 2, 0, 0 }, .hsub = 1, .vsub = 1 },
++#endif
+ 		{ .format = DRM_FORMAT_RGB888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
+ 		{ .format = DRM_FORMAT_BGR888,		.depth = 24, .num_planes = 1, .cpp = { 3, 0, 0 }, .hsub = 1, .vsub = 1 },
+ 		{ .format = DRM_FORMAT_XRGB8888,	.depth = 24, .num_planes = 1, .cpp = { 4, 0, 0 }, .hsub = 1, .vsub = 1 },
 -- 
 2.39.2
 
