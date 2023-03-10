@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BA726B4ACA
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:26:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A2A6B4ACB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:26:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234294AbjCJP0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:26:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
+        id S234193AbjCJP04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:26:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234156AbjCJP01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:26:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66B90149D17
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:15:42 -0800 (PST)
+        with ESMTP id S234173AbjCJP03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:26:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D169D149D2B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:15:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A556193B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 851C6C433D2;
-        Fri, 10 Mar 2023 15:15:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 411C4B822FF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:15:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06EAC433D2;
+        Fri, 10 Mar 2023 15:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461305;
-        bh=ebvhJw0VbraOX0phUUWgPzKdlsS93pddfNwZyYzcE7k=;
+        s=korg; t=1678461309;
+        bh=LajXafUg8pf+zeTvm+XX2H6jbIMdeUppwNTq5z5zORk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRzOtiRCJCOCGtZZnRWvdffSOEbA2qw6UusOtJpjQCu3ujEzuxujp9qE8eut5KRMg
-         qt6ToaaweOiJsc4d2hdZ70RhG28t16DBlR+10CdwJEJO87jQ4ngz/W8D8E+d4xQMlo
-         vSQYsMwRfEUrDX3bXg0LI8H+RD3bxjelj4f2yIhA=
+        b=ybyrLprsfZm+0sU5E8VSS/x5gNw48eS4ZpfJXayLhPLR853qkc0wIE/WNv/bakeQo
+         Hx/ysylYJ7At+b82a88jzRINtyNtco9sWXYmWDHmKFzhkCynoX+3BrnGehWOir2S8a
+         ge2RT4TL7RmKCH8iJmeDlbmot0wpcJjNsrvokuus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
-Subject: [PATCH 5.15 063/136] genirq: Add and use an irq_data_update_affinity helper
-Date:   Fri, 10 Mar 2023 14:43:05 +0100
-Message-Id: <20230310133709.052678343@linuxfoundation.org>
+        patches@lists.linux.dev, Kees Cook <keescook@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 064/136] scsi: ipr: Work around fortify-string warning
+Date:   Fri, 10 Mar 2023 14:43:06 +0100
+Message-Id: <20230310133709.081754693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -54,193 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 073352e951f60946452da358d64841066c3142ff ]
+[ Upstream commit ee4e7dfe4ffc9ca50c6875757bd119abfe22b5c5 ]
 
-Some architectures and irqchip drivers modify the cpumask returned by
-irq_data_get_affinity_mask, usually by copying in to it. This is
-problematic for uniprocessor configurations, where the affinity mask
-should be constant, as it is known at compile time.
+The ipr_log_vpd_compact() function triggers a fortified memcpy() warning
+about a potential string overflow with all versions of clang:
 
-Add and use a setter for the affinity mask, following the pattern of
-irq_data_update_effective_affinity. This allows the getter function to
-return a const cpumask pointer.
+In file included from drivers/scsi/ipr.c:43:
+In file included from include/linux/string.h:254:
+include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+                        __write_overflow_field(p_size_field, size);
+                        ^
+include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+2 errors generated.
 
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com> # Xen bits
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220701200056.46555-7-samuel@sholland.org
-Stable-dep-of: feabecaff590 ("genirq/ipi: Fix NULL pointer deref in irq_data_get_affinity_mask()")
+I don't see anything actually wrong with the function, but this is the only
+instance I can reproduce of the fortification going wrong in the kernel at
+the moment, so the easiest solution may be to rewrite the function into
+something that does not trigger the warning.
+
+Instead of having a combined buffer for vendor/device/serial strings, use
+three separate local variables and just truncate the whitespace
+individually.
+
+Link: https://lore.kernel.org/r/20230214132831.2118392-1-arnd@kernel.org
+Cc: Kees Cook <keescook@chromium.org>
+Fixes: 8cf093e275d0 ("[SCSI] ipr: Improved dual adapter errors")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Brian King <brking@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/irq.c          | 2 +-
- arch/ia64/kernel/iosapic.c       | 2 +-
- arch/ia64/kernel/irq.c           | 4 ++--
- arch/ia64/kernel/msi_ia64.c      | 4 ++--
- arch/parisc/kernel/irq.c         | 2 +-
- drivers/irqchip/irq-bcm6345-l1.c | 4 ++--
- drivers/parisc/iosapic.c         | 2 +-
- drivers/sh/intc/chip.c           | 2 +-
- drivers/xen/events/events_base.c | 7 ++++---
- include/linux/irq.h              | 6 ++++++
- 10 files changed, 21 insertions(+), 14 deletions(-)
+ drivers/scsi/ipr.c | 41 +++++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 20 deletions(-)
 
-diff --git a/arch/alpha/kernel/irq.c b/arch/alpha/kernel/irq.c
-index f6d2946edbd24..15f2effd6baf8 100644
---- a/arch/alpha/kernel/irq.c
-+++ b/arch/alpha/kernel/irq.c
-@@ -60,7 +60,7 @@ int irq_select_affinity(unsigned int irq)
- 		cpu = (cpu < (NR_CPUS-1) ? cpu + 1 : 0);
- 	last_cpu = cpu;
- 
--	cpumask_copy(irq_data_get_affinity_mask(data), cpumask_of(cpu));
-+	irq_data_update_affinity(data, cpumask_of(cpu));
- 	chip->irq_set_affinity(data, cpumask_of(cpu), false);
- 	return 0;
+diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
+index 04fb7fc012264..e5e38431c5c73 100644
+--- a/drivers/scsi/ipr.c
++++ b/drivers/scsi/ipr.c
+@@ -1516,23 +1516,22 @@ static void ipr_process_ccn(struct ipr_cmnd *ipr_cmd)
  }
-diff --git a/arch/ia64/kernel/iosapic.c b/arch/ia64/kernel/iosapic.c
-index 35adcf89035ad..99300850abc19 100644
---- a/arch/ia64/kernel/iosapic.c
-+++ b/arch/ia64/kernel/iosapic.c
-@@ -834,7 +834,7 @@ iosapic_unregister_intr (unsigned int gsi)
- 	if (iosapic_intr_info[irq].count == 0) {
- #ifdef CONFIG_SMP
- 		/* Clear affinity */
--		cpumask_setall(irq_get_affinity_mask(irq));
-+		irq_data_update_affinity(irq_get_irq_data(irq), cpu_all_mask);
- #endif
- 		/* Clear the interrupt information */
- 		iosapic_intr_info[irq].dest = 0;
-diff --git a/arch/ia64/kernel/irq.c b/arch/ia64/kernel/irq.c
-index ecef17c7c35b1..275b9ea58c643 100644
---- a/arch/ia64/kernel/irq.c
-+++ b/arch/ia64/kernel/irq.c
-@@ -57,8 +57,8 @@ static char irq_redir [NR_IRQS]; // = { [0 ... NR_IRQS-1] = 1 };
- void set_irq_affinity_info (unsigned int irq, int hwid, int redir)
+ 
+ /**
+- * strip_and_pad_whitespace - Strip and pad trailing whitespace.
+- * @i:		index into buffer
+- * @buf:		string to modify
++ * strip_whitespace - Strip and pad trailing whitespace.
++ * @i:		size of buffer
++ * @buf:	string to modify
+  *
+- * This function will strip all trailing whitespace, pad the end
+- * of the string with a single space, and NULL terminate the string.
++ * This function will strip all trailing whitespace and
++ * NUL terminate the string.
+  *
+- * Return value:
+- * 	new length of string
+  **/
+-static int strip_and_pad_whitespace(int i, char *buf)
++static void strip_whitespace(int i, char *buf)
  {
- 	if (irq < NR_IRQS) {
--		cpumask_copy(irq_get_affinity_mask(irq),
--			     cpumask_of(cpu_logical_id(hwid)));
-+		irq_data_update_affinity(irq_get_irq_data(irq),
-+					 cpumask_of(cpu_logical_id(hwid)));
- 		irq_redir[irq] = (char) (redir & 0xff);
- 	}
++	if (i < 1)
++		return;
++	i--;
+ 	while (i && buf[i] == ' ')
+ 		i--;
+-	buf[i+1] = ' ';
+-	buf[i+2] = '\0';
+-	return i + 2;
++	buf[i+1] = '\0';
  }
-diff --git a/arch/ia64/kernel/msi_ia64.c b/arch/ia64/kernel/msi_ia64.c
-index df5c28f252e3d..025e5133c860c 100644
---- a/arch/ia64/kernel/msi_ia64.c
-+++ b/arch/ia64/kernel/msi_ia64.c
-@@ -37,7 +37,7 @@ static int ia64_set_msi_irq_affinity(struct irq_data *idata,
- 	msg.data = data;
  
- 	pci_write_msi_msg(irq, &msg);
--	cpumask_copy(irq_data_get_affinity_mask(idata), cpumask_of(cpu));
-+	irq_data_update_affinity(idata, cpumask_of(cpu));
- 
- 	return 0;
- }
-@@ -132,7 +132,7 @@ static int dmar_msi_set_affinity(struct irq_data *data,
- 	msg.address_lo |= MSI_ADDR_DEST_ID_CPU(cpu_physical_id(cpu));
- 
- 	dmar_msi_write(irq, &msg);
--	cpumask_copy(irq_data_get_affinity_mask(data), mask);
-+	irq_data_update_affinity(data, mask);
- 
- 	return 0;
- }
-diff --git a/arch/parisc/kernel/irq.c b/arch/parisc/kernel/irq.c
-index 0d46b19dc4d3d..e6cc38ef69458 100644
---- a/arch/parisc/kernel/irq.c
-+++ b/arch/parisc/kernel/irq.c
-@@ -333,7 +333,7 @@ unsigned long txn_affinity_addr(unsigned int irq, int cpu)
+ /**
+@@ -1547,19 +1546,21 @@ static int strip_and_pad_whitespace(int i, char *buf)
+ static void ipr_log_vpd_compact(char *prefix, struct ipr_hostrcb *hostrcb,
+ 				struct ipr_vpd *vpd)
  {
- #ifdef CONFIG_SMP
- 	struct irq_data *d = irq_get_irq_data(irq);
--	cpumask_copy(irq_data_get_affinity_mask(d), cpumask_of(cpu));
-+	irq_data_update_affinity(d, cpumask_of(cpu));
- #endif
+-	char buffer[IPR_VENDOR_ID_LEN + IPR_PROD_ID_LEN + IPR_SERIAL_NUM_LEN + 3];
+-	int i = 0;
++	char vendor_id[IPR_VENDOR_ID_LEN + 1];
++	char product_id[IPR_PROD_ID_LEN + 1];
++	char sn[IPR_SERIAL_NUM_LEN + 1];
  
- 	return per_cpu(cpu_data, cpu).txn_addr;
-diff --git a/drivers/irqchip/irq-bcm6345-l1.c b/drivers/irqchip/irq-bcm6345-l1.c
-index 1bd0621c4ce2a..ebc3a253f735d 100644
---- a/drivers/irqchip/irq-bcm6345-l1.c
-+++ b/drivers/irqchip/irq-bcm6345-l1.c
-@@ -220,11 +220,11 @@ static int bcm6345_l1_set_affinity(struct irq_data *d,
- 		enabled = intc->cpus[old_cpu]->enable_cache[word] & mask;
- 		if (enabled)
- 			__bcm6345_l1_mask(d);
--		cpumask_copy(irq_data_get_affinity_mask(d), dest);
-+		irq_data_update_affinity(d, dest);
- 		if (enabled)
- 			__bcm6345_l1_unmask(d);
- 	} else {
--		cpumask_copy(irq_data_get_affinity_mask(d), dest);
-+		irq_data_update_affinity(d, dest);
- 	}
- 	raw_spin_unlock_irqrestore(&intc->lock, flags);
+-	memcpy(buffer, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
+-	i = strip_and_pad_whitespace(IPR_VENDOR_ID_LEN - 1, buffer);
++	memcpy(vendor_id, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
++	strip_whitespace(IPR_VENDOR_ID_LEN, vendor_id);
  
-diff --git a/drivers/parisc/iosapic.c b/drivers/parisc/iosapic.c
-index fd99735dca3e6..93ea922618c3d 100644
---- a/drivers/parisc/iosapic.c
-+++ b/drivers/parisc/iosapic.c
-@@ -677,7 +677,7 @@ static int iosapic_set_affinity_irq(struct irq_data *d,
- 	if (dest_cpu < 0)
- 		return -1;
+-	memcpy(&buffer[i], vpd->vpids.product_id, IPR_PROD_ID_LEN);
+-	i = strip_and_pad_whitespace(i + IPR_PROD_ID_LEN - 1, buffer);
++	memcpy(product_id, vpd->vpids.product_id, IPR_PROD_ID_LEN);
++	strip_whitespace(IPR_PROD_ID_LEN, product_id);
  
--	cpumask_copy(irq_data_get_affinity_mask(d), cpumask_of(dest_cpu));
-+	irq_data_update_affinity(d, cpumask_of(dest_cpu));
- 	vi->txn_addr = txn_affinity_addr(d->irq, dest_cpu);
+-	memcpy(&buffer[i], vpd->sn, IPR_SERIAL_NUM_LEN);
+-	buffer[IPR_SERIAL_NUM_LEN + i] = '\0';
++	memcpy(sn, vpd->sn, IPR_SERIAL_NUM_LEN);
++	strip_whitespace(IPR_SERIAL_NUM_LEN, sn);
  
- 	spin_lock_irqsave(&iosapic_lock, flags);
-diff --git a/drivers/sh/intc/chip.c b/drivers/sh/intc/chip.c
-index 358df75101860..828d81e02b37a 100644
---- a/drivers/sh/intc/chip.c
-+++ b/drivers/sh/intc/chip.c
-@@ -72,7 +72,7 @@ static int intc_set_affinity(struct irq_data *data,
- 	if (!cpumask_intersects(cpumask, cpu_online_mask))
- 		return -1;
- 
--	cpumask_copy(irq_data_get_affinity_mask(data), cpumask);
-+	irq_data_update_affinity(data, cpumask);
- 
- 	return IRQ_SET_MASK_OK_NOCOPY;
- }
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 46d9295d9a6e4..5e8321f43cbdd 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -528,9 +528,10 @@ static void bind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
- 	BUG_ON(irq == -1);
- 
- 	if (IS_ENABLED(CONFIG_SMP) && force_affinity) {
--		cpumask_copy(irq_get_affinity_mask(irq), cpumask_of(cpu));
--		cpumask_copy(irq_get_effective_affinity_mask(irq),
--			     cpumask_of(cpu));
-+		struct irq_data *data = irq_get_irq_data(irq);
-+
-+		irq_data_update_affinity(data, cpumask_of(cpu));
-+		irq_data_update_effective_affinity(data, cpumask_of(cpu));
- 	}
- 
- 	xen_evtchn_port_bind_to_cpu(evtchn, cpu, info->cpu);
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index 5f8f0f24a2801..f9e6449fbbbae 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -880,6 +880,12 @@ static inline struct cpumask *irq_data_get_affinity_mask(struct irq_data *d)
- 	return d->common->affinity;
+-	ipr_hcam_err(hostrcb, "%s VPID/SN: %s\n", prefix, buffer);
++	ipr_hcam_err(hostrcb, "%s VPID/SN: %s %s %s\n", prefix,
++		     vendor_id, product_id, sn);
  }
  
-+static inline void irq_data_update_affinity(struct irq_data *d,
-+					    const struct cpumask *m)
-+{
-+	cpumask_copy(d->common->affinity, m);
-+}
-+
- static inline struct cpumask *irq_get_affinity_mask(int irq)
- {
- 	struct irq_data *d = irq_get_irq_data(irq);
+ /**
 -- 
 2.39.2
 
