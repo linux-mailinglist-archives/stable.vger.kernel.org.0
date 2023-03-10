@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E28F6B4188
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FECC6B4383
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230517AbjCJNyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:54:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58632 "EHLO
+        id S232042AbjCJOPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231179AbjCJNyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C29911F93A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:53:47 -0800 (PST)
+        with ESMTP id S232075AbjCJOOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA5A733AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66031B822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4483C433EF;
-        Fri, 10 Mar 2023 13:53:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D65E96191F
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:13:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4694C433D2;
+        Fri, 10 Mar 2023 14:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456426;
-        bh=3/hLmWewTAnRQ3f5N1F3icsbR+2eZD1EpO5hvcYONSk=;
+        s=korg; t=1678457616;
+        bh=p4YrwXr3zXvtR2cgHd8PK/mMi0veNbPOknVxYMz2W+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmW0VVld+LFk1gaNxPQXVYjp9yigg4tKsDTqSj0K7xUq32xH6lR+Vt4zTEN083Db0
-         ikIOk0A3dP2yaHesQGqH7UR0IyhrqsnffPxub9qPEBiGGqzJLVXvCpuY/EsK87y/Al
-         sCARJJNvOCU4bBrwo1uNQph+feRdA9SeL7ZrXyH4=
+        b=1vVCgDCCxDgd/THBAmSoLpUCZVCfrNvg1sGio1n0OyB7BkD5SAi+GtGLojc59M4oq
+         lQWVVtXW9lya231Sc+YTeURnh2o9/Gy3bHnaJ8yYygv65vYf6CRG0NtKu8XndPQspc
+         B8LBNK2c1IdAJp/dMSQpZFHl8iZYnoOme0KJ1TMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 193/193] thermal: intel: powerclamp: Fix cur_state for multi package system
+        patches@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 168/200] PCI: loongson: Add more devices that need MRRS quirk
 Date:   Fri, 10 Mar 2023 14:39:35 +0100
-Message-Id: <20230310133717.473828953@linuxfoundation.org>
+Message-Id: <20230310133722.259097058@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit 8e47363588377e1bdb65e2b020b409cfb44dd260 upstream.
+[ Upstream commit c768f8c5f40fcdc6f058cc2f02592163d6c6716c ]
 
-The powerclamp cooling device cur_state shows actual idle observed by
-package C-state idle counters. But the implementation is not sufficient
-for multi package or multi die system. The cur_state value is incorrect.
-On these systems, these counters must be read from each package/die and
-somehow aggregate them. But there is no good method for aggregation.
+Loongson-2K SOC and LS7A2000 chipset add new PCI IDs that need MRRS
+quirk.  Add them.
 
-It was not a problem when explicit CPU model addition was required to
-enable intel powerclamp. In this way certain CPU models could have
-been avoided. But with the removal of CPU model check with the
-availability of Package C-state counters, the driver is loaded on most
-of the recent systems.
-
-For multi package/die systems, just show the actual target idle state,
-the system is trying to achieve. In powerclamp this is the user set
-state minus one.
-
-Also there is no use of starting a worker thread for polling package
-C-state counters and applying any compensation for multiple package
-or multiple die systems.
-
-Fixes: b721ca0d1927 ("thermal/powerclamp: remove cpu whitelist")
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230211023321.3530080-1-chenhuacai@loongson.cn
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel_powerclamp.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/pci/controller/pci-loongson.c | 33 +++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
---- a/drivers/thermal/intel_powerclamp.c
-+++ b/drivers/thermal/intel_powerclamp.c
-@@ -72,6 +72,7 @@
+diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
+index 759ec211c17bf..fe0f732f6e434 100644
+--- a/drivers/pci/controller/pci-loongson.c
++++ b/drivers/pci/controller/pci-loongson.c
+@@ -15,9 +15,14 @@
+ #include "../pci.h"
  
- static unsigned int target_mwait;
- static struct dentry *debug_dir;
-+static bool poll_pkg_cstate_enable;
+ /* Device IDs */
+-#define DEV_PCIE_PORT_0	0x7a09
+-#define DEV_PCIE_PORT_1	0x7a19
+-#define DEV_PCIE_PORT_2	0x7a29
++#define DEV_LS2K_PCIE_PORT0	0x1a05
++#define DEV_LS7A_PCIE_PORT0	0x7a09
++#define DEV_LS7A_PCIE_PORT1	0x7a19
++#define DEV_LS7A_PCIE_PORT2	0x7a29
++#define DEV_LS7A_PCIE_PORT3	0x7a39
++#define DEV_LS7A_PCIE_PORT4	0x7a49
++#define DEV_LS7A_PCIE_PORT5	0x7a59
++#define DEV_LS7A_PCIE_PORT6	0x7a69
  
- /* user selected target */
- static unsigned int set_target_ratio;
-@@ -280,6 +281,9 @@ static unsigned int get_compensation(int
- {
- 	unsigned int comp = 0;
- 
-+	if (!poll_pkg_cstate_enable)
-+		return 0;
-+
- 	/* we only use compensation if all adjacent ones are good */
- 	if (ratio == 1 &&
- 		cal_data[ratio].confidence >= CONFIDENCE_OK &&
-@@ -552,7 +556,8 @@ static int start_power_clamp(void)
- 	control_cpu = cpumask_first(cpu_online_mask);
- 
- 	clamping = true;
--	schedule_delayed_work(&poll_pkg_cstate_work, 0);
-+	if (poll_pkg_cstate_enable)
-+		schedule_delayed_work(&poll_pkg_cstate_work, 0);
- 
- 	/* start one kthread worker per online cpu */
- 	for_each_online_cpu(cpu) {
-@@ -621,11 +626,15 @@ static int powerclamp_get_max_state(stru
- static int powerclamp_get_cur_state(struct thermal_cooling_device *cdev,
- 				 unsigned long *state)
- {
--	if (true == clamping)
--		*state = pkg_cstate_ratio_cur;
--	else
-+	if (clamping) {
-+		if (poll_pkg_cstate_enable)
-+			*state = pkg_cstate_ratio_cur;
-+		else
-+			*state = set_target_ratio;
-+	} else {
- 		/* to save power, do not poll idle ratio while not clamping */
- 		*state = -1; /* indicates invalid state */
-+	}
- 
- 	return 0;
+ #define DEV_LS2K_APB	0x7a02
+ #define DEV_LS7A_GMAC	0x7a03
+@@ -53,11 +58,11 @@ static void bridge_class_quirk(struct pci_dev *dev)
+ 	dev->class = PCI_CLASS_BRIDGE_PCI_NORMAL;
  }
-@@ -770,6 +779,9 @@ static int __init powerclamp_init(void)
- 		goto exit_unregister;
- 	}
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_0, bridge_class_quirk);
++			DEV_LS7A_PCIE_PORT0, bridge_class_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_1, bridge_class_quirk);
++			DEV_LS7A_PCIE_PORT1, bridge_class_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_2, bridge_class_quirk);
++			DEV_LS7A_PCIE_PORT2, bridge_class_quirk);
  
-+	if (topology_max_packages() == 1)
-+		poll_pkg_cstate_enable = true;
-+
- 	cooling_dev = thermal_cooling_device_register("intel_powerclamp", NULL,
- 						&powerclamp_cooling_ops);
- 	if (IS_ERR(cooling_dev)) {
+ static void system_bus_quirk(struct pci_dev *pdev)
+ {
+@@ -87,11 +92,21 @@ static void loongson_mrrs_quirk(struct pci_dev *pdev)
+ 	bridge->no_inc_mrrs = 1;
+ }
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_0, loongson_mrrs_quirk);
++			DEV_LS2K_PCIE_PORT0, loongson_mrrs_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_1, loongson_mrrs_quirk);
++			DEV_LS7A_PCIE_PORT0, loongson_mrrs_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_2, loongson_mrrs_quirk);
++			DEV_LS7A_PCIE_PORT1, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT2, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT3, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT4, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT5, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT6, loongson_mrrs_quirk);
+ 
+ static void loongson_pci_pin_quirk(struct pci_dev *pdev)
+ {
+-- 
+2.39.2
+
 
 
