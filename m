@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF8EA6B4A19
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:18:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3ED6B4A16
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234005AbjCJPSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:18:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43094 "EHLO
+        id S233874AbjCJPSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:18:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234128AbjCJPS2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:18:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 955D211E97
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:09:32 -0800 (PST)
+        with ESMTP id S233535AbjCJPSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:18:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8DE3124E95
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:09:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC0761AC0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:08:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C020DC433EF;
-        Fri, 10 Mar 2023 15:08:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87465B8228E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:08:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFFEBC4339B;
+        Fri, 10 Mar 2023 15:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460905;
-        bh=jOvnIsY/ndpPG3xzYS49XVloCyp6XfJqmYM+vRC8IEw=;
+        s=korg; t=1678460908;
+        bh=oW3PLUurxnAbO9TmfiyWo7lsT6I+gdqcCeefskfrKxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvnMiLZMgWtApCZHI7jm1tWL9BOywfg8iaNVh7cAocp0uw7pw7InHQEM+j8mXHhdL
-         vr8I5XVbIWyPw5RDLzS1ZjgSaHVYRKs5yJxqFlge1hk+Gev3sodYh8Q6EGwLcConyR
-         LHFX5sL6vF+4Qw6FXptnRrxqix+pm6geQ2Z9603g=
+        b=acatOdJwD81o8G21hN3s+H10SAmnHnq6O/yPi042xdiys8KZPYC/EruAbDxFmUb7j
+         sfAkRn6ptzvADnUTnX7yTre1xjL5CPnBION3AoiG4Kzqq9leBIpJKGMkkY0eS1Ovml
+         Dpch1+bYHxVAaTk5HNWmVOlwkoxnh3j1xvTq6JWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ionut_n2001@yahoo.com,
-        Kees Cook <keescook@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Simon Horman <horms@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 491/529] media: uvcvideo: Silence memcpy() run-time false positive warnings
-Date:   Fri, 10 Mar 2023 14:40:34 +0100
-Message-Id: <20230310133827.607735694@linuxfoundation.org>
+Subject: [PATCH 5.10 492/529] staging: emxx_udc: Add checks for dma_alloc_coherent()
+Date:   Fri, 10 Mar 2023 14:40:35 +0100
+Message-Id: <20230310133827.646929152@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,58 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
+[ Upstream commit f6510a93cfd8c6c79b4dda0f2967cdc6df42eff4 ]
 
-The memcpy() in uvc_video_decode_meta() intentionally copies across the
-length and flags members and into the trailing buf flexible array.
-Split the copy so that the compiler can better reason about (the lack
-of) buffer overflows here. Avoid the run-time false positive warning:
+As the dma_alloc_coherent may return NULL, the return value needs to be
+checked to avoid NULL poineter dereference.
 
-  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
-
-Additionally fix a typo in the documentation for struct uvc_meta_buf.
-
-Reported-by: ionut_n2001@yahoo.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Simon Horman <horms@verge.net.au>
+Link: https://lore.kernel.org/r/20230119083119.16956-1-yuancan@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_video.c | 4 +++-
- include/uapi/linux/uvcvideo.h     | 2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/staging/emxx_udc/emxx_udc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index d5a4e967883c5..03dfe96bcebac 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -1308,7 +1308,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
- 	if (has_scr)
- 		memcpy(stream->clock.last_scr, scr, 6);
+diff --git a/drivers/staging/emxx_udc/emxx_udc.c b/drivers/staging/emxx_udc/emxx_udc.c
+index 3897f8e8f5e0d..6870a33d4ccf3 100644
+--- a/drivers/staging/emxx_udc/emxx_udc.c
++++ b/drivers/staging/emxx_udc/emxx_udc.c
+@@ -2591,10 +2591,15 @@ static int nbu2ss_ep_queue(struct usb_ep *_ep,
+ 		req->unaligned = false;
  
--	memcpy(&meta->length, mem, length);
-+	meta->length = mem[0];
-+	meta->flags  = mem[1];
-+	memcpy(meta->buf, &mem[2], length - 2);
- 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
- 
- 	uvc_trace(UVC_TRACE_FRAME,
-diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
-index f80f05b3c423f..2140923661934 100644
---- a/include/uapi/linux/uvcvideo.h
-+++ b/include/uapi/linux/uvcvideo.h
-@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
-  * struct. The first two fields are added by the driver, they can be used for
-  * clock synchronisation. The rest is an exact copy of a UVC payload header.
-  * Only complete objects with complete buffers are included. Therefore it's
-- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
-+ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
-  */
- struct uvc_meta_buf {
- 	__u64 ns;
+ 	if (req->unaligned) {
+-		if (!ep->virt_buf)
++		if (!ep->virt_buf) {
+ 			ep->virt_buf = dma_alloc_coherent(udc->dev, PAGE_SIZE,
+ 							  &ep->phys_buf,
+ 							  GFP_ATOMIC | GFP_DMA);
++			if (!ep->virt_buf) {
++				spin_unlock_irqrestore(&udc->lock, flags);
++				return -ENOMEM;
++			}
++		}
+ 		if (ep->epnum > 0)  {
+ 			if (ep->direct == USB_DIR_IN)
+ 				memcpy(ep->virt_buf, req->req.buf,
 -- 
 2.39.2
 
