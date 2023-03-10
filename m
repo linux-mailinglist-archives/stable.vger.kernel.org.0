@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C6196B43C4
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 815D16B41EF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231769AbjCJORh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:17:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
+        id S231373AbjCJN6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232036AbjCJORT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:17:19 -0500
+        with ESMTP id S231374AbjCJN54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2721188EB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:16:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 768FD10FBBF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4E0B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:16:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC310C433EF;
-        Fri, 10 Mar 2023 14:16:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D278B822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86C68C4339B;
+        Fri, 10 Mar 2023 13:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457775;
-        bh=r3R0pKyDDLULWjJjRmPaBgwtEd0dbnEJV2wAA1P6tEE=;
+        s=korg; t=1678456669;
+        bh=90SnIkXiXLtPgScPIiujRElaF67OYzpDYWxkuwAPR5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V++u5FxOvVpcNnsTLx1QWgVjXruNQmfQ4npAJDtuQCVfvfVRwTFr8OX2SHu4G5GtQ
-         Epa39JvA7mkVV51j/VZCrgaLhgd1ZvESJuOS5u2oCk/3XsiiEGiScJ1qkfJ7HXWti/
-         e2uHjE47flyUiAtDtgyOZiXCZAgc5ZIdxyKhg1kE=
+        b=Xm59E3IdiKDa5mm17R2LAWe1YLbG6QZ8XDTz6TCvDYqpUKqD4erJRBhcU+xoE9Fes
+         HYQmfmPc8UbW9flBZGQKGrv16rLUCSda3CbDocgnglAJvPptEXjW1wLbwUYsrUpshX
+         U3XMRuzqBq6DMWp2tSYhwFkjTF3qxbymu9g59j9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 052/252] libbpf: Fix alen calculation in libbpf_nla_dump_errormsg()
+Subject: [PATCH 6.2 042/211] ubi: Fix UAF wear-leveling entry in eraseblk_count_seq_show()
 Date:   Fri, 10 Mar 2023 14:37:02 +0100
-Message-Id: <20230310133720.384966750@linuxfoundation.org>
+Message-Id: <20230310133720.016378693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 17bcd27a08a21397698edf143084d7c87ce17946 ]
+[ Upstream commit a240bc5c43130c6aa50831d7caaa02a1d84e1bce ]
 
-The code assumes that everything that comes after nlmsgerr are nlattrs.
-When calculating their size, it does not account for the initial
-nlmsghdr. This may lead to accessing uninitialized memory.
+Wear-leveling entry could be freed in error path, which may be accessed
+again in eraseblk_count_seq_show(), for example:
 
-Fixes: bbf48c18ee0c ("libbpf: add error reporting in XDP")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20230210001210.395194-8-iii@linux.ibm.com
+__erase_worker                eraseblk_count_seq_show
+                                wl = ubi->lookuptbl[*block_number]
+				if (wl)
+  wl_entry_destroy
+    ubi->lookuptbl[e->pnum] = NULL
+    kmem_cache_free(ubi_wl_entry_slab, e)
+		                   erase_count = wl->ec  // UAF!
+
+Wear-leveling entry updating/accessing in ubi->lookuptbl should be
+protected by ubi->wl_lock, fix it by adding ubi->wl_lock to serialize
+wl entry accessing between wl_entry_destroy() and
+eraseblk_count_seq_show().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216305
+Fixes: 7bccd12d27b7e3 ("ubi: Add debugfs file for tracking PEB state")
+Fixes: 801c135ce73d5d ("UBI: Unsorted Block Images")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/nlattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/ubi/wl.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/nlattr.c b/tools/lib/bpf/nlattr.c
-index 4719434278b20..ac979b4290559 100644
---- a/tools/lib/bpf/nlattr.c
-+++ b/tools/lib/bpf/nlattr.c
-@@ -170,7 +170,7 @@ int nla_dump_errormsg(struct nlmsghdr *nlh)
- 		hlen += nlmsg_len(&err->msg);
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 68eb0f21b3fe2..f45df3b773739 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -890,8 +890,11 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
  
- 	attr = (struct nlattr *) ((void *) err + hlen);
--	alen = nlh->nlmsg_len - hlen;
-+	alen = (void *)nlh + nlh->nlmsg_len - (void *)attr;
+ 	err = do_sync_erase(ubi, e1, vol_id, lnum, 0);
+ 	if (err) {
+-		if (e2)
++		if (e2) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e2);
++			spin_unlock(&ubi->wl_lock);
++		}
+ 		goto out_ro;
+ 	}
  
- 	if (nla_parse(tb, NLMSGERR_ATTR_MAX, attr, alen, extack_policy) != 0) {
- 		fprintf(stderr,
+@@ -1130,14 +1133,18 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
+ 		/* Re-schedule the LEB for erasure */
+ 		err1 = schedule_erase(ubi, e, vol_id, lnum, 0, false);
+ 		if (err1) {
++			spin_lock(&ubi->wl_lock);
+ 			wl_entry_destroy(ubi, e);
++			spin_unlock(&ubi->wl_lock);
+ 			err = err1;
+ 			goto out_ro;
+ 		}
+ 		return err;
+ 	}
+ 
++	spin_lock(&ubi->wl_lock);
+ 	wl_entry_destroy(ubi, e);
++	spin_unlock(&ubi->wl_lock);
+ 	if (err != -EIO)
+ 		/*
+ 		 * If this is not %-EIO, we have no idea what to do. Scheduling
 -- 
 2.39.2
 
