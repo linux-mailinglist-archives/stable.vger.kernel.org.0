@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE3D6B49A2
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:14:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58CB46B49A6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234052AbjCJPOe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:14:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47398 "EHLO
+        id S234034AbjCJPOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:14:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233493AbjCJPOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:12 -0500
+        with ESMTP id S233944AbjCJPOO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7239763F1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CC92856A4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:05:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBC36B82319
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:04:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08EF7C4339C;
-        Fri, 10 Mar 2023 15:04:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAD6FB8231B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:04:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E0FC433D2;
+        Fri, 10 Mar 2023 15:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460661;
-        bh=ORyAQLSo2IScqUpRlCfZYXMuVtvjE9ySTGpUjnMYCUM=;
+        s=korg; t=1678460664;
+        bh=U+m8mbhzqkieSzARyk7HmuxTgLmrv4WHkCnggl1sPDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lx5RzgSyK6h7HlO0+EPucqAMUnvYgv+l85SwRDPLq0/TyboFVManLryjal7nkC/ee
-         vOdxQO18XGkshMPGthGe/iOpG+PKoFsdP0FVvzP+mymtWhBoIJoj7eTD1ZrKtAkCKZ
-         B1H3fPBBS34vNmA6a689WzD5X5oiNWswnNv4VXKM=
+        b=RoaphvsPB2D3D8eGS0cVxq4JulAIPM39c4QcAAkAcepuDlzOGer+z+wBfDIAzb4Rh
+         aKNG30HFUpi4Cafev2pUso1EzQK+SOggDZTM4EDSrudeFFPy8oWKDcjXZmpXlqSgk0
+         wHstr1NfhXzamcrUtpfYZ9253jXJ/hAkxolmOz1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 380/529] ALSA: hda/realtek: Add quirk for HP EliteDesk 800 G6 Tower PC
-Date:   Fri, 10 Mar 2023 14:38:43 +0100
-Message-Id: <20230310133822.615345718@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        zhanchengbin <zhanchengbin1@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 381/529] jbd2: fix data missing when reusing bh which is ready to be checkpointed
+Date:   Fri, 10 Mar 2023 14:38:44 +0100
+Message-Id: <20230310133822.665584636@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,32 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Stelmach <l.stelmach@samsung.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit ea24b9953bcd3889f77a66e7f1d7e86e995dd9c3 upstream.
+commit e6b9bd7290d334451ce054e98e752abc055e0034 upstream.
 
-HP EliteDesk 800 G6 Tower PC (103c:870c) requires a quirk for enabling
-headset-mic.
+Following process will make data lost and could lead to a filesystem
+corrupted problem:
 
-Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217008
-Link: https://lore.kernel.org/r/20230223074749.1026060-1-l.stelmach@samsung.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+1. jh(bh) is inserted into T1->t_checkpoint_list, bh is dirty, and
+   jh->b_transaction = NULL
+2. T1 is added into journal->j_checkpoint_transactions.
+3. Get bh prepare to write while doing checkpoing:
+           PA				    PB
+   do_get_write_access             jbd2_log_do_checkpoint
+    spin_lock(&jh->b_state_lock)
+     if (buffer_dirty(bh))
+      clear_buffer_dirty(bh)   // clear buffer dirty
+       set_buffer_jbddirty(bh)
+				    transaction =
+				    journal->j_checkpoint_transactions
+				    jh = transaction->t_checkpoint_list
+				    if (!buffer_dirty(bh))
+		                      __jbd2_journal_remove_checkpoint(jh)
+				      // bh won't be flushed
+		                    jbd2_cleanup_journal_tail
+    __jbd2_journal_file_buffer(jh, transaction, BJ_Reserved)
+4. Aborting journal/Power-cut before writing latest bh on journal area.
+
+In this way we get a corrupted filesystem with bh's data lost.
+
+Fix it by moving the clearing of buffer_dirty bit just before the call
+to __jbd2_journal_file_buffer(), both bit clearing and jh->b_transaction
+assignment are under journal->j_list_lock locked, so that
+jbd2_log_do_checkpoint() will wait until jh's new transaction fininshed
+even bh is currently not dirty. And journal_shrink_one_cp_list() won't
+remove jh from checkpoint list if the buffer head is reused in
+do_get_write_access().
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216898
+Cc: <stable@kernel.org>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: zhanchengbin <zhanchengbin1@huawei.com>
+Suggested-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230110015327.1181863-1-chengzhihao1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/jbd2/transaction.c |   50 +++++++++++++++++++++++++++++---------------------
+ 1 file changed, 29 insertions(+), 21 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -11153,6 +11153,7 @@ static const struct snd_pci_quirk alc662
- 	SND_PCI_QUIRK(0x1028, 0x0698, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x069f, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1632, "HP RP5800", ALC662_FIXUP_HP_RP5800),
-+	SND_PCI_QUIRK(0x103c, 0x870c, "HP", ALC897_FIXUP_HP_HSMIC_VERB),
- 	SND_PCI_QUIRK(0x103c, 0x8719, "HP", ALC897_FIXUP_HP_HSMIC_VERB),
- 	SND_PCI_QUIRK(0x103c, 0x873e, "HP", ALC671_FIXUP_HP_HEADSET_MIC2),
- 	SND_PCI_QUIRK(0x103c, 0x877e, "HP 288 Pro G6", ALC671_FIXUP_HP_HEADSET_MIC2),
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -984,36 +984,28 @@ repeat:
+ 	 * ie. locked but not dirty) or tune2fs (which may actually have
+ 	 * the buffer dirtied, ugh.)  */
+ 
+-	if (buffer_dirty(bh)) {
++	if (buffer_dirty(bh) && jh->b_transaction) {
++		warn_dirty_buffer(bh);
+ 		/*
+-		 * First question: is this buffer already part of the current
+-		 * transaction or the existing committing transaction?
+-		 */
+-		if (jh->b_transaction) {
+-			J_ASSERT_JH(jh,
+-				jh->b_transaction == transaction ||
+-				jh->b_transaction ==
+-					journal->j_committing_transaction);
+-			if (jh->b_next_transaction)
+-				J_ASSERT_JH(jh, jh->b_next_transaction ==
+-							transaction);
+-			warn_dirty_buffer(bh);
+-		}
+-		/*
+-		 * In any case we need to clean the dirty flag and we must
+-		 * do it under the buffer lock to be sure we don't race
+-		 * with running write-out.
++		 * We need to clean the dirty flag and we must do it under the
++		 * buffer lock to be sure we don't race with running write-out.
+ 		 */
+ 		JBUFFER_TRACE(jh, "Journalling dirty buffer");
+ 		clear_buffer_dirty(bh);
++		/*
++		 * The buffer is going to be added to BJ_Reserved list now and
++		 * nothing guarantees jbd2_journal_dirty_metadata() will be
++		 * ever called for it. So we need to set jbddirty bit here to
++		 * make sure the buffer is dirtied and written out when the
++		 * journaling machinery is done with it.
++		 */
+ 		set_buffer_jbddirty(bh);
+ 	}
+ 
+-	unlock_buffer(bh);
+-
+ 	error = -EROFS;
+ 	if (is_handle_aborted(handle)) {
+ 		spin_unlock(&jh->b_state_lock);
++		unlock_buffer(bh);
+ 		goto out;
+ 	}
+ 	error = 0;
+@@ -1023,8 +1015,10 @@ repeat:
+ 	 * b_next_transaction points to it
+ 	 */
+ 	if (jh->b_transaction == transaction ||
+-	    jh->b_next_transaction == transaction)
++	    jh->b_next_transaction == transaction) {
++		unlock_buffer(bh);
+ 		goto done;
++	}
+ 
+ 	/*
+ 	 * this is the first time this transaction is touching this buffer,
+@@ -1048,10 +1042,24 @@ repeat:
+ 		 */
+ 		smp_wmb();
+ 		spin_lock(&journal->j_list_lock);
++		if (test_clear_buffer_dirty(bh)) {
++			/*
++			 * Execute buffer dirty clearing and jh->b_transaction
++			 * assignment under journal->j_list_lock locked to
++			 * prevent bh being removed from checkpoint list if
++			 * the buffer is in an intermediate state (not dirty
++			 * and jh->b_transaction is NULL).
++			 */
++			JBUFFER_TRACE(jh, "Journalling dirty buffer");
++			set_buffer_jbddirty(bh);
++		}
+ 		__jbd2_journal_file_buffer(jh, transaction, BJ_Reserved);
+ 		spin_unlock(&journal->j_list_lock);
++		unlock_buffer(bh);
+ 		goto done;
+ 	}
++	unlock_buffer(bh);
++
+ 	/*
+ 	 * If there is already a copy-out version of this buffer, then we don't
+ 	 * need to make another one
 
 
