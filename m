@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 738846B491C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7EB16B48EE
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233839AbjCJPJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:09:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42518 "EHLO
+        id S233681AbjCJPIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:08:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233834AbjCJPJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:09:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E9C124E8E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:01:31 -0800 (PST)
+        with ESMTP id S233900AbjCJPHl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:07:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7CA813483E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:00:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2381061A71
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:00:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC87C433D2;
-        Fri, 10 Mar 2023 14:59:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9D4161A73
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:00:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDEAAC433D2;
+        Fri, 10 Mar 2023 15:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460399;
-        bh=l4+S2x6GIUftHwBH/Xt/LzNRi2iN6CKSP9X+zMuP05w=;
+        s=korg; t=1678460402;
+        bh=HMe5t2JME3BvFxkM8GXiI636jT6j1PW+hLYzhrTh1PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tauquUxnl0pO10o6Pbz//fULYOy099zKOi5z5DsgRgipbTF9btMwbGkKNg7rGi+zp
-         1wcJcsxgePsD7yoLgbsLJX4D/eXhc2L4rbLSoEZMXW7QwsZo6q7gRHsDTVViAeOi4p
-         aLYPsjYGJ92GUw8LL2T++5Kwe3Gv1xHylPEzMPRo=
+        b=XI8vJ5WTz9ha6Th0inCBev7IXJaCrxkggoQTvxCMp0bSGt5VujWUnwxDMXE90pYYY
+         QfYH08Ern8Nd/7gjunrFJmHVXeAHhv4wWjJ6BQ1QML5sH8jVX2QArBQc7Y6jgktegh
+         JQBRJ74y8ckX7ICo4/RigXJhUwlHMJe/g0Wg4gbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Bastien Nocera <hadess@hadess.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 322/529] pinctrl: at91: use devm_kasprintf() to avoid potential leaks
-Date:   Fri, 10 Mar 2023 14:37:45 +0100
-Message-Id: <20230310133819.911867232@linuxfoundation.org>
+Subject: [PATCH 5.10 323/529] HID: logitech-hidpp: Dont restart communication if not necessary
+Date:   Fri, 10 Mar 2023 14:37:46 +0100
+Message-Id: <20230310133819.963751633@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,51 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Bastien Nocera <hadess@hadess.net>
 
-[ Upstream commit 1c4e5c470a56f7f7c649c0c70e603abc1eab15c4 ]
+[ Upstream commit 498ba20690357691103de0f766960355247c78be ]
 
-Use devm_kasprintf() instead of kasprintf() to avoid any potential
-leaks. At the moment drivers have no remove functionality thus
-there is no need for fixes tag.
+Don't stop and restart communication with the device unless we need to
+modify the connect flags used because of a device quirk.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20230203132714.1931596-1-claudiu.beznea@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Link: https://lore.kernel.org/r/20230125121723.3122-1-hadess@hadess.net
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-at91-pio4.c | 4 ++--
- drivers/pinctrl/pinctrl-at91.c      | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
-index 578b387100d9b..d2e2b101978f8 100644
---- a/drivers/pinctrl/pinctrl-at91-pio4.c
-+++ b/drivers/pinctrl/pinctrl-at91-pio4.c
-@@ -1081,8 +1081,8 @@ static int atmel_pinctrl_probe(struct platform_device *pdev)
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 66b1051620390..f5ea8e1d84452 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3763,6 +3763,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	bool connected;
+ 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+ 	struct hidpp_ff_private_data data;
++	bool will_restart = false;
  
- 		pin_desc[i].number = i;
- 		/* Pin naming convention: P(bank_name)(bank_pin_number). */
--		pin_desc[i].name = kasprintf(GFP_KERNEL, "P%c%d",
--					     bank + 'A', line);
-+		pin_desc[i].name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "P%c%d",
-+						  bank + 'A', line);
- 
- 		group->name = group_names[i] = pin_desc[i].name;
- 		group->pin = pin_desc[i].number;
-diff --git a/drivers/pinctrl/pinctrl-at91.c b/drivers/pinctrl/pinctrl-at91.c
-index 9015486e38c18..52ecd47c18e2d 100644
---- a/drivers/pinctrl/pinctrl-at91.c
-+++ b/drivers/pinctrl/pinctrl-at91.c
-@@ -1891,7 +1891,7 @@ static int at91_gpio_probe(struct platform_device *pdev)
+ 	/* report_fixup needs drvdata to be set before we call hid_parse */
+ 	hidpp = devm_kzalloc(&hdev->dev, sizeof(*hidpp), GFP_KERNEL);
+@@ -3818,6 +3819,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			return ret;
  	}
  
- 	for (i = 0; i < chip->ngpio; i++)
--		names[i] = kasprintf(GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
-+		names[i] = devm_kasprintf(&pdev->dev, GFP_KERNEL, "pio%c%d", alias_idx + 'A', i);
++	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT ||
++	    hidpp->quirks & HIDPP_QUIRK_UNIFYING)
++		will_restart = true;
++
+ 	INIT_WORK(&hidpp->work, delayed_work_cb);
+ 	mutex_init(&hidpp->send_mutex);
+ 	init_waitqueue_head(&hidpp->wait);
+@@ -3832,7 +3837,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 * Plain USB connections need to actually call start and open
+ 	 * on the transport driver to allow incoming data.
+ 	 */
+-	ret = hid_hw_start(hdev, 0);
++	ret = hid_hw_start(hdev, will_restart ? 0 : connect_mask);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+ 		goto hid_hw_start_fail;
+@@ -3869,6 +3874,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			hidpp->wireless_feature_index = 0;
+ 		else if (ret)
+ 			goto hid_hw_init_fail;
++		ret = 0;
+ 	}
  
- 	chip->names = (const char *const *)names;
+ 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
+@@ -3883,19 +3889,21 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  
+ 	hidpp_connect_event(hidpp);
+ 
+-	/* Reset the HID node state */
+-	hid_device_io_stop(hdev);
+-	hid_hw_close(hdev);
+-	hid_hw_stop(hdev);
++	if (will_restart) {
++		/* Reset the HID node state */
++		hid_device_io_stop(hdev);
++		hid_hw_close(hdev);
++		hid_hw_stop(hdev);
+ 
+-	if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
+-		connect_mask &= ~HID_CONNECT_HIDINPUT;
++		if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
++			connect_mask &= ~HID_CONNECT_HIDINPUT;
+ 
+-	/* Now export the actual inputs and hidraw nodes to the world */
+-	ret = hid_hw_start(hdev, connect_mask);
+-	if (ret) {
+-		hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
+-		goto hid_hw_start_fail;
++		/* Now export the actual inputs and hidraw nodes to the world */
++		ret = hid_hw_start(hdev, connect_mask);
++		if (ret) {
++			hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
++			goto hid_hw_start_fail;
++		}
+ 	}
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
 -- 
 2.39.2
 
