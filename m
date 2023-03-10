@@ -2,51 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B666B425A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CAAB6B4603
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:39:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231575AbjCJOCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:02:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52256 "EHLO
+        id S232636AbjCJOj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:39:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231589AbjCJOC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B68AA1175A1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:14 -0800 (PST)
+        with ESMTP id S232727AbjCJOjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:39:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EF04F8F01
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:39:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7697BB822BA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C92D5C4339E;
-        Fri, 10 Mar 2023 14:02:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B162460F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:39:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85958C433A0;
+        Fri, 10 Mar 2023 14:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456932;
-        bh=Yjn/miN5Ms+DDaKaJ7TGYSPNfB4/50MyPTdwkdXaLyo=;
+        s=korg; t=1678459145;
+        bh=Mly/O2yEeKCYpRs3mY56MXG3OXSmj+fYpE9pME+pAeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDEJfUxtLWOe6FNnWoohfeqpMBAI+sqjdKwkOCANnxL/MXcRgL2/5HeBS3LiCjfec
-         +Tm4G5lsX0t8ZBNiDz3vrekibaQuHVuUarvn+EBYLV9XNqNNvo+VKmEHGkwHDb/wBs
-         vFxZOw3CrQgXUdO2YsZMBKQbVQTYkP85VAwf26k8=
+        b=f6d7T3QqMLfAj2BR9jckYBpdHO6kb+zgn3pXEFqddCYaNWKzcHpy8WjaWaXOyrSzv
+         6lO7BUfGQqMAFsCFZazqiA1WDPebEN/+/DPIncJa3eWdOD2yN8mepnDMJu59+zrTO/
+         2EpjCBL2hYCNe9RAbS99kQ9hb6G+pucmmWuK+Ruw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 173/211] PCI: Align extra resources for hotplug bridges properly
+        patches@lists.linux.dev, Yin Fengwei <fengwei.yin@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Rik van Riel <riel@surriel.com>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 264/357] mm/thp: check and bail out if page in deferred queue already
 Date:   Fri, 10 Mar 2023 14:39:13 +0100
-Message-Id: <20230310133724.065995204@linuxfoundation.org>
+Message-Id: <20230310133746.385298164@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,71 +61,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Yin Fengwei <fengwei.yin@intel.com>
 
-[ Upstream commit 08f0a15ee8adb4846b08ca5d5c175fbf0f652bc9 ]
+commit 81e506bec9be1eceaf5a2c654e28ba5176ef48d8 upstream.
 
-After division the extra resource space per hotplug bridge may not be
-aligned according to the window alignment, so align it before passing it
-down for further distribution.
+Kernel build regression with LLVM was reported here:
+https://lore.kernel.org/all/Y1GCYXGtEVZbcv%2F5@dev-arch.thelio-3990X/ with
+commit f35b5d7d676e ("mm: align larger anonymous mappings on THP
+boundaries").  And the commit f35b5d7d676e was reverted.
 
-Link: https://lore.kernel.org/r/20230131092405.29121-2-mika.westerberg@linux.intel.com
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It turned out the regression is related with madvise(MADV_DONTNEED)
+was used by ld.lld. But with none PMD_SIZE aligned parameter len.
+trace-bpfcc captured:
+531607  531732  ld.lld          do_madvise.part.0 start: 0x7feca9000000, len: 0x7fb000, behavior: 0x4
+531607  531793  ld.lld          do_madvise.part.0 start: 0x7fec86a00000, len: 0x7fb000, behavior: 0x4
+
+If the underneath physical page is THP, the madvise(MADV_DONTNEED) can
+trigger split_queue_lock contention raised significantly. perf showed
+following data:
+    14.85%     0.00%  ld.lld           [kernel.kallsyms]           [k]
+       entry_SYSCALL_64_after_hwframe
+           11.52%
+                entry_SYSCALL_64_after_hwframe
+                do_syscall_64
+                __x64_sys_madvise
+                do_madvise.part.0
+                zap_page_range
+                unmap_single_vma
+                unmap_page_range
+                page_remove_rmap
+                deferred_split_huge_page
+                __lock_text_start
+                native_queued_spin_lock_slowpath
+
+If THP can't be removed from rmap as whole THP, partial THP will be
+removed from rmap by removing sub-pages from rmap.  Even the THP head page
+is added to deferred queue already, the split_queue_lock will be acquired
+and check whether the THP head page is in the queue already.  Thus, the
+contention of split_queue_lock is raised.
+
+Before acquire split_queue_lock, check and bail out early if the THP
+head page is in the queue already. The checking without holding
+split_queue_lock could race with deferred_split_scan, but it doesn't
+impact the correctness here.
+
+Test result of building kernel with ld.lld:
+commit 7b5a0b664ebe (parent commit of f35b5d7d676e):
+time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
+        6:07.99 real,   26367.77 user,  5063.35 sys
+
+commit f35b5d7d676e:
+time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
+        7:22.15 real,   26235.03 user,  12504.55 sys
+
+commit f35b5d7d676e with the fixing patch:
+time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
+        6:08.49 real,   26520.15 user,  5047.91 sys
+
+Link: https://lkml.kernel.org/r/20221223135207.2275317-1-fengwei.yin@intel.com
+Signed-off-by: Yin Fengwei <fengwei.yin@intel.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/setup-bus.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ mm/huge_memory.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
-index b4096598dbcbb..e440f264accb8 100644
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -1891,6 +1891,7 @@ static void pci_bus_distribute_available_resources(struct pci_bus *bus,
- 	 * resource space between hotplug bridges.
- 	 */
- 	for_each_pci_bridge(dev, bus) {
-+		struct resource *res;
- 		struct pci_bus *b;
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2912,6 +2912,9 @@ void deferred_split_huge_page(struct pag
+ 	if (PageSwapCache(page))
+ 		return;
  
- 		b = dev->subordinate;
-@@ -1902,16 +1903,28 @@ static void pci_bus_distribute_available_resources(struct pci_bus *bus,
- 		 * hotplug-capable downstream ports taking alignment into
- 		 * account.
- 		 */
--		io.end = io.start + io_per_hp - 1;
--		mmio.end = mmio.start + mmio_per_hp - 1;
--		mmio_pref.end = mmio_pref.start + mmio_pref_per_hp - 1;
-+		res = &dev->resource[PCI_BRIDGE_IO_WINDOW];
-+		align = pci_resource_alignment(dev, res);
-+		io.end = align ? io.start + ALIGN_DOWN(io_per_hp, align) - 1
-+			       : io.start + io_per_hp - 1;
++	if (!list_empty(page_deferred_list(page)))
++		return;
 +
-+		res = &dev->resource[PCI_BRIDGE_MEM_WINDOW];
-+		align = pci_resource_alignment(dev, res);
-+		mmio.end = align ? mmio.start + ALIGN_DOWN(mmio_per_hp, align) - 1
-+				 : mmio.start + mmio_per_hp - 1;
-+
-+		res = &dev->resource[PCI_BRIDGE_PREF_MEM_WINDOW];
-+		align = pci_resource_alignment(dev, res);
-+		mmio_pref.end = align ? mmio_pref.start +
-+					ALIGN_DOWN(mmio_pref_per_hp, align) - 1
-+				      : mmio_pref.start + mmio_pref_per_hp - 1;
- 
- 		pci_bus_distribute_available_resources(b, add_list, io, mmio,
- 						       mmio_pref);
- 
--		io.start += io_per_hp;
--		mmio.start += mmio_per_hp;
--		mmio_pref.start += mmio_pref_per_hp;
-+		io.start += io.end + 1;
-+		mmio.start += mmio.end + 1;
-+		mmio_pref.start += mmio_pref.end + 1;
- 	}
- }
- 
--- 
-2.39.2
-
+ 	spin_lock_irqsave(&ds_queue->split_queue_lock, flags);
+ 	if (list_empty(page_deferred_list(page))) {
+ 		count_vm_event(THP_DEFERRED_SPLIT_PAGE);
 
 
