@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E95E6B4A3F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:20:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C85856B4A40
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:20:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234196AbjCJPUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:20:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
+        id S233267AbjCJPUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:20:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234322AbjCJPUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:20:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39C6012DC2E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:10:48 -0800 (PST)
+        with ESMTP id S233291AbjCJPUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:20:11 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A4C312DDCD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:10:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D072EB822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:09:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333EBC433EF;
-        Fri, 10 Mar 2023 15:09:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4821ACE2942
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD7FC433D2;
+        Fri, 10 Mar 2023 15:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460943;
-        bh=h54ux1TKnna5D3oxHpHO95OyTseJuyDkHfJzRBSKWZo=;
+        s=korg; t=1678460955;
+        bh=tw+6G/rxqMb1GJYc5EqdCAGNkOYKA6VdtFu9kSDFbyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1JMJQBXl1S4umreV5FvLXbXP+VHeV9Iejg3B0Ur2S4cdUB4/UzBaB2IO8Jk/WwAf
-         0pRe4cO1mpiHmemjYmZ5U2tXDvHgBhsECiPEdrfCr/2JSPvCVPw+1+9X90a9GrIMeI
-         N4hQ+2BelLz3drHB0vwNFrMhWtl8BzHAEP2O+s5o=
+        b=jQTWBkuvUPwwtLVht9z+Iq0kM/8RmbxjNrefkg7Eg5XRIGC6rrDixO1kAcw9K/6aK
+         yGrLqRpuUb8DCPnOkijKpqqozd5VBFm5BWUr5eFHJtCQnjhrs4bII5N5iqWhxPTX0C
+         KvJH5eMwSjK5s4O+NY4nliUMmsGWQRoq+x+dUCcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kees Cook <keescook@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Brian King <brking@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 476/529] scsi: ipr: Work around fortify-string warning
-Date:   Fri, 10 Mar 2023 14:40:19 +0100
-Message-Id: <20230310133826.901509448@linuxfoundation.org>
+        patches@lists.linux.dev, Zhong Jinghua <zhongjinghua@huawei.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 477/529] loop: loop_set_status_from_info() check before assignment
+Date:   Fri, 10 Mar 2023 14:40:20 +0100
+Message-Id: <20230310133826.952431571@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -57,112 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Zhong Jinghua <zhongjinghua@huawei.com>
 
-[ Upstream commit ee4e7dfe4ffc9ca50c6875757bd119abfe22b5c5 ]
+[ Upstream commit 9f6ad5d533d1c71e51bdd06a5712c4fbc8768dfa ]
 
-The ipr_log_vpd_compact() function triggers a fortified memcpy() warning
-about a potential string overflow with all versions of clang:
+In loop_set_status_from_info(), lo->lo_offset and lo->lo_sizelimit should
+be checked before reassignment, because if an overflow error occurs, the
+original correct value will be changed to the wrong value, and it will not
+be changed back.
 
-In file included from drivers/scsi/ipr.c:43:
-In file included from include/linux/string.h:254:
-include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
-                        __write_overflow_field(p_size_field, size);
-                        ^
-include/linux/fortify-string.h:520:4: error: call to '__write_overflow_field' declared with 'warning' attribute: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
-2 errors generated.
+More, the original patch did not solve the problem, the value was set and
+ioctl returned an error, but the subsequent io used the value in the loop
+driver, which still caused an alarm:
 
-I don't see anything actually wrong with the function, but this is the only
-instance I can reproduce of the fortification going wrong in the kernel at
-the moment, so the easiest solution may be to rewrite the function into
-something that does not trigger the warning.
+loop_handle_cmd
+ do_req_filebacked
+  loff_t pos = ((loff_t) blk_rq_pos(rq) << 9) + lo->lo_offset;
+  lo_rw_aio
+   cmd->iocb.ki_pos = pos
 
-Instead of having a combined buffer for vendor/device/serial strings, use
-three separate local variables and just truncate the whitespace
-individually.
-
-Link: https://lore.kernel.org/r/20230214132831.2118392-1-arnd@kernel.org
-Cc: Kees Cook <keescook@chromium.org>
-Fixes: 8cf093e275d0 ("[SCSI] ipr: Improved dual adapter errors")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Brian King <brking@linux.vnet.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c490a0b5a4f3 ("loop: Check for overflow while configuring loop")
+Signed-off-by: Zhong Jinghua <zhongjinghua@huawei.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20230221095027.3656193-1-zhongjinghua@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ipr.c | 41 +++++++++++++++++++++--------------------
- 1 file changed, 21 insertions(+), 20 deletions(-)
+ drivers/block/loop.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index a5e6fbd86ad45..8c376736a8f51 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -1516,23 +1516,22 @@ static void ipr_process_ccn(struct ipr_cmnd *ipr_cmd)
- }
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index b10410585a746..d86fbea54652a 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1029,13 +1029,13 @@ loop_set_status_from_info(struct loop_device *lo,
+ 	if (err)
+ 		return err;
  
- /**
-- * strip_and_pad_whitespace - Strip and pad trailing whitespace.
-- * @i:		index into buffer
-- * @buf:		string to modify
-+ * strip_whitespace - Strip and pad trailing whitespace.
-+ * @i:		size of buffer
-+ * @buf:	string to modify
-  *
-- * This function will strip all trailing whitespace, pad the end
-- * of the string with a single space, and NULL terminate the string.
-+ * This function will strip all trailing whitespace and
-+ * NUL terminate the string.
-  *
-- * Return value:
-- * 	new length of string
-  **/
--static int strip_and_pad_whitespace(int i, char *buf)
-+static void strip_whitespace(int i, char *buf)
- {
-+	if (i < 1)
-+		return;
-+	i--;
- 	while (i && buf[i] == ' ')
- 		i--;
--	buf[i+1] = ' ';
--	buf[i+2] = '\0';
--	return i + 2;
-+	buf[i+1] = '\0';
- }
++	/* Avoid assigning overflow values */
++	if (info->lo_offset > LLONG_MAX || info->lo_sizelimit > LLONG_MAX)
++		return -EOVERFLOW;
++
+ 	lo->lo_offset = info->lo_offset;
+ 	lo->lo_sizelimit = info->lo_sizelimit;
  
- /**
-@@ -1547,19 +1546,21 @@ static int strip_and_pad_whitespace(int i, char *buf)
- static void ipr_log_vpd_compact(char *prefix, struct ipr_hostrcb *hostrcb,
- 				struct ipr_vpd *vpd)
- {
--	char buffer[IPR_VENDOR_ID_LEN + IPR_PROD_ID_LEN + IPR_SERIAL_NUM_LEN + 3];
--	int i = 0;
-+	char vendor_id[IPR_VENDOR_ID_LEN + 1];
-+	char product_id[IPR_PROD_ID_LEN + 1];
-+	char sn[IPR_SERIAL_NUM_LEN + 1];
- 
--	memcpy(buffer, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
--	i = strip_and_pad_whitespace(IPR_VENDOR_ID_LEN - 1, buffer);
-+	memcpy(vendor_id, vpd->vpids.vendor_id, IPR_VENDOR_ID_LEN);
-+	strip_whitespace(IPR_VENDOR_ID_LEN, vendor_id);
- 
--	memcpy(&buffer[i], vpd->vpids.product_id, IPR_PROD_ID_LEN);
--	i = strip_and_pad_whitespace(i + IPR_PROD_ID_LEN - 1, buffer);
-+	memcpy(product_id, vpd->vpids.product_id, IPR_PROD_ID_LEN);
-+	strip_whitespace(IPR_PROD_ID_LEN, product_id);
- 
--	memcpy(&buffer[i], vpd->sn, IPR_SERIAL_NUM_LEN);
--	buffer[IPR_SERIAL_NUM_LEN + i] = '\0';
-+	memcpy(sn, vpd->sn, IPR_SERIAL_NUM_LEN);
-+	strip_whitespace(IPR_SERIAL_NUM_LEN, sn);
- 
--	ipr_hcam_err(hostrcb, "%s VPID/SN: %s\n", prefix, buffer);
-+	ipr_hcam_err(hostrcb, "%s VPID/SN: %s %s %s\n", prefix,
-+		     vendor_id, product_id, sn);
- }
- 
- /**
+-	/* loff_t vars have been assigned __u64 */
+-	if (lo->lo_offset < 0 || lo->lo_sizelimit < 0)
+-		return -EOVERFLOW;
+-
+ 	memcpy(lo->lo_file_name, info->lo_file_name, LO_NAME_SIZE);
+ 	memcpy(lo->lo_crypt_name, info->lo_crypt_name, LO_NAME_SIZE);
+ 	lo->lo_file_name[LO_NAME_SIZE-1] = 0;
 -- 
 2.39.2
 
