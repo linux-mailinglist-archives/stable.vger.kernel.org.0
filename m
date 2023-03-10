@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8C3B6B452E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C960F6B4393
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:15:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232505AbjCJObn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:31:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53300 "EHLO
+        id S231980AbjCJOPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:15:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232542AbjCJOb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:31:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E3A367D7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:30:37 -0800 (PST)
+        with ESMTP id S231846AbjCJOPY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:15:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E5A10C1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:14:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C11C4B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:30:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C6E7C433EF;
-        Fri, 10 Mar 2023 14:30:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E79860D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CEF1C433D2;
+        Fri, 10 Mar 2023 14:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458635;
-        bh=s45eB0R8juTjlWTD+m+madG1BptmyRT70x9JDqDwhck=;
+        s=korg; t=1678457656;
+        bh=dOuWiLTxp4fNNSPA5UsAwc2M+xTTbFFlChzPMrfbk2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNWpL6wtJ4KiaKWlVupuSoojRwUIJ6k0RfiTbb8YUSEJ0BAst2po8P570ff59XBFq
-         5ZrZZNrSa6mZcj97ErGb+nq7El82VCGiSrR7/jaA6g2KwWiuSDE4gaBUcOESBNBJrQ
-         /iy/7j4GuePBaFNTsE9uX74Ypb7Mxc48xeRq7JGw=
+        b=oWrkttSnF+Ln10O9aK6E5z7Q5ISuFUs5+uaeTSUCTniA1MKYj75hMwmsVF6xW4/vx
+         QuOmkx6j3q7r3jSqtCg3cfx/Z0P776bnncv8yYCB4IOzYYX38eMJYic4WWDlqP7aaY
+         7cQEr7o+0fNik5r5iRubeoCzxWqaWjGgu4gnRX+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 094/357] selftests/net: Interpret UDP_GRO cmsg data as an int value
+Subject: [PATCH 4.19 013/252] arm64: dts: amlogic: meson-axg: fix SCPI clock dvfs node name
 Date:   Fri, 10 Mar 2023 14:36:23 +0100
-Message-Id: <20230310133738.144172649@linuxfoundation.org>
+Message-Id: <20230310133719.231241237@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Neil Armstrong <neil.armstrong@linaro.org>
 
-[ Upstream commit 436864095a95fcc611c20c44a111985fa9848730 ]
+[ Upstream commit 5b7069d72f03c92a0ab919725017394ebce03a81 ]
 
-Data passed to user-space with a (SOL_UDP, UDP_GRO) cmsg carries an
-int (see udp_cmsg_recv), not a u16 value, as strace confirms:
+Fixes:
+scpi: clocks: 'clock-controller' does not match any of the regexes: '^clocks-[0-9a-f]+$', 'pinctrl-[0-9]+'
 
-  recvmsg(8, {msg_name=...,
-              msg_iov=[{iov_base="\0\0..."..., iov_len=96000}],
-              msg_iovlen=1,
-              msg_control=[{cmsg_len=20,         <-- sizeof(cmsghdr) + 4
-                            cmsg_level=SOL_UDP,
-                            cmsg_type=0x68}],    <-- UDP_GRO
-                            msg_controllen=24,
-                            msg_flags=0}, 0) = 11200
-
-Interpreting the data as an u16 value won't work on big-endian platforms.
-Since it is too late to back out of this API decision [1], fix the test.
-
-[1]: https://lore.kernel.org/netdev/20230131174601.203127-1-jakub@cloudflare.com/
-
-Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20230124-b4-amlogic-bindings-fixups-v1-2-44351528957e@linaro.org
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/udpgso_bench_rx.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
-index 4058c7451e70d..f35a924d4a303 100644
---- a/tools/testing/selftests/net/udpgso_bench_rx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_rx.c
-@@ -214,11 +214,10 @@ static void do_verify_udp(const char *data, int len)
+diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+index 8355818153775..a2c809f861c09 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+@@ -163,7 +163,7 @@ scpi {
+ 		scpi_clocks: clocks {
+ 			compatible = "arm,scpi-clocks";
  
- static int recv_msg(int fd, char *buf, int len, int *gso_size)
- {
--	char control[CMSG_SPACE(sizeof(uint16_t))] = {0};
-+	char control[CMSG_SPACE(sizeof(int))] = {0};
- 	struct msghdr msg = {0};
- 	struct iovec iov = {0};
- 	struct cmsghdr *cmsg;
--	uint16_t *gsosizeptr;
- 	int ret;
- 
- 	iov.iov_base = buf;
-@@ -237,8 +236,7 @@ static int recv_msg(int fd, char *buf, int len, int *gso_size)
- 		     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
- 			if (cmsg->cmsg_level == SOL_UDP
- 			    && cmsg->cmsg_type == UDP_GRO) {
--				gsosizeptr = (uint16_t *) CMSG_DATA(cmsg);
--				*gso_size = *gsosizeptr;
-+				*gso_size = *(int *)CMSG_DATA(cmsg);
- 				break;
- 			}
- 		}
+-			scpi_dvfs: clock-controller {
++			scpi_dvfs: clocks-0 {
+ 				compatible = "arm,scpi-dvfs-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <0>;
 -- 
 2.39.2
 
