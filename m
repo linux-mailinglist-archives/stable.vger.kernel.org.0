@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D67B46B45DB
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DFCA6B4133
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232662AbjCJOiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
+        id S230427AbjCJNue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:50:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232699AbjCJOiH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D8D1204A2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:37:40 -0800 (PST)
+        with ESMTP id S230450AbjCJNud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5752E6DBE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30872618B8
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:37:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2583FC4339B;
-        Fri, 10 Mar 2023 14:37:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EB92B822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E11C6C4339B;
+        Fri, 10 Mar 2023 13:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459028;
-        bh=+l7zOQ56DtVh0IMdm20/OB3CezTKlI53c4+VSHTH7Io=;
+        s=korg; t=1678456229;
+        bh=e0JkFBFBLLLi9MHeOmP43ZQu8Xy7F4PS+vTmUGxgFaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJUDts214uuxdSPhN1s+hQ/JWt4MMqYSQNpv9Tf3Fed4+uDQ3Td/t9CllFGZRKhBJ
-         VtCClQbkSM9G0hT6NjQf8Aj5jqKMNg5ocmXDdfjZv+6MhzVt9Bc93TGbBt67rPn2yQ
-         nAOttS16na6+YnfRTSm+2wszPiYCdRya3fdw9NbQ=
+        b=Lat+NOxTrvLa+ulws1yA4YNLkM1Xwt9uztyB5sH3YYOMGUZcT3Xqta8ZOj4t6/1Dr
+         aybNL3eNje9gd7XW20JBIh+yV9die53rjvEumrqAbb7IQA36Bqx/MwFdjk/PRjyRyw
+         0aqlltCW70ylr892ZOzFrEyjFGlgmJFHyzigqRO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 217/357] s390/kprobes: fix current_kprobe never cleared after kprobes reenter
+        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.14 124/193] irqdomain: Fix disassociation race
 Date:   Fri, 10 Mar 2023 14:38:26 +0100
-Message-Id: <20230310133744.284882174@linuxfoundation.org>
+Message-Id: <20230310133715.381989447@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-commit cd57953936f2213dfaccce10d20f396956222c7d upstream.
+commit 3f883c38f5628f46b30bccf090faec054088e262 upstream.
 
-Recent test_kprobe_missed kprobes kunit test uncovers the following
-problem. Once kprobe is triggered from another kprobe (kprobe reenter),
-all future kprobes on this cpu are considered as kprobe reenter, thus
-pre_handler and post_handler are not being called and kprobes are counted
-as "missed".
+The global irq_domain_mutex is held when mapping interrupts from
+non-hierarchical domains but currently not when disposing them.
 
-Commit b9599798f953 ("[S390] kprobes: activation and deactivation")
-introduced a simpler scheme for kprobes (de)activation and status
-tracking by using push_kprobe/pop_kprobe, which supposed to work for
-both initial kprobe entry as well as kprobe reentry and helps to avoid
-handling those two cases differently. The problem is that a sequence of
-calls in case of kprobes reenter:
-push_kprobe() <- NULL (current_kprobe)
-push_kprobe() <- kprobe1 (current_kprobe)
-pop_kprobe() -> kprobe1 (current_kprobe)
-pop_kprobe() -> kprobe1 (current_kprobe)
-leaves "kprobe1" as "current_kprobe" on this cpu, instead of setting it
-to NULL. In fact push_kprobe/pop_kprobe can only store a single state
-(there is just one prev_kprobe in kprobe_ctlblk). Which is a hack but
-sufficient, there is no need to have another prev_kprobe just to store
-NULL. To make a simple and backportable fix simply reset "prev_kprobe"
-when kprobe is poped from this "stack". No need to worry about
-"kprobe_status" in this case, because its value is only checked when
-current_kprobe != NULL.
+This specifically means that updates of the domain mapcount is racy
+(currently only used for statistics in debugfs).
 
-Cc: stable@vger.kernel.org
-Fixes: b9599798f953 ("[S390] kprobes: activation and deactivation")
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Make sure to hold the global irq_domain_mutex also when disposing
+mappings from non-hierarchical domains.
+
+Fixes: 9dc6be3d4193 ("genirq/irqdomain: Add map counter")
+Cc: stable@vger.kernel.org      # 4.13
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-3-johan+linaro@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/kprobes.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/irq/irqdomain.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/s390/kernel/kprobes.c
-+++ b/arch/s390/kernel/kprobes.c
-@@ -255,6 +255,7 @@ static void pop_kprobe(struct kprobe_ctl
- {
- 	__this_cpu_write(current_kprobe, kcb->prev_kprobe.kp);
- 	kcb->kprobe_status = kcb->prev_kprobe.status;
-+	kcb->prev_kprobe.kp = NULL;
- }
- NOKPROBE_SYMBOL(pop_kprobe);
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -492,6 +492,9 @@ void irq_domain_disassociate(struct irq_
+ 		return;
  
+ 	hwirq = irq_data->hwirq;
++
++	mutex_lock(&irq_domain_mutex);
++
+ 	irq_set_status_flags(irq, IRQ_NOREQUEST);
+ 
+ 	/* remove chip and handler */
+@@ -511,6 +514,8 @@ void irq_domain_disassociate(struct irq_
+ 
+ 	/* Clear reverse map for this hwirq */
+ 	irq_domain_clear_mapping(domain, hwirq);
++
++	mutex_unlock(&irq_domain_mutex);
+ }
+ 
+ static int irq_domain_associate_locked(struct irq_domain *domain, unsigned int virq,
 
 
