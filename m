@@ -2,59 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCAD6B54E2
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 23:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0936B554E
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 00:07:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231511AbjCJWyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 17:54:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
+        id S231343AbjCJXHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 18:07:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231864AbjCJWyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 17:54:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E7C5FA46;
-        Fri, 10 Mar 2023 14:53:27 -0800 (PST)
+        with ESMTP id S231540AbjCJXHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 18:07:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4C0B14ACC7;
+        Fri, 10 Mar 2023 15:07:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB0B5B8242E;
-        Fri, 10 Mar 2023 22:53:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25656C433EF;
-        Fri, 10 Mar 2023 22:53:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F617B822E7;
+        Fri, 10 Mar 2023 23:07:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 036ECC433EF;
+        Fri, 10 Mar 2023 23:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678488801;
-        bh=8rw2KDCKekrHmNc8hHv1I2pH/HRctBmo8/l54PCIy2A=;
+        s=k20201202; t=1678489626;
+        bh=zuN/kFW3k+Kq1wk3QFfp0txq4cDJq8FuADNAuknyD+w=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Bhfc0hKMNKyuw2V5FZpRwfs/xZOQNGvate7GE4kfHCmL9nZjLiejBFph1vGWYUzwC
-         RRIw7e+Jb22yIwDYnsuAQNCG9yhB46M3d3vut7435FUeCFSOutvKmeTuxcoyjQitkx
-         laNHtCV2J6F19e7K4/t01sk5dXalEXq6qL7uGY1P83seaRtQuMlkbkcS2VksCbkWSK
-         n2L1QHsoODZzmkcPvgbKS/R2TcvtBqpuQEGi0X33JE81zLv2QYZUg+MS5JT3zzn0E4
-         XSrr0yM7yH653naETdFzsarXDsLhsvTvMsi39k8LXndQ5X/oFV1BH+jlVR6QfH4LRY
-         Os/Jd8npksCfA==
-Date:   Fri, 10 Mar 2023 14:53:19 -0800
+        b=E6+sPMil9mlBPLY/qvvhbqSohKQrUtexjne1dG+56aUrxJZSEMuJlHlP5Xihhkv+D
+         IVWjys5gs/uN1w4HYqr6UrJFN+7IIj8Tjl8jT2VH5p2noRx5AJZKCY2hMGxZmlJto9
+         dRCLcKa1dL2E+fwLL9UAvzhJwTD4c9Hzmb+3m72ESsBW5tYQ+ZUy2OAGUvsy6VBD37
+         /DgmJ1SklD7Wis1Ee97NFLSUHcUDcUJgUIHmQJ0HK0M63JYyxqeN2mDwOprmiuQrC+
+         GpZVQG3lL2Ao1E8gw1CNUhUSGB+IO2/56NnWqoIv6MFTwymQZh2ZoUFCLU97V+f/yg
+         9ODUrhbPkS3uQ==
+Date:   Fri, 10 Mar 2023 15:07:04 -0800
 From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Mike Cloaked <mike.cloaked@gmail.com>,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Yu Kuai <yukuai3@huawei.com>, Genes Lists <lists@sapience.com>
-Subject: Re: Possible kernel fs block code regression in 6.2.3 umounting usb
- drives
-Message-ID: <ZAu030xtaPBGFPBS@sol.localdomain>
-References: <CAOCAAm7AEY9tkZpu2j+Of91fCE4UuE_PqR0UqNv2p2mZM9kqKw@mail.gmail.com>
- <CAOCAAm4reGhz400DSVrh0BetYD3Ljr2CZen7_3D4gXYYdB4SKQ@mail.gmail.com>
- <ZAuPkCn49urWBN5P@sol.localdomain>
- <ZAuQOHnfa7xGvzKI@sol.localdomain>
- <ad021e89-c05c-f85a-2210-555837473734@kernel.dk>
- <88b36c03-780f-61a5-4a66-e69072aa7536@sapience.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
+Subject: Re: AUTOSEL process
+Message-ID: <ZAu4GE0q4jzRI+F6@sol.localdomain>
+References: <Y/ux9JLHQKDOzWHJ@sol.localdomain>
+ <Y/y70zJj4kjOVfXa@sashalap>
+ <Y/zswi91axMN8OsA@sol.localdomain>
+ <Y/zxKOBTLXFjSVyI@sol.localdomain>
+ <Y/0U8tpNkgePu00M@sashalap>
+ <Y/0i5pGYjrVw59Kk@gmail.com>
+ <Y/0wMiOwoeLcFefc@sashalap>
+ <Y/1LlA5WogOAPBNv@gmail.com>
+ <Y/1em4ygHgSjIYau@sashalap>
+ <Y/136zpJSWx96YEe@sol.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <88b36c03-780f-61a5-4a66-e69072aa7536@sapience.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+In-Reply-To: <Y/136zpJSWx96YEe@sol.localdomain>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,37 +61,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 10, 2023 at 04:08:21PM -0500, Genes Lists wrote:
-> On 3/10/23 15:23, Jens Axboe wrote:
-> > On 3/10/23 1:16 PM, Eric Biggers wrote:
-> ...
-> > But I would revert:
-> > 
-> > bfe46d2efe46c5c952f982e2ca94fe2ec5e58e2a
-> > 57a425badc05c2e87e9f25713e5c3c0298e4202c
-> > 
-> > in that order from 6.2.3 and see if that helps. Adding Yu.
-> > 
-> Confirm the 2 Reverts fixed in my tests as well (nvme + sata drives).
-> Nasty crash - some needed to be power cycled as they hung on shutdown.
+On Mon, Feb 27, 2023 at 07:41:31PM -0800, Eric Biggers wrote:
 > 
-> Thank you!
+> Well, probably more common is that prerequisites are in the same patchset, and
+> the prerequisites are tagged for stable too.  Whereas AUTOSEL often just picks
+> patch X of N.  Also, developers and maintainers who tag patches for stable are
+> probably more likely to help with the stable process in general and make sure
+> patches are backported correctly...
 > 
-> gene
-> 
+> Anyway, the point is, AUTOSEL needs to be fixed to stop inappropriately
+> cherry-picking patch X of N so often.
 > 
 
-Great, thanks.  BTW, 6.1 is also affected.  A simple reproducer is to run:
+... and AUTOSEL strikes again, with the 6.1 and 6.2 kernels currently crashing
+whenever a block device is removed, due to patches 1 and 3 of a 3-patch series
+being AUTOSEL'ed (on the same day I started this discussion, no less):
 
-	dmsetup create dev --table "0 128 zero"
-	dmsetup remove dev
+https://lore.kernel.org/linux-block/CAOCAAm4reGhz400DSVrh0BetYD3Ljr2CZen7_3D4gXYYdB4SKQ@mail.gmail.com/T/#u
 
-The following kconfigs are needed for the bug to be hit:
-
-	CONFIG_BLK_CGROUP=y
-	CONFIG_BLK_DEV_THROTTLING=y
-	CONFIG_BLK_DEV_THROTTLING_LOW=y
-
-Sasha or Greg, can you please revert the indicated commits from 6.1 and 6.2?
+Oh sorry, ignore this, it's just an anecdotal example.
 
 - Eric
