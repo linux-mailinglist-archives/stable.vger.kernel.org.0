@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 051DA6B49C1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7CB76B48DB
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234022AbjCJPP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:15:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49596 "EHLO
+        id S233892AbjCJPHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:07:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234125AbjCJPOz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:14:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7FF129720
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:15 -0800 (PST)
+        with ESMTP id S233799AbjCJPGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:06:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3114E10F45B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:59:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2040BB822EA
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 726A3C433D2;
-        Fri, 10 Mar 2023 14:57:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 090B66187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:59:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D60C433D2;
+        Fri, 10 Mar 2023 14:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460261;
-        bh=nmGpkPzSADV+CpFECU9s/I5AvOFORyLFcmBB2tBb/P4=;
+        s=korg; t=1678460384;
+        bh=MUpQCkImQicUPPTw5Fvoe8VdmhwyxyqB8BjHoTmU3o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVP5tnGcnthG/X2wmaMAEekqfYYJ80s0l3fH1xefinwN/sd1hIaX2NkKJNzir5l+r
-         dn1OlZTJvM6KOIvHh+6iB+2VyIlqO/JHZ9or1A4AoZdvkc9IDrghE6nv+xxb5jD4ur
-         +vI57/NpnJtuSd5935LMmbom+WuF3C1/9fuVxRgM=
+        b=lGIUymDukU1EKDNNLiYIR7nZ+qg2ivlA4F6RHviBDtSdW/4z8Pcx81oO6xIA9oCZz
+         YWZlRYVY7jzQT+qsmqoIfG6NJJqvLQrBfej80ZQ5EwIU/ukX8p06ety67zz2oPfLrY
+         6iw8T58f6KjvGCAyIzK+3CbcjL9znwH0Wj63Kl/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jai Luthra <j-luthra@ti.com>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        patches@lists.linux.dev, Duoming Zhou <duoming@zju.edu.cn>,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 275/529] media: i2c: imx219: Fix binning for RAW8 capture
-Date:   Fri, 10 Mar 2023 14:36:58 +0100
-Message-Id: <20230310133817.702618268@linuxfoundation.org>
+Subject: [PATCH 5.10 276/529] media: rc: Fix use-after-free bugs caused by ene_tx_irqsim()
+Date:   Fri, 10 Mar 2023 14:36:59 +0100
+Message-Id: <20230310133817.740900911@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,178 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jai Luthra <j-luthra@ti.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit ef86447e775fb1f2ced00d4c7fff2c0a1c63f165 ]
+[ Upstream commit 29b0589a865b6f66d141d79b2dd1373e4e50fe17 ]
 
-2x2 binning works fine for RAW10 capture, but for RAW8 1232p mode it
-leads to corrupted frames [1][2].
+When the ene device is detaching, function ene_remove() will
+be called. But there is no function to cancel tx_sim_timer
+in ene_remove(), the timer handler ene_tx_irqsim() could race
+with ene_remove(). As a result, the UAF bugs could happen,
+the process is shown below.
 
-Using the special 2x2 analog binning mode fixes the issue, but causes
-artefacts for RAW10 1232p capture. So here we choose the binning mode
-depending upon the frame format selected.
+    (cleanup routine)          |        (timer routine)
+                               | mod_timer(&dev->tx_sim_timer, ..)
+ene_remove()                   | (wait a time)
+                               | ene_tx_irqsim()
+                               |   dev->hw_lock //USE
+                               |   ene_tx_sample(dev) //USE
 
-As both binning modes work fine for 480p RAW8 and RAW10 capture, it can
-share the same code path as 1232p for selecting binning mode.
+Fix by adding del_timer_sync(&dev->tx_sim_timer) in ene_remove(),
+The tx_sim_timer could stop before ene device is deallocated.
 
-[1] https://forums.raspberrypi.com/viewtopic.php?t=332103
-[2] https://github.com/raspberrypi/libcamera-apps/issues/281
+What's more, The rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove() and the deallocated
+functions such as free_irq(), release_region() and so on
+should be called behind them. Because the rc_unregister_device()
+is well synchronized. Otherwise, race conditions may happen. The
+situations that may lead to race conditions are shown below.
 
-Fixes: 22da1d56e982 ("media: i2c: imx219: Add support for RAW8 bit bayer format")
-Signed-off-by: Jai Luthra <j-luthra@ti.com>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Firstly, the rx receiver is disabled with ene_rx_disable()
+before rc_unregister_device() in ene_remove(), which means it
+can be enabled again if a process opens /dev/lirc0 between
+ene_rx_disable() and rc_unregister_device().
+
+Secondly, the irqaction descriptor is freed by free_irq()
+before the rc device is unregistered, which means irqaction
+descriptor may be accessed again after it is deallocated.
+
+Thirdly, the timer can call ene_tx_sample() that can write
+to the io ports, which means the io ports could be accessed
+again after they are deallocated by release_region().
+
+Therefore, the rc_unregister_device() and del_timer_sync()
+should be called first in ene_remove().
+
+Suggested by: Sean Young <sean@mess.org>
+
+Fixes: 9ea53b74df9c ("V4L/DVB: STAGING: remove lirc_ene0100 driver")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx219.c | 57 ++++++++++++++++++++++++++++++++------
- 1 file changed, 49 insertions(+), 8 deletions(-)
+ drivers/media/rc/ene_ir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
-index a28926069b82b..b975636d94401 100644
---- a/drivers/media/i2c/imx219.c
-+++ b/drivers/media/i2c/imx219.c
-@@ -89,6 +89,12 @@
+diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
+index 6049e5c95394f..5aa3953cab82c 100644
+--- a/drivers/media/rc/ene_ir.c
++++ b/drivers/media/rc/ene_ir.c
+@@ -1106,6 +1106,8 @@ static void ene_remove(struct pnp_dev *pnp_dev)
+ 	struct ene_device *dev = pnp_get_drvdata(pnp_dev);
+ 	unsigned long flags;
  
- #define IMX219_REG_ORIENTATION		0x0172
++	rc_unregister_device(dev->rdev);
++	del_timer_sync(&dev->tx_sim_timer);
+ 	spin_lock_irqsave(&dev->hw_lock, flags);
+ 	ene_rx_disable(dev);
+ 	ene_rx_restore_hw_buffer(dev);
+@@ -1113,7 +1115,6 @@ static void ene_remove(struct pnp_dev *pnp_dev)
  
-+/* Binning  Mode */
-+#define IMX219_REG_BINNING_MODE		0x0174
-+#define IMX219_BINNING_NONE		0x0000
-+#define IMX219_BINNING_2X2		0x0101
-+#define IMX219_BINNING_2X2_ANALOG	0x0303
-+
- /* Test Pattern Control */
- #define IMX219_REG_TEST_PATTERN		0x0600
- #define IMX219_TEST_PATTERN_DISABLE	0
-@@ -143,6 +149,9 @@ struct imx219_mode {
- 
- 	/* Default register values */
- 	struct imx219_reg_list reg_list;
-+
-+	/* 2x2 binning is used */
-+	bool binning;
- };
- 
- static const struct imx219_reg imx219_common_regs[] = {
-@@ -212,8 +221,6 @@ static const struct imx219_reg mode_3280x2464_regs[] = {
- 	{0x016d, 0xd0},
- 	{0x016e, 0x09},
- 	{0x016f, 0xa0},
--	{0x0174, 0x00},	/* No-Binning */
--	{0x0175, 0x00},
- 	{0x0624, 0x0c},
- 	{0x0625, 0xd0},
- 	{0x0626, 0x09},
-@@ -233,8 +240,6 @@ static const struct imx219_reg mode_1920_1080_regs[] = {
- 	{0x016d, 0x80},
- 	{0x016e, 0x04},
- 	{0x016f, 0x38},
--	{0x0174, 0x00},	/* No-Binning */
--	{0x0175, 0x00},
- 	{0x0624, 0x07},
- 	{0x0625, 0x80},
- 	{0x0626, 0x04},
-@@ -254,8 +259,6 @@ static const struct imx219_reg mode_1640_1232_regs[] = {
- 	{0x016d, 0x68},
- 	{0x016e, 0x04},
- 	{0x016f, 0xd0},
--	{0x0174, 0x01},	/* x2-Binning */
--	{0x0175, 0x01},
- 	{0x0624, 0x06},
- 	{0x0625, 0x68},
- 	{0x0626, 0x04},
-@@ -275,8 +278,6 @@ static const struct imx219_reg mode_640_480_regs[] = {
- 	{0x016d, 0x80},
- 	{0x016e, 0x01},
- 	{0x016f, 0xe0},
--	{0x0174, 0x03},	/* x2-analog binning */
--	{0x0175, 0x03},
- 	{0x0624, 0x06},
- 	{0x0625, 0x68},
- 	{0x0626, 0x04},
-@@ -386,6 +387,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_3280x2464_regs),
- 			.regs = mode_3280x2464_regs,
- 		},
-+		.binning = false,
- 	},
- 	{
- 		/* 1080P 30fps cropped */
-@@ -402,6 +404,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_1920_1080_regs),
- 			.regs = mode_1920_1080_regs,
- 		},
-+		.binning = false,
- 	},
- 	{
- 		/* 2x2 binned 30fps mode */
-@@ -418,6 +421,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_1640_1232_regs),
- 			.regs = mode_1640_1232_regs,
- 		},
-+		.binning = true,
- 	},
- 	{
- 		/* 640x480 30fps mode */
-@@ -434,6 +438,7 @@ static const struct imx219_mode supported_modes[] = {
- 			.num_of_regs = ARRAY_SIZE(mode_640_480_regs),
- 			.regs = mode_640_480_regs,
- 		},
-+		.binning = true,
- 	},
- };
- 
-@@ -872,6 +877,35 @@ static int imx219_set_framefmt(struct imx219 *imx219)
- 	return -EINVAL;
+ 	free_irq(dev->irq, dev);
+ 	release_region(dev->hw_io, ENE_IO_SIZE);
+-	rc_unregister_device(dev->rdev);
+ 	kfree(dev);
  }
  
-+static int imx219_set_binning(struct imx219 *imx219)
-+{
-+	if (!imx219->mode->binning) {
-+		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
-+					IMX219_REG_VALUE_16BIT,
-+					IMX219_BINNING_NONE);
-+	}
-+
-+	switch (imx219->fmt.code) {
-+	case MEDIA_BUS_FMT_SRGGB8_1X8:
-+	case MEDIA_BUS_FMT_SGRBG8_1X8:
-+	case MEDIA_BUS_FMT_SGBRG8_1X8:
-+	case MEDIA_BUS_FMT_SBGGR8_1X8:
-+		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
-+					IMX219_REG_VALUE_16BIT,
-+					IMX219_BINNING_2X2_ANALOG);
-+
-+	case MEDIA_BUS_FMT_SRGGB10_1X10:
-+	case MEDIA_BUS_FMT_SGRBG10_1X10:
-+	case MEDIA_BUS_FMT_SGBRG10_1X10:
-+	case MEDIA_BUS_FMT_SBGGR10_1X10:
-+		return imx219_write_reg(imx219, IMX219_REG_BINNING_MODE,
-+					IMX219_REG_VALUE_16BIT,
-+					IMX219_BINNING_2X2);
-+	}
-+
-+	return -EINVAL;
-+}
-+
- static const struct v4l2_rect *
- __imx219_get_pad_crop(struct imx219 *imx219, struct v4l2_subdev_pad_config *cfg,
- 		      unsigned int pad, enum v4l2_subdev_format_whence which)
-@@ -957,6 +991,13 @@ static int imx219_start_streaming(struct imx219 *imx219)
- 		goto err_rpm_put;
- 	}
- 
-+	ret = imx219_set_binning(imx219);
-+	if (ret) {
-+		dev_err(&client->dev, "%s failed to set binning: %d\n",
-+			__func__, ret);
-+		goto err_rpm_put;
-+	}
-+
- 	/* Apply customized values from user */
- 	ret =  __v4l2_ctrl_handler_setup(imx219->sd.ctrl_handler);
- 	if (ret)
 -- 
 2.39.2
 
