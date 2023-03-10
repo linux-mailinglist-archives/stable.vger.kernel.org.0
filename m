@@ -2,54 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7576B43B6
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:17:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 194D06B40C6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:46:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232078AbjCJOQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:16:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46416 "EHLO
+        id S230195AbjCJNqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:46:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232094AbjCJOQc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F406711ACA5
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:48 -0800 (PST)
+        with ESMTP id S230232AbjCJNqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:46:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7887F8A4B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:45:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 897B5B8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE648C433D2;
-        Fri, 10 Mar 2023 14:15:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E8CAB822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:45:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C1C3C4339B;
+        Fri, 10 Mar 2023 13:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457746;
-        bh=F7uZVO0ca5QHNwSMbJOyEU21mOVccQ7RZ8POdiDPWMY=;
+        s=korg; t=1678455957;
+        bh=8qUSd8qFqXDVE2tRzc75YIJRifZI3a0iG1fbuxCpw0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1142pwedKjIS9jpd68FLl8ZKoG/Q3LedeSdcNMhDd7egc6qLww8HM+NcworMICek
-         EepDeFhUW/vU54hv6R1rzCDoJdJ3iTi9ABqchQerh8bC/h7PZ6tvu1HPhxEvM7QkXX
-         Fqb0wqbnYU5ytbniggKfyWpMRYsiWVAMRsoX4erc=
+        b=yjdF9fXeheUUKyahPWGykvANG9VwQpytkBOp5ZuNxRKcdKASbzX82kEq7QqimMzhg
+         yUKmmfVJeCKUZZbo/Ag9jBfxjyt/tUhUK8WlFzNKFN5vCH5SWu9aTzpHoYxL5OLPnG
+         Tcot0hLgtLrcVoUe6piV3e+Ch9/9XYIbbIRwveo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 043/252] wifi: ath9k: hif_usb: clean up skbs if ath9k_hif_usb_rx_stream() fails
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 031/193] wifi: libertas: cmdresp: dont call kfree_skb() under spin_lock_irqsave()
 Date:   Fri, 10 Mar 2023 14:36:53 +0100
-Message-Id: <20230310133720.129602652@linuxfoundation.org>
+Message-Id: <20230310133711.984636825@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,119 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0af54343a76263a12dbae7fafb64eb47c4a6ad38 ]
+[ Upstream commit 708a49a64237f19bd404852f297aaadbc9e7fee0 ]
 
-Syzkaller detected a memory leak of skbs in ath9k_hif_usb_rx_stream().
-While processing skbs in ath9k_hif_usb_rx_stream(), the already allocated
-skbs in skb_pool are not freed if ath9k_hif_usb_rx_stream() fails. If we
-have an incorrect pkt_len or pkt_tag, the input skb is considered invalid
-and dropped. All the associated packets already in skb_pool should be
-dropped and freed. Added a comment describing this issue.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave(). Compile
+tested only.
 
-The patch also makes remain_skb NULL after being processed so that it
-cannot be referenced after potential free. The initialization of hif_dev
-fields which are associated with remain_skb (rx_remain_len,
-rx_transfer_len and rx_pad_len) is moved after a new remain_skb is
-allocated.
-
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 6ce708f54cc8 ("ath9k: Fix out-of-bound memcpy in ath9k_hif_usb_rx_stream")
-Fixes: 44b23b488d44 ("ath9k: hif_usb: Reduce indent 1 column")
-Reported-by: syzbot+e9632e3eb038d93d6bc6@syzkaller.appspotmail.com
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230104123615.51511-1-pchelkin@ispras.ru
+Fixes: f52b041aed77 ("libertas: Add spinlock to avoid race condition")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221207150008.111743-5-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 31 +++++++++++++++++-------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ drivers/net/wireless/marvell/libertas/cmdresp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index f68e47f9b01e2..e23d58f83dd6f 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -561,11 +561,11 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 			memcpy(ptr, skb->data, rx_remain_len);
+diff --git a/drivers/net/wireless/marvell/libertas/cmdresp.c b/drivers/net/wireless/marvell/libertas/cmdresp.c
+index b73d083813985..5908f07d62ed7 100644
+--- a/drivers/net/wireless/marvell/libertas/cmdresp.c
++++ b/drivers/net/wireless/marvell/libertas/cmdresp.c
+@@ -48,7 +48,7 @@ void lbs_mac_event_disconnected(struct lbs_private *priv,
  
- 			rx_pkt_len += rx_remain_len;
--			hif_dev->rx_remain_len = 0;
- 			skb_put(remain_skb, rx_pkt_len);
- 
- 			skb_pool[pool_index++] = remain_skb;
--
-+			hif_dev->remain_skb = NULL;
-+			hif_dev->rx_remain_len = 0;
- 		} else {
- 			index = rx_remain_len;
- 		}
-@@ -584,16 +584,21 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 		pkt_len = get_unaligned_le16(ptr + index);
- 		pkt_tag = get_unaligned_le16(ptr + index + 2);
- 
-+		/* It is supposed that if we have an invalid pkt_tag or
-+		 * pkt_len then the whole input SKB is considered invalid
-+		 * and dropped; the associated packets already in skb_pool
-+		 * are dropped, too.
-+		 */
- 		if (pkt_tag != ATH_USB_RX_STREAM_MODE_TAG) {
- 			RX_STAT_INC(hif_dev, skb_dropped);
--			return;
-+			goto invalid_pkt;
- 		}
- 
- 		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
- 			dev_err(&hif_dev->udev->dev,
- 				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
- 			RX_STAT_INC(hif_dev, skb_dropped);
--			return;
-+			goto invalid_pkt;
- 		}
- 
- 		pad_len = 4 - (pkt_len & 0x3);
-@@ -605,11 +610,6 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 
- 		if (index > MAX_RX_BUF_SIZE) {
- 			spin_lock(&hif_dev->rx_lock);
--			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
--			hif_dev->rx_transfer_len =
--				MAX_RX_BUF_SIZE - chk_idx - 4;
--			hif_dev->rx_pad_len = pad_len;
--
- 			nskb = __dev_alloc_skb(pkt_len + 32, GFP_ATOMIC);
- 			if (!nskb) {
- 				dev_err(&hif_dev->udev->dev,
-@@ -617,6 +617,12 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				spin_unlock(&hif_dev->rx_lock);
- 				goto err;
- 			}
-+
-+			hif_dev->rx_remain_len = index - MAX_RX_BUF_SIZE;
-+			hif_dev->rx_transfer_len =
-+				MAX_RX_BUF_SIZE - chk_idx - 4;
-+			hif_dev->rx_pad_len = pad_len;
-+
- 			skb_reserve(nskb, 32);
- 			RX_STAT_INC(hif_dev, skb_allocated);
- 
-@@ -654,6 +660,13 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 				 skb_pool[i]->len, USB_WLAN_RX_PIPE);
- 		RX_STAT_INC(hif_dev, skb_completed);
- 	}
-+	return;
-+invalid_pkt:
-+	for (i = 0; i < pool_index; i++) {
-+		dev_kfree_skb_any(skb_pool[i]);
-+		RX_STAT_INC(hif_dev, skb_dropped);
-+	}
-+	return;
- }
- 
- static void ath9k_hif_usb_rx_cb(struct urb *urb)
+ 	/* Free Tx and Rx packets */
+ 	spin_lock_irqsave(&priv->driver_lock, flags);
+-	kfree_skb(priv->currenttxskb);
++	dev_kfree_skb_irq(priv->currenttxskb);
+ 	priv->currenttxskb = NULL;
+ 	priv->tx_pending_len = 0;
+ 	spin_unlock_irqrestore(&priv->driver_lock, flags);
 -- 
 2.39.2
 
