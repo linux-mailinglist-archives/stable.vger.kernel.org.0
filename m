@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 040C46B461E
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5C66B436D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232684AbjCJOkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:40:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55818 "EHLO
+        id S232017AbjCJOOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232691AbjCJOkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F4012142B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:13 -0800 (PST)
+        with ESMTP id S231740AbjCJOOQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38EFF20D03
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 933F5B822C4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01BD6C4339C;
-        Fri, 10 Mar 2023 14:40:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A30AB61771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7902C433D2;
+        Fri, 10 Mar 2023 14:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459211;
-        bh=vo9OZxlQwQHyHQ+XMOAr46e9Cnxk2fp3YDvXV/kghWA=;
+        s=korg; t=1678457527;
+        bh=s+oxcJSBZ8YNHVi15Y9HIZrKQpkfo0EPqvo/HoBvzpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G4eFHnjwzgcXmHJIm6TOuXp969tgjKp62caJ/QzWKUY9F8f8A+zYrMbQmwVvoXcs4
-         Vyi8MzY5c7aOrMkYiW32Es/nlIzsFRbEJCmrMdWRn9kERxdEC2qXJ34CW3b2UD0aCH
-         YCrNaQtS5l30JflAwDMK5xXBPANUrnLmPmIBZoXE=
+        b=xcaKIjWDzjDp9XGREJipXf6H1yKj9PqukZ8ImZiryvRuiOJqZ09G0Xe60hCxtstja
+         KiA1eA6ySsrnOkLsuYaEgK+63X49rSV78LBOUOZCFVDbbewRJnAp7X9P+tB05B1MxJ
+         ZfKzKE2swuqyQAGLCVXNUu6IEmdoZATeagwDK8zU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 254/357] thermal: intel: powerclamp: Fix cur_state for multi package system
-Date:   Fri, 10 Mar 2023 14:39:03 +0100
-Message-Id: <20230310133745.966410576@linuxfoundation.org>
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 137/200] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_status_word()
+Date:   Fri, 10 Mar 2023 14:39:04 +0100
+Message-Id: <20230310133721.346569272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-commit 8e47363588377e1bdb65e2b020b409cfb44dd260 upstream.
+[ Upstream commit e56d2c34ce9dc122b1a618172ec0e05e50adb9e9 ]
 
-The powerclamp cooling device cur_state shows actual idle observed by
-package C-state idle counters. But the implementation is not sufficient
-for multi package or multi die system. The cur_state value is incorrect.
-On these systems, these counters must be read from each package/die and
-somehow aggregate them. But there is no good method for aggregation.
+Smatch Warns: drivers/iio/accel/mma9551_core.c:357
+	mma9551_read_status_word() error: uninitialized symbol 'v'.
 
-It was not a problem when explicit CPU model addition was required to
-enable intel powerclamp. In this way certain CPU models could have
-been avoided. But with the removal of CPU model check with the
-availability of Package C-state counters, the driver is loaded on most
-of the recent systems.
+When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
+without 'v' being initialized, so check for the error and return.
 
-For multi package/die systems, just show the actual target idle state,
-the system is trying to achieve. In powerclamp this is the user set
-state minus one.
+Note: Not a bug as such because the caller checks return value and
+doesn't not use this parameter in the problem case.
 
-Also there is no use of starting a worker thread for polling package
-C-state counters and applying any compensation for multiple package
-or multiple die systems.
-
-Fixes: b721ca0d1927 ("thermal/powerclamp: remove cpu whitelist")
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20230126152147.3585874-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_powerclamp.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/iio/accel/mma9551_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/thermal/intel/intel_powerclamp.c
-+++ b/drivers/thermal/intel/intel_powerclamp.c
-@@ -57,6 +57,7 @@
+diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
+index 64ca7d7a9673d..86437ddc5ca18 100644
+--- a/drivers/iio/accel/mma9551_core.c
++++ b/drivers/iio/accel/mma9551_core.c
+@@ -354,9 +354,12 @@ int mma9551_read_status_word(struct i2c_client *client, u8 app_id,
  
- static unsigned int target_mwait;
- static struct dentry *debug_dir;
-+static bool poll_pkg_cstate_enable;
- 
- /* user selected target */
- static unsigned int set_target_ratio;
-@@ -265,6 +266,9 @@ static unsigned int get_compensation(int
- {
- 	unsigned int comp = 0;
- 
-+	if (!poll_pkg_cstate_enable)
-+		return 0;
+ 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_STATUS,
+ 			       reg, NULL, 0, (u8 *)&v, 2);
++	if (ret < 0)
++		return ret;
 +
- 	/* we only use compensation if all adjacent ones are good */
- 	if (ratio == 1 &&
- 		cal_data[ratio].confidence >= CONFIDENCE_OK &&
-@@ -537,7 +541,8 @@ static int start_power_clamp(void)
- 	control_cpu = cpumask_first(cpu_online_mask);
+ 	*val = be16_to_cpu(v);
  
- 	clamping = true;
--	schedule_delayed_work(&poll_pkg_cstate_work, 0);
-+	if (poll_pkg_cstate_enable)
-+		schedule_delayed_work(&poll_pkg_cstate_work, 0);
- 
- 	/* start one kthread worker per online cpu */
- 	for_each_online_cpu(cpu) {
-@@ -606,11 +611,15 @@ static int powerclamp_get_max_state(stru
- static int powerclamp_get_cur_state(struct thermal_cooling_device *cdev,
- 				 unsigned long *state)
- {
--	if (true == clamping)
--		*state = pkg_cstate_ratio_cur;
--	else
-+	if (clamping) {
-+		if (poll_pkg_cstate_enable)
-+			*state = pkg_cstate_ratio_cur;
-+		else
-+			*state = set_target_ratio;
-+	} else {
- 		/* to save power, do not poll idle ratio while not clamping */
- 		*state = -1; /* indicates invalid state */
-+	}
- 
- 	return 0;
+-	return ret;
++	return 0;
  }
-@@ -735,6 +744,9 @@ static int __init powerclamp_init(void)
- 		goto exit_unregister;
- 	}
+ EXPORT_SYMBOL_NS(mma9551_read_status_word, IIO_MMA9551);
  
-+	if (topology_max_packages() == 1 && topology_max_die_per_package() == 1)
-+		poll_pkg_cstate_enable = true;
-+
- 	cooling_dev = thermal_cooling_device_register("intel_powerclamp", NULL,
- 						&powerclamp_cooling_ops);
- 	if (IS_ERR(cooling_dev)) {
+-- 
+2.39.2
+
 
 
