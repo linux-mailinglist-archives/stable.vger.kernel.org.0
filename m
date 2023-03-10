@@ -2,68 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3175C6B52A9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 22:19:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 855716B52CA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 22:26:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230093AbjCJVTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 16:19:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46792 "EHLO
+        id S231817AbjCJV0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 16:26:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231629AbjCJVTT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 16:19:19 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE2011E6FB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:19:17 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id me6-20020a17090b17c600b0023816b0c7ceso11194916pjb.2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:19:17 -0800 (PST)
+        with ESMTP id S231818AbjCJV0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 16:26:06 -0500
+Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F56FDDB0F;
+        Fri, 10 Mar 2023 13:26:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1678483157;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=/DAPwytqt0UoxSv0LPjve8O+ldRD/wOKtTEA8wwfoto=;
-        b=UBjew8vk+sLs8v++XGBar07OBfLwdjEoAWPA3i0HiCPTDafvFLqtaz/0fJOxr2LSrG
-         WeXWBZZuLYuDgy9/Zbj1/ICIvyW16ZZ+KgMxbv9jmM3P0yG1AcLBPXRjdYZztORbkZo1
-         8FYt3OReI4Y+0kowTOiOA/218cP0r0/DMjU/tosX75FU57q8yxX+v5CYKBPGJgN26+vs
-         jg0YwrePFs2mhWWi/az9qxDKCWhBPEdeEzWxOohREKZ7gs213f9KrqN7UM+qE2PGeJKK
-         PQSSr8fowxIHzNLQXFR16WgOCUGc+o3Mxe8kFsTb16H8W9eE1zGQ/qNZmP6ATVU/dcEB
-         z0Kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678483157;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/DAPwytqt0UoxSv0LPjve8O+ldRD/wOKtTEA8wwfoto=;
-        b=XYhQSz2n5mzU98CyZj3jwySn9PLi7zQrw/xFnBNdF9lFCmHuNPIibGWlvfz8yiTBTg
-         a6hLWhFNzZ876F3x8WQriphaOHXrMPPi11Mrs1nXY7h9zbJ13JjOd4knFJMmWUQl1KgE
-         HoQ4qBIcIeszEqnsYkKh2bFskVrtzJtLhFlmw8vVFZLpwz/AgjsghzW2TPZYZVZbfuPw
-         /iRihQY2X9h4RuT55Dg4s7G4quvZc+qMCdB3djP0WyWDjbTotIvnsE6gNL2fzJYg9Z0I
-         7WqpFjKJExybc8u8WG2ASlUXpf5gxcbezjr+jo4i0DowuQbyWHd51IdJhScTUDenbQmU
-         BfOA==
-X-Gm-Message-State: AO0yUKVSOJihvz5LKULcsZk241pWmAxj17weBtJTtqDUeyKCbt4ZxwRw
-        Mf1M3QNDhaTzfTP4gfct9brbqqP/CAkVW7WXpwQWLON7
-X-Google-Smtp-Source: AK7set/VMg7mqMwL4xm4vZCRegjZrKNY1Yfp3BJCg+/UGb/g9MPSTkKjuBPXfME7dqZelxnQYKVJ1w==
-X-Received: by 2002:a17:902:e5c9:b0:19b:c498:fd01 with SMTP id u9-20020a170902e5c900b0019bc498fd01mr3520470plf.11.1678483156853;
-        Fri, 10 Mar 2023 13:19:16 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d4-20020a170903230400b00198d7b52eefsm380783plh.257.2023.03.10.13.19.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Mar 2023 13:19:16 -0800 (PST)
-Message-ID: <640b9ed4.170a0220.4bd62.1577@mx.google.com>
-Date:   Fri, 10 Mar 2023 13:19:16 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1678483565; x=1710019565;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=vrPJVdcUit+S8FGoD3UECE020RNm4lbU5S9sF3HNvCE=;
+  b=CBrpRl1dUmdTFtWzEzOj2ZCPZ8MYi6+wh6aqVkd4JlzpPs0Oiq/+SSZE
+   kpIaEO0xM4tBf1wBG0o8ViLqsRu3VWvANq1a0+i0c4DfafwJX9GzAKNX8
+   qKkWjtRkzxeyip7DlpdXFUC7rqlpeweDuq173gAA22AOFOCOO76aY6cEt
+   I=;
+X-IronPort-AV: E=Sophos;i="5.98,250,1673913600"; 
+   d="scan'208";a="317225453"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-2a-m6i4x-3ef535ca.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2023 21:25:59 +0000
+Received: from EX19MTAUWC001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2a-m6i4x-3ef535ca.us-west-2.amazon.com (Postfix) with ESMTPS id ABED260D8B;
+        Fri, 10 Mar 2023 21:25:58 +0000 (UTC)
+Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
+ EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.25; Fri, 10 Mar 2023 21:25:58 +0000
+Received: from 88665a182662.ant.amazon.com (10.106.100.20) by
+ EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.24; Fri, 10 Mar 2023 21:25:55 +0000
+From:   Kuniyuki Iwashima <kuniyu@amazon.com>
+To:     <pholzing@redhat.com>
+CC:     <kuba@kernel.org>, <martin.lau@kernel.org>,
+        <netdev@vger.kernel.org>, <regressions@lists.linux.dev>,
+        <stable@vger.kernel.org>, <kuniyu@amazon.com>
+Subject: Re: [REGRESSION] v6.1+ bind() does not fail with EADDRINUSE if dual stack is bound
+Date:   Fri, 10 Mar 2023 13:25:47 -0800
+Message-ID: <20230310212547.25491-1-kuniyu@amazon.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <e21bf153-80b0-9ec0-15ba-e04a4ad42c34@redhat.com>
+References: <e21bf153-80b0-9ec0-15ba-e04a4ad42c34@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-6.1.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v6.1.16-201-gf345f456043c
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-6.1.y baseline: 177 runs,
- 1 regressions (v6.1.16-201-gf345f456043c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.106.100.20]
+X-ClientProxiedBy: EX19D044UWB003.ant.amazon.com (10.13.139.168) To
+ EX19D004ANA001.ant.amazon.com (10.37.240.138)
+X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,85 +66,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-6.1.y baseline: 177 runs, 1 regressions (v6.1.16-201-gf345f=
-456043c)
+From:   Paul Holzinger <pholzing@redhat.com>
+Date:   Fri, 10 Mar 2023 17:01:31 +0100
+> Hi all,
+> 
+> there seems to be a regression which allows you to bind the same port 
+> twice when the first bind call bound to all ip addresses (i. e. dual stack).
+> 
+> A second bind call for the same port will succeed if you try to bind to 
+> a specific ipv4 (e. g. 127.0.0.1), binding to 0.0.0.0 or an ipv6 address 
+> fails correctly with EADDRINUSE.
+> 
+> I included a small c program below to show the issue. Normally the 
+> second bind call should fail, this was the case before v6.1.
+> 
+> 
+> I bisected the regression to commit 5456262d2baa ("net: Fix incorrect 
+> address comparison when searching for a bind2 bucket").
+> 
+> I also checked that the issue is still present in v6.3-rc1.
 
-Regressions Summary
--------------------
+Thanks for the detailed report.
 
-platform           | arch | lab         | compiler | defconfig         | re=
-gressions
--------------------+------+-------------+----------+-------------------+---=
----------
-bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
-         =
+It seems we should take care of the special case in
+inet_bind2_bucket_match_addr_any().
 
+I'll fix it.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-6.1.y/kern=
-el/v6.1.16-201-gf345f456043c/plan/baseline/
+Thanks,
+Kuniyuki
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-6.1.y
-  Describe: v6.1.16-201-gf345f456043c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f345f456043c26b6a0d011d779ae746c16a9f8f1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab         | compiler | defconfig         | re=
-gressions
--------------------+------+-------------+----------+-------------------+---=
----------
-bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/640b66b05e75b81ae78c8665
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-6.1.y/v6.1.16-=
-201-gf345f456043c/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835=
--rpi-b-rev2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-6.1.y/v6.1.16-=
-201-gf345f456043c/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835=
--rpi-b-rev2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230303.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/640b66b05e75b81ae78c866e
-        failing since 2 days (last pass: v6.1.15, first fail: v6.1.15-886-g=
-7ff82f8ebd2b)
-
-    2023-03-10T17:19:31.105154  + set +x
-    2023-03-10T17:19:31.108918  <8>[   16.385800] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 137716_1.5.2.4.1>
-    2023-03-10T17:19:31.222561  / # #
-    2023-03-10T17:19:31.324933  export SHELL=3D/bin/sh
-    2023-03-10T17:19:31.325558  #
-    2023-03-10T17:19:31.427194  / # export SHELL=3D/bin/sh. /lava-137716/en=
-vironment
-    2023-03-10T17:19:31.427708  =
-
-    2023-03-10T17:19:31.529332  / # . /lava-137716/environment/lava-137716/=
-bin/lava-test-runner /lava-137716/1
-    2023-03-10T17:19:31.530434  =
-
-    2023-03-10T17:19:31.536768  / # /lava-137716/bin/lava-test-runner /lava=
--137716/1 =
-
-    ... (14 line(s) more)  =
-
- =20
+> 
+> 
+> Original report: https://github.com/containers/podman/issues/17719
+> 
+> #regzbot introduced: 5456262d2baa
+> 
+> 
+> ```
+> 
+> #include <sys/socket.h>
+> #include <sys/un.h>
+> #include <stdlib.h>
+> #include <stdio.h>
+> #include <netinet/in.h>
+> #include <unistd.h>
+> 
+> int main(int argc, char *argv[])
+> {
+>      int ret, sock1, sock2;
+>      struct sockaddr_in6 addr;
+>      struct sockaddr_in addr2;
+> 
+>      sock1 = socket(AF_INET6, SOCK_STREAM, 0);
+>      if (sock1 == -1)
+>      {
+>          perror("socket1");
+>          exit(1);
+>      }
+>      sock2 = socket(AF_INET, SOCK_STREAM, 0);
+>      if (sock2 == -1)
+>      {
+>          perror("socket2");
+>          exit(1);
+>      }
+> 
+>      memset(&addr, 0, sizeof(addr));
+>      addr.sin6_family = AF_INET6;
+>      addr.sin6_addr = in6addr_any;
+>      addr.sin6_port = htons(8080);
+> 
+>      memset(&addr2, 0, sizeof(addr2));
+>      addr2.sin_family = AF_INET;
+>      addr2.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+>      addr2.sin_port = htons(8080);
+> 
+>      ret = bind(sock1, (struct sockaddr *)&addr, sizeof(addr));
+>      if (ret == -1)
+>      {
+>          perror("bind1");
+>          exit(1);
+>      }
+>      printf("bind1 ret: %d\n", ret);
+> 
+>      if ((listen(sock1, 5)) != 0)
+>      {
+>          perror("listen1");
+>          exit(1);
+>      }
+> 
+>      ret = bind(sock2, (struct sockaddr *)&addr2, sizeof(addr2));
+>      if (ret == -1)
+>      {
+>          perror("bind2");
+>          exit(1);
+>      }
+>      printf("bind2 ret: %d\n", ret);
+> 
+>      if ((listen(sock2, 5)) != 0)
+>      {
+>          perror("listen2");
+>          exit(1);
+>      }
+> 
+>      // uncomment pause() to see with ss -tlpn the bound ports
+>      // pause();
+> 
+>      return 0;
+> }
+> 
+> ```
+> 
+> 
+> Best regards,
+> 
+> Paul
