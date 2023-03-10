@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4463C6B44EE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:29:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 220346B44F0
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232310AbjCJO35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:29:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55706 "EHLO
+        id S232336AbjCJOaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232381AbjCJO3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E87546171
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:27:44 -0800 (PST)
+        with ESMTP id S232449AbjCJO3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2D1118BFB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:27:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEF98618A6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:27:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2866C433D2;
-        Fri, 10 Mar 2023 14:27:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 624EAB822DD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4115C433EF;
+        Fri, 10 Mar 2023 14:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458463;
-        bh=l1UqvGZYtMVp5vaOEznFtIy4S9BUTmOCZ2PXrj77veI=;
+        s=korg; t=1678458469;
+        bh=3ePIDLwD3Qu1A21fo0Q9MhMJmaacUPBYuEs5ui+dDu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJOJN6AQq1l8K/6g2HxK5Hs1kTPoDgU3ZkgkNhcFbX5A9YujGYEnF+oZxyDEsQrlu
-         F6m0J+i7UH5UqLpTVz/h1CDkCRiXOevYxg1MLB3gP8LQElZlAVmuOU7DeC3EuOvprL
-         UpeslEs0tFtUUkdykBd6FZgH7bE5fuKkTeDr7iNA=
+        b=XqCamSS2gM6x2k+epfu+AUhY4o0YUUCVDqK5hsvUWeWFayge+D/5w++UqYa4oB5et
+         oFwkBoKtqSf0i6AR6LJ6oYPpETrfQ9IHpKI38GewpEzB5mBEI9F1244dve0mb5iLUi
+         BKiWVV0wZa6zSlXEA5vHdH455cbvNttyOyMk0LRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>, Kalle Valo <kvalo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/357] wifi: libertas: fix memory leak in lbs_init_adapter()
-Date:   Fri, 10 Mar 2023 14:35:24 +0100
-Message-Id: <20230310133735.560918406@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 036/357] wifi: rtl8xxxu: dont call dev_kfree_skb() under spin_lock_irqsave()
+Date:   Fri, 10 Mar 2023 14:35:25 +0100
+Message-Id: <20230310133735.598171680@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -54,33 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 16a03958618fb91bb1bc7077cf3211055162cc2f ]
+[ Upstream commit 4c2005ac87685907b3719b4f40215b578efd27c4 ]
 
-When kfifo_alloc() failed in lbs_init_adapter(), cmd buffer is not
-released. Add free memory to processing error path.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: 7919b89c8276 ("libertas: convert libertas driver to use an event/cmdresp queue")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+In this case, dev_kfree_skb() is called to free and drop the SKB when
+it's shutdown, so replace it with dev_kfree_skb_irq(). Compile tested
+only.
+
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221208121448.2845986-1-shaozhengchao@huawei.com
+Link: https://lore.kernel.org/r/20221208143517.2383424-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/main.c b/drivers/net/wireless/marvell/libertas/main.c
-index 2233b59cdf444..a94e50eb34bfb 100644
---- a/drivers/net/wireless/marvell/libertas/main.c
-+++ b/drivers/net/wireless/marvell/libertas/main.c
-@@ -870,6 +870,7 @@ static int lbs_init_adapter(struct lbs_private *priv)
- 	ret = kfifo_alloc(&priv->event_fifo, sizeof(u32) * 16, GFP_KERNEL);
- 	if (ret) {
- 		pr_err("Out of memory allocating event FIFO buffer\n");
-+		lbs_free_cmd_buffer(priv);
- 		goto out;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 0bc747489c55a..9278f4feff745 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -5095,7 +5095,7 @@ static void rtl8xxxu_queue_rx_urb(struct rtl8xxxu_priv *priv,
+ 		pending = priv->rx_urb_pending_count;
+ 	} else {
+ 		skb = (struct sk_buff *)rx_urb->urb.context;
+-		dev_kfree_skb(skb);
++		dev_kfree_skb_irq(skb);
+ 		usb_free_urb(&rx_urb->urb);
  	}
  
 -- 
