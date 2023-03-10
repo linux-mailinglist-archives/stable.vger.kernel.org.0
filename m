@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 708266B44AF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A279C6B467B
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232225AbjCJO1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:27:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43894 "EHLO
+        id S232841AbjCJOnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:43:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232184AbjCJO04 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:26:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6433E11E6D6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:22 -0800 (PST)
+        with ESMTP id S232911AbjCJOn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:43:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05EFEF768
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:43:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6A44B822CC
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA01C433D2;
-        Fri, 10 Mar 2023 14:25:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE6E16187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:43:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B257CC4339C;
+        Fri, 10 Mar 2023 14:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458319;
-        bh=k5XWIl5XB4f65o6A0XZFfzI5aSXS0CJa1Wdvb80QDis=;
+        s=korg; t=1678459396;
+        bh=vbZNqDIJYgGpYLsXqklnkUQLXVhTSP76uLHsC1BrEuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxmSGQPQUjczpBPWF26o3EKEVm6WL8Wqj3IUlejx3uPnQCIlpvaElLFAxFYUbC+cm
-         bE8y/uCrAF0zOGe4i7yIGgWC/efBV7yF7/feGc9RS9UQyX5qK0xaOx46DFS5N/mzmI
-         UO19Y5UHpdumzzAvnW61hVcoU8Ua2fK0HYj7iB0o=
+        b=jGo3N5p7xwzLKsBj+7YzQ58o0ECS56E23YKBCaHi82TbKv4T90WSWXVDn5tOr1y/v
+         C/eWssTOilXhik42dB7Ip9LxHKwtVyX3FKhWkd/cBnPOIebYH2W97A4uLkG8YHeiIZ
+         SY6v7MwdNQuLxyuwJI8g8wVk67u95DA3eNmE0aEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Pedro Tammela <pctammela@mojatatu.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 239/252] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_status_word()
+Subject: [PATCH 5.4 320/357] net/sched: act_sample: fix action bind logic
 Date:   Fri, 10 Mar 2023 14:40:09 +0100
-Message-Id: <20230310133726.666433434@linuxfoundation.org>
+Message-Id: <20230310133748.789835046@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,45 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Pedro Tammela <pctammela@mojatatu.com>
 
-[ Upstream commit e56d2c34ce9dc122b1a618172ec0e05e50adb9e9 ]
+[ Upstream commit 4a20056a49a1854966562241922f68197f950539 ]
 
-Smatch Warns: drivers/iio/accel/mma9551_core.c:357
-	mma9551_read_status_word() error: uninitialized symbol 'v'.
+The TC architecture allows filters and actions to be created independently.
+In filters the user can reference action objects using:
+tc action add action sample ... index 1
+tc filter add ... action pedit index 1
 
-When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
-without 'v' being initialized, so check for the error and return.
+In the current code for act_sample this is broken as it checks netlink
+attributes for create/update before actually checking if we are binding to an
+existing action.
 
-Note: Not a bug as such because the caller checks return value and
-doesn't not use this parameter in the problem case.
+tdc results:
+1..29
+ok 1 9784 - Add valid sample action with mandatory arguments
+ok 2 5c91 - Add valid sample action with mandatory arguments and continue control action
+ok 3 334b - Add valid sample action with mandatory arguments and drop control action
+ok 4 da69 - Add valid sample action with mandatory arguments and reclassify control action
+ok 5 13ce - Add valid sample action with mandatory arguments and pipe control action
+ok 6 1886 - Add valid sample action with mandatory arguments and jump control action
+ok 7 7571 - Add sample action with invalid rate
+ok 8 b6d4 - Add sample action with mandatory arguments and invalid control action
+ok 9 a874 - Add invalid sample action without mandatory arguments
+ok 10 ac01 - Add invalid sample action without mandatory argument rate
+ok 11 4203 - Add invalid sample action without mandatory argument group
+ok 12 14a7 - Add invalid sample action without mandatory argument group
+ok 13 8f2e - Add valid sample action with trunc argument
+ok 14 45f8 - Add sample action with maximum rate argument
+ok 15 ad0c - Add sample action with maximum trunc argument
+ok 16 83a9 - Add sample action with maximum group argument
+ok 17 ed27 - Add sample action with invalid rate argument
+ok 18 2eae - Add sample action with invalid group argument
+ok 19 6ff3 - Add sample action with invalid trunc size
+ok 20 2b2a - Add sample action with invalid index
+ok 21 dee2 - Add sample action with maximum allowed index
+ok 22 560e - Add sample action with cookie
+ok 23 704a - Replace existing sample action with new rate argument
+ok 24 60eb - Replace existing sample action with new group argument
+ok 25 2cce - Replace existing sample action with new trunc argument
+ok 26 59d1 - Replace existing sample action with new control argument
+ok 27 0a6e - Replace sample action with invalid goto chain control
+ok 28 3872 - Delete sample action with valid index
+ok 29 a394 - Delete sample action with invalid index
 
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20230126152147.3585874-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 5c5670fae430 ("net/sched: Introduce sample tc action")
+Reviewed-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mma9551_core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sched/act_sample.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
-index c34c5ce8123b0..b4bbc83be4310 100644
---- a/drivers/iio/accel/mma9551_core.c
-+++ b/drivers/iio/accel/mma9551_core.c
-@@ -362,9 +362,12 @@ int mma9551_read_status_word(struct i2c_client *client, u8 app_id,
- 
- 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_STATUS,
- 			       reg, NULL, 0, (u8 *)&v, 2);
-+	if (ret < 0)
-+		return ret;
+diff --git a/net/sched/act_sample.c b/net/sched/act_sample.c
+index 214f4efdd9920..909a685b91621 100644
+--- a/net/sched/act_sample.c
++++ b/net/sched/act_sample.c
+@@ -54,8 +54,8 @@ static int tcf_sample_init(struct net *net, struct nlattr *nla,
+ 					  sample_policy, NULL);
+ 	if (ret < 0)
+ 		return ret;
+-	if (!tb[TCA_SAMPLE_PARMS] || !tb[TCA_SAMPLE_RATE] ||
+-	    !tb[TCA_SAMPLE_PSAMPLE_GROUP])
 +
- 	*val = be16_to_cpu(v);
++	if (!tb[TCA_SAMPLE_PARMS])
+ 		return -EINVAL;
  
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL(mma9551_read_status_word);
- 
+ 	parm = nla_data(tb[TCA_SAMPLE_PARMS]);
+@@ -79,6 +79,13 @@ static int tcf_sample_init(struct net *net, struct nlattr *nla,
+ 		tcf_idr_release(*a, bind);
+ 		return -EEXIST;
+ 	}
++
++	if (!tb[TCA_SAMPLE_RATE] || !tb[TCA_SAMPLE_PSAMPLE_GROUP]) {
++		NL_SET_ERR_MSG(extack, "sample rate and group are required");
++		err = -EINVAL;
++		goto release_idr;
++	}
++
+ 	err = tcf_action_check_ctrlact(parm->action, tp, &goto_ch, extack);
+ 	if (err < 0)
+ 		goto release_idr;
 -- 
 2.39.2
 
