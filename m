@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F24C16B453F
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D6AD6B43B1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232501AbjCJOc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53112 "EHLO
+        id S232114AbjCJOQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:16:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232549AbjCJOcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC1CA120491
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:31:05 -0800 (PST)
+        with ESMTP id S232057AbjCJOQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02EB6104607
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3847761380
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:31:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B157C433D2;
-        Fri, 10 Mar 2023 14:31:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B135EB822AD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17273C433EF;
+        Fri, 10 Mar 2023 14:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458664;
-        bh=NaZGWEGxjcE8IIypQld0fuptDvEUTuQFMMWz523dAMw=;
+        s=korg; t=1678457734;
+        bh=7IM/zsojAGQsDH/JtzFRT3kehHuaeOVwCp0dELAfsuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmidgSjNBr06SbhIzrIeGFTVka8KMTmcwQcOZ8m/jeamcMQLr0RHUpMr0kxzRVXRK
-         9n+hY2bXzjytMUg+fzchSVN77595kqaFdxezf2QXPFNKafYGGol/Gcaz6cY0qFwZTF
-         +v/7B6HL7d/l5Rl/yJYeKOFkuFJYwFeKHscI9PrE=
+        b=EQEcTM3AwgIqn3Eg9d3vLy5rZtxFvtQegi3Q7/o8m5B3Lnz2VZveEA8AH+s18+9Kv
+         BaEcavabd/yPGSe2IJPtERIPhikhQqyxVRn0SMudqEZeqJ/J+UfkI2S55Buey552e1
+         uHY92CXNV/fAqhFzjUJF6hw4p6njIbuJLxOEiWj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/357] pinctrl: stm32: Fix refcount leak in stm32_pctrl_get_irq_domain
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 022/252] wifi: rtl8xxxu: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Fri, 10 Mar 2023 14:36:32 +0100
-Message-Id: <20230310133738.559171160@linuxfoundation.org>
+Message-Id: <20230310133719.494234835@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit dcef18c8ac40aa85bb339f64c1dd31dd458b06fb ]
+[ Upstream commit 4c2005ac87685907b3719b4f40215b578efd27c4 ]
 
-of_irq_find_parent() returns a node pointer with refcount incremented,
-We should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: d86f4d71e42a ("pinctrl: stm32: check irq controller availability at probe")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20230102082503.3944927-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+In this case, dev_kfree_skb() is called to free and drop the SKB when
+it's shutdown, so replace it with dev_kfree_skb_irq(). Compile tested
+only.
+
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221208143517.2383424-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/stm32/pinctrl-stm32.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
-index e8149ff1d401c..10595b43360bd 100644
---- a/drivers/pinctrl/stm32/pinctrl-stm32.c
-+++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
-@@ -1250,6 +1250,7 @@ static struct irq_domain *stm32_pctrl_get_irq_domain(struct device_node *np)
- 		return ERR_PTR(-ENXIO);
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index e5aac9694ade2..9cdc8bc41c11a 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -5101,7 +5101,7 @@ static void rtl8xxxu_queue_rx_urb(struct rtl8xxxu_priv *priv,
+ 		pending = priv->rx_urb_pending_count;
+ 	} else {
+ 		skb = (struct sk_buff *)rx_urb->urb.context;
+-		dev_kfree_skb(skb);
++		dev_kfree_skb_irq(skb);
+ 		usb_free_urb(&rx_urb->urb);
+ 	}
  
- 	domain = irq_find_host(parent);
-+	of_node_put(parent);
- 	if (!domain)
- 		/* domain not registered yet */
- 		return ERR_PTR(-EPROBE_DEFER);
 -- 
 2.39.2
 
