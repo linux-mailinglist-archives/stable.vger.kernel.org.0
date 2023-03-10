@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1756F6B4ABE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EBE66B4ABC
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:26:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234287AbjCJP0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:26:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60474 "EHLO
+        id S234284AbjCJP0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:26:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233793AbjCJP0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:26:00 -0500
+        with ESMTP id S233203AbjCJPZ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:25:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88EC2133D8F
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B43C2133D94
         for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:15:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95F8F61976
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:14:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CFC8C433EF;
-        Fri, 10 Mar 2023 15:14:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96E7B6195A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:14:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E57DC4339C;
+        Fri, 10 Mar 2023 15:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461273;
-        bh=56eAPeIY39AGuvZqakXb8V+O9bqbNRSx5U4PByZyWPE=;
+        s=korg; t=1678461276;
+        bh=0wqFpyAmX2c2eQisPsPsEGHRL34fSEEmpnIy5JanvsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejDvZ35cwLZ8QY8hEQrT8hVy9t1xISsnh6ptu14VFlEnvNnekZt7emG8l4nNdOsbZ
-         ad5FS7biTNlpSDRUQZ9iT0KuSle+p+MO1heWGXovEzygosswwNbjxq+1twznpTUvRx
-         +iZiUi6OoTxLB3j5hcXUiTbee5Yzj0n+9fNgLdvc=
+        b=CzCBqFJp7bc5fbwaUt4gz645ueGbUMaJyeJmLJRwLgvvmNCw2UT+lNCQ7FdI+LtGh
+         hhB41/TRbYlpxgWzRp14MX2DuxnWZgGBxRTTfiPMzpqyvOhej7LF14oi+ZnJuruVh/
+         gdeJxEwqBscNOBQbaVvntfv8GtM+iddEDo7f5qO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/136] media: uvcvideo: Handle errors from calls to usb_string
-Date:   Fri, 10 Mar 2023 14:43:24 +0100
-Message-Id: <20230310133709.650108479@linuxfoundation.org>
+Subject: [PATCH 5.15 083/136] media: uvcvideo: Quirk for autosuspend in Logitech B910 and C910
+Date:   Fri, 10 Mar 2023 14:43:25 +0100
+Message-Id: <20230310133709.679346506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -54,136 +54,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 4867bb590ae445bcfaa711a86b603c97e94574b3 ]
+[ Upstream commit 136effa754b57632f99574fc4a3433e0cfc031d9 ]
 
-On a Webcam from Quanta, we see the following error.
+Logitech B910 and C910 firmware are unable to recover from a USB
+autosuspend. When it resumes, the device is in a state where it only
+produces invalid frames. Eg:
 
-usb 3-5: New USB device found, idVendor=0408, idProduct=30d2, bcdDevice= 0.03
-usb 3-5: New USB device strings: Mfr=3, Product=1, SerialNumber=2
-usb 3-5: Product: USB2.0 HD UVC WebCam
-usb 3-5: Manufacturer: Quanta
-usb 3-5: SerialNumber: 0x0001
-...
-uvcvideo: Found UVC 1.10 device USB2.0 HD UVC WebCam (0408:30d2)
-uvcvideo: Failed to initialize entity for entity 5
-uvcvideo: Failed to register entities (-22).
+$ echo 0xFFFF > /sys/module/uvcvideo/parameters/trace # enable verbose log
+$ yavta -c1 -n1 --file='frame#.jpg' --format MJPEG --size=1920x1080 /dev/video1
+[350438.435219] uvcvideo: uvc_v4l2_open
+[350438.529794] uvcvideo: Resuming interface 2
+[350438.529801] uvcvideo: Resuming interface 3
+[350438.529991] uvcvideo: Trying format 0x47504a4d (MJPG): 1920x1080.
+[350438.529996] uvcvideo: Using default frame interval 33333.3 us (30.0 fps).
+[350438.551496] uvcvideo: uvc_v4l2_mmap
+[350438.555890] uvcvideo: Device requested 3060 B/frame bandwidth.
+[350438.555896] uvcvideo: Selecting alternate setting 11 (3060 B/frame bandwidth).
+[350438.556362] uvcvideo: Allocated 5 URB buffers of 32x3060 bytes each.
+[350439.316468] uvcvideo: Marking buffer as bad (error bit set).
+[350439.316475] uvcvideo: Frame complete (EOF found).
+[350439.316477] uvcvideo: EOF in empty payload.
+[350439.316484] uvcvideo: frame 1 stats: 149/261/417 packets, 1/149/417 pts (early initial), 416/417 scr, last pts/stc/sof 2976325734/2978107243/249
+[350439.384510] uvcvideo: Marking buffer as bad (error bit set).
+[350439.384516] uvcvideo: Frame complete (EOF found).
+[350439.384518] uvcvideo: EOF in empty payload.
+[350439.384525] uvcvideo: frame 2 stats: 265/379/533 packets, 1/265/533 pts (early initial), 532/533 scr, last pts/stc/sof 2979524454/2981305193/316
+[350439.448472] uvcvideo: Marking buffer as bad (error bit set).
+[350439.448478] uvcvideo: Frame complete (EOF found).
+[350439.448480] uvcvideo: EOF in empty payload.
+[350439.448487] uvcvideo: frame 3 stats: 265/377/533 packets, 1/265/533 pts (early initial), 532/533 scr, last pts/stc/sof 2982723174/2984503144/382
+...(loop)...
 
-The Webcam reports an entity of type UVC_VC_EXTENSION_UNIT. It reports a
-string index of '7' associated with that entity. The attempt to read that
-string from the camera fails with error -32 (-EPIPE). usb_string() returns
-that error, but it is ignored. As result, the entity name is empty. This
-later causes v4l2_device_register_subdev() to return -EINVAL, and no
-entities are registered as result.
+The devices can leave this invalid state if the alternate setting of
+the streaming interface is toggled.
 
-While this appears to be a firmware problem with the camera, the kernel
-should still handle the situation gracefully. To do that, check the return
-value from usb_string(). If it reports an error, assign the entity's
-default name.
+This patch adds a quirk for this device so it can be autosuspended
+properly.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+lsusb -v:
+Bus 001 Device 049: ID 046d:0821 Logitech, Inc. HD Webcam C910
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass          239 Miscellaneous Device
+  bDeviceSubClass         2
+  bDeviceProtocol         1 Interface Association
+  bMaxPacketSize0        64
+  idVendor           0x046d Logitech, Inc.
+  idProduct          0x0821 HD Webcam C910
+  bcdDevice            0.10
+  iManufacturer           0
+  iProduct                0
+  iSerial                 1 390022B0
+  bNumConfigurations      1
+
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 48 ++++++++++++------------------
- 1 file changed, 19 insertions(+), 29 deletions(-)
+ drivers/media/usb/uvc/uvc_driver.c | 18 ++++++++++++++++++
+ drivers/media/usb/uvc/uvc_video.c  | 11 +++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |  1 +
+ 3 files changed, 30 insertions(+)
 
 diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 57935eb079312..16e84c7c8456c 100644
+index 16e84c7c8456c..2e7df1de0af9a 100644
 --- a/drivers/media/usb/uvc/uvc_driver.c
 +++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -1131,10 +1131,8 @@ static int uvc_parse_vendor_control(struct uvc_device *dev,
- 					       + n;
- 		memcpy(unit->extension.bmControls, &buffer[23+p], 2*n);
+@@ -2684,6 +2684,24 @@ static const struct usb_device_id uvc_ids[] = {
+ 	  .bInterfaceSubClass	= 1,
+ 	  .bInterfaceProtocol	= 0,
+ 	  .driver_info		= (kernel_ulong_t)&uvc_quirk_probe_minmax },
++	/* Logitech, Webcam C910 */
++	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
++				| USB_DEVICE_ID_MATCH_INT_INFO,
++	  .idVendor		= 0x046d,
++	  .idProduct		= 0x0821,
++	  .bInterfaceClass	= USB_CLASS_VIDEO,
++	  .bInterfaceSubClass	= 1,
++	  .bInterfaceProtocol	= 0,
++	  .driver_info		= UVC_INFO_QUIRK(UVC_QUIRK_WAKE_AUTOSUSPEND)},
++	/* Logitech, Webcam B910 */
++	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
++				| USB_DEVICE_ID_MATCH_INT_INFO,
++	  .idVendor		= 0x046d,
++	  .idProduct		= 0x0823,
++	  .bInterfaceClass	= USB_CLASS_VIDEO,
++	  .bInterfaceSubClass	= 1,
++	  .bInterfaceProtocol	= 0,
++	  .driver_info		= UVC_INFO_QUIRK(UVC_QUIRK_WAKE_AUTOSUSPEND)},
+ 	/* Logitech Quickcam Fusion */
+ 	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
+ 				| USB_DEVICE_ID_MATCH_INT_INFO,
+diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
+index 1b4cc934109e8..af2c6cb9fa3c4 100644
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -1951,6 +1951,17 @@ static int uvc_video_start_transfer(struct uvc_streaming *stream,
+ 			"Selecting alternate setting %u (%u B/frame bandwidth)\n",
+ 			altsetting, best_psize);
  
--		if (buffer[24+p+2*n] != 0)
--			usb_string(udev, buffer[24+p+2*n], unit->name,
--				   sizeof(unit->name));
--		else
-+		if (buffer[24+p+2*n] == 0 ||
-+		    usb_string(udev, buffer[24+p+2*n], unit->name, sizeof(unit->name)) < 0)
- 			sprintf(unit->name, "Extension %u", buffer[3]);
- 
- 		list_add_tail(&unit->list, &dev->entities);
-@@ -1258,15 +1256,15 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
- 			memcpy(term->media.bmTransportModes, &buffer[10+n], p);
- 		}
- 
--		if (buffer[7] != 0)
--			usb_string(udev, buffer[7], term->name,
--				   sizeof(term->name));
--		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
--			sprintf(term->name, "Camera %u", buffer[3]);
--		else if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
--			sprintf(term->name, "Media %u", buffer[3]);
--		else
--			sprintf(term->name, "Input %u", buffer[3]);
-+		if (buffer[7] == 0 ||
-+		    usb_string(udev, buffer[7], term->name, sizeof(term->name)) < 0) {
-+			if (UVC_ENTITY_TYPE(term) == UVC_ITT_CAMERA)
-+				sprintf(term->name, "Camera %u", buffer[3]);
-+			if (UVC_ENTITY_TYPE(term) == UVC_ITT_MEDIA_TRANSPORT_INPUT)
-+				sprintf(term->name, "Media %u", buffer[3]);
-+			else
-+				sprintf(term->name, "Input %u", buffer[3]);
++		/*
++		 * Some devices, namely the Logitech C910 and B910, are unable
++		 * to recover from a USB autosuspend, unless the alternate
++		 * setting of the streaming interface is toggled.
++		 */
++		if (stream->dev->quirks & UVC_QUIRK_WAKE_AUTOSUSPEND) {
++			usb_set_interface(stream->dev->udev, intfnum,
++					  altsetting);
++			usb_set_interface(stream->dev->udev, intfnum, 0);
 +		}
++
+ 		ret = usb_set_interface(stream->dev->udev, intfnum, altsetting);
+ 		if (ret < 0)
+ 			return ret;
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index 9051006709fd5..bb3f62358dfeb 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -209,6 +209,7 @@
+ #define UVC_QUIRK_RESTORE_CTRLS_ON_INIT	0x00000400
+ #define UVC_QUIRK_FORCE_Y8		0x00000800
+ #define UVC_QUIRK_FORCE_BPP		0x00001000
++#define UVC_QUIRK_WAKE_AUTOSUSPEND	0x00002000
  
- 		list_add_tail(&term->list, &dev->entities);
- 		break;
-@@ -1298,10 +1296,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
- 
- 		memcpy(term->baSourceID, &buffer[7], 1);
- 
--		if (buffer[8] != 0)
--			usb_string(udev, buffer[8], term->name,
--				   sizeof(term->name));
--		else
-+		if (buffer[8] == 0 ||
-+		    usb_string(udev, buffer[8], term->name, sizeof(term->name)) < 0)
- 			sprintf(term->name, "Output %u", buffer[3]);
- 
- 		list_add_tail(&term->list, &dev->entities);
-@@ -1323,10 +1319,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
- 
- 		memcpy(unit->baSourceID, &buffer[5], p);
- 
--		if (buffer[5+p] != 0)
--			usb_string(udev, buffer[5+p], unit->name,
--				   sizeof(unit->name));
--		else
-+		if (buffer[5+p] == 0 ||
-+		    usb_string(udev, buffer[5+p], unit->name, sizeof(unit->name)) < 0)
- 			sprintf(unit->name, "Selector %u", buffer[3]);
- 
- 		list_add_tail(&unit->list, &dev->entities);
-@@ -1356,10 +1350,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
- 		if (dev->uvc_version >= 0x0110)
- 			unit->processing.bmVideoStandards = buffer[9+n];
- 
--		if (buffer[8+n] != 0)
--			usb_string(udev, buffer[8+n], unit->name,
--				   sizeof(unit->name));
--		else
-+		if (buffer[8+n] == 0 ||
-+		    usb_string(udev, buffer[8+n], unit->name, sizeof(unit->name)) < 0)
- 			sprintf(unit->name, "Processing %u", buffer[3]);
- 
- 		list_add_tail(&unit->list, &dev->entities);
-@@ -1387,10 +1379,8 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
- 		unit->extension.bmControls = (u8 *)unit + sizeof(*unit);
- 		memcpy(unit->extension.bmControls, &buffer[23+p], n);
- 
--		if (buffer[23+p+n] != 0)
--			usb_string(udev, buffer[23+p+n], unit->name,
--				   sizeof(unit->name));
--		else
-+		if (buffer[23+p+n] == 0 ||
-+		    usb_string(udev, buffer[23+p+n], unit->name, sizeof(unit->name)) < 0)
- 			sprintf(unit->name, "Extension %u", buffer[3]);
- 
- 		list_add_tail(&unit->list, &dev->entities);
+ /* Format flags */
+ #define UVC_FMT_FLAG_COMPRESSED		0x00000001
 -- 
 2.39.2
 
