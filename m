@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A126B43DE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 358576B45A5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232140AbjCJOTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:19:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
+        id S232604AbjCJOfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:35:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232040AbjCJOSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:18:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4611E11ACB0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:17:27 -0800 (PST)
+        with ESMTP id S232555AbjCJOfh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:35:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A10A4F8288
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:35:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D95DDB8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:17:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B00C4339B;
-        Fri, 10 Mar 2023 14:17:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A2FEB822DA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:35:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D55C4339B;
+        Fri, 10 Mar 2023 14:35:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457845;
-        bh=06DzgdHzH8eY8KzCTJnDJv99Wvx9apdUuqmEj/v3Rdw=;
+        s=korg; t=1678458925;
+        bh=Q+czA8BMcxhFuCShtXTm1UjpwiFvRSyo6OmeTnk4khU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awD9SCM/Mcz4NqnLkjbaCuGSizyR62NT/F4+PBDmcYxEzpQ74CrRR6UMjdMpPMa16
-         f5YzRDw1SB9xetSBTj7B9VDaN5GHBK+V7khyDuA6OlfUA08T1Dy7Ppbr23bW36ePXC
-         rlLN5VVb41tOoeRI4uMLyG/OWx2G/gwk0JweFyYY=
+        b=uRvltl1522n8VbHm+sSOgjWA8Zbkz3N52o3e7iR5GZnIthlK58nr+xhZSxoEOBLPN
+         sIQu8+LaEz2FRHJMltflk8fwxKSz3tXtdfwXmQWGpRL6aLQvQkq/od4C01xv0ctUuA
+         xbryJINB1fct5/50BHNvMfOFsihM8eouJe1VtT2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, Chen-Yu Tsai <wenst@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/252] drm/msm: use strscpy instead of strncpy
+Subject: [PATCH 5.4 158/357] clk: Honor CLK_OPS_PARENT_ENABLE in clk_core_is_enabled()
 Date:   Fri, 10 Mar 2023 14:37:27 +0100
-Message-Id: <20230310133721.160669063@linuxfoundation.org>
+Message-Id: <20230310133741.688596331@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,42 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit d7fd8634f48d76aa799ed57beb7d87dab91bde80 ]
+[ Upstream commit 79200d5851c8e7179f68a4a6f162d8f1bde4986f ]
 
-Using strncpy can result in non-NULL-terminated destination string. Use
-strscpy instead. This fixes following warning:
+In the previous commits that added CLK_OPS_PARENT_ENABLE, support for
+this flag was only added to rate change operations (rate setting and
+reparent) and disabling unused subtree. It was not added to the
+clock gate related operations. Any hardware driver that needs it for
+these operations will either see bogus results, or worse, hang.
 
-drivers/gpu/drm/msm/msm_fence.c: In function ‘msm_fence_context_alloc’:
-drivers/gpu/drm/msm/msm_fence.c:25:9: warning: ‘strncpy’ specified bound 32 equals destination size [-Wstringop-truncation]
-   25 |         strncpy(fctx->name, name, sizeof(fctx->name));
-      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This has been seen on MT8192 and MT8195, where the imp_ii2_* clk
+drivers set this, but dumping debugfs clk_summary would cause it
+to hang.
 
-Fixes: f97decac5f4c ("drm/msm: Support multiple ringbuffers")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/518787/
-Link: https://lore.kernel.org/r/20230118020152.1689213-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Prepare parent on prepare and enable parent on enable dependencies are
+already handled automatically by the core as part of its sequencing.
+Whether the case for "enable parent on prepare" should be supported by
+this flag or not is not clear, and thus ignored for now.
+
+This change solely fixes the handling of clk_core_is_enabled, i.e.
+enabling the parent clock when reading the hardware state. Unfortunately
+clk_core_is_enabled is called in a variety of places, sometimes with
+the enable clock already held. To avoid deadlocking, the core will
+ignore readouts and just return false if CLK_OPS_PARENT_ENABLE is set
+but the parent isn't currently enabled.
+
+Fixes: fc8726a2c021 ("clk: core: support clocks which requires parents enable (part 2)")
+Fixes: a4b3518d146f ("clk: core: support clocks which requires parents enable (part 1)")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Link: https://lore.kernel.org/r/20230103092330.494102-1-wenst@chromium.org
+Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_fence.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/clk.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_fence.c b/drivers/gpu/drm/msm/msm_fence.c
-index 6c11be79574e5..ef79c3661acb4 100644
---- a/drivers/gpu/drm/msm/msm_fence.c
-+++ b/drivers/gpu/drm/msm/msm_fence.c
-@@ -31,7 +31,7 @@ msm_fence_context_alloc(struct drm_device *dev, const char *name)
- 		return ERR_PTR(-ENOMEM);
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index c002f83adf573..1c73668b43755 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -251,6 +251,17 @@ static bool clk_core_is_enabled(struct clk_core *core)
+ 		}
+ 	}
  
- 	fctx->dev = dev;
--	strncpy(fctx->name, name, sizeof(fctx->name));
-+	strscpy(fctx->name, name, sizeof(fctx->name));
- 	fctx->context = dma_fence_context_alloc(1);
- 	init_waitqueue_head(&fctx->event);
- 	spin_lock_init(&fctx->spinlock);
++	/*
++	 * This could be called with the enable lock held, or from atomic
++	 * context. If the parent isn't enabled already, we can't do
++	 * anything here. We can also assume this clock isn't enabled.
++	 */
++	if ((core->flags & CLK_OPS_PARENT_ENABLE) && core->parent)
++		if (!clk_core_is_enabled(core->parent)) {
++			ret = false;
++			goto done;
++		}
++
+ 	ret = core->ops->is_enabled(core->hw);
+ done:
+ 	if (core->rpm_enabled)
 -- 
 2.39.2
 
