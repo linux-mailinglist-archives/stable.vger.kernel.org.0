@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB6066B4AFE
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5ED06B4B13
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234074AbjCJP3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:29:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40348 "EHLO
+        id S232071AbjCJPaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:30:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232847AbjCJP2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:28:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F4B1817B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:17:32 -0800 (PST)
+        with ESMTP id S234418AbjCJP36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:29:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DAD10D773
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:18:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56A02B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:16:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B6EDC4339E;
-        Fri, 10 Mar 2023 15:16:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7706DB822BD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:17:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B656BC4339C;
+        Fri, 10 Mar 2023 15:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461398;
-        bh=WH6HPCNF/ThGEAyL5vVAofnB98v+epqmrryM1SSTErw=;
+        s=korg; t=1678461457;
+        bh=GNTLtPps92aaRkFEiOLa35XgtAKVKLqFy1J7wlkwcY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLcIscZJaTtStzqILUYqBDdQp2JGbjSXAXxahAIArn4ShcdtAbHdtyb0S0PxTJBj7
-         igHivy2XB8x3Ymg+cT0iTU2k0WeIPWW7XPFF0oAga6mo4RolqNpXyAtq9zp0tzAA4C
-         L+i/xoEo5D5bGZW+eDc5eTbBDzIXw88rDgQ8FV70=
+        b=sY2e7g5w55BTruWYhbZ6Uen1kL35v1Yloo+HIHVN0fr8JBWmZNl0ZVZSetw0iQKBz
+         SGXHRPIaCG6bXPhPESE1FvxpygCc4hzebLJyzUBzVpXhwYp77xrcGMIjRgZizkjQB9
+         qAqVljsSpxOSt9BPmijA1AdQf05KSA5W7L8fPmfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 123/136] soundwire: cadence: Drain the RX FIFO after an IO timeout
-Date:   Fri, 10 Mar 2023 14:44:05 +0100
-Message-Id: <20230310133710.937861835@linuxfoundation.org>
+        syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 124/136] net: tls: avoid hanging tasks on the tx_lock
+Date:   Fri, 10 Mar 2023 14:44:06 +0100
+Message-Id: <20230310133710.972136927@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,112 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 0603a47bd3a8f439d7844b841eee1819353063e0 ]
+commit f3221361dc85d4de22586ce8441ec2c67b454f5d upstream.
 
-If wait_for_completion_timeout() times-out in _cdns_xfer_msg() it
-is possible that something could have been written to the RX FIFO.
-In this case, we should drain the RX FIFO so that anything in it
-doesn't carry over and mess up the next transfer.
+syzbot sent a hung task report and Eric explains that adversarial
+receiver may keep RWIN at 0 for a long time, so we are not guaranteed
+to make forward progress. Thread which took tx_lock and went to sleep
+may not release tx_lock for hours. Use interruptible sleep where
+possible and reschedule the work if it can't take the lock.
 
-Obviously, if we got to this state something went wrong, and we
-don't really know the state of everything. The cleanup in this
-situation cannot be bullet-proof but we should attempt to avoid
-breaking future transaction, if only to reduce the amount of
-error noise when debugging the failure from a kernel log.
+Testing: existing selftest passes
 
-Note that this patch only implements the draining for blocking
-(non-deferred) transfers. The deferred API doesn't have any proper
-handling of error conditions and would need some re-design before
-implementing cleanup. That is a task for a separate patch...
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221202161812.4186897-4-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com
+Fixes: 79ffe6087e91 ("net/tls: add a TX lock")
+Link: https://lore.kernel.org/all/000000000000e412e905f5b46201@google.com/
+Cc: stable@vger.kernel.org # wait 4 weeks
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230301002857.2101894-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/cadence_master.c | 50 ++++++++++++++++--------------
- 1 file changed, 27 insertions(+), 23 deletions(-)
+ net/tls/tls_sw.c |   26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index 74af111f39127..7b340f3832133 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -556,6 +556,29 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
- 	return SDW_CMD_OK;
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -950,7 +950,9 @@ int tls_sw_sendmsg(struct sock *sk, stru
+ 			       MSG_CMSG_COMPAT))
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&tls_ctx->tx_lock);
++	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
++	if (ret)
++		return ret;
+ 	lock_sock(sk);
+ 
+ 	if (unlikely(msg->msg_controllen)) {
+@@ -1284,7 +1286,9 @@ int tls_sw_sendpage(struct sock *sk, str
+ 		      MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&tls_ctx->tx_lock);
++	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
++	if (ret)
++		return ret;
+ 	lock_sock(sk);
+ 	ret = tls_sw_do_sendpage(sk, page, offset, size, flags);
+ 	release_sock(sk);
+@@ -2284,11 +2288,19 @@ static void tx_work_handler(struct work_
+ 
+ 	if (!test_and_clear_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask))
+ 		return;
+-	mutex_lock(&tls_ctx->tx_lock);
+-	lock_sock(sk);
+-	tls_tx_records(sk, -1);
+-	release_sock(sk);
+-	mutex_unlock(&tls_ctx->tx_lock);
++
++	if (mutex_trylock(&tls_ctx->tx_lock)) {
++		lock_sock(sk);
++		tls_tx_records(sk, -1);
++		release_sock(sk);
++		mutex_unlock(&tls_ctx->tx_lock);
++	} else if (!test_and_set_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask)) {
++		/* Someone is holding the tx_lock, they will likely run Tx
++		 * and cancel the work on their way out of the lock section.
++		 * Schedule a long delay just in case.
++		 */
++		schedule_delayed_work(&ctx->tx_work.work, msecs_to_jiffies(10));
++	}
  }
  
-+static void cdns_read_response(struct sdw_cdns *cdns)
-+{
-+	u32 num_resp, cmd_base;
-+	int i;
-+
-+	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
-+	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
-+
-+	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
-+	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
-+	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
-+		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
-+		num_resp = ARRAY_SIZE(cdns->response_buf);
-+	}
-+
-+	cmd_base = CDNS_MCP_CMD_BASE;
-+
-+	for (i = 0; i < num_resp; i++) {
-+		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
-+		cmd_base += CDNS_MCP_CMD_WORD_LEN;
-+	}
-+}
-+
- static enum sdw_command_response
- _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
- 	       int offset, int count, bool defer)
-@@ -597,6 +620,10 @@ _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
- 		dev_err(cdns->dev, "IO transfer timed out, cmd %d device %d addr %x len %d\n",
- 			cmd, msg->dev_num, msg->addr, msg->len);
- 		msg->len = 0;
-+
-+		/* Drain anything in the RX_FIFO */
-+		cdns_read_response(cdns);
-+
- 		return SDW_CMD_TIMEOUT;
- 	}
- 
-@@ -765,29 +792,6 @@ EXPORT_SYMBOL(cdns_reset_page_addr);
-  * IRQ handling
-  */
- 
--static void cdns_read_response(struct sdw_cdns *cdns)
--{
--	u32 num_resp, cmd_base;
--	int i;
--
--	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
--	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
--
--	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
--	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
--	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
--		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
--		num_resp = ARRAY_SIZE(cdns->response_buf);
--	}
--
--	cmd_base = CDNS_MCP_CMD_BASE;
--
--	for (i = 0; i < num_resp; i++) {
--		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
--		cmd_base += CDNS_MCP_CMD_WORD_LEN;
--	}
--}
--
- static int cdns_update_slave_status(struct sdw_cdns *cdns,
- 				    u64 slave_intstat)
- {
--- 
-2.39.2
-
+ void tls_sw_write_space(struct sock *sk, struct tls_context *ctx)
 
 
