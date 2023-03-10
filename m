@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 862736B4198
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C32626B4398
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231216AbjCJNyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:54:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35854 "EHLO
+        id S232079AbjCJOQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:16:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231214AbjCJNyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD18A10FB9C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:38 -0800 (PST)
+        with ESMTP id S231648AbjCJOPd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:15:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F96311A999
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:14:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D6BAB822B1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC116C433EF;
-        Fri, 10 Mar 2023 13:54:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8609617CF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A43C433EF;
+        Fri, 10 Mar 2023 14:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456476;
-        bh=++Tar65/IL/mM1cxN7n/aRBBTvtuMvpPnoG6fWLHT/s=;
+        s=korg; t=1678457671;
+        bh=MzHVV2SAdIaosX4r2iT03klKd05bYP278kyQ9k4Ngwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+sKHKxTndhmv83V+WQr01oDHzfQL/rSSrIfn8y1DxdaXbUBb2hUcM7tT1xaLiRJ+
-         FojYmpF0YQoOzSuJ9RMiKktKjFkbFacaX4qov37Mxi2oOKspSc4HLxdCt7YZN4msEI
-         v63AsIPs8ytJK0qKRBM27tFTKRwUc0gDfp5aOjs8=
+        b=SdNQFkV6Uyb2IXhAL0LJalFlhJpFg1oDvYQBWe9ZB79BtBPGB/877xbpdsOy5YfAy
+         t3Gn5PnOuWye5mSu+uiSZAldgVM5ZVBJeeJ/iHYTxPmPPqAH4tDD7ql5BKxjyEKIfn
+         btn5cfOwmBoDjo83F1ftoZZ87NXddr0fJojrDRwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tinghan Shen <tinghan.shen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 008/211] soc: mediatek: mtk-pm-domains: Allow mt8186 ADSP default power on
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Kemeng Shi <shikemeng@huaweicloud.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 018/252] blk-mq: remove stale comment for blk_mq_sched_mark_restart_hctx
 Date:   Fri, 10 Mar 2023 14:36:28 +0100
-Message-Id: <20230310133718.982096506@linuxfoundation.org>
+Message-Id: <20230310133719.378845457@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,53 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tinghan Shen <tinghan.shen@mediatek.com>
+From: Kemeng Shi <shikemeng@huaweicloud.com>
 
-[ Upstream commit 0d08c56d97a614f56d74f490d693faf8038db125 ]
+[ Upstream commit c31e76bcc379182fe67a82c618493b7b8868c672 ]
 
-In the use case of configuring the access permissions of the ADSP core,
-the mt8186 SoC ADSP power will be switched on in the bootloader because
-the permission control registers are located in the ADSP subsys.
+Commit 97889f9ac24f8 ("blk-mq: remove synchronize_rcu() from
+blk_mq_del_queue_tag_set()") remove handle of TAG_SHARED in restart,
+then shared_hctx_restart counted for how many hardware queues are marked
+for restart is removed too.
+Remove the stale comment that we still count hardware queues need restart.
 
-Signed-off-by: Tinghan Shen <tinghan.shen@mediatek.com>
-Fixes: 88590cbc1703 ("soc: mediatek: pm-domains: Add support for mt8186")
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221012075434.30009-1-tinghan.shen@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 97889f9ac24f ("blk-mq: remove synchronize_rcu() from blk_mq_del_queue_tag_set()")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Kemeng Shi <shikemeng@huaweicloud.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mt8186-pm-domains.h | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ block/blk-mq-sched.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/soc/mediatek/mt8186-pm-domains.h b/drivers/soc/mediatek/mt8186-pm-domains.h
-index 108af61854a38..fce86f79c5055 100644
---- a/drivers/soc/mediatek/mt8186-pm-domains.h
-+++ b/drivers/soc/mediatek/mt8186-pm-domains.h
-@@ -304,7 +304,6 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
- 		.ctl_offs = 0x9FC,
- 		.pwr_sta_offs = 0x16C,
- 		.pwr_sta2nd_offs = 0x170,
--		.caps = MTK_SCPD_KEEP_DEFAULT_OFF,
- 	},
- 	[MT8186_POWER_DOMAIN_ADSP_INFRA] = {
- 		.name = "adsp_infra",
-@@ -312,7 +311,6 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
- 		.ctl_offs = 0x9F8,
- 		.pwr_sta_offs = 0x16C,
- 		.pwr_sta2nd_offs = 0x170,
--		.caps = MTK_SCPD_KEEP_DEFAULT_OFF,
- 	},
- 	[MT8186_POWER_DOMAIN_ADSP_TOP] = {
- 		.name = "adsp_top",
-@@ -332,7 +330,7 @@ static const struct scpsys_domain_data scpsys_domain_data_mt8186[] = {
- 				MT8186_TOP_AXI_PROT_EN_3_CLR,
- 				MT8186_TOP_AXI_PROT_EN_3_STA),
- 		},
--		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_KEEP_DEFAULT_OFF | MTK_SCPD_ACTIVE_WAKEUP,
-+		.caps = MTK_SCPD_SRAM_ISO | MTK_SCPD_ACTIVE_WAKEUP,
- 	},
- };
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index d89a757cbde0f..dfa0a21a1fe46 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -51,8 +51,7 @@ void blk_mq_sched_assign_ioc(struct request *rq, struct bio *bio)
+ }
  
+ /*
+- * Mark a hardware queue as needing a restart. For shared queues, maintain
+- * a count of how many hardware queues are marked for restart.
++ * Mark a hardware queue as needing a restart.
+  */
+ void blk_mq_sched_mark_restart_hctx(struct blk_mq_hw_ctx *hctx)
+ {
 -- 
 2.39.2
 
