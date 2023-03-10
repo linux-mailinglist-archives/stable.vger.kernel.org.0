@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E3356B42A1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:05:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC706B41DF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231701AbjCJOFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:05:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59606 "EHLO
+        id S231281AbjCJN5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:57:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231555AbjCJOEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:04:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2491F10DE44
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:04:55 -0800 (PST)
+        with ESMTP id S231349AbjCJN5h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:57:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680C91151D5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:57:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0E66B822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:04:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE28C433D2;
-        Fri, 10 Mar 2023 14:04:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66B50617D5
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:57:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77515C433D2;
+        Fri, 10 Mar 2023 13:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457092;
-        bh=BtpRRmAwmp+wle9T2F+1zMPKEBYiOKFCztRZkmdwxY8=;
+        s=korg; t=1678456640;
+        bh=gLsH/uL6Z+svyRgcK+yjXGRB5bC9JgA2SJY6tUyB6Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpEtaUIDpI6Tm9Jl3Fs5kLksJNO0Lt8Gw5qm9nrqvMsq5hZp9KjEAf9m79u9cvdji
-         7xzMMeBg2sz39me3ljhCwB7lyMSNytDLGaHPwGXIiqF4ngNESdl8N+XDVoS7Hglxrh
-         VQtZcRiGd1JZ+G+gSN9t045gRV9flMCrjWnQIw0M=
+        b=CVdYXgbZC3+qOmuK+PXWT1YOSgJbleDtGjzwSiDQcbsBPtJix6e2N0AQ6dKQE86Wy
+         VZo19zdcOkOdm0QUd4FX9g0lROxik6K1DipR3Z3RvUpXuoraC9I2RmvWvEEiGzdFTr
+         ABAWcNwU+Xt8KufKONdFXdiMHwiTRU7jiRYnZLV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roger Lu <roger.lu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 018/200] soc: mediatek: mtk-svs: reset svs when svs_resume() fail
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <error27@gmail.com>, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Yangtao Li <frank.li@vivo.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 045/211] f2fs: fix to avoid potential memory corruption in __update_iostat_latency()
 Date:   Fri, 10 Mar 2023 14:37:05 +0100
-Message-Id: <20230310133717.600518803@linuxfoundation.org>
+Message-Id: <20230310133720.106601692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Lu <roger.lu@mediatek.com>
+From: Yangtao Li <frank.li@vivo.com>
 
-[ Upstream commit f4f8ad204a15d57c1a3e8ea7eca62157b44cbf59 ]
+[ Upstream commit 0dbbf0fb38d5ec5d4138d1aeaeb43d9217b9a592 ]
 
-Add svs reset when svs_resume() fail.
+Add iotype sanity check to avoid potential memory corruption.
+This is to fix the compile error below:
 
-Fixes: a825d72f74a3 ("soc: mediatek: fix missing clk_disable_unprepare() on err in svs_resume()")
-Signed-off-by: Roger Lu <roger.lu@mediatek.com>
-Link: https://lore.kernel.org/r/20230111074528.29354-3-roger.lu@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+fs/f2fs/iostat.c:231 __update_iostat_latency() error: buffer overflow
+'io_lat->peak_lat[type]' 3 <= 3
+
+vim +228 fs/f2fs/iostat.c
+
+  211  static inline void __update_iostat_latency(struct bio_iostat_ctx
+	*iostat_ctx,
+  212					enum iostat_lat_type type)
+  213  {
+  214		unsigned long ts_diff;
+  215		unsigned int page_type = iostat_ctx->type;
+  216		struct f2fs_sb_info *sbi = iostat_ctx->sbi;
+  217		struct iostat_lat_info *io_lat = sbi->iostat_io_lat;
+  218		unsigned long flags;
+  219
+  220		if (!sbi->iostat_enable)
+  221			return;
+  222
+  223		ts_diff = jiffies - iostat_ctx->submit_ts;
+  224		if (page_type >= META_FLUSH)
+                                 ^^^^^^^^^^
+
+  225			page_type = META;
+  226
+  227		spin_lock_irqsave(&sbi->iostat_lat_lock, flags);
+ @228		io_lat->sum_lat[type][page_type] += ts_diff;
+                                      ^^^^^^^^^
+Mixup between META_FLUSH and NR_PAGE_TYPE leads to memory corruption.
+
+Fixes: a4b6817625e7 ("f2fs: introduce periodic iostat io latency traces")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Suggested-by: Chao Yu <chao@kernel.org>
+Suggested-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Yangtao Li <frank.li@vivo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-svs.c | 6 +++++-
+ fs/f2fs/iostat.c | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/mediatek/mtk-svs.c b/drivers/soc/mediatek/mtk-svs.c
-index 9859e6cf6b8f9..e0b8aa75c84b6 100644
---- a/drivers/soc/mediatek/mtk-svs.c
-+++ b/drivers/soc/mediatek/mtk-svs.c
-@@ -1614,12 +1614,16 @@ static int svs_resume(struct device *dev)
+diff --git a/fs/f2fs/iostat.c b/fs/f2fs/iostat.c
+index 3166a8939ed4f..02393c95c9f86 100644
+--- a/fs/f2fs/iostat.c
++++ b/fs/f2fs/iostat.c
+@@ -227,8 +227,12 @@ static inline void __update_iostat_latency(struct bio_iostat_ctx *iostat_ctx,
+ 		return;
  
- 	ret = svs_init02(svsp);
- 	if (ret)
--		goto out_of_resume;
-+		goto svs_resume_reset_assert;
+ 	ts_diff = jiffies - iostat_ctx->submit_ts;
+-	if (iotype >= META_FLUSH)
++	if (iotype == META_FLUSH) {
+ 		iotype = META;
++	} else if (iotype >= NR_PAGE_TYPE) {
++		f2fs_warn(sbi, "%s: %d over NR_PAGE_TYPE", __func__, iotype);
++		return;
++	}
  
- 	svs_mon_mode(svsp);
- 
- 	return 0;
- 
-+svs_resume_reset_assert:
-+	dev_err(svsp->dev, "assert reset: %d\n",
-+		reset_control_assert(svsp->rst));
-+
- out_of_resume:
- 	clk_disable_unprepare(svsp->main_clk);
- 	return ret;
+ 	if (rw == 0) {
+ 		idx = READ_IO;
 -- 
 2.39.2
 
