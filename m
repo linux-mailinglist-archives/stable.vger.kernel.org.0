@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D8C6B42F9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 832CA6B41F8
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:58:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231650AbjCJOJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:09:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33616 "EHLO
+        id S231375AbjCJN6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:58:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231821AbjCJOI5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:08:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D720A7DD39
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:08:29 -0800 (PST)
+        with ESMTP id S231384AbjCJN6X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:58:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3754C5D8BD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:58:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F570B822C0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:08:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF9EC433D2;
-        Fri, 10 Mar 2023 14:08:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEBF060D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:58:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D03E9C4339B;
+        Fri, 10 Mar 2023 13:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457308;
-        bh=5RsrH0SoHdPRpxsqEvjNXkQpPKlHdLmZcp2Ggcc96dw=;
+        s=korg; t=1678456695;
+        bh=XOdoIPHU5HcILJPi3JmOiVYv4e2fGvx7+3qXioyTrCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IocZJDfEPSd9QjuxGexGthtBvebfminTgMn4OcS2E52UuS2CtuoUibpP1AaqaZGTM
-         ONdF3f2zg5DNQUI46965c4Py819a3IHNLR5I7AFvWTDbQcgsjBbUMvX33zOpd5MxdC
-         jY75EoJBfKsOd4jPzAMMaeQYaHnY9k3ZFmt4vWsA=
+        b=1IuQ3LxoWxgXk/0nzNG9gCqs+x7tX7PY5wpYzTfnSLQF+dcRwdF1BKtBNXNKt8nad
+         y6HFKtwRAQiBJDaCc/IDNVnu43S8/OAwlgXKxVZi2xM07KyOHpAo2K6w4v+KuTSId0
+         fj4DX/YkOPah3JLZtn59XzCgUhOG0XYSzeo2TS+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bryce Kahle <bryce.kahle@datadoghq.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Zhang Yi <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 065/200] netfilter: ctnetlink: make event listener tracking global
+Subject: [PATCH 6.2 092/211] ext4: fix incorrect options show of original mount_opt and extend mount_opt2
 Date:   Fri, 10 Mar 2023 14:37:52 +0100
-Message-Id: <20230310133719.122515134@linuxfoundation.org>
+Message-Id: <20230310133721.576722971@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,141 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit fdf6491193e411087ae77bcbc6468e3e1cff99ed ]
+[ Upstream commit e3645d72f8865ffe36f9dc811540d40aa3c848d3 ]
 
-pernet tracking doesn't work correctly because other netns might have
-set NETLINK_LISTEN_ALL_NSID on its event socket.
+Current _ext4_show_options() do not distinguish MOPT_2 flag, so it mixed
+extend sbi->s_mount_opt2 options with sbi->s_mount_opt, it could lead to
+show incorrect options, e.g. show fc_debug_force if we mount with
+errors=continue mode and miss it if we set.
 
-In this case its expected that events originating in other net
-namespaces are also received.
+  $ mkfs.ext4 /dev/pmem0
+  $ mount -o errors=remount-ro /dev/pmem0 /mnt
+  $ cat /proc/fs/ext4/pmem0/options | grep fc_debug_force
+    #empty
+  $ mount -o remount,errors=continue /mnt
+  $ cat /proc/fs/ext4/pmem0/options | grep fc_debug_force
+    fc_debug_force
+  $ mount -o remount,errors=remount-ro,fc_debug_force /mnt
+  $ cat /proc/fs/ext4/pmem0/options | grep fc_debug_force
+    #empty
 
-Making pernet-tracking work while also honoring NETLINK_LISTEN_ALL_NSID
-requires much more intrusive changes both in netlink and nfnetlink,
-f.e. adding a 'setsockopt' callback that lets nfnetlink know that the
-event socket entered (or left) ALL_NSID mode.
-
-Move to global tracking instead: if there is an event socket anywhere
-on the system, all net namespaces which have conntrack enabled and
-use autobind mode will allocate the ecache extension.
-
-netlink_has_listeners() returns false only if the given group has no
-subscribers in any net namespace, the 'net' argument passed to
-nfnetlink_has_listeners is only used to derive the protocol (nfnetlink),
-it has no other effect.
-
-For proper NETLINK_LISTEN_ALL_NSID-aware pernet tracking of event
-listeners a new netlink_has_net_listeners() is also needed.
-
-Fixes: 90d1daa45849 ("netfilter: conntrack: add nf_conntrack_events autodetect mode")
-Reported-by: Bryce Kahle <bryce.kahle@datadoghq.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 995a3ed67fc8 ("ext4: add fast_commit feature and handling for extended mount options")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230129034939.3702550-1-yi.zhang@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter.h           | 5 +++++
- include/net/netns/conntrack.h       | 1 -
- net/netfilter/core.c                | 3 +++
- net/netfilter/nf_conntrack_ecache.c | 2 +-
- net/netfilter/nfnetlink.c           | 9 +++++----
- 5 files changed, 14 insertions(+), 6 deletions(-)
+ fs/ext4/ext4.h  |  1 +
+ fs/ext4/super.c | 28 +++++++++++++++++++++-------
+ 2 files changed, 22 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/netfilter.h b/include/linux/netfilter.h
-index d8817d381c14b..bef8db9d6c085 100644
---- a/include/linux/netfilter.h
-+++ b/include/linux/netfilter.h
-@@ -488,4 +488,9 @@ extern const struct nfnl_ct_hook __rcu *nfnl_ct_hook;
-  */
- DECLARE_PER_CPU(bool, nf_skb_duplicated);
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index 140e1eb300d17..6479146140d20 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1529,6 +1529,7 @@ struct ext4_sb_info {
+ 	unsigned int s_mount_opt2;
+ 	unsigned long s_mount_flags;
+ 	unsigned int s_def_mount_opt;
++	unsigned int s_def_mount_opt2;
+ 	ext4_fsblk_t s_sb_block;
+ 	atomic64_t s_resv_clusters;
+ 	kuid_t s_resuid;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 3b9e30e1afd91..c81fa0fa9901a 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -2894,7 +2894,7 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_super_block *es = sbi->s_es;
+-	int def_errors, def_mount_opt = sbi->s_def_mount_opt;
++	int def_errors;
+ 	const struct mount_opts *m;
+ 	char sep = nodefs ? '\n' : ',';
  
-+/**
-+ * Contains bitmask of ctnetlink event subscribers, if any.
-+ * Can't be pernet due to NETLINK_LISTEN_ALL_NSID setsockopt flag.
-+ */
-+extern u8 nf_ctnetlink_has_listener;
- #endif /*__LINUX_NETFILTER_H*/
-diff --git a/include/net/netns/conntrack.h b/include/net/netns/conntrack.h
-index e1290c159184a..1f463b3957c78 100644
---- a/include/net/netns/conntrack.h
-+++ b/include/net/netns/conntrack.h
-@@ -95,7 +95,6 @@ struct nf_ip_net {
+@@ -2906,15 +2906,28 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
  
- struct netns_ct {
- #ifdef CONFIG_NF_CONNTRACK_EVENTS
--	u8 ctnetlink_has_listener;
- 	bool ecache_dwork_pending;
- #endif
- 	u8			sysctl_log_invalid; /* Log invalid packets */
-diff --git a/net/netfilter/core.c b/net/netfilter/core.c
-index 5a6705a0e4ecf..6e80f0f6149ea 100644
---- a/net/netfilter/core.c
-+++ b/net/netfilter/core.c
-@@ -669,6 +669,9 @@ const struct nf_ct_hook __rcu *nf_ct_hook __read_mostly;
- EXPORT_SYMBOL_GPL(nf_ct_hook);
- 
- #if IS_ENABLED(CONFIG_NF_CONNTRACK)
-+u8 nf_ctnetlink_has_listener;
-+EXPORT_SYMBOL_GPL(nf_ctnetlink_has_listener);
+ 	for (m = ext4_mount_opts; m->token != Opt_err; m++) {
+ 		int want_set = m->flags & MOPT_SET;
++		int opt_2 = m->flags & MOPT_2;
++		unsigned int mount_opt, def_mount_opt;
 +
- const struct nf_nat_hook __rcu *nf_nat_hook __read_mostly;
- EXPORT_SYMBOL_GPL(nf_nat_hook);
- 
-diff --git a/net/netfilter/nf_conntrack_ecache.c b/net/netfilter/nf_conntrack_ecache.c
-index 8698b34246460..69948e1d6974e 100644
---- a/net/netfilter/nf_conntrack_ecache.c
-+++ b/net/netfilter/nf_conntrack_ecache.c
-@@ -309,7 +309,7 @@ bool nf_ct_ecache_ext_add(struct nf_conn *ct, u16 ctmask, u16 expmask, gfp_t gfp
- 			break;
- 		return true;
- 	case 2: /* autodetect: no event listener, don't allocate extension. */
--		if (!READ_ONCE(net->ct.ctnetlink_has_listener))
-+		if (!READ_ONCE(nf_ctnetlink_has_listener))
- 			return true;
- 		fallthrough;
- 	case 1:
-diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
-index 6d18fb3468683..81c7737c803a6 100644
---- a/net/netfilter/nfnetlink.c
-+++ b/net/netfilter/nfnetlink.c
-@@ -29,6 +29,7 @@
- 
- #include <net/netlink.h>
- #include <net/netns/generic.h>
-+#include <linux/netfilter.h>
- #include <linux/netfilter/nfnetlink.h>
- 
- MODULE_LICENSE("GPL");
-@@ -685,12 +686,12 @@ static void nfnetlink_bind_event(struct net *net, unsigned int group)
- 	group_bit = (1 << group);
- 
- 	spin_lock(&nfnl_grp_active_lock);
--	v = READ_ONCE(net->ct.ctnetlink_has_listener);
-+	v = READ_ONCE(nf_ctnetlink_has_listener);
- 	if ((v & group_bit) == 0) {
- 		v |= group_bit;
- 
- 		/* read concurrently without nfnl_grp_active_lock held. */
--		WRITE_ONCE(net->ct.ctnetlink_has_listener, v);
-+		WRITE_ONCE(nf_ctnetlink_has_listener, v);
+ 		if (((m->flags & (MOPT_SET|MOPT_CLEAR)) == 0) ||
+ 		    m->flags & MOPT_SKIP)
+ 			continue;
+-		if (!nodefs && !(m->mount_opt & (sbi->s_mount_opt ^ def_mount_opt)))
+-			continue; /* skip if same as the default */
++
++		if (opt_2) {
++			mount_opt = sbi->s_mount_opt2;
++			def_mount_opt = sbi->s_def_mount_opt2;
++		} else {
++			mount_opt = sbi->s_mount_opt;
++			def_mount_opt = sbi->s_def_mount_opt;
++		}
++		/* skip if same as the default */
++		if (!nodefs && !(m->mount_opt & (mount_opt ^ def_mount_opt)))
++			continue;
++		/* select Opt_noFoo vs Opt_Foo */
+ 		if ((want_set &&
+-		     (sbi->s_mount_opt & m->mount_opt) != m->mount_opt) ||
+-		    (!want_set && (sbi->s_mount_opt & m->mount_opt)))
+-			continue; /* select Opt_noFoo vs Opt_Foo */
++		     (mount_opt & m->mount_opt) != m->mount_opt) ||
++		    (!want_set && (mount_opt & m->mount_opt)))
++			continue;
+ 		SEQ_OPTS_PRINT("%s", token2str(m->token));
  	}
  
- 	spin_unlock(&nfnl_grp_active_lock);
-@@ -744,12 +745,12 @@ static void nfnetlink_unbind(struct net *net, int group)
+@@ -2942,7 +2955,7 @@ static int _ext4_show_options(struct seq_file *seq, struct super_block *sb,
+ 	if (nodefs || sbi->s_stripe)
+ 		SEQ_OPTS_PRINT("stripe=%lu", sbi->s_stripe);
+ 	if (nodefs || EXT4_MOUNT_DATA_FLAGS &
+-			(sbi->s_mount_opt ^ def_mount_opt)) {
++			(sbi->s_mount_opt ^ sbi->s_def_mount_opt)) {
+ 		if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA)
+ 			SEQ_OPTS_PUTS("data=journal");
+ 		else if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_ORDERED_DATA)
+@@ -5086,6 +5099,7 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
+ 		goto failed_mount;
  
- 	spin_lock(&nfnl_grp_active_lock);
- 	if (!nfnetlink_has_listeners(net, group)) {
--		u8 v = READ_ONCE(net->ct.ctnetlink_has_listener);
-+		u8 v = READ_ONCE(nf_ctnetlink_has_listener);
+ 	sbi->s_def_mount_opt = sbi->s_mount_opt;
++	sbi->s_def_mount_opt2 = sbi->s_mount_opt2;
  
- 		v &= ~group_bit;
- 
- 		/* read concurrently without nfnl_grp_active_lock held. */
--		WRITE_ONCE(net->ct.ctnetlink_has_listener, v);
-+		WRITE_ONCE(nf_ctnetlink_has_listener, v);
- 	}
- 	spin_unlock(&nfnl_grp_active_lock);
- #endif
+ 	err = ext4_check_opt_consistency(fc, sb);
+ 	if (err < 0)
 -- 
 2.39.2
 
