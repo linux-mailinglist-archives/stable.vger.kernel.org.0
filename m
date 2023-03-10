@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F9D6B44B1
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 507066B436E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:14:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232278AbjCJO1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:27:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40700 "EHLO
+        id S231862AbjCJOOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:14:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232265AbjCJO1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:27:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6202311C8F4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:25:26 -0800 (PST)
+        with ESMTP id S231897AbjCJOOT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:14:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7738F149B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:13:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E11226192E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:25:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E22F4C433EF;
-        Fri, 10 Mar 2023 14:25:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E23946187C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:12:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC29C433A0;
+        Fri, 10 Mar 2023 14:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458325;
-        bh=8rFB1HYUMmBidRPrTd9p2DIYPlH+bluPCeO0DFQIQg0=;
+        s=korg; t=1678457579;
+        bh=cvci2CIgjhUYpoLQqTiU0LVo7ik06hSSnpDB3PV9V98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i3DD4uuTxZ8nl3zCGHgc5fRrZI4GhW8iryKvnluMeACU0jyCsyoTzL8cgDiSRcsNy
-         Ug4HExG2mwz7Z+bG7syX0nM6dyReamPiVyownYLgKJTdNHhspQSrynGMbINjZkNdiM
-         LK/EKkKPGJkJ0OIewk18KQXrrjM+9IyP1gGZHXKI=
+        b=oge7Rti+x/0DTRhAu/TesHX77Ky731Kpw9nAs1id3gNo+Liv9WMgvkuPh6I4HlWD/
+         LNlqrfZj9UtLAenlxrOuJbwqOZ1dIH7IG25BzZUOh2C1n20KN308CkMrw+T0cOFeEi
+         fnsyvtt/TZTb3kq859qlPXsnReNXvHdYd5ke1TVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Eric Van Hensbergen <ericvh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 223/252] 9p/rdma: unmap receive dma buffer in rdma_request()/post_recv()
+        patches@lists.linux.dev, Zhu Lingshan <lingshan.zhu@intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.1 186/200] vDPA/ifcvf: manage ifcvf_hw in the mgmt_dev
 Date:   Fri, 10 Mar 2023 14:39:53 +0100
-Message-Id: <20230310133725.978931006@linuxfoundation.org>
+Message-Id: <20230310133722.805514713@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,79 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Zhu Lingshan <lingshan.zhu@intel.com>
 
-[ Upstream commit 74a25e6e916cb57dab4267a96fbe8864ed21abdb ]
+commit 6a3b2f179b49f2c6452ecc37b4778a43848b454c upstream.
 
-When down_interruptible() or ib_post_send() failed in rdma_request(),
-receive dma buffer is not unmapped. Add unmap action to error path.
-Also if ib_post_recv() failed in post_recv(), dma buffer is not unmapped.
-Add unmap action to error path.
+This commit allocates the hw structure in the
+management device structure. So the hardware
+can be initialized once the management device
+is allocated in probe.
 
-Link: https://lkml.kernel.org/r/20230104020424.611926-1-shaozhengchao@huawei.com
-Fixes: fc79d4b104f0 ("9p: rdma: RDMA Transport Support for 9P")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Eric Van Hensbergen <ericvh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20221125145724.1129962-10-lingshan.zhu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_rdma.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_base.h |    5 +++--
+ drivers/vdpa/ifcvf/ifcvf_main.c |    7 ++++---
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
-index 119103bfa82ee..4bbb8683d4518 100644
---- a/net/9p/trans_rdma.c
-+++ b/net/9p/trans_rdma.c
-@@ -400,6 +400,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	struct p9_trans_rdma *rdma = client->trans;
- 	struct ib_recv_wr wr;
- 	struct ib_sge sge;
-+	int ret;
+--- a/drivers/vdpa/ifcvf/ifcvf_base.h
++++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+@@ -39,7 +39,7 @@
+ #define IFCVF_INFO(pdev, fmt, ...)	dev_info(&pdev->dev, fmt, ##__VA_ARGS__)
  
- 	c->busa = ib_dma_map_single(rdma->cm_id->device,
- 				    c->rc.sdata, client->msize,
-@@ -417,7 +418,12 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
- 	wr.wr_cqe = &c->cqe;
- 	wr.sg_list = &sge;
- 	wr.num_sge = 1;
--	return ib_post_recv(rdma->qp, &wr, NULL);
-+
-+	ret = ib_post_recv(rdma->qp, &wr, NULL);
-+	if (ret)
-+		ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+				    client->msize, DMA_FROM_DEVICE);
-+	return ret;
+ #define ifcvf_private_to_vf(adapter) \
+-	(&((struct ifcvf_adapter *)adapter)->vf)
++	(((struct ifcvf_adapter *)adapter)->vf)
  
-  error:
- 	p9_debug(P9_DEBUG_ERROR, "EIO\n");
-@@ -514,7 +520,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ /* all vqs and config interrupt has its own vector */
+ #define MSIX_VECTOR_PER_VQ_AND_CONFIG		1
+@@ -95,7 +95,7 @@ struct ifcvf_hw {
+ struct ifcvf_adapter {
+ 	struct vdpa_device vdpa;
+ 	struct pci_dev *pdev;
+-	struct ifcvf_hw vf;
++	struct ifcvf_hw *vf;
+ };
  
- 	if (down_interruptible(&rdma->sq_sem)) {
- 		err = -EINTR;
--		goto send_error;
-+		goto dma_unmap;
- 	}
+ struct ifcvf_vring_lm_cfg {
+@@ -110,6 +110,7 @@ struct ifcvf_lm_cfg {
  
- 	/* Mark request as `sent' *before* we actually send it,
-@@ -524,11 +530,14 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
- 	req->status = REQ_STATUS_SENT;
- 	err = ib_post_send(rdma->qp, &wr, NULL);
- 	if (err)
--		goto send_error;
-+		goto dma_unmap;
+ struct ifcvf_vdpa_mgmt_dev {
+ 	struct vdpa_mgmt_dev mdev;
++	struct ifcvf_hw vf;
+ 	struct ifcvf_adapter *adapter;
+ 	struct pci_dev *pdev;
+ };
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -402,7 +402,7 @@ static struct ifcvf_hw *vdpa_to_vf(struc
+ {
+ 	struct ifcvf_adapter *adapter = vdpa_to_adapter(vdpa_dev);
  
- 	/* Success */
- 	return 0;
+-	return &adapter->vf;
++	return adapter->vf;
+ }
  
-+dma_unmap:
-+	ib_dma_unmap_single(rdma->cm_id->device, c->busa,
-+			    c->req->tc.size, DMA_TO_DEVICE);
-  /* Handle errors that happened during or while preparing the send: */
-  send_error:
- 	req->status = REQ_STATUS_ERROR;
--- 
-2.39.2
-
+ static u64 ifcvf_vdpa_get_device_features(struct vdpa_device *vdpa_dev)
+@@ -750,7 +750,7 @@ static int ifcvf_vdpa_dev_add(struct vdp
+ 		return -EOPNOTSUPP;
+ 
+ 	adapter = ifcvf_mgmt_dev->adapter;
+-	vf = &adapter->vf;
++	vf = adapter->vf;
+ 	pdev = adapter->pdev;
+ 	vdpa_dev = &adapter->vdpa;
+ 
+@@ -838,10 +838,11 @@ static int ifcvf_probe(struct pci_dev *p
+ 	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
+ 	ifcvf_mgmt_dev->adapter = adapter;
+ 
+-	vf = &adapter->vf;
++	vf = &ifcvf_mgmt_dev->vf;
+ 	vf->dev_type = get_dev_type(pdev);
+ 	vf->base = pcim_iomap_table(pdev);
+ 	vf->pdev = pdev;
++	adapter->vf = vf;
+ 
+ 	ret = ifcvf_init_hw(vf, pdev);
+ 	if (ret) {
 
 
