@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 295A16B4160
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:52:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64DEB6B424C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:01:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231145AbjCJNwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:52:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
+        id S231485AbjCJOBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:01:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231147AbjCJNwU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:52:20 -0500
+        with ESMTP id S231479AbjCJOBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:01:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E30115665
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:52:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F01114ED9
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:01:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A5E06182F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:52:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2221FC433EF;
-        Fri, 10 Mar 2023 13:52:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D7C060D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:01:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2E14C433EF;
+        Fri, 10 Mar 2023 14:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456329;
-        bh=6/zJmf2SYelbT0s1d/RgD6Eug/2uVcW14vAO905zeQM=;
+        s=korg; t=1678456895;
+        bh=xVpJws0kX9rSUJQm1U0mCWjodDOz4e1F8xVqr0hWhEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNPdQVSfp9Rk4E5nOoeB0Z02hEfgVvX6J69gEKct1du3fcHKt28pOv+ez5PYoGhli
-         XP76NYGqcGMUg/9bRdAL7iVidfWaMfn25AYA/g0O9MCwxZITUNzemt1umNoO12UNzg
-         Wyj1Mknst8G0EbSzBP80asuSdYE2gCMB05MYXxII=
+        b=NVMW3QtIScBeex/8VDgIjt93lw0EKkWUs/OeBnHhuv+2N1ttUSjzdCOUDaz9uYIwN
+         9syyLwBnQ2VwtVaqGB/XsSb+/E3h6juPwGj5s1QXJWEGNDvSMunbds0A3VEKh8freO
+         5aeLYk2+HBXbMcOz+mNFzw1aYrR8zLfcYnmOhLLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 159/193] ubifs: Re-statistic cleaned znode count if commit failed
+Subject: [PATCH 6.2 161/211] USB: fotg210: fix memory leak with using debugfs_lookup()
 Date:   Fri, 10 Mar 2023 14:39:01 +0100
-Message-Id: <20230310133716.464999185@linuxfoundation.org>
+Message-Id: <20230310133723.651219522@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 944e096aa24071d3fe22822f6249d3ae309e39ea ]
+[ Upstream commit 6b4040f452037a7e95472577891d57c6b18c89c5 ]
 
-Dirty znodes will be written on flash in committing process with
-following states:
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-	      process A			|  znode state
-------------------------------------------------------
-do_commit				| DIRTY_ZNODE
-  ubifs_tnc_start_commit		| DIRTY_ZNODE
-   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
-    layout_commit			| DIRTY_ZNODE | COW_ZNODE
-     fill_gap                           | 0
-  write master				| 0 or OBSOLETE_ZNODE
-
-	      process B			|  znode state
-------------------------------------------------------
-do_commit				| DIRTY_ZNODE[1]
-  ubifs_tnc_start_commit		| DIRTY_ZNODE
-   get_znodes_to_commit			| DIRTY_ZNODE | COW_ZNODE
-  ubifs_tnc_end_commit			| DIRTY_ZNODE | COW_ZNODE
-   write_index                          | 0
-  write master				| 0 or OBSOLETE_ZNODE[2] or
-					| DIRTY_ZNODE[3]
-
-[1] znode is dirtied without concurrent committing process
-[2] znode is copied up (re-dirtied by other process) before cleaned
-    up in committing process
-[3] znode is re-dirtied after cleaned up in committing process
-
-Currently, the clean znode count is updated in free_obsolete_znodes(),
-which is called only in normal path. If do_commit failed, clean znode
-count won't be updated, which triggers a failure ubifs assertion[4] in
-ubifs_tnc_close():
- ubifs_assert_failed [ubifs]: UBIFS assert failed: freed == n
-
-[4] Commit 380347e9ca7682 ("UBIFS: Add an assertion for clean_zn_cnt").
-
-Fix it by re-statisticing cleaned znode count in tnc_destroy_cnext().
-
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216704
-Fixes: 1e51764a3c2a ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20230202153235.2412790-5-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/tnc.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/usb/fotg210/fotg210-hcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/tnc.c b/fs/ubifs/tnc.c
-index c7828db206bc0..20b70e178c4fa 100644
---- a/fs/ubifs/tnc.c
-+++ b/fs/ubifs/tnc.c
-@@ -3044,6 +3044,21 @@ static void tnc_destroy_cnext(struct ubifs_info *c)
- 		cnext = cnext->cnext;
- 		if (ubifs_zn_obsolete(znode))
- 			kfree(znode);
-+		else if (!ubifs_zn_cow(znode)) {
-+			/*
-+			 * Don't forget to update clean znode count after
-+			 * committing failed, because ubifs will check this
-+			 * count while closing tnc. Non-obsolete znode could
-+			 * be re-dirtied during committing process, so dirty
-+			 * flag is untrustable. The flag 'COW_ZNODE' is set
-+			 * for each dirty znode before committing, and it is
-+			 * cleared as long as the znode become clean, so we
-+			 * can statistic clean znode count according to this
-+			 * flag.
-+			 */
-+			atomic_long_inc(&c->clean_zn_cnt);
-+			atomic_long_inc(&ubifs_clean_zn_cnt);
-+		}
- 	} while (cnext && cnext != c->cnext);
+diff --git a/drivers/usb/fotg210/fotg210-hcd.c b/drivers/usb/fotg210/fotg210-hcd.c
+index 51ac93a2eb98e..1c5eb8f8c19c6 100644
+--- a/drivers/usb/fotg210/fotg210-hcd.c
++++ b/drivers/usb/fotg210/fotg210-hcd.c
+@@ -862,7 +862,7 @@ static inline void remove_debug_files(struct fotg210_hcd *fotg210)
+ {
+ 	struct usb_bus *bus = &fotg210_to_hcd(fotg210)->self;
+ 
+-	debugfs_remove(debugfs_lookup(bus->bus_name, fotg210_debug_root));
++	debugfs_lookup_and_remove(bus->bus_name, fotg210_debug_root);
  }
  
+ /* handshake - spin reading hc until handshake completes or fails
 -- 
 2.39.2
 
