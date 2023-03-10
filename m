@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F726B40AD
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:44:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 536976B41BE
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:56:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230203AbjCJNo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:44:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42982 "EHLO
+        id S231192AbjCJN4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:56:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbjCJNov (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:44:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0AFE78C93
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:44:49 -0800 (PST)
+        with ESMTP id S231244AbjCJN4N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:56:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 221F3112DCD
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 448A4617AF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:44:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E4E8C433EF;
-        Fri, 10 Mar 2023 13:44:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD67FB822B1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4659DC433D2;
+        Fri, 10 Mar 2023 13:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678455888;
-        bh=/RhQubbgjR3Nx7/cr7K0N2rhLKwZwhmgjCzlE592XvM=;
+        s=korg; t=1678456544;
+        bh=G5Tt5UtAX9wH11AZdDhFBNI+5/gV5rrhZrVOdn0oV9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQXdGUSHuZjDRlWiVYTVay5gNQgnB4f0QtuO/POKPytt7YzhfOpiOswnpwWlpuxus
-         NP4VmJ1gZvCfwJPI5btFmzkufn6ceXVDVVQ+6DaKxrCm95drZR1xVxM26aMaif2YU0
-         fkCf6bha+bVBti8pFFbg7mHDJB7cLjglPMq9HRpA=
+        b=VY3aPBxZSqnxeSAPnem2+ddkjswse5zJIIcyu/GvT0MCKPKJORDPyrDuOM5mcOz1b
+         NSioq7zOkmK1Gsz0TgaPc2VPrWCmzTsp3kKBtseaCZm8WQGaS6oX36UeDCvvAB2TzR
+         s0/Tj4acNim44c80r9ykuc1mrpfmFCl1eYJyt+h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Zumbiehl <florz@florz.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 010/193] USB: serial: option: add support for VW/Skoda "Carstick LTE"
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.2 012/211] soc: mediatek: mtk-svs: Enable the IRQ later
 Date:   Fri, 10 Mar 2023 14:36:32 +0100
-Message-Id: <20230310133711.279139654@linuxfoundation.org>
+Message-Id: <20230310133719.098447739@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,52 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Zumbiehl <florz@florz.de>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 617c331d91077f896111044628c096802551dc66 upstream.
+[ Upstream commit b74952aba6c3f47e7f2c5165abaeefa44c377140 ]
 
-Add support for VW/Skoda "Carstick LTE"
+If the system does not come from reset (like when is booted via
+kexec()), the peripheral might triger an IRQ before the data structures
+are initialised.
 
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=1c9e ProdID=7605 Rev=02.00
-S:  Manufacturer=USB Modem
-S:  Product=USB Modem
-C:  #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+Fixes:
 
-The stick has AT command interfaces on interfaces 1, 2, and 3, and does PPP
-on interface 3.
+[    0.227710] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000f08
+[    0.227913] Call trace:
+[    0.227918]  svs_isr+0x8c/0x538
 
-Signed-off-by: Florian Zumbiehl <florz@florz.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Link: https://lore.kernel.org/r/20221127-mtk-svs-v2-0-145b07663ea8@chromium.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/soc/mediatek/mtk-svs.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -405,6 +405,8 @@ static void option_instat_callback(struc
- #define LONGCHEER_VENDOR_ID			0x1c9e
+diff --git a/drivers/soc/mediatek/mtk-svs.c b/drivers/soc/mediatek/mtk-svs.c
+index 0469c9dfeb04e..75b2f534aa9d0 100644
+--- a/drivers/soc/mediatek/mtk-svs.c
++++ b/drivers/soc/mediatek/mtk-svs.c
+@@ -2385,14 +2385,6 @@ static int svs_probe(struct platform_device *pdev)
+ 		goto svs_probe_free_resource;
+ 	}
  
- /* 4G Systems products */
-+/* This one was sold as the VW and Skoda "Carstick LTE" */
-+#define FOUR_G_SYSTEMS_PRODUCT_CARSTICK_LTE	0x7605
- /* This is the 4G XS Stick W14 a.k.a. Mobilcom Debitel Surf-Stick *
-  * It seems to contain a Qualcomm QSC6240/6290 chipset            */
- #define FOUR_G_SYSTEMS_PRODUCT_W14		0x9603
-@@ -1979,6 +1981,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(2) },
- 	{ USB_DEVICE(AIRPLUS_VENDOR_ID, AIRPLUS_PRODUCT_MCD650) },
- 	{ USB_DEVICE(TLAYTECH_VENDOR_ID, TLAYTECH_PRODUCT_TEU800) },
-+	{ USB_DEVICE(LONGCHEER_VENDOR_ID, FOUR_G_SYSTEMS_PRODUCT_CARSTICK_LTE),
-+	  .driver_info = RSVD(0) },
- 	{ USB_DEVICE(LONGCHEER_VENDOR_ID, FOUR_G_SYSTEMS_PRODUCT_W14),
- 	  .driver_info = NCTRL(0) | NCTRL(1) },
- 	{ USB_DEVICE(LONGCHEER_VENDOR_ID, FOUR_G_SYSTEMS_PRODUCT_W100),
+-	ret = devm_request_threaded_irq(svsp->dev, svsp_irq, NULL, svs_isr,
+-					IRQF_ONESHOT, svsp->name, svsp);
+-	if (ret) {
+-		dev_err(svsp->dev, "register irq(%d) failed: %d\n",
+-			svsp_irq, ret);
+-		goto svs_probe_free_resource;
+-	}
+-
+ 	svsp->main_clk = devm_clk_get(svsp->dev, "main");
+ 	if (IS_ERR(svsp->main_clk)) {
+ 		dev_err(svsp->dev, "failed to get clock: %ld\n",
+@@ -2414,6 +2406,14 @@ static int svs_probe(struct platform_device *pdev)
+ 		goto svs_probe_clk_disable;
+ 	}
+ 
++	ret = devm_request_threaded_irq(svsp->dev, svsp_irq, NULL, svs_isr,
++					IRQF_ONESHOT, svsp->name, svsp);
++	if (ret) {
++		dev_err(svsp->dev, "register irq(%d) failed: %d\n",
++			svsp_irq, ret);
++		goto svs_probe_iounmap;
++	}
++
+ 	ret = svs_start(svsp);
+ 	if (ret) {
+ 		dev_err(svsp->dev, "svs start fail: %d\n", ret);
+-- 
+2.39.2
+
 
 
