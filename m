@@ -2,144 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF116B4190
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F116B4623
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:40:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231228AbjCJNyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:54:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
+        id S232712AbjCJOk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:40:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231261AbjCJNyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:54:14 -0500
+        with ESMTP id S232695AbjCJOk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:40:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E587115667
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8907A1204B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:40:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05F8761774
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F1CC433EF;
-        Fri, 10 Mar 2023 13:54:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 248D7617B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:40:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 305F5C4339E;
+        Fri, 10 Mar 2023 14:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456449;
-        bh=RS+pyNIV/BFPdB0R8uhCXPkmtq7feD2COD86+6PgcDQ=;
+        s=korg; t=1678459226;
+        bh=Z7rXs6G1Bw1wJR8vYBikkDf05k0gYJcZtBy8sJ1qV48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRF+4If/DxIF1MHufEe80Yp1qzex+JwCODxwrAciVz9WNPqx0M+joVpmX4nZ2PnPA
-         RNKF5qzcyBEtNBe7GqN6REOSMWe7dSUuJaLoBY9sDkwo7JROdkf14Bt8wur1Ml7IOg
-         owAJvnPzndVvBpvqOKbJt/EAf5agC1m9zZ7XA0yw=
+        b=kyN7CmVSHjk0AJtzqkngzhVzOKVac3Qw20NlTUGbknA1c0VHAkkmUMBJdcTVrS4Zg
+         wVvc6jgi6nH9e8OUs4d3IkK3oc3ZMDRsHmrnuHTN8FDfll8gNQgrdG3pMSqgvhJO0F
+         52kNTWEPvefyppVINiIS1q5ESl3BrkzL/bU2utWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Jun <chenjun102@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 166/193] watchdog: Fix kmemleak in watchdog_cdev_register
+        patches@lists.linux.dev, Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.4 259/357] rbd: avoid use-after-free in do_rbd_add() when rbd_dev_create() fails
 Date:   Fri, 10 Mar 2023 14:39:08 +0100
-Message-Id: <20230310133716.669449540@linuxfoundation.org>
+Message-Id: <20230310133746.166475034@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
+References: <20230310133733.973883071@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,WEIRD_QUOTING autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jun <chenjun102@huawei.com>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-[ Upstream commit 13721a2ac66b246f5802ba1b75ad8637e53eeecc ]
+commit f7c4d9b133c7a04ca619355574e96b6abf209fba upstream.
 
-kmemleak reports memory leaks in watchdog_dev_register, as follows:
-unreferenced object 0xffff888116233000 (size 2048):
-  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
-  hex dump (first 32 bytes):
-    80 fa b9 05 81 88 ff ff 08 30 23 16 81 88 ff ff  .........0#.....
-    08 30 23 16 81 88 ff ff 00 00 00 00 00 00 00 00  .0#.............
-  backtrace:
-    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
-    [<000000006a389304>] kmalloc_trace+0x21/0x110
-    [<000000008d640eea>] watchdog_dev_register+0x4e/0x780 [watchdog]
-    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
-    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
-    [<000000001f730178>] 0xffffffffc10880ae
-    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
-    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
-    [<0000000046d08e7c>] load_module+0x6133/0x70f0
-    ...
+If getting an ID or setting up a work queue in rbd_dev_create() fails,
+use-after-free on rbd_dev->rbd_client, rbd_dev->spec and rbd_dev->opts
+is triggered in do_rbd_add().  The root cause is that the ownership of
+these structures is transfered to rbd_dev prematurely and they all end
+up getting freed when rbd_dev_create() calls rbd_dev_free() prior to
+returning to do_rbd_add().
 
-unreferenced object 0xffff888105b9fa80 (size 16):
-  comm ""modprobe"", pid 28147, jiffies 4353426116 (age 61.741s)
-  hex dump (first 16 bytes):
-    77 61 74 63 68 64 6f 67 31 00 b9 05 81 88 ff ff  watchdog1.......
-  backtrace:
-    [<000000007f001ffd>] __kmem_cache_alloc_node+0x157/0x220
-    [<00000000486ab89b>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<000000005a39aab0>] kvasprintf+0xb5/0x140
-    [<0000000024806f85>] kvasprintf_const+0x55/0x180
-    [<000000009276cb7f>] kobject_set_name_vargs+0x56/0x150
-    [<00000000a92e820b>] dev_set_name+0xab/0xe0
-    [<00000000cec812c6>] watchdog_dev_register+0x285/0x780 [watchdog]
-    [<0000000053c9f248>] __watchdog_register_device+0x4f0/0x680 [watchdog]
-    [<00000000b2979824>] watchdog_register_device+0xd2/0x110 [watchdog]
-    [<000000001f730178>] 0xffffffffc10880ae
-    [<000000007a1a8bcc>] do_one_initcall+0xcb/0x4d0
-    [<00000000b98be325>] do_init_module+0x1ca/0x5f0
-    [<0000000046d08e7c>] load_module+0x6133/0x70f0
-    ...
+Found by Linux Verification Center (linuxtesting.org) with SVACE, an
+incomplete patch submitted by Natalia Petrova <n.petrova@fintech.ru>.
 
-The reason is that put_device is not be called if cdev_device_add fails
-and wdd->id != 0.
-
-watchdog_cdev_register
-  wd_data = kzalloc                             [1]
-  err = dev_set_name                            [2]
-  ..
-  err = cdev_device_add
-  if (err) {
-    if (wdd->id == 0) {  // wdd->id != 0
-      ..
-    }
-    return err;  // [1],[2] would be leaked
-
-To fix it, call put_device in all wdd->id cases.
-
-Fixes: 72139dfa2464 ("watchdog: Fix the race between the release of watchdog_core_data and cdev")
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20221116012714.102066-1-chenjun102@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 1643dfa4c2c8 ("rbd: introduce a per-device ordered workqueue")
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/watchdog_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/rbd.c |   20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 21c3ffdc8a09d..337ca3690d622 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -965,8 +965,8 @@ static int watchdog_cdev_register(struct watchdog_device *wdd)
- 		if (wdd->id == 0) {
- 			misc_deregister(&watchdog_miscdev);
- 			old_wd_data = NULL;
--			put_device(&wd_data->dev);
- 		}
-+		put_device(&wd_data->dev);
- 		return err;
+--- a/drivers/block/rbd.c
++++ b/drivers/block/rbd.c
+@@ -5529,8 +5529,7 @@ static void rbd_dev_release(struct devic
+ 		module_put(THIS_MODULE);
+ }
+ 
+-static struct rbd_device *__rbd_dev_create(struct rbd_client *rbdc,
+-					   struct rbd_spec *spec)
++static struct rbd_device *__rbd_dev_create(struct rbd_spec *spec)
+ {
+ 	struct rbd_device *rbd_dev;
+ 
+@@ -5575,9 +5574,6 @@ static struct rbd_device *__rbd_dev_crea
+ 	rbd_dev->dev.parent = &rbd_root_dev;
+ 	device_initialize(&rbd_dev->dev);
+ 
+-	rbd_dev->rbd_client = rbdc;
+-	rbd_dev->spec = spec;
+-
+ 	return rbd_dev;
+ }
+ 
+@@ -5590,12 +5586,10 @@ static struct rbd_device *rbd_dev_create
+ {
+ 	struct rbd_device *rbd_dev;
+ 
+-	rbd_dev = __rbd_dev_create(rbdc, spec);
++	rbd_dev = __rbd_dev_create(spec);
+ 	if (!rbd_dev)
+ 		return NULL;
+ 
+-	rbd_dev->opts = opts;
+-
+ 	/* get an id and fill in device name */
+ 	rbd_dev->dev_id = ida_simple_get(&rbd_dev_id_ida, 0,
+ 					 minor_to_rbd_dev_id(1 << MINORBITS),
+@@ -5612,6 +5606,10 @@ static struct rbd_device *rbd_dev_create
+ 	/* we have a ref from do_rbd_add() */
+ 	__module_get(THIS_MODULE);
+ 
++	rbd_dev->rbd_client = rbdc;
++	rbd_dev->spec = spec;
++	rbd_dev->opts = opts;
++
+ 	dout("%s rbd_dev %p dev_id %d\n", __func__, rbd_dev, rbd_dev->dev_id);
+ 	return rbd_dev;
+ 
+@@ -6827,7 +6825,7 @@ static int rbd_dev_probe_parent(struct r
+ 		goto out_err;
  	}
  
--- 
-2.39.2
-
+-	parent = __rbd_dev_create(rbd_dev->rbd_client, rbd_dev->parent_spec);
++	parent = __rbd_dev_create(rbd_dev->parent_spec);
+ 	if (!parent) {
+ 		ret = -ENOMEM;
+ 		goto out_err;
+@@ -6837,8 +6835,8 @@ static int rbd_dev_probe_parent(struct r
+ 	 * Images related by parent/child relationships always share
+ 	 * rbd_client and spec/parent_spec, so bump their refcounts.
+ 	 */
+-	__rbd_get_client(rbd_dev->rbd_client);
+-	rbd_spec_get(rbd_dev->parent_spec);
++	parent->rbd_client = __rbd_get_client(rbd_dev->rbd_client);
++	parent->spec = rbd_spec_get(rbd_dev->parent_spec);
+ 
+ 	ret = rbd_dev_image_probe(parent, depth);
+ 	if (ret < 0)
 
 
