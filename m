@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ABF76B4412
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:21:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CB66B420D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232220AbjCJOVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:21:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
+        id S231404AbjCJN7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232007AbjCJOUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:20:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92A41E9DE
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:19:26 -0800 (PST)
+        with ESMTP id S231425AbjCJN7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:59:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 533FDF402E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:59:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CB36B822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76ADCC433D2;
-        Fri, 10 Mar 2023 14:19:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02072B822B7
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:59:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FB78C4339C;
+        Fri, 10 Mar 2023 13:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457964;
-        bh=75z8RKc9ZtGmJy5P9fzQVbJLNHn9rhFOkKwNXr9FIBw=;
+        s=korg; t=1678456749;
+        bh=gxMMqMxrIZ9Mh5oUnqRVX2jTs7d2FUWQqRJppSgg/W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDm3ms4lsSGx4Ycmq5wGZWL6KKj7A64Q7/fIXST07vWFOSUUvU2aO0K6XmRRTaFbg
-         XZJt9awZ+Mo58XnIyhO3FsFUd7Qjz1BxWXayywKOtV/0kO6LsybaHhF/42BqUdaLQb
-         0TUYaqzr1K9MBeJ3Lba5AtTaftGeX3XGtxmhhPHo=
+        b=k+ypdpotXr2WAr8kNfkd3jFdEKt6i1T9P+9SXfbSUmCauzX/Ki1Dl4fCdNIrnV+dr
+         zXAOCt/Wyc9eJsqdTMDj2j3ObOu0wDRuy83iGZpBgVh/l3DAHogpqryz8YnwtCTh2/
+         yfdJxRUK0UvLpFh3ml9U1AjI+99CrqgtHpsVRolE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Coddington <bcodding@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Ying Xu <yinxu@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/252] nfsd: fix race to check ls_layouts
+Subject: [PATCH 6.2 080/211] sctp: add a refcnt in sctp_stream_priorities to avoid a nested loop
 Date:   Fri, 10 Mar 2023 14:37:40 +0100
-Message-Id: <20230310133721.549229654@linuxfoundation.org>
+Message-Id: <20230310133721.214293813@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,44 +56,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit fb610c4dbc996415d57d7090957ecddd4fd64fb6 ]
+[ Upstream commit 68ba44639537de6f91fe32783766322d41848127 ]
 
-Its possible for __break_lease to find the layout's lease before we've
-added the layout to the owner's ls_layouts list.  In that case, setting
-ls_recalled = true without actually recalling the layout will cause the
-server to never send a recall callback.
+With this refcnt added in sctp_stream_priorities, we don't need to
+traverse all streams to check if the prio is used by other streams
+when freeing one stream's prio in sctp_sched_prio_free_sid(). This
+can avoid a nested loop (up to 65535 * 65535), which may cause a
+stuck as Ying reported:
 
-Move the check for ls_layouts before setting ls_recalled.
+    watchdog: BUG: soft lockup - CPU#23 stuck for 26s! [ksoftirqd/23:136]
+    Call Trace:
+     <TASK>
+     sctp_sched_prio_free_sid+0xab/0x100 [sctp]
+     sctp_stream_free_ext+0x64/0xa0 [sctp]
+     sctp_stream_free+0x31/0x50 [sctp]
+     sctp_association_free+0xa5/0x200 [sctp]
 
-Fixes: c5c707f96fc9 ("nfsd: implement pNFS layout recalls")
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Note that it doesn't need to use refcount_t type for this counter,
+as its accessing is always protected under the sock lock.
+
+v1->v2:
+ - add a check in sctp_sched_prio_set to avoid the possible prio_head
+   refcnt overflow.
+
+Fixes: 9ed7bfc79542 ("sctp: fix memory leak in sctp_stream_outq_migrate()")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/825eb0c905cb864991eba335f4a2b780e543f06b.1677085641.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4layouts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/net/sctp/structs.h   |  1 +
+ net/sctp/stream_sched_prio.c | 52 +++++++++++++++---------------------
+ 2 files changed, 22 insertions(+), 31 deletions(-)
 
-diff --git a/fs/nfsd/nfs4layouts.c b/fs/nfsd/nfs4layouts.c
-index f4cf1c0793c6a..cf81b5bc3e156 100644
---- a/fs/nfsd/nfs4layouts.c
-+++ b/fs/nfsd/nfs4layouts.c
-@@ -322,11 +322,11 @@ nfsd4_recall_file_layout(struct nfs4_layout_stateid *ls)
- 	if (ls->ls_recalled)
- 		goto out_unlock;
+diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
+index afa3781e3ca21..e1f6e7fc2b11e 100644
+--- a/include/net/sctp/structs.h
++++ b/include/net/sctp/structs.h
+@@ -1412,6 +1412,7 @@ struct sctp_stream_priorities {
+ 	/* The next stream in line */
+ 	struct sctp_stream_out_ext *next;
+ 	__u16 prio;
++	__u16 users;
+ };
  
--	ls->ls_recalled = true;
--	atomic_inc(&ls->ls_stid.sc_file->fi_lo_recalls);
- 	if (list_empty(&ls->ls_layouts))
- 		goto out_unlock;
+ struct sctp_stream_out_ext {
+diff --git a/net/sctp/stream_sched_prio.c b/net/sctp/stream_sched_prio.c
+index 42d4800f263dd..4d4d9da331f4c 100644
+--- a/net/sctp/stream_sched_prio.c
++++ b/net/sctp/stream_sched_prio.c
+@@ -25,6 +25,18 @@
  
-+	ls->ls_recalled = true;
-+	atomic_inc(&ls->ls_stid.sc_file->fi_lo_recalls);
- 	trace_nfsd_layout_recall(&ls->ls_stid.sc_stateid);
+ static void sctp_sched_prio_unsched_all(struct sctp_stream *stream);
  
- 	refcount_inc(&ls->ls_stid.sc_count);
++static struct sctp_stream_priorities *sctp_sched_prio_head_get(struct sctp_stream_priorities *p)
++{
++	p->users++;
++	return p;
++}
++
++static void sctp_sched_prio_head_put(struct sctp_stream_priorities *p)
++{
++	if (p && --p->users == 0)
++		kfree(p);
++}
++
+ static struct sctp_stream_priorities *sctp_sched_prio_new_head(
+ 			struct sctp_stream *stream, int prio, gfp_t gfp)
+ {
+@@ -38,6 +50,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_new_head(
+ 	INIT_LIST_HEAD(&p->active);
+ 	p->next = NULL;
+ 	p->prio = prio;
++	p->users = 1;
+ 
+ 	return p;
+ }
+@@ -53,7 +66,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_get_head(
+ 	 */
+ 	list_for_each_entry(p, &stream->prio_list, prio_sched) {
+ 		if (p->prio == prio)
+-			return p;
++			return sctp_sched_prio_head_get(p);
+ 		if (p->prio > prio)
+ 			break;
+ 	}
+@@ -70,7 +83,7 @@ static struct sctp_stream_priorities *sctp_sched_prio_get_head(
+ 			 */
+ 			break;
+ 		if (p->prio == prio)
+-			return p;
++			return sctp_sched_prio_head_get(p);
+ 	}
+ 
+ 	/* If not even there, allocate a new one. */
+@@ -154,32 +167,21 @@ static int sctp_sched_prio_set(struct sctp_stream *stream, __u16 sid,
+ 	struct sctp_stream_out_ext *soute = sout->ext;
+ 	struct sctp_stream_priorities *prio_head, *old;
+ 	bool reschedule = false;
+-	int i;
++
++	old = soute->prio_head;
++	if (old && old->prio == prio)
++		return 0;
+ 
+ 	prio_head = sctp_sched_prio_get_head(stream, prio, gfp);
+ 	if (!prio_head)
+ 		return -ENOMEM;
+ 
+ 	reschedule = sctp_sched_prio_unsched(soute);
+-	old = soute->prio_head;
+ 	soute->prio_head = prio_head;
+ 	if (reschedule)
+ 		sctp_sched_prio_sched(stream, soute);
+ 
+-	if (!old)
+-		/* Happens when we set the priority for the first time */
+-		return 0;
+-
+-	for (i = 0; i < stream->outcnt; i++) {
+-		soute = SCTP_SO(stream, i)->ext;
+-		if (soute && soute->prio_head == old)
+-			/* It's still in use, nothing else to do here. */
+-			return 0;
+-	}
+-
+-	/* No hits, we are good to free it. */
+-	kfree(old);
+-
++	sctp_sched_prio_head_put(old);
+ 	return 0;
+ }
+ 
+@@ -206,20 +208,8 @@ static int sctp_sched_prio_init_sid(struct sctp_stream *stream, __u16 sid,
+ 
+ static void sctp_sched_prio_free_sid(struct sctp_stream *stream, __u16 sid)
+ {
+-	struct sctp_stream_priorities *prio = SCTP_SO(stream, sid)->ext->prio_head;
+-	int i;
+-
+-	if (!prio)
+-		return;
+-
++	sctp_sched_prio_head_put(SCTP_SO(stream, sid)->ext->prio_head);
+ 	SCTP_SO(stream, sid)->ext->prio_head = NULL;
+-	for (i = 0; i < stream->outcnt; i++) {
+-		if (SCTP_SO(stream, i)->ext &&
+-		    SCTP_SO(stream, i)->ext->prio_head == prio)
+-			return;
+-	}
+-
+-	kfree(prio);
+ }
+ 
+ static void sctp_sched_prio_enqueue(struct sctp_outq *q,
 -- 
 2.39.2
 
