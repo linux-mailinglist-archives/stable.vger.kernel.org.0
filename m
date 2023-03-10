@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B429E6B46C9
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B13F6B46CA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:46:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbjCJOqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:46:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41092 "EHLO
+        id S232895AbjCJOqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:46:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232982AbjCJOqU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:46:20 -0500
+        with ESMTP id S232833AbjCJOq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:46:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF09212116B
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:46:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6EE121179
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:46:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 488BDB8228E
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7743C433A0;
-        Fri, 10 Mar 2023 14:46:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46C48B822E4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:46:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E418C4339B;
+        Fri, 10 Mar 2023 14:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459570;
-        bh=696QXJjFDAKjbtnDr2pgDBdmNzSmsqU8eo3S+q6iWYg=;
+        s=korg; t=1678459572;
+        bh=r+r+Jokt2cwzqIN/exqK+bkBS4ydkcyHJ/sEohlo7wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOXgGjA1sqGhXO1j4u+ou2G3NyD/YJkA5PZCLyO/Nsr69lOk55G6FoJktCCUCzFAQ
-         34+WuSdTLs6/H1ezkTzFj1wkObGa8UgcHbS2KSus7o40INFT0ajo/IseMSZ8Wa+Hiu
-         sU7BVV8jhY1gCZcThj8FQpJ/kk80OdDKuyePRbaw=
+        b=pLzAgAIqlLN8JbVZPRmgarN+aGyrpE1mr+NhHrQJxTIz9Brp5Y84OLdb2UzuthwqN
+         kFv0FtA0lLaETuENlK+pK69o0jJv+AlY8/DXwf814T2VldIvgc/qmAdOxfqSqWjAB/
+         q2NyfYPocBJ9PU4CcTeSuGWlSzcO7vkzSHv5Zb2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
+        patches@lists.linux.dev, Arjan <8vvbbqzo567a@nospam.xutrox.com>,
+        Kevin Brace <kevinbrace@gmx.com>,
+        silviazhao <silviazhao-oc@zhaoxin.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Phil Auld <pauld@redhat.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/529] sched/rt: pick_next_rt_entity(): check list_entry
-Date:   Fri, 10 Mar 2023 14:33:09 +0100
-Message-Id: <20230310133807.126496898@linuxfoundation.org>
+Subject: [PATCH 5.10 047/529] x86/perf/zhaoxin: Add stepping check for ZXC
+Date:   Fri, 10 Mar 2023 14:33:10 +0100
+Message-Id: <20230310133807.175435815@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -57,52 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: silviazhao <silviazhao-oc@zhaoxin.com>
 
-[ Upstream commit 7c4a5b89a0b5a57a64b601775b296abf77a9fe97 ]
+[ Upstream commit fd636b6a9bc6034f2e5bb869658898a2b472c037 ]
 
-Commit 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
-removed any path which could make pick_next_rt_entity() return NULL.
-However, BUG_ON(!rt_se) in _pick_next_task_rt() (the only caller of
-pick_next_rt_entity()) still checks the error condition, which can
-never happen, since list_entry() never returns NULL.
-Remove the BUG_ON check, and instead emit a warning in the only
-possible error condition here: the queue being empty which should
-never happen.
+Some of Nano series processors will lead GP when accessing
+PMC fixed counter. Meanwhile, their hardware support for PMC
+has not announced externally. So exclude Nano CPUs from ZXC
+by checking stepping information. This is an unambiguous way
+to differentiate between ZXC and Nano CPUs.
 
-Fixes: 326587b84078 ("sched: fix goto retry in pick_next_task_rt()")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Following are Nano and ZXC FMS information:
+Nano FMS: Family=6, Model=F, Stepping=[0-A][C-D]
+ZXC FMS:  Family=6, Model=F, Stepping=E-F OR
+          Family=6, Model=0x19, Stepping=0-3
+
+Fixes: 3a4ac121c2ca ("x86/perf: Add hardware performance events support for Zhaoxin CPU.")
+
+Reported-by: Arjan <8vvbbqzo567a@nospam.xutrox.com>
+Reported-by: Kevin Brace <kevinbrace@gmx.com>
+Signed-off-by: silviazhao <silviazhao-oc@zhaoxin.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/r/20230128-list-entry-null-check-sched-v3-1-b1a71bd1ac6b@diag.uniroma1.it
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=212389
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/events/zhaoxin/core.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index e1ce5d1868b50..f690f901b6cc7 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -1616,6 +1616,8 @@ static struct sched_rt_entity *pick_next_rt_entity(struct rt_rq *rt_rq)
- 	BUG_ON(idx >= MAX_RT_PRIO);
+diff --git a/arch/x86/events/zhaoxin/core.c b/arch/x86/events/zhaoxin/core.c
+index e68827e604ad1..e927346960303 100644
+--- a/arch/x86/events/zhaoxin/core.c
++++ b/arch/x86/events/zhaoxin/core.c
+@@ -541,7 +541,13 @@ __init int zhaoxin_pmu_init(void)
  
- 	queue = array->queue + idx;
-+	if (SCHED_WARN_ON(list_empty(queue)))
-+		return NULL;
- 	next = list_entry(queue->next, struct sched_rt_entity, run_list);
+ 	switch (boot_cpu_data.x86) {
+ 	case 0x06:
+-		if (boot_cpu_data.x86_model == 0x0f || boot_cpu_data.x86_model == 0x19) {
++		/*
++		 * Support Zhaoxin CPU from ZXC series, exclude Nano series through FMS.
++		 * Nano FMS: Family=6, Model=F, Stepping=[0-A][C-D]
++		 * ZXC FMS: Family=6, Model=F, Stepping=E-F OR Family=6, Model=0x19, Stepping=0-3
++		 */
++		if ((boot_cpu_data.x86_model == 0x0f && boot_cpu_data.x86_stepping >= 0x0e) ||
++			boot_cpu_data.x86_model == 0x19) {
  
- 	return next;
-@@ -1628,7 +1630,8 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
- 
- 	do {
- 		rt_se = pick_next_rt_entity(rt_rq);
--		BUG_ON(!rt_se);
-+		if (unlikely(!rt_se))
-+			return NULL;
- 		rt_rq = group_rt_rq(rt_se);
- 	} while (rt_rq);
+ 			x86_pmu.max_period = x86_pmu.cntval_mask >> 1;
  
 -- 
 2.39.2
