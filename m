@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E34D56B3E1D
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F716B3E1C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 12:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230373AbjCJLio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 06:38:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37874 "EHLO
+        id S230458AbjCJLil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 06:38:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbjCJLik (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:38:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D617DF9D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:38:35 -0800 (PST)
+        with ESMTP id S230464AbjCJLih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 06:38:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF1AF7DFAB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 03:38:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D8D58CE28A9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:38:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F42FC433D2;
-        Fri, 10 Mar 2023 11:38:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A87B61369
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 11:38:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E30DC433D2;
+        Fri, 10 Mar 2023 11:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678448310;
-        bh=P/ZgxBmyZGFAiqjEknSb7Fw4DTLKSwRR5pDoKyI46Ss=;
+        s=korg; t=1678448313;
+        bh=BWKPgQ0kO2am0Q/55XWw/l1FyeXno2XCL9rlgxIDfIM=;
         h=Subject:To:Cc:From:Date:From;
-        b=vvwKhzy0ly4USj+7Qaw77s+0CsvN3dKTS6vuKB827xOQhFkpd07Nm43KR4e1txdk5
-         9jCZNQyeiGUIQkHzR5rnOTACdZSjNs3ESMxx1X+tS/Oau7V1le7NbiAoeTfRpWiHo9
-         gOr18eXCtFWQ/SngQgRjT1hjj/F3Ysdv9MpQl6XM=
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Reset twice" failed to apply to 5.4-stable tree
+        b=YQESw4k6InNFu8NP/6NibNQb/SteW/EEk2WKRV7X6spV2BGXw88aAwrBAU9aKdwX4
+         3TGgdKAetDibwUtjjVyyBwnpLhNvQiW17K46GOBI9TRndHnVxw0bTNNSd09ZU9NEST
+         Sqr1jI4JjCfbbOT5JLd9pFSNO4/Wr1PG4Rele3wc=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Reset twice" failed to apply to 4.19-stable tree
 To:     chris@chris-wilson.co.uk, andi.shyti@linux.intel.com,
         gwan-gyeong.mun@intel.com, mika.kuoppala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Mar 2023 12:38:06 +0100
-Message-ID: <16784482866392@kroah.com>
+Date:   Fri, 10 Mar 2023 12:38:07 +0100
+Message-ID: <16784482878746@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,23 +49,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.19.y
 git checkout FETCH_HEAD
 git cherry-pick -x 3db9d590557da3aa2c952f2fecd3e9b703dad790
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16784482866392@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16784482878746@kroah.com' --subject-prefix 'PATCH 4.19.y' HEAD^..
 
 Possible dependencies:
 
 3db9d590557d ("drm/i915/gt: Reset twice")
+cb823ed9915b ("drm/i915/gt: Use intel_gt as the primary object for handling resets")
+f2db53f14d3d ("drm/i915: Replace "_load" with "_probe" consequently")
+b5893ffc274b ("drm/i915: Drop extern qualifiers from header function prototypes")
+2a98f4e65bba ("drm/i915: add infrastructure to hold off preemption on a request")
+b8cade5959ac ("drm/i915: Show instdone for each engine in debugfs")
+63251685c141 ("drm/i915/selftests: Common live setup/teardown")
+092be382a260 ("drm/i915: Lift intel_engines_resume() to callers")
+18398904ca9e ("drm/i915: Only recover active engines")
+faaa2902b5a9 ("drm/i915/selftests: Fixup atomic reset checking")
+1e5deb263265 ("drm/i915/selftests: Drop manual request wakerefs around hangcheck")
+d84747956654 ("drm/i915/selftests: Serialise nop reset with retirement")
+5f22e5b3116c ("drm/i915: Rename intel_wakeref_[is]_active")
+0c91621cad49 ("drm/i915/gt: Pass intel_gt to pm routines")
+a93615f900bd ("drm/i915: Throw away the active object retirement complexity")
+db56f974941b ("drm/i915: Eliminate dual personality of i915_scratch_offset")
+f0c02c1b9188 ("drm/i915: Rename i915_timeline to intel_timeline and move under gt")
+4c6d51ea2a68 ("drm/i915: Make timelines gt centric")
+ba4134a41931 ("drm/i915: Save trip via top-level i915 in a few more places")
+390c82055b74 ("drm/i915: Compartmentalize timeline_init/park/fini")
 
 thanks,
 
