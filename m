@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 637826B4549
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB4266B41A3
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232351AbjCJOcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:32:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34036 "EHLO
+        id S231300AbjCJNzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:55:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232550AbjCJOcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:32:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 779244201
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:31:31 -0800 (PST)
+        with ESMTP id S231297AbjCJNzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5940C10F44A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:54:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 131AB618A6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:31:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CCA2C433EF;
-        Fri, 10 Mar 2023 14:31:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1179AB822B4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:54:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B26C433D2;
+        Fri, 10 Mar 2023 13:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458690;
-        bh=pR+smp40dyVDldrURMsKUgpvkYDEyxHkfohfoDTzlJo=;
+        s=korg; t=1678456490;
+        bh=CTHlNB3qIZ35ZflIL19XJpoq2a/Zlii4ZXH3ayJ5LC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fdg+aUHzPCTPFlUNjQffZthSAx00HsjegfAl/Wdfgpaqr4R+OMEjHOcvr1/zyab0J
-         tjVhJxp4/M1Ph0hpxwt+lcY0QHMDSuHzVTx2G+LTHk2xUv++4YXxfvJFetaLkk7wjv
-         q4XcIKCISOdyou+0KNqw1zkN51+jmGT0aCFmHz/k=
+        b=gT5DcZ5AFHJW9JMsI76FFjmbd2BpR+3OnSQaCRRXuum4jrH21Beg9ebH4NP3mdW8U
+         VDetTDpi+dz0lvUIoU++3SeecVH92PjahnnXtSJ+iAGzYpauA9kiV9c6XVW7WWUhIm
+         yLEdEeIGfOa0P4m05j72RV7LxNPjwWOTfNIhBmMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        patches@lists.linux.dev, Eric Biggers <ebiggers@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 112/357] drm/bridge: Introduce drm_bridge_get_next_bridge()
+Subject: [PATCH 6.2 021/211] fs: f2fs: initialize fsdata in pagecache_write()
 Date:   Fri, 10 Mar 2023 14:36:41 +0100
-Message-Id: <20230310133739.594029608@linuxfoundation.org>
+Message-Id: <20230310133719.376815488@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,119 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit fadf872d9d9274a3be34d8438e0f6bb465c8f98b ]
+[ Upstream commit b1b9896718bc1a212dc288ad66a5fa2fef11353d ]
 
-And use it in drivers accessing the bridge->next field directly.
-This is part of our attempt to make the bridge chain a double-linked list
-based on the generic list helpers.
+When aops->write_begin() does not initialize fsdata, KMSAN may report
+an error passing the latter to aops->write_end().
 
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191203141515.3597631-3-boris.brezillon@collabora.com
-Stable-dep-of: 13fcfcb2a9a4 ("drm/msm/mdp5: Add check for kzalloc")
+Fix this by unconditionally initializing fsdata.
+
+Suggested-by: Eric Biggers <ebiggers@kernel.org>
+Fixes: 95ae251fe828 ("f2fs: add fs-verity support")
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_encoder.c          |  2 +-
- drivers/gpu/drm/mediatek/mtk_hdmi.c    |  6 ++++--
- drivers/gpu/drm/omapdrm/omap_drv.c     |  4 ++--
- drivers/gpu/drm/omapdrm/omap_encoder.c |  3 ++-
- include/drm/drm_bridge.h               | 13 +++++++++++++
- 5 files changed, 22 insertions(+), 6 deletions(-)
+ fs/f2fs/verity.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_encoder.c b/drivers/gpu/drm/drm_encoder.c
-index 7fb47b7b8b44a..80ce9e1040de1 100644
---- a/drivers/gpu/drm/drm_encoder.c
-+++ b/drivers/gpu/drm/drm_encoder.c
-@@ -170,7 +170,7 @@ void drm_encoder_cleanup(struct drm_encoder *encoder)
- 		struct drm_bridge *next;
+diff --git a/fs/f2fs/verity.c b/fs/f2fs/verity.c
+index c352fff88a5e6..3f4f3295f1c66 100644
+--- a/fs/f2fs/verity.c
++++ b/fs/f2fs/verity.c
+@@ -81,7 +81,7 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
+ 		size_t n = min_t(size_t, count,
+ 				 PAGE_SIZE - offset_in_page(pos));
+ 		struct page *page;
+-		void *fsdata;
++		void *fsdata = NULL;
+ 		int res;
  
- 		while (bridge) {
--			next = bridge->next;
-+			next = drm_bridge_get_next_bridge(bridge);
- 			drm_bridge_detach(bridge);
- 			bridge = next;
- 		}
-diff --git a/drivers/gpu/drm/mediatek/mtk_hdmi.c b/drivers/gpu/drm/mediatek/mtk_hdmi.c
-index 37960172a3a15..74a54a9e35339 100644
---- a/drivers/gpu/drm/mediatek/mtk_hdmi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_hdmi.c
-@@ -1237,16 +1237,18 @@ static int mtk_hdmi_conn_mode_valid(struct drm_connector *conn,
- 				    struct drm_display_mode *mode)
- {
- 	struct mtk_hdmi *hdmi = hdmi_ctx_from_conn(conn);
-+	struct drm_bridge *next_bridge;
- 
- 	dev_dbg(hdmi->dev, "xres=%d, yres=%d, refresh=%d, intl=%d clock=%d\n",
- 		mode->hdisplay, mode->vdisplay, mode->vrefresh,
- 		!!(mode->flags & DRM_MODE_FLAG_INTERLACE), mode->clock * 1000);
- 
--	if (hdmi->bridge.next) {
-+	next_bridge = drm_bridge_get_next_bridge(&hdmi->bridge);
-+	if (next_bridge) {
- 		struct drm_display_mode adjusted_mode;
- 
- 		drm_mode_copy(&adjusted_mode, mode);
--		if (!drm_bridge_chain_mode_fixup(hdmi->bridge.next, mode,
-+		if (!drm_bridge_chain_mode_fixup(next_bridge, mode,
- 						 &adjusted_mode))
- 			return MODE_BAD;
- 	}
-diff --git a/drivers/gpu/drm/omapdrm/omap_drv.c b/drivers/gpu/drm/omapdrm/omap_drv.c
-index 2983c003698ec..a4645b78f7374 100644
---- a/drivers/gpu/drm/omapdrm/omap_drv.c
-+++ b/drivers/gpu/drm/omapdrm/omap_drv.c
-@@ -216,8 +216,8 @@ static int omap_display_id(struct omap_dss_device *output)
- 	} else if (output->bridge) {
- 		struct drm_bridge *bridge = output->bridge;
- 
--		while (bridge->next)
--			bridge = bridge->next;
-+		while (drm_bridge_get_next_bridge(bridge))
-+			bridge = drm_bridge_get_next_bridge(bridge);
- 
- 		node = bridge->of_node;
- 	} else if (output->panel) {
-diff --git a/drivers/gpu/drm/omapdrm/omap_encoder.c b/drivers/gpu/drm/omapdrm/omap_encoder.c
-index 6fe14111cd956..b626b543a9923 100644
---- a/drivers/gpu/drm/omapdrm/omap_encoder.c
-+++ b/drivers/gpu/drm/omapdrm/omap_encoder.c
-@@ -125,7 +125,8 @@ static void omap_encoder_mode_set(struct drm_encoder *encoder,
- 	for (dssdev = output; dssdev; dssdev = dssdev->next)
- 		omap_encoder_update_videomode_flags(&vm, dssdev->bus_flags);
- 
--	for (bridge = output->bridge; bridge; bridge = bridge->next) {
-+	for (bridge = output->bridge; bridge;
-+	     bridge = drm_bridge_get_next_bridge(bridge)) {
- 		if (!bridge->timings)
- 			continue;
- 
-diff --git a/include/drm/drm_bridge.h b/include/drm/drm_bridge.h
-index 442a0654e1bfa..9f7192366cfbe 100644
---- a/include/drm/drm_bridge.h
-+++ b/include/drm/drm_bridge.h
-@@ -409,6 +409,19 @@ struct drm_bridge *of_drm_find_bridge(struct device_node *np);
- int drm_bridge_attach(struct drm_encoder *encoder, struct drm_bridge *bridge,
- 		      struct drm_bridge *previous);
- 
-+/**
-+ * drm_bridge_get_next_bridge() - Get the next bridge in the chain
-+ * @bridge: bridge object
-+ *
-+ * RETURNS:
-+ * the next bridge in the chain after @bridge, or NULL if @bridge is the last.
-+ */
-+static inline struct drm_bridge *
-+drm_bridge_get_next_bridge(struct drm_bridge *bridge)
-+{
-+	return bridge->next;
-+}
-+
- bool drm_bridge_chain_mode_fixup(struct drm_bridge *bridge,
- 				 const struct drm_display_mode *mode,
- 				 struct drm_display_mode *adjusted_mode);
+ 		res = aops->write_begin(NULL, mapping, pos, n, &page, &fsdata);
 -- 
 2.39.2
 
