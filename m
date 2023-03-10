@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A82726B42D0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:07:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F15C86B43F5
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231766AbjCJOHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:07:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34588 "EHLO
+        id S232119AbjCJOUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:20:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231771AbjCJOHE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:07:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D773C11A2F4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:32 -0800 (PST)
+        with ESMTP id S232187AbjCJOTs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:19:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 184181EFC3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:18:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D96061962
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D8F2C433EF;
-        Fri, 10 Mar 2023 14:06:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C41C1B822BB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:18:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 381B0C433D2;
+        Fri, 10 Mar 2023 14:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457191;
-        bh=S0HDVV2yvJt7Ovmtzuum2uB4opbL+9YuYuODPViDJqs=;
+        s=korg; t=1678457897;
+        bh=PqhsQ6S7zmvacUucSCaS0AzAsUP+dm+k8tfHWUDyNIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=isPX78mpekjXpkw3+FjJ0M/Pm5bTptUB4k1JlurDCM9U80QHxQIKgTd4YqTAKQZMR
-         DOc53nq/fL0nkrFg9ZwWKuPvwDxS6GkdPdY9y357Vg6AyOw2pVy+a8ZWwFzGybdWe5
-         bA/hI7cC8fbsZ0puKHekdlWpdORQtpPcUPaCPY68=
+        b=GPH2/Xq8/WEcvvm6SJDEhCEROCLFQc1NRY3En3WB31G8A6+2AuxfMEZgfMbX822iT
+         3+RpNDf1y6P4LxCE2d7dE80FXRWJv7FzRfx3xt8z3k/1bImbZa7ILCp5qBkQc9f3lS
+         7nWOp6PDdC3ml7WyEW7356VCEnvbHEKe6Fn4Xrbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Benjamin Berg <benjamin.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        patches@lists.linux.dev, Vadim Pasternak <vadimp@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 051/200] um: virtio_uml: move device breaking into workqueue
+Subject: [PATCH 4.19 088/252] hwmon: (mlxreg-fan) Return zero speed for broken fan
 Date:   Fri, 10 Mar 2023 14:37:38 +0100
-Message-Id: <20230310133718.677403564@linuxfoundation.org>
+Message-Id: <20230310133721.487306467@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Berg <benjamin.berg@intel.com>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-[ Upstream commit abdeb4fa5e1b5b4918034f02236fd886f40c20c1 ]
+[ Upstream commit a1ffd3c46267ee5c807acd780e15df9bb692223f ]
 
-We should not be calling virtio_break_device from an IRQ context.
-Move breaking the device into the workqueue so that it is done from
-a reasonable context.
+Currently for broken fan driver returns value calculated based on error
+code (0xFF) in related fan speed register.
+Thus, for such fan user gets fan{n}_fault to 1 and fan{n}_input with
+misleading value.
 
-Fixes: af9fb41ed315 ("um: virtio_uml: Fix broken device handling in time-travel")
-Signed-off-by: Benjamin Berg <benjamin.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Add check for fan fault prior return speed value and return zero if
+fault is detected.
+
+Fixes: 65afb4c8e7e4 ("hwmon: (mlxreg-fan) Add support for Mellanox FAN driver")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20230212145730.24247-1-vadimp@nvidia.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/virtio_uml.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/hwmon/mlxreg-fan.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index dcfd0ca534eef..ddd080f6dd82e 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -170,7 +170,6 @@ static void vhost_user_check_reset(struct virtio_uml_device *vu_dev,
+diff --git a/drivers/hwmon/mlxreg-fan.c b/drivers/hwmon/mlxreg-fan.c
+index e57b0c5119ce4..ec68dace3cf93 100644
+--- a/drivers/hwmon/mlxreg-fan.c
++++ b/drivers/hwmon/mlxreg-fan.c
+@@ -125,6 +125,12 @@ mlxreg_fan_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+ 			if (err)
+ 				return err;
  
- 	vu_dev->registered = 0;
- 
--	virtio_break_device(&vu_dev->vdev);
- 	schedule_work(&pdata->conn_broken_wk);
- }
- 
-@@ -1138,6 +1137,15 @@ void virtio_uml_set_no_vq_suspend(struct virtio_device *vdev,
- 
- static void vu_of_conn_broken(struct work_struct *wk)
- {
-+	struct virtio_uml_platform_data *pdata;
-+	struct virtio_uml_device *vu_dev;
++			if (MLXREG_FAN_GET_FAULT(regval, tacho->mask)) {
++				/* FAN is broken - return zero for FAN speed. */
++				*val = 0;
++				return 0;
++			}
 +
-+	pdata = container_of(wk, struct virtio_uml_platform_data, conn_broken_wk);
-+
-+	vu_dev = platform_get_drvdata(pdata->pdev);
-+
-+	virtio_break_device(&vu_dev->vdev);
-+
- 	/*
- 	 * We can't remove the device from the devicetree so the only thing we
- 	 * can do is warn.
-@@ -1268,8 +1276,14 @@ static int vu_unregister_cmdline_device(struct device *dev, void *data)
- static void vu_conn_broken(struct work_struct *wk)
- {
- 	struct virtio_uml_platform_data *pdata;
-+	struct virtio_uml_device *vu_dev;
- 
- 	pdata = container_of(wk, struct virtio_uml_platform_data, conn_broken_wk);
-+
-+	vu_dev = platform_get_drvdata(pdata->pdev);
-+
-+	virtio_break_device(&vu_dev->vdev);
-+
- 	vu_unregister_cmdline_device(&pdata->pdev->dev, NULL);
- }
- 
+ 			*val = MLXREG_FAN_GET_RPM(regval, fan->divider,
+ 						  fan->samples);
+ 			break;
 -- 
 2.39.2
 
