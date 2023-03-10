@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA296B4782
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:51:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF1BF6B484C
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:01:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233439AbjCJOvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:51:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40950 "EHLO
+        id S233578AbjCJPBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:01:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232982AbjCJOuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:50:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E42113D70
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:48:05 -0800 (PST)
+        with ESMTP id S233619AbjCJPBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:01:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8D7123DC4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:54:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6B876197F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:48:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9802C433A1;
-        Fri, 10 Mar 2023 14:48:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D4BAB8228E
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C317FC4339B;
+        Fri, 10 Mar 2023 14:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459684;
-        bh=E7Cb8Q0tmi0yKb6KpaiINAipWqtzEqw+bLzYcVzX8n0=;
+        s=korg; t=1678459687;
+        bh=xP2tIvzs4HGffJYadT/MxHcizHb5/H9vzC+bvMWskqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUFW6UPW9t2i7cGJl3esieexIDAdI7nEJQEF60Q70h1Fd31fEcoNAV2O6CD2lymsw
-         fIYBY4shH9o4ckOi0DvEDYIQwY+tEba/icO9CIErXqrX7vo0AaqYOxgFXJ+QFwYqBk
-         pAj30GuhPYnOlWhCnGAOuGg8iCTVkkjEhTwcXxdo=
+        b=drO2NV4mHAsJ3SnuxIsPd7O5Q0sWHEHvEYMf9QfbPhObBi2KNYULTy+F38igXgYrJ
+         q4tA69X9q042qhafQ1ECwCVQjfI5fB4XsPGtfAsE1MfL9lZGTtO3fxq0gd/Y9Jhta4
+         p+X6Wn/kj07KgFs30F6Ha3E6aO83DA6+gBDf/lUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
         Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 056/529] rtlwifi: fix -Wpointer-sign warning
-Date:   Fri, 10 Mar 2023 14:33:19 +0100
-Message-Id: <20230310133807.601114630@linuxfoundation.org>
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 057/529] wifi: rtlwifi: Fix global-out-of-bounds bug in _rtl8812ae_phy_set_txpower_limit()
+Date:   Fri, 10 Mar 2023 14:33:20 +0100
+Message-Id: <20230310133807.648303267@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -55,230 +54,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit ef41937631bfee855e2b406e1d536efdaa9ce512 ]
+[ Upstream commit 117dbeda22ec5ea0918254d03b540ef8b8a64d53 ]
 
-There are thousands of warnings in a W=2 build from just one file:
+There is a global-out-of-bounds reported by KASAN:
 
-drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.c:3788:15: warning: pointer targets in initialization of 'u8 *' {aka 'unsigned char *'} from 'char *' differ in signedness [-Wpointer-sign]
+  BUG: KASAN: global-out-of-bounds in
+  _rtl8812ae_eq_n_byte.part.0+0x3d/0x84 [rtl8821ae]
+  Read of size 1 at addr ffffffffa0773c43 by task NetworkManager/411
 
-Change the types to consistently use 'const char *' for the
-strings.
+  CPU: 6 PID: 411 Comm: NetworkManager Tainted: G      D
+  6.1.0-rc8+ #144 e15588508517267d37
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+  Call Trace:
+   <TASK>
+   ...
+   kasan_report+0xbb/0x1c0
+   _rtl8812ae_eq_n_byte.part.0+0x3d/0x84 [rtl8821ae]
+   rtl8821ae_phy_bb_config.cold+0x346/0x641 [rtl8821ae]
+   rtl8821ae_hw_init+0x1f5e/0x79b0 [rtl8821ae]
+   ...
+   </TASK>
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+The root cause of the problem is that the comparison order of
+"prate_section" in _rtl8812ae_phy_set_txpower_limit() is wrong. The
+_rtl8812ae_eq_n_byte() is used to compare the first n bytes of the two
+strings from tail to head, which causes the problem. In the
+_rtl8812ae_phy_set_txpower_limit(), it was originally intended to meet
+this requirement by carefully designing the comparison order.
+For example, "pregulation" and "pbandwidth" are compared in order of
+length from small to large, first is 3 and last is 4. However, the
+comparison order of "prate_section" dose not obey such order requirement,
+therefore when "prate_section" is "HT", when comparing from tail to head,
+it will lead to access out of bounds in _rtl8812ae_eq_n_byte(). As
+mentioned above, the _rtl8812ae_eq_n_byte() has the same function as
+strcmp(), so just strcmp() is enough.
+
+Fix it by removing _rtl8812ae_eq_n_byte() and use strcmp() barely.
+Although it can be fixed by adjusting the comparison order of
+"prate_section", this may cause the value of "rate_section" to not be
+from 0 to 5. In addition, commit "21e4b0726dc6" not only moved driver
+from staging to regular tree, but also added setting txpower limit
+function during the driver config phase, so the problem was introduced
+by this commit.
+
+Fixes: 21e4b0726dc6 ("rtlwifi: rtl8821ae: Move driver from staging to regular tree")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
 Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201026213040.3889546-6-arnd@kernel.org
-Stable-dep-of: 117dbeda22ec ("wifi: rtlwifi: Fix global-out-of-bounds bug in _rtl8812ae_phy_set_txpower_limit()")
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221212025812.1541311-1-lizetao1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/realtek/rtlwifi/rtl8821ae/phy.c  | 81 ++++++++++---------
- .../realtek/rtlwifi/rtl8821ae/table.c         |  4 +-
- .../realtek/rtlwifi/rtl8821ae/table.h         |  4 +-
- 3 files changed, 45 insertions(+), 44 deletions(-)
+ .../wireless/realtek/rtlwifi/rtl8821ae/phy.c  | 52 +++++++------------
+ 1 file changed, 20 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
-index f41a7643b9c42..119e0f799826f 100644
+index 119e0f799826f..c0c06ab6d3e76 100644
 --- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
 +++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/phy.c
-@@ -1581,7 +1581,7 @@ static void _rtl8821ae_phy_txpower_by_rate_configuration(struct ieee80211_hw *hw
- }
- 
- /* string is in decimal */
--static bool _rtl8812ae_get_integer_from_string(char *str, u8 *pint)
-+static bool _rtl8812ae_get_integer_from_string(const char *str, u8 *pint)
- {
- 	u16 i = 0;
- 	*pint = 0;
-@@ -1599,7 +1599,7 @@ static bool _rtl8812ae_get_integer_from_string(char *str, u8 *pint)
+@@ -1599,18 +1599,6 @@ static bool _rtl8812ae_get_integer_from_string(const char *str, u8 *pint)
  	return true;
  }
  
--static bool _rtl8812ae_eq_n_byte(u8 *str1, u8 *str2, u32 num)
-+static bool _rtl8812ae_eq_n_byte(const char *str1, const char *str2, u32 num)
+-static bool _rtl8812ae_eq_n_byte(const char *str1, const char *str2, u32 num)
+-{
+-	if (num == 0)
+-		return false;
+-	while (num > 0) {
+-		num--;
+-		if (str1[num] != str2[num])
+-			return false;
+-	}
+-	return true;
+-}
+-
+ static s8 _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(struct ieee80211_hw *hw,
+ 					      u8 band, u8 channel)
  {
- 	if (num == 0)
- 		return false;
-@@ -1637,10 +1637,11 @@ static s8 _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(struct ieee80211_hw *hw,
- 	return channel_index;
- }
- 
--static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw, u8 *pregulation,
--				      u8 *pband, u8 *pbandwidth,
--				      u8 *prate_section, u8 *prf_path,
--				      u8 *pchannel, u8 *ppower_limit)
-+static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw,
-+				      const char *pregulation,
-+				      const char *pband, const char *pbandwidth,
-+				      const char *prate_section, const char *prf_path,
-+				      const char *pchannel, const char *ppower_limit)
- {
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
- 	struct rtl_phy *rtlphy = &rtlpriv->phy;
-@@ -1648,8 +1649,8 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw, u8 *pregul
- 	u8 channel_index;
- 	s8 power_limit = 0, prev_power_limit, ret;
- 
--	if (!_rtl8812ae_get_integer_from_string((char *)pchannel, &channel) ||
--	    !_rtl8812ae_get_integer_from_string((char *)ppower_limit,
-+	if (!_rtl8812ae_get_integer_from_string(pchannel, &channel) ||
-+	    !_rtl8812ae_get_integer_from_string(ppower_limit,
- 						&power_limit)) {
- 		rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE,
- 			"Illegal index of pwr_lmt table [chnl %d][val %d]\n",
-@@ -1659,42 +1660,42 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw, u8 *pregul
+@@ -1660,42 +1648,42 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw,
  	power_limit = power_limit > MAX_POWER_INDEX ?
  		      MAX_POWER_INDEX : power_limit;
  
--	if (_rtl8812ae_eq_n_byte(pregulation, (u8 *)("FCC"), 3))
-+	if (_rtl8812ae_eq_n_byte(pregulation, "FCC", 3))
+-	if (_rtl8812ae_eq_n_byte(pregulation, "FCC", 3))
++	if (strcmp(pregulation, "FCC") == 0)
  		regulation = 0;
--	else if (_rtl8812ae_eq_n_byte(pregulation, (u8 *)("MKK"), 3))
-+	else if (_rtl8812ae_eq_n_byte(pregulation, "MKK", 3))
+-	else if (_rtl8812ae_eq_n_byte(pregulation, "MKK", 3))
++	else if (strcmp(pregulation, "MKK") == 0)
  		regulation = 1;
--	else if (_rtl8812ae_eq_n_byte(pregulation, (u8 *)("ETSI"), 4))
-+	else if (_rtl8812ae_eq_n_byte(pregulation, "ETSI", 4))
+-	else if (_rtl8812ae_eq_n_byte(pregulation, "ETSI", 4))
++	else if (strcmp(pregulation, "ETSI") == 0)
  		regulation = 2;
--	else if (_rtl8812ae_eq_n_byte(pregulation, (u8 *)("WW13"), 4))
-+	else if (_rtl8812ae_eq_n_byte(pregulation, "WW13", 4))
+-	else if (_rtl8812ae_eq_n_byte(pregulation, "WW13", 4))
++	else if (strcmp(pregulation, "WW13") == 0)
  		regulation = 3;
  
--	if (_rtl8812ae_eq_n_byte(prate_section, (u8 *)("CCK"), 3))
-+	if (_rtl8812ae_eq_n_byte(prate_section, "CCK", 3))
+-	if (_rtl8812ae_eq_n_byte(prate_section, "CCK", 3))
++	if (strcmp(prate_section, "CCK") == 0)
  		rate_section = 0;
--	else if (_rtl8812ae_eq_n_byte(prate_section, (u8 *)("OFDM"), 4))
-+	else if (_rtl8812ae_eq_n_byte(prate_section, "OFDM", 4))
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "OFDM", 4))
++	else if (strcmp(prate_section, "OFDM") == 0)
  		rate_section = 1;
--	else if (_rtl8812ae_eq_n_byte(prate_section, (u8 *)("HT"), 2) &&
--		 _rtl8812ae_eq_n_byte(prf_path, (u8 *)("1T"), 2))
-+	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
-+		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
++	else if (strcmp(prate_section, "HT") == 0 &&
++		 strcmp(prf_path, "1T") == 0)
  		rate_section = 2;
--	else if (_rtl8812ae_eq_n_byte(prate_section, (u8 *)("HT"), 2) &&
--		 _rtl8812ae_eq_n_byte(prf_path, (u8 *)("2T"), 2))
-+	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
-+		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "HT", 2) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
++	else if (strcmp(prate_section, "HT") == 0 &&
++		 strcmp(prf_path, "2T") == 0)
  		rate_section = 3;
--	else if (_rtl8812ae_eq_n_byte(prate_section, (u8 *)("VHT"), 3) &&
--		 _rtl8812ae_eq_n_byte(prf_path, (u8 *)("1T"), 2))
-+	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
-+		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "1T", 2))
++	else if (strcmp(prate_section, "VHT") == 0 &&
++		 strcmp(prf_path, "1T") == 0)
  		rate_section = 4;
--	else if (_rtl8812ae_eq_n_byte(prate_section, (u8 *)("VHT"), 3) &&
--		 _rtl8812ae_eq_n_byte(prf_path, (u8 *)("2T"), 2))
-+	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
-+		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
+-	else if (_rtl8812ae_eq_n_byte(prate_section, "VHT", 3) &&
+-		 _rtl8812ae_eq_n_byte(prf_path, "2T", 2))
++	else if (strcmp(prate_section, "VHT") == 0 &&
++		 strcmp(prf_path, "2T") == 0)
  		rate_section = 5;
  
--	if (_rtl8812ae_eq_n_byte(pbandwidth, (u8 *)("20M"), 3))
-+	if (_rtl8812ae_eq_n_byte(pbandwidth, "20M", 3))
+-	if (_rtl8812ae_eq_n_byte(pbandwidth, "20M", 3))
++	if (strcmp(pbandwidth, "20M") == 0)
  		bandwidth = 0;
--	else if (_rtl8812ae_eq_n_byte(pbandwidth, (u8 *)("40M"), 3))
-+	else if (_rtl8812ae_eq_n_byte(pbandwidth, "40M", 3))
+-	else if (_rtl8812ae_eq_n_byte(pbandwidth, "40M", 3))
++	else if (strcmp(pbandwidth, "40M") == 0)
  		bandwidth = 1;
--	else if (_rtl8812ae_eq_n_byte(pbandwidth, (u8 *)("80M"), 3))
-+	else if (_rtl8812ae_eq_n_byte(pbandwidth, "80M", 3))
+-	else if (_rtl8812ae_eq_n_byte(pbandwidth, "80M", 3))
++	else if (strcmp(pbandwidth, "80M") == 0)
  		bandwidth = 2;
--	else if (_rtl8812ae_eq_n_byte(pbandwidth, (u8 *)("160M"), 4))
-+	else if (_rtl8812ae_eq_n_byte(pbandwidth, "160M", 4))
+-	else if (_rtl8812ae_eq_n_byte(pbandwidth, "160M", 4))
++	else if (strcmp(pbandwidth, "160M") == 0)
  		bandwidth = 3;
  
--	if (_rtl8812ae_eq_n_byte(pband, (u8 *)("2.4G"), 4)) {
-+	if (_rtl8812ae_eq_n_byte(pband, "2.4G", 4)) {
+-	if (_rtl8812ae_eq_n_byte(pband, "2.4G", 4)) {
++	if (strcmp(pband, "2.4G") == 0) {
  		ret = _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(hw,
  							       BAND_ON_2_4G,
  							       channel);
-@@ -1718,7 +1719,7 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw, u8 *pregul
+@@ -1719,7 +1707,7 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw,
  			regulation, bandwidth, rate_section, channel_index,
  			rtlphy->txpwr_limit_2_4g[regulation][bandwidth]
  				[rate_section][channel_index][RF90_PATH_A]);
--	} else if (_rtl8812ae_eq_n_byte(pband, (u8 *)("5G"), 2)) {
-+	} else if (_rtl8812ae_eq_n_byte(pband, "5G", 2)) {
+-	} else if (_rtl8812ae_eq_n_byte(pband, "5G", 2)) {
++	} else if (strcmp(pband, "5G") == 0) {
  		ret = _rtl8812ae_phy_get_chnl_idx_of_txpwr_lmt(hw,
  							       BAND_ON_5G,
  							       channel);
-@@ -1749,10 +1750,10 @@ static void _rtl8812ae_phy_set_txpower_limit(struct ieee80211_hw *hw, u8 *pregul
- }
- 
- static void _rtl8812ae_phy_config_bb_txpwr_lmt(struct ieee80211_hw *hw,
--					  u8 *regulation, u8 *band,
--					  u8 *bandwidth, u8 *rate_section,
--					  u8 *rf_path, u8 *channel,
--					  u8 *power_limit)
-+					  const char *regulation, const char *band,
-+					  const char *bandwidth, const char *rate_section,
-+					  const char *rf_path, const char *channel,
-+					  const char *power_limit)
- {
- 	_rtl8812ae_phy_set_txpower_limit(hw, regulation, band, bandwidth,
- 					 rate_section, rf_path, channel,
-@@ -1765,7 +1766,7 @@ static void _rtl8821ae_phy_read_and_config_txpwr_lmt(struct ieee80211_hw *hw)
- 	struct rtl_hal *rtlhal = rtl_hal(rtlpriv);
- 	u32 i = 0;
- 	u32 array_len;
--	u8 **array;
-+	const char **array;
- 
- 	if (rtlhal->hw_type == HARDWARE_TYPE_RTL8812AE) {
- 		array_len = RTL8812AE_TXPWR_LMT_ARRAY_LEN;
-@@ -1778,13 +1779,13 @@ static void _rtl8821ae_phy_read_and_config_txpwr_lmt(struct ieee80211_hw *hw)
- 	rtl_dbg(rtlpriv, COMP_INIT, DBG_TRACE, "\n");
- 
- 	for (i = 0; i < array_len; i += 7) {
--		u8 *regulation = array[i];
--		u8 *band = array[i+1];
--		u8 *bandwidth = array[i+2];
--		u8 *rate = array[i+3];
--		u8 *rf_path = array[i+4];
--		u8 *chnl = array[i+5];
--		u8 *val = array[i+6];
-+		const char *regulation = array[i];
-+		const char *band = array[i+1];
-+		const char *bandwidth = array[i+2];
-+		const char *rate = array[i+3];
-+		const char *rf_path = array[i+4];
-+		const char *chnl = array[i+5];
-+		const char *val = array[i+6];
- 
- 		_rtl8812ae_phy_config_bb_txpwr_lmt(hw, regulation, band,
- 						   bandwidth, rate, rf_path,
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.c
-index ed72a2aeb6c8e..fcaaf664cbec5 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.c
-@@ -2894,7 +2894,7 @@ u32 RTL8821AE_AGC_TAB_1TARRAYLEN = ARRAY_SIZE(RTL8821AE_AGC_TAB_ARRAY);
- *                           TXPWR_LMT.TXT
- ******************************************************************************/
- 
--u8 *RTL8812AE_TXPWR_LMT[] = {
-+const char *RTL8812AE_TXPWR_LMT[] = {
- 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "36",
- 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "32",
- 	"MKK", "2.4G", "20M", "CCK", "1T", "01", "32",
-@@ -3463,7 +3463,7 @@ u8 *RTL8812AE_TXPWR_LMT[] = {
- 
- u32 RTL8812AE_TXPWR_LMT_ARRAY_LEN = ARRAY_SIZE(RTL8812AE_TXPWR_LMT);
- 
--u8 *RTL8821AE_TXPWR_LMT[] = {
-+const char *RTL8821AE_TXPWR_LMT[] = {
- 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "32",
- 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "32",
- 	"MKK", "2.4G", "20M", "CCK", "1T", "01", "32",
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.h b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.h
-index 540159c25078a..76c62b7c0fb24 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.h
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/table.h
-@@ -28,7 +28,7 @@ extern u32 RTL8821AE_AGC_TAB_ARRAY[];
- extern u32 RTL8812AE_AGC_TAB_1TARRAYLEN;
- extern u32 RTL8812AE_AGC_TAB_ARRAY[];
- extern u32 RTL8812AE_TXPWR_LMT_ARRAY_LEN;
--extern u8 *RTL8812AE_TXPWR_LMT[];
-+extern const char *RTL8812AE_TXPWR_LMT[];
- extern u32 RTL8821AE_TXPWR_LMT_ARRAY_LEN;
--extern u8 *RTL8821AE_TXPWR_LMT[];
-+extern const char *RTL8821AE_TXPWR_LMT[];
- #endif
 -- 
 2.39.2
 
