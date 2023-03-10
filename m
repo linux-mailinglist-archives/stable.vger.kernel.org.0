@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A5486B45E8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8CB66B4470
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232713AbjCJOil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:38:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48900 "EHLO
+        id S232231AbjCJOYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:24:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232673AbjCJOiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:38:23 -0500
+        with ESMTP id S232255AbjCJOXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:23:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8F51165C
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:38:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDAAD19103
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:23:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF983B822E4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:38:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25124C4339C;
-        Fri, 10 Mar 2023 14:37:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CCEDB822BA
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:23:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7D42C433EF;
+        Fri, 10 Mar 2023 14:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459079;
-        bh=BXMlJSL5Kc38xrg++6JtI2axxwb+ggvBIzaYc6tDbxk=;
+        s=korg; t=1678458179;
+        bh=X/0kmMQKgLWKOPhvGEgE2xKTjyGB+HmiTscj4YdkCh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqehRnE3brawrI5gVWfVgRyUiJJ82LSGjIc0NMw+Il0dOUdeJB21CPBbSH7OCnbi1
-         +gxCeV/bseyyMS/yJTu08d2vrAZqPmd+W7tZiv8kx37/91VI3ApAgTapBGcp0AWs7U
-         lad761x2xF62BFVNWrVA+dVDDVgPnnZU0vu/J2LU=
+        b=Zx0yblrv6uSmbb1hSM6Ha6MameJuvPUNzk/O96vSYGUh04buc9Fj+nwVAYSFe7Tlf
+         F+5oUsxOQgA7/vuiPwRE6m2ybIrgTH41xyJ9tjzwIiRUVkSRDjnVZRYEmVVNntZ4B0
+         h7Ej2LSymo5VxR9/gxettFfOhQQR8Wm7bupTXL24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Borislav Petkov (AMD)" <bp@alien8.de>,
-        stable@kernel.org
-Subject: [PATCH 5.4 241/357] x86/microcode/AMD: Fix mixed steppings support
+        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Subject: [PATCH 4.19 160/252] x86/kprobes: Fix arch_check_optimized_kprobe check within optimized_kprobe range
 Date:   Fri, 10 Mar 2023 14:38:50 +0100
-Message-Id: <20230310133745.386503518@linuxfoundation.org>
+Message-Id: <20230310133723.683627473@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,106 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov (AMD) <bp@alien8.de>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-commit 7ff6edf4fef38ab404ee7861f257e28eaaeed35f upstream.
+commit f1c97a1b4ef709e3f066f82e3ba3108c3b133ae6 upstream.
 
-The AMD side of the loader has always claimed to support mixed
-steppings. But somewhere along the way, it broke that by assuming that
-the cached patch blob is a single one instead of it being one per
-*node*.
+When arch_prepare_optimized_kprobe calculating jump destination address,
+it copies original instructions from jmp-optimized kprobe (see
+__recover_optprobed_insn), and calculated based on length of original
+instruction.
 
-So turn it into a per-node one so that each node can stash the blob
-relevant for it.
+arch_check_optimized_kprobe does not check KPROBE_FLAG_OPTIMATED when
+checking whether jmp-optimized kprobe exists.
+As a result, setup_detour_execution may jump to a range that has been
+overwritten by jump destination address, resulting in an inval opcode error.
 
-  [ NB: Fixes tag is not really the exactly correct one but it is good
-    enough. ]
+For example, assume that register two kprobes whose addresses are
+<func+9> and <func+11> in "func" function.
+The original code of "func" function is as follows:
 
-Fixes: fe055896c040 ("x86/microcode: Merge the early microcode loader")
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Cc: <stable@kernel.org> # 2355370cd941 ("x86/microcode/amd: Remove load_microcode_amd()'s bsp parameter")
-Cc: <stable@kernel.org> # a5ad92134bd1 ("x86/microcode/AMD: Add a @cpu parameter to the reloading functions")
-Link: https://lore.kernel.org/r/20230130161709.11615-4-bp@alien8.de
+   0xffffffff816cb5e9 <+9>:     push   %r12
+   0xffffffff816cb5eb <+11>:    xor    %r12d,%r12d
+   0xffffffff816cb5ee <+14>:    test   %rdi,%rdi
+   0xffffffff816cb5f1 <+17>:    setne  %r12b
+   0xffffffff816cb5f5 <+21>:    push   %rbp
+
+1.Register the kprobe for <func+11>, assume that is kp1, corresponding optimized_kprobe is op1.
+  After the optimization, "func" code changes to:
+
+   0xffffffff816cc079 <+9>:     push   %r12
+   0xffffffff816cc07b <+11>:    jmp    0xffffffffa0210000
+   0xffffffff816cc080 <+16>:    incl   0xf(%rcx)
+   0xffffffff816cc083 <+19>:    xchg   %eax,%ebp
+   0xffffffff816cc084 <+20>:    (bad)
+   0xffffffff816cc085 <+21>:    push   %rbp
+
+Now op1->flags == KPROBE_FLAG_OPTIMATED;
+
+2. Register the kprobe for <func+9>, assume that is kp2, corresponding optimized_kprobe is op2.
+
+register_kprobe(kp2)
+  register_aggr_kprobe
+    alloc_aggr_kprobe
+      __prepare_optimized_kprobe
+        arch_prepare_optimized_kprobe
+          __recover_optprobed_insn    // copy original bytes from kp1->optinsn.copied_insn,
+                                      // jump address = <func+14>
+
+3. disable kp1:
+
+disable_kprobe(kp1)
+  __disable_kprobe
+    ...
+    if (p == orig_p || aggr_kprobe_disabled(orig_p)) {
+      ret = disarm_kprobe(orig_p, true)       // add op1 in unoptimizing_list, not unoptimized
+      orig_p->flags |= KPROBE_FLAG_DISABLED;  // op1->flags ==  KPROBE_FLAG_OPTIMATED | KPROBE_FLAG_DISABLED
+    ...
+
+4. unregister kp2
+__unregister_kprobe_top
+  ...
+  if (!kprobe_disabled(ap) && !kprobes_all_disarmed) {
+    optimize_kprobe(op)
+      ...
+      if (arch_check_optimized_kprobe(op) < 0) // because op1 has KPROBE_FLAG_DISABLED, here not return
+        return;
+      p->kp.flags |= KPROBE_FLAG_OPTIMIZED;   //  now op2 has KPROBE_FLAG_OPTIMIZED
+  }
+
+"func" code now is:
+
+   0xffffffff816cc079 <+9>:     int3
+   0xffffffff816cc07a <+10>:    push   %rsp
+   0xffffffff816cc07b <+11>:    jmp    0xffffffffa0210000
+   0xffffffff816cc080 <+16>:    incl   0xf(%rcx)
+   0xffffffff816cc083 <+19>:    xchg   %eax,%ebp
+   0xffffffff816cc084 <+20>:    (bad)
+   0xffffffff816cc085 <+21>:    push   %rbp
+
+5. if call "func", int3 handler call setup_detour_execution:
+
+  if (p->flags & KPROBE_FLAG_OPTIMIZED) {
+    ...
+    regs->ip = (unsigned long)op->optinsn.insn + TMPL_END_IDX;
+    ...
+  }
+
+The code for the destination address is
+
+   0xffffffffa021072c:  push   %r12
+   0xffffffffa021072e:  xor    %r12d,%r12d
+   0xffffffffa0210731:  jmp    0xffffffff816cb5ee <func+14>
+
+However, <func+14> is not a valid start instruction address. As a result, an error occurs.
+
+Link: https://lore.kernel.org/all/20230216034247.32348-3-yangjihong1@huawei.com/
+
+Fixes: f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Cc: stable@vger.kernel.org
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/microcode/amd.c |   34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ arch/x86/kernel/kprobes/opt.c |    2 +-
+ include/linux/kprobes.h       |    1 +
+ kernel/kprobes.c              |    4 ++--
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/microcode/amd.c
-+++ b/arch/x86/kernel/cpu/microcode/amd.c
-@@ -55,7 +55,9 @@ struct cont_desc {
- };
+--- a/arch/x86/kernel/kprobes/opt.c
++++ b/arch/x86/kernel/kprobes/opt.c
+@@ -328,7 +328,7 @@ int arch_check_optimized_kprobe(struct o
  
- static u32 ucode_new_rev;
--static u8 amd_ucode_patch[PATCH_MAX_SIZE];
-+
-+/* One blob per node. */
-+static u8 amd_ucode_patch[MAX_NUMNODES][PATCH_MAX_SIZE];
- 
- /*
-  * Microcode patch container file is prepended to the initrd in cpio
-@@ -429,7 +431,7 @@ apply_microcode_early_amd(u32 cpuid_1_ea
- 	patch	= (u8 (*)[PATCH_MAX_SIZE])__pa_nodebug(&amd_ucode_patch);
- #else
- 	new_rev = &ucode_new_rev;
--	patch	= &amd_ucode_patch;
-+	patch	= &amd_ucode_patch[0];
- #endif
- 
- 	desc.cpuid_1_eax = cpuid_1_eax;
-@@ -575,10 +577,10 @@ int __init save_microcode_in_initrd_amd(
- 
- void reload_ucode_amd(unsigned int cpu)
- {
--	struct microcode_amd *mc;
- 	u32 rev, dummy;
-+	struct microcode_amd *mc;
- 
--	mc = (struct microcode_amd *)amd_ucode_patch;
-+	mc = (struct microcode_amd *)amd_ucode_patch[cpu_to_node(cpu)];
- 
- 	rdmsr(MSR_AMD64_PATCH_LEVEL, rev, dummy);
- 
-@@ -846,6 +848,8 @@ static enum ucode_state __load_microcode
- 
- static enum ucode_state load_microcode_amd(u8 family, const u8 *data, size_t size)
- {
-+	struct cpuinfo_x86 *c;
-+	unsigned int nid, cpu;
- 	struct ucode_patch *p;
- 	enum ucode_state ret;
- 
-@@ -858,18 +862,22 @@ static enum ucode_state load_microcode_a
- 		return ret;
+ 	for (i = 1; i < op->optinsn.size; i++) {
+ 		p = get_kprobe(op->kp.addr + i);
+-		if (p && !kprobe_disabled(p))
++		if (p && !kprobe_disarmed(p))
+ 			return -EEXIST;
  	}
  
--	p = find_patch(0);
--	if (!p) {
--		return ret;
--	} else {
--		if (boot_cpu_data.microcode >= p->patch_id)
--			return ret;
-+	for_each_node(nid) {
-+		cpu = cpumask_first(cpumask_of_node(nid));
-+		c = &cpu_data(cpu);
-+
-+		p = find_patch(cpu);
-+		if (!p)
-+			continue;
-+
-+		if (c->microcode >= p->patch_id)
-+			continue;
- 
- 		ret = UCODE_NEW;
--	}
- 
--	memset(amd_ucode_patch, 0, PATCH_MAX_SIZE);
--	memcpy(amd_ucode_patch, p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
-+		memset(&amd_ucode_patch[nid], 0, PATCH_MAX_SIZE);
-+		memcpy(&amd_ucode_patch[nid], p->data, min_t(u32, p->size, PATCH_MAX_SIZE));
-+	}
- 
- 	return ret;
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -332,6 +332,7 @@ extern int proc_kprobes_optimization_han
+ #endif
+ extern void wait_for_kprobe_optimizer(void);
+ bool optprobe_queued_unopt(struct optimized_kprobe *op);
++bool kprobe_disarmed(struct kprobe *p);
+ #else
+ static inline void wait_for_kprobe_optimizer(void) { }
+ #endif /* CONFIG_OPTPROBES */
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -418,8 +418,8 @@ static inline int kprobe_optready(struct
+ 	return 0;
  }
+ 
+-/* Return true(!0) if the kprobe is disarmed. Note: p must be on hash list */
+-static inline int kprobe_disarmed(struct kprobe *p)
++/* Return true if the kprobe is disarmed. Note: p must be on hash list */
++bool kprobe_disarmed(struct kprobe *p)
+ {
+ 	struct optimized_kprobe *op;
+ 
 
 
