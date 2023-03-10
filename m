@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 571E86B43A3
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B326B41AF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232047AbjCJOQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:16:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50872 "EHLO
+        id S231307AbjCJNzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:55:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231769AbjCJOQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 391485BC98
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:03 -0800 (PST)
+        with ESMTP id S231315AbjCJNzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF4610F463
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C97516191F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D7CC4339E;
-        Fri, 10 Mar 2023 14:15:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F1EC60D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AE2DC4339B;
+        Fri, 10 Mar 2023 13:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457702;
-        bh=RK59v+7tkIof8xQyvhmhP4ktorEGLlFM/C0HX10/00c=;
+        s=korg; t=1678456513;
+        bh=SNaxmAtCEeHxlIWT61VctlLC/rGOYT4cC5lF7HzXyqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcMBuinvaj/dp94RjmxYVezY+7fihdbBh9oJL2BylUaslKquFoD4b9vnCGaYbhcxD
-         ITH1gbA+j+MnXLe4SYcO3rdcyyho5l4hJ9aFUoF5HuZroVgYzxeYHqXSZ31WQkPST5
-         aAPc0Wfs0o1F4TWWzd3Bnuk3/N44601ArLYhP17s=
+        b=KAqhV2+3G2m6Vfppv9Pt8oAO3cHwIU/zLVfiK/MjIoZavjsM6HLSNjZdIdxxqQ94f
+         8UC+9DCa/E25kxQQT59tRFLRNAOWjMNhASlX2WZ199JUadZA90vNH4ZzBtIflSgFk7
+         m0xlz6xdI5qtRcWvPDvXoahNBEcufaZfKul7s9tY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>, Kalle Valo <kvalo@kernel.org>,
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 021/252] wifi: libertas: fix memory leak in lbs_init_adapter()
+Subject: [PATCH 6.2 011/211] memory: renesas-rpc-if: Move resource acquisition to .probe()
 Date:   Fri, 10 Mar 2023 14:36:31 +0100
-Message-Id: <20230310133719.464871719@linuxfoundation.org>
+Message-Id: <20230310133719.069811299@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -54,35 +56,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 16a03958618fb91bb1bc7077cf3211055162cc2f ]
+[ Upstream commit 8b3580df15f53045fda3ffae53f74575c96aa77e ]
 
-When kfifo_alloc() failed in lbs_init_adapter(), cmd buffer is not
-released. Add free memory to processing error path.
+While the acquired resources are tied to the lifetime of the RPC-IF core
+device (through the use of managed resource functions), the actual
+resource acquisition is triggered from the HyperBus and SPI child
+drivers.  Due to this mismatch, unbinding and rebinding the child
+drivers manually fails with -EBUSY:
 
-Fixes: 7919b89c8276 ("libertas: convert libertas driver to use an event/cmdresp queue")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221208121448.2845986-1-shaozhengchao@huawei.com
+    # echo rpc-if-hyperflash > /sys/bus/platform/drivers/rpc-if-hyperflash/unbind
+    # echo rpc-if-hyperflash > /sys/bus/platform/drivers/rpc-if-hyperflash/bind
+    rpc-if ee200000.spi: can't request region for resource [mem 0xee200000-0xee2001ff]
+    rpc-if-hyperflash: probe of rpc-if-hyperflash failed with error -16
+
+The same is true for rpc-if-spi.
+
+Fix this by moving all resource acquisition to the core driver's probe
+routine.
+
+Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/c1012ef1de799e08a70817ab7313794e2d8d7bfb.1669213027.git.geert+renesas@glider.be
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/memory/renesas-rpc-if.c | 49 ++++++++++++++++-----------------
+ 1 file changed, 24 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/main.c b/drivers/net/wireless/marvell/libertas/main.c
-index f22e1c220cba1..41e37c17d9c28 100644
---- a/drivers/net/wireless/marvell/libertas/main.c
-+++ b/drivers/net/wireless/marvell/libertas/main.c
-@@ -869,6 +869,7 @@ static int lbs_init_adapter(struct lbs_private *priv)
- 	ret = kfifo_alloc(&priv->event_fifo, sizeof(u32) * 16, GFP_KERNEL);
- 	if (ret) {
- 		pr_err("Out of memory allocating event FIFO buffer\n");
-+		lbs_free_cmd_buffer(priv);
- 		goto out;
- 	}
+diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
+index ded80caec1678..5be3b46cd55f1 100644
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -277,32 +277,7 @@ static const struct regmap_config rpcif_regmap_config = {
  
+ int rpcif_sw_init(struct rpcif *rpcif, struct device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+ 	struct rpcif_priv *rpc = dev_get_drvdata(dev);
+-	struct resource *res;
+-
+-	rpc->base = devm_platform_ioremap_resource_byname(pdev, "regs");
+-	if (IS_ERR(rpc->base))
+-		return PTR_ERR(rpc->base);
+-
+-	rpc->regmap = devm_regmap_init(&pdev->dev, NULL, rpc, &rpcif_regmap_config);
+-	if (IS_ERR(rpc->regmap)) {
+-		dev_err(&pdev->dev,
+-			"failed to init regmap for rpcif, error %ld\n",
+-			PTR_ERR(rpc->regmap));
+-		return	PTR_ERR(rpc->regmap);
+-	}
+-
+-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dirmap");
+-	rpc->dirmap = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(rpc->dirmap))
+-		return PTR_ERR(rpc->dirmap);
+-	rpc->size = resource_size(res);
+-
+-	rpc->type = (uintptr_t)of_device_get_match_data(dev);
+-	rpc->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+-	if (IS_ERR(rpc->rstc))
+-		return PTR_ERR(rpc->rstc);
+ 
+ 	rpcif->dev = dev;
+ 	rpcif->dirmap = rpc->dirmap;
+@@ -705,9 +680,11 @@ EXPORT_SYMBOL(rpcif_dirmap_read);
+ 
+ static int rpcif_probe(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct platform_device *vdev;
+ 	struct device_node *flash;
+ 	struct rpcif_priv *rpc;
++	struct resource *res;
+ 	const char *name;
+ 	int ret;
+ 
+@@ -732,6 +709,28 @@ static int rpcif_probe(struct platform_device *pdev)
+ 	if (!rpc)
+ 		return -ENOMEM;
+ 
++	rpc->base = devm_platform_ioremap_resource_byname(pdev, "regs");
++	if (IS_ERR(rpc->base))
++		return PTR_ERR(rpc->base);
++
++	rpc->regmap = devm_regmap_init(dev, NULL, rpc, &rpcif_regmap_config);
++	if (IS_ERR(rpc->regmap)) {
++		dev_err(dev, "failed to init regmap for rpcif, error %ld\n",
++			PTR_ERR(rpc->regmap));
++		return	PTR_ERR(rpc->regmap);
++	}
++
++	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dirmap");
++	rpc->dirmap = devm_ioremap_resource(dev, res);
++	if (IS_ERR(rpc->dirmap))
++		return PTR_ERR(rpc->dirmap);
++	rpc->size = resource_size(res);
++
++	rpc->type = (uintptr_t)of_device_get_match_data(dev);
++	rpc->rstc = devm_reset_control_get_exclusive(dev, NULL);
++	if (IS_ERR(rpc->rstc))
++		return PTR_ERR(rpc->rstc);
++
+ 	vdev = platform_device_alloc(name, pdev->id);
+ 	if (!vdev)
+ 		return -ENOMEM;
 -- 
 2.39.2
 
