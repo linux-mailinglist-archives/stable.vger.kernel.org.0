@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 253866B4326
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A2C6B4134
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231919AbjCJOK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37030 "EHLO
+        id S230449AbjCJNue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:50:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231585AbjCJOKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA4A11786A
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:10:16 -0800 (PST)
+        with ESMTP id S230453AbjCJNud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AFCEEA025
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FB0A617CF
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71066C4339E;
-        Fri, 10 Mar 2023 14:10:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABB5260F11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABFE2C433D2;
+        Fri, 10 Mar 2023 13:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457415;
-        bh=bm2WJ1roVdn9VBIkoVkk3KE1nkq8Xz3lJOvX4cwpvjs=;
+        s=korg; t=1678456232;
+        bh=PmRPSk61T1z4xgFntuhfmZVuaeNxqCL4rIjz/ztNjrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=keA3qPlfj3FkpMNj+mTn1tUa27hOmuulYAqC1o9IiibZEcUgCHYMMjGYrdDtgfQku
-         7SWqHCZr9D5ACE4+Rz0Ix53wKRZtRrRetBaXFnGHT7zdFvTuwKLm/QXEZCQ8BOCZsc
-         A1jR8mgUcvHlKvMjls7sBZAc9bqfvibBS4Aw0G8o=
+        b=TjA6EpG0SFKtEMZXQgyXUQo9+Tkb1B4PBaNCQyk61so84MYGcMb2JglMLGfM3ucZ4
+         6r8vxJTsHnxCGU1VT86OqKFgTlmksS0JiP9B8eKtS54VIWbHqTNnOCUXkvnLSq+JPg
+         CeIJ5VKsTauL4PWqeF44ntLPuuKRq2f76rH6D5O8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
-        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 099/200] scsi: mpi3mr: Fix an issue found by KASAN
-Date:   Fri, 10 Mar 2023 14:38:26 +0100
-Message-Id: <20230310133720.150625983@linuxfoundation.org>
+        patches@lists.linux.dev, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.14 125/193] irqdomain: Drop bogus fwspec-mapping error handling
+Date:   Fri, 10 Mar 2023 14:38:27 +0100
+Message-Id: <20230310133715.411746594@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,37 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit ae7d45f5283d30274039b95d3e6d53d33c66e991 ]
+commit e3b7ab025e931accdc2c12acf9b75c6197f1c062 upstream.
 
-Write only correct size (32 instead of 64 bytes).
+In case a newly allocated IRQ ever ends up not having any associated
+struct irq_data it would not even be possible to dispose the mapping.
 
-Link: https://lore.kernel.org/r/20230213193752.6859-1-thenzl@redhat.com
-Fixes: 42fc9fee116f ("scsi: mpi3mr: Add helper functions to manage device's port")
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Replace the bogus disposal with a WARN_ON().
+
+This will also be used to fix a shared-interrupt mapping race, hence the
+CC-stable tag.
+
+Fixes: 1e2a7d78499e ("irqdomain: Don't set type when mapping an IRQ")
+Cc: stable@vger.kernel.org      # 4.8
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230213104302.17307-4-johan+linaro@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpi3mr/mpi3mr_transport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/irq/irqdomain.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/mpi3mr/mpi3mr_transport.c b/drivers/scsi/mpi3mr/mpi3mr_transport.c
-index 3fc897336b5e0..3b61815979dab 100644
---- a/drivers/scsi/mpi3mr/mpi3mr_transport.c
-+++ b/drivers/scsi/mpi3mr/mpi3mr_transport.c
-@@ -1280,7 +1280,7 @@ void mpi3mr_sas_host_add(struct mpi3mr_ioc *mrioc)
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -830,13 +830,8 @@ unsigned int irq_create_fwspec_mapping(s
+ 	}
  
- 	if (mrioc->sas_hba.enclosure_handle) {
- 		if (!(mpi3mr_cfg_get_enclosure_pg0(mrioc, &ioc_status,
--		    &encl_pg0, sizeof(dev_pg0),
-+		    &encl_pg0, sizeof(encl_pg0),
- 		    MPI3_ENCLOS_PGAD_FORM_HANDLE,
- 		    mrioc->sas_hba.enclosure_handle)) &&
- 		    (ioc_status == MPI3_IOCSTATUS_SUCCESS))
--- 
-2.39.2
-
+ 	irq_data = irq_get_irq_data(virq);
+-	if (!irq_data) {
+-		if (irq_domain_is_hierarchy(domain))
+-			irq_domain_free_irqs(virq, 1);
+-		else
+-			irq_dispose_mapping(virq);
++	if (WARN_ON(!irq_data))
+ 		return 0;
+-	}
+ 
+ 	/* Store trigger type */
+ 	irqd_set_trigger_type(irq_data, type);
 
 
