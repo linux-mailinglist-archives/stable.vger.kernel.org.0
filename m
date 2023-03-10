@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE50F6B44F5
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE8E76B44F6
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232363AbjCJOaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:30:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
+        id S232467AbjCJOaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232329AbjCJO32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53212069F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:04 -0800 (PST)
+        with ESMTP id S232468AbjCJO3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:29:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D65A7A27B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:28:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B4D961745
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17E94C433D2;
-        Fri, 10 Mar 2023 14:28:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 118C861380
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09A68C4339C;
+        Fri, 10 Mar 2023 14:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458483;
-        bh=aarenZCgKYC32aWVmx3zSbR6K/XJxyvTwApO0LXrttA=;
+        s=korg; t=1678458486;
+        bh=TKvm4l4LIxuq+q3VPpW9uNQOBvDZFKDpjOtU/DD+8Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqS+Rb4ccApjGKinOS97vAyXmHfaOxmYu+Su6cSFbevab/cZekrcx7OQZyd+zswT4
-         jOCINYESdlSv4BoYMaLwmXDY7ZJ6TzeEWjru3WygIVg9g34id++20lHgRR81C1mvf1
-         EIQfdE8Nq0IUULq8dy9bRsMg8U9Azet3fCcMCEig=
+        b=DTxTm1c9WfWGpNgSQpPIHjy4rROWuPusDbbz/3YZqQojpCeJ3DN4zT+glc56lT+Jd
+         YRMyiUogvmkdwa6GmIboXBsjjk/AOnk77ja1yUfIwUiz8RZGthrkmkA0pOIcjaMi7q
+         NggJC6wHGNl+cYZi2Bhk9q/JcRx0BF2mXBYOuduo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 041/357] wifi: ipw2200: fix memory leak in ipw_wdev_init()
-Date:   Fri, 10 Mar 2023 14:35:30 +0100
-Message-Id: <20230310133735.812373051@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 042/357] wilc1000: let wilc_mac_xmit() return NETDEV_TX_OK
+Date:   Fri, 10 Mar 2023 14:35:31 +0100
+Message-Id: <20230310133735.849211687@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -43,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -53,45 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-[ Upstream commit 9fe21dc626117fb44a8eb393713a86a620128ce3 ]
+[ Upstream commit cce0e08301fe43dc3fe983d5f098393d15f803f0 ]
 
-In the error path of ipw_wdev_init(), exception value is returned, and
-the memory applied for in the function is not released. Also the memory
-is not released in ipw_pci_probe(). As a result, memory leakage occurs.
-So memory release needs to be added to the error path of ipw_wdev_init().
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type defining 'NETDEV_TX_OK' but this
+driver returns '0' instead of 'NETDEV_TX_OK'.
 
-Fixes: a3caa99e6c68 ("libipw: initiate cfg80211 API conversion (v2)")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221209012422.182669-1-shaozhengchao@huawei.com
+Fix this by returning 'NETDEV_TX_OK' instead of '0'.
+
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200629104009.84077-1-luc.vanoostenryck@gmail.com
+Stable-dep-of: deb962ec9e1c ("wifi: wilc1000: fix potential memory leak in wilc_mac_xmit()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/ipw2x00/ipw2200.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/staging/wilc1000/wilc_netdev.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/ipw2x00/ipw2200.c b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
-index b2f7736a79f85..5ce1a4d8fcee7 100644
---- a/drivers/net/wireless/intel/ipw2x00/ipw2200.c
-+++ b/drivers/net/wireless/intel/ipw2x00/ipw2200.c
-@@ -11414,9 +11414,14 @@ static int ipw_wdev_init(struct net_device *dev)
- 	set_wiphy_dev(wdev->wiphy, &priv->pci_dev->dev);
+diff --git a/drivers/staging/wilc1000/wilc_netdev.c b/drivers/staging/wilc1000/wilc_netdev.c
+index 508acb8bb089f..c8cf88258d06d 100644
+--- a/drivers/staging/wilc1000/wilc_netdev.c
++++ b/drivers/staging/wilc1000/wilc_netdev.c
+@@ -717,14 +717,14 @@ netdev_tx_t wilc_mac_xmit(struct sk_buff *skb, struct net_device *ndev)
  
- 	/* With that information in place, we can now register the wiphy... */
--	if (wiphy_register(wdev->wiphy))
--		rc = -EIO;
-+	rc = wiphy_register(wdev->wiphy);
-+	if (rc)
-+		goto out;
-+
-+	return 0;
- out:
-+	kfree(priv->ieee->a_band.channels);
-+	kfree(priv->ieee->bg_band.channels);
- 	return rc;
+ 	if (skb->dev != ndev) {
+ 		netdev_err(ndev, "Packet not destined to this device\n");
+-		return 0;
++		return NETDEV_TX_OK;
+ 	}
+ 
+ 	tx_data = kmalloc(sizeof(*tx_data), GFP_ATOMIC);
+ 	if (!tx_data) {
+ 		dev_kfree_skb(skb);
+ 		netif_wake_queue(ndev);
+-		return 0;
++		return NETDEV_TX_OK;
+ 	}
+ 
+ 	tx_data->buff = skb->data;
+@@ -748,7 +748,7 @@ netdev_tx_t wilc_mac_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 		mutex_unlock(&wilc->vif_mutex);
+ 	}
+ 
+-	return 0;
++	return NETDEV_TX_OK;
  }
  
+ static int wilc_mac_close(struct net_device *ndev)
 -- 
 2.39.2
 
