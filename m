@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB276B4317
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB90E6B4149
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:51:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231891AbjCJOKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:10:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34516 "EHLO
+        id S230479AbjCJNvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:51:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231730AbjCJOKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:10:12 -0500
+        with ESMTP id S230484AbjCJNvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:51:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D4A11A2D7
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:09:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC77108C12
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:51:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9EA5617B4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B145FC433D2;
-        Fri, 10 Mar 2023 14:09:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C25B60D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:51:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 480B4C4339B;
+        Fri, 10 Mar 2023 13:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457381;
-        bh=0tZ/4NzooGbrjMVXg9sTdBqHaTj1hP3blSQVZAnuiwo=;
+        s=korg; t=1678456277;
+        bh=Ql70Ve5xOZXA/OXw71/B5BP8IYcmUQnvdKy0mlXpHeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWA+g2Pdf4whToiMNIDWEVJxHV2nMOPS0WY+N9Kcys6eQywZ1KzwdruDwpw1xvGr7
-         GODbRY+MQrSLDurU3pICGGPvKotugO6UDaES/1Fyz/2m38Bn2DvyBiSrQM032dXOKg
-         BQCBKe1TX7w+app82mTKw88fVns0BpVNRK33+W9M=
+        b=FNAJsSyWafeOd5kYTD8vpuqWyMPLaCV8PMotwEv98N8+E6U7Kpjopqh+Nlhua36j9
+         H/a3RNq2ZiOq7/tN2W9ViypduQWuT8LwKrB1ECg6kZG2uRC0I6xh1eyK1LwkpH0BMI
+         7/I/clnv8sYWBrDmexWQ2gLrv002MzxqOmxcL8V8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Darrell Kavanagh <darrell.kavanagh@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 117/200] firmware/efi sysfb_efi: Add quirk for Lenovo IdeaPad Duet 3
+        patches@lists.linux.dev, Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 142/193] scsi: ses: Fix slab-out-of-bounds in ses_enclosure_data_process()
 Date:   Fri, 10 Mar 2023 14:38:44 +0100
-Message-Id: <20230310133720.700640743@linuxfoundation.org>
+Message-Id: <20230310133715.946199084@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
-References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
+References: <20230310133710.926811681@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit e1d447157f232c650e6f32c9fb89ff3d0207c69a ]
+commit 9b4f5028e493cb353a5c8f5c45073eeea0303abd upstream.
 
-Another Lenovo convertable which reports a landscape resolution of
-1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
-has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
+A fix for:
 
-Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BUG: KASAN: slab-out-of-bounds in ses_enclosure_data_process+0x949/0xe30 [ses]
+Read of size 1 at addr ffff88a1b043a451 by task systemd-udevd/3271
+
+Checking after (and before in next loop) addl_desc_ptr[1] is sufficient, we
+expect the size to be sanitized before first access to addl_desc_ptr[1].
+Make sure we don't walk beyond end of page.
+
+Link: https://lore.kernel.org/r/20230202162451.15346-2-thenzl@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/sysfb_efi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/scsi/ses.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/efi/sysfb_efi.c b/drivers/firmware/efi/sysfb_efi.c
-index 7882d4b3f2be4..f06fdacc9bc83 100644
---- a/drivers/firmware/efi/sysfb_efi.c
-+++ b/drivers/firmware/efi/sysfb_efi.c
-@@ -264,6 +264,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
- 					"Lenovo ideapad D330-10IGM"),
- 		},
- 	},
-+	{
-+		/* Lenovo IdeaPad Duet 3 10IGL5 with 1200x1920 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"IdeaPad Duet 3 10IGL5"),
-+		},
-+	},
- 	{},
- };
- 
--- 
-2.39.2
-
+--- a/drivers/scsi/ses.c
++++ b/drivers/scsi/ses.c
+@@ -619,9 +619,11 @@ static void ses_enclosure_data_process(s
+ 			     /* these elements are optional */
+ 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_TARGET_PORT ||
+ 			     type_ptr[0] == ENCLOSURE_COMPONENT_SCSI_INITIATOR_PORT ||
+-			     type_ptr[0] == ENCLOSURE_COMPONENT_CONTROLLER_ELECTRONICS))
++			     type_ptr[0] == ENCLOSURE_COMPONENT_CONTROLLER_ELECTRONICS)) {
+ 				addl_desc_ptr += addl_desc_ptr[1] + 2;
+-
++				if (addl_desc_ptr + 1 >= ses_dev->page10 + ses_dev->page10_len)
++					addl_desc_ptr = NULL;
++			}
+ 		}
+ 	}
+ 	kfree(buf);
 
 
