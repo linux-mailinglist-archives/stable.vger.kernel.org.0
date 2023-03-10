@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8804F6B43AF
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:16:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B4BB6B41B2
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232112AbjCJOQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:16:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45422 "EHLO
+        id S231303AbjCJNzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 08:55:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231831AbjCJOQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:16:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6D9DABB4
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:15:29 -0800 (PST)
+        with ESMTP id S231304AbjCJNzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:55:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C012D10F45D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:55:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3748861771
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:15:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49388C433EF;
-        Fri, 10 Mar 2023 14:15:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B77260D29
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:55:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 683F1C4339E;
+        Fri, 10 Mar 2023 13:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678457728;
-        bh=NMrqUrsRs8AvMQtBLRF6K5Yh5aBmqg68/evaDnOVldw=;
+        s=korg; t=1678456510;
+        bh=0jnhNvrlKn30wVjlFBOUvGzWkvXykFW7rEF1WPQrEZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAh3BBzsQMlcWDM3h041x7WF1rLz+GMOksT/J6homPLuDf/OMrchXrnb9xqfFJmGm
-         JXcEXeAc8Mp3XioBFsu6WUqwIFXndYfFYwBFlZ31O125AFoGwKAWoDEy3sR5BR1uDK
-         8mh47Fm9zUjg/xpesvQHZR0/0fCS4LldhVl15hqc=
+        b=BMwsQY2DI5+jbOJfWesI4BSkQh9yI8ZmVquynXT/1uxwW1oaVou09vLP7LdMfymLJ
+         9p7Coa3wPypXTuLKeUu+6RIspHh06YLNM1aSC5OCSsHW+ZniTBeudwglo0Il/uvx+n
+         dLY0BK7xDOJesQYNv88It6yH9jUQLJ/OleX0oMHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 038/252] ACPICA: nsrepair: handle cases without a return value correctly
+Subject: [PATCH 6.2 028/211] ubifs: Rectify space budget for ubifs_symlink() if symlink is encrypted
 Date:   Fri, 10 Mar 2023 14:36:48 +0100
-Message-Id: <20230310133719.979276336@linuxfoundation.org>
+Message-Id: <20230310133719.590868012@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
-References: <20230310133718.803482157@linuxfoundation.org>
+In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
+References: <20230310133718.689332661@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,63 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit ca843a4c79486e99a19b859ef0b9887854afe146 ]
+[ Upstream commit c2c36cc6ca23e614f9e4238d0ecf48549ee9002a ]
 
-Previously acpi_ns_simple_repair() would crash if expected_btypes
-contained any combination of ACPI_RTYPE_NONE with a different type,
-e.g | ACPI_RTYPE_INTEGER because of slightly incorrect logic in the
-!return_object branch, which wouldn't return AE_AML_NO_RETURN_VALUE
-for such cases.
+Fix bad space budget when symlink file is encrypted. Bad space budget
+may let make_reservation() return with -ENOSPC, which could turn ubifs
+to read-only mode in do_writepage() process.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+Fetch a reproducer in [Link].
 
-Link: https://github.com/acpica/acpica/pull/811
-Fixes: 61db45ca2163 ("ACPICA: Restore code that repairs NULL package elements in return values.")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216490
+Fixes: ca7f85be8d6cf9 ("ubifs: Add support for encrypted symlinks")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/nsrepair.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/ubifs/dir.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/nsrepair.c b/drivers/acpi/acpica/nsrepair.c
-index ff2ab8fbec384..8de80bf7802b4 100644
---- a/drivers/acpi/acpica/nsrepair.c
-+++ b/drivers/acpi/acpica/nsrepair.c
-@@ -181,8 +181,9 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
- 	 * Try to fix if there was no return object. Warning if failed to fix.
- 	 */
- 	if (!return_object) {
--		if (expected_btypes && (!(expected_btypes & ACPI_RTYPE_NONE))) {
--			if (package_index != ACPI_NOT_PACKAGE_ELEMENT) {
-+		if (expected_btypes) {
-+			if (!(expected_btypes & ACPI_RTYPE_NONE) &&
-+			    package_index != ACPI_NOT_PACKAGE_ELEMENT) {
- 				ACPI_WARN_PREDEFINED((AE_INFO,
- 						      info->full_pathname,
- 						      ACPI_WARN_ALWAYS,
-@@ -196,14 +197,15 @@ acpi_ns_simple_repair(struct acpi_evaluate_info *info,
- 				if (ACPI_SUCCESS(status)) {
- 					return (AE_OK);	/* Repair was successful */
- 				}
--			} else {
-+			}
-+
-+			if (expected_btypes != ACPI_RTYPE_NONE) {
- 				ACPI_WARN_PREDEFINED((AE_INFO,
- 						      info->full_pathname,
- 						      ACPI_WARN_ALWAYS,
- 						      "Missing expected return value"));
-+				return (AE_AML_NO_RETURN_VALUE);
- 			}
--
--			return (AE_AML_NO_RETURN_VALUE);
- 		}
- 	}
+diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+index 0f29cf2011361..aaff3f3f0aa3b 100644
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1151,7 +1151,6 @@ static int ubifs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+ 	int err, sz_change, len = strlen(symname);
+ 	struct fscrypt_str disk_link;
+ 	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
+-					.new_ino_d = ALIGN(len, 8),
+ 					.dirtied_ino = 1 };
+ 	struct fscrypt_name nm;
  
+@@ -1167,6 +1166,7 @@ static int ubifs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+ 	 * Budget request settings: new inode, new direntry and changing parent
+ 	 * directory inode.
+ 	 */
++	req.new_ino_d = ALIGN(disk_link.len - 1, 8);
+ 	err = ubifs_budget_space(c, &req);
+ 	if (err)
+ 		return err;
 -- 
 2.39.2
 
