@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5636B4259
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 420046B4340
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231573AbjCJOCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:02:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51014 "EHLO
+        id S231922AbjCJOMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:12:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231583AbjCJOC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:02:29 -0500
+        with ESMTP id S231969AbjCJOLo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:11:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A482117585
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:02:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9351111A2EF
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:11:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2590B822BD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:02:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18AFBC4339E;
-        Fri, 10 Mar 2023 14:02:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D865B822C4
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:10:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D448C433A1;
+        Fri, 10 Mar 2023 14:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456929;
-        bh=+awWbt7bTlrfLs3bFFUgNux9NwQjcb3WXATa6YXnYjI=;
+        s=korg; t=1678457458;
+        bh=jBO+9yF13EmApSE0R4KjaJE9woEJGEqHfkyOh+W2jNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=023D6hlI5s/42o7K1p5a2181PGYke1aAtoZrQe+P1PmzsQdQQhxfIOwhFMATMv5UJ
-         GJcynss00hOkoAUHCW7zq1X1X3eLVVWQ4ODIXUL4rzH+ipy1QCF55/yhjjRhB9p6lA
-         q1OwGizXk/6LFeOvCF3pm2V7NL3Nzm44r8QG06tM=
+        b=F18uczbrmHd43miETWtDt8vyGDrlrIS3ou/fKrPdwvfu9rw7qskTuzJJ8Y0kV793q
+         dp3VHO4B2nlZ78zKcZriaoH767jgG8vV1ZdMA3YNjumZfr0yw3UAnpD2uDeao/VBTb
+         IAiON6L87DvwpXHnbM939KuIgSm1MrjSawJz/MN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Daniel Scally <dan.scally@ideasonboard.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.2 172/211] usb: gadget: uvc: Make bSourceID read/write
+Subject: [PATCH 6.1 145/200] USB: ULPI: fix memory leak with using debugfs_lookup()
 Date:   Fri, 10 Mar 2023 14:39:12 +0100
-Message-Id: <20230310133724.027155007@linuxfoundation.org>
+Message-Id: <20230310133721.584887758@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-References: <20230310133718.689332661@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit b3c839bd8a07d303bc59a900d55dd35c7826562c ]
+[ Upstream commit 8f4d25eba599c4bd4b5ea8ae8752cda480a9d563 ]
 
-At the moment, the UVC function graph is hardcoded IT -> PU -> OT.
-To add XU support we need the ability to insert the XU descriptors
-into the chain. To facilitate that, make the output terminal's
-bSourceID attribute writeable so that we can configure its source.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Link: https://lore.kernel.org/r/20230206161802.892954-2-dan.scally@ideasonboard.com
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20230202153235.2412790-2-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ABI/testing/configfs-usb-gadget-uvc       |  2 +-
- drivers/usb/gadget/function/uvc_configfs.c    | 59 ++++++++++++++++++-
- 2 files changed, 59 insertions(+), 2 deletions(-)
+ drivers/usb/common/ulpi.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/ABI/testing/configfs-usb-gadget-uvc b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-index f00cff6d8c5cb..c25cc2823fc8f 100644
---- a/Documentation/ABI/testing/configfs-usb-gadget-uvc
-+++ b/Documentation/ABI/testing/configfs-usb-gadget-uvc
-@@ -52,7 +52,7 @@ Date:		Dec 2014
- KernelVersion:	4.0
- Description:	Default output terminal descriptors
+diff --git a/drivers/usb/common/ulpi.c b/drivers/usb/common/ulpi.c
+index d7c8461976ce0..38703781ee2d1 100644
+--- a/drivers/usb/common/ulpi.c
++++ b/drivers/usb/common/ulpi.c
+@@ -271,7 +271,7 @@ static int ulpi_regs_show(struct seq_file *seq, void *data)
+ }
+ DEFINE_SHOW_ATTRIBUTE(ulpi_regs);
  
--		All attributes read only:
-+		All attributes read only except bSourceID:
+-#define ULPI_ROOT debugfs_lookup(KBUILD_MODNAME, NULL)
++static struct dentry *ulpi_root;
  
- 		==============	=============================================
- 		iTerminal	index of string descriptor
-diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
-index 76cb60d13049f..0a3095c0450bb 100644
---- a/drivers/usb/gadget/function/uvc_configfs.c
-+++ b/drivers/usb/gadget/function/uvc_configfs.c
-@@ -483,11 +483,68 @@ UVC_ATTR_RO(uvcg_default_output_, cname, aname)
- UVCG_DEFAULT_OUTPUT_ATTR(b_terminal_id, bTerminalID, 8);
- UVCG_DEFAULT_OUTPUT_ATTR(w_terminal_type, wTerminalType, 16);
- UVCG_DEFAULT_OUTPUT_ATTR(b_assoc_terminal, bAssocTerminal, 8);
--UVCG_DEFAULT_OUTPUT_ATTR(b_source_id, bSourceID, 8);
- UVCG_DEFAULT_OUTPUT_ATTR(i_terminal, iTerminal, 8);
+ static int ulpi_register(struct device *dev, struct ulpi *ulpi)
+ {
+@@ -301,7 +301,7 @@ static int ulpi_register(struct device *dev, struct ulpi *ulpi)
+ 		return ret;
+ 	}
  
- #undef UVCG_DEFAULT_OUTPUT_ATTR
+-	root = debugfs_create_dir(dev_name(dev), ULPI_ROOT);
++	root = debugfs_create_dir(dev_name(dev), ulpi_root);
+ 	debugfs_create_file("regs", 0444, root, ulpi, &ulpi_regs_fops);
  
-+static ssize_t uvcg_default_output_b_source_id_show(struct config_item *item,
-+						    char *page)
-+{
-+	struct config_group *group = to_config_group(item);
-+	struct f_uvc_opts *opts;
-+	struct config_item *opts_item;
-+	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
-+	struct uvc_output_terminal_descriptor *cd;
-+	int result;
-+
-+	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
-+
-+	opts_item = group->cg_item.ci_parent->ci_parent->
-+			ci_parent->ci_parent;
-+	opts = to_f_uvc_opts(opts_item);
-+	cd = &opts->uvc_output_terminal;
-+
-+	mutex_lock(&opts->lock);
-+	result = sprintf(page, "%u\n", le8_to_cpu(cd->bSourceID));
-+	mutex_unlock(&opts->lock);
-+
-+	mutex_unlock(su_mutex);
-+
-+	return result;
-+}
-+
-+static ssize_t uvcg_default_output_b_source_id_store(struct config_item *item,
-+						     const char *page, size_t len)
-+{
-+	struct config_group *group = to_config_group(item);
-+	struct f_uvc_opts *opts;
-+	struct config_item *opts_item;
-+	struct mutex *su_mutex = &group->cg_subsys->su_mutex;
-+	struct uvc_output_terminal_descriptor *cd;
-+	int result;
-+	u8 num;
-+
-+	mutex_lock(su_mutex); /* for navigating configfs hierarchy */
-+
-+	opts_item = group->cg_item.ci_parent->ci_parent->
-+			ci_parent->ci_parent;
-+	opts = to_f_uvc_opts(opts_item);
-+	cd = &opts->uvc_output_terminal;
-+
-+	result = kstrtou8(page, 0, &num);
-+	if (result)
-+		return result;
-+
-+	mutex_lock(&opts->lock);
-+	cd->bSourceID = num;
-+	mutex_unlock(&opts->lock);
-+
-+	mutex_unlock(su_mutex);
-+
-+	return len;
-+}
-+UVC_ATTR(uvcg_default_output_, b_source_id, bSourceID);
-+
- static struct configfs_attribute *uvcg_default_output_attrs[] = {
- 	&uvcg_default_output_attr_b_terminal_id,
- 	&uvcg_default_output_attr_w_terminal_type,
+ 	dev_dbg(&ulpi->dev, "registered ULPI PHY: vendor %04x, product %04x\n",
+@@ -349,8 +349,7 @@ EXPORT_SYMBOL_GPL(ulpi_register_interface);
+  */
+ void ulpi_unregister_interface(struct ulpi *ulpi)
+ {
+-	debugfs_remove_recursive(debugfs_lookup(dev_name(&ulpi->dev),
+-						ULPI_ROOT));
++	debugfs_lookup_and_remove(dev_name(&ulpi->dev), ulpi_root);
+ 	device_unregister(&ulpi->dev);
+ }
+ EXPORT_SYMBOL_GPL(ulpi_unregister_interface);
+@@ -360,12 +359,11 @@ EXPORT_SYMBOL_GPL(ulpi_unregister_interface);
+ static int __init ulpi_init(void)
+ {
+ 	int ret;
+-	struct dentry *root;
+ 
+-	root = debugfs_create_dir(KBUILD_MODNAME, NULL);
++	ulpi_root = debugfs_create_dir(KBUILD_MODNAME, NULL);
+ 	ret = bus_register(&ulpi_bus);
+ 	if (ret)
+-		debugfs_remove(root);
++		debugfs_remove(ulpi_root);
+ 	return ret;
+ }
+ subsys_initcall(ulpi_init);
+@@ -373,7 +371,7 @@ subsys_initcall(ulpi_init);
+ static void __exit ulpi_exit(void)
+ {
+ 	bus_unregister(&ulpi_bus);
+-	debugfs_remove_recursive(ULPI_ROOT);
++	debugfs_remove(ulpi_root);
+ }
+ module_exit(ulpi_exit);
+ 
 -- 
 2.39.2
 
