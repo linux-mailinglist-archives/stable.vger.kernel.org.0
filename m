@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D0216B47C7
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:54:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E6D86B47FE
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:56:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233495AbjCJOyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:54:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58944 "EHLO
+        id S233555AbjCJO4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:56:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233481AbjCJOxi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:53:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33362123DC9;
-        Fri, 10 Mar 2023 06:49:34 -0800 (PST)
+        with ESMTP id S233912AbjCJOzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:55:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D42E1241F1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:51:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C52ABB822F6;
-        Fri, 10 Mar 2023 14:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9C93C4339B;
-        Fri, 10 Mar 2023 14:49:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0498BB822EE
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:49:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 289DEC4339B;
+        Fri, 10 Mar 2023 14:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678459772;
-        bh=7cV37WX5fhX5n94WfRto4O9PuxBVxADgFaMZPcBzxqE=;
+        s=korg; t=1678459796;
+        bh=SzeRQSaaemqRQBA85vC5gqgW86YG+oHshR96xvZW1gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLiooeUWb6e5aMEG9Ynfty4wPipTIkvYCf+o7ZLReOQnRSMqIoOco0JImYk9EmnnE
-         03QbMccVcjSkXAIURZBLRVnzpeQGY878bsoYu8RaJR78bw0Kuq64vDdnM5+eM3kXtL
-         mKLiJ2k2Wkp2h0yNTzpnbZj+77Zl5/XJ32jIGdIQ=
+        b=sepxbhhSRafOzDvzvkVFjUxJTTXQ44Zfm0zEKTbhwC1QcJ+tokPIlpfmvTxyQrE+N
+         6aFS8l1I1I3zeEOiCzAsGzC61Qp4FdmZVM6WAz+JIL9+Ot5ubJWVGZPhgNpNi1yI2q
+         m17OSG4s9LKGiVFIRwVgVakhDV3F9EZ7m9YOCAwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Gonda <pgonda@google.com>,
-        Marc Orr <marcorr@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        John Allen <john.allen@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+        patches@lists.linux.dev, Tonghao Zhang <tong@infragraf.org>,
+        Quentin Monnet <quentin@isovalent.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 113/529] crypto: ccp - Refactor out sev_fw_alloc()
-Date:   Fri, 10 Mar 2023 14:34:16 +0100
-Message-Id: <20230310133810.229873777@linuxfoundation.org>
+Subject: [PATCH 5.10 115/529] bpftool: profile online CPUs instead of possible
+Date:   Fri, 10 Mar 2023 14:34:18 +0100
+Message-Id: <20230310133810.328606797@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -53,8 +54,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -63,84 +64,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Gonda <pgonda@google.com>
+From: Tonghao Zhang <tong@infragraf.org>
 
-[ Upstream commit cc17982d58d1e67eab831e7023ede999dda56173 ]
+[ Upstream commit 377c16fa3f3c60d21e4b05314c8be034ce37f2eb ]
 
-Create a helper function sev_fw_alloc() which can be used to allocate
-aligned memory regions for use by the PSP firmware. Currently only used
-for the SEV-ES TMR region but will be used for the SEV_INIT_EX NV memory
-region.
+The number of online cpu may be not equal to possible cpu.
+"bpftool prog profile" can not create pmu event on possible
+but on online cpu.
 
-Signed-off-by: Peter Gonda <pgonda@google.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Marc Orr <marcorr@google.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: David Rientjes <rientjes@google.com>
-Cc: John Allen <john.allen@amd.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Stable-dep-of: 46a334a98f58 ("crypto: ccp - Flush the SEV-ES TMR memory before giving it to firmware")
+$ dmidecode -s system-product-name
+PowerEdge R620
+$ cat /sys/devices/system/cpu/possible
+0-47
+$ cat /sys/devices/system/cpu/online
+0-31
+
+Disable cpu dynamically:
+$ echo 0 > /sys/devices/system/cpu/cpuX/online
+
+If one cpu is offline, perf_event_open will return ENODEV.
+To fix this issue:
+* check value returned and skip offline cpu.
+* close pmu_fd immediately on error path, avoid fd leaking.
+
+Fixes: 47c09d6a9f67 ("bpftool: Introduce "prog profile" command")
+Signed-off-by: Tonghao Zhang <tong@infragraf.org>
+Cc: Quentin Monnet <quentin@isovalent.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Martin KaFai Lau <martin.lau@linux.dev>
+Cc: Song Liu <song@kernel.org>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Stanislav Fomichev <sdf@google.com>
+Cc: Hao Luo <haoluo@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/r/20230202131701.29519-1-tong@infragraf.org
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ tools/bpf/bpftool/prog.c | 38 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 30 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index e70ae98de1189..8a900226d73a3 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -138,6 +138,17 @@ static int sev_cmd_buffer_len(int cmd)
- 	return 0;
+diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
+index 592536904dde2..d2bcce627b320 100644
+--- a/tools/bpf/bpftool/prog.c
++++ b/tools/bpf/bpftool/prog.c
+@@ -1912,10 +1912,38 @@ static void profile_close_perf_events(struct profiler_bpf *obj)
+ 	profile_perf_event_cnt = 0;
  }
  
-+static void *sev_fw_alloc(unsigned long len)
++static int profile_open_perf_event(int mid, int cpu, int map_fd)
 +{
-+	struct page *page;
++	int pmu_fd;
 +
-+	page = alloc_pages(GFP_KERNEL, get_order(len));
-+	if (!page)
-+		return NULL;
++	pmu_fd = syscall(__NR_perf_event_open, &metrics[mid].attr,
++			 -1 /*pid*/, cpu, -1 /*group_fd*/, 0);
++	if (pmu_fd < 0) {
++		if (errno == ENODEV) {
++			p_info("cpu %d may be offline, skip %s profiling.",
++				cpu, metrics[mid].name);
++			profile_perf_event_cnt++;
++			return 0;
++		}
++		return -1;
++	}
 +
-+	return page_address(page);
++	if (bpf_map_update_elem(map_fd,
++				&profile_perf_event_cnt,
++				&pmu_fd, BPF_ANY) ||
++	    ioctl(pmu_fd, PERF_EVENT_IOC_ENABLE, 0)) {
++		close(pmu_fd);
++		return -1;
++	}
++
++	profile_perf_events[profile_perf_event_cnt++] = pmu_fd;
++	return 0;
 +}
 +
- static int __sev_do_cmd_locked(int cmd, void *data, int *psp_ret)
+ static int profile_open_perf_events(struct profiler_bpf *obj)
  {
- 	struct psp_device *psp = psp_master;
-@@ -1040,7 +1051,6 @@ EXPORT_SYMBOL_GPL(sev_issue_cmd_external_user);
- void sev_pci_init(void)
- {
- 	struct sev_device *sev = psp_master->sev_data;
--	struct page *tmr_page;
- 	int error, rc;
+ 	unsigned int cpu, m;
+-	int map_fd, pmu_fd;
++	int map_fd;
  
- 	if (!sev)
-@@ -1056,14 +1066,10 @@ void sev_pci_init(void)
- 		sev_get_api_version();
- 
- 	/* Obtain the TMR memory area for SEV-ES use */
--	tmr_page = alloc_pages(GFP_KERNEL, get_order(SEV_ES_TMR_SIZE));
--	if (tmr_page) {
--		sev_es_tmr = page_address(tmr_page);
--	} else {
--		sev_es_tmr = NULL;
-+	sev_es_tmr = sev_fw_alloc(SEV_ES_TMR_SIZE);
-+	if (!sev_es_tmr)
- 		dev_warn(sev->dev,
- 			 "SEV: TMR allocation failed, SEV-ES support unavailable\n");
--	}
- 
- 	/* Initialize the platform */
- 	rc = sev_platform_init(&error);
+ 	profile_perf_events = calloc(
+ 		sizeof(int), obj->rodata->num_cpu * obj->rodata->num_metric);
+@@ -1934,17 +1962,11 @@ static int profile_open_perf_events(struct profiler_bpf *obj)
+ 		if (!metrics[m].selected)
+ 			continue;
+ 		for (cpu = 0; cpu < obj->rodata->num_cpu; cpu++) {
+-			pmu_fd = syscall(__NR_perf_event_open, &metrics[m].attr,
+-					 -1/*pid*/, cpu, -1/*group_fd*/, 0);
+-			if (pmu_fd < 0 ||
+-			    bpf_map_update_elem(map_fd, &profile_perf_event_cnt,
+-						&pmu_fd, BPF_ANY) ||
+-			    ioctl(pmu_fd, PERF_EVENT_IOC_ENABLE, 0)) {
++			if (profile_open_perf_event(m, cpu, map_fd)) {
+ 				p_err("failed to create event %s on cpu %d",
+ 				      metrics[m].name, cpu);
+ 				return -1;
+ 			}
+-			profile_perf_events[profile_perf_event_cnt++] = pmu_fd;
+ 		}
+ 	}
+ 	return 0;
 -- 
 2.39.2
 
