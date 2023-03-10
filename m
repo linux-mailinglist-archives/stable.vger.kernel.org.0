@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0B86B40DC
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:47:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3D16B42AF
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:05:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230261AbjCJNrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:47:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45572 "EHLO
+        id S231658AbjCJOFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:05:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230246AbjCJNrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:47:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1350128E74
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:46:49 -0800 (PST)
+        with ESMTP id S231714AbjCJOFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:05:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 807831175B8
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:05:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E91D6182F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:46:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B33FCC433D2;
-        Fri, 10 Mar 2023 13:46:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E936B82291
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2DCC433D2;
+        Fri, 10 Mar 2023 14:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456008;
-        bh=okvNbCqdqw6+HV+m9K1jD8aNUPH7VSFb5Y15lhHHhcs=;
+        s=korg; t=1678457116;
+        bh=oMLcx12sWEjXpPr5YpO+2Fz1fSNsEvWR0NIPbwauhtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eo3+nfMktz8VPtKVL2ZjZtVrT7iAiyEr/ORDssqcgxAEMjdC6NmpDRGpukJdHtnec
-         +XfJyJeb5RUgOvqoM4oXuJSETSL4fpyp3wm6XEdGkbq/Rdxy/4gN5X5I8NOIdnge8l
-         aRg06Fw5ykmuRPBrfSAxpx7DSoGDuEO8cjN9OprQ=
+        b=EKd4TcMydD0/6jdv2vYPj8m9/PcX5f1yElQn/ZC9ZDRaRpisbu4pSyjmC6M8o6i3U
+         RylnzotMZ3dLnTACTd/fz1sUToRWZAzA4HpLjAtcsa8g1UA3FkecRTpClyXH3VlSVt
+         jcsuIB1fYa/JHZQJ0En3y4vUcfh86cvmMSr2vgz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Jungclaus <frank.jungclaus@esd.eu>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Li Hua <hucool.lihua@huawei.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 050/193] can: esd_usb: Move mislocated storage of SJA1000_ECC_SEG bits in case of a bus error
+Subject: [PATCH 6.1 025/200] ubifs: Fix build errors as symbol undefined
 Date:   Fri, 10 Mar 2023 14:37:12 +0100
-Message-Id: <20230310133712.664588796@linuxfoundation.org>
+Message-Id: <20230310133717.818950885@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Jungclaus <frank.jungclaus@esd.eu>
+From: Li Hua <hucool.lihua@huawei.com>
 
-[ Upstream commit 118469f88180438ef43dee93d71f77c00e7b425d ]
+[ Upstream commit aa6d148e6d6270274e3d5a529b71c54cd329d17f ]
 
-Move the supply for cf->data[3] (bit stream position of CAN error), in
-case of a bus- or protocol-error, outside of the "switch (ecc &
-SJA1000_ECC_MASK){}"-statement, because this bit stream position is
-independent of the error type.
+With CONFIG_UBIFS_FS_AUTHENTICATION not set, the compiler can assume that
+ubifs_node_check_hash() is never true and drops the call to ubifs_bad_hash().
+Is CONFIG_CC_OPTIMIZE_FOR_SIZE enabled this optimization does not happen anymore.
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Signed-off-by: Frank Jungclaus <frank.jungclaus@esd.eu>
-Link: https://lore.kernel.org/all/20230216190450.3901254-2-frank.jungclaus@esd.eu
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+So When CONFIG_UBIFS_FS and CONFIG_CC_OPTIMIZE_FOR_SIZE is enabled but
+CONFIG_UBIFS_FS_AUTHENTICATION is not set, the build errors is as followd:
+    ERROR: modpost: "ubifs_bad_hash" [fs/ubifs/ubifs.ko] undefined!
+
+Fix it by add no-op ubifs_bad_hash() for the CONFIG_UBIFS_FS_AUTHENTICATION=n case.
+
+Fixes: 16a26b20d2af ("ubifs: authentication: Add hashes to index nodes")
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/esd_usb2.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ubifs/ubifs.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
-index fbe1173b2651f..b15154a6c53eb 100644
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -284,7 +284,6 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 				cf->data[2] |= CAN_ERR_PROT_STUFF;
- 				break;
- 			default:
--				cf->data[3] = ecc & SJA1000_ECC_SEG;
- 				break;
- 			}
+diff --git a/fs/ubifs/ubifs.h b/fs/ubifs/ubifs.h
+index 478bbbb5382f8..2f1f315810949 100644
+--- a/fs/ubifs/ubifs.h
++++ b/fs/ubifs/ubifs.h
+@@ -1623,8 +1623,13 @@ static inline int ubifs_check_hmac(const struct ubifs_info *c,
+ 	return crypto_memneq(expected, got, c->hmac_desc_len);
+ }
  
-@@ -292,6 +291,9 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 			if (!(ecc & SJA1000_ECC_DIR))
- 				cf->data[2] |= CAN_ERR_PROT_TX;
++#ifdef CONFIG_UBIFS_FS_AUTHENTICATION
+ void ubifs_bad_hash(const struct ubifs_info *c, const void *node,
+ 		    const u8 *hash, int lnum, int offs);
++#else
++static inline void ubifs_bad_hash(const struct ubifs_info *c, const void *node,
++				  const u8 *hash, int lnum, int offs) {};
++#endif
  
-+			/* Bit stream position in CAN frame as the error was detected */
-+			cf->data[3] = ecc & SJA1000_ECC_SEG;
-+
- 			if (priv->can.state == CAN_STATE_ERROR_WARNING ||
- 			    priv->can.state == CAN_STATE_ERROR_PASSIVE) {
- 				cf->data[1] = (txerr > rxerr) ?
+ int __ubifs_node_check_hash(const struct ubifs_info *c, const void *buf,
+ 			  const u8 *expected);
 -- 
 2.39.2
 
