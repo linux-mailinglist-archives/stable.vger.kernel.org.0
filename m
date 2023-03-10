@@ -2,61 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65E6A6B3F27
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BF7B6B3F28
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 13:30:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbjCJMam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 07:30:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39450 "EHLO
+        id S229875AbjCJMao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 07:30:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbjCJMal (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:30:41 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99E410A295
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:30:39 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id x3so19689134edb.10
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:30:39 -0800 (PST)
+        with ESMTP id S229523AbjCJMan (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 07:30:43 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C0D10A29A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:30:41 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id ec29so19754383edb.6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 04:30:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1678451438;
+        d=chromium.org; s=google; t=1678451440;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UHGmi8GmdmV483OF0eXxM9rBGscXHhWoG+o+Ge6Savc=;
-        b=Ud0I6gsxa7WPEHeVijxI2EgmZ9WF33iFrkAgnnk/pFPDtTP+ezM4Fgzq3e2LHqtRRc
-         FHDJrR2ZwQAvWZYzVg2lV3juZf1DkldjvjGDIKYuufn8pIMbj55EjOWDlWPrPyTMv85X
-         YZhgoI5qSz9z+NizOgKEVQQR5e4cMguoJ/RnA=
+        bh=Ejo43FTvripXyxYAm4kyNirB2dacYjqpyE5TgkZGpcQ=;
+        b=gdVN5yitzAo7s+pyBy1f75cMDIPKGULhH0NZn1vrB2K6z8HkU3fR/uTk4C/FzQpI+Z
+         7ZjCFnEzmo8w3mF9y2gLorNBo2hi8uxg8DpjghBSvR711Tl5SNMukqFZDBFoW5/04Vzw
+         MaRPYU5HgIWEkKLQNVv21U6RHhBirE+rHQDYM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678451438;
+        d=1e100.net; s=20210112; t=1678451440;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UHGmi8GmdmV483OF0eXxM9rBGscXHhWoG+o+Ge6Savc=;
-        b=jqRgTiGwoTjcjIXBZotDesc6qUmHhMyNOOBZ70yS2gTChV3xhLwtx2KykGJhMm/nTb
-         Ce2CYKNlnYIP8UThLNIrt6uPpyf6J01dxcrproH6Y8bd2GcUC++AqssMxFlQv0pKOXZu
-         qhQNr2qUmrrAgD7jfRcSKaYylTPiRrRwEu1Pnr/9WNll/xDUj7Hrw1n7SeEblFB8PlCK
-         Fxji/iDVbjRyXlE/mNmJXFr4W2beg9IC4N5dBjGiMtCX/eub7wTuL8b4O8IkcaDd9lKN
-         V9AWRymrgXhEViPh2BGnn1MopJ/4JSqBM8w+s9hHE7FlG6v0KyYMIxCiw/MnusH/su9T
-         W8eA==
-X-Gm-Message-State: AO0yUKWMEqFCrT8mpeaHTwhEqLJ8mdCR4IaRO03tskzwoi3uJcLBbQ+/
-        HhxVZQECOP64e6oxWrWhrC3wzdTXxknff/HDvjvEMQ==
-X-Google-Smtp-Source: AK7set/M7nufQORTHYisR2joQ0hsdXpkTUGjRjsFCP1O96Ai6SgZY8WFDtUnvZMszhC3MiztKD1C1Q==
-X-Received: by 2002:aa7:d747:0:b0:4c0:1f45:c194 with SMTP id a7-20020aa7d747000000b004c01f45c194mr21089849eds.12.1678451438144;
-        Fri, 10 Mar 2023 04:30:38 -0800 (PST)
+        bh=Ejo43FTvripXyxYAm4kyNirB2dacYjqpyE5TgkZGpcQ=;
+        b=JMxq3zKEFotPfYGwHdWmu53m+OWsjugETe0hztbSmDEfMlLKUDUfISc7w3kUr71Aj0
+         XlIPaq1aTjMwjHIu2OTn6sVIZk9OuPy0xwXbx6rdnDYR2KUc9fFu1syRuwdS8FRQhwCh
+         3iLOOENAOT+KoLpqWH3j6vRrfV/HfuAgSMf98DSgRQ1aItHA9lT8EjvLU74Op8IYNHX0
+         s3x4s3GVKk+tpkSFUbG79l0b6RE3wdF1lANU4kG/tvR3no2pixZrC6g4ADsmenQusOfJ
+         W+NTKrRdYJ3dR9Vg2uoYalnf4oxdbRehg03cXYUXjTDBRK0CAe4gk6lJME0QodVGHglS
+         p5DA==
+X-Gm-Message-State: AO0yUKWtR4Io9U2KDzeMHXdGs1X4vvR3cZ6UQ82ZqOI96AHxQa8kcI3D
+        YB9QVwtkTBtnINJX6FRKdrreSQmwVzacK3+rdYE6og==
+X-Google-Smtp-Source: AK7set/DCafBWZM3aNqrCkJoyQihuCHiOoColyDU8gCxFtfjVyGpHNDv6w0klmcuCTEZE44wnNSgPA==
+X-Received: by 2002:aa7:c1c4:0:b0:4ac:bdf3:36ca with SMTP id d4-20020aa7c1c4000000b004acbdf336camr24029697edp.10.1678451440117;
+        Fri, 10 Mar 2023 04:30:40 -0800 (PST)
 Received: from alco.corp.google.com ([2620:0:1059:10:e8d1:757a:19c3:a0cf])
-        by smtp.gmail.com with ESMTPSA id v18-20020a50d092000000b004aef147add6sm778608edd.47.2023.03.10.04.30.37
+        by smtp.gmail.com with ESMTPSA id v18-20020a50d092000000b004aef147add6sm778608edd.47.2023.03.10.04.30.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Mar 2023 04:30:37 -0800 (PST)
+        Fri, 10 Mar 2023 04:30:39 -0800 (PST)
 From:   Ricardo Ribalda <ribalda@chromium.org>
 To:     stable@vger.kernel.org
 Cc:     Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19.y 1/2] media: uvcvideo: Provide sync and async uvc_ctrl_status_event
-Date:   Fri, 10 Mar 2023 13:30:34 +0100
-Message-Id: <20230310123035.575074-1-ribalda@chromium.org>
+        Yunke Cao <yunkec@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [PATCH 4.19.y 2/2] media: uvcvideo: Fix race condition with usb_kill_urb
+Date:   Fri, 10 Mar 2023 13:30:35 +0100
+Message-Id: <20230310123035.575074-2-ribalda@chromium.org>
 X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
-In-Reply-To: <167845046617959@kroah.com>
+In-Reply-To: <20230310123035.575074-1-ribalda@chromium.org>
 References: <167845046617959@kroah.com>
+ <20230310123035.575074-1-ribalda@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -69,110 +70,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Split the functionality of void uvc_ctrl_status_event_work in two, so it
-can be called by functions outside interrupt context and not part of an
-URB.
+usb_kill_urb warranties that all the handlers are finished when it
+returns, but does not protect against threads that might be handling
+asynchronously the urb.
 
+For UVC, the function uvc_ctrl_status_event_async() takes care of
+control changes asynchronously.
+
+If the code is executed in the following order:
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+uvc_ctrl_status_event_work()
+					uvc_status_start() -> FAIL
+
+Then uvc_status_start will keep failing and this error will be shown:
+
+<4>[    5.540139] URB 0000000000000000 submitted while active
+drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
+
+Let's improve the current situation, by not re-submiting the urb if
+we are stopping the status event. Also process the queued work
+(if any) during stop.
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+					uvc_status_start()
+uvc_ctrl_status_event_work() -> FAIL
+
+Hopefully, with the usb layer protection this should be enough to cover
+all the cases.
+
+Cc: stable@vger.kernel.org
+Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
+Reviewed-by: Yunke Cao <yunkec@chromium.org>
 Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-(cherry picked from commit d9c8763e61295be0a21dc04ad9c379d5d17c3d86)
+(cherry picked from commit 619d9b710cf06f7a00a17120ca92333684ac45a8)
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
 ---
- drivers/media/usb/uvc/uvc_ctrl.c   | 25 +++++++++++++++----------
- drivers/media/usb/uvc/uvc_status.c |  3 ++-
- drivers/media/usb/uvc/uvcvideo.h   |  4 +++-
- 3 files changed, 20 insertions(+), 12 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c   |  5 ++++
+ drivers/media/usb/uvc/uvc_status.c | 37 ++++++++++++++++++++++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |  1 +
+ 3 files changed, 43 insertions(+)
 
 diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
-index cb6046481aed..c0650c49c9ab 100644
+index c0650c49c9ab..84b1339c2c6e 100644
 --- a/drivers/media/usb/uvc/uvc_ctrl.c
 +++ b/drivers/media/usb/uvc/uvc_ctrl.c
-@@ -1280,17 +1280,12 @@ static void uvc_ctrl_send_slave_event(struct uvc_video_chain *chain,
- 	uvc_ctrl_send_event(chain, handle, ctrl, mapping, val, changes);
- }
+@@ -11,6 +11,7 @@
+  *
+  */
  
--static void uvc_ctrl_status_event_work(struct work_struct *work)
-+void uvc_ctrl_status_event(struct uvc_video_chain *chain,
-+			   struct uvc_control *ctrl, const u8 *data)
- {
--	struct uvc_device *dev = container_of(work, struct uvc_device,
--					      async_ctrl.work);
--	struct uvc_ctrl_work *w = &dev->async_ctrl;
--	struct uvc_video_chain *chain = w->chain;
- 	struct uvc_control_mapping *mapping;
--	struct uvc_control *ctrl = w->ctrl;
- 	struct uvc_fh *handle;
- 	unsigned int i;
--	int ret;
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+@@ -1323,6 +1324,10 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
  
- 	mutex_lock(&chain->ctrl_mutex);
+ 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
  
-@@ -1298,7 +1293,7 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 	ctrl->handle = NULL;
- 
- 	list_for_each_entry(mapping, &ctrl->info.mappings, list) {
--		s32 value = __uvc_ctrl_get_value(mapping, w->data);
-+		s32 value = __uvc_ctrl_get_value(mapping, data);
- 
- 		/*
- 		 * handle may be NULL here if the device sends auto-update
-@@ -1317,6 +1312,16 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 	}
- 
- 	mutex_unlock(&chain->ctrl_mutex);
-+}
++	/* The barrier is needed to synchronize with uvc_status_stop(). */
++	if (smp_load_acquire(&dev->flush_status))
++		return;
 +
-+static void uvc_ctrl_status_event_work(struct work_struct *work)
-+{
-+	struct uvc_device *dev = container_of(work, struct uvc_device,
-+					      async_ctrl.work);
-+	struct uvc_ctrl_work *w = &dev->async_ctrl;
-+	int ret;
-+
-+	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
- 
  	/* Resubmit the URB. */
  	w->urb->interval = dev->int_ep->desc.bInterval;
-@@ -1326,8 +1331,8 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
- 			   ret);
- }
- 
--bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
--			   struct uvc_control *ctrl, const u8 *data)
-+bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
-+				 struct uvc_control *ctrl, const u8 *data)
- {
- 	struct uvc_device *dev = chain->dev;
- 	struct uvc_ctrl_work *w = &dev->async_ctrl;
+ 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
 diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
-index 883e4cab45e7..fd2a9b5a62e9 100644
+index fd2a9b5a62e9..141ac1ffb42e 100644
 --- a/drivers/media/usb/uvc/uvc_status.c
 +++ b/drivers/media/usb/uvc/uvc_status.c
-@@ -184,7 +184,8 @@ static bool uvc_event_control(struct urb *urb,
+@@ -11,6 +11,7 @@
+  *
+  */
  
- 	switch (status->bAttribute) {
- 	case UVC_CTRL_VALUE_CHANGE:
--		return uvc_ctrl_status_event(urb, chain, ctrl, status->bValue);
-+		return uvc_ctrl_status_event_async(urb, chain, ctrl,
-+						   status->bValue);
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+@@ -315,5 +316,41 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
  
- 	case UVC_CTRL_INFO_CHANGE:
- 	case UVC_CTRL_FAILURE_CHANGE:
+ void uvc_status_stop(struct uvc_device *dev)
+ {
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++
++	/*
++	 * Prevent the asynchronous control handler from requeing the URB. The
++	 * barrier is needed so the flush_status change is visible to other
++	 * CPUs running the asynchronous handler before usb_kill_urb() is
++	 * called below.
++	 */
++	smp_store_release(&dev->flush_status, true);
++
++	/*
++	 * Cancel any pending asynchronous work. If any status event was queued,
++	 * process it synchronously.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/* Kill the urb. */
+ 	usb_kill_urb(dev->int_urb);
++
++	/*
++	 * The URB completion handler may have queued asynchronous work. This
++	 * won't resubmit the URB as flush_status is set, but it needs to be
++	 * cancelled before returning or it could then race with a future
++	 * uvc_status_start() call.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/*
++	 * From this point, there are no events on the queue and the status URB
++	 * is dead. No events will be queued until uvc_status_start() is called.
++	 * The barrier is needed to make sure that flush_status is visible to
++	 * uvc_ctrl_status_event_work() when uvc_status_start() will be called
++	 * again.
++	 */
++	smp_store_release(&dev->flush_status, false);
+ }
 diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index 839ba3cc5311..38951d7b646a 100644
+index 38951d7b646a..e8976fed80ca 100644
 --- a/drivers/media/usb/uvc/uvcvideo.h
 +++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -768,7 +768,9 @@ int uvc_ctrl_add_mapping(struct uvc_video_chain *chain,
- int uvc_ctrl_init_device(struct uvc_device *dev);
- void uvc_ctrl_cleanup_device(struct uvc_device *dev);
- int uvc_ctrl_restore_values(struct uvc_device *dev);
--bool uvc_ctrl_status_event(struct urb *urb, struct uvc_video_chain *chain,
-+bool uvc_ctrl_status_event_async(struct urb *urb, struct uvc_video_chain *chain,
-+				 struct uvc_control *ctrl, const u8 *data);
-+void uvc_ctrl_status_event(struct uvc_video_chain *chain,
- 			   struct uvc_control *ctrl, const u8 *data);
+@@ -604,6 +604,7 @@ struct uvc_device {
+ 	struct usb_host_endpoint *int_ep;
+ 	struct urb *int_urb;
+ 	u8 *status;
++	bool flush_status;
+ 	struct input_dev *input;
+ 	char input_phys[64];
  
- int uvc_ctrl_begin(struct uvc_video_chain *chain);
 -- 
 2.40.0.rc1.284.g88254d51c5-goog
 
