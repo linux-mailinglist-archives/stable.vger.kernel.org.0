@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 632746B4508
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDAD6B4509
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:30:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232512AbjCJOaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:30:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
+        id S232481AbjCJOag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:30:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232004AbjCJOaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:10 -0500
+        with ESMTP id S232502AbjCJOaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:30:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5746DF710
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86691F4B44
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:29:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 216F8616F0
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A081C4339B;
-        Fri, 10 Mar 2023 14:28:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16A3A618A6
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:29:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C0AFC433EF;
+        Fri, 10 Mar 2023 14:29:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458539;
-        bh=/io6TGBZ0C0utETNcgrk2PLzNbjahNUth7FUQQL6F2I=;
+        s=korg; t=1678458542;
+        bh=W8UwYRrOuuAN07NjUgwA+ybcYCYJlMM2vAuC6bjrJrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhz2lvbJt6caUiNGMZhTss+0rcsasvYSv6MtJBlaLpyOiw0YkS5EyohcB7ZsAWWTY
-         5tO1CFGlw/qohwhZ33frgqCkytjqYXiB5iDbv7ygav+xWzE18UnouPVhIvLQn1aHWt
-         YxEESGRcVnK2Xh0GTTyg04biT5JX4wZcn8FO0tM8=
+        b=eFpr7b2dA07jsJY4XAye6GKT9N9qSFUhAEx2lMAm0bXtcB2lbZiJXQTXdZLpr0at4
+         qmjtfdeqtb+3UUbz5cS6DV0kFHGRsv1AotziMYk2FdrnlsDpwn+pEHeYqyYJNDKe8T
+         RqKXykCBI5193R6ISL2emYBdBmKPVC+Z4z6Hc108=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Armin Wolf <W_Armin@gmx.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/357] wifi: ath9k: Fix potential stack-out-of-bounds write in ath9k_wmi_rsp_callback()
-Date:   Fri, 10 Mar 2023 14:35:50 +0100
-Message-Id: <20230310133736.668861898@linuxfoundation.org>
+Subject: [PATCH 5.4 062/357] ACPI: battery: Fix missing NUL-termination with large strings
+Date:   Fri, 10 Mar 2023 14:35:51 +0100
+Message-Id: <20230310133736.715941431@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
 References: <20230310133733.973883071@linuxfoundation.org>
@@ -55,56 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 8a2f35b9830692f7a616f2f627f943bc748af13a ]
+[ Upstream commit f2ac14b5f197e4a2dec51e5ceaa56682ff1592bc ]
 
-Fix a stack-out-of-bounds write that occurs in a WMI response callback
-function that is called after a timeout occurs in ath9k_wmi_cmd().
-The callback writes to wmi->cmd_rsp_buf, a stack-allocated buffer that
-could no longer be valid when a timeout occurs. Set wmi->last_seq_id to
-0 when a timeout occurred.
+When encountering a string bigger than the destination buffer (32 bytes),
+the string is not properly NUL-terminated, causing buffer overreads later.
 
-Found by a modified version of syzkaller.
+This for example happens on the Inspiron 3505, where the battery
+model name is larger than 32 bytes, which leads to sysfs showing
+the model name together with the serial number string (which is
+NUL-terminated and thus prevents worse).
 
-BUG: KASAN: stack-out-of-bounds in ath9k_wmi_ctrl_rx
-Write of size 4
-Call Trace:
- memcpy
- ath9k_wmi_ctrl_rx
- ath9k_htc_rx_msg
- ath9k_hif_usb_reg_in_cb
- __usb_hcd_giveback_urb
- usb_hcd_giveback_urb
- dummy_timer
- call_timer_fn
- run_timer_softirq
- __do_softirq
- irq_exit_rcu
- sysvec_apic_timer_interrupt
+Fix this by using strscpy() which ensures that the result is
+always NUL-terminated.
 
-Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20230104124130.10996-1-linuxlovemin@yonsei.ac.kr
+Fixes: 106449e870b3 ("ACPI: Battery: Allow extract string from integer")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
-index e7a3127395be9..deb22b8c2065f 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.c
-+++ b/drivers/net/wireless/ath/ath9k/wmi.c
-@@ -338,6 +338,7 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
- 	if (!time_left) {
- 		ath_dbg(common, WMI, "Timeout waiting for WMI command: %s\n",
- 			wmi_cmd_to_name(cmd_id));
-+		wmi->last_seq_id = 0;
- 		mutex_unlock(&wmi->op_mutex);
- 		return -ETIMEDOUT;
- 	}
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index 974c2df13da1d..a49a09e3de1b3 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -465,7 +465,7 @@ static int extract_package(struct acpi_battery *battery,
+ 			u8 *ptr = (u8 *)battery + offsets[i].offset;
+ 			if (element->type == ACPI_TYPE_STRING ||
+ 			    element->type == ACPI_TYPE_BUFFER)
+-				strncpy(ptr, element->string.pointer, 32);
++				strscpy(ptr, element->string.pointer, 32);
+ 			else if (element->type == ACPI_TYPE_INTEGER) {
+ 				strncpy(ptr, (u8 *)&element->integer.value,
+ 					sizeof(u64));
 -- 
 2.39.2
 
