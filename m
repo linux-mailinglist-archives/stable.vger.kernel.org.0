@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2A586B4584
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C68916B42CA
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:07:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232486AbjCJOed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 09:34:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35642 "EHLO
+        id S231714AbjCJOHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:07:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232552AbjCJOeM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:34:12 -0500
+        with ESMTP id S231536AbjCJOGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:06:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53F9876144;
-        Fri, 10 Mar 2023 06:34:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9533C11759D
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:06:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D194C61771;
-        Fri, 10 Mar 2023 14:34:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95C1C4339C;
-        Fri, 10 Mar 2023 14:34:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C9FA61771
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792C6C433D2;
+        Fri, 10 Mar 2023 14:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678458850;
-        bh=p3Ejt/L/+lps40p14tFbIqn6GnlgrRDC0h1j8Oxdbr0=;
+        s=korg; t=1678457177;
+        bh=/pOJYxD46R/dxAJ9FZa7wUCpI6f2861qRI/sz6R6K4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEsxh2QMDw0KadwiwMs4gvqNcLsBHeHLek7bPjUdKZAJ1qq05R/hnKDhH1jsK4WTC
-         kvlbnnQLDchwJFbalWRwoLpYEb4qAcYGExpHpyKT1B5HDU1tolmrYus+SdbLgY43Dj
-         /AYgrXVPGYz+WZc7Ahm/Pkh5nFBjx/9XhFfXPfVI=
+        b=K9XkKJD4nJvZfSFBldf/NXYMOzf8JKCULKWW34xf2tF8CrRqhCPh882V0CyXvwBoy
+         WVKMly3yp9qwJPYoB7dYEaCXrUlaMXsCKfTz9fP8NUtSUXGtLpI1jEMhDbALu5wZj9
+         nPAX9Tyjyu8K7wvM6U6k4au/rIuI3tz+TWhCIisk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Dengcheng Zhu <dzhu@wavecomp.com>,
-        Paul Burton <paulburton@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 165/357] MIPS: SMP-CPS: fix build error when HOTPLUG_CPU not set
+Subject: [PATCH 6.1 047/200] netfilter: nf_tables: allow to fetch set elements when table has an owner
 Date:   Fri, 10 Mar 2023 14:37:34 +0100
-Message-Id: <20230310133742.001276488@linuxfoundation.org>
+Message-Id: <20230310133718.543031844@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133733.973883071@linuxfoundation.org>
-References: <20230310133733.973883071@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+References: <20230310133717.050159289@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,52 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 6f02e39fa40f16c24e7a5c599a854c0d1682788d ]
+[ Upstream commit 92f3e96d642f5e05b9dc710c06fedc669f1b4f00 ]
 
-When MIPS_CPS=y, MIPS_CPS_PM is not set, HOTPLUG_CPU is not set, and
-KEXEC=y, cps_shutdown_this_cpu() attempts to call cps_pm_enter_state(),
-which is not built when MIPS_CPS_PM is not set.
-Conditionally execute the else branch based on CONFIG_HOTPLUG_CPU
-to remove the build error.
-This build failure is from a randconfig file.
+NFT_MSG_GETSETELEM returns -EPERM when fetching set elements that belong
+to table that has an owner. This results in empty set/map listing from
+userspace.
 
-mips-linux-ld: arch/mips/kernel/smp-cps.o: in function `$L162':
-smp-cps.c:(.text.cps_kexec_nonboot_cpu+0x31c): undefined reference to `cps_pm_enter_state'
-
-Fixes: 1447864bee4c ("MIPS: kexec: CPS systems to halt nonboot CPUs")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dengcheng Zhu <dzhu@wavecomp.com>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 6001a930ce03 ("netfilter: nftables: introduce table ownership")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/smp-cps.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/netfilter/nf_tables_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/smp-cps.c b/arch/mips/kernel/smp-cps.c
-index dbb3f1fc71ab6..f659adb681bc3 100644
---- a/arch/mips/kernel/smp-cps.c
-+++ b/arch/mips/kernel/smp-cps.c
-@@ -423,9 +423,11 @@ static void cps_shutdown_this_cpu(enum cpu_death death)
- 			wmb();
- 		}
- 	} else {
--		pr_debug("Gating power to core %d\n", core);
--		/* Power down the core */
--		cps_pm_enter_state(CPS_PM_POWER_GATED);
-+		if (IS_ENABLED(CONFIG_HOTPLUG_CPU)) {
-+			pr_debug("Gating power to core %d\n", core);
-+			/* Power down the core */
-+			cps_pm_enter_state(CPS_PM_POWER_GATED);
-+		}
- 	}
- }
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index dca5352bdf3d7..1a9d759d0a026 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -5439,7 +5439,7 @@ static int nf_tables_getsetelem(struct sk_buff *skb,
+ 	int rem, err = 0;
  
+ 	table = nft_table_lookup(net, nla[NFTA_SET_ELEM_LIST_TABLE], family,
+-				 genmask, NETLINK_CB(skb).portid);
++				 genmask, 0);
+ 	if (IS_ERR(table)) {
+ 		NL_SET_BAD_ATTR(extack, nla[NFTA_SET_ELEM_LIST_TABLE]);
+ 		return PTR_ERR(table);
 -- 
 2.39.2
 
