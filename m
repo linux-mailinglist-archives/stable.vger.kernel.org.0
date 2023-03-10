@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F6966B4945
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:11:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A89956B494E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:11:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233931AbjCJPLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47642 "EHLO
+        id S232929AbjCJPLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:11:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233977AbjCJPKh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:37 -0500
+        with ESMTP id S233969AbjCJPKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:10:45 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F02B759E6
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:02:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CC0F12CC1
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:03:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FDFDB82294
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:02:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63479C4339C;
-        Fri, 10 Mar 2023 15:02:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66010B82337
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5288C433EF;
+        Fri, 10 Mar 2023 15:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460568;
-        bh=HCNHSwPyRvXMZN936VQQk/o3vaIlxlUgKrlIvSOqC3o=;
+        s=korg; t=1678460572;
+        bh=Ljwq8bY827BH8isU9XavIxjsZnWl+5a0r7JlOvRTxMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3KDGb4dow35mzwJtCS7Cotac7Oz6btJJa6Qo6nuUjrQEvfYfEHkotp48PiEyeuFK
-         bulZIC4MAyzvXBT0tgiosriwO+21y1cYNCT/urEty6EUjRHuXVDDIPoATtGX/xmyoZ
-         gk9Wq39zgtAFD7tDTuO4DUGUdTN3g1Vn7zXURGa4=
+        b=oqfAHN+b8AEr+OuuuzLIza2zsnE9GurmbBwO/FPw2dsAoOX2USpZM1nNXL8guL4va
+         Iyo+p2kmfrLc1VzgntuwOg/oJ3CxSZMLlVAazCX1ob/nlLyqJdUjZ7VJka6fbSEgyK
+         trPkfepf6gEVK4tFd4rGKvz47vXEVG9rBOkNXzAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.10 348/529] udf: Truncate added extents on failed expansion
-Date:   Fri, 10 Mar 2023 14:38:11 +0100
-Message-Id: <20230310133821.136977068@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.10 349/529] udf: Do not bother merging very long extents
+Date:   Fri, 10 Mar 2023 14:38:12 +0100
+Message-Id: <20230310133821.187514434@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -54,63 +56,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit 70bfb3a8d661d4fdc742afc061b88a7f3fc9f500 upstream.
+commit 53cafe1d6d8ef9f93318e5bfccc0d24f27d41ced upstream.
 
-When a file expansion failed because we didn't have enough space for
-indirect extents make sure we truncate extents created so far so that we
-don't leave extents beyond EOF.
+When merging very long extents we try to push as much length as possible
+to the first extent. However this is unnecessarily complicated and not
+really worth the trouble. Furthermore there was a bug in the logic
+resulting in corrupting extents in the file as syzbot reproducer shows.
+So just don't bother with the merging of extents that are too long
+together.
 
 CC: stable@vger.kernel.org
+Reported-by: syzbot+60f291a24acecb3c2bd5@syzkaller.appspotmail.com
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ fs/udf/inode.c |   19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
 --- a/fs/udf/inode.c
 +++ b/fs/udf/inode.c
-@@ -525,8 +525,10 @@ static int udf_do_extend_file(struct ino
- 	}
+@@ -1093,23 +1093,8 @@ static void udf_merge_extents(struct ino
+ 			blocksize - 1) >> blocksize_bits)))) {
  
- 	if (fake) {
--		udf_add_aext(inode, last_pos, &last_ext->extLocation,
--			     last_ext->extLength, 1);
-+		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
-+				   last_ext->extLength, 1);
-+		if (err < 0)
-+			goto out_err;
- 		count++;
- 	} else {
- 		struct kernel_lb_addr tmploc;
-@@ -560,7 +562,7 @@ static int udf_do_extend_file(struct ino
- 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
- 				   last_ext->extLength, 1);
- 		if (err)
--			return err;
-+			goto out_err;
- 		count++;
- 	}
- 	if (new_block_bytes) {
-@@ -569,7 +571,7 @@ static int udf_do_extend_file(struct ino
- 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
- 				   last_ext->extLength, 1);
- 		if (err)
--			return err;
-+			goto out_err;
- 		count++;
- 	}
- 
-@@ -583,6 +585,11 @@ out:
- 		return -EIO;
- 
- 	return count;
-+out_err:
-+	/* Remove extents we've created so far */
-+	udf_clear_extent_cache(inode);
-+	udf_truncate_extents(inode);
-+	return err;
- }
- 
- /* Extend the final block of the file to final_block_len bytes */
+ 			if (((li->extLength & UDF_EXTENT_LENGTH_MASK) +
+-				(lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
+-				blocksize - 1) & ~UDF_EXTENT_LENGTH_MASK) {
+-				lip1->extLength = (lip1->extLength -
+-						  (li->extLength &
+-						   UDF_EXTENT_LENGTH_MASK) +
+-						   UDF_EXTENT_LENGTH_MASK) &
+-							~(blocksize - 1);
+-				li->extLength = (li->extLength &
+-						 UDF_EXTENT_FLAG_MASK) +
+-						(UDF_EXTENT_LENGTH_MASK + 1) -
+-						blocksize;
+-				lip1->extLocation.logicalBlockNum =
+-					li->extLocation.logicalBlockNum +
+-					((li->extLength &
+-						UDF_EXTENT_LENGTH_MASK) >>
+-						blocksize_bits);
+-			} else {
++			     (lip1->extLength & UDF_EXTENT_LENGTH_MASK) +
++			     blocksize - 1) <= UDF_EXTENT_LENGTH_MASK) {
+ 				li->extLength = lip1->extLength +
+ 					(((li->extLength &
+ 						UDF_EXTENT_LENGTH_MASK) +
 
 
