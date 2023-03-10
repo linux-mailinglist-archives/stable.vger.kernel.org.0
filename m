@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3656B412A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 14:50:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F5A6B4444
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 15:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230465AbjCJNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 08:50:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53486 "EHLO
+        id S232155AbjCJOWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 09:22:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230480AbjCJNuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 08:50:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F3A6108C13
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 05:50:05 -0800 (PST)
+        with ESMTP id S232159AbjCJOWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 09:22:16 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C83119422
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:21:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45544B822B9
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 13:50:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87165C433D2;
-        Fri, 10 Mar 2023 13:50:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7773DCE290C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:21:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 923B1C4339B;
+        Fri, 10 Mar 2023 14:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678456202;
-        bh=Zr+S9gNhs8H3pCiZ6URhiKogNQ9ig4Yl0H/c/THx91s=;
+        s=korg; t=1678458088;
+        bh=oBrO1e1Q6vynJqU2Es6QMUrxCvDVTmmx7rBcQoOUgqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKfKYYHGKlDY4ZVkpYwrGjZ26VtctQzCFb0driKA9h4K8zaw7pl7Jjm+/lIRgYH8X
-         uAoFsDfTEdsqcNaVJfcONs4AIFWbhe4lDL4DXCtCvXaQCKMomagYbgbl2EMZQol4MU
-         rdVpWbP28eu8gyV5Ie6VnRykFDWk/PIiqJzNNp0c=
+        b=PNo7GosnAY/Gej5OZ+WmjqibJ1WbraTn3MT/vQTCHzqIEhN+4F+DEBLWmKfX5wKNc
+         ZrkOVRcaSAggXrgDumXcSBhoP/gjq+qcoXsBjrXsKmKAs+YX/dFnFiTIjLo4p3XNVC
+         Cl0M5CuTlTCZkkC3hJJKcEn6j23lhP89IYyBH4oM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 4.14 116/193] x86/kprobes: Fix arch_check_optimized_kprobe check within optimized_kprobe range
+        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 128/252] net/mlx5: fw_tracer: Fix debug print
 Date:   Fri, 10 Mar 2023 14:38:18 +0100
-Message-Id: <20230310133715.134695084@linuxfoundation.org>
+Message-Id: <20230310133722.687070692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230310133710.926811681@linuxfoundation.org>
-References: <20230310133710.926811681@linuxfoundation.org>
+In-Reply-To: <20230310133718.803482157@linuxfoundation.org>
+References: <20230310133718.803482157@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,146 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Shay Drory <shayd@nvidia.com>
 
-commit f1c97a1b4ef709e3f066f82e3ba3108c3b133ae6 upstream.
+[ Upstream commit 988c2352273997a242f15c4fc3711773515006a2 ]
 
-When arch_prepare_optimized_kprobe calculating jump destination address,
-it copies original instructions from jmp-optimized kprobe (see
-__recover_optprobed_insn), and calculated based on length of original
-instruction.
+The debug message specify tdsn, but takes as an argument the
+tmsn. The correct argument is tmsn, hence, fix the print.
 
-arch_check_optimized_kprobe does not check KPROBE_FLAG_OPTIMATED when
-checking whether jmp-optimized kprobe exists.
-As a result, setup_detour_execution may jump to a range that has been
-overwritten by jump destination address, resulting in an inval opcode error.
-
-For example, assume that register two kprobes whose addresses are
-<func+9> and <func+11> in "func" function.
-The original code of "func" function is as follows:
-
-   0xffffffff816cb5e9 <+9>:     push   %r12
-   0xffffffff816cb5eb <+11>:    xor    %r12d,%r12d
-   0xffffffff816cb5ee <+14>:    test   %rdi,%rdi
-   0xffffffff816cb5f1 <+17>:    setne  %r12b
-   0xffffffff816cb5f5 <+21>:    push   %rbp
-
-1.Register the kprobe for <func+11>, assume that is kp1, corresponding optimized_kprobe is op1.
-  After the optimization, "func" code changes to:
-
-   0xffffffff816cc079 <+9>:     push   %r12
-   0xffffffff816cc07b <+11>:    jmp    0xffffffffa0210000
-   0xffffffff816cc080 <+16>:    incl   0xf(%rcx)
-   0xffffffff816cc083 <+19>:    xchg   %eax,%ebp
-   0xffffffff816cc084 <+20>:    (bad)
-   0xffffffff816cc085 <+21>:    push   %rbp
-
-Now op1->flags == KPROBE_FLAG_OPTIMATED;
-
-2. Register the kprobe for <func+9>, assume that is kp2, corresponding optimized_kprobe is op2.
-
-register_kprobe(kp2)
-  register_aggr_kprobe
-    alloc_aggr_kprobe
-      __prepare_optimized_kprobe
-        arch_prepare_optimized_kprobe
-          __recover_optprobed_insn    // copy original bytes from kp1->optinsn.copied_insn,
-                                      // jump address = <func+14>
-
-3. disable kp1:
-
-disable_kprobe(kp1)
-  __disable_kprobe
-    ...
-    if (p == orig_p || aggr_kprobe_disabled(orig_p)) {
-      ret = disarm_kprobe(orig_p, true)       // add op1 in unoptimizing_list, not unoptimized
-      orig_p->flags |= KPROBE_FLAG_DISABLED;  // op1->flags ==  KPROBE_FLAG_OPTIMATED | KPROBE_FLAG_DISABLED
-    ...
-
-4. unregister kp2
-__unregister_kprobe_top
-  ...
-  if (!kprobe_disabled(ap) && !kprobes_all_disarmed) {
-    optimize_kprobe(op)
-      ...
-      if (arch_check_optimized_kprobe(op) < 0) // because op1 has KPROBE_FLAG_DISABLED, here not return
-        return;
-      p->kp.flags |= KPROBE_FLAG_OPTIMIZED;   //  now op2 has KPROBE_FLAG_OPTIMIZED
-  }
-
-"func" code now is:
-
-   0xffffffff816cc079 <+9>:     int3
-   0xffffffff816cc07a <+10>:    push   %rsp
-   0xffffffff816cc07b <+11>:    jmp    0xffffffffa0210000
-   0xffffffff816cc080 <+16>:    incl   0xf(%rcx)
-   0xffffffff816cc083 <+19>:    xchg   %eax,%ebp
-   0xffffffff816cc084 <+20>:    (bad)
-   0xffffffff816cc085 <+21>:    push   %rbp
-
-5. if call "func", int3 handler call setup_detour_execution:
-
-  if (p->flags & KPROBE_FLAG_OPTIMIZED) {
-    ...
-    regs->ip = (unsigned long)op->optinsn.insn + TMPL_END_IDX;
-    ...
-  }
-
-The code for the destination address is
-
-   0xffffffffa021072c:  push   %r12
-   0xffffffffa021072e:  xor    %r12d,%r12d
-   0xffffffffa0210731:  jmp    0xffffffff816cb5ee <func+14>
-
-However, <func+14> is not a valid start instruction address. As a result, an error occurs.
-
-Link: https://lore.kernel.org/all/20230216034247.32348-3-yangjihong1@huawei.com/
-
-Fixes: f66c0447cca1 ("kprobes: Set unoptimized flag after unoptimizing code")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Cc: stable@vger.kernel.org
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kprobes/opt.c |    2 +-
- include/linux/kprobes.h       |    1 +
- kernel/kprobes.c              |    4 ++--
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/kprobes/opt.c
-+++ b/arch/x86/kernel/kprobes/opt.c
-@@ -330,7 +330,7 @@ int arch_check_optimized_kprobe(struct o
- 
- 	for (i = 1; i < op->optinsn.size; i++) {
- 		p = get_kprobe(op->kp.addr + i);
--		if (p && !kprobe_disabled(p))
-+		if (p && !kprobe_disarmed(p))
- 			return -EEXIST;
- 	}
- 
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -354,6 +354,7 @@ extern int proc_kprobes_optimization_han
- #endif
- extern void wait_for_kprobe_optimizer(void);
- bool optprobe_queued_unopt(struct optimized_kprobe *op);
-+bool kprobe_disarmed(struct kprobe *p);
- #else
- static inline void wait_for_kprobe_optimizer(void) { }
- #endif /* CONFIG_OPTPROBES */
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -418,8 +418,8 @@ static inline int kprobe_optready(struct
- 	return 0;
- }
- 
--/* Return true(!0) if the kprobe is disarmed. Note: p must be on hash list */
--static inline int kprobe_disarmed(struct kprobe *p)
-+/* Return true if the kprobe is disarmed. Note: p must be on hash list */
-+bool kprobe_disarmed(struct kprobe *p)
- {
- 	struct optimized_kprobe *op;
- 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index ef9f932f02263..5a2feadd80f08 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -564,7 +564,7 @@ static int mlx5_tracer_handle_string_trace(struct mlx5_fw_tracer *tracer,
+ 	} else {
+ 		cur_string = mlx5_tracer_message_get(tracer, tracer_event);
+ 		if (!cur_string) {
+-			pr_debug("%s Got string event for unknown string tdsm: %d\n",
++			pr_debug("%s Got string event for unknown string tmsn: %d\n",
+ 				 __func__, tracer_event->string_event.tmsn);
+ 			return -1;
+ 		}
+-- 
+2.39.2
+
 
 
