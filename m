@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1E36B4A6A
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:22:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD0C6B4A6D
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233883AbjCJPW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:22:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49636 "EHLO
+        id S233601AbjCJPXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:23:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233241AbjCJPW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:22:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77BD31314C3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:12:35 -0800 (PST)
+        with ESMTP id S233717AbjCJPWe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:22:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346DC1314D3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:12:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D849161A2D
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF5C8C433D2;
-        Fri, 10 Mar 2023 15:11:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE344B822F3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:11:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16983C433EF;
+        Fri, 10 Mar 2023 15:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461082;
-        bh=s8HttMRlfxiQVjgYNpcGtmLGKklX1y1jNFUtoylxP2I=;
+        s=korg; t=1678461097;
+        bh=ZFcSvZW/wXJCskVMaZmBwep1WQut9EA8EGFSb8pcrrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pr2OIR82o9aRJ91oi5+ErXiJ4xy9d9FvZMr9XmEH7lBPD9ebQu1yQSfbV0vjtPPes
-         /qcXf4TXWAfb8SpF7pxKLDGlPMjq8FwgakSS6jNkPyNrFQ7YqZzeHbM3RE5WvrAIcG
-         qeSeNDtrW4UdOnnGTKl9yRKdGCMkSIupZGIOjKx8=
+        b=HuThkDvez+woO4KaS5VTfNY9EzticffDLebCrJIsL5CcmYRY/2SciYy2PQFy7Y6p5
+         S5GuE8rX2dx63IlWLDTh/LapotXanAH+Asp/0oP+vLYyzgqgVHg53H8QdOxUkRdSyq
+         JKazzFhThkxA1dB/5kYFSq5oNwalZNB1RM75aFoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <lkp@intel.com>,
-        Jianglei Nie <niejianglei2021@163.com>,
-        Miguel Ojeda <ojeda@kernel.org>,
+        syzbot+0be96567042453c0c820@syzkaller.appspotmail.com,
+        Liu Shixin <liushixin2@huawei.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 002/136] auxdisplay: hd44780: Fix potential memory leak in hd44780_remove()
-Date:   Fri, 10 Mar 2023 14:42:04 +0100
-Message-Id: <20230310133706.928497695@linuxfoundation.org>
+Subject: [PATCH 5.15 003/136] fs/jfs: fix shift exponent db_agl2size negative
+Date:   Fri, 10 Mar 2023 14:42:05 +0100
+Message-Id: <20230310133706.967739072@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -57,43 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Liu Shixin via Jfs-discussion <jfs-discussion@lists.sourceforge.net>
 
-[ Upstream commit ddf75a86aba2cfb7ec4497e8692b60c8c8fe0ee7 ]
+[ Upstream commit fad376fce0af58deebc5075b8539dc05bf639af3 ]
 
-hd44780_probe() allocates a memory chunk for hd with kzalloc() and
-makes "lcd->drvdata->hd44780" point to it. When we call hd44780_remove(),
-we should release all relevant memory and resource. But "lcd->drvdata
-->hd44780" is not released, which will lead to a memory leak.
+As a shift exponent, db_agl2size can not be less than 0. Add the missing
+check to fix the shift-out-of-bounds bug reported by syzkaller:
 
-We should release the "lcd->drvdata->hd44780" in hd44780_remove() to fix
-the memory leak bug.
+ UBSAN: shift-out-of-bounds in fs/jfs/jfs_dmap.c:2227:15
+ shift exponent -744642816 is negative
 
-Fixes: 718e05ed92ec ("auxdisplay: Introduce hd44780_common.[ch]")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Reported-by: syzbot+0be96567042453c0c820@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/auxdisplay/hd44780.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/jfs/jfs_dmap.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/auxdisplay/hd44780.c b/drivers/auxdisplay/hd44780.c
-index 8b2a0eb3f32a4..d56a5d508ccd7 100644
---- a/drivers/auxdisplay/hd44780.c
-+++ b/drivers/auxdisplay/hd44780.c
-@@ -322,8 +322,10 @@ static int hd44780_probe(struct platform_device *pdev)
- static int hd44780_remove(struct platform_device *pdev)
- {
- 	struct charlcd *lcd = platform_get_drvdata(pdev);
-+	struct hd44780_common *hdc = lcd->drvdata;
- 
- 	charlcd_unregister(lcd);
-+	kfree(hdc->hd44780);
- 	kfree(lcd->drvdata);
- 
- 	kfree(lcd);
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index f401bc05d5ff6..0034b0f397153 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -193,7 +193,8 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_agwidth = le32_to_cpu(dbmp_le->dn_agwidth);
+ 	bmp->db_agstart = le32_to_cpu(dbmp_le->dn_agstart);
+ 	bmp->db_agl2size = le32_to_cpu(dbmp_le->dn_agl2size);
+-	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG) {
++	if (bmp->db_agl2size > L2MAXL2SIZE - L2MAXAG ||
++	    bmp->db_agl2size < 0) {
+ 		err = -EINVAL;
+ 		goto err_release_metapage;
+ 	}
 -- 
 2.39.2
 
