@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E16446B49D8
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:16:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BEF86B49D1
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:15:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234134AbjCJPQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:16:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56944 "EHLO
+        id S234123AbjCJPPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:15:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233173AbjCJPP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:15:58 -0500
+        with ESMTP id S234210AbjCJPPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:15:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C058926C1F
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8A21132A8C
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:06:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63C5961ADB
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:05:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 361E1C433EF;
-        Fri, 10 Mar 2023 15:05:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 565A861ACC
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:05:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E79C433EF;
+        Fri, 10 Mar 2023 15:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460734;
-        bh=V3dQUIx3an1IdFmcrBuU+MmfXEpMJCj/2PIUur3Whn8=;
+        s=korg; t=1678460737;
+        bh=vYKrF8LfbcEY50jVQyedLPtVAEhEDbWRjMx4/YkiO8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpcwC/SU4jpGW9zQHiHTeVk7ynseTtjdf/DXu+tzY+MOLcAcRIfAOObf7fzTyaQ1g
-         fVtB346TWV+T0RSWWDkwIIfChn2/Viwnlz5eNdWcDgZtOSshz4Z4dB0vfykdfWdS4g
-         aeE7MtdnbUDtO34273z1ub8W1J10Vyjyunl72UU0=
+        b=dZowS2iyYZ2gJnR7uAiAtHT43Hk/nx3Zw03G+my3yXxZs7hdl4Aaf2utyzAuFVrVo
+         0BBByNadcMSzDPzYv4yQEVKeYh6yjREdM4nwPLFuhGw95+iSjDaQfUbhdzwIg3xBao
+         KimMa3mz/WtNk/p4y3bpesdtRoh2gU5HHyLJM4/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 433/529] objtool: Fix memory leak in create_static_call_sections()
-Date:   Fri, 10 Mar 2023 14:39:36 +0100
-Message-Id: <20230310133824.993245887@linuxfoundation.org>
+Subject: [PATCH 5.10 434/529] pwm: sifive: Reduce time the controller lock is held
+Date:   Fri, 10 Mar 2023 14:39:37 +0100
+Message-Id: <20230310133825.028779564@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -56,43 +57,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 3da73f102309fe29150e5c35acd20dd82063ff67 ]
+[ Upstream commit 0f02f491b786143f08eb19840f1cf4f12aec6dee ]
 
-strdup() allocates memory for key_name. We need to release the memory in
-the following error paths. Add free() to avoid memory leak.
+The lock is only to serialize access and update to user_count and
+approx_period between different PWMs served by the same pwm_chip.
+So the lock needs only to be taken during the check if the (chip global)
+period can and/or needs to be changed.
 
-Fixes: 1e7e47883830 ("x86/static_call: Add inline static call implementation for x86-64")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20221205080642.558583-1-linmq006@gmail.com
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Tested-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Stable-dep-of: 334c7b13d383 ("pwm: sifive: Always let the first pwm_apply_state succeed")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pwm/pwm-sifive.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 5c4190382a51a..9a0a54194636c 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -572,6 +572,7 @@ static int create_static_call_sections(struct objtool_file *file)
- 		if (strncmp(key_name, STATIC_CALL_TRAMP_PREFIX_STR,
- 			    STATIC_CALL_TRAMP_PREFIX_LEN)) {
- 			WARN("static_call: trampoline name malformed: %s", key_name);
-+			free(key_name);
- 			return -1;
+diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
+index 12e9e23272ab1..400cc91057acf 100644
+--- a/drivers/pwm/pwm-sifive.c
++++ b/drivers/pwm/pwm-sifive.c
+@@ -41,7 +41,7 @@
+ 
+ struct pwm_sifive_ddata {
+ 	struct pwm_chip	chip;
+-	struct mutex lock; /* lock to protect user_count */
++	struct mutex lock; /* lock to protect user_count and approx_period */
+ 	struct notifier_block notifier;
+ 	struct clk *clk;
+ 	void __iomem *regs;
+@@ -76,6 +76,7 @@ static void pwm_sifive_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	mutex_unlock(&ddata->lock);
+ }
+ 
++/* Called holding ddata->lock */
+ static void pwm_sifive_update_clock(struct pwm_sifive_ddata *ddata,
+ 				    unsigned long rate)
+ {
+@@ -163,7 +164,6 @@ static int pwm_sifive_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 		return ret;
+ 	}
+ 
+-	mutex_lock(&ddata->lock);
+ 	cur_state = pwm->state;
+ 	enabled = cur_state.enabled;
+ 
+@@ -182,14 +182,17 @@ static int pwm_sifive_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	/* The hardware cannot generate a 100% duty cycle */
+ 	frac = min(frac, (1U << PWM_SIFIVE_CMPWIDTH) - 1);
+ 
++	mutex_lock(&ddata->lock);
+ 	if (state->period != ddata->approx_period) {
+ 		if (ddata->user_count != 1) {
++			mutex_unlock(&ddata->lock);
+ 			ret = -EBUSY;
+ 			goto exit;
  		}
- 		tmp = key_name + STATIC_CALL_TRAMP_PREFIX_LEN - STATIC_CALL_KEY_PREFIX_LEN;
-@@ -581,6 +582,7 @@ static int create_static_call_sections(struct objtool_file *file)
- 		if (!key_sym) {
- 			if (!module) {
- 				WARN("static_call: can't find static_call_key symbol: %s", tmp);
-+				free(key_name);
- 				return -1;
- 			}
+ 		ddata->approx_period = state->period;
+ 		pwm_sifive_update_clock(ddata, clk_get_rate(ddata->clk));
+ 	}
++	mutex_unlock(&ddata->lock);
+ 
+ 	writel(frac, ddata->regs + PWM_SIFIVE_PWMCMP(pwm->hwpwm));
+ 
+@@ -198,7 +201,6 @@ static int pwm_sifive_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 
+ exit:
+ 	clk_disable(ddata->clk);
+-	mutex_unlock(&ddata->lock);
+ 	return ret;
+ }
  
 -- 
 2.39.2
