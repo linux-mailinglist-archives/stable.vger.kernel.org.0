@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E85E96B489C
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:04:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5629B6B489E
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:05:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbjCJPEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:04:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34564 "EHLO
+        id S233805AbjCJPEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:04:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233785AbjCJPEQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:04:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E18EF128002
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:57:31 -0800 (PST)
+        with ESMTP id S233684AbjCJPEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:04:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95CF7128035
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 06:57:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 770EF61962
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5798BC4339B;
-        Fri, 10 Mar 2023 14:57:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E14E61AB3
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 14:57:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91DDFC4339B;
+        Fri, 10 Mar 2023 14:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678460222;
-        bh=zE28l149l0eMaKeqIvGHrD5NoiNdgdcG+MccGea7oHA=;
+        s=korg; t=1678460229;
+        bh=NQpcdvPNBbN/3D3P2NMnVUjugOXlRFZ9lN/8zZNLMUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VnG+SAbz9yns9zHzarH7FvsqKl0ZeiyUhXJNuwZbEXYpUOyEA/IfU15n9/pVHBtuz
-         B52+plWu43JK4kO5psvg/5CMfZmc5SjQlRzSZ+siQHBqpqioEPn+S8NbW3nYDmuVft
-         lxYHuA+/xMJLnMh88X4dz78vtfw4F7Y9fS+vcKLE=
+        b=1dIRMNaNA/myKGLO8JXaMPeglVWHn5mNnv2ROUNLJrbacZhPUBw3Gjx+BooATpnwi
+         Iwn4eTa+0dDm1qTi/LClIBNixDf8scovGDTRCa6shxt6uGHuDfT/MvbZthhk7OzuMT
+         rmE0BqQjOW/TGv2CQ+HhvHLboDP4V1CQa1IJPrEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sibi Sankar <quic_sibis@quicinc.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Amit Pundir <amit.pundir@linaro.org>
-Subject: [PATCH 5.10 264/529] remoteproc: qcom_q6v5_mss: Use a carveout to authenticate modem headers
-Date:   Fri, 10 Mar 2023 14:36:47 +0100
-Message-Id: <20230310133817.195356755@linuxfoundation.org>
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 265/529] media: ti: cal: fix possible memory leak in cal_ctx_create()
+Date:   Fri, 10 Mar 2023 14:36:48 +0100
+Message-Id: <20230310133817.250744576@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133804.978589368@linuxfoundation.org>
 References: <20230310133804.978589368@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -56,136 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sibi Sankar <quic_sibis@quicinc.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 57f72170a2b2a362c35bb9407fc844eac5afdec1 ]
+[ Upstream commit 7acd650a0484d92985a0d6d867d980c6dd019885 ]
 
-Any access to the dynamically allocated metadata region by the application
-processor after assigning it to the remote Q6 will result in a XPU
-violation. Fix this by replacing the dynamically allocated memory region
-with a no-map carveout and unmap the modem metadata memory region before
-passing control to the remote Q6.
+The memory of ctx is allocated in cal_ctx_create(), but it will
+not be freed when cal_ctx_v4l2_init() fails, so add kfree() when
+cal_ctx_v4l2_init() fails to fix it.
 
-Reported-and-tested-by: Amit Pundir <amit.pundir@linaro.org>
-Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
-Signed-off-by: Sibi Sankar <quic_sibis@quicinc.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20230117085840.32356-7-quic_sibis@quicinc.com
+Fixes: d68a94e98a89 ("media: ti-vpe: cal: Split video device initialization and registration")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_mss.c | 59 +++++++++++++++++++++++++++---
- 1 file changed, 53 insertions(+), 6 deletions(-)
+ drivers/media/platform/ti-vpe/cal.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
-index 1b3aa84e36e7a..3d975ecd93360 100644
---- a/drivers/remoteproc/qcom_q6v5_mss.c
-+++ b/drivers/remoteproc/qcom_q6v5_mss.c
-@@ -17,6 +17,7 @@
- #include <linux/module.h>
- #include <linux/of_address.h>
- #include <linux/of_device.h>
-+#include <linux/of_reserved_mem.h>
- #include <linux/platform_device.h>
- #include <linux/pm_domain.h>
- #include <linux/pm_runtime.h>
-@@ -190,6 +191,9 @@ struct q6v5 {
- 	size_t mba_size;
- 	size_t dp_size;
+diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+index 2eef245c31a17..93121c90d76ae 100644
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -624,8 +624,10 @@ static struct cal_ctx *cal_ctx_create(struct cal_dev *cal, int inst)
+ 	ctx->cport = inst;
  
-+	phys_addr_t mdata_phys;
-+	size_t mdata_size;
-+
- 	phys_addr_t mpss_phys;
- 	phys_addr_t mpss_reloc;
- 	size_t mpss_size;
-@@ -816,15 +820,35 @@ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw)
- 	if (IS_ERR(metadata))
- 		return PTR_ERR(metadata);
- 
--	ptr = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
--	if (!ptr) {
--		kfree(metadata);
--		dev_err(qproc->dev, "failed to allocate mdt buffer\n");
--		return -ENOMEM;
-+	if (qproc->mdata_phys) {
-+		if (size > qproc->mdata_size) {
-+			ret = -EINVAL;
-+			dev_err(qproc->dev, "metadata size outside memory range\n");
-+			goto free_metadata;
-+		}
-+
-+		phys = qproc->mdata_phys;
-+		ptr = memremap(qproc->mdata_phys, size, MEMREMAP_WC);
-+		if (!ptr) {
-+			ret = -EBUSY;
-+			dev_err(qproc->dev, "unable to map memory region: %pa+%zx\n",
-+				&qproc->mdata_phys, size);
-+			goto free_metadata;
-+		}
-+	} else {
-+		ptr = dma_alloc_attrs(qproc->dev, size, &phys, GFP_KERNEL, dma_attrs);
-+		if (!ptr) {
-+			ret = -ENOMEM;
-+			dev_err(qproc->dev, "failed to allocate mdt buffer\n");
-+			goto free_metadata;
-+		}
- 	}
- 
- 	memcpy(ptr, metadata, size);
- 
-+	if (qproc->mdata_phys)
-+		memunmap(ptr);
-+
- 	/* Hypervisor mapping to access metadata by modem */
- 	mdata_perm = BIT(QCOM_SCM_VMID_HLOS);
- 	ret = q6v5_xfer_mem_ownership(qproc, &mdata_perm, false, true,
-@@ -853,7 +877,9 @@ static int q6v5_mpss_init_image(struct q6v5 *qproc, const struct firmware *fw)
- 			 "mdt buffer not reclaimed system may become unstable\n");
- 
- free_dma_attrs:
--	dma_free_attrs(qproc->dev, size, ptr, phys, dma_attrs);
-+	if (!qproc->mdata_phys)
-+		dma_free_attrs(qproc->dev, size, ptr, phys, dma_attrs);
-+free_metadata:
- 	kfree(metadata);
- 
- 	return ret < 0 ? ret : 0;
-@@ -1585,6 +1611,7 @@ static int q6v5_init_reset(struct q6v5 *qproc)
- static int q6v5_alloc_memory_region(struct q6v5 *qproc)
- {
- 	struct device_node *child;
-+	struct reserved_mem *rmem;
- 	struct device_node *node;
- 	struct resource r;
- 	int ret;
-@@ -1637,6 +1664,26 @@ static int q6v5_alloc_memory_region(struct q6v5 *qproc)
- 	qproc->mpss_phys = qproc->mpss_reloc = r.start;
- 	qproc->mpss_size = resource_size(&r);
- 
-+	if (!child) {
-+		node = of_parse_phandle(qproc->dev->of_node, "memory-region", 2);
-+	} else {
-+		child = of_get_child_by_name(qproc->dev->of_node, "metadata");
-+		node = of_parse_phandle(child, "memory-region", 0);
-+		of_node_put(child);
+ 	ret = cal_ctx_v4l2_init(ctx);
+-	if (ret)
++	if (ret) {
++		kfree(ctx);
+ 		return NULL;
 +	}
-+
-+	if (!node)
-+		return 0;
-+
-+	rmem = of_reserved_mem_lookup(node);
-+	if (!rmem) {
-+		dev_err(qproc->dev, "unable to resolve metadata region\n");
-+		return -EINVAL;
-+	}
-+
-+	qproc->mdata_phys = rmem->base;
-+	qproc->mdata_size = rmem->size;
-+
- 	return 0;
+ 
+ 	return ctx;
  }
- 
 -- 
 2.39.2
 
