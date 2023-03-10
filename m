@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5186B4AC0
-	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:26:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 132606B4AC4
+	for <lists+stable@lfdr.de>; Fri, 10 Mar 2023 16:26:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234295AbjCJP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Mar 2023 10:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54196 "EHLO
+        id S234240AbjCJP0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Mar 2023 10:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233974AbjCJP0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:26:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92141133DB1
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:15:22 -0800 (PST)
+        with ESMTP id S234242AbjCJP0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Mar 2023 10:26:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8309149D0A
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 07:15:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59245B822AD
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 968A2C433EF;
-        Fri, 10 Mar 2023 15:14:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11E84B822EB
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 15:14:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6407DC433D2;
+        Fri, 10 Mar 2023 15:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678461279;
-        bh=3roV8uW1v31n5edmx9W0JG+kRuQVOwex91joNPZwoSw=;
+        s=korg; t=1678461281;
+        bh=vWjZYVCyqOa7QEyu/N9kEW1AAi5cQG0o8QSHeR20/1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOr/mdSVEi627+aujQhWQwZeuIWkQYZLMMm+vYURd1Ebc5uUSWQrLs7WVDdlpBxNa
-         T2DeqTPhc14Rro6mKBc8a/Aw2YW/AHxWbLPni4BuVxDR5ZeMXSy0t6PN9uZRGg9O8t
-         Jgv0rznmO23wpMiHi+FpHQyWYAref2PL7h3Hvt9Y=
+        b=NrjlXXybhQHR9LYpXeQN+QdHS5/CP0XnVLFK8nvJKe6h5gGGQ4f1cfUqjcxTpX/HC
+         qqVl0uleeTBqIDipbXpzbo9jAEhIS5ECIYV69q4KJm+4NndPqSB9HYF5Ip8+C2Q/sm
+         f2GdTO+NF+fXi5e4Q5TNK/zapfHDphs8Azk+HuM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ionut_n2001@yahoo.com,
-        Kees Cook <keescook@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Jilin Yuan <yuanjilin@cdjrlc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 084/136] media: uvcvideo: Silence memcpy() run-time false positive warnings
-Date:   Fri, 10 Mar 2023 14:43:26 +0100
-Message-Id: <20230310133709.708819844@linuxfoundation.org>
+Subject: [PATCH 5.15 085/136] USB: fix memory leak with using debugfs_lookup()
+Date:   Fri, 10 Mar 2023 14:43:27 +0100
+Message-Id: <20230310133709.737987433@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
 References: <20230310133706.811226272@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -55,58 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
+[ Upstream commit 30374434edab20e25776f8ecb4bc9d1e54309487 ]
 
-The memcpy() in uvc_video_decode_meta() intentionally copies across the
-length and flags members and into the trailing buf flexible array.
-Split the copy so that the compiler can better reason about (the lack
-of) buffer overflows here. Avoid the run-time false positive warning:
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic at
+once.
 
-  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
-
-Additionally fix a typo in the documentation for struct uvc_meta_buf.
-
-Reported-by: ionut_n2001@yahoo.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jilin Yuan <yuanjilin@cdjrlc.com>
+Link: https://lore.kernel.org/r/20230106152828.3790902-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_video.c | 4 +++-
- include/uapi/linux/uvcvideo.h     | 2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/core/usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index af2c6cb9fa3c4..f477cfbbb905a 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -1334,7 +1334,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
- 	if (has_scr)
- 		memcpy(stream->clock.last_scr, scr, 6);
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 62368c4ed37af..cc36f9f228148 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -1036,7 +1036,7 @@ static void usb_debugfs_init(void)
  
--	memcpy(&meta->length, mem, length);
-+	meta->length = mem[0];
-+	meta->flags  = mem[1];
-+	memcpy(meta->buf, &mem[2], length - 2);
- 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
+ static void usb_debugfs_cleanup(void)
+ {
+-	debugfs_remove(debugfs_lookup("devices", usb_debug_root));
++	debugfs_lookup_and_remove("devices", usb_debug_root);
+ }
  
- 	uvc_dbg(stream->dev, FRAME,
-diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
-index 8288137387c0d..a9d0a64007ba5 100644
---- a/include/uapi/linux/uvcvideo.h
-+++ b/include/uapi/linux/uvcvideo.h
-@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
-  * struct. The first two fields are added by the driver, they can be used for
-  * clock synchronisation. The rest is an exact copy of a UVC payload header.
-  * Only complete objects with complete buffers are included. Therefore it's
-- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
-+ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
-  */
- struct uvc_meta_buf {
- 	__u64 ns;
+ /*
 -- 
 2.39.2
 
