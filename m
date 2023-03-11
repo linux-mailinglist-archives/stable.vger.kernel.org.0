@@ -2,243 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4427E6B58E5
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 07:19:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5374C6B58EB
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 07:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229956AbjCKGTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 01:19:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
+        id S229722AbjCKG0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 01:26:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjCKGTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 01:19:06 -0500
-Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21B6114EF3
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 22:19:02 -0800 (PST)
-Received: by mail-vs1-xe34.google.com with SMTP id d20so6620698vsf.11
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 22:19:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678515542;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=18y4gmWjYtxdBEKguCXxs9iykUU/xqvuXDDHH7ebl/I=;
-        b=Cf6OxVTQL9TsivB31sreIVq62Ph4mN2esBJe0rog9jJ+K/E5BcHRIaaT9bw3C7OdXf
-         HhfT684sKZdXdKlPXhPbhlc/5glAiL/PKiUNHsRw7mk93YqZj/23wdrAkLyoV1G/OHxh
-         Kf1suj6bvmaXv5Z3QvvyREann/hoNSBOAEm04taBiaQ6O5lOvHUZqxuV1DrYVihtNwEI
-         0ygwzspW6ur9ZXdfZEEo5J+vbi/8kcrDsHnvtJZ7+hL8ygevIAgv+D/C5vvM3BHR9NUA
-         ucrBSFcmCU4MeHxz0pSk4XagDHl53NXQenNnv05zdYQBUIcgS5Png0XH/FXC3SGhtrWu
-         OAaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678515542;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=18y4gmWjYtxdBEKguCXxs9iykUU/xqvuXDDHH7ebl/I=;
-        b=SLmGKcP8xzcMAdfVPEWvM4vNAvcHmotEPJm6mJEhdgxBtPjCCF/AP4TKXbe0aQ47CW
-         s5L7YRVmONGC3VDB73IjWF/ITNFo6quUF4zZ7oZUDExzypCPrWbXEAlgZBt15rVoquQt
-         zUAvWQ1yJbeLOxyo3qwnFwbWrbQxnE4UzePXOTtb1WSWn83UK4wCw1MKuzZTY2Wh3V0L
-         TPzv3zmoUZjmSGrSHZnVIVcUHREY5n2A1KNhd85Gm73gpbz4edYGDT6MiptehXZcHKTI
-         dE14C42X9OX6gM7ZAfnFMJqET/5JviFqj+AmSn0UJvXAD3KNJW/ECuP3Hx87J2vwvor4
-         f7QQ==
-X-Gm-Message-State: AO0yUKUbZJ3jWMFWv39nUrbLe+p2FOeUK6rvTyh/RLh7Tsl31Wk0CfzO
-        mLOrX2hpDt5zOxnKFIjgbscfeceBj+vw2ae1mh6wjA==
-X-Google-Smtp-Source: AK7set8ctushA64OKv3mc5LHpoKQwTkLOaoRWnCTKsIoTAoYuDpRknNOAD2Y6dGPa2PdJdfGl0pApWWIXvhkzXgsd4w=
-X-Received: by 2002:a67:db97:0:b0:412:2ed6:d79b with SMTP id
- f23-20020a67db97000000b004122ed6d79bmr17980456vsk.3.1678515541692; Fri, 10
- Mar 2023 22:19:01 -0800 (PST)
+        with ESMTP id S229589AbjCKG0H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 01:26:07 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F5213B961;
+        Fri, 10 Mar 2023 22:26:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=I+OnlACID7Vj4QKsE6DLJjjwrblDiFCX+bTgJFHMKmo=; b=oDh4toKy8WZlQSR8TD6vqfC58I
+        A3SvzbtBJw3fxhf6TBiLWNmC7n+uuHF1SS5dGqG3TaP3UuKcOzIJJH3MCDHUVqxISAH5oYvpVMRQW
+        mwiEinLlgcsWAA8u9ZH9jYjsmntv6Kzf3SJLUaphlYCVhexykzuJQJu7TDqO+3MJxw5Mq4HxtY+7V
+        VUeDdAHT5/nJ/U9uE1cXQopZDFmgyZuD+T6UKXHvkPshUeMm5k64nLtJzBLb/kp3NVlrPoCXHV1mr
+        NDCMnmQPcVOXGoIUOIMSWlcKJedTJHsDq2rLVuwYH1VzN+49Unt6hn6q9zO1u2bl6Yf7rmTssdIUB
+        WcWyLuYQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pasg3-00A1DJ-4d; Sat, 11 Mar 2023 06:25:59 +0000
+Date:   Sat, 11 Mar 2023 06:25:59 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
+Subject: Re: AUTOSEL process
+Message-ID: <ZAwe95meyCiv6qc4@casper.infradead.org>
+References: <20230226034256.771769-1-sashal@kernel.org>
+ <20230226034256.771769-12-sashal@kernel.org>
+ <Y/rbGxq8oAEsW28j@sol.localdomain>
+ <Y/rufenGRpoJVXZr@sol.localdomain>
+ <Y/ux9JLHQKDOzWHJ@sol.localdomain>
+ <Y/y70zJj4kjOVfXa@sashalap>
+ <Y/zswi91axMN8OsA@sol.localdomain>
+ <Y/zxKOBTLXFjSVyI@sol.localdomain>
+ <ZATC3djtr9/uPX+P@duo.ucw.cz>
+ <ZAewdAql4PBUYOG5@gmail.com>
 MIME-Version: 1.0
-References: <20230310133706.811226272@linuxfoundation.org>
-In-Reply-To: <20230310133706.811226272@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 11 Mar 2023 11:48:50 +0530
-Message-ID: <CA+G9fYvLutRTedmb-SvOaU3LwPL7R5JoyrK+mAzfLW94cVoaiQ@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/136] 5.15.100-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZAewdAql4PBUYOG5@gmail.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 10 Mar 2023 at 20:42, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.15.100 release.
-> There are 136 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 12 Mar 2023 13:36:38 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.15.100-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Mar 07, 2023 at 09:45:24PM +0000, Eric Biggers wrote:
+> On Tue, Mar 07, 2023 at 10:18:35PM +0100, Pavel Machek wrote:
+> > I believe that -stable would be more useful without AUTOSEL process.
+> 
+> There has to be a way to ensure that security fixes that weren't properly tagged
+> make it to stable anyway.  So, AUTOSEL is necessary, at least in some form.  I
+> think that debating *whether it should exist* is a distraction from what's
+> actually important, which is that the current AUTOSEL process has some specific
+> problems, and these specific problems need to be fixed...
 
+I agree with you, that we need autosel and we also need autosel to
+be better.  I actually see Pavel's mail as a datapoint (or "anecdote",
+if you will) in support of that; the autosel process currently works
+so badly that a long-time contributor thinks it's worse than nothing.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 5.15.100-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.15.y
-* git commit: 7bc88ced9f274f04919e749a79e4c9c482df4d04
-* git describe: v5.15.99-137-g7bc88ced9f27
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
-.99-137-g7bc88ced9f27
-
-## Test Regressions (compared to v5.15.99)
-
-## Metric Regressions (compared to v5.15.99)
-
-## Test Fixes (compared to v5.15.99)
-
-## Metric Fixes (compared to v5.15.99)
-
-## Test result summary
-total: 117729, pass: 96396, fail: 3540, skip: 17626, xfail: 167
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 115 total, 114 passed, 1 failed
-* arm64: 42 total, 40 passed, 2 failed
-* i386: 33 total, 30 passed, 3 failed
-* mips: 27 total, 26 passed, 1 failed
-* parisc: 8 total, 8 passed, 0 failed
-* powerpc: 27 total, 26 passed, 1 failed
-* riscv: 11 total, 11 passed, 0 failed
-* s390: 12 total, 11 passed, 1 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 8 passed, 0 failed
-* x86_64: 36 total, 34 passed, 2 failed
-
-## Test suites summary
-* boot
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* perf
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Sasha, what do you need to help you make this better?
