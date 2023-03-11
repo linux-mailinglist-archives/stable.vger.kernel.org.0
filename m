@@ -2,89 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 403D36B5C54
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 14:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 459066B5C5C
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 14:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbjCKNlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 08:41:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35138 "EHLO
+        id S229473AbjCKNnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 08:43:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbjCKNls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 08:41:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8708120846;
-        Sat, 11 Mar 2023 05:41:46 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D2F6B8255A;
-        Sat, 11 Mar 2023 13:41:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 125B7C433EF;
-        Sat, 11 Mar 2023 13:41:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678542104;
-        bh=TUj6B2JUwlbSCcSD1ruoTBbqXG49LuQK4EwxuZZ0zq0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hkbIgcPL81/oRuov0WC7BfBxYy5TC4QaNo3Uz+QpuYt7UUGUUDIzuEkD4Vq8vShAD
-         d0QiZPUfaox+OJwmsTW1N3lKPLZYf+bv4zCQ+zYLQC4h2GNb/sSDD7ng0zH2qjo8wt
-         eMUmnntqFrAJwk/M1+wJh+zXVl/VwT/gYYsVms/VNgBninB83XZRblWg0oLqwmfmwt
-         72QdGC1JxC19AWXGk2XcbeI1Osck+aDFwIfzCygp7HfXqH/VRMhcFEIN6/8ozmhH5n
-         SSQaDpTxKtJr3vFd/JDApUjnPYxzP9TqQPIJ43f26WtafxRFdkHA+qM4X/2SgNIajM
-         JsuPdXTDxN0Tg==
-Date:   Sat, 11 Mar 2023 08:41:42 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
-Subject: Re: AUTOSEL process
-Message-ID: <ZAyFFtORBosdarMr@sashalap>
-References: <Y/y70zJj4kjOVfXa@sashalap>
- <Y/zswi91axMN8OsA@sol.localdomain>
- <Y/zxKOBTLXFjSVyI@sol.localdomain>
- <Y/0U8tpNkgePu00M@sashalap>
- <Y/0i5pGYjrVw59Kk@gmail.com>
- <Y/0wMiOwoeLcFefc@sashalap>
- <Y/1LlA5WogOAPBNv@gmail.com>
- <Y/1em4ygHgSjIYau@sashalap>
- <Y/136zpJSWx96YEe@sol.localdomain>
- <ZAu4GE0q4jzRI+F6@sol.localdomain>
+        with ESMTP id S229922AbjCKNny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 08:43:54 -0500
+Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com [IPv6:2607:f8b0:4864:20::c30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73E9117593;
+        Sat, 11 Mar 2023 05:43:53 -0800 (PST)
+Received: by mail-oo1-xc30.google.com with SMTP id bd3-20020a4aee03000000b00517affa07c0so1208689oob.7;
+        Sat, 11 Mar 2023 05:43:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1678542233;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=WLG7dP/z9Cy/qo78TWfKaT1KoQNzr3rxi1FvEN8TnLc=;
+        b=i7hA0tDeAJST5O9n9vjdRPx1ocGbY30oJTosaptm6PghdRnM3d7u3b6CcKCcsdwBca
+         IgvylvzkzQVbnyBehEAEWvqyytyUPPwFvzVfnNX8sutOVzlr9KiSNjZaUuLFzn4uPIGD
+         hO3sG0joP1pKpefP/JJvlSlNZ+zxG4XLZsYtvjAW1ksp6/tEIiiqystb7RHJpKGhSzJo
+         31rKh4bW4GN4Ukz1QYXN4RTQFx6OjTjifzpuq2FVC4gufrnwebEECO0ZXFi1A2pUubk5
+         XNAaQ9MMZFIdl+3//tXWo5r0FF6Occ9iwzVqjQ2U535FZMgVU93WsxgdEL90gUf4ZpwI
+         8Zwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678542233;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WLG7dP/z9Cy/qo78TWfKaT1KoQNzr3rxi1FvEN8TnLc=;
+        b=YdzU7GpxfMXayE2a6iQiFBpyzPlzr6Xg6zUP7RMuVtuHpGyfezhkvzAa+vzGua/kR+
+         PDqZquHru7ifAmTZLjziErShVk+ZbCrAELUM78f72nE3O9Jv33WKG9m1Us39Pf8pIDwF
+         Xy4UnAKAO5pmvKgLqKEEHgvOxhC619CfSmrTEKMG5WCHOpaKekk3jGmC4Ie5WstO9T4j
+         hZUvPvivKDB0rVn3Hvn0+K0mgC/Aawv5aZ0H9Qrn1SDSAOuKul6EXiZ86kU+09cvBHgm
+         ND+aq1qdfHN/Vco75x1CTfllJMB7AaQLGIG01dwjejo0mFCIl7roIegqG0OxOyHIYexD
+         BGTg==
+X-Gm-Message-State: AO0yUKU2eDoiOE3EwLzzzxKZ9s0FAp9FooZuOqkUgnAcdJq1ynJgdJLl
+        SyeQbSATYSVDUXlylsnUyJxBHH99W10=
+X-Google-Smtp-Source: AK7set8PeqocgC/Go2haHvrHnEJoBIuN6xgMGzU1vK2uMSRz0hfTX7PXhguQy0FVK01gLcZ3FV/SxA==
+X-Received: by 2002:a4a:6f05:0:b0:524:a1a9:f2b3 with SMTP id h5-20020a4a6f05000000b00524a1a9f2b3mr11874336ooc.8.1678542233165;
+        Sat, 11 Mar 2023 05:43:53 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id r17-20020a056830237100b00684bcc9e204sm1144847oth.78.2023.03.11.05.43.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 11 Mar 2023 05:43:52 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 11 Mar 2023 05:43:51 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 4.14 000/192] 4.14.308-rc2 review
+Message-ID: <8c29b19c-e0b2-410d-b501-b6d8ddb77470@roeck-us.net>
+References: <20230311092102.206109890@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZAu4GE0q4jzRI+F6@sol.localdomain>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230311092102.206109890@linuxfoundation.org>
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 10, 2023 at 03:07:04PM -0800, Eric Biggers wrote:
->On Mon, Feb 27, 2023 at 07:41:31PM -0800, Eric Biggers wrote:
->>
->> Well, probably more common is that prerequisites are in the same patchset, and
->> the prerequisites are tagged for stable too.  Whereas AUTOSEL often just picks
->> patch X of N.  Also, developers and maintainers who tag patches for stable are
->> probably more likely to help with the stable process in general and make sure
->> patches are backported correctly...
->>
->> Anyway, the point is, AUTOSEL needs to be fixed to stop inappropriately
->> cherry-picking patch X of N so often.
->>
->
->... and AUTOSEL strikes again, with the 6.1 and 6.2 kernels currently crashing
->whenever a block device is removed, due to patches 1 and 3 of a 3-patch series
->being AUTOSEL'ed (on the same day I started this discussion, no less):
->
->https://lore.kernel.org/linux-block/CAOCAAm4reGhz400DSVrh0BetYD3Ljr2CZen7_3D4gXYYdB4SKQ@mail.gmail.com/T/#u
->
->Oh sorry, ignore this, it's just an anecdotal example.
+On Sat, Mar 11, 2023 at 10:40:14AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.308 release.
+> There are 192 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Mon, 13 Mar 2023 09:20:28 +0000.
+> Anything received after that time might be too late.
+> 
 
-Yes, clearly a problem with AUTOSEL and not with how sad the testing
-story is for stable releases.
+Build results:
+	total: 168 pass: 168 fail: 0
+Qemu test results:
+	total: 430 pass: 430 fail: 0
 
--- 
-Thanks,
-Sasha
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
