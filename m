@@ -2,144 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D76D6B59F8
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 10:18:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD41A6B59FC
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 10:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230459AbjCKJSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 04:18:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39420 "EHLO
+        id S231197AbjCKJUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 04:20:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230456AbjCKJSM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 04:18:12 -0500
-Received: from hall.aurel32.net (hall.aurel32.net [IPv6:2001:bc8:30d7:100::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A9513D8AB
-        for <stable@vger.kernel.org>; Sat, 11 Mar 2023 01:15:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
-        ; s=202004.hall; h=In-Reply-To:Content-Type:MIME-Version:References:
-        Message-ID:Subject:Cc:To:From:Date:Content-Transfer-Encoding:From:Reply-To:
-        Subject:Content-ID:Content-Description:X-Debbugs-Cc;
-        bh=oGlz0x3waUETRxmcy9pz+bC50AW+Mj+vbt06v0RUcGI=; b=k8vkyBbcUPKoQCtzQ2jgVV/flg
-        sLhI9zILLXp4T/qCOsob3BNijz3pCsR6e6oUleRMvu2Agn+QG/HLjvmV+YX9BUaFKqPnLcsF/xsH+
-        yPH9U++3miVB5IjiCG6AkOE/lqGT5EMRoThhfRYRig66Aim1nRmjvPfr2tnIqtkLE+YmeCNL3yssH
-        EQN2MF74lntRkUavlczPBIBXX/iI8FrCJY6/oVTi5lFQYbU1R1vzNjdcVv5G2FE+jb4HeBXXuFDje
-        YjrRKmbHJvFF6S1+FdcRy43CrSXnx8bhUdkX73g0uoydBASnHc2F5Gii0x9WilfgKFlP/st6m91Vk
-        XwYrfmIw==;
-Received: from [2a01:e34:ec5d:a741:8a4c:7c4e:dc4c:1787] (helo=ohm.rr44.fr)
-        by hall.aurel32.net with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <aurelien@aurel32.net>)
-        id 1pauy1-00Bga5-4p; Sat, 11 Mar 2023 09:52:41 +0100
-Received: from aurel32 by ohm.rr44.fr with local (Exim 4.96)
-        (envelope-from <aurelien@aurel32.net>)
-        id 1pauxz-009Tvm-1c;
-        Sat, 11 Mar 2023 09:52:39 +0100
-Date:   Sat, 11 Mar 2023 09:52:39 +0100
-From:   Aurelien Jarno <aurelien@aurel32.net>
-To:     Bin Meng <bmeng.cn@gmail.com>
-Cc:     conor@kernel.org, conor.dooley@microchip.com,
-        linux-riscv@lists.infradead.org, llvm@lists.linux.dev,
-        naresh.kamboju@linaro.org, nathan@kernel.org,
-        ndesaulniers@google.com, palmer@dabbelt.com, palmer@rivosinc.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] RISC-V: remove I-extension ISA spec version dance
-Message-ID: <ZAxBVwLsUr1yQ4GZ@aurel32.net>
-References: <20230308220842.1231003-1-conor@kernel.org>
- <20230310150754.535425-1-bmeng.cn@gmail.com>
+        with ESMTP id S229998AbjCKJUD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 04:20:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56E5C24C80;
+        Sat, 11 Mar 2023 01:18:40 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05F75B8244C;
+        Sat, 11 Mar 2023 09:18:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20334C433EF;
+        Sat, 11 Mar 2023 09:18:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1678526317;
+        bh=tb4uSs6vec++ASwhKnSWiL5L83Xx0LcatZP9k0KMhag=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BK0A50jGWeXZLX/enTQu1QWxs+1iAxMu1PWiJcmtlkgmT9443/97uAc/d69b9ldve
+         rnGMHy7XjggR3mZ+yvgmwzZyqbRIx0SOyYbGXPO0sGTst+QX+Dc8nE1JW7JPqoSSCS
+         Sv5wb3F6J6MeDxZtQUFYxwxX2Eoi6QLHe69eR1pY=
+Date:   Sat, 11 Mar 2023 10:18:29 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.10 000/529] 5.10.173-rc1 review
+Message-ID: <ZAxHZcKEXCqCFnFq@kroah.com>
+References: <20230310133804.978589368@linuxfoundation.org>
+ <7c6de5b8-dbc2-41b3-9e1f-5edb2876337b@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230310150754.535425-1-bmeng.cn@gmail.com>
-User-Agent: Mutt/2.2.7 (2022-08-07)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <7c6de5b8-dbc2-41b3-9e1f-5edb2876337b@roeck-us.net>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023-03-10 23:07, Bin Meng wrote:
-> > From: Conor Dooley <conor.dooley@microchip.com>
+On Fri, Mar 10, 2023 at 01:02:35PM -0800, Guenter Roeck wrote:
+> On Fri, Mar 10, 2023 at 02:32:23PM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.173 release.
+> > There are 529 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > The spec folk, in their infinite wisdom, moved both control and status
-> > registers & the FENCE.I instructions out of the I extension into their
-> > own extensions (Zicsr, Zifencei) in the 20190608 version of the ISA
-> > spec [0].
-> > The GCC/binutils crew decided [1] to move their default version of the
-> > ISA spec to the 20191213 version of the ISA spec, which came into being
-> > for version 2.38 of binutils and GCC 12. Building with this toolchain
-> > configuration would result in assembler issues:
-> >   CC      arch/riscv/kernel/vdso/vgettimeofday.o
-> >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
-> >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-> >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-> >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-> >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-> > This was fixed in commit 6df2a016c0c8 ("riscv: fix build with binutils
-> > 2.38") by Aurelien Jarno, but has proven fragile.
+> > Responses should be made by Sun, 12 Mar 2023 13:36:38 +0000.
+> > Anything received after that time might be too late.
 > > 
-> > Before LLVM 17, LLVM did not support these extensions and, as such, the
-> > cc-option check added by Aurelien worked. Since commit 22e199e6afb1
-> > ("[RISCV] Accept zicsr and zifencei command line options") however, LLVM
-> > *does* support them and the cc-option check passes.
-> > 
-> > This surfaced as a problem while building the 5.10 stable kernel using
-> > the default Tuxmake Debian image [2], as 5.10 did not yet support ld.lld,
-> > and uses the Debian provided binutils 2.35.
-> > Versions of ld prior to 2.38 will refuse to link if they encounter
-> > unknown ISA extensions, and unfortunately Zifencei is not supported by
-> > bintuils 2.35.
-> > 
-> > Instead of dancing around with adding these extensions to march, as we
-> > currently do, Palmer suggested locking GCC builds to the same version of
-> > the ISA spec that is used by LLVM. As far as I can tell, that is 2.2,
-> > with, apparently [3], a lack of interest in implementing a flag like
-> > GCC's -misa-spec at present.
-> > 
-> > Add {cc,as}-option checks to add -misa-spec to KBUILD_{A,C}FLAGS when
-> > GCC is used & remove the march dance.
-> > 
-> > As clang does not accept this argument, I had expected to encounter
-> > issues with the assembler, as neither zicsr nor zifencei are present in
-> > the ISA string and the spec version *should* be defaulting to a version
-> > that requires them to be present. The build passed however and the
-> > resulting kernel worked perfectly fine for me on a PolarFire SoC...
-> > 
-> > Link: https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf [0]
-> > Link: https://groups.google.com/a/groups.riscv.org/g/sw-dev/c/aE1ZeHHCYf4 [1]
-> > Link: https://lore.kernel.org/all/CA+G9fYt9T=ELCLaB9byxaLW2Qf4pZcDO=huCA0D8ug2V2+irJQ@mail.gmail.com/ [2]
-> > Link: https://discourse.llvm.org/t/specifying-unpriviledge-spec-version-misa-spec-gcc-flag-equivalent/66935 [3]
-> > CC: stable@vger.kernel.org
-> > Suggested-by: Palmer Dabbelt <palmer@rivosinc.com>
-> > Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> > Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> > ---
-> > I think Aurelien's original commit message might actually not be quite
-> > correct? I found, in my limited testing, that it is not the default
-> > behaviour of gas that matters, but rather the toolchain itself?
-> > My binutils versions (both those built using the clang-built-linux
-> > tc-build scripts which do not set an ISA spec version, and one built
-> > using the riscv-gnu-toolchain infra w/ an explicit 20191213 spec version
-> > set) do not encounter these issues.
 > 
-> I am unable to reproduce the build failure as reported by commit 6df2a016c0c8
-> ("riscv: fix build with binutils 2.38") by Aurelien Jarno using kernel.org
-> pre-built GCC 11.3.0 [1] which includes binutils 2.38.
+> s390:
 > 
-> [1] https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/11.3.0/x86_64-gcc-11.3.0-nolibc-x86_64-linux.tar.xz
+> drivers/s390/block/dasd_diag.c:656:23: error: initialization of 'int (*)(struct dasd_device *, __u8)' {aka 'int (*)(struct dasd_device *, unsigned char)'} from incompatible pointer type 'int (*)(struct dasd_device *, __u8,  __u8)' {aka 'int (*)(struct dasd_device *, unsigned char,  unsigned char)'} [-Werror=incompatible-pointer-types]
+>   656 |         .pe_handler = dasd_diag_pe_handler,
+> 
+> This problem affects the v5.4.y and v5.10.y release candidates.
 
-I guess you mean https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/11.3.0/x86_64-gcc-11.3.0-nolibc-riscv64-linux.tar.gz
+Ick, ok, that's my fault, I'll drop the patch I half-backported for
+5.4.y and 5.10.y and push out -rc2 versions with the fix.
 
-> The defconfig of v5.16 kernel (commit 6df2a016c0c8 lands in v5.17) builds fine
-> for me. Anything I am missing?
+thanks,
 
-I can't find the corresponding source and unfortunately binutils doesn't
-record the configure options in the binaries, but my guess is that it
-has been configured with --with-isa-spec=2.2. This is not the
-recommended way to go, but given the mess many distribution went that
-road.
-
--- 
-Aurelien Jarno                          GPG: 4096R/1DDD8C9B
-aurelien@aurel32.net                 http://www.aurel32.net
+greg k-h
