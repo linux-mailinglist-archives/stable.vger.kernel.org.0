@@ -2,86 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 552D26B6071
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 21:18:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070936B6076
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 21:20:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229509AbjCKUR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 15:17:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33224 "EHLO
+        id S229652AbjCKUUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 15:20:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjCKUR6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 15:17:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2574F4EDB;
-        Sat, 11 Mar 2023 12:17:56 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D1D9B802C8;
-        Sat, 11 Mar 2023 20:17:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79158C433EF;
-        Sat, 11 Mar 2023 20:17:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678565872;
-        bh=zAct4A8dmYLb2tq1YcKZbZIBN7UDdczcn/skD8kSt3A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=owmTL6eeeugcG1J/n/MoUyt8Bg8zWaLBFBI5LC0ucS0KQ+vDZgJDlROR+ARetbyl5
-         /pIgnCJiquebkzjtev1wfPFkgiWZKWexbr0zt9Gd5g4BOcBRpjzf6saZ4BYx5AgT4p
-         MGiat+kGTjZbqeHMvDWUn2AVDtfOzx2siR89LIVrFOO5Aha17s+2be+7gOrwed1DGs
-         ZkkmWf6QqlqHiYWEipjFD1SsiXWp9cQd0NU4b3ql5l11vFD9U58izjb6eVsKh337Ta
-         2DAdpDmbq5IJ5tLLpZsZbJ7RP9IKMGaajRtEhyVtkc/O3Z/fdNvAICPpPvp/HTzga7
-         1MhmvvPpZ1mHQ==
-Date:   Sat, 11 Mar 2023 12:17:50 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Theodore Ts'o <tytso@mit.edu>,
+        with ESMTP id S229437AbjCKUUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 15:20:06 -0500
+Received: from 1wt.eu (wtarreau.pck.nerim.net [62.212.114.60])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 912062A155;
+        Sat, 11 Mar 2023 12:20:05 -0800 (PST)
+Received: (from willy@localhost)
+        by mail.home.local (8.17.1/8.17.1/Submit) id 32BKJs0Z030455;
+        Sat, 11 Mar 2023 21:19:54 +0100
+Date:   Sat, 11 Mar 2023 21:19:54 +0100
+From:   Willy Tarreau <w@1wt.eu>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     "Theodore Ts'o" <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
         Matthew Wilcox <willy@infradead.org>,
         Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org, viro@zeniv.linux.org.uk,
         linux-fsdevel@vger.kernel.org
 Subject: Re: AUTOSEL process
-Message-ID: <ZAzh7l8qWtkeh/KK@sol.localdomain>
-References: <Y/y70zJj4kjOVfXa@sashalap>
- <Y/zswi91axMN8OsA@sol.localdomain>
- <Y/zxKOBTLXFjSVyI@sol.localdomain>
+Message-ID: <ZAzianzvIOUrH5pr@1wt.eu>
+References: <Y/zxKOBTLXFjSVyI@sol.localdomain>
  <ZATC3djtr9/uPX+P@duo.ucw.cz>
  <ZAewdAql4PBUYOG5@gmail.com>
  <ZAwe95meyCiv6qc4@casper.infradead.org>
  <ZAyK0KM6JmVOvQWy@sashalap>
  <20230311161644.GH860405@mit.edu>
  <ZAy+3f1/xfl6dWpI@sol.localdomain>
- <ZAzH8Ve05SRLYPnR@sashalap>
+ <ZAzJltJaydwjCN6E@1wt.eu>
+ <ZAzVbzthi8IfptFZ@sol.localdomain>
+ <ZAzafagDchRQRxWi@sol.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZAzH8Ve05SRLYPnR@sashalap>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <ZAzafagDchRQRxWi@sol.localdomain>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 11, 2023 at 01:26:57PM -0500, Sasha Levin wrote:
-> I'm getting a bunch of suggestions and complaints that I'm not implementing
-> those suggestions fast enough on my spare time.
+On Sat, Mar 11, 2023 at 11:46:05AM -0800, Eric Biggers wrote:
+> (And please note, the key word here is *confidence*.  We all agree that it's
+> never possible to be absolutely 100% sure whether a commit is appropriate for
+> stable or not.  That's a red herring.
 
-BTW, the "I don't have enough time" argument is also a little frustrating
-because you are currently insisting on doing AUTOSEL at all, at the current
-sensitivity that picks up way too many commits.  I can certainly imagine that
-that uses a lot of your time!  But, many contributors are telling you that
-AUTOSEL is actually *worse than nothing* currently.
+In fact even developers themselves sometimes don't know, and even when they
+know, sometimes they know after committing it. Many times we've found that
+a bug was accidently resolved by a small change. Just for this it's important
+to support a post-merge analysis.
 
-So to some extent this is a self-inflicted problem.  You are *choosing* to spend
-your precious time running in-place with something that is not working well,
-instead of putting AUTOSEL on pause or turning down the sensitivity to free up
-time while improvements to the process are worked on.
+> And I would assume, or at least hope, that the neural network thing being used
+> for AUTOSEL outputs a confidence rating and not just a yes/no answer.  If it
+> actually just outputs yes/no, well how is anyone supposed to know that and fix
+> that, given that it does not seem to be an open source project?)
 
-(And yes, I know there are many stable patches besides AUTOSEL, and it's a lot
-of work, and I'm grateful for what you do.  I am *just* talking about AUTOSEL
-here.  And yes, I agree that AUTOSEL is needed in principle, so there's no need
-to re-hash the arguments for why it exists.  It just needs some improvements.)
+Honestly I don't know. I ran a few experiments with natural language
+processors such as GPT-3 on commit messages which contained human-readable
+instructions, and asking "what am I expected to do with these patches", and
+seeing the bot respond "you should backport them to this version, change
+this and that in that version, and preliminary take that patch". It
+summarized extremely well the instructions delivered by the developer,
+which is awesome, but was not able to provide any form of confidence
+level. I don't know what Sasha uses but wouldn't be surprised it shares
+some such mechanisms and that it might not always be easy to get such a
+confidence level. But I could be wrong.
 
-- Eric
+Willy
