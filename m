@@ -2,82 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A1BF6B5F7E
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 19:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD8A6B5F8B
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 19:07:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230243AbjCKSEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 13:04:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35684 "EHLO
+        id S230075AbjCKSHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 13:07:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbjCKSEi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 13:04:38 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857E813534
-        for <stable@vger.kernel.org>; Sat, 11 Mar 2023 10:04:37 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id u3-20020a17090a450300b00239db6d7d47so7992795pjg.4
-        for <stable@vger.kernel.org>; Sat, 11 Mar 2023 10:04:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678557877;
-        h=to:subject:message-id:date:from:sender:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=I4H+bNpp97fNs0DJvfrKKJ7SEqIL0C336vSLgUyHuDQ=;
-        b=pnsQT2Olgp3ETN+upnO2/6KgZU532oBGrXzL2D9YsZgRKngmDo2kq4Zo/6Q0PqRVH5
-         RpGC0fwghm0QLBkxdcKl4h/REzkks4cvPoWqrZL5AiFEaKlx+Ic4/XBY2yKo9H3KKoTY
-         QXT+rSGIjj2/2m86pYgSVMXpqVxT8YFJhnxldrq4lWuwXsdn8nCRxXBljAONY3T/Qmya
-         Wxn6xYKn2DnU2FWrWistyQFYANNpxzT8dS585KzO+kTv9iSE16O36XJK+L93cjdL/E4C
-         Fo7lAroVMFW+CfCZGspw0pd5E0jUHbGZLh/ya26r4enZYnQ4hR8R/ZVlYX9zxI0kCHtw
-         katw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678557877;
-        h=to:subject:message-id:date:from:sender:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=I4H+bNpp97fNs0DJvfrKKJ7SEqIL0C336vSLgUyHuDQ=;
-        b=F/4BEScX8KVCn7df3mEs3hF6znPNHgDXra7xZ5Xyof17QI9xL9UnH/S9JiTREV/g90
-         KKQGYXgu4PwM/RpvXVFqeO/7HsYWYuUf4pRyXlT0PLyr0N4U/o2wQfyvY4JPDceiL9Xd
-         jUBbZFNMqtv+D7CpzDVO0ORqwTaCBG9q0Hq9jVaj745gxKDAQJwhIKm2FPqfnYR7kqZP
-         8T5/9FM2Iu28IGhGqE+4XozNL2BtzOPT8WESuq9Ql+xYlECgrO0n2dM3F437G+Hd3GO+
-         IInrB04QCO6auOKtQ1yEZlNbTHQgjZL10X8J+tNNMGSLfZ1HJqnb5sBjxHyqpLDUyysP
-         DmLw==
-X-Gm-Message-State: AO0yUKUpft0tNmGZPH8P4KtJa7cI4hoOoFeYyxTGjnirAaNB4/2ktjeM
-        iGwCfQYMcOW6ZWVVebzsypOOuOIqskt1FgDReXg=
-X-Google-Smtp-Source: AK7set9IpsY8MembE3uh1obwEcLhRbw5+qy6LVrWf3eFoUN9rXithHRbYTTgb0LQoMtVi/97zJCQDQTpTB5GgaDwyVM=
-X-Received: by 2002:a17:902:cf46:b0:19e:f660:81d0 with SMTP id
- e6-20020a170902cf4600b0019ef66081d0mr5020577plg.12.1678557876935; Sat, 11 Mar
- 2023 10:04:36 -0800 (PST)
+        with ESMTP id S230357AbjCKSHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 13:07:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F056F591FA;
+        Sat, 11 Mar 2023 10:07:11 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8605B60DDB;
+        Sat, 11 Mar 2023 18:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD043C433EF;
+        Sat, 11 Mar 2023 18:07:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678558030;
+        bh=y9LAEZUH0SBqtIwhQ/pvz04mJb1cBc4uT0VPORKHNew=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Xf/N3Wpli0HJECACmXpGBz7O1TtuPd5TwQk33WRZVfrCaIu3U8ffGRihrPrhpAqlH
+         Hm0UbfeOd948SlaCWxX/oPLDvnW2stT+1bf5HXXYLlh2wF/qKHNUfLYIBgwOtwK3Hh
+         yRuU42EJi2wCLgJZlSVLUqF5Y+/80zew4LxNMpfVz/IQSIzBQqApUG5QYojFASeCfU
+         4x7EusH1u384BrZkU2J95pHU1PyojidbSNPDGAopFNENzOESPLCvc2s3y594354IAP
+         ikj2vBVBp1W6OTmeg/I+/ygxNpFGYCbnVpe2Z0NXaiT0UQZ9K54s2SK5K2v9KL4xIl
+         kn3fTPODQ04OA==
+Date:   Sat, 11 Mar 2023 13:07:09 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     James Bottomley <James.Bottomley@hansenpartnership.com>
+Cc:     Eric Biggers <ebiggers@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: AUTOSEL process
+Message-ID: <ZAzDTVluocRvZ8W8@sashalap>
+References: <Y/zxKOBTLXFjSVyI@sol.localdomain>
+ <Y/0U8tpNkgePu00M@sashalap>
+ <Y/0i5pGYjrVw59Kk@gmail.com>
+ <Y/0wMiOwoeLcFefc@sashalap>
+ <Y/1LlA5WogOAPBNv@gmail.com>
+ <Y/1em4ygHgSjIYau@sashalap>
+ <Y/136zpJSWx96YEe@sol.localdomain>
+ <ZAu4GE0q4jzRI+F6@sol.localdomain>
+ <ZAyFFtORBosdarMr@sashalap>
+ <734c9a0920f293c88168f38c1245e779d03f4364.camel@HansenPartnership.com>
 MIME-Version: 1.0
-Sender: hamidousebgo46@gmail.com
-Received: by 2002:a05:7022:238c:b0:5f:a9bf:c13a with HTTP; Sat, 11 Mar 2023
- 10:04:36 -0800 (PST)
-From:   Mrs Aisha Al-Qaddafi <aishaalqaddafi3@gmail.com>
-Date:   Sat, 11 Mar 2023 19:04:36 +0100
-X-Google-Sender-Auth: RKP41DB6TtJV5YPbdoZpjwtc49o
-Message-ID: <CAGHciYygOfEeAYgWpP9Df-_ZwNSdJpTP8Tyv38a19NQkRFg51A@mail.gmail.com>
-Subject: Assalamu alaikum,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.0 required=5.0 tests=BAYES_80,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,LOTS_OF_MONEY,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_HK_NAME_FM_MR_MRS,UNDISC_MONEY autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <734c9a0920f293c88168f38c1245e779d03f4364.camel@HansenPartnership.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Assalamu alaikum,
+On Sat, Mar 11, 2023 at 10:54:36AM -0500, James Bottomley wrote:
+>On Sat, 2023-03-11 at 08:41 -0500, Sasha Levin wrote:
+>> On Fri, Mar 10, 2023 at 03:07:04PM -0800, Eric Biggers wrote:
+>> > On Mon, Feb 27, 2023 at 07:41:31PM -0800, Eric Biggers wrote:
+>> > >
+>> > > Well, probably more common is that prerequisites are in the same
+>> > > patchset, and the prerequisites are tagged for stable too. 
+>> > > Whereas AUTOSEL often just picks patch X of N.  Also, developers
+>> > > and maintainers who tag patches for stable are probably more
+>> > > likely to help with the stable process in general and make sure
+>> > > patches are backported correctly...
+>> > >
+>> > > Anyway, the point is, AUTOSEL needs to be fixed to stop
+>> > > inappropriately cherry-picking patch X of N so often.
+>> > >
+>> >
+>> > ... and AUTOSEL strikes again, with the 6.1 and 6.2 kernels
+>> > currently crashing whenever a block device is removed, due to
+>> > patches 1 and 3 of a 3-patch series being AUTOSEL'ed (on the same
+>> > day I started this discussion, no less):
+>> >
+>> > https://lore.kernel.org/linux-block/CAOCAAm4reGhz400DSVrh0BetYD3Ljr2CZen7_3D4gXYYdB4SKQ@mail.gmail.com/T/#u
+>> >
+>> > Oh sorry, ignore this, it's just an anecdotal example.
+>>
+>> Yes, clearly a problem with AUTOSEL and not with how sad the testing
+>> story is for stable releases.
+>
+>Hey, that's a completely circular argument:  if we had perfect testing
+>then, of course, it would pick up every bad patch before anything got
+>released; but we don't, and everyone knows it.  Therefore, we have to
+>be discriminating about what patches we put in.  And we have to
+>acknowledge that zero bugs in patches isn't feasible in spite of all
+>the checking we do do.  I also think we have to acknowledge that users
+>play a role in the testing process because some bugs simply aren't
+>picked up until they try out a release.  So discouraging users from
+>running mainline -rc's means we do get bugs in the released kernel that
+>we might not have had if they did.  Likewise if everyone only runs
+>stable kernels, the bugs in the released kernel don't get found until
+>stable.  So this blame game really isn't helping.
+>
+>I think the one thing everyone on this thread might agree on is that
+>this bug wouldn't have happened if AUTOSEL could detect and backport
+>series instead of individual patches.  Sasha says that can't be done
+>based on in information in Linus' tree[1] which is true but not a
+>correct statement of the problem.  The correct question is given all
+>the information available, including lore, could we assist AUTOSEL in
+>better detecting series and possibly making better decisions generally?
 
-I came across your e-mail contact prior to a private search while in
-need of a trusted person. My name is Mrs. Aisha Gaddafi, a single
-Mother and a
-Widow with three Children. I am the only biological Daughter of the
-late Libyan President (Late Colonel Muammar Gaddafi). I have a
-business Proposal
-for you worth $27.5Million dollars and I need mutual respect, trust,
-honesty, transparency, adequate support and assistance, Hope to hear
-from
-you for more details.
-Warmest regards
-Mrs Aisha Gaddafi
+My argument was that this type of issue is no AUTOSEL specific, and we
+saw it happening multiple times with stable tagged patches as well.
+
+It's something that needs to get solved, and I suspect that both Greg
+and myself will end up using it when it's there.
+
+>I think that's the challenge for anyone who actually wants to help
+>rather than complain.  At least the series detection bit sounds like it
+>could be a reasonable summer of code project.
+
+Right - I was trying to reply directly to Willy's question: this is
+something very useful, somewhat hard, and I don't think I could do in
+the near future - so help is welcome here.
+
+-- 
+Thanks,
+Sasha
