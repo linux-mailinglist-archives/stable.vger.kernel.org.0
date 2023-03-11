@@ -2,69 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08C416B58AB
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 06:39:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A306B58B7
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 06:41:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229844AbjCKFjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 00:39:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51102 "EHLO
+        id S229914AbjCKFlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 00:41:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229757AbjCKFjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 00:39:04 -0500
-Received: from mail-ua1-x933.google.com (mail-ua1-x933.google.com [IPv6:2607:f8b0:4864:20::933])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42522E8439
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 21:39:02 -0800 (PST)
-Received: by mail-ua1-x933.google.com with SMTP id r7so862935uaj.2
-        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 21:39:02 -0800 (PST)
+        with ESMTP id S229654AbjCKFlt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 00:41:49 -0500
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC24128028
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 21:41:40 -0800 (PST)
+Received: by mail-ed1-x52c.google.com with SMTP id u9so29039615edd.2
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 21:41:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678513141;
+        d=gmail.com; s=20210112; t=1678513299;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jtTOaJXJFIxTutKMBRL4Tmd6aYY6I5kNoGgR+eC6gcM=;
-        b=MtrnFD+OzINsyL9aj8JIFAqmxRlf/ncpWk4E7LB+EQCsbSgIGuOf29LOddOJmk9JZT
-         zFf1Hy7Y8DmZiKj5G4ysXMuOTnmd+CkRmOk0daT1wPJn2RCKrfpTRwf6kYmiSEWGDIGh
-         hS9SNfq5clb555FiKGIXaRwzpjCAyA3ja+7X7DpAJpU2QLT4t50RnAQ72t6J8HrB8TQa
-         yD05wDELaDKOa4D/bL+HX4uzRTZucRXAiGF/toeaaGu7v1fzex2WTy+RfZb5hO+t4gcv
-         M7HUKbd6rbuSV6tD/HWCKcJz6WJopw6QzrhHk+KuJcd/PEka9A0EHU5ZDxUpOJYaFMQ4
-         gnNg==
+        bh=/sd8dW014vK210fbOwse3XQn+9FwnbuV9Aj9zLPSfTA=;
+        b=EALEr4fQHB8sTxCC5fOp8g12RQnqhkhsZG/NekLvuxMXmN8T7aA9O4jfY46KE7EZnJ
+         +xgGQiwjbnKZl7OT3bn64FzjsIoG9sK5/n5N2d3cJUvl50t8vuTIsQ9SWISvgJJ6oLth
+         cDi7O5ZLKIPM7T4OlU9/9PzdA4T9PH7B/IsO8ROJWjWGahCobbG5gWRNOyxPSvnrdktc
+         5gZrGGD6xQyGyfG6aKHwSDNp6op7+ZFlh/OVLIKNGrbWdg1UZdk6WUmS3U1zXBxh96ST
+         abON/Q0HEU1utZz+rCZyWyGgx7mo0zwNXHX1v5glUC8STECbj9LbyWWfPJs5hUZ7L5C6
+         1nHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678513141;
+        d=1e100.net; s=20210112; t=1678513299;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jtTOaJXJFIxTutKMBRL4Tmd6aYY6I5kNoGgR+eC6gcM=;
-        b=4Xz/A6sy8CLIUDF7D3B4V4eAByHW/iqIc4K6hTst2bfG5zEIiej8Rdu4KGpn7ygPk3
-         ZZFv1NGqptr/mv3LDWtCYuDs9GT/eaThdpe31qpKhoheWpd230Czt/vD712azwhNkxNv
-         4fM9NPkElQeuQlWkkmah9Sml+0yEnw9Pxs/l99GMkNOqg6bv9ICivOTyIJI6P82P8Fpe
-         t+56SC8+IbGFmefPTC55yixo77w2vBM64JKCfMyOd4zTx13SnQ+hyJKxHHAI41kbckxR
-         I0WkWXGDgT/2Vxek5YYn24JYvyhCcJ810iIDeAklxqF1m/MyKU4RDY+A0nbs2jTw8YYa
-         Ejcw==
-X-Gm-Message-State: AO0yUKUtiP3Op8xqsXVLow4fP3JDpkPqPGYY6Ly4MvJL7l7Z21sU2ZYi
-        Uh1QSx+KbYpCIGhwcztA3hQtGh+Bi4OgoIB9dty8YA==
-X-Google-Smtp-Source: AK7set/klKpLMuSG0kNbXd8n+bIQNOmP9UmXF0n8L8A7cnrwqkAWU2LMwwMUBU5AWzbZdUiU78wH5+GWZeZiXBA01dE=
-X-Received: by 2002:ab0:4a05:0:b0:68b:6325:4061 with SMTP id
- q5-20020ab04a05000000b0068b63254061mr19829618uae.0.1678513141165; Fri, 10 Mar
- 2023 21:39:01 -0800 (PST)
+        bh=/sd8dW014vK210fbOwse3XQn+9FwnbuV9Aj9zLPSfTA=;
+        b=y5ZMFnzr7F3qOdVLbUcDpHDycUq2l2QqDqQr2LSj/wSos5DIV6Y4OHdelKE8J/Hxfk
+         QcKEyqfWgAt8ySdTxkxh0m1ny+xlslp0ALnaZreK7wrM+Nm8bodEMtl/wXRKQGCj5/Xv
+         2buZ/ybcXscEUS8vspO9eeOjM4xRgE6d0Ess8VRYWcGM7qOlrP0ofp0n4bTXwT6VGx2W
+         yDQr/dhC71hYlqy8BoAXtYkWinsfvrNc6Vo3SCTfAO12GZ15/svc03qn73Q1BtSRCnyn
+         oyljWYjo98IdOpjovhObeTeFKsAP4SMhy0qXx83vaj5xUFtyugq5tIGZgr75vxY34HA2
+         IC9Q==
+X-Gm-Message-State: AO0yUKV4r/Ume7yBK5B+m31kw7TX3dm6x9H5xBa+2TzA3U8xvuljYEXt
+        aMNOGV9BkpQJBWhtiX5ud1TnlBiWdyfwLoL9LU8=
+X-Google-Smtp-Source: AK7set/DgviL/QBLBYU/H0NM/R9r2BYzhFdhydBWjNvSD+maEWSdfT/LiBqx8G/4q8Xi5A3CtaGFrOU+xWY+dSQKk34=
+X-Received: by 2002:a50:d602:0:b0:4bf:a788:1d68 with SMTP id
+ x2-20020a50d602000000b004bfa7881d68mr15509692edi.6.1678513299037; Fri, 10 Mar
+ 2023 21:41:39 -0800 (PST)
 MIME-Version: 1.0
-References: <20230310133718.689332661@linuxfoundation.org>
-In-Reply-To: <20230310133718.689332661@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 11 Mar 2023 11:08:50 +0530
-Message-ID: <CA+G9fYvq=xM8eKEhCDB0A_OCZq_rgw2OOLhGkpgvUaub0SE5PA@mail.gmail.com>
-Subject: Re: [PATCH 6.2 000/211] 6.2.4-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230308220842.1231003-1-conor@kernel.org> <20230310150754.535425-1-bmeng.cn@gmail.com>
+ <CAEUhbmWcfcSmuU6VnbTdLoErT113RZPgHSK3c+3M5kU0Wsv1pg@mail.gmail.com> <243c92f1-c1e0-428b-ab31-3d9c9088b2c2@spud>
+In-Reply-To: <243c92f1-c1e0-428b-ab31-3d9c9088b2c2@spud>
+From:   Bin Meng <bmeng.cn@gmail.com>
+Date:   Sat, 11 Mar 2023 13:41:27 +0800
+Message-ID: <CAEUhbmUf+-a8u_qaC3weP1xBy8gjsbdV=29bM8gp6SWA5KqH5A@mail.gmail.com>
+Subject: Re: [PATCH v2] RISC-V: remove I-extension ISA spec version dance
+To:     Conor Dooley <conor@kernel.org>
+Cc:     aurelien@aurel32.net, conor.dooley@microchip.com,
+        linux-riscv@lists.infradead.org, llvm@lists.linux.dev,
+        naresh.kamboju@linaro.org, nathan@kernel.org,
+        ndesaulniers@google.com, palmer@dabbelt.com, palmer@rivosinc.com,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,181 +72,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 10 Mar 2023 at 19:24, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Sat, Mar 11, 2023 at 12:40=E2=80=AFAM Conor Dooley <conor@kernel.org> wr=
+ote:
 >
-> This is the start of the stable review cycle for the 6.2.4 release.
-> There are 211 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> On Fri, Mar 10, 2023 at 11:35:57PM +0800, Bin Meng wrote:
+> > On Fri, Mar 10, 2023 at 11:07=E2=80=AFPM Bin Meng <bmeng.cn@gmail.com> =
+wrote:
+> > >
+> > > > From: Conor Dooley <conor.dooley@microchip.com>
+> > > >
+> > > > The spec folk, in their infinite wisdom, moved both control and sta=
+tus
+> > > > registers & the FENCE.I instructions out of the I extension into th=
+eir
+> > > > own extensions (Zicsr, Zifencei) in the 20190608 version of the ISA
+> > > > spec [0].
+> > > > The GCC/binutils crew decided [1] to move their default version of =
+the
+> > > > ISA spec to the 20191213 version of the ISA spec, which came into b=
+eing
+> > > > for version 2.38 of binutils and GCC 12. Building with this toolcha=
+in
+> > > > configuration would result in assembler issues:
+> > > >   CC      arch/riscv/kernel/vdso/vgettimeofday.o
+> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assemble=
+r messages:
+> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
+: unrecognized opcode `csrr a5,0xc01'
+> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
+: unrecognized opcode `csrr a5,0xc01'
+> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
+: unrecognized opcode `csrr a5,0xc01'
+> > > >   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error=
+: unrecognized opcode `csrr a5,0xc01'
+> > > > This was fixed in commit 6df2a016c0c8 ("riscv: fix build with binut=
+ils
+> > > > 2.38") by Aurelien Jarno, but has proven fragile.
+> > > >
+> > > > Before LLVM 17, LLVM did not support these extensions and, as such,=
+ the
+> > > > cc-option check added by Aurelien worked. Since commit 22e199e6afb1
+> > > > ("[RISCV] Accept zicsr and zifencei command line options") however,=
+ LLVM
+> > > > *does* support them and the cc-option check passes.
+> > > >
+> > > > This surfaced as a problem while building the 5.10 stable kernel us=
+ing
+> > > > the default Tuxmake Debian image [2], as 5.10 did not yet support l=
+d.lld,
+> > > > and uses the Debian provided binutils 2.35.
+> > > > Versions of ld prior to 2.38 will refuse to link if they encounter
+> > > > unknown ISA extensions, and unfortunately Zifencei is not supported=
+ by
+> > > > bintuils 2.35.
+> > > >
+> > > > Instead of dancing around with adding these extensions to march, as=
+ we
+> > > > currently do, Palmer suggested locking GCC builds to the same versi=
+on of
+> > > > the ISA spec that is used by LLVM. As far as I can tell, that is 2.=
+2,
+> > > > with, apparently [3], a lack of interest in implementing a flag lik=
+e
+> > > > GCC's -misa-spec at present.
+> > > >
+> > > > Add {cc,as}-option checks to add -misa-spec to KBUILD_{A,C}FLAGS wh=
+en
+> > > > GCC is used & remove the march dance.
+> > > >
+> > > > As clang does not accept this argument, I had expected to encounter
+> > > > issues with the assembler, as neither zicsr nor zifencei are presen=
+t in
+> > > > the ISA string and the spec version *should* be defaulting to a ver=
+sion
+> > > > that requires them to be present. The build passed however and the
+> > > > resulting kernel worked perfectly fine for me on a PolarFire SoC...
+> > > >
+> > > > Link: https://riscv.org/wp-content/uploads/2019/06/riscv-spec.pdf [=
+0]
+> > > > Link: https://groups.google.com/a/groups.riscv.org/g/sw-dev/c/aE1Ze=
+HHCYf4 [1]
+> > > > Link: https://lore.kernel.org/all/CA+G9fYt9T=3DELCLaB9byxaLW2Qf4pZc=
+DO=3DhuCA0D8ug2V2+irJQ@mail.gmail.com/ [2]
+> > > > Link: https://discourse.llvm.org/t/specifying-unpriviledge-spec-ver=
+sion-misa-spec-gcc-flag-equivalent/66935 [3]
+> > > > CC: stable@vger.kernel.org
+> > > > Suggested-by: Palmer Dabbelt <palmer@rivosinc.com>
+> > > > Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+> > > > Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+> > > > ---
+> > > > I think Aurelien's original commit message might actually not be qu=
+ite
+> > > > correct? I found, in my limited testing, that it is not the default
+> > > > behaviour of gas that matters, but rather the toolchain itself?
+> > > > My binutils versions (both those built using the clang-built-linux
+> > > > tc-build scripts which do not set an ISA spec version, and one buil=
+t
+> > > > using the riscv-gnu-toolchain infra w/ an explicit 20191213 spec ve=
+rsion
+> > > > set) do not encounter these issues.
+> > >
+> > > I am unable to reproduce the build failure as reported by commit 6df2=
+a016c0c8
+> > > ("riscv: fix build with binutils 2.38") by Aurelien Jarno using kerne=
+l.org
+> > > pre-built GCC 11.3.0 [1] which includes binutils 2.38.
+> > >
+> > > [1] https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86=
+_64/11.3.0/x86_64-gcc-11.3.0-nolibc-x86_64-linux.tar.xz
+> > >
+> > > The defconfig of v5.16 kernel (commit 6df2a016c0c8 lands in v5.17) bu=
+ilds fine
+> > > for me. Anything I am missing?
+> > >
+> >
+> > Some further note:
+> >
+> > After I switched to kernel.org pre-built GCC 12.2.0 [1] which includes
+> > binutils 2.39, I was able to reproduce the exact same build failure of
+> > v5.16 kernel as described in the commit 6df2a016c0c8 ("riscv: fix
+> > build with binutils 2.38") by Aurelien Jarno.
+> >
+> > To verify the commit message of 6df2a016c0c8 is accurate or not, I
+> > built a GAS from binutils 2.37 and replaced the GAS 2.39 in the
+> > kernel.org package, surprisingly kernel v5.16 did not build with the
+> > same build failure.
+> >
+> > So it seems that it's GCC that caused the build failure instead of GAS
+> > from binutils??
 >
-> Responses should be made by Sun, 12 Mar 2023 13:36:38 +0000.
-> Anything received after that time might be too late.
+> Right, that's what I was getting at in the bit below the --- line in my
+> patch. I think Aurelien was misled by the failure message and your email
+> ([1] in my links above) which claimed that binutils would default to
+> the 20191213 spec.
+> It appears (and I'm not a tc person) that GCC must call GAS with the
+> --misa-spec argument, and in GCC 12 the value used is 20191213.
+> Either GCC 11 must pass --misa-spec=3D2.2 to binutils, or it passes
+> nothing, leading binutils to be permissive about what -march=3Drv64i
+> means.
+
+I verified that "-misa-spec" is a new option introduced in GCC 12 and
+the default value is set to 20191213 which is unfortunately backward
+incompatible.
+
+GCC 11 does not have the "-misa-spec" option, so I assume it produces
+backward compatible codes.
+
+IOW, what commit 6df2a016c0c8 was trying to fix has nothing to do with
+binutils 2.38+. It's the GCC changes that is the culprit.
+
+For this patch, I think it LGTM, so:
+
+Reviewed-by: Bin Meng <bmeng@tinylab.org>
+
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
-6.2.4-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-6.2.y
-> and the diffstat can be found below.
+> The permissive option would "seem" to be correct, as building with clang
+> (that to my knowledge doesn't pass --misa-spec to GAS) and with
+> -march=3Drv64i has no issues assembling.
 >
-> thanks,
+> It'd appear to me that binutils is a *player* in this issue, but is not
+> the culprit of the issue Aurelien sought to fix.
 >
-> greg k-h
+> I dunno what I am talking about though, this is all from playing around
+> with many tc variants and see how it goes!
+>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 6.2.4-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-6.2.y
-* git commit: 54d58d14b95c4ebd0d562fb22a86a3696f6b8557
-* git describe: v6.2.3-212-g54d58d14b95c
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.2.y/build/v6.2.3=
--212-g54d58d14b95c
-
-## Test Regressions (compared to v6.2.3)
-
-## Metric Regressions (compared to v6.2.3)
-
-## Test Fixes (compared to v6.2.3)
-
-## Metric Fixes (compared to v6.2.3)
-
-## Test result summary
-total: 197897, pass: 169533, fail: 4900, skip: 23464, xfail: 0
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 145 total, 142 passed, 3 failed
-* arm64: 54 total, 53 passed, 1 failed
-* i386: 41 total, 38 passed, 3 failed
-* mips: 30 total, 28 passed, 2 failed
-* parisc: 8 total, 8 passed, 0 failed
-* powerpc: 38 total, 36 passed, 2 failed
-* riscv: 26 total, 25 passed, 1 failed
-* s390: 16 total, 16 passed, 0 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 7 passed, 1 failed
-* x86_64: 46 total, 46 passed, 0 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-exec
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-user_events
-* kselftest-vDSO
-* kselftest-vm
-* kselftest-watchdog
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-math++
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* ltpa-6248579/0/tests/4_ltp-fsx
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-* v4l2-complianciance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Regards,
+Bin
