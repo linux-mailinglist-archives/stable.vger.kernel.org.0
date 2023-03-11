@@ -2,101 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7773A6B58C5
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 06:50:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CBBD6B58CE
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 06:58:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229819AbjCKFu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 00:50:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39316 "EHLO
+        id S229823AbjCKF6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 00:58:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229636AbjCKFuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 00:50:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12270659F;
-        Fri, 10 Mar 2023 21:50:25 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC03CB824BC;
-        Sat, 11 Mar 2023 05:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 58D9CC433D2;
-        Sat, 11 Mar 2023 05:50:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678513822;
-        bh=2vUgG6NICV1m4O/p0F0xew9DlmJEngCgIlpFHNCYXUY=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=m6o0aLHFdjKjU7VaoHXPrclCH+s8Wen43kmwO/BGC+C69QVSIufzsrBkuNNpfLLv9
-         2brDFCYLqCIpl4+OrDUmBQKuOOZm1Pwr6clK1UwLRhSiw0PtrwryGk+/95CNhF3297
-         lDr+TCZf5zqv/dfI5A8C4/mDLP0lKIfp8AstP/e4czD3SgyinpeGTqcHIK91TT2aYq
-         WzgVXDUT08jCNN6MopEbL/llZ7VQUHCOdK4iIrLkHMe4o7QTjpKXj9DaGZc0tDQBZ1
-         yc/ZERATpw1i0ctv6Y99ME9fdTRNwSVeZLNgEWJpmcTnN4FKDQccn4RYAe8XoFrRAE
-         UACulKWxF4dsg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 3F570E61B65;
-        Sat, 11 Mar 2023 05:50:22 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229515AbjCKF6t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 00:58:49 -0500
+Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D22761DB9B
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 21:58:45 -0800 (PST)
+Received: by mail-ua1-x934.google.com with SMTP id m5so4964369uae.11
+        for <stable@vger.kernel.org>; Fri, 10 Mar 2023 21:58:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678514325;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3ntsSgpkdi+Qg7CjwB/UZN8FSI5xELZBrHiGC6QvEDw=;
+        b=CXHaE//9HA86ubnSE/vscXtbuggEwhvupnBjNkF2fveaGXrcTYdZWkVKeyrPYiJclt
+         f/fZk/S6DvCdTFzi5fcg/OC5eiNwOlR3nd9fGaUFHZVX3zQPEiV/bOUbMgRbe+1CyHM+
+         EYyhV9zdWo7m+zsa1SDOAcrFEgLGiF3lfXymMrsLFUxZB3XLOc+8V50bORpWVz/FKTqs
+         hcE6XL117hYdAPgNC7AVRew04zJ/OXe7Md9ZI1ggyfsdkx6GEk56RLLye2BlQWtbtqp6
+         fVeVToszWtp0dJW5OgbVPCWkR7b/cqJBFkS5kc6tK9QZbCIGe+/aydVzsS4WOjCD3lAN
+         lT5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678514325;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3ntsSgpkdi+Qg7CjwB/UZN8FSI5xELZBrHiGC6QvEDw=;
+        b=2txSJwaUjXQHKmXF5lc6aYvT8DBtSfy2Rz23t6EFvXeMAIZ6Uy9VF0CgvvBjo0Rd2l
+         ZozDNDsGwzUjKQJHnxO6CV2iwSCb3WiZ4NzU29czIgaH/Qx2kyTBc97FXcGczaKfQozH
+         8dqVLzMf2XJZSlEOB1SBDiC7DBBx7XNw8qFgHTUzhSeIOkQ6rWVgopSQOL33d5GqTb6E
+         y2sKbHza19ZTbulWHmo7J21de5RCCJFonl6vQ94Dvb7adC+99V4zbFhfwoPx45zBg9/7
+         A+xgzaVVDZLWuXed9+JUPmqU4574mqbu8N8HGD7bdj75JjdXKantXyfcP4uLb5TQIqQc
+         48sA==
+X-Gm-Message-State: AO0yUKWk5J7fju1wBlJaY9T7GzYOycOS8lIUTNK0n3GZx/TXYzN62C8x
+        s+B2SxibmI7YNWPakFMv8ZHD/0bRIh3Xt+B2yaaI849huzBqe6WGc5s=
+X-Google-Smtp-Source: AK7set/OiWvumTUM3PtMuSmj6efbMk9ZnH/RjkDpZHYc1eBZEgFanhjTs60Avr05sIBmWpy8o31fQ54viPrquM5yiLA=
+X-Received: by 2002:a1f:4507:0:b0:42d:5ea6:bd58 with SMTP id
+ s7-20020a1f4507000000b0042d5ea6bd58mr7783765vka.3.1678514324729; Fri, 10 Mar
+ 2023 21:58:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2 0/8] mptcp: fixes for 6.3
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167851382225.22535.4511360531108483772.git-patchwork-notify@kernel.org>
-Date:   Sat, 11 Mar 2023 05:50:22 +0000
-References: <20230227-upstream-net-20230227-mptcp-fixes-v2-0-47c2e95eada9@tessares.net>
-In-Reply-To: <20230227-upstream-net-20230227-mptcp-fixes-v2-0-47c2e95eada9@tessares.net>
-To:     Matthieu Baerts <matthieu.baerts@tessares.net>
-Cc:     mptcp@lists.linux.dev, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, martineau@kernel.org,
-        benbjiang@tencent.com, imagedong@tencent.com,
-        mengensun@tencent.com, shuah@kernel.org, fw@strlen.de,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, cpaasch@apple.com,
-        stable@vger.kernel.org, geliang.tang@suse.com
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20230310133717.050159289@linuxfoundation.org>
+In-Reply-To: <20230310133717.050159289@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 11 Mar 2023 11:28:32 +0530
+Message-ID: <CA+G9fYvKkhFRCfLQ82awK1qSZW=-TEiz3NjcepUpYHdUQrBSOA@mail.gmail.com>
+Subject: Re: [PATCH 6.1 000/200] 6.1.17-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+On Fri, 10 Mar 2023 at 19:35, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 6.1.17 release.
+> There are 200 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 12 Mar 2023 13:36:38 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
+6.1.17-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-6.1.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-This series was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-On Thu, 09 Mar 2023 15:49:56 +0100 you wrote:
-> Patch 1 fixes a possible deadlock in subflow_error_report() reported by
-> lockdep. The report was in fact a false positive but the modification
-> makes sense and silences lockdep to allow syzkaller to find real issues.
-> The regression has been introduced in v5.12.
-> 
-> Patch 2 is a refactoring needed to be able to fix the two next issues.
-> It improves the situation and can be backported up to v6.0.
-> 
-> [...]
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Here is the summary with links:
-  - [net,v2,1/8] mptcp: fix possible deadlock in subflow_error_report
-    https://git.kernel.org/netdev/net/c/b7a679ba7c65
-  - [net,v2,2/8] mptcp: refactor passive socket initialization
-    https://git.kernel.org/netdev/net/c/3a236aef280e
-  - [net,v2,3/8] mptcp: use the workqueue to destroy unaccepted sockets
-    https://git.kernel.org/netdev/net/c/b6985b9b8295
-  - [net,v2,4/8] mptcp: fix UaF in listener shutdown
-    https://git.kernel.org/netdev/net/c/0a3f4f1f9c27
-  - [net,v2,5/8] selftests: mptcp: userspace pm: fix printed values
-    https://git.kernel.org/netdev/net/c/840742b7ed0e
-  - [net,v2,6/8] mptcp: add ro_after_init for tcp{,v6}_prot_override
-    https://git.kernel.org/netdev/net/c/822467a48e93
-  - [net,v2,7/8] mptcp: avoid setting TCP_CLOSE state twice
-    https://git.kernel.org/netdev/net/c/3ba14528684f
-  - [net,v2,8/8] mptcp: fix lockdep false positive in mptcp_pm_nl_create_listen_socket()
-    https://git.kernel.org/netdev/net/c/cee4034a3db1
+## Build
+* kernel: 6.1.17-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-6.1.y
+* git commit: f345f456043c26b6a0d011d779ae746c16a9f8f1
+* git describe: v6.1.16-201-gf345f456043c
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.1=
+6-201-gf345f456043c
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+## Test Regressions (compared to v6.1.16)
 
+## Metric Regressions (compared to v6.1.16)
 
+## Test Fixes (compared to v6.1.16)
+
+## Metric Fixes (compared to v6.1.16)
+
+## Test result summary
+total: 166217, pass: 146661, fail: 5029, skip: 14499, xfail: 28
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 149 total, 148 passed, 1 failed
+* arm64: 51 total, 50 passed, 1 failed
+* i386: 39 total, 36 passed, 3 failed
+* mips: 30 total, 28 passed, 2 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 38 total, 36 passed, 2 failed
+* riscv: 16 total, 15 passed, 1 failed
+* s390: 16 total, 16 passed, 0 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 8 passed, 0 failed
+* x86_64: 44 total, 44 passed, 0 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
