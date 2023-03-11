@@ -2,96 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD2C86B5C78
-	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 14:54:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AACBB6B5C96
+	for <lists+stable@lfdr.de>; Sat, 11 Mar 2023 15:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbjCKNyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Mar 2023 08:54:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57292 "EHLO
+        id S229455AbjCKOGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Mar 2023 09:06:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229550AbjCKNyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 08:54:07 -0500
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7795BC98;
-        Sat, 11 Mar 2023 05:54:06 -0800 (PST)
-Received: by mail-oo1-xc33.google.com with SMTP id h18-20020a4abb92000000b00525397f569fso1216157oop.3;
-        Sat, 11 Mar 2023 05:54:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678542846;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JezEZK+AICOI0aCjZw5wcLy2MWny1R1bm5pTOcZP52Q=;
-        b=IWAV33oZ0R5ipeJENHaR0hu1TGcacho1kb7emu57od+tpeEKaDo61d820eI0a/8oyl
-         wepF0Xf0e8or6G8wJ8CsgD+5B48L+1QpiFgqAvoTeAqS0BN6QQRftwNUzopboFuHTpy7
-         Ik6PRxu+/WK4xV3GE0plW3F+zQ7gSLq65jHT0/eOSzdGRiPIsj+DBLRhBqHxLpL+wW9/
-         H7iaOddJ2V0AScorw1EsPaHRubnAD6leTmHyZzihfZzhBp7gcLBi17LvA39Ksb7SWxtL
-         3t7bdwr+DTuqYxcuu3DQXMZVk6JWk9m9BC6R62UEWmCfjD2AzH7pxNTqnmpcaEvetIdt
-         qBXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678542846;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JezEZK+AICOI0aCjZw5wcLy2MWny1R1bm5pTOcZP52Q=;
-        b=Mdh247yIcg2F+Tw++kegeslAM3rG1tn4GHCRKXUBmrdmDA02Nqpr79gnQbw25CZvKe
-         EjZwUnevaF7hSD1rL83t10Zk17i3odW9i+Qd1EXCOJJiV7rkGpwrFANbRB+BYZqGNZSx
-         ACPES4zOb+6GLdPG8TrFIiN6qo1x4HFk99uPB1pOIyCZUz3izYWMI4daBT+Mqe0FH/x7
-         9kexLiUz/uyw9S2b6df+b6RkYP+SnxHiKw/csI73GpJckJKZrfZ+lFs9ScKyfBnjy75Q
-         MxZGI8oQqBJw5wbUbxJhTB4qoZKJW7HjE+2ndZvPLDXINgICJe+H3Lfr1qnH690kjoDM
-         cbzg==
-X-Gm-Message-State: AO0yUKWeCOXv3p8USZ+tvUzyzunR6Pl1K5tuYNt44CQkpBGkZuta+bxt
-        OAfjtmwniQz/JEbJyoapBIQ=
-X-Google-Smtp-Source: AK7set/WcLHiSCysTRUjU/YKJhjf7PBNSIjZybwnHqg+QYQ1QJM00HSm+hdT/yVTcZoCLL+49bNHmg==
-X-Received: by 2002:a4a:d74f:0:b0:525:34e:1f02 with SMTP id h15-20020a4ad74f000000b00525034e1f02mr11262226oot.3.1678542846086;
-        Sat, 11 Mar 2023 05:54:06 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x16-20020a4aca90000000b00524f546997esm1104510ooq.0.2023.03.11.05.54.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Mar 2023 05:54:05 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sat, 11 Mar 2023 05:54:04 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.10 000/528] 5.10.173-rc2 review
-Message-ID: <b755d647-a363-46fd-9bf1-c97e68d8700a@roeck-us.net>
-References: <20230311091908.975813595@linuxfoundation.org>
+        with ESMTP id S229473AbjCKOGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Mar 2023 09:06:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B594E9F3B;
+        Sat, 11 Mar 2023 06:06:10 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EE3260C3D;
+        Sat, 11 Mar 2023 14:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B566EC433D2;
+        Sat, 11 Mar 2023 14:06:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678543569;
+        bh=K8EAh0QfxzkdULHNSkhCoqGD46lp5v3W4c/Rtfq8ViQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=exnwTTc6fBCxAaB3HtIEtgkhL7325m54NsIZCp8+sq9Z8NIOFUxOfVEzatH+WHnPm
+         KRsmDqAdMXt5FSPI/C5EII1SgRh+jV1y7uIKb1KgqO2WuUlTKrMYcePsqsyReVIhgN
+         7pX8RuuxTnjyGC5HyvJrSL9RbPLlYt6u03S/DeAMn1tRo99N3GOOFf+/KDSA3PSf6y
+         b2Dg49sNM+eNbaIYuvJGRnr407wn8M1xj8iR22NFs9R66K1zVNYuM7zE3ARl19zeeP
+         zNZ2QuLNOwdNK6YIzxsORzicdQN3whnX+Xifm+K7/1zarBhsPJ1BASppKO0NExRtiD
+         6d9kZOJ+wX35w==
+Date:   Sat, 11 Mar 2023 09:06:08 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Eric Biggers <ebiggers@kernel.org>, Pavel Machek <pavel@ucw.cz>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
+Subject: Re: AUTOSEL process
+Message-ID: <ZAyK0KM6JmVOvQWy@sashalap>
+References: <20230226034256.771769-12-sashal@kernel.org>
+ <Y/rbGxq8oAEsW28j@sol.localdomain>
+ <Y/rufenGRpoJVXZr@sol.localdomain>
+ <Y/ux9JLHQKDOzWHJ@sol.localdomain>
+ <Y/y70zJj4kjOVfXa@sashalap>
+ <Y/zswi91axMN8OsA@sol.localdomain>
+ <Y/zxKOBTLXFjSVyI@sol.localdomain>
+ <ZATC3djtr9/uPX+P@duo.ucw.cz>
+ <ZAewdAql4PBUYOG5@gmail.com>
+ <ZAwe95meyCiv6qc4@casper.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20230311091908.975813595@linuxfoundation.org>
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+In-Reply-To: <ZAwe95meyCiv6qc4@casper.infradead.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 11, 2023 at 10:20:47AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.173 release.
-> There are 528 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Mon, 13 Mar 2023 09:17:40 +0000.
-> Anything received after that time might be too late.
-> 
+On Sat, Mar 11, 2023 at 06:25:59AM +0000, Matthew Wilcox wrote:
+>On Tue, Mar 07, 2023 at 09:45:24PM +0000, Eric Biggers wrote:
+>> On Tue, Mar 07, 2023 at 10:18:35PM +0100, Pavel Machek wrote:
+>> > I believe that -stable would be more useful without AUTOSEL process.
+>>
+>> There has to be a way to ensure that security fixes that weren't properly tagged
+>> make it to stable anyway.  So, AUTOSEL is necessary, at least in some form.  I
+>> think that debating *whether it should exist* is a distraction from what's
+>> actually important, which is that the current AUTOSEL process has some specific
+>> problems, and these specific problems need to be fixed...
+>
+>I agree with you, that we need autosel and we also need autosel to
+>be better.  I actually see Pavel's mail as a datapoint (or "anecdote",
+>if you will) in support of that; the autosel process currently works
+>so badly that a long-time contributor thinks it's worse than nothing.
+>
+>Sasha, what do you need to help you make this better?
 
-Build results:
-	total: 162 pass: 162 fail: 0
-Qemu test results:
-	total: 485 pass: 485 fail: 0
+What could I do to avoid this?
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+I suppose that if I had a way to know if a certain a commit is part of a
+series, I could either take all of it or none of it, but I don't think I
+have a way of doing that by looking at a commit in Linus' tree
+(suggestions welcome, I'm happy to implement them).
 
-Guenter
+Other than that, the commit at hand:
+
+1. Describes a real problem that needs to be fixed, so while it was
+reverted for a quick fix, we'll need to go back and bring it in along
+with it's dependency.
+
+2. Soaked for over two weeks between the AUTOSEL mails and the release,
+gone through multiple rounds of reviews.
+
+3. Went through all the tests provided by all the individuals, bots,
+companies, etc who test the tree through multiple rounds of testing (we
+had to do a -rc2 for that releases).
+
+4. Went through whatever tests distros run on the kernel before they
+package and release it.
+
+-- 
+Thanks,
+Sasha
