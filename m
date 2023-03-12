@@ -2,81 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABB926B65D5
-	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 13:06:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A83B6B65D6
+	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 13:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjCLMF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 08:05:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
+        id S229863AbjCLMGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 08:06:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229863AbjCLMF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 08:05:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2991BE2
-        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 05:05:52 -0700 (PDT)
+        with ESMTP id S229623AbjCLMGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 08:06:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA12C212A;
+        Sun, 12 Mar 2023 05:06:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 926E660F14
-        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 12:05:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A51F1C433EF;
-        Sun, 12 Mar 2023 12:05:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89D6BB80B01;
+        Sun, 12 Mar 2023 12:06:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D05E7C433EF;
+        Sun, 12 Mar 2023 12:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678622752;
-        bh=Rhu/hZN9Ue9lAvnV3vPOTATnOKN1hYTVdaRra6/0HxE=;
+        s=korg; t=1678622762;
+        bh=Q/ldCMrCGfGTco0Sl12AyoNJlMKJhtt2MH6rp55F/O8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oqFf9hyqW04/7aCoSwcX/pUf6zzFOD8rfFapQwbPJGwjgGMDRYiNn4ldGkpde0CF5
-         kAmSFQFI2HDflF3AIEF130quQNkXpQLv9gSPzSEorUno0NTS2scbyzwmbipINjOqai
-         w6+iUK8nqXLSw8ykxZJXEGwM2xCGhrt0lsYCugIM=
-Date:   Sun, 12 Mar 2023 13:05:49 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Philip =?iso-8859-1?Q?M=FCller?= <philm@manjaro.org>
-Cc:     John Harrison <John.C.Harrison@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: Stable Patch Don't use BAR mappings for ring buffers with LLC
- might create some issues with 5.15
-Message-ID: <ZA3AHfFOt7gFTuAK@kroah.com>
-References: <d955327b-cb1c-4646-76b9-b0499c0c64c6@manjaro.org>
- <ZA2zv2/bv7WT+qSE@kroah.com>
+        b=LdrGpE3p+t39oWdprpiQz8WAZamifCnf75WCojmAK2r/Cflzo6wLv4gIl0mCsg60a
+         sY08BCscRinAmL5/GXx5SoAbPOJ1Cipi2PAoHXp5P8wSLp+tP+a6aCpVEFJfke32jI
+         +g/0rgaZDemPNShCUfckoMst9aZ+rppcsPh65GwI=
+Date:   Sun, 12 Mar 2023 13:05:59 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "A.P. Jo." <apjo@tuta.io>
+Cc:     Stable <stable@vger.kernel.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bricked LTS Kernel: Questionable i915 Commit
+Message-ID: <ZA3AJ+dZgYOEkHSt@kroah.com>
+References: <NQJqG8n--3-9@tuta.io>
+ <ZA2zkz8J6fuJsisw@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZA2zv2/bv7WT+qSE@kroah.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+In-Reply-To: <ZA2zkz8J6fuJsisw@kroah.com>
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLACK autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 12, 2023 at 12:13:03PM +0100, Greg Kroah-Hartman wrote:
-> On Sun, Mar 12, 2023 at 04:41:32PM +0700, Philip Müller wrote:
-> > ||||||||||||||||||||
+On Sun, Mar 12, 2023 at 12:12:19PM +0100, Greg KH wrote:
+> On Sun, Mar 12, 2023 at 09:04:01AM +0100, A.P. Jo. wrote:
+> > Dear Linux dev community,
 > > 
-> > ||
+> > 5.15.99 LTS and higher can't boot on many laptops using Intel graphics.
 > > 
-> > Hi all,
+> > Originally spotted using Alpine Linux, see: https://gitlab.alpinelinux.org/alpine/aports/-/issues/14704.
+> > Seems to have been traced to commit 4eb6789f9177a5fdb90e1b7cdd4b069d1fb9ce45, see i915 git issue: https://gitlab.freedesktop.org/drm/intel/-/issues/8284.
 > > 
-> > seems there is a report open on the "drm/i915: Don't use BAR mappings for ring buffers with LLC" patch, which was included into 5.15.99 lately.
-> > 
-> > I saw this patch also on 6.1 and 6.2. Older LTS kernels I didn't found them yet, even it is tagged to be included from v4.9+ on. However I saw also the patch "drm/i915: Don't use stolen memory for ring buffers with LLC" applied when applied to other kernel series.
-> > 
-> > Reverting the patch according to this fixes it:https://gitlab.freedesktop.org/drm/intel/-/issues/8284
-> > 
-> > Maybe double-check what is actually needed if this creates issues on some Intel i915 hardware. Thx.
+> > Suggest releasing with patch undone or fixed.
 > 
-> Also another report of this here:
-> 	https://lore.kernel.org/r/NQJqG8n--3-9@tuta.io
-> 
-> I'll go revert this for now and do a new release.
+> There's a second report of this here:
+> 	https://lore.kernel.org/r/d955327b-cb1c-4646-76b9-b0499c0c64c6@manjaro.org
+> I'll go revert this and push out a new release in an hour or so, thanks!
 
 Should be fixed in 5.15.101.  If not, please let us know.
 
