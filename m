@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AA4B6B6C78
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 00:16:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A22FD6B6C7B
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 00:16:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbjCLXQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 19:16:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38058 "EHLO
+        id S229810AbjCLXQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 19:16:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbjCLXQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 19:16:16 -0400
-Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3DFF26C01
-        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:14 -0700 (PDT)
-Received: by mail-qv1-xf36.google.com with SMTP id f1so7210093qvx.13
-        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:14 -0700 (PDT)
+        with ESMTP id S229543AbjCLXQR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 19:16:17 -0400
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC542820A
+        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:15 -0700 (PDT)
+Received: by mail-qt1-x836.google.com with SMTP id r5so11576608qtp.4
+        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678662974;
+        d=linaro.org; s=google; t=1678662975;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=L8b35TlVLwc8Sn7ZUBoVNCvt/IPK58Jissfx4Uxljug=;
-        b=Q3UJgXN8SqUOOQzmoWlEYuWnWxqDpR2YRmndObkq0k6jeii7ykhFyA0VXlq1Hv9B/d
-         H7srsVf7k+f1Y65foBIOs9MtLJApq1XFVNtoXGRfdyhm+BP5GXH7oEERJ378p2HsDELf
-         VZ2nW4s6A4rp8PVKTVrOPUxAxSIL2Gwj0PV4aw1VD+2MVqROmVuZh/ZT069wyz9EE4Z3
-         OmaZP2AYprOQ1Szy9sg4g6bG2Pa4kGSdyYn9GuboJeK9cqnZZyYsWYV+L9KdbqvydQmk
-         aq6V1eUpIci+hkQYskMG9GvzIRAvJSOVDq8h91jwNpsAJJIOsYUwuxpnV8uwoNlRgtKb
-         lcWg==
+        bh=Y+Xk38KToa9bLZ6GwBjSbY6igY/qtneGnbAW3uwQlQw=;
+        b=U5pJuR0FMiFRS8bVo2GOsYZw6KlCjiOm64xYJ7EsPXNq4+kW1OSzlnkR5T2G0Qsn/c
+         uCdqbxAR/2G+glvS2laXxoATTfUFu99/ftiKM7EwNMC0O9rJmgrRF7TZJHJ/FlY7feQy
+         zi5xRusoeLoh+QfohFaHWKPJ2eJ4d9+xA2Gr8/6Cvzn2QM1EBkWn/lPUuYToW/w0bwy6
+         xXibemPInuK1hSIBio8IVyMMglu6S47xBIRttlIY7pKXT3JlFxgSAG0zI1Zn6Y+ahngw
+         2aAlFcP/0SpbdOESBiv60hJKFrhgrBmQZ2CM+3A0XAehlwtkQDrVNuo3prN5uYvsJKM6
+         uP4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678662974;
+        d=1e100.net; s=20210112; t=1678662975;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=L8b35TlVLwc8Sn7ZUBoVNCvt/IPK58Jissfx4Uxljug=;
-        b=O4EPeUk/gEZBaGkyCldvqQ5OU4I8vomyZf1Zw4fOgqegIPvHowe5JboIQWyIi3III6
-         ip0v1GPo7CF+oxZMqrynJZGwPxEZCq8DzyEyqWgnEfwd1HvJ8hwOobl3vCtYpAhCwqul
-         jOry7Y1hhByeICQHleF4GZRNTeSlTa5x+qCzvecUVbxcLB4E8K72fHAST97gXqkAAJno
-         w8oQisy/rDgZByD+ZiJRVttRJHfzKgHg8iOkGtr3nvO1NCKuI60Fajr7DzrrH7OJJnpM
-         ni3kb+OcT9nnwT0t0IfQMclDqkA2mOVanvlRBOo1UDCi5qqjeNEEecx6PKJFS9uyKsQl
-         4EAA==
-X-Gm-Message-State: AO0yUKUaXqW3CmQuDaACBX3DH2A9DLAkSob3gVmdnPjiRcmF0uR34/M2
-        9Jh1CM3Qh2PsNFE+3EkPCg6duw==
-X-Google-Smtp-Source: AK7set8qhhF7wHcTTBx/iWbo8fMfYcdSC9CXEpBiNnKBI9VNL+8RJcl/KQ7f/lK6iUda5pkecOme0Q==
-X-Received: by 2002:a05:6214:1cc9:b0:5a3:fd18:e734 with SMTP id g9-20020a0562141cc900b005a3fd18e734mr5302463qvd.35.1678662974109;
-        Sun, 12 Mar 2023 16:16:14 -0700 (PDT)
+        bh=Y+Xk38KToa9bLZ6GwBjSbY6igY/qtneGnbAW3uwQlQw=;
+        b=aeju/3rKfvPknIbfG+nBQt81m5Gso4OTZ60KPtNzQEiynxBw8hOLS+oTm25oUTPghI
+         HA8jRU8qKF1qw0IvISH3C7X4Fs4TeMk9Dr2DKfpGe7w2EtH3KtYnkevoARUpc+vS8dLk
+         GCJvaUhDM7pm1uUoYS9hVz9+xo4IAWR6pbTAVmUBtRJz+GsZCbSYjdhCLlOP+5sWloFW
+         bUsJOTctDJT1hrE8+XZ2acvSTeTbvO0AVOvkBvwlAS/2WoNU0LXvfm3/sK7x1wuMF8W0
+         AUrtHCUjl3Ys+yh5ovnqK5jRXN07MUDbDa9chsYvGKck5umxRfR6zxa5AekwUuOIi1fg
+         2YtA==
+X-Gm-Message-State: AO0yUKXA4M4ahcOUizlS/A+bST6qzf/80V1t6ULb684S1MG6auz3k8zE
+        d7SjFjeKQ+BjCZe3AbGx/bMLtQ==
+X-Google-Smtp-Source: AK7set+DQDcxYPBVfh26QNjQ2U371RDTw0iJxDP2a1+zVcV+3ohD/VhgvBXJMFtgNJ5hxSr7lMepMw==
+X-Received: by 2002:a05:622a:1650:b0:3bf:c5a3:6143 with SMTP id y16-20020a05622a165000b003bfc5a36143mr58195499qtj.27.1678662975154;
+        Sun, 12 Mar 2023 16:16:15 -0700 (PDT)
 Received: from fedora.attlocal.net (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
-        by smtp.gmail.com with ESMTPSA id dm21-20020a05620a1d5500b00742f250ebc0sm4307091qkb.9.2023.03.12.16.16.13
+        by smtp.gmail.com with ESMTPSA id dm21-20020a05620a1d5500b00742f250ebc0sm4307091qkb.9.2023.03.12.16.16.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Mar 2023 16:16:13 -0700 (PDT)
+        Sun, 12 Mar 2023 16:16:14 -0700 (PDT)
 From:   William Breathitt Gray <william.gray@linaro.org>
 To:     linux-iio@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, jic23@kernel.org, lars@metafoo.de,
         William Breathitt Gray <william.gray@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH 4.19 v3 5/6] iio: counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
-Date:   Sun, 12 Mar 2023 19:15:53 -0400
-Message-Id: <20230312231554.134858-5-william.gray@linaro.org>
+Subject: [PATCH 4.14 v3 6/6] iio: counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
+Date:   Sun, 12 Mar 2023 19:15:54 -0400
+Message-Id: <20230312231554.134858-6-william.gray@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230312231554.134858-1-william.gray@linaro.org>
 References: <20230312231554.134858-1-william.gray@linaro.org>
@@ -82,28 +82,17 @@ Since the race condition could result in an incorrect 25-bit count
 value, remove support for 25-bit count values from this driver.
 
 Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
-Cc: <stable@vger.kernel.org> # 4.19.x
+Cc: <stable@vger.kernel.org> # 4.14.x
 Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 ---
- drivers/iio/counter/104-quad-8.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ drivers/iio/counter/104-quad-8.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
 diff --git a/drivers/iio/counter/104-quad-8.c b/drivers/iio/counter/104-quad-8.c
-index 92be8d0f7..92e68cada 100644
+index 181585ae..bdb07694 100644
 --- a/drivers/iio/counter/104-quad-8.c
 +++ b/drivers/iio/counter/104-quad-8.c
-@@ -61,10 +61,6 @@ struct quad8_iio {
- 
- #define QUAD8_REG_CHAN_OP 0x11
- #define QUAD8_REG_INDEX_INPUT_LEVELS 0x16
--/* Borrow Toggle flip-flop */
--#define QUAD8_FLAG_BT BIT(0)
--/* Carry Toggle flip-flop */
--#define QUAD8_FLAG_CT BIT(1)
- /* Error flag */
- #define QUAD8_FLAG_E BIT(4)
- /* Up/Down flag */
-@@ -97,9 +93,6 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
+@@ -64,9 +64,6 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
  {
  	struct quad8_iio *const priv = iio_priv(indio_dev);
  	const int base_offset = priv->base + 2 * chan->channel;
@@ -113,22 +102,22 @@ index 92be8d0f7..92e68cada 100644
  	int i;
  
  	switch (mask) {
-@@ -110,12 +103,7 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
+@@ -76,12 +73,7 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
  			return IIO_VAL_INT;
  		}
  
 -		flags = inb(base_offset + 1);
--		borrow = flags & QUAD8_FLAG_BT;
--		carry = !!(flags & QUAD8_FLAG_CT);
+-		borrow = flags & BIT(0);
+-		carry = !!(flags & BIT(1));
 -
 -		/* Borrow XOR Carry effectively doubles count range */
 -		*val = (borrow ^ carry) << 24;
 +		*val = 0;
  
  		/* Reset Byte Pointer; transfer Counter to Output Latch */
- 		outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP | QUAD8_RLD_CNTR_OUT,
+ 		outb(0x11, base_offset + 1);
 
-base-commit: 6a98afd74b4c2016fb87f5c3b7ce1c53ac215c13
+base-commit: 373c2a0d721acdbed9f45bf9816c04edad3704ca
 -- 
 2.39.2
 
