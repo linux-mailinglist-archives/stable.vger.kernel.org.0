@@ -2,62 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 278EC6B6B1C
-	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 21:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C06846B6BAA
+	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 22:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231149AbjCLUim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 16:38:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
+        id S230398AbjCLVHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 17:07:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230233AbjCLUil (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 16:38:41 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39106241CB;
-        Sun, 12 Mar 2023 13:38:37 -0700 (PDT)
-Date:   Sun, 12 Mar 2023 20:38:33 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1678653515;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=S8phezYGkV4ZFxG7GBTMyfW74H5g3ySQBRmXlT502Xs=;
-        b=d/rRk4Uk7vsF1DgIlNSMRjyFl0PdtHlENZl3UhP0e5tOJTBJyhQpH0yZUSQiq8Kc/0D6kq
-        pr1B5MoDvU4cHzvXtaZPFIbrlcg2H6rfujJShlYLIh1Zh+76I1CY3X9GUrQVstlRha+ysi
-        eovjkQCC/wLWqgHO/4GP+UdJIK+FoFk8rC5mGiOtifcF5cWiNrg22sjo6tWf4j5bK8J8bC
-        cO8cWe+TQ78LWdOdA0FsvF30rfPYOoY7qRPZ7sS4BXkDDqQUueSndeEsE2PP8CzsS1xWP/
-        /eOeoGuUTtG0lVNvML4o5v1VVkh+XFn+tf1pDgiQcmoGHLdiNhMdjDjfOJ8Q2g==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1678653515;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=S8phezYGkV4ZFxG7GBTMyfW74H5g3ySQBRmXlT502Xs=;
-        b=JXzPiDfYhO+5BWfNMFyUyTKUkBcUZzUPgOZIx8bgdqaPgIZ2NfEtjYXcC0CZBtAV2ZRyHM
-        45tB3uoETAJL1iDg==
-From:   "tip-bot2 for Yazen Ghannam" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: ras/urgent] x86/mce: Make sure logged MCEs are processed after
- sysfs update
-Cc:     Yazen Ghannam <yazen.ghannam@amd.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Tony Luck <tony.luck@intel.com>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20230301221420.2203184-1-yazen.ghannam@amd.com>
-References: <20230301221420.2203184-1-yazen.ghannam@amd.com>
-MIME-Version: 1.0
-Message-ID: <167865351393.5837.17719714572303479044.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        with ESMTP id S231610AbjCLVHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 17:07:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F233D09A;
+        Sun, 12 Mar 2023 14:07:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A963860FF0;
+        Sun, 12 Mar 2023 21:07:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00AEC433EF;
+        Sun, 12 Mar 2023 21:07:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1678655249;
+        bh=h87ZzwI3zuKwTkH2SQLxCZxmqB1ZqJ6gpFuwdGgxUfk=;
+        h=Date:To:From:Subject:From;
+        b=XPWYZg0wNcbfS7AAOvQ3+mqe3C7EMRWkrHLAvq59UXx830nWuFtVAVI1Po0OBpP70
+         nWy+S3DG5ESMKVIojhDWNDpLPILXF30DbncuQq0Rhn2HqLyGOQAp4wOxo3FKXiF2fu
+         fsCRdeTfKImQ3xFuD+FHZC+L4jl7tgVDb4EE7Ln0=
+Date:   Sun, 12 Mar 2023 14:07:28 -0700
+To:     mm-commits@vger.kernel.org, will@kernel.org,
+        vincenzo.frascino@arm.com, stable@vger.kernel.org,
+        ryabinin.a.a@gmail.com, eugenis@google.com,
+        catalin.marinas@arm.com, andreyknvl@gmail.com, pcc@google.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230312210728.F00AEC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -65,50 +46,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the ras/urgent branch of tip:
 
-Commit-ID:     4783b9cb374af02d49740e00e2da19fd4ed6dec4
-Gitweb:        https://git.kernel.org/tip/4783b9cb374af02d49740e00e2da19fd4ed6dec4
-Author:        Yazen Ghannam <yazen.ghannam@amd.com>
-AuthorDate:    Wed, 01 Mar 2023 22:14:20 
-Committer:     Borislav Petkov (AMD) <bp@alien8.de>
-CommitterDate: Sun, 12 Mar 2023 21:12:21 +01:00
+The patch titled
+     Subject: Revert "kasan: drop skip_kasan_poison variable in free_pages_prepare"
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch
 
-x86/mce: Make sure logged MCEs are processed after sysfs update
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch
 
-A recent change introduced a flag to queue up errors found during
-boot-time polling. These errors will be processed during late init once
-the MCE subsystem is fully set up.
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-A number of sysfs updates call mce_restart() which goes through a subset
-of the CPU init flow. This includes polling MCA banks and logging any
-errors found. Since the same function is used as boot-time polling,
-errors will be queued. However, the system is now past late init, so the
-errors will remain queued until another error is found and the workqueue
-is triggered.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Call mce_schedule_work() at the end of mce_restart() so that queued
-errors are processed.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Fixes: 3bff147b187d ("x86/mce: Defer processing of early errors")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230301221420.2203184-1-yazen.ghannam@amd.com
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Peter Collingbourne <pcc@google.com>
+Subject: Revert "kasan: drop skip_kasan_poison variable in free_pages_prepare"
+Date: Thu, 9 Mar 2023 20:29:13 -0800
+
+This reverts commit 487a32ec24be819e747af8c2ab0d5c515508086a.
+
+should_skip_kasan_poison() reads the PG_skip_kasan_poison flag from
+page->flags.  However, this line of code in free_pages_prepare():
+
+	page->flags &= ~PAGE_FLAGS_CHECK_AT_PREP;
+
+clears most of page->flags, including PG_skip_kasan_poison, before calling
+should_skip_kasan_poison(), which meant that it would never return true as
+a result of the page flag being set.  Therefore, fix the code to call
+should_skip_kasan_poison() before clearing the flags, as we were doing
+before the reverted patch.
+
+This fixes a measurable performance regression introduced in the reverted
+commit, where munmap() takes longer than intended if HW tags KASAN is
+supported and enabled at runtime.  Without this patch, we see a
+single-digit percentage performance regression in a particular
+mmap()-heavy benchmark when enabling HW tags KASAN, and with the patch,
+there is no statistically significant performance impact when enabling HW
+tags KASAN.
+
+Link: https://lkml.kernel.org/r/20230310042914.3805818-2-pcc@google.com
+Fixes: 487a32ec24be ("kasan: drop skip_kasan_poison variable in free_pages_prepare")
+  Link: https://linux-review.googlesource.com/id/Ic4f13affeebd20548758438bb9ed9ca40e312b79
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com> [arm64]
+Cc: Evgenii Stepanov <eugenis@google.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: <stable@vger.kernel.org>	[6.1]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- arch/x86/kernel/cpu/mce/core.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 7832a69..2eec60f 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -2355,6 +2355,7 @@ static void mce_restart(void)
+
+--- a/mm/page_alloc.c~revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare
++++ a/mm/page_alloc.c
+@@ -1398,6 +1398,7 @@ static __always_inline bool free_pages_p
+ 			unsigned int order, bool check_free, fpi_t fpi_flags)
  {
- 	mce_timer_delete_all();
- 	on_each_cpu(mce_cpu_restart, NULL, 1);
-+	mce_schedule_work();
- }
+ 	int bad = 0;
++	bool skip_kasan_poison = should_skip_kasan_poison(page, fpi_flags);
+ 	bool init = want_init_on_free();
  
- /* Toggle features for corrected errors */
+ 	VM_BUG_ON_PAGE(PageTail(page), page);
+@@ -1470,7 +1471,7 @@ static __always_inline bool free_pages_p
+ 	 * With hardware tag-based KASAN, memory tags must be set before the
+ 	 * page becomes unavailable via debug_pagealloc or arch_free_page.
+ 	 */
+-	if (!should_skip_kasan_poison(page, fpi_flags)) {
++	if (!skip_kasan_poison) {
+ 		kasan_poison_pages(page, order, init);
+ 
+ 		/* Memory is already initialized if KASAN did it internally. */
+_
+
+Patches currently in -mm which might be from pcc@google.com are
+
+revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch
+kasan-call-clear_page-with-a-match-all-tag-instead-of-changing-page-tag.patch
+kasan-remove-pg_skip_kasan_poison-flag.patch
+
