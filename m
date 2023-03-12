@@ -2,98 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4AFB6B6AD0
-	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 20:56:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 278EC6B6B1C
+	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 21:38:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229805AbjCLT4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 15:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
+        id S231149AbjCLUim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 16:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbjCLT4m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 15:56:42 -0400
-Received: from eggs.gnu.org (eggs.gnu.org [IPv6:2001:470:142:3::10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7562298C0
-        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 12:56:39 -0700 (PDT)
-Received: from linux-libre.fsfla.org ([209.51.188.54] helo=free.home)
-        by eggs.gnu.org with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <oliva@gnu.org>)
-        id 1pbRo5-0004iZ-HP; Sun, 12 Mar 2023 15:56:37 -0400
-Received: from livre (livre.home [172.31.160.2])
-        by free.home (8.15.2/8.15.2) with ESMTPS id 32CJuN1f924433
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Sun, 12 Mar 2023 16:56:25 -0300
-From:   Alexandre Oliva <oliva@gnu.org>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] [i915] avoid infinite retries in GuC/HuC loading
-Organization: Free thinker, not speaking for the GNU Project
-Date:   Sun, 12 Mar 2023 16:56:23 -0300
-Message-ID: <orjzzlhhg8.fsf@lxoliva.fsfla.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+        with ESMTP id S230233AbjCLUil (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 16:38:41 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39106241CB;
+        Sun, 12 Mar 2023 13:38:37 -0700 (PDT)
+Date:   Sun, 12 Mar 2023 20:38:33 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1678653515;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=S8phezYGkV4ZFxG7GBTMyfW74H5g3ySQBRmXlT502Xs=;
+        b=d/rRk4Uk7vsF1DgIlNSMRjyFl0PdtHlENZl3UhP0e5tOJTBJyhQpH0yZUSQiq8Kc/0D6kq
+        pr1B5MoDvU4cHzvXtaZPFIbrlcg2H6rfujJShlYLIh1Zh+76I1CY3X9GUrQVstlRha+ysi
+        eovjkQCC/wLWqgHO/4GP+UdJIK+FoFk8rC5mGiOtifcF5cWiNrg22sjo6tWf4j5bK8J8bC
+        cO8cWe+TQ78LWdOdA0FsvF30rfPYOoY7qRPZ7sS4BXkDDqQUueSndeEsE2PP8CzsS1xWP/
+        /eOeoGuUTtG0lVNvML4o5v1VVkh+XFn+tf1pDgiQcmoGHLdiNhMdjDjfOJ8Q2g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1678653515;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=S8phezYGkV4ZFxG7GBTMyfW74H5g3ySQBRmXlT502Xs=;
+        b=JXzPiDfYhO+5BWfNMFyUyTKUkBcUZzUPgOZIx8bgdqaPgIZ2NfEtjYXcC0CZBtAV2ZRyHM
+        45tB3uoETAJL1iDg==
+From:   "tip-bot2 for Yazen Ghannam" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: ras/urgent] x86/mce: Make sure logged MCEs are processed after
+ sysfs update
+Cc:     Yazen Ghannam <yazen.ghannam@amd.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Tony Luck <tony.luck@intel.com>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20230301221420.2203184-1-yazen.ghannam@amd.com>
+References: <20230301221420.2203184-1-yazen.ghannam@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <167865351393.5837.17719714572303479044.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the ras/urgent branch of tip:
 
-If two or more suitable entries with the same filename are found in
-__uc_fw_auto_select's fw_blobs, and that filename fails to load in the
-first attempt and in the retry, when __uc_fw_auto_select is called for
-the third time, the coincidence of strings will cause it to clear
-file_selected.path at the first hit, so it will return the second hit
-over and over again, indefinitely.
+Commit-ID:     4783b9cb374af02d49740e00e2da19fd4ed6dec4
+Gitweb:        https://git.kernel.org/tip/4783b9cb374af02d49740e00e2da19fd4ed6dec4
+Author:        Yazen Ghannam <yazen.ghannam@amd.com>
+AuthorDate:    Wed, 01 Mar 2023 22:14:20 
+Committer:     Borislav Petkov (AMD) <bp@alien8.de>
+CommitterDate: Sun, 12 Mar 2023 21:12:21 +01:00
 
-Of course this doesn't occur with the pristine blob lists, but a
-modified version could run into this, e.g., patching in a duplicate
-entry, or (as in our case) disarming blob loading by remapping their
-names to "/*(DEBLOBBED)*/", given a toolchain that unifies identical
-string literals.
+x86/mce: Make sure logged MCEs are processed after sysfs update
 
-Of course I'm ready to carry a patchlet to avoid this problem
-triggered by our (GNU Linux-libre's) intentional changes, but I
-figured you might be interested in fail-safing it even in accidental
-backporting circumstances.  I realize it's not entirely foolproof: if
-the same string appears in two entries separated by a different one,
-the infinite loop might still occur.  Catching that even more unlikely
-situation seemed too expensive.
+A recent change introduced a flag to queue up errors found during
+boot-time polling. These errors will be processed during late init once
+the MCE subsystem is fully set up.
 
-Link: https://www.fsfla.org/pipermail/linux-libre/2023-March/003506.html
-Cc: intel-gfx@lists.freedesktop.org
-Cc: stable@vger.kernel.org # 6.[12].x
-Signed-off-by: Alexandre Oliva <lxoliva@fsfla.org>
+A number of sysfs updates call mce_restart() which goes through a subset
+of the CPU init flow. This includes polling MCA banks and logging any
+errors found. Since the same function is used as boot-time polling,
+errors will be queued. However, the system is now past late init, so the
+errors will remain queued until another error is found and the workqueue
+is triggered.
+
+Call mce_schedule_work() at the end of mce_restart() so that queued
+errors are processed.
+
+Fixes: 3bff147b187d ("x86/mce: Defer processing of early errors")
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230301221420.2203184-1-yazen.ghannam@amd.com
 ---
- drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mce/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c b/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c
-index 9d6f571097e6..2b7564a3ed82 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_uc_fw.c
-@@ -259,7 +259,10 @@ __uc_fw_auto_select(struct drm_i915_private *i915, struct intel_uc_fw *uc_fw)
- 				uc_fw->file_selected.path = NULL;
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index 7832a69..2eec60f 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -2355,6 +2355,7 @@ static void mce_restart(void)
+ {
+ 	mce_timer_delete_all();
+ 	on_each_cpu(mce_cpu_restart, NULL, 1);
++	mce_schedule_work();
+ }
  
- 			continue;
--		}
-+		} else if (uc_fw->file_wanted.path == blob->path)
-+			/* Avoid retrying forever when neighbor
-+			   entries point to the same path.  */
-+			continue;
- 
- 		uc_fw->file_selected.path = blob->path;
- 		uc_fw->file_wanted.path = blob->path;
--- 
-2.25.1
-
-
--- 
-Alexandre Oliva, happy hacker                https://FSFLA.org/blogs/lxo/
-   Free Software Activist                       GNU Toolchain Engineer
-Disinformation flourishes because many people care deeply about injustice
-but very few check the facts.  Ask me about <https://stallmansupport.org>
+ /* Toggle features for corrected errors */
