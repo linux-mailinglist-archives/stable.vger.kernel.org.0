@@ -2,139 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C06846B6BAA
-	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 22:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4BB6B6BBF
+	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 22:24:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230398AbjCLVHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 17:07:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
+        id S230493AbjCLVYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 17:24:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231610AbjCLVHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 17:07:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F233D09A;
-        Sun, 12 Mar 2023 14:07:30 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A963860FF0;
-        Sun, 12 Mar 2023 21:07:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00AEC433EF;
-        Sun, 12 Mar 2023 21:07:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1678655249;
-        bh=h87ZzwI3zuKwTkH2SQLxCZxmqB1ZqJ6gpFuwdGgxUfk=;
-        h=Date:To:From:Subject:From;
-        b=XPWYZg0wNcbfS7AAOvQ3+mqe3C7EMRWkrHLAvq59UXx830nWuFtVAVI1Po0OBpP70
-         nWy+S3DG5ESMKVIojhDWNDpLPILXF30DbncuQq0Rhn2HqLyGOQAp4wOxo3FKXiF2fu
-         fsCRdeTfKImQ3xFuD+FHZC+L4jl7tgVDb4EE7Ln0=
-Date:   Sun, 12 Mar 2023 14:07:28 -0700
-To:     mm-commits@vger.kernel.org, will@kernel.org,
-        vincenzo.frascino@arm.com, stable@vger.kernel.org,
-        ryabinin.a.a@gmail.com, eugenis@google.com,
-        catalin.marinas@arm.com, andreyknvl@gmail.com, pcc@google.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230312210728.F00AEC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229731AbjCLVYB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 17:24:01 -0400
+Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6EF72CFF2
+        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 14:23:59 -0700 (PDT)
+Received: by mail-qt1-x82f.google.com with SMTP id l18so11448036qtp.1
+        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 14:23:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678656239;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZVLyQ0XiKSvnucCxXN1dJowGWmlgB/Dt3IZETGB50oM=;
+        b=NZwlJLjToy+H13MwnYz3wpVEi3eqcyI3Ky/Z95chVi1Etbb7yll674a2Y2UmTnpnmX
+         tWd2uorn3U/JuT9zzPi9GmyVOjdMmGBCP0opBRpZGY7fnpIJzGuEX2F/RvENibzPZhix
+         T3xaDhFQxPl2+HZSt7MphB9HbflbScriwBEW+c7fgfgV3KgqCKNlYtb3keBmvPRCRl4n
+         6xzHBHiHz70dAsqYR307Aee8/G/kQ6m2JPlQ7AQsItuaZabiNL7EONHNOPi/fBmb+Dey
+         EBmu2HenQPEd7+/FcfWmlOR5R9ZKizQ394fe6zjr7yjMx5Tu7Np27KHNlF0T+9XQPBsz
+         1rMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678656239;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ZVLyQ0XiKSvnucCxXN1dJowGWmlgB/Dt3IZETGB50oM=;
+        b=ZXuzmx3VS1853WemwlQkwhxQstuSus4xNBv5mmd5+/OiMeDbOsHOR9erEC3a5YH9Ic
+         NtS0UvXB9g/2G4RBmjqG3h97DBy8XKqvYoKRyOuwKUTSAyA/Uu+M7yAkKUKsKORaXSmK
+         OZk1OtM3xkDa/m4iNX4CnWYq00epK89kXQGf/9NkquaT6+/JE1xk7HYh4/GEvceOxFY3
+         VKUn1gAMxp16fTEeoGlN6bmHVHLhawm1h+xs6rhXeTZWJnqtMp7owy7qGdg6TM/Gegmu
+         gDQGmRALA1mTvvD9QuofzXDGczqstJwsgrnzWs4/IFKFSDkdLE3s4cuWhbk61gj3V0zm
+         /5Pg==
+X-Gm-Message-State: AO0yUKUOu7cD/SaNzp+ZqP4o2MbiQgp2aOtsOB6qEpey2d2vNSIxu520
+        ZhjGHWkbsVofk4LppYM2X6Bu13m/EwDpRPmGYqw=
+X-Google-Smtp-Source: AK7set/3JWlfc/2ZRHjNketi/SeZBKZTydDQmqOhfdBs0PJV6yIC3rVOfTjHRFuIIEip70Ig9+V9vg==
+X-Received: by 2002:a05:622a:178b:b0:3bf:daae:7f34 with SMTP id s11-20020a05622a178b00b003bfdaae7f34mr26411301qtk.41.1678656238686;
+        Sun, 12 Mar 2023 14:23:58 -0700 (PDT)
+Received: from fedora.attlocal.net (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
+        by smtp.gmail.com with ESMTPSA id j23-20020ac85517000000b0039cc0fbdb61sm4285274qtq.53.2023.03.12.14.23.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Mar 2023 14:23:58 -0700 (PDT)
+From:   William Breathitt Gray <william.gray@linaro.org>
+To:     linux-iio@vger.kernel.org
+Cc:     jic23@kernel.org, linux-kernel@vger.kernel.org,
+        William Breathitt Gray <william.gray@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
+Date:   Sun, 12 Mar 2023 17:23:47 -0400
+Message-Id: <20230312212347.129756-1-william.gray@linaro.org>
+X-Mailer: git-send-email 2.39.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The Counter (CNTR) register is 24 bits wide, but we can have an
+effective 25-bit count value by setting bit 24 to the XOR of the Borrow
+flag and Carry flag. The flags can be read from the FLAG register, but a
+race condition exists: the Borrow flag and Carry flag are instantaneous
+and could change by the time the count value is read from the CNTR
+register.
 
-The patch titled
-     Subject: Revert "kasan: drop skip_kasan_poison variable in free_pages_prepare"
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch
+Since the race condition could result in an incorrect 25-bit count
+value, remove support for 25-bit count values from this driver;
+hard-coded maximum count values are replaced by a LS7267_CNTR_MAX define
+for consistency and clarity.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Peter Collingbourne <pcc@google.com>
-Subject: Revert "kasan: drop skip_kasan_poison variable in free_pages_prepare"
-Date: Thu, 9 Mar 2023 20:29:13 -0800
-
-This reverts commit 487a32ec24be819e747af8c2ab0d5c515508086a.
-
-should_skip_kasan_poison() reads the PG_skip_kasan_poison flag from
-page->flags.  However, this line of code in free_pages_prepare():
-
-	page->flags &= ~PAGE_FLAGS_CHECK_AT_PREP;
-
-clears most of page->flags, including PG_skip_kasan_poison, before calling
-should_skip_kasan_poison(), which meant that it would never return true as
-a result of the page flag being set.  Therefore, fix the code to call
-should_skip_kasan_poison() before clearing the flags, as we were doing
-before the reverted patch.
-
-This fixes a measurable performance regression introduced in the reverted
-commit, where munmap() takes longer than intended if HW tags KASAN is
-supported and enabled at runtime.  Without this patch, we see a
-single-digit percentage performance regression in a particular
-mmap()-heavy benchmark when enabling HW tags KASAN, and with the patch,
-there is no statistically significant performance impact when enabling HW
-tags KASAN.
-
-Link: https://lkml.kernel.org/r/20230310042914.3805818-2-pcc@google.com
-Fixes: 487a32ec24be ("kasan: drop skip_kasan_poison variable in free_pages_prepare")
-  Link: https://linux-review.googlesource.com/id/Ic4f13affeebd20548758438bb9ed9ca40e312b79
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com> [arm64]
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: <stable@vger.kernel.org>	[6.1]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
+Cc: stable@vger.kernel.org
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 ---
+Changes in v2:
+ - Correct Fixes tag line in commit description
+ - Add Cc tag line for stable@vger.kernel.org
 
+ drivers/counter/104-quad-8.c | 29 +++++++----------------------
+ 1 file changed, 7 insertions(+), 22 deletions(-)
 
---- a/mm/page_alloc.c~revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare
-+++ a/mm/page_alloc.c
-@@ -1398,6 +1398,7 @@ static __always_inline bool free_pages_p
- 			unsigned int order, bool check_free, fpi_t fpi_flags)
+diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
+index deed4afadb29..dba04b5e80b7 100644
+--- a/drivers/counter/104-quad-8.c
++++ b/drivers/counter/104-quad-8.c
+@@ -97,10 +97,6 @@ struct quad8 {
+ 	struct quad8_reg __iomem *reg;
+ };
+ 
+-/* Borrow Toggle flip-flop */
+-#define QUAD8_FLAG_BT BIT(0)
+-/* Carry Toggle flip-flop */
+-#define QUAD8_FLAG_CT BIT(1)
+ /* Error flag */
+ #define QUAD8_FLAG_E BIT(4)
+ /* Up/Down flag */
+@@ -133,6 +129,9 @@ struct quad8 {
+ #define QUAD8_CMR_QUADRATURE_X2 0x10
+ #define QUAD8_CMR_QUADRATURE_X4 0x18
+ 
++/* Each Counter is 24 bits wide */
++#define LS7267_CNTR_MAX GENMASK(23, 0)
++
+ static int quad8_signal_read(struct counter_device *counter,
+ 			     struct counter_signal *signal,
+ 			     enum counter_signal_level *level)
+@@ -156,19 +155,9 @@ static int quad8_count_read(struct counter_device *counter,
  {
- 	int bad = 0;
-+	bool skip_kasan_poison = should_skip_kasan_poison(page, fpi_flags);
- 	bool init = want_init_on_free();
+ 	struct quad8 *const priv = counter_priv(counter);
+ 	struct channel_reg __iomem *const chan = priv->reg->channel + count->id;
+-	unsigned int flags;
+-	unsigned int borrow;
+-	unsigned int carry;
+ 	unsigned long irqflags;
+ 	int i;
  
- 	VM_BUG_ON_PAGE(PageTail(page), page);
-@@ -1470,7 +1471,7 @@ static __always_inline bool free_pages_p
- 	 * With hardware tag-based KASAN, memory tags must be set before the
- 	 * page becomes unavailable via debug_pagealloc or arch_free_page.
- 	 */
--	if (!should_skip_kasan_poison(page, fpi_flags)) {
-+	if (!skip_kasan_poison) {
- 		kasan_poison_pages(page, order, init);
+-	flags = ioread8(&chan->control);
+-	borrow = flags & QUAD8_FLAG_BT;
+-	carry = !!(flags & QUAD8_FLAG_CT);
+-
+-	/* Borrow XOR Carry effectively doubles count range */
+-	*val = (unsigned long)(borrow ^ carry) << 24;
+-
+ 	spin_lock_irqsave(&priv->lock, irqflags);
  
- 		/* Memory is already initialized if KASAN did it internally. */
-_
-
-Patches currently in -mm which might be from pcc@google.com are
-
-revert-kasan-drop-skip_kasan_poison-variable-in-free_pages_prepare.patch
-kasan-call-clear_page-with-a-match-all-tag-instead-of-changing-page-tag.patch
-kasan-remove-pg_skip_kasan_poison-flag.patch
+ 	/* Reset Byte Pointer; transfer Counter to Output Latch */
+@@ -191,8 +180,7 @@ static int quad8_count_write(struct counter_device *counter,
+ 	unsigned long irqflags;
+ 	int i;
+ 
+-	/* Only 24-bit values are supported */
+-	if (val > 0xFFFFFF)
++	if (val > LS7267_CNTR_MAX)
+ 		return -ERANGE;
+ 
+ 	spin_lock_irqsave(&priv->lock, irqflags);
+@@ -806,8 +794,7 @@ static int quad8_count_preset_write(struct counter_device *counter,
+ 	struct quad8 *const priv = counter_priv(counter);
+ 	unsigned long irqflags;
+ 
+-	/* Only 24-bit values are supported */
+-	if (preset > 0xFFFFFF)
++	if (preset > LS7267_CNTR_MAX)
+ 		return -ERANGE;
+ 
+ 	spin_lock_irqsave(&priv->lock, irqflags);
+@@ -834,8 +821,7 @@ static int quad8_count_ceiling_read(struct counter_device *counter,
+ 		*ceiling = priv->preset[count->id];
+ 		break;
+ 	default:
+-		/* By default 0x1FFFFFF (25 bits unsigned) is maximum count */
+-		*ceiling = 0x1FFFFFF;
++		*ceiling = LS7267_CNTR_MAX;
+ 		break;
+ 	}
+ 
+@@ -850,8 +836,7 @@ static int quad8_count_ceiling_write(struct counter_device *counter,
+ 	struct quad8 *const priv = counter_priv(counter);
+ 	unsigned long irqflags;
+ 
+-	/* Only 24-bit values are supported */
+-	if (ceiling > 0xFFFFFF)
++	if (ceiling > LS7267_CNTR_MAX)
+ 		return -ERANGE;
+ 
+ 	spin_lock_irqsave(&priv->lock, irqflags);
+-- 
+2.39.2
 
