@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A814C6B6C72
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 00:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A046B6C74
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 00:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229757AbjCLXQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 19:16:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38056 "EHLO
+        id S229776AbjCLXQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 19:16:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbjCLXQO (ORCPT
+        with ESMTP id S229700AbjCLXQO (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 19:16:14 -0400
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C6FC26C33
-        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:12 -0700 (PDT)
-Received: by mail-qt1-x82b.google.com with SMTP id l18so11596912qtp.1
-        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:12 -0700 (PDT)
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2BA26CEA
+        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:13 -0700 (PDT)
+Received: by mail-qt1-x82c.google.com with SMTP id r5so11576559qtp.4
+        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 16:16:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678662971;
+        d=linaro.org; s=google; t=1678662972;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=R1ENeaBfRz6SWrwdqP2MAd7R+kpBfK8pfsSO8vxDCF0=;
-        b=CfV0zlBWYVHfuG5Ac+jwlt2TyojmiibFnT65yzVqZ/bbCmqN8gjkqSx87zXSHMI7J6
-         pzexBwB0OcS21QFryblC5W0RSnCK6/a3XpwlMFr3kPmFdA1NjUyMi3EO18p3Z33vRDDu
-         DFE7d4afmp7NG8W6v4Ugu4zRfsTlfKCw8lK3MfvooXhZvggxf8ERYE8AskTSwJf5Rh2E
-         1AmUOgdq2Qv8Md0ghQGk9kHbnfzyCuzQ/+MIznuPv9KAj3pqKFyrXxbCUT4uZVZHJOG7
-         ky2xqW2wto1zSSfFCEd23y7QmAd46blC6Ssfm5c4JTGV+fWluybV7JIX1QjNfD1ums/9
-         sTIA==
+        bh=AoGPgKe2IxoYrPUIJ5SHvzZG4v3yw/sB6Vnm+zuZIxo=;
+        b=lQ/RO+iSEnK5ZBEa1lcIF0WVTdzciAmoC1PP+hRycMW3GkNDUlO3jt7aGHYwXW+EAj
+         nK4tr6vpvcY/OjlCdUQFM8g8Z9o1o/aqWVy0q2o1YPh236+zKpa9NDUyELiS4vaL2lNN
+         QX9LNF/Ko7ii+zn7FlC3jWr44B+pXkf18zntaAXQnmD8J0FqPuDfjs4HrYutlAoDPFmc
+         bbzNQp8NOxeqmX4/yyJvs984AJ0AEO6g35je8aWkucgTnIirwYUbZT8Z4j2Iysb4fnQZ
+         hBfBMZ5NqDilQUCNqyeMSySz4O8IjcJIW5UNw+fu9ssNeVOKhFyO8F/M0x6K2NZIVB8Q
+         i6Bg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678662971;
+        d=1e100.net; s=20210112; t=1678662972;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=R1ENeaBfRz6SWrwdqP2MAd7R+kpBfK8pfsSO8vxDCF0=;
-        b=b48whGUC4H1AtqUkYqDiy18sWFmEVMBK7EDgnpZtXRccM5k51c8LkkUzEa3TJNnNiB
-         w+43uXSkQYMChua2iwtSb2Tls9Q8e+J66gMdFGEONppesNWVz+Zx0qRO8j098sBGbtue
-         ZXiStsKrAQZQYycP9P4gPJepwWlPzvmL7BQyfBXOZVa1IVA8UEqQSRixj9d2BkOpkj7P
-         zlc2OjEY6VwRWffmv0U/sZf6iDxgVpjhEVYKGpzl4+kcn+lHfHoXfGGDhlz9GjqR4JV5
-         pgCUmpUvOV1OkiojRmyXCI4S7ltwRU9hwIx7CiVGr9l61LFLyMxQSRUgOZXoRj/6Y4/a
-         ZTEg==
-X-Gm-Message-State: AO0yUKXRS2jA4COEzTsWCJPHWn4mXTK+EsP1ltKWVItbDBOAaIKjMLcD
-        6gwePa/ppAE/MB4fTuEYRjmTzw==
-X-Google-Smtp-Source: AK7set9Zfnrah355ZP1Aoeye8QsXsctxC9ULMjRB5Vo95kUCOK8f40n+jxmPo1oZ4x4qKVaonfbvVA==
-X-Received: by 2002:ac8:574d:0:b0:3bf:be8a:8f96 with SMTP id 13-20020ac8574d000000b003bfbe8a8f96mr15791823qtx.12.1678662971478;
-        Sun, 12 Mar 2023 16:16:11 -0700 (PDT)
+        bh=AoGPgKe2IxoYrPUIJ5SHvzZG4v3yw/sB6Vnm+zuZIxo=;
+        b=Rf/uMxPMbuZdJnLKmS5V7SJWH1usIe4QfJrUSWezEOho+dpFrL/PxnehtdHB57q4Bd
+         FrU5wo3u+AIFRD0JzpGq6c1mzUQoohB3opp6rExLdAxQzfH93RM4RedPuccLQzn2qMIT
+         5E96pPE4Y+ME+SoZq0IotndzBzUIW4b6pZU+b3LijmRdddifkMOBtJ/XcgqGI1BVw3p8
+         1579Kan1MHiFRGD7oQG9wTJt1WEEQLdtCe/RGVJff33sYO7p0Sr4MM4N8s3JJDVs0k0M
+         W+PHCCgFbQB0iKlDfF7UBJu00kgyZZQGvPqXbFpcFnJD1V6kGRmGIjKmOtDhfTj0afAq
+         Bk8g==
+X-Gm-Message-State: AO0yUKXOEulL8PahpbtCZiaiJFk/6/NT56JOuEbb/WQHc/GbRwAYcTv5
+        VSUqFAFkTaceCAuFXAwqfZzZrHK1FPOCPlq6vvo=
+X-Google-Smtp-Source: AK7set9ALguWk4ZSeYP4J36WuS5uA8ksrQLDdeq0RjTAVM1WLijpdqARKxpjw5R5zDnw07rw3KnXYw==
+X-Received: by 2002:ac8:5bc9:0:b0:3bf:b75a:d7a7 with SMTP id b9-20020ac85bc9000000b003bfb75ad7a7mr16113862qtb.7.1678662972326;
+        Sun, 12 Mar 2023 16:16:12 -0700 (PDT)
 Received: from fedora.attlocal.net (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
-        by smtp.gmail.com with ESMTPSA id dm21-20020a05620a1d5500b00742f250ebc0sm4307091qkb.9.2023.03.12.16.16.10
+        by smtp.gmail.com with ESMTPSA id dm21-20020a05620a1d5500b00742f250ebc0sm4307091qkb.9.2023.03.12.16.16.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Mar 2023 16:16:11 -0700 (PDT)
+        Sun, 12 Mar 2023 16:16:12 -0700 (PDT)
 From:   William Breathitt Gray <william.gray@linaro.org>
 To:     linux-iio@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, jic23@kernel.org, lars@metafoo.de,
         William Breathitt Gray <william.gray@linaro.org>,
         stable@vger.kernel.org
-Subject: [PATCH 5.15 v3 2/6] counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
-Date:   Sun, 12 Mar 2023 19:15:50 -0400
-Message-Id: <20230312231554.134858-2-william.gray@linaro.org>
+Subject: [PATCH 5.10 v3 3/6] counter: 104-quad-8: Fix race condition between FLAG and CNTR reads
+Date:   Sun, 12 Mar 2023 19:15:51 -0400
+Message-Id: <20230312231554.134858-3-william.gray@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230312231554.134858-1-william.gray@linaro.org>
 References: <20230312231554.134858-1-william.gray@linaro.org>
@@ -64,8 +64,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -83,17 +82,17 @@ Since the race condition could result in an incorrect 25-bit count
 value, remove support for 25-bit count values from this driver.
 
 Fixes: 28e5d3bb0325 ("iio: 104-quad-8: Add IIO support for the ACCES 104-QUAD-8")
-Cc: <stable@vger.kernel.org> # 5.15.x
+Cc: <stable@vger.kernel.org> # 5.10.x
 Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 ---
  drivers/counter/104-quad-8.c | 18 +++---------------
  1 file changed, 3 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index 0caa60537..643aae0c9 100644
+index 21bb2bb76..1b4fdee9d 100644
 --- a/drivers/counter/104-quad-8.c
 +++ b/drivers/counter/104-quad-8.c
-@@ -61,10 +61,6 @@ struct quad8 {
+@@ -62,10 +62,6 @@ struct quad8_iio {
  #define QUAD8_REG_CHAN_OP 0x11
  #define QUAD8_REG_INDEX_INPUT_LEVELS 0x16
  #define QUAD8_DIFF_ENCODER_CABLE_STATUS 0x17
@@ -104,9 +103,9 @@ index 0caa60537..643aae0c9 100644
  /* Error flag */
  #define QUAD8_FLAG_E BIT(4)
  /* Up/Down flag */
-@@ -121,17 +117,9 @@ static int quad8_count_read(struct counter_device *counter,
+@@ -643,17 +639,9 @@ static int quad8_count_read(struct counter_device *counter,
  {
- 	struct quad8 *const priv = counter->priv;
+ 	struct quad8_iio *const priv = counter->priv;
  	const int base_offset = priv->base + 2 * count->id;
 -	unsigned int flags;
 -	unsigned int borrow;
@@ -123,7 +122,7 @@ index 0caa60537..643aae0c9 100644
  
  	mutex_lock(&priv->lock);
  
-@@ -699,8 +687,8 @@ static ssize_t quad8_count_ceiling_read(struct counter_device *counter,
+@@ -1198,8 +1186,8 @@ static ssize_t quad8_count_ceiling_read(struct counter_device *counter,
  
  	mutex_unlock(&priv->lock);
  
@@ -135,7 +134,7 @@ index 0caa60537..643aae0c9 100644
  
  static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
 
-base-commit: bbf9f29bac04f85bbf45af172dcdc9664d8808cb
+base-commit: e5f315b55f8e09ac17c968da42f9345f64efcdd2
 -- 
 2.39.2
 
