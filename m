@@ -2,72 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52D646B65F6
-	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 13:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB3B6B66BD
+	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 14:34:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229543AbjCLMcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 08:32:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44248 "EHLO
+        id S230101AbjCLNeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 09:34:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229528AbjCLMcf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 08:32:35 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D0129417;
-        Sun, 12 Mar 2023 05:32:34 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id qa18-20020a17090b4fd200b0023750b675f5so14354177pjb.3;
-        Sun, 12 Mar 2023 05:32:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678624354;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=sND63swE3tBvJlsdtMNxv0m+o+JUrRtvihmOX2Gic3I=;
-        b=pgIzP1JPRczXPCKWe0RuYuLwuVSOxJG5FQY4lgWTnW9eRZj4igu22CwleVLE/dxw/D
-         6jjEu2AvHsPw4tVgHBqEPRxD4nqByPBLvY7jrdaRcDZ6roiELMNckXg3yiUnfONO+rKg
-         Ywcy+qGbVvsurohPHe8BWmQ138u/783B875dHDZCnS8++2b3VBY3pt6gi+51YqsdoOr9
-         LXatPxvnmcZNGbyigvZvbv7VgX7d/jQDvYSsWsYwt/vXWwKC1CKGc6ro3Pip2mED+X9N
-         3MaywbA/2MbGO/YHDhkPYqJdUmH2n8CmqX0ptNTscsrfFW2cty4OqQkkziZZ8sZkCO0L
-         x/RA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678624354;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sND63swE3tBvJlsdtMNxv0m+o+JUrRtvihmOX2Gic3I=;
-        b=WSwi9NZZmuE+L7XpGg0JwzfOlobfUz6sA2HFVaZJ+zJale6APEXcWVPzeGCc1BETs3
-         fHp7/AUkrN76EulnJ2J3OBC+etxwEemL5C3Wdrr/vUh1yGOgTD2sZBT9/1MiEF3TLk+l
-         Yn8bfbg3l2AwK2TIxc9e1eTSdxntZZibtHm9g3MYYlgU3xKKrtS8TpaAKM8NlXb2tlF3
-         tbXUxaRrN0+uMxuKwWBz3fedetp0rJSxcOZnTp2SNA2iFK1DO6PIW/rU9f+GHaRJuI9j
-         568I+0uMdDeLrBYj1wT7vYIU7slH0DHBtlF93J3J7yvHZ7GYQjXwoYBRpkEEM2XEH6lz
-         hIYQ==
-X-Gm-Message-State: AO0yUKWSflB9LgrYisuVIuDf5xOMstF0zFmiS+yAFpZUmA1EzWBz5wn+
-        lA41VAeyCR/ZSGqekvKhKs5ci/+GJHE=
-X-Google-Smtp-Source: AK7set/I6J5J92BebizjRXQdDtVWHlDjuxTQ+5goQo357inr1/1+zIVqFAkwnhxAV/lPvrB+t2J6cQ==
-X-Received: by 2002:a17:90b:4b04:b0:234:656d:2366 with SMTP id lx4-20020a17090b4b0400b00234656d2366mr31418701pjb.42.1678624353763;
-        Sun, 12 Mar 2023 05:32:33 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-1.three.co.id. [180.214.232.1])
-        by smtp.gmail.com with ESMTPSA id gn3-20020a17090ac78300b0023cfa3f7c9fsm689336pjb.10.2023.03.12.05.32.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Mar 2023 05:32:33 -0700 (PDT)
-Received: by debian.me (Postfix, from userid 1000)
-        id 410EC1066D5; Sun, 12 Mar 2023 19:32:28 +0700 (WIB)
-Date:   Sun, 12 Mar 2023 19:32:28 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>, "A.P. Jo." <apjo@tuta.io>
-Cc:     Stable <stable@vger.kernel.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bricked LTS Kernel: Questionable i915 Commit
-Message-ID: <ZA3GXFkD0kSpP/mn@debian.me>
-References: <NQJqG8n--3-9@tuta.io>
- <ZA2zkz8J6fuJsisw@kroah.com>
+        with ESMTP id S230128AbjCLNeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 09:34:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086DB39CF2;
+        Sun, 12 Mar 2023 06:34:10 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C82C2B80B18;
+        Sun, 12 Mar 2023 13:34:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B733AC433AC;
+        Sun, 12 Mar 2023 13:34:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678628047;
+        bh=lLvXX1RY/TsF8vol5nsiuBWxIpMDLvN0QDYIXXQeoWg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UOQf+FW3/2d+IEmAsy7eNQW3JNm0eAJefKGE73FaHUHHDq0ElsfNYtCQcvAPboeYt
+         9MT0+G7PZ7DycgLy7r5w5Ki/Mxen3fjLb7vzpOHpnDhBTAGKp6ne84OJBGRPmGJhCH
+         bhbHwfHiBhZfERo/BePa2A1/zNKr6LXQe5co5MvatEmccC6RSFWwVTxZvp8u/5/sWC
+         x3JnwSQVyvw9K036uUlwi5aHa9dA3yRAqHbqry1iNwXTixgCTlO4wpnXXADqN+CQGq
+         C1Km24e9n+Xe8TZgYSlFt1YiBEbH25GET36pVBZ4FWX5MynV672PZgyGe+ol2e/oqc
+         tyPhXjsWMki3Q==
+Date:   Sun, 12 Mar 2023 13:34:03 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Eric Biggers <ebiggers@kernel.org>, Willy Tarreau <w@1wt.eu>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
+        linux-fsdevel@vger.kernel.org,
+        Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Subject: Re: AUTOSEL process
+Message-ID: <ZA3Uy4HuBPLvKWsJ@sirena.org.uk>
+References: <ZAyK0KM6JmVOvQWy@sashalap>
+ <20230311161644.GH860405@mit.edu>
+ <ZAy+3f1/xfl6dWpI@sol.localdomain>
+ <ZAzJltJaydwjCN6E@1wt.eu>
+ <ZAzVbzthi8IfptFZ@sol.localdomain>
+ <ZAzghyeiac3Zh8Hh@1wt.eu>
+ <ZAzqSeus4iqCOf1O@sol.localdomain>
+ <ZA1V4MbG6U3wP6q6@1wt.eu>
+ <ZA1hdkrOKLG697RG@sol.localdomain>
+ <CAOQ4uxiJPvKh5VzoP=9xamFfU78r3J25pwW6GQyAUN7YPJk=dQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="HsMEdJ1+ndKwvu/u"
+        protocol="application/pgp-signature"; boundary="g2af+PWy0yQWzBAQ"
 Content-Disposition: inline
-In-Reply-To: <ZA2zkz8J6fuJsisw@kroah.com>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <CAOQ4uxiJPvKh5VzoP=9xamFfU78r3J25pwW6GQyAUN7YPJk=dQ@mail.gmail.com>
+X-Cookie: Many a family tree needs trimming.
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -75,35 +69,44 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---HsMEdJ1+ndKwvu/u
-Content-Type: text/plain; charset=utf-8
+--g2af+PWy0yQWzBAQ
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Mar 12, 2023 at 12:12:19PM +0100, Greg KH wrote:
-> There's a second report of this here:
-> 	https://lore.kernel.org/r/d955327b-cb1c-4646-76b9-b0499c0c64c6@manjaro.o=
-rg
-> I'll go revert this and push out a new release in an hour or so, thanks!
+On Sun, Mar 12, 2023 at 09:42:59AM +0200, Amir Goldstein wrote:
 
-Hi Greg,
+> Alas, despite sending a pull request via github and advertising my work
+> and its benefits on several occasions, I got no feedback from Konstantin
+> nor from any other developers, so I did not pursue upstreaming.
 
-The report link above got 404'ed (the report was sent as HTML email).
+> If you find any part of this work relevant, I can try to rebase and
+> post my b4 patches.
 
-Thanks.
+...
 
---=20
-An old man doll... just what I always wanted! - Clara
+> [1] https://github.com/mricon/b4/pull/1
 
---HsMEdJ1+ndKwvu/u
+b4 development is mainly done via email on the tools@linux.kernel.org
+list, and https://git.kernel.org/pub/scm/utils/b4/b4.git rather than that
+github repository (note that yours is the first and only pull
+request there) is the main repo.  I suspect that github repo is
+just an automatically maintained mirror and nobody's seen your
+pull request, you'd be much more likely to get a response sending
+your patches to the list CC Konstantin.
+
+--g2af+PWy0yQWzBAQ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZA3GVwAKCRD2uYlJVVFO
-o9yMAQD21ZBXiCvbVEND7wefVTmYNT18xAKyuej8Z1gWJt0iygD+NieLKbB1kh8G
-4OADd/n771CREsNR3G7xtdQ2mwkijwc=
-=dUgr
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmQN1McACgkQJNaLcl1U
+h9AcIQgAg8ofOrCx+tGCy6/btvuphxg1CWaxqhEa/n3LX9DaWK5Edr2ukKshhkoh
+VdvMuf1chP6TjW0wQBEdwh8IRB7ZMx2uSp/dYdI968ohf5MoZur9FuYWJaPbxAnC
+Q8/Q2La9oZ5EAgrD2yJWoABLy+/r53Q8XOab30K02PLiDD9L4ZUPAUpDdj1898r0
+igsHe1wxtgkO68kw2hjx8We2hu/p44RvAEqIexOUXlt8ZBKaLptFq1WfDK+7Dse5
+QPkJN8T5YublavSzESExkQAo7hClVKU+DbJ1cZIwygsa2TsgWeGuzuALqXwjX8uI
+sEN77L4ymPK/C5+lyWv73xb5VReREQ==
+=VSTB
 -----END PGP SIGNATURE-----
 
---HsMEdJ1+ndKwvu/u--
+--g2af+PWy0yQWzBAQ--
