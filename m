@@ -2,114 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F776B67CC
-	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 17:00:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB8996B67D1
+	for <lists+stable@lfdr.de>; Sun, 12 Mar 2023 17:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbjCLQA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Mar 2023 12:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
+        id S229552AbjCLQFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Mar 2023 12:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbjCLQAz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 12:00:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC184B816;
-        Sun, 12 Mar 2023 09:00:45 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36F1460F3A;
-        Sun, 12 Mar 2023 16:00:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E3BCC433EF;
-        Sun, 12 Mar 2023 16:00:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678636844;
-        bh=nbxNTesKWPwebrszPu7Fl9hCJ3NJCxcSoKeuua/b7nA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nW/4G4rtDiNnjMx0trpjZChXLuJtjpMmvG0SjWDpPGmUDTVK7T+bdNqFBilrdkB2e
-         F7TGLqtfgZkiLkN5lBBCdqZAK7tqqFpQBJA0rnBYGY6z1ikrcPqZnW63lhxn7QDcCg
-         o2miQUjKSMLUhoUYUEANhV2dFtWM9LFRuKs0GP4EYHUZnXj/DA/vn+L5kjvM0c4VJR
-         r6lYhgAziH6iLzGguY5+kMTMAKA62ZDuAyIgPwgCQDDg/ZRLmE2POCw82tEhx4bjgF
-         ohiqFyZsMjvwQSH0u6o5/77lp2MHQFHT9CajZDvPG/g6DHkt+0JKywxovMFyoWlnqq
-         KVnaqDL/hHvWQ==
-Date:   Sun, 12 Mar 2023 12:00:43 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Eric Biggers <ebiggers@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
-        Matthew Wilcox <willy@infradead.org>,
-        Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        "Luis R. Chamberlain" <mcgrof@gmail.com>
-Subject: Re: AUTOSEL process
-Message-ID: <ZA33K0U5zcoQW7Lx@sashalap>
-References: <ZATC3djtr9/uPX+P@duo.ucw.cz>
- <ZAewdAql4PBUYOG5@gmail.com>
- <ZAwe95meyCiv6qc4@casper.infradead.org>
- <ZAyK0KM6JmVOvQWy@sashalap>
- <20230311161644.GH860405@mit.edu>
- <ZAy+3f1/xfl6dWpI@sol.localdomain>
- <ZAzH8Ve05SRLYPnR@sashalap>
- <ZAzOgw8Ui4kh1Z3D@sol.localdomain>
- <ZAzvPR1zev3tFJoH@sashalap>
- <CAOQ4uxhgHp7Eh4HC7ceqzyWp2PyD_G7-o-DukfA90WN456gDeQ@mail.gmail.com>
+        with ESMTP id S229514AbjCLQFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Mar 2023 12:05:11 -0400
+Received: from antispamsnwll.cedia.org.ec (antispamsnwll.cedia.org.ec [201.159.220.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C70282E0C4
+        for <stable@vger.kernel.org>; Sun, 12 Mar 2023 09:05:08 -0700 (PDT)
+Received: from antispamsnwll.cedia.org.ec (127.0.0.1) id h1ns380171sb for <stable@vger.kernel.org>; Sun, 12 Mar 2023 11:05:07 -0500 (envelope-from <prvs=1435463345=mbflores@cuenca.gob.ec>)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cuenca.gob.ec; s=cuenca; i=@cuenca.gob.ec; h=Received:Received:
+        Received:Received:Received:Content-Type:MIME-Version:
+        Content-Transfer-Encoding:Content-Description:Subject:To:From:
+        Date:Reply-To:Message-Id; bh=01PUUqCAYRgG8f1c42Th67yE/PbYaq6/Tv6
+        c9Wl0FIw=; b=PPof9foxwRi7yI/XcR80cy7srF8bYzVNI3r7M3P1TSIalsH4Z+m
+        C1JSzgOWBiu7W6e6JznFk1LR1fw1NWa5WYAwsHQtZtt5FBkPyw5HlU7XlpAlGLQs
+        PwFCv2BHHIKg2NssA+6TnG4VhI1u4L/D2OGDk8p/f1lNsnFaDX318Qb0=
+Received: from mtace.cuenca.gob.ec ([200.55.234.131])
+        by antispamsnwll.cedia.org.ec ([192.168.205.200]) (SonicWall 10.0.21.7607)
+        with ESMTP id o202303121605070007900-2; Sun, 12 Mar 2023 11:05:07 -0500
+Received: from mtace.cuenca.gob.ec (localhost [127.0.0.1])
+        by mtace.cuenca.gob.ec (Postfix) with ESMTPS id C401942DAFF4;
+        Sun, 12 Mar 2023 11:04:59 -0500 (-05)
+Received: from localhost (localhost [127.0.0.1])
+        by mtace.cuenca.gob.ec (Postfix) with ESMTP id 676B942D8993;
+        Sun, 12 Mar 2023 11:04:54 -0500 (-05)
+Received: from mtace.cuenca.gob.ec ([127.0.0.1])
+        by localhost (mtace.cuenca.gob.ec [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id rsHIlo2G4GPB; Sun, 12 Mar 2023 11:04:54 -0500 (-05)
+Received: from IP-135-195.dataclub.eu (unknown [84.38.135.195])
+        by mtace.cuenca.gob.ec (Postfix) with ESMTPSA id 0932842CBFF9;
+        Sun, 12 Mar 2023 11:04:45 -0500 (-05)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOQ4uxhgHp7Eh4HC7ceqzyWp2PyD_G7-o-DukfA90WN456gDeQ@mail.gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: BITTE LESEN SIE !
+To:     Recipients <mbflores@cuenca.gob.ec>
+From:   "Celine Le Dorze" <mbflores@cuenca.gob.ec>
+Date:   Sun, 12 Mar 2023 18:04:44 +0200
+Reply-To: celineledorze350@gmail.com
+Message-Id: <20230312160446.0932842CBFF9@mtace.cuenca.gob.ec>
+X-Mlf-DSE-Version: 7091
+X-Mlf-Rules-Version: s20230112191048; ds20200715013501;
+        di20230306184654; ri20160318003319; fs20230309215801
+X-Mlf-Smartnet-Version: 20210917223710
+X-Mlf-Envelope-From: mbflores@cuenca.gob.ec
+X-Mlf-CnxnMgmt-Allow: 200.55.234.131
+X-Mlf-Version: 10.0.21.7607
+X-Mlf-License: BSV_C_AP_T_R
+X-Mlf-UniqueId: o202303121605070007900
+X-Spam-Status: No, score=4.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FORGED_REPLYTO,
+        FREEMAIL_REPLYTO_END_DIGIT,LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,
+        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 12, 2023 at 10:04:23AM +0200, Amir Goldstein wrote:
->On Sat, Mar 11, 2023 at 11:25 PM Sasha Levin <sashal@kernel.org> wrote:
->>
->> On Sat, Mar 11, 2023 at 10:54:59AM -0800, Eric Biggers wrote:
->...
->> >And yes, I am interested in contributing, but as I mentioned I think you need to
->> >first acknowledge that there is a problem, fix your attitude of immediately
->> >pushing back on everything, and make it easier for people to contribute.
->>
->> I don't think we disagree that the process is broken: this is one of the
->> reasons we went away from trying to support 6 year LTS kernels.
->>
->> However, we are not pushing back on ideas, we are asking for a hand in
->> improving the process: we've been getting drive-by comments quite often,
->> but when it comes to be doing the actual work people are quite reluctant
->> to help.
->>
->> If you want to sit down and scope out initial set of work around tooling
->> to help here I'm more than happy to do that: I'm planning to be both in
->> OSS and LPC if you want to do it in person, along with anyone else
->> interested in helping out.
->>
->
->Sasha,
->
->Will you be able to attend a session on AUTOSEL on the overlap day
->of LSFMM and OSS (May 10) or earlier?
->
->We were going to discuss the topic of filesystems and stable trees [1] anyway
->and I believe the discussion can be even more productive with you around.
->
->I realize that the scope of AUTOSEL is wider than backporting filesystem fixes,
->but somehow, most of the developers on this thread are fs developers.
->
->BTW, the story of filesystem testing in stable trees has also been improving
->since your last appearance in LSFMM.
-
-Happy to stop by and collaborate!
-
-I'll also be in Vancouver the whole week (though not in LSF/MM), so if
-you'd want to find time for a workshop around this topic with interested
-parties we can look into that too.
-
--- 
-Thanks,
-Sasha
+   Ich bin Frau C=E9line. Ich habe Ihre E-Mail-Adresse f=FCr eine Erbschaft=
+ im Wert von Millionen von Dollar ausgew=E4hlt. Bitte antworten Sie mir f=
+=FCr weitere Informationen, wenn Sie interessiert sind.
