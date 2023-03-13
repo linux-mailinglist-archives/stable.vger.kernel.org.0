@@ -2,108 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44566B7FCA
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 18:53:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 035C76B8079
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 19:27:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229493AbjCMRxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 13:53:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52492 "EHLO
+        id S230469AbjCMS1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 14:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbjCMRxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 13:53:46 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16D21BDFA
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 10:53:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678730024; x=1710266024;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=8dJ21apbI0tMORrFDkphDRyhVjW51yImDrMyP7bKoHw=;
-  b=Cz5/dqjLAQC4k47sjvCE5aUS2vSj/9XXM9XmitUytQ14lDdHztcPvHhK
-   JNgdNGXqWkW72qIhQQZGMorH/bSrzJ9rfyA1+e56fAbqP0EfE6f1fngrG
-   +6psXHatLec9aZZnR/P1iZ+xqtVsDiuX9kmwJSVZit0D8X46t524kZmOw
-   3QIF2t4UtAC9Wb0Ki7xyHcCjUvFHpcxKHk8B5Et0ZZwritXFqPEtl7tNd
-   +WzFVrfWv9g9Bgo0YrBQlyNMBw5YJRc253b9vzLYRcOczEEyz1T+JWwU8
-   SdpRK/KapDIlngT4bDyYQC1xVd8fdT5EFkzC1ZjQTxoyV2rzjMS95Qyur
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10648"; a="325582386"
-X-IronPort-AV: E=Sophos;i="5.98,257,1673942400"; 
-   d="scan'208";a="325582386"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Mar 2023 10:53:17 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10648"; a="924595702"
-X-IronPort-AV: E=Sophos;i="5.98,257,1673942400"; 
-   d="scan'208";a="924595702"
-Received: from ahajda-mobl.ger.corp.intel.com (HELO [10.213.0.29]) ([10.213.0.29])
-  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Mar 2023 10:53:15 -0700
-Message-ID: <977d29de-ca0b-7398-803a-6aa5a87d898d@intel.com>
-Date:   Mon, 13 Mar 2023 18:53:13 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.8.0
-Subject: Re: [Intel-gfx] [PATCH v2] drm/i915/active: Fix missing debug object
- activation
-Content-Language: en-US
-To:     Nirmoy Das <nirmoy.das@intel.com>, intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas.hellstrom@intel.com>
-References: <20230313103045.8906-1-nirmoy.das@intel.com>
-From:   Andrzej Hajda <andrzej.hajda@intel.com>
-Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
- Gdansk - KRS 101882 - NIP 957-07-52-316
-In-Reply-To: <20230313103045.8906-1-nirmoy.das@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230489AbjCMS13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 14:27:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE2584F6D;
+        Mon, 13 Mar 2023 11:26:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 740EB6147B;
+        Mon, 13 Mar 2023 18:25:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 43BD0C4339C;
+        Mon, 13 Mar 2023 18:25:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678731958;
+        bh=Ohid4WW4bE1iYiU0aGgJoySObkAyf67Ea/B4BQVbjnM=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=NVCzcmIkQtJwFPXGDf1dscUZxLiG0m86+OdrIZCilckaLjnWwg0De2/7zTcA69CUL
+         HlmRNYuv0qPfguryWWvJgZzyFsQvaEp17XK9wqPDUVp3tiClPn7Yga30ODV9AD5uTA
+         fDyVOiqTXpLA5lfUgc4cTaJ7NFmZVfNaPqm7O7fvDmgKftNyH/rv2uJbzh6aHnLmJJ
+         7j2YdMuYNS7TSMrbjcK/xyhBs0rOX18mMUurPIVzeD1TvEhWGgcX10CVI/opg76Arv
+         bor27gZV4jYEhOZf6uDHZcsbkclDRwRyG6wrGhx9o7NN06GVGBCthfjRYkCbITY9Ns
+         fYjkxJgDyNRCw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 2D253C43161;
+        Mon, 13 Mar 2023 18:25:58 +0000 (UTC)
+Subject: Re: [GIT PULL] virtio,vhost,vdpa: bugfixes
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20230313023139-mutt-send-email-mst@kernel.org>
+References: <20230313023139-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: Linux virtualization <virtualization.lists.linux-foundation.org>
+X-PR-Tracked-Message-Id: <20230313023139-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: ae43c20da2a77c508715a9c77845b4e87e6a1e25
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: fc89d7fb499b0162e081f434d45e8d1b47e82ece
+Message-Id: <167873195817.6604.15099339670931730243.pr-tracker-bot@kernel.org>
+Date:   Mon, 13 Mar 2023 18:25:58 +0000
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>, lulu@redhat.com,
+        kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+        leiyang@redhat.com, rongtao@cestc.cn, gautam.dawar@amd.com,
+        elic@nvidia.com
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13.03.2023 11:30, Nirmoy Das wrote:
-> debug_active_activate() expected ref->count to be zero
-> which is not true anymore as __i915_active_activate() calls
-> debug_active_activate() after incrementing the count.
-> 
-> v2: No need to check for "ref->count == 1" as __i915_active_activate()
-> already make sure of that.
-> 
-> Fixes: 04240e30ed06 ("drm/i915: Skip taking acquire mutex for no ref->active callback")
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: Thomas Hellström <thomas.hellstrom@intel.com>
-> Cc: Andi Shyti <andi.shyti@linux.intel.com>
-> Cc: intel-gfx@lists.freedesktop.org
-> Cc: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
-> Cc: <stable@vger.kernel.org> # v5.10+
-> Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+The pull request you sent on Mon, 13 Mar 2023 02:31:39 -0400:
 
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Regards
-Andrzej
-> ---
->   drivers/gpu/drm/i915/i915_active.c | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/i915_active.c
-> index a9fea115f2d2..8ef93889061a 100644
-> --- a/drivers/gpu/drm/i915/i915_active.c
-> +++ b/drivers/gpu/drm/i915/i915_active.c
-> @@ -92,8 +92,7 @@ static void debug_active_init(struct i915_active *ref)
->   static void debug_active_activate(struct i915_active *ref)
->   {
->   	lockdep_assert_held(&ref->tree_lock);
-> -	if (!atomic_read(&ref->count)) /* before the first inc */
-> -		debug_object_activate(ref, &active_debug_desc);
-> +	debug_object_activate(ref, &active_debug_desc);
->   }
->   
->   static void debug_active_deactivate(struct i915_active *ref)
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/fc89d7fb499b0162e081f434d45e8d1b47e82ece
 
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
