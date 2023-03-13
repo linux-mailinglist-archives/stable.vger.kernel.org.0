@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EDA96B7476
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 11:45:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 380BC6B7496
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 11:49:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbjCMKpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 06:45:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60840 "EHLO
+        id S230242AbjCMKtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 06:49:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229713AbjCMKpH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 06:45:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E85237F2F
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 03:45:06 -0700 (PDT)
+        with ESMTP id S230284AbjCMKtD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 06:49:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B903B900E
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 03:48:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5A1EBCE0E46
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 10:45:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5529FC433EF;
-        Mon, 13 Mar 2023 10:45:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D932B80FCD
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 10:48:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B701FC433EF;
+        Mon, 13 Mar 2023 10:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678704302;
-        bh=Vo6bbjhfdnKnGnYwfuHtzcrW3nM3tYRvEUWwnlwbDSU=;
+        s=korg; t=1678704530;
+        bh=yq00LzwFoLRn9EDGp9iR8z3t2btojkO9Tp8r9S3aGuM=;
         h=Subject:To:Cc:From:Date:From;
-        b=h3r8rC1zFtQfOpXdOSyiiR8g/gek24UA2K/qzTdqMEcgtTXhklaURq0ooxFFigHHi
-         ZRJHvDiS+EPZXEcP3TpB3PnhX1YcbHCXHteHqlek9SzaTInxyIwqepJdbCnGsFvp8n
-         2zsUKOe+2tXGHNOlzR4AO8yepgFO7QEUwT1C7aCI=
-Subject: FAILED: patch "[PATCH] staging: rtl8723bs: Pass correct parameters to" failed to apply to 4.14-stable tree
-To:     hdegoede@redhat.com, gregkh@linuxfoundation.org
+        b=PvJdUm2VtxYPMoE/YuSht4RMERobDNxn737waJl0GMLXAURQPiHazsEQyhuGRbMJM
+         WsikbSWwzaXonhqrJdLGkE8/tpO4i8RaSFOTpklduelIZsYo8vb0qDEGq8Z/q68AHZ
+         9SrxQMWU6cwUJxqndrJeGo23F+3W42xK5OpUwEME=
+Subject: FAILED: patch "[PATCH] ext4: fix cgroup writeback accounting with fs-layer" failed to apply to 5.4-stable tree
+To:     ebiggers@google.com, tj@kernel.org, tytso@mit.edu,
+        willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Mar 2023 11:44:48 +0100
-Message-ID: <1678704288140@kroah.com>
+Date:   Mon, 13 Mar 2023 11:48:42 +0100
+Message-ID: <167870452211436@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,42 +48,42 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-4.14.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.4.y
 git checkout FETCH_HEAD
-git cherry-pick -x d17789edd6a8270c38459e592ee536a84c6202db
+git cherry-pick -x ffec85d53d0f39ee4680a2cf0795255e000e1feb
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678704288140@kroah.com' --subject-prefix 'PATCH 4.14.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167870452211436@kroah.com' --subject-prefix 'PATCH 5.4.y' HEAD^..
 
 Possible dependencies:
 
-d17789edd6a8 ("staging: rtl8723bs: Pass correct parameters to cfg80211_get_bss()")
-6994aa430368 ("staging: rtl8723bs: fix camel case in struct ndis_802_11_ssid")
-d8b322b60da6 ("staging: rtl8723bs: fix camel case in struct ndis_802_11_conf")
-d3fcee1b78a5 ("staging: rtl8723bs: fix camel case in struct wlan_bssid_ex")
-2a62ff13132a ("staging: rtl8723bs: remove commented out condition")
-ddd7c8b0033b ("staging: rtl8723bs: remove 5Ghz code blocks")
-ec84d0ae54a6 ("staging: rtl8723bs: remove 5Ghz code related to channel plan definition")
-708180a92cd8 ("staging: rtl8723bs: remove all 5Ghz network types")
-403e6946d119 ("staging: rtl8723bs: remove if (true) statement")
-2172a6576388 ("staging: rtl8723bs: remove commented out RT_ASSERT occurrences")
-98dc120895a9 ("staging: rtl8723bs: split too long line")
-5a94f5c84281 ("staging: rtl8723bs: fix indentation in if block")
-79df841b4350 ("staging: rtl8723bs: replace DBG_871X_LEVEL logs with netdev_*()")
-027ffa10b80b ("staging: rtl8723bs: remove sdio_drv_priv structure")
-ee31d57e4022 ("staging: rtl8723bs: remove unnecessary dump_drv_version() usage")
-a2e2a05d5d57 ("staging: rtl8723bs: remove unnecessary goto jumps")
-5ffbfcf38b80 ("staging: rtl8723bs: remove empty ifdef blocks conditioned to DEBUG_CFG80211 definition")
-dcc48e083749 ("staging: rtl8723bs: remove all DBG_8192C logs")
-af6afdb63f17 ("staging: rtl8723bs: split long lines")
-e427bdd8e1e5 ("staging: rtl8723bs: rewrite comparison to null")
+ffec85d53d0f ("ext4: fix cgroup writeback accounting with fs-layer encryption")
+29b83c574b0a ("ext4: remove nr_submitted from ext4_bio_write_page()")
+04e568a3b31c ("ext4: handle redirtying in ext4_bio_write_page()")
+c75e707fe1aa ("block: remove the per-bio/request write hint")
+4c4dad11ff85 ("ext4: pass the operation to bio_alloc")
+07888c665b40 ("block: pass a block_device and opf to bio_alloc")
+b77c88c2100c ("block: pass a block_device and opf to bio_alloc_kiocb")
+609be1066731 ("block: pass a block_device and opf to bio_alloc_bioset")
+0a3140ea0fae ("block: pass a block_device and opf to blk_next_bio")
+3b005bf6acf0 ("block: move blk_next_bio to bio.c")
+7d8d0c658d48 ("xen-blkback: bio_alloc can't fail if it is allow to sleep")
+d7b78de2b155 ("rnbd-srv: remove struct rnbd_dev_blk_io")
+1fe0640ff94f ("rnbd-srv: simplify bio mapping in process_rdma")
+4b1dc86d1857 ("drbd: bio_alloc can't fail if it is allow to sleep")
+3f868c09ea8f ("dm-crypt: remove clone_init")
+53db984e004c ("dm: bio_alloc can't fail if it is allowed to sleep")
+39146b6f66ba ("ntfs3: remove ntfs_alloc_bio")
+5d2ca2132f88 ("nfs/blocklayout: remove bl_alloc_init_bio")
+f0d911927b3c ("nilfs2: remove nilfs_alloc_seg_bio")
+d5f68a42da7a ("fs: remove mpage_alloc")
 
 thanks,
 
@@ -90,51 +91,69 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d17789edd6a8270c38459e592ee536a84c6202db Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Mon, 6 Mar 2023 16:35:12 +0100
-Subject: [PATCH] staging: rtl8723bs: Pass correct parameters to
- cfg80211_get_bss()
+From ffec85d53d0f39ee4680a2cf0795255e000e1feb Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Thu, 2 Feb 2023 16:55:03 -0800
+Subject: [PATCH] ext4: fix cgroup writeback accounting with fs-layer
+ encryption
 
-To last 2 parameters to cfg80211_get_bss() should be of
-the enum ieee80211_bss_type resp. enum ieee80211_privacy types,
-which WLAN_CAPABILITY_ESS very much is not.
+When writing a page from an encrypted file that is using
+filesystem-layer encryption (not inline encryption), ext4 encrypts the
+pagecache page into a bounce page, then writes the bounce page.
 
-Fix both cfg80211_get_bss() calls in ioctl_cfg80211.c to pass
-the right parameters.
+It also passes the bounce page to wbc_account_cgroup_owner().  That's
+incorrect, because the bounce page is a newly allocated temporary page
+that doesn't have the memory cgroup of the original pagecache page.
+This makes wbc_account_cgroup_owner() not account the I/O to the owner
+of the pagecache page as it should.
 
-Note that the second call was already somewhat fixed by commenting
-out WLAN_CAPABILITY_ESS and passing in 0 instead. This was still
-not entirely correct though since that would limit returned
-BSS-es to ESS type BSS-es with privacy on.
+Fix this by always passing the pagecache page to
+wbc_account_cgroup_owner().
 
+Fixes: 001e4a8775f6 ("ext4: implement cgroup writeback support")
 Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230306153512.162104-2-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230203005503.141557-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-index 3aba4e6eec8a..84a9f4dd8f95 100644
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-@@ -350,7 +350,7 @@ int rtw_cfg80211_check_bss(struct adapter *padapter)
- 	bss = cfg80211_get_bss(padapter->rtw_wdev->wiphy, notify_channel,
- 			pnetwork->mac_address, pnetwork->ssid.ssid,
- 			pnetwork->ssid.ssid_length,
--			WLAN_CAPABILITY_ESS, WLAN_CAPABILITY_ESS);
-+			IEEE80211_BSS_TYPE_ANY, IEEE80211_PRIVACY_ANY);
+diff --git a/fs/ext4/page-io.c b/fs/ext4/page-io.c
+index beaec6d81074..1e4db96a04e6 100644
+--- a/fs/ext4/page-io.c
++++ b/fs/ext4/page-io.c
+@@ -409,7 +409,8 @@ static void io_submit_init_bio(struct ext4_io_submit *io,
  
- 	cfg80211_put_bss(padapter->rtw_wdev->wiphy, bss);
+ static void io_submit_add_bh(struct ext4_io_submit *io,
+ 			     struct inode *inode,
+-			     struct page *page,
++			     struct page *pagecache_page,
++			     struct page *bounce_page,
+ 			     struct buffer_head *bh)
+ {
+ 	int ret;
+@@ -421,10 +422,11 @@ static void io_submit_add_bh(struct ext4_io_submit *io,
+ 	}
+ 	if (io->io_bio == NULL)
+ 		io_submit_init_bio(io, bh);
+-	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
++	ret = bio_add_page(io->io_bio, bounce_page ?: pagecache_page,
++			   bh->b_size, bh_offset(bh));
+ 	if (ret != bh->b_size)
+ 		goto submit_and_retry;
+-	wbc_account_cgroup_owner(io->io_wbc, page, bh->b_size);
++	wbc_account_cgroup_owner(io->io_wbc, pagecache_page, bh->b_size);
+ 	io->io_next_block++;
+ }
  
-@@ -1139,8 +1139,8 @@ void rtw_cfg80211_unlink_bss(struct adapter *padapter, struct wlan_network *pnet
- 
- 	bss = cfg80211_get_bss(wiphy, NULL/*notify_channel*/,
- 		select_network->mac_address, select_network->ssid.ssid,
--		select_network->ssid.ssid_length, 0/*WLAN_CAPABILITY_ESS*/,
--		0/*WLAN_CAPABILITY_ESS*/);
-+		select_network->ssid.ssid_length, IEEE80211_BSS_TYPE_ANY,
-+		IEEE80211_PRIVACY_ANY);
- 
- 	if (bss) {
- 		cfg80211_unlink_bss(wiphy, bss);
+@@ -561,8 +563,7 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
+ 	do {
+ 		if (!buffer_async_write(bh))
+ 			continue;
+-		io_submit_add_bh(io, inode,
+-				 bounce_page ? bounce_page : page, bh);
++		io_submit_add_bh(io, inode, page, bounce_page, bh);
+ 	} while ((bh = bh->b_this_page) != head);
+ unlock:
+ 	unlock_page(page);
 
