@@ -2,373 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CD756B826F
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 21:13:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8066B82A2
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 21:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbjCMUM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 16:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45888 "EHLO
+        id S229552AbjCMUYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 16:24:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229838AbjCMUMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 16:12:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0879559DD;
-        Mon, 13 Mar 2023 13:12:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29B81B8136F;
-        Mon, 13 Mar 2023 20:12:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D859DC4339B;
-        Mon, 13 Mar 2023 20:12:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678738349;
-        bh=iM9qaWzIqxrzdc/XXmThEnslQOCj5cY4u+vy2Q+AUrw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxxrWHwYebQ3ggSK9GzvYRMj2XUafwbEuHtzpGp8pNXWA3qgQjBQCRx22RgVv243C
-         ZWIzg4u0VAn+8e0KL7qojeHPF9bC+tqi8VdC/Qw9nA5D2aQIn/e1uNqYu9mUCQVAHd
-         +CwQY8G0gaIybEdIDXtgEOd3wdv+6xYY8gwaN9HiaZaVM4i3z50+PGXCds6sl/HrdH
-         zrBJZnCJ/wFbmzaCGCrfu5kykFOuaOvDJN9Kcliw5Rp8jsqMDHP7rdLDKpaFyKQigY
-         HxdAdvvY7ny4N6mIsLc7NT/bg7EsgMy7dktwWUZfDTpPGGoHhRB9yklZiyaizGJb+B
-         aR+SLoCRTvRgA==
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH 3/3] f2fs: remove entire rb_entry sharing
-Date:   Mon, 13 Mar 2023 13:12:16 -0700
-Message-Id: <20230313201216.924234-4-jaegeuk@kernel.org>
-X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
-In-Reply-To: <20230313201216.924234-1-jaegeuk@kernel.org>
-References: <20230313201216.924234-1-jaegeuk@kernel.org>
+        with ESMTP id S229548AbjCMUYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 16:24:43 -0400
+X-Greylist: delayed 445 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 13 Mar 2023 13:24:42 PDT
+Received: from ns2.wdyn.eu (ns2.wdyn.eu [5.252.227.236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 168A9898CE;
+        Mon, 13 Mar 2023 13:24:42 -0700 (PDT)
+From:   Alexander Wetzel <alexander@wetzel-home.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wetzel-home.de;
+        s=wetzel-home; t=1678738614;
+        bh=FWa13PF5vbICcpoMfkjNuXTywzZ+euoKLT6Vj7zNeRQ=;
+        h=From:To:Cc:Subject:Date;
+        b=rTtcAljwQti73nGRizwBDO90eMqSjAGAwdqkhKko9n7nJqLLVp16DTkFFn+rd2y0e
+         FuuHBPGEwV9pEQK0eySbmDEjhszN1nhoV8WqIfNuyspNHk/gOE3+ENdqLamqWRMUOA
+         oMj6kTjBRAu9iGHK6gr18hlbPqGZx+MgjGJjpZWc=
+To:     johannes@sipsolutions.net
+Cc:     nbd@nbd.name, linux-wireless@vger.kernel.org,
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Thomas Mann <rauchwolke@gmx.net>, stable@vger.kernel.org
+Subject: [PATCH] wifi: mac80211: Serialize calls to drv_wake_tx_queue()
+Date:   Mon, 13 Mar 2023 21:15:42 +0100
+Message-Id: <20230313201542.72325-1-alexander@wetzel-home.de>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a last part to remove the memory sharing for rb_tree in extent_cache.
+drv_wake_tx_queue() has no protection against running concurrent
+multiple times. It's normally executed within the task calling
+ndo_start_xmit(). But wake_txqs_tasklet is also calling into it,
+regardless if the function is already running on another CPU or not.
 
-This should also fix arm32 memory alignment issue.
+While drivers with native iTXQ support are able to handle that, calls to
+ieee80211_handle_wake_tx_queue() - used by the drivers without
+native iTXQ support - must be serialized. Otherwise drivers can get
+unexpected overlapping drv_tx() calls from mac80211. Which causes issues
+for at least rt2800usb.
 
-[struct extent_node]               [struct rb_entry]
-[0] struct rb_node rb_node;        [0] struct rb_node rb_node;
-  union {                              union {
-    struct {                             struct {
-[16]  unsigned int fofs;           [12]    unsigned int ofs;
-      unsigned int len;                    unsigned int len;
-                                         };
-                                         unsigned long long key;
-                                       } __packed;
+To avoid what seems to be a not needed distinction between native and
+drivers using ieee80211_handle_wake_tx_queue(), the serialization is
+done for drv_wake_tx_queue() here.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 13054c548a1c ("f2fs: introduce infra macro and data structure of rb-tree extent cache")
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+The serialization works by detecting and blocking concurrent calls into
+drv_wake_tx_queue() and - when needed - restarting all queues after the
+wake_tx_queue ops returned from the driver.
+
+This fix here is only required when a tree has 'c850e31f79f0 ("wifi:
+mac80211: add internal handler for wake_tx_queue")', which introduced
+the buggy code path in mac80211. Drivers were switched to it with
+'a790cc3a4fad ("wifi: mac80211: add wake_tx_queue callback to
+drivers")'. But only after fixing an independent bug with commit
+'4444bc2116ae ("wifi: mac80211: Proper mark iTXQs for resumption")'
+problematic concurrent calls to drv_wake_tx_queue() really happened and
+exposed the initial issue.
+
+Fixes: c850e31f79f0 ("wifi: mac80211: add internal handler for wake_tx_queue")
+Reported-by: Thomas Mann <rauchwolke@gmx.net>
+Tested-by: Thomas Mann <rauchwolke@gmx.net>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217119
+Link: https://lore.kernel.org/r/b8efebc6-4399-d0b8-b2a0-66843314616b@leemhuis.info/
+CC: <stable@vger.kernel.org>
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
 ---
- fs/f2fs/extent_cache.c | 177 +++++++++++++++++------------------------
- fs/f2fs/f2fs.h         |   6 --
- 2 files changed, 71 insertions(+), 112 deletions(-)
 
-diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
-index 5c206f941aac..9a8153895d20 100644
---- a/fs/f2fs/extent_cache.c
-+++ b/fs/f2fs/extent_cache.c
-@@ -161,95 +161,52 @@ static bool __is_front_mergeable(struct extent_info *cur,
- 	return __is_extent_mergeable(cur, front, type);
+There are multiple variations how we can fix the issue.
+
+But this fix has to go directly into 6.2 to solve an ongoing
+regression.
+I tried to prevent an outright redesign while still having a
+full fix:
+
+Most questionable decision here probably is, if we should fix it in
+drv_wake_tx_queue() or only in ieee80211_handle_wake_tx_queue().
+But the decision how to serialize - tasklet vs some kind of locking
+- may also be an issue.
+
+Personally, I did not like the overhead of checking all iTXQ for every
+drv_wake_tx_queue(). These are happening per-packet AND can be easily
+avoided when we are not using a tasklet. Most of the time.
+
+I also assume that drivers don't *want* concurrent drv_wake_tx_queue()
+calls and it's a benefit to all drivers to serialize it.
+
+If we consider concurrent calls for drv_wake_tx_queue() to be a feature,
+I would just move the code into ieee80211_handle_wake_tx_queue().
+
+Which may also be the solution for the regression in 6.2:
+Do it now for ieee80211_handle_wake_tx_queue() and apply this patch
+to the development tree only.
+
+We could probably also do it without the queue stops. But then
+__ieee80211_wake_queue() needs more modifications.
+
+Thus I ended up with the approach in this patch...
+
+Alexander
+---
+ net/mac80211/driver-ops.h  | 21 +++++++++++++++++++++
+ net/mac80211/ieee80211_i.h |  9 +++++++++
+ net/mac80211/util.c        |  3 ++-
+ 3 files changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/net/mac80211/driver-ops.h b/net/mac80211/driver-ops.h
+index 5d13a3dfd366..8bc4904c32e2 100644
+--- a/net/mac80211/driver-ops.h
++++ b/net/mac80211/driver-ops.h
+@@ -1192,6 +1192,16 @@ drv_tdls_recv_channel_switch(struct ieee80211_local *local,
+ 	trace_drv_return_void(local);
  }
  
--static struct rb_entry *__lookup_rb_tree_fast(struct rb_entry *cached_re,
--							unsigned int ofs)
--{
--	if (cached_re) {
--		if (cached_re->ofs <= ofs &&
--				cached_re->ofs + cached_re->len > ofs) {
--			return cached_re;
--		}
--	}
--	return NULL;
--}
--
--static struct rb_entry *__lookup_rb_tree_slow(struct rb_root_cached *root,
--							unsigned int ofs)
-+static struct extent_node *__lookup_extent_node(struct rb_root_cached *root,
-+			struct extent_node *cached_en, unsigned int fofs)
- {
- 	struct rb_node *node = root->rb_root.rb_node;
--	struct rb_entry *re;
-+	struct extent_node *en;
++static void handle_aborted_drv_wake_tx_queue(struct ieee80211_hw *hw)
++{
++	ieee80211_stop_queues_by_reason(hw, IEEE80211_MAX_QUEUE_MAP,
++					IEEE80211_QUEUE_STOP_REASON_SERIALIZE,
++					false);
++	ieee80211_wake_queues_by_reason(hw, IEEE80211_MAX_QUEUE_MAP,
++					IEEE80211_QUEUE_STOP_REASON_SERIALIZE,
++					false);
++}
 +
-+	/* check a cached entry */
-+	if (cached_en && cached_en->ei.fofs <= fofs &&
-+			cached_en->ei.fofs + cached_en->ei.len > fofs)
-+		return cached_en;
- 
-+	/* check rb_tree */
- 	while (node) {
--		re = rb_entry(node, struct rb_entry, rb_node);
-+		en = rb_entry(node, struct extent_node, rb_node);
- 
--		if (ofs < re->ofs)
-+		if (fofs < en->ei.fofs)
- 			node = node->rb_left;
--		else if (ofs >= re->ofs + re->len)
-+		else if (fofs >= en->ei.fofs + en->ei.len)
- 			node = node->rb_right;
- 		else
--			return re;
-+			return en;
- 	}
- 	return NULL;
- }
- 
--static struct rb_entry *f2fs_lookup_rb_tree(struct rb_root_cached *root,
--				struct rb_entry *cached_re, unsigned int ofs)
--{
--	struct rb_entry *re;
--
--	re = __lookup_rb_tree_fast(cached_re, ofs);
--	if (!re)
--		return __lookup_rb_tree_slow(root, ofs);
--
--	return re;
--}
--
--static struct rb_node **f2fs_lookup_rb_tree_for_insert(struct f2fs_sb_info *sbi,
--				struct rb_root_cached *root,
--				struct rb_node **parent,
--				unsigned int ofs, bool *leftmost)
--{
--	struct rb_node **p = &root->rb_root.rb_node;
--	struct rb_entry *re;
--
--	while (*p) {
--		*parent = *p;
--		re = rb_entry(*parent, struct rb_entry, rb_node);
--
--		if (ofs < re->ofs) {
--			p = &(*p)->rb_left;
--		} else if (ofs >= re->ofs + re->len) {
--			p = &(*p)->rb_right;
--			*leftmost = false;
--		} else {
--			f2fs_bug_on(sbi, 1);
--		}
--	}
--
--	return p;
--}
--
- /*
-- * lookup rb entry in position of @ofs in rb-tree,
-+ * lookup rb entry in position of @fofs in rb-tree,
-  * if hit, return the entry, otherwise, return NULL
-- * @prev_ex: extent before ofs
-- * @next_ex: extent after ofs
-- * @insert_p: insert point for new extent at ofs
-+ * @prev_ex: extent before fofs
-+ * @next_ex: extent after fofs
-+ * @insert_p: insert point for new extent at fofs
-  * in order to simplify the insertion after.
-  * tree must stay unchanged between lookup and insertion.
-  */
--static struct rb_entry *f2fs_lookup_rb_tree_ret(struct rb_root_cached *root,
--				struct rb_entry *cached_re,
--				unsigned int ofs,
--				struct rb_entry **prev_entry,
--				struct rb_entry **next_entry,
-+static struct extent_node *__lookup_extent_node_ret(struct rb_root_cached *root,
-+				struct extent_node *cached_en,
-+				unsigned int fofs,
-+				struct extent_node **prev_entry,
-+				struct extent_node **next_entry,
- 				struct rb_node ***insert_p,
- 				struct rb_node **insert_parent,
--				bool force, bool *leftmost)
-+				bool *leftmost)
+ static inline void drv_wake_tx_queue(struct ieee80211_local *local,
+ 				     struct txq_info *txq)
  {
- 	struct rb_node **pnode = &root->rb_root.rb_node;
- 	struct rb_node *parent = NULL, *tmp_node;
--	struct rb_entry *re = cached_re;
-+	struct extent_node *en = cached_en;
+@@ -1206,8 +1216,19 @@ static inline void drv_wake_tx_queue(struct ieee80211_local *local,
+ 	if (!check_sdata_in_driver(sdata))
+ 		return;
  
- 	*insert_p = NULL;
- 	*insert_parent = NULL;
-@@ -259,24 +216,20 @@ static struct rb_entry *f2fs_lookup_rb_tree_ret(struct rb_root_cached *root,
- 	if (RB_EMPTY_ROOT(&root->rb_root))
- 		return NULL;
- 
--	if (re) {
--		if (re->ofs <= ofs && re->ofs + re->len > ofs)
--			goto lookup_neighbors;
--	}
-+	if (en && en->ei.fofs <= fofs && en->ei.fofs + en->ei.len > fofs)
-+		goto lookup_neighbors;
- 
--	if (leftmost)
--		*leftmost = true;
-+	*leftmost = true;
- 
- 	while (*pnode) {
- 		parent = *pnode;
--		re = rb_entry(*pnode, struct rb_entry, rb_node);
-+		en = rb_entry(*pnode, struct extent_node, rb_node);
- 
--		if (ofs < re->ofs) {
-+		if (fofs < en->ei.fofs) {
- 			pnode = &(*pnode)->rb_left;
--		} else if (ofs >= re->ofs + re->len) {
-+		} else if (fofs >= en->ei.fofs + en->ei.len) {
- 			pnode = &(*pnode)->rb_right;
--			if (leftmost)
--				*leftmost = false;
-+			*leftmost = false;
- 		} else {
- 			goto lookup_neighbors;
- 		}
-@@ -285,30 +238,32 @@ static struct rb_entry *f2fs_lookup_rb_tree_ret(struct rb_root_cached *root,
- 	*insert_p = pnode;
- 	*insert_parent = parent;
- 
--	re = rb_entry(parent, struct rb_entry, rb_node);
-+	en = rb_entry(parent, struct extent_node, rb_node);
- 	tmp_node = parent;
--	if (parent && ofs > re->ofs)
-+	if (parent && fofs > en->ei.fofs)
- 		tmp_node = rb_next(parent);
--	*next_entry = rb_entry_safe(tmp_node, struct rb_entry, rb_node);
-+	*next_entry = rb_entry_safe(tmp_node, struct extent_node, rb_node);
- 
- 	tmp_node = parent;
--	if (parent && ofs < re->ofs)
-+	if (parent && fofs < en->ei.fofs)
- 		tmp_node = rb_prev(parent);
--	*prev_entry = rb_entry_safe(tmp_node, struct rb_entry, rb_node);
-+	*prev_entry = rb_entry_safe(tmp_node, struct extent_node, rb_node);
- 	return NULL;
- 
- lookup_neighbors:
--	if (ofs == re->ofs || force) {
-+	if (fofs == en->ei.fofs) {
- 		/* lookup prev node for merging backward later */
--		tmp_node = rb_prev(&re->rb_node);
--		*prev_entry = rb_entry_safe(tmp_node, struct rb_entry, rb_node);
-+		tmp_node = rb_prev(&en->rb_node);
-+		*prev_entry = rb_entry_safe(tmp_node,
-+					struct extent_node, rb_node);
- 	}
--	if (ofs == re->ofs + re->len - 1 || force) {
-+	if (fofs == en->ei.fofs + en->ei.len - 1) {
- 		/* lookup next node for merging frontward later */
--		tmp_node = rb_next(&re->rb_node);
--		*next_entry = rb_entry_safe(tmp_node, struct rb_entry, rb_node);
-+		tmp_node = rb_next(&en->rb_node);
-+		*next_entry = rb_entry_safe(tmp_node,
-+					struct extent_node, rb_node);
- 	}
--	return re;
-+	return en;
- }
- 
- static struct kmem_cache *extent_tree_slab;
-@@ -523,8 +478,7 @@ static bool __lookup_extent_tree(struct inode *inode, pgoff_t pgofs,
- 		goto out;
- 	}
- 
--	en = (struct extent_node *)f2fs_lookup_rb_tree(&et->root,
--				(struct rb_entry *)et->cached_en, pgofs);
-+	en = __lookup_extent_node(&et->root, et->cached_en, pgofs);
- 	if (!en)
- 		goto out;
- 
-@@ -598,7 +552,7 @@ static struct extent_node *__insert_extent_tree(struct f2fs_sb_info *sbi,
- 				bool leftmost)
- {
- 	struct extent_tree_info *eti = &sbi->extent_tree[et->type];
--	struct rb_node **p;
-+	struct rb_node **p = &et->root.rb_root.rb_node;
- 	struct rb_node *parent = NULL;
- 	struct extent_node *en = NULL;
- 
-@@ -610,8 +564,21 @@ static struct extent_node *__insert_extent_tree(struct f2fs_sb_info *sbi,
- 
- 	leftmost = true;
- 
--	p = f2fs_lookup_rb_tree_for_insert(sbi, &et->root, &parent,
--						ei->fofs, &leftmost);
-+	/* look up extent_node in the rb tree */
-+	while (*p) {
-+		parent = *p;
-+		en = rb_entry(parent, struct extent_node, rb_node);
-+
-+		if (ei->fofs < en->ei.fofs) {
-+			p = &(*p)->rb_left;
-+		} else if (ei->fofs >= en->ei.fofs + en->ei.len) {
-+			p = &(*p)->rb_right;
-+			leftmost = false;
-+		} else {
-+			f2fs_bug_on(sbi, 1);
-+		}
++	/* Serialize calls to wake_tx_queue */
++	if (test_and_set_bit(ITXQ_RUN_WAKE_TX_QUEUE_ACTIVE,
++			     &local->itxq_run_flags)) {
++		set_bit(ITXQ_RUN_WAKE_TX_QUEUE_NEEDED, &local->itxq_run_flags);
++		return;
 +	}
+ 	trace_drv_wake_tx_queue(local, sdata, txq);
+ 	local->ops->wake_tx_queue(&local->hw, &txq->txq);
++	clear_bit(ITXQ_RUN_WAKE_TX_QUEUE_ACTIVE, &local->itxq_run_flags);
 +
- do_insert:
- 	en = __attach_extent_node(sbi, et, ei, parent, p, leftmost);
- 	if (!en)
-@@ -670,11 +637,10 @@ static void __update_extent_tree_range(struct inode *inode,
- 	}
++	if (test_and_clear_bit(ITXQ_RUN_WAKE_TX_QUEUE_NEEDED,
++			       &local->itxq_run_flags))
++		handle_aborted_drv_wake_tx_queue(&local->hw);
+ }
  
- 	/* 1. lookup first extent node in range [fofs, fofs + len - 1] */
--	en = (struct extent_node *)f2fs_lookup_rb_tree_ret(&et->root,
--					(struct rb_entry *)et->cached_en, fofs,
--					(struct rb_entry **)&prev_en,
--					(struct rb_entry **)&next_en,
--					&insert_p, &insert_parent, false,
-+	en = __lookup_extent_node_ret(&et->root,
-+					et->cached_en, fofs,
-+					&prev_en, &next_en,
-+					&insert_p, &insert_parent,
- 					&leftmost);
- 	if (!en)
- 		en = next_en;
-@@ -812,12 +778,11 @@ void f2fs_update_read_extent_tree_range_compressed(struct inode *inode,
+ static inline void schedule_and_wake_txq(struct ieee80211_local *local,
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index ecc232eb1ee8..42cd32892186 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1197,6 +1197,7 @@ enum queue_stop_reason {
+ 	IEEE80211_QUEUE_STOP_REASON_TDLS_TEARDOWN,
+ 	IEEE80211_QUEUE_STOP_REASON_RESERVE_TID,
+ 	IEEE80211_QUEUE_STOP_REASON_IFTYPE_CHANGE,
++	IEEE80211_QUEUE_STOP_REASON_SERIALIZE,
  
- 	write_lock(&et->lock);
- 
--	en = (struct extent_node *)f2fs_lookup_rb_tree_ret(&et->root,
--				(struct rb_entry *)et->cached_en, fofs,
--				(struct rb_entry **)&prev_en,
--				(struct rb_entry **)&next_en,
--				&insert_p, &insert_parent, false,
--				&leftmost);
-+	en = __lookup_extent_node_ret(&et->root,
-+					et->cached_en, fofs,
-+					&prev_en, &next_en,
-+					&insert_p, &insert_parent,
-+					&leftmost);
- 	if (en)
- 		goto unlock_out;
- 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 6e04fea9c34f..90a67feddcdc 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -620,12 +620,6 @@ enum extent_type {
- 	NR_EXTENT_CACHES,
+ 	IEEE80211_QUEUE_STOP_REASONS,
  };
+@@ -1269,6 +1270,11 @@ enum mac80211_scan_state {
  
--struct rb_entry {
--	struct rb_node rb_node;		/* rb node located in rb-tree */
--	unsigned int ofs;		/* start offset of the entry */
--	unsigned int len;		/* length of the entry */
--};
--
- struct extent_info {
- 	unsigned int fofs;		/* start offset in a file */
- 	unsigned int len;		/* length of the extent */
+ DECLARE_STATIC_KEY_FALSE(aql_disable);
+ 
++enum itxq_run_flags {
++	ITXQ_RUN_WAKE_TX_QUEUE_ACTIVE,
++	ITXQ_RUN_WAKE_TX_QUEUE_NEEDED,
++};
++
+ struct ieee80211_local {
+ 	/* embed the driver visible part.
+ 	 * don't cast (use the static inlines below), but we keep
+@@ -1284,6 +1290,9 @@ struct ieee80211_local {
+ 	struct list_head active_txqs[IEEE80211_NUM_ACS];
+ 	u16 schedule_round[IEEE80211_NUM_ACS];
+ 
++	/* Used to handle/prevent overlapping calls to drv_wake_tx_queue() */
++	unsigned long itxq_run_flags;
++
+ 	u16 airtime_flags;
+ 	u32 aql_txq_limit_low[IEEE80211_NUM_ACS];
+ 	u32 aql_txq_limit_high[IEEE80211_NUM_ACS];
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 1a28fe5cb614..48483eed4826 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -474,7 +474,8 @@ static void __ieee80211_wake_queue(struct ieee80211_hw *hw, int queue,
+ 	 * release someone's lock, but it is fine because all the callers of
+ 	 * __ieee80211_wake_queue call it right before releasing the lock.
+ 	 */
+-	if (reason == IEEE80211_QUEUE_STOP_REASON_DRIVER)
++	if (reason == IEEE80211_QUEUE_STOP_REASON_DRIVER ||
++	    reason == IEEE80211_QUEUE_STOP_REASON_SERIALIZE)
+ 		tasklet_schedule(&local->wake_txqs_tasklet);
+ 	else
+ 		_ieee80211_wake_txqs(local, flags);
 -- 
-2.40.0.rc1.284.g88254d51c5-goog
+2.39.2
 
