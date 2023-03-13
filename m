@@ -2,101 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D03FD6B7F8B
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 18:32:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CB36B7FA2
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 18:40:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbjCMRc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 13:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44706 "EHLO
+        id S230104AbjCMRkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 13:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbjCMRcx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 13:32:53 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50F6035BA
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 10:32:31 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pbm22-0004ev-Qp; Mon, 13 Mar 2023 18:32:22 +0100
-Message-ID: <f96431ee-abc0-ff76-3963-c45d3b092840@leemhuis.info>
-Date:   Mon, 13 Mar 2023 18:32:22 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [REGRESSION] kbl-r5514-5663-max hdmi no longer working
-Content-Language: en-US, de-DE
-To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-References: <CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Cc:     Jason Montleon <jmontleo@redhat.com>, stable@vger.kernel.org,
-        Linux regressions mailing list <regressions@lists.linux.dev>,
-        Mark Brown <broonie@kernel.org>,
-        Alsa-devel <alsa-devel@alsa-project.org>,
-        Takashi Iwai <tiwai@suse.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <CAJD_bPKQdtaExvVEKxhQ47G-ZXDA=k+gzhMJRHLBe=mysPnuKA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1678728751;4b530073;
-X-HE-SMSGID: 1pbm22-0004ev-Qp
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S230097AbjCMRkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 13:40:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DABA14227;
+        Mon, 13 Mar 2023 10:40:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 890F7B811C1;
+        Mon, 13 Mar 2023 17:40:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 228E6C433D2;
+        Mon, 13 Mar 2023 17:40:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678729225;
+        bh=HGclvf2eMYSO2tUhOiMvSKCDztLmiMtZOfMVb6g6DVk=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=HmZWuJL81X+QwZ5k7rXig9TGU2O6rtggZA1Wyv18AEy74H/w+I50F3BjrViWg3tBC
+         MSiT1FiuUy6TYON8kwfIa11YdTqevEHWpABQuMQlm4GduLoP4ijgCskTYnhjfxGKnw
+         j1Exb8c+QLFy6fGlqXm4ubrz1Xc0hIjcLQMhrxDOCwECaWuaghRrYjZl/PvZEDJR3l
+         fesJmClEcaisFb1zwZBGSHXRdUJkNKnF9bBQmxO9c8bIOB16i15R3qF8tQiUKRn8Ol
+         dx/qAj2c1bfBMY3SbVtUzstOFKWH4mBH2VhhmaQniqYAjUQyfS06fKVeMXkzpwGAC7
+         MGg1XslgtDBQw==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1pbm9m-00HKV1-MV;
+        Mon, 13 Mar 2023 17:40:22 +0000
+Date:   Mon, 13 Mar 2023 17:40:22 +0000
+Message-ID: <86lek0y2gp.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+        kvm@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Quentin Perret <qperret@google.com>, stable@vger.kernel.org,
+        David Matlack <dmatlack@google.com>
+Subject: Re: [PATCH 1/2] KVM: arm64: Disable interrupts while walking userspace PTs
+In-Reply-To: <ZA9HAQtkCDwFXcsm@google.com>
+References: <20230313091425.1962708-1-maz@kernel.org>
+        <20230313091425.1962708-2-maz@kernel.org>
+        <ZA9HAQtkCDwFXcsm@google.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/28.2
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seanjc@google.com, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, kvm@vger.kernel.org, james.morse@arm.com, suzuki.poulose@arm.com, oliver.upton@linux.dev, yuzenghui@huawei.com, ardb@kernel.org, will@kernel.org, qperret@google.com, stable@vger.kernel.org, dmatlack@google.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[adding a push of people and lists to the recipients that dealt with the
-culprit; leaving the stable list in CC for now, even if this is a
-mainline issue (apart from the backport of the culprit to 5.10.y Takashi
-asked for a while ago)]
-
-On 13.03.23 17:34, Jason Montleon wrote:
-> It looks like HDMI audio stopped working in 5.17-rc1. I ran a bisect
-> which points to 636110411ca726f19ef8e87b0be51bb9a4cdef06.
-
-FWIW, that's "ASoC: Intel/SOF: use set_stream() instead of
-set_tdm_slots() for HDAudio" from Pierre-Louis Bossart.
-
-> I built
-> 5.17.14 with it reverted and it restored HDMI output, but it doesn't
-> revert cleanly from 5.18 onward.
+On Mon, 13 Mar 2023 15:53:37 +0000,
+Sean Christopherson <seanjc@google.com> wrote:
 > 
->>From what I can tell it looks like -ENOTSUPP is returned from
-> snd_soc_dai_set_stream for hdmi1 and hdmi2 now. I'm not sure if that's
-> expected, but I made the following change and I have working HDMI
-> audio now. https://gist.github.com/jmontleon/4780154c309f956d97ca9a304a00da3f
+> +David
+> 
+> On Mon, Mar 13, 2023, Marc Zyngier wrote:
+> > We walk the userspace PTs to discover what mapping size was
+> > used there. However, this can race against the userspace tables
+> > being freed, and we end-up in the weeds.
+> > 
+> > Thankfully, the mm code is being generous and will IPI us when
+> > doing so. So let's implement our part of the bargain and disable
+> > interrupts around the walk. This ensures that nothing terrible
+> > happens during that time.
+> > 
+> > We still need to handle the removal of the page tables before
+> > the walk. For that, allow get_user_mapping_size() to return an
+> > error, and make sure this error can be propagated all the way
+> > to the the exit handler.
+> > 
+> > Signed-off-by: Marc Zyngier <maz@kernel.org>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  arch/arm64/kvm/mmu.c | 35 ++++++++++++++++++++++++++++-------
+> >  1 file changed, 28 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+> > index 7113587222ff..d7b8b25942df 100644
+> > --- a/arch/arm64/kvm/mmu.c
+> > +++ b/arch/arm64/kvm/mmu.c
+> > @@ -666,14 +666,23 @@ static int get_user_mapping_size(struct kvm *kvm, u64 addr)
+> >  				   CONFIG_PGTABLE_LEVELS),
+> >  		.mm_ops		= &kvm_user_mm_ops,
+> >  	};
+> > +	unsigned long flags;
+> >  	kvm_pte_t pte = 0;	/* Keep GCC quiet... */
+> >  	u32 level = ~0;
+> >  	int ret;
+> >  
+> > +	/*
+> > +	 * Disable IRQs so that we hazard against a concurrent
+> > +	 * teardown of the userspace page tables (which relies on
+> > +	 * IPI-ing threads).
+> > +	 */
+> > +	local_irq_save(flags);
+> >  	ret = kvm_pgtable_get_leaf(&pgt, addr, &pte, &level);
+> > -	VM_BUG_ON(ret);
+> > -	VM_BUG_ON(level >= KVM_PGTABLE_MAX_LEVELS);
+> > -	VM_BUG_ON(!(pte & PTE_VALID));
+> > +	local_irq_restore(flags);
+> > +
+> > +	/* Oops, the userspace PTs are gone... */
+> > +	if (ret || level >= KVM_PGTABLE_MAX_LEVELS || !(pte & PTE_VALID))
+> > +		return -EFAULT;
+> 
+> I don't think this should return -EFAULT all the way out to userspace.  Unless
+> arm64 differs from x86 in terms of how the userspace page tables are managed, not
+> having a valid translation _right now_ doesn't mean that one can't be created in
+> the future, e.g. by way of a subsequent hva_to_pfn().
 
-Thanks for the report and the patch. I CCed the relevant people for this.
+I probably took an overly restrictive approach of only looking at the
+issue at hand, where exit_mmap() had already torn down the userspace
+PTs. But I guess there are other ways for this scenario to happen,
+none of which deserve -EFAULT indeed.
 
-[TLDR For the rest of the mail: : I'm adding this report to the list of
-tracked Linux kernel regressions; the text you find below is based on a
-few templates paragraphs you might have encountered already in similar
-form. See link in footer if these mails annoy you.]
+> FWIW, the approach x86 takes is to install a 4KiB (smallest granuale) translation,
+> which is safe since there _was_ a valid translation when mmu_lock was acquired and
+> mmu_invalidate_retry() was checked.  It's the primary MMU's responsibility to ensure
+> all secondary MMUs are purged before freeing memory, i.e. worst case should be that
+> KVMs stage-2 translation will be immediately zapped via mmu_notifier.
 
-To be sure the issue doesn't fall through the cracks unnoticed, I'm
-adding it to regzbot, the Linux kernel regression tracking bot:
+I'd rather avoid extra work. At this stage, we might as well return
+-EAGAIN and replay the fault. We already do that in a number of racy
+cases, so it fits in the infrastructure.
 
-#regzbot ^introduced 636110411ca726f19ef8e87b0be51bb9a4cdef06
-#regzbot title alsa/asoc: kbl-r5514-5663-max hdmi stopped working
-#regzbot ignore-activity
+> KVM ARM also has a bug that might be related: the mmu_seq snapshot needs to be
+> taken _before_ mmap_read_unlock(), otherwise vma_shift may be stale by the time
+> it's consumed.  I believe David is going to submit a patch (I found and "reported"
+> the bug when doing an internal review of "common MMU" stuff).
 
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply and tell me -- ideally
-while also telling regzbot about it, as explained by the page listed in
-the footer of this mail.
+Huh, that's interesting. David, please post this at your earliest
+convenience. I'd rather squash these all in one go.
 
-Developers: When fixing the issue, remember to add 'Link:' tags pointing
-to the report (the parent of this mail). See page linked in footer for
-details.
+Thanks,
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-That page also explains what to do if mails like this annoy you.
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
