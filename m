@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1816B7748
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 13:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B00586B774B
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 13:16:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbjCMMOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 08:14:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58778 "EHLO
+        id S229802AbjCMMQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 08:16:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbjCMMOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 08:14:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C42274B1
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 05:14:35 -0700 (PDT)
+        with ESMTP id S229684AbjCMMQE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 08:16:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60EA8E386
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 05:16:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0425E6122A
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 12:14:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20FDDC4339B;
-        Mon, 13 Mar 2023 12:14:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEB5C6123A
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 12:16:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C604C433D2;
+        Mon, 13 Mar 2023 12:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678709674;
-        bh=0i0gcbcUUF65v1nK+QAfMl55SBRSEW/8lO4JkQHlBLw=;
-        h=Subject:To:Cc:From:Date:From;
-        b=XUvNQrEaTaRFI0uA5NV+/N03fnoPl7e5QttwKL8PDkBANs4qmZzLGg/aDAiqTZEWS
-         K1/Xl8VMC2/+4HOxkg6OJkP3Daqd2mYK1Q9E7RAFoI43vkPtQY+3pFg0iTRhyaWhMK
-         +X5WH4cUSvv0okd/3fP91UUzjF0BqLDen9NQFmWc=
-Subject: FAILED: patch "[PATCH] irqdomain: Fix mapping-creation race" failed to apply to 5.15-stable tree
-To:     johan+linaro@kernel.org, dtor@chromium.org, hsinyi@chromium.org,
-        jonathanh@nvidia.com, mark-pk.tsai@mediatek.com, maz@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Mar 2023 13:14:31 +0100
-Message-ID: <1678709671243189@kroah.com>
+        s=korg; t=1678709762;
+        bh=TzmdC8VCF8u/7772YcxZsvRBn69gncItdTwT5BtaOLs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Sa7aHjAPWw+wRbgnfFraOXBH5WrRGVC7xl0/Q8oa+86QeJjzDG2lyoT4Gd/gPxvXz
+         PmBVrdXVaXU0+Fi8tuTeHK2fqTKoyuFGy6oPlFAhB/IROdnxoK/sEc/SDzlHdtDqMJ
+         wFOpCbdW3KeCmvaePTWteNcHgaMc72Sy6fijG2EI=
+Date:   Mon, 13 Mar 2023 13:15:59 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     johan+linaro@kernel.org, hsinyi@chromium.org,
+        mark-pk.tsai@mediatek.com, maz@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] irqdomain: Look for existing mapping only
+ once" failed to apply to 5.15-stable tree
+Message-ID: <ZA8T/1qYqzmxeInU@kroah.com>
+References: <167812847919116@kroah.com>
+ <ZA8GliA5EyxBGSif@hovoldconsulting.com>
+ <ZA8IEdjBoHXi/sQY@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZA8IEdjBoHXi/sQY@kroah.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,204 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 13, 2023 at 12:25:05PM +0100, Greg KH wrote:
+> On Mon, Mar 13, 2023 at 12:18:46PM +0100, Johan Hovold wrote:
+> > On Mon, Mar 06, 2023 at 07:47:59PM +0100, Greg Kroah-Hartman wrote:
+> > > 
+> > > The patch below does not apply to the 5.15-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> > > 
+> > > To reproduce the conflict and resubmit, you may use the following commands:
+> > > 
+> > > git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+> > > git checkout FETCH_HEAD
+> > > git cherry-pick -x 6e6f75c9c98d2d246d90411ff2b6f0cd271f4cba
+> > > # <resolve conflicts, build, test, etc.>
+> > > git commit -s
+> > > git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167812847919116@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+> > > 
+> > > Possible dependencies:
+> > > 
+> > > 6e6f75c9c98d ("irqdomain: Look for existing mapping only once")
+> > 
+> > Both the below commit and the dependency were ultimately included in
+> > 5.15.y, but the initial failure to add them appears to have prevented
+> > the subsequent fixes from being applied.
+> > 
+> > Specifically, 5.15.y is now missing
+> > 
+> > 	d55f7f4c58c0 ("irqdomain: Refactor __irq_domain_alloc_irqs()")
+> 
+> THis commit does not apply to 5.15.y, even with:
+> 
+> > 	601363cc08da ("irqdomain: Fix mapping-creation race")
+> 
+> This one applied.
+> 
+> I've applied this one to 5.15.y only, it doesn't apply to 5.10.y or
+> older.
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-To reproduce the conflict and resubmit, you may use the following commands:
-
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
-git checkout FETCH_HEAD
-git cherry-pick -x 601363cc08da25747feb87c55573dd54de91d66a
-# <resolve conflicts, build, test, etc.>
-git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '1678709671243189@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
-
-Possible dependencies:
-
-601363cc08da ("irqdomain: Fix mapping-creation race")
-6e6f75c9c98d ("irqdomain: Look for existing mapping only once")
-e3b7ab025e93 ("irqdomain: Drop bogus fwspec-mapping error handling")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 601363cc08da25747feb87c55573dd54de91d66a Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan+linaro@kernel.org>
-Date: Mon, 13 Feb 2023 11:42:48 +0100
-Subject: [PATCH] irqdomain: Fix mapping-creation race
-
-Parallel probing of devices that share interrupts (e.g. when a driver
-uses asynchronous probing) can currently result in two mappings for the
-same hardware interrupt to be created due to missing serialisation.
-
-Make sure to hold the irq_domain_mutex when creating mappings so that
-looking for an existing mapping before creating a new one is done
-atomically.
-
-Fixes: 765230b5f084 ("driver-core: add asynchronous probing support for drivers")
-Fixes: b62b2cf5759b ("irqdomain: Fix handling of type settings for existing mappings")
-Link: https://lore.kernel.org/r/YuJXMHoT4ijUxnRb@hovoldconsulting.com
-Cc: stable@vger.kernel.org      # 4.8
-Cc: Dmitry Torokhov <dtor@chromium.org>
-Cc: Jon Hunter <jonathanh@nvidia.com>
-Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Tested-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230213104302.17307-7-johan+linaro@kernel.org
-
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index 78fb4800c0d2..df0cbad1b0d7 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -25,6 +25,9 @@ static DEFINE_MUTEX(irq_domain_mutex);
- 
- static struct irq_domain *irq_default_domain;
- 
-+static int irq_domain_alloc_irqs_locked(struct irq_domain *domain, int irq_base,
-+					unsigned int nr_irqs, int node, void *arg,
-+					bool realloc, const struct irq_affinity_desc *affinity);
- static void irq_domain_check_hierarchy(struct irq_domain *domain);
- 
- struct irqchip_fwid {
-@@ -682,9 +685,9 @@ unsigned int irq_create_direct_mapping(struct irq_domain *domain)
- EXPORT_SYMBOL_GPL(irq_create_direct_mapping);
- #endif
- 
--static unsigned int __irq_create_mapping_affinity(struct irq_domain *domain,
--						  irq_hw_number_t hwirq,
--						  const struct irq_affinity_desc *affinity)
-+static unsigned int irq_create_mapping_affinity_locked(struct irq_domain *domain,
-+						       irq_hw_number_t hwirq,
-+						       const struct irq_affinity_desc *affinity)
- {
- 	struct device_node *of_node = irq_domain_get_of_node(domain);
- 	int virq;
-@@ -699,7 +702,7 @@ static unsigned int __irq_create_mapping_affinity(struct irq_domain *domain,
- 		return 0;
- 	}
- 
--	if (irq_domain_associate(domain, virq, hwirq)) {
-+	if (irq_domain_associate_locked(domain, virq, hwirq)) {
- 		irq_free_desc(virq);
- 		return 0;
- 	}
-@@ -735,14 +738,20 @@ unsigned int irq_create_mapping_affinity(struct irq_domain *domain,
- 		return 0;
- 	}
- 
-+	mutex_lock(&irq_domain_mutex);
-+
- 	/* Check if mapping already exists */
- 	virq = irq_find_mapping(domain, hwirq);
- 	if (virq) {
- 		pr_debug("existing mapping on virq %d\n", virq);
--		return virq;
-+		goto out;
- 	}
- 
--	return __irq_create_mapping_affinity(domain, hwirq, affinity);
-+	virq = irq_create_mapping_affinity_locked(domain, hwirq, affinity);
-+out:
-+	mutex_unlock(&irq_domain_mutex);
-+
-+	return virq;
- }
- EXPORT_SYMBOL_GPL(irq_create_mapping_affinity);
- 
-@@ -809,6 +818,8 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
- 	if (WARN_ON(type & ~IRQ_TYPE_SENSE_MASK))
- 		type &= IRQ_TYPE_SENSE_MASK;
- 
-+	mutex_lock(&irq_domain_mutex);
-+
- 	/*
- 	 * If we've already configured this interrupt,
- 	 * don't do it again, or hell will break loose.
-@@ -821,7 +832,7 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
- 		 * interrupt number.
- 		 */
- 		if (type == IRQ_TYPE_NONE || type == irq_get_trigger_type(virq))
--			return virq;
-+			goto out;
- 
- 		/*
- 		 * If the trigger type has not been set yet, then set
-@@ -829,35 +840,45 @@ unsigned int irq_create_fwspec_mapping(struct irq_fwspec *fwspec)
- 		 */
- 		if (irq_get_trigger_type(virq) == IRQ_TYPE_NONE) {
- 			irq_data = irq_get_irq_data(virq);
--			if (!irq_data)
--				return 0;
-+			if (!irq_data) {
-+				virq = 0;
-+				goto out;
-+			}
- 
- 			irqd_set_trigger_type(irq_data, type);
--			return virq;
-+			goto out;
- 		}
- 
- 		pr_warn("type mismatch, failed to map hwirq-%lu for %s!\n",
- 			hwirq, of_node_full_name(to_of_node(fwspec->fwnode)));
--		return 0;
-+		virq = 0;
-+		goto out;
- 	}
- 
- 	if (irq_domain_is_hierarchy(domain)) {
--		virq = irq_domain_alloc_irqs(domain, 1, NUMA_NO_NODE, fwspec);
--		if (virq <= 0)
--			return 0;
-+		virq = irq_domain_alloc_irqs_locked(domain, -1, 1, NUMA_NO_NODE,
-+						    fwspec, false, NULL);
-+		if (virq <= 0) {
-+			virq = 0;
-+			goto out;
-+		}
- 	} else {
- 		/* Create mapping */
--		virq = __irq_create_mapping_affinity(domain, hwirq, NULL);
-+		virq = irq_create_mapping_affinity_locked(domain, hwirq, NULL);
- 		if (!virq)
--			return virq;
-+			goto out;
- 	}
- 
- 	irq_data = irq_get_irq_data(virq);
--	if (WARN_ON(!irq_data))
--		return 0;
-+	if (WARN_ON(!irq_data)) {
-+		virq = 0;
-+		goto out;
-+	}
- 
- 	/* Store trigger type */
- 	irqd_set_trigger_type(irq_data, type);
-+out:
-+	mutex_unlock(&irq_domain_mutex);
- 
- 	return virq;
- }
-@@ -1888,6 +1909,13 @@ void irq_domain_set_info(struct irq_domain *domain, unsigned int virq,
- 	irq_set_handler_data(virq, handler_data);
- }
- 
-+static int irq_domain_alloc_irqs_locked(struct irq_domain *domain, int irq_base,
-+					unsigned int nr_irqs, int node, void *arg,
-+					bool realloc, const struct irq_affinity_desc *affinity)
-+{
-+	return -EINVAL;
-+}
-+
- static void irq_domain_check_hierarchy(struct irq_domain *domain)
- {
- }
-
+Oops, I applied it and it broke the build, so I've now dropped it :(
