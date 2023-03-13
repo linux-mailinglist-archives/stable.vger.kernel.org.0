@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB9A6B7458
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 11:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BA5E6B7459
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 11:41:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230079AbjCMKlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 06:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54940 "EHLO
+        id S229875AbjCMKlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 06:41:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229875AbjCMKlW (ORCPT
+        with ESMTP id S230047AbjCMKlW (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 06:41:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03A86117
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 03:41:20 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9AF1721
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 03:41:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 257B8CE0C4F
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 10:41:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43350C4339B;
-        Mon, 13 Mar 2023 10:41:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 126EB61182
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 10:41:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 207CCC4339E;
+        Mon, 13 Mar 2023 10:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678704076;
-        bh=T7V3WB43dCgs0QoqK4wGZghYUU0syuqfNiDAY5DdyyY=;
+        s=korg; t=1678704080;
+        bh=KU9yDcdxOM2T3E0RB3CJF5MYx9vzaOSsct4/JnJzmQE=;
         h=Subject:To:Cc:From:Date:From;
-        b=atUBQk3hAMab0e36/9eM53gCkDZSi7EAL93Se1kAokzVNRi4CW2tF6R6lSLqnHKTn
-         6SqP14kEwpAZZR1TdmsbdHI6aePG/JxII3hID8VZTn1+ylxYCf7hsRNSeL5L+are70
-         BlL8EG24Q+hvqdHPnuRackMZy3T3Pe412WWvTfMs=
-Subject: FAILED: patch "[PATCH] staging: rtl8723bs: Fix key-store index handling" failed to apply to 5.15-stable tree
+        b=mCldcNLBgR3zJbpyBYIRygqwVJKVInG+zzVhkd6oUBlsIVSJUCE+H52Sh6fXr/YPz
+         zw5wT4h+W3JC3/mU7VX+YMXj0QYPQix9LrLJMuuAqk5zP08DLuO2fgeuLtC8+Wq2tP
+         2i73jZVGR/3yJN3SU4AZ/znePmBvpySubDnAoJO0=
+Subject: FAILED: patch "[PATCH] staging: rtl8723bs: Fix key-store index handling" failed to apply to 5.10-stable tree
 To:     hdegoede@redhat.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Mar 2023 11:41:14 +0100
-Message-ID: <167870407476103@kroah.com>
+Date:   Mon, 13 Mar 2023 11:41:15 +0100
+Message-ID: <16787040758068@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +47,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 To reproduce the conflict and resubmit, you may use the following commands:
 
-git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.15.y
+git fetch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ linux-5.10.y
 git checkout FETCH_HEAD
 git cherry-pick -x 05cbcc415c9b8c8bc4f9a09f8e03610a89042f03
 # <resolve conflicts, build, test, etc.>
 git commit -s
-git send-email --to '<stable@vger.kernel.org>' --in-reply-to '167870407476103@kroah.com' --subject-prefix 'PATCH 5.15.y' HEAD^..
+git send-email --to '<stable@vger.kernel.org>' --in-reply-to '16787040758068@kroah.com' --subject-prefix 'PATCH 5.10.y' HEAD^..
 
 Possible dependencies:
 
@@ -67,6 +67,12 @@ Possible dependencies:
 a8b088d6d98d ("staging: rtl8723bs: fix placement of braces")
 1d7280898f68 ("Staging: rtl8723bs: Placing opening { braces in previous line")
 cd1f14500922 ("staging: rtl8723bs: clean up comparsions to NULL")
+6994aa430368 ("staging: rtl8723bs: fix camel case in struct ndis_802_11_ssid")
+d8b322b60da6 ("staging: rtl8723bs: fix camel case in struct ndis_802_11_conf")
+d3fcee1b78a5 ("staging: rtl8723bs: fix camel case in struct wlan_bssid_ex")
+2a62ff13132a ("staging: rtl8723bs: remove commented out condition")
+ddd7c8b0033b ("staging: rtl8723bs: remove 5Ghz code blocks")
+a16d8644bad4 ("Merge tag 'staging-5.14-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging")
 
 thanks,
 
