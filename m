@@ -2,69 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7AD06B7C46
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 16:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A586B7CD6
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 16:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231158AbjCMPnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 11:43:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
+        id S230417AbjCMPy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 11:54:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230456AbjCMPnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 11:43:05 -0400
-Received: from mail-ua1-x92a.google.com (mail-ua1-x92a.google.com [IPv6:2607:f8b0:4864:20::92a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BCF27A8F
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 08:42:57 -0700 (PDT)
-Received: by mail-ua1-x92a.google.com with SMTP id 89so1715734uao.0
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 08:42:57 -0700 (PDT)
+        with ESMTP id S230456AbjCMPyL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 11:54:11 -0400
+Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3E7C5271
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 08:53:44 -0700 (PDT)
+Received: by mail-pf1-x449.google.com with SMTP id s20-20020a056a00179400b005c4d1dedc1fso6986754pfg.11
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 08:53:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678722176;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=N8RCVnAi4IeyJIpn+hfbcj5KS7N/D7rOad8PC30GlWs=;
-        b=Fn9fOsJuFs8+0eTvsgHqUyG7RN6lbTDMAxv1eOKhkMv9KfIWJ6jKy1fWoqY9Qibz3U
-         JgCxX1z8gcJSz97bEIHLOpXtmS5eeILsT++wTBmMqewTTFI4qGeVjAKGzPDiBgzV8kjm
-         6l7dA9ukPQM7cNp7W8+6a7ZAIbdKRNLJoYgBCrqoOPeDNiwPc5EWzwNbXQO1HbRK7Xck
-         ARuPdX//dY20vwQGcDRlBlAUglvV7ZCajLHQcSouewW86Tf6mJVpAs/bc4gKQ5S0A/sS
-         Bmdhk6TJfjj6rjzlAQKyatJVlZuwuRGvXQbmMhxT6QqMGtW8olfPo+aluOGe26eNAfKV
-         zkrw==
+        d=google.com; s=20210112; t=1678722819;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ou4eTHfchaovdyTcvsOJz1A/GQo+JKYaMd0j8j6QHK8=;
+        b=RqXh4bxfWB+D0kxLETg5U2ZiLZMoAh0XWbDL0HXjMPHKUBEeKXZCJohVf4RzW3rVv5
+         8E+1HTtAEIVvoyiAcfqSBcklqe0g5oNyXazRlXz2BJttEoIFQdpT7ow8bz2aLzGxReTR
+         OUBj8yx1eFJRKJCgHg3oyU0XE48Xpd7PqTYQfgrZYpnSIO3/YNrkD5HR7enqiBGPEHHs
+         t+Rtb43jLjOG3gF0NBUb7u23o+hBeaIR5BI6ViYiMKbanT2WPKiTbbabKSpys4/obFBm
+         izJOOdKlEZPrbw7aWNzahXLXygf59Pod28WLA/vDuvvwitqaKJ4h0NQPzNnfBy/2kYLd
+         Hwjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678722176;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=N8RCVnAi4IeyJIpn+hfbcj5KS7N/D7rOad8PC30GlWs=;
-        b=hqlnYIJrGvJp9W+BAAJa0FVUAdStirJrmNOwy7vxFzts7xGNxDgX8ARKx/TNKXnWw1
-         sTs36qP3XQYlAtnkuGCPrrtYQ1/IHbPyUeiBPx1dezRX2drhyYXYBv3suO4pbqKQsxFr
-         XU9oPvWi9RM4nCPU4fiweCR0pk27umW5qVVDBLqF+N6Z1MBMIn9HOQOljDv1l5wki6BL
-         ceNR3nILYvEJryeMzEc9Yc9qCL6gBPs4E3Ob795gRWrLkwCSmEp3Cn6Qv2F9InjgDYI9
-         GBvP0P+iryREULgvrI+xKsnSiFiA//Zi+Rp6jyyW0/85IYFgDCDkNZcESGaKuPiSKQsS
-         LxnA==
-X-Gm-Message-State: AO0yUKU3EcsNjgN4UONwNbwYAiHNfWTI/RCz4mjHjmsQhWy01PgAqaq1
-        8LCV/lW8Tc27pd6tlpujJG/J+neDfNh+LecmoZc=
-X-Google-Smtp-Source: AK7set9JfPx3fA5ZJMtn3NV+0iyuZjQA4C0DBaTYRJmnq8ulxdtbhKygcUzsvHgF9wQ5zgfP5TaO6xqeadkxp1R4y5o=
-X-Received: by 2002:ac5:cd86:0:b0:401:7625:e9e3 with SMTP id
- i6-20020ac5cd86000000b004017625e9e3mr6491675vka.1.1678722176424; Mon, 13 Mar
- 2023 08:42:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230312165100.1204682-1-gpiccoli@igalia.com>
-In-Reply-To: <20230312165100.1204682-1-gpiccoli@igalia.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Mon, 13 Mar 2023 11:42:43 -0400
-Message-ID: <CADnq5_PiGx7Lt1_XTrs8k61jZNDY9cy8Rs98iBVsi-FEmnTRpw@mail.gmail.com>
-Subject: Re: [PATCH] drm/amdgpu/vcn: Disable indirect SRAM on Vangogh broken BIOSes
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     amd-gfx@lists.freedesktop.org, kernel@gpiccoli.net,
-        johns@valvesoftware.com, Xinhui.Pan@amd.com,
-        dri-devel@lists.freedesktop.org, cristian.ciocaltea@collabora.com,
-        stable@vger.kernel.org, kernel-dev@igalia.com,
-        alexander.deucher@amd.com, James Zhu <James.Zhu@amd.com>,
-        Leo Liu <leo.liu@amd.com>, christian.koenig@amd.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        d=1e100.net; s=20210112; t=1678722819;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ou4eTHfchaovdyTcvsOJz1A/GQo+JKYaMd0j8j6QHK8=;
+        b=RjZc4M8ILZCf7Rp12tJIrAK7m4GrFuciIN1SMIrCEWUUOORDn8KmKkD0jTYr22cc6u
+         Y/TGwUJSyOp5UvXEjq6DzUgV24Zo7/ozmRUunFJiSqlvW4tb7AJDQ1WGzSE2g/0hcCRO
+         ztsj013POkQHh1ZuhKIC349QUnuf6jBYEazgO7/tTraKoyA/A0q4CwBwCqHENNG7ejqj
+         E6Mj/Ls0MsQvTXWvNHKDXlfO5rIWMbX8g5ch26TvexJlJYrpRVdSKAdbK5xpzGgz0krb
+         1lBvYFKajasezUSW4xjmrnL6imlOL8bMhXEq+1XXtA3Jf/t+Yeb8G7gKoqpi7wuX4qnq
+         EBwA==
+X-Gm-Message-State: AO0yUKUVVAwT5Y2jU+jGFkhRCswYbH/r6o/P/X2FiriyqBow1JeXFMFO
+        i/VMYkCV+9qr++5LjsK0vIM1OsS7l2Q=
+X-Google-Smtp-Source: AK7set/B3AXUsWJi39YJ5IRScPm11y6++Mvi/PFxtBwCwD2hD3aoPc9yCn2f2bYzX1HNyskG85ynwYN2s2k=
+X-Received: from zagreus.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5c37])
+ (user=seanjc job=sendgmr) by 2002:a17:903:33cb:b0:199:6e3:187a with SMTP id
+ kc11-20020a17090333cb00b0019906e3187amr4475804plb.6.1678722819539; Mon, 13
+ Mar 2023 08:53:39 -0700 (PDT)
+Date:   Mon, 13 Mar 2023 08:53:37 -0700
+In-Reply-To: <20230313091425.1962708-2-maz@kernel.org>
+Mime-Version: 1.0
+References: <20230313091425.1962708-1-maz@kernel.org> <20230313091425.1962708-2-maz@kernel.org>
+Message-ID: <ZA9HAQtkCDwFXcsm@google.com>
+Subject: Re: [PATCH 1/2] KVM: arm64: Disable interrupts while walking
+ userspace PTs
+From:   Sean Christopherson <seanjc@google.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+        kvm@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Oliver Upton <oliver.upton@linux.dev>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Quentin Perret <qperret@google.com>, stable@vger.kernel.org,
+        David Matlack <dmatlack@google.com>
+Content-Type: text/plain; charset="us-ascii"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,102 +74,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Applied.  Thanks!
++David
 
-Alex
-
-On Sun, Mar 12, 2023 at 12:51=E2=80=AFPM Guilherme G. Piccoli
-<gpiccoli@igalia.com> wrote:
->
-> The VCN firmware loading path enables the indirect SRAM mode if it's
-> advertised as supported. We might have some cases of FW issues that
-> prevents this mode to working properly though, ending-up in a failed
-> probe. An example below, observed in the Steam Deck:
->
-> [...]
-> [drm] failed to load ucode VCN0_RAM(0x3A)
-> [drm] psp gfx command LOAD_IP_FW(0x6) failed and response status is (0xFF=
-FF0000)
-> amdgpu 0000:04:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring =
-vcn_dec_0 test failed (-110)
-> [drm:amdgpu_device_init.cold [amdgpu]] *ERROR* hw_init of IP block <vcn_v=
-3_0> failed -110
-> amdgpu 0000:04:00.0: amdgpu: amdgpu_device_ip_init failed
-> amdgpu 0000:04:00.0: amdgpu: Fatal error during GPU init
-> [...]
->
-> Disabling the VCN block circumvents this, but it's a very invasive
-> workaround that turns off the entire feature. So, let's add a quirk
-> on VCN loading that checks for known problematic BIOSes on Vangogh,
-> so we can proactively disable the indirect SRAM mode and allow the
-> HW proper probe and VCN IP block to work fine.
->
-> Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2385
-> Fixes: 82132ecc5432 ("drm/amdgpu: enable Vangogh VCN indirect sram mode")
+On Mon, Mar 13, 2023, Marc Zyngier wrote:
+> We walk the userspace PTs to discover what mapping size was
+> used there. However, this can race against the userspace tables
+> being freed, and we end-up in the weeds.
+> 
+> Thankfully, the mm code is being generous and will IPI us when
+> doing so. So let's implement our part of the bargain and disable
+> interrupts around the walk. This ensures that nothing terrible
+> happens during that time.
+> 
+> We still need to handle the removal of the page tables before
+> the walk. For that, allow get_user_mapping_size() to return an
+> error, and make sure this error can be propagated all the way
+> to the the exit handler.
+> 
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
 > Cc: stable@vger.kernel.org
-> Cc: James Zhu <James.Zhu@amd.com>
-> Cc: Leo Liu <leo.liu@amd.com>
-> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
 > ---
->
->
-> Hi folks, based on the feedback from the gitlab issue, here is the upstre=
-am
-> attempt to quirk the Steam Deck's BIOSes having known issues with the
-> indirect SRAM mode. I've tested it on both the quirked BIOSes, and also
-> with some working ones. This patch is based on agd5f/amd-staging-drm-next=
-.
->
-> Thanks in advance for reviews!
-> Cheers,
->
-> Guilherme
->
->
->  drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c b/drivers/gpu/drm/am=
-d/amdgpu/amdgpu_vcn.c
-> index 02d428ddf2f8..dc4f3f4cb644 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
-> @@ -26,6 +26,7 @@
->
->  #include <linux/firmware.h>
->  #include <linux/module.h>
-> +#include <linux/dmi.h>
->  #include <linux/pci.h>
->  #include <linux/debugfs.h>
->  #include <drm/drm_drv.h>
-> @@ -114,6 +115,24 @@ int amdgpu_vcn_sw_init(struct amdgpu_device *adev)
->             (adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG))
->                 adev->vcn.indirect_sram =3D true;
->
-> +       /*
-> +        * Some Steam Deck's BIOS versions are incompatible with the
-> +        * indirect SRAM mode, leading to amdgpu being unable to get
-> +        * properly probed (and even potentially crashing the kernel).
-> +        * Hence, check for these versions here - notice this is
-> +        * restricted to Vangogh (Deck's APU).
-> +        */
-> +       if (adev->ip_versions[UVD_HWIP][0] =3D=3D IP_VERSION(3, 0, 2)) {
-> +               const char *bios_ver =3D dmi_get_system_info(DMI_BIOS_VER=
-SION);
+>  arch/arm64/kvm/mmu.c | 35 ++++++++++++++++++++++++++++-------
+>  1 file changed, 28 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+> index 7113587222ff..d7b8b25942df 100644
+> --- a/arch/arm64/kvm/mmu.c
+> +++ b/arch/arm64/kvm/mmu.c
+> @@ -666,14 +666,23 @@ static int get_user_mapping_size(struct kvm *kvm, u64 addr)
+>  				   CONFIG_PGTABLE_LEVELS),
+>  		.mm_ops		= &kvm_user_mm_ops,
+>  	};
+> +	unsigned long flags;
+>  	kvm_pte_t pte = 0;	/* Keep GCC quiet... */
+>  	u32 level = ~0;
+>  	int ret;
+>  
+> +	/*
+> +	 * Disable IRQs so that we hazard against a concurrent
+> +	 * teardown of the userspace page tables (which relies on
+> +	 * IPI-ing threads).
+> +	 */
+> +	local_irq_save(flags);
+>  	ret = kvm_pgtable_get_leaf(&pgt, addr, &pte, &level);
+> -	VM_BUG_ON(ret);
+> -	VM_BUG_ON(level >= KVM_PGTABLE_MAX_LEVELS);
+> -	VM_BUG_ON(!(pte & PTE_VALID));
+> +	local_irq_restore(flags);
 > +
-> +               if (bios_ver && (!strncmp("F7A0113", bios_ver, 7) ||
-> +                    !strncmp("F7A0114", bios_ver, 7))) {
-> +                       adev->vcn.indirect_sram =3D false;
-> +                       dev_info(adev->dev,
-> +                               "Steam Deck quirk: indirect SRAM disabled=
- on BIOS %s\n", bios_ver);
-> +               }
-> +       }
-> +
->         hdr =3D (const struct common_firmware_header *)adev->vcn.fw->data=
-;
->         adev->vcn.fw_version =3D le32_to_cpu(hdr->ucode_version);
->
-> --
-> 2.39.2
->
+> +	/* Oops, the userspace PTs are gone... */
+> +	if (ret || level >= KVM_PGTABLE_MAX_LEVELS || !(pte & PTE_VALID))
+> +		return -EFAULT;
+
+I don't think this should return -EFAULT all the way out to userspace.  Unless
+arm64 differs from x86 in terms of how the userspace page tables are managed, not
+having a valid translation _right now_ doesn't mean that one can't be created in
+the future, e.g. by way of a subsequent hva_to_pfn().
+
+FWIW, the approach x86 takes is to install a 4KiB (smallest granuale) translation,
+which is safe since there _was_ a valid translation when mmu_lock was acquired and
+mmu_invalidate_retry() was checked.  It's the primary MMU's responsibility to ensure
+all secondary MMUs are purged before freeing memory, i.e. worst case should be that
+KVMs stage-2 translation will be immediately zapped via mmu_notifier.
+
+KVM ARM also has a bug that might be related: the mmu_seq snapshot needs to be
+taken _before_ mmap_read_unlock(), otherwise vma_shift may be stale by the time
+it's consumed.  I believe David is going to submit a patch (I found and "reported"
+the bug when doing an internal review of "common MMU" stuff).
