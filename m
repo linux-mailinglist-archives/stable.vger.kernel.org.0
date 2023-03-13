@@ -2,68 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFC96B6FD1
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 08:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DB526B70F1
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 09:17:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229553AbjCMHF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 03:05:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44646 "EHLO
+        id S229827AbjCMIRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 04:17:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229524AbjCMHF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 03:05:57 -0400
-Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEC144DE15
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 00:05:52 -0700 (PDT)
-Received: by mail-vs1-xe32.google.com with SMTP id o32so10074881vsv.12
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 00:05:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678691152;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OHE01/3tgA1nAt03cXd+lN8IWHSdq0jQSdwx4eqGdpw=;
-        b=abP2bBAwNBSfgd0V6SSIh0qDHUOwiK3VKrkFpakyjDGyKhqJag+TxCiZjCWCJdHryj
-         7rbBXjoYT39kKxL/UkAvc4uZ4aKKuTdrLCojKCCn+MKukHeK8Hh4s70tLkXK9tmq+gel
-         imWMOT25OgG9yDDl+T+0iRnLV2Ex/i+dUUveMte9UFVVQLGEqV+47rfhhfwjTC1srl7d
-         3PFR5AZkghgcHivrkyF4Ngg+cARJ0UIMWgmyzcHzV6ya3VIKPK6X9VoiE44sUWlwyD2R
-         Vxp+DZULOX+R5nnTqvbTD0UJ54CUt+iufXbG/h24ddL5RtKd+5VXbNihhp41alCCn7kH
-         2Egg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678691152;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OHE01/3tgA1nAt03cXd+lN8IWHSdq0jQSdwx4eqGdpw=;
-        b=6EF1dBohJQT+Tpfh8dLZXXHpWCmTpCjaC1whgr7dp+14mKLn+L00S/mBpM5DfG/MSz
-         ETCgOV+4ooWJYopkZ0qE4oDrQEWHD9i7BzPaYnZP6Bi8CTMupjFJswRHngZcTIV6HU4i
-         xlPHgGXdid8VGO/orIEVjHI+zmK2cplfUNPj8Q6mFgU3gZMDw7Ti8EYUabqIpcOuuSxA
-         ikXlCgivmZVLZ25wJ8j58/ginzoy9qzRQpdki2QhbXVEkOS+Cy/uczsKOwdlzqPvJK01
-         5VqPohIBOGZfd0zGEoMqrsCXczj8PE5ORrG8d/lZi1WfymRg4cVniDksrFUM1gDZJNVM
-         1VXg==
-X-Gm-Message-State: AO0yUKVa8Hbb2LQVl3/mR0WZURCyf1vd8yKjxqQY1GtqyJo1MOrVTYcN
-        6vX2RsAgv/y6Wobwrs89kAUCzAr9cPRE1hMJcidpgA==
-X-Google-Smtp-Source: AK7set9x4Emhcs/V+eedyuFq7xYtTaQ1TWUeAYtMC8cCh6ilFqFMqZBzhk4F9tiNlZ0iHCI9LrIjfoxg0IqPeOLLsak=
-X-Received: by 2002:a05:6102:3210:b0:425:87ab:c386 with SMTP id
- r16-20020a056102321000b0042587abc386mr1232533vsf.3.1678691151710; Mon, 13 Mar
- 2023 00:05:51 -0700 (PDT)
+        with ESMTP id S229591AbjCMIRr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 04:17:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDB2E2B9F3;
+        Mon, 13 Mar 2023 01:17:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8602F6114C;
+        Mon, 13 Mar 2023 08:17:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0AA9C433EF;
+        Mon, 13 Mar 2023 08:17:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678695465;
+        bh=jzyrPeuPJwvGuYEX291gbAHZu85wfusV8HgesMnJlyI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nSK0sRt5aC3BDLSctPPKTY+COy70tLVrdKzFQnlo0qamNPCLzvZc8oRmkJDEwYPSl
+         6BgGS0bRyj3gcESUSnsOG5FUTc2rU+xJCo9rnqg3SxO7Zarcz8DVINr3xtUCO9Sqdi
+         SVPgfbGNXm8VYVNfIBEgimi/MdKvuwdFVz7pBI2aRf2JLV7OUvd9Ds3xxNj0y2kj6s
+         B0nE4D79AivGr9tqx4NEQAOaCn249kmw3hG4gDjOpHfCyakL6zjx4As2g6VIRit6EW
+         ioL4/eMZsyuxoeSwv0Bb1BoyPPliaahIAlY+pKqIVb946pbW1SVYix7k770NJXXkGJ
+         otKhSHWLmb+aQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1pbdOG-0004Yv-VH; Mon, 13 Mar 2023 09:18:45 +0100
+Date:   Mon, 13 Mar 2023 09:18:44 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc:     johan+linaro@kernel.org, a.swigon@samsung.com, agross@kernel.org,
+        alim.akhtar@samsung.com, andersson@kernel.org, djakov@kernel.org,
+        festevam@gmail.com, jonathanh@nvidia.com, kernel@pengutronix.de,
+        konrad.dybcio@linaro.org, krzysztof.kozlowski@linaro.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-imx@nxp.com,
+        linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
+        s.hauer@pengutronix.de, s.nawrocki@samsung.com,
+        shawnguo@kernel.org, stable@vger.kernel.org,
+        thierry.reding@gmail.com, y.oudjana@protonmail.com
+Subject: Re: [PATCH 07/23] interconnect: qcom: rpm: fix probe PM domain error
+ handling
+Message-ID: <ZA7cZBF58yMSjG/+@hovoldconsulting.com>
+References: <20230201101559.15529-1-johan+linaro@kernel.org>
+ <20230201101559.15529-8-johan+linaro@kernel.org>
+ <641d04a3-9236-fe76-a20f-11466a01460e@wanadoo.fr>
 MIME-Version: 1.0
-References: <20230311091806.500513126@linuxfoundation.org>
-In-Reply-To: <20230311091806.500513126@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 13 Mar 2023 12:35:40 +0530
-Message-ID: <CA+G9fYvEQTVfqvCD=umPFC4KTdEjafC5bN=MO9Fm5X76kmNOPw@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/356] 5.4.235-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <641d04a3-9236-fe76-a20f-11466a01460e@wanadoo.fr>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,168 +68,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 11 Mar 2023 at 14:50, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.235 release.
-> There are 356 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Mon, 13 Mar 2023 09:17:07 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.235-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Sat, Mar 11, 2023 at 07:17:50PM +0100, Christophe JAILLET wrote:
+> Le 01/02/2023 à 11:15, Johan Hovold a écrit :
+> > Make sure to disable clocks also in case attaching the power domain
+> > fails.
+> > 
+> > Fixes: 7de109c0abe9 ("interconnect: icc-rpm: Add support for bus power domain")
+> > Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org      # 5.17
+> > Cc: Yassine Oudjana <y.oudjana-g/b1ySJe57IN+BqQ9rBEUg@public.gmane.org>
+> > Signed-off-by: Johan Hovold <johan+linaro-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > ---
+> >   drivers/interconnect/qcom/icc-rpm.c | 9 ++++-----
+> >   1 file changed, 4 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/interconnect/qcom/icc-rpm.c b/drivers/interconnect/qcom/icc-rpm.c
+> > index 91778cfcbc65..da595059cafd 100644
+> > --- a/drivers/interconnect/qcom/icc-rpm.c
+> > +++ b/drivers/interconnect/qcom/icc-rpm.c
+> > @@ -498,8 +498,7 @@ int qnoc_probe(struct platform_device *pdev)
+> >   
+> >   	if (desc->has_bus_pd) {
+> >   		ret = dev_pm_domain_attach(dev, true);
+> > -		if (ret)
+> > -			return ret;
+> > +		goto err_disable_clks;
+> 
+> Hi,
+> this change looks strange because we now skip the rest of the function.
+> 
+> Is it really intended?
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+No, this was definitely not intentional. Thanks for catching this. I'll
+send a follow up fix for Georgi to fold in or apply on top.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> Also, should dev_pm_domain_detach() be called somewhere in the error 
+> handling path and remove function ?
 
-## Build
-* kernel: 5.4.235-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: ca95bdb3ada07ed988b0bcf95a489479b6a3e800
-* git describe: v5.4.234-357-gca95bdb3ada0
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.2=
-34-357-gca95bdb3ada0
+In principle, yes. (I think read the above as being another device
+managed resource.)
 
-## Test Regressions (compared to v5.4.235)
+It turns out, however, that this code is totally bogus as any power
+domain would already have been attached by the platform bus code and the
+above call would always just succeed. The platform code would also
+handle detach on errors. 
 
-## Metric Regressions (compared to v5.4.235)
+I'll send a patch to remove this.
 
-## Test Fixes (compared to v5.4.235)
-
-## Metric Fixes (compared to v5.4.235)
-
-## Test result summary
-total: 124626, pass: 101269, fail: 3329, skip: 19651, xfail: 377
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 146 total, 145 passed, 1 failed
-* arm64: 46 total, 42 passed, 4 failed
-* i386: 28 total, 22 passed, 6 failed
-* mips: 30 total, 29 passed, 1 failed
-* parisc: 8 total, 8 passed, 0 failed
-* powerpc: 33 total, 32 passed, 1 failed
-* riscv: 15 total, 12 passed, 3 failed
-* s390: 8 total, 8 passed, 0 failed
-* sh: 14 total, 12 passed, 2 failed
-* sparc: 8 total, 8 passed, 0 failed
-* x86_64: 39 total, 37 passed, 2 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-bre[
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Johan
