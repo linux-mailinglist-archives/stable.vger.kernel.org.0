@@ -2,182 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4FA6B7FA5
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 18:42:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E44566B7FCA
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 18:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230177AbjCMRl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 13:41:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60578 "EHLO
+        id S229493AbjCMRxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 13:53:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229534AbjCMRl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 13:41:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 457CA6C8A8;
-        Mon, 13 Mar 2023 10:41:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8787ACE1126;
-        Mon, 13 Mar 2023 17:41:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E76FC433EF;
-        Mon, 13 Mar 2023 17:41:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1678729311;
-        bh=A6j3R8KEfNZMmxp5Zyw8332q03DR+wg12HFr1SVO/QA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=m1PtW3uke+FPaAPZihBeOaBXr/yHwIaXn44FdZblfxRzbYlDP8WJEOogUClc3SsXR
-         BnjKiGRPRq3xwUBZ59WurJpvYbkf7GUvs7jTc7vLK3rq4jSgRLfa6XaqWgMozfCQjC
-         SAt5HtahBMU9alNmTmsmoPYSumWkp43WdemQAd6U=
-Date:   Mon, 13 Mar 2023 18:41:49 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
-        Matthew Wilcox <willy@infradead.org>,
-        Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: AUTOSEL process
-Message-ID: <ZA9gXRMvQj2TO0W3@kroah.com>
-References: <Y/zswi91axMN8OsA@sol.localdomain>
- <Y/zxKOBTLXFjSVyI@sol.localdomain>
- <ZATC3djtr9/uPX+P@duo.ucw.cz>
- <ZAewdAql4PBUYOG5@gmail.com>
- <ZAwe95meyCiv6qc4@casper.infradead.org>
- <ZAyK0KM6JmVOvQWy@sashalap>
- <20230311161644.GH860405@mit.edu>
- <ZAy+3f1/xfl6dWpI@sol.localdomain>
- <ZAzH8Ve05SRLYPnR@sashalap>
- <ZAzOgw8Ui4kh1Z3D@sol.localdomain>
+        with ESMTP id S229668AbjCMRxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 13:53:46 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16D21BDFA
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 10:53:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678730024; x=1710266024;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=8dJ21apbI0tMORrFDkphDRyhVjW51yImDrMyP7bKoHw=;
+  b=Cz5/dqjLAQC4k47sjvCE5aUS2vSj/9XXM9XmitUytQ14lDdHztcPvHhK
+   JNgdNGXqWkW72qIhQQZGMorH/bSrzJ9rfyA1+e56fAbqP0EfE6f1fngrG
+   +6psXHatLec9aZZnR/P1iZ+xqtVsDiuX9kmwJSVZit0D8X46t524kZmOw
+   3QIF2t4UtAC9Wb0Ki7xyHcCjUvFHpcxKHk8B5Et0ZZwritXFqPEtl7tNd
+   +WzFVrfWv9g9Bgo0YrBQlyNMBw5YJRc253b9vzLYRcOczEEyz1T+JWwU8
+   SdpRK/KapDIlngT4bDyYQC1xVd8fdT5EFkzC1ZjQTxoyV2rzjMS95Qyur
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10648"; a="325582386"
+X-IronPort-AV: E=Sophos;i="5.98,257,1673942400"; 
+   d="scan'208";a="325582386"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Mar 2023 10:53:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10648"; a="924595702"
+X-IronPort-AV: E=Sophos;i="5.98,257,1673942400"; 
+   d="scan'208";a="924595702"
+Received: from ahajda-mobl.ger.corp.intel.com (HELO [10.213.0.29]) ([10.213.0.29])
+  by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Mar 2023 10:53:15 -0700
+Message-ID: <977d29de-ca0b-7398-803a-6aa5a87d898d@intel.com>
+Date:   Mon, 13 Mar 2023 18:53:13 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZAzOgw8Ui4kh1Z3D@sol.localdomain>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.8.0
+Subject: Re: [Intel-gfx] [PATCH v2] drm/i915/active: Fix missing debug object
+ activation
+Content-Language: en-US
+To:     Nirmoy Das <nirmoy.das@intel.com>, intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas.hellstrom@intel.com>
+References: <20230313103045.8906-1-nirmoy.das@intel.com>
+From:   Andrzej Hajda <andrzej.hajda@intel.com>
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
+ Gdansk - KRS 101882 - NIP 957-07-52-316
+In-Reply-To: <20230313103045.8906-1-nirmoy.das@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 11, 2023 at 10:54:59AM -0800, Eric Biggers wrote:
-> On Sat, Mar 11, 2023 at 01:26:57PM -0500, Sasha Levin wrote:
-> > 
-> > "job"? do you think I'm paid to do this work?
+On 13.03.2023 11:30, Nirmoy Das wrote:
+> debug_active_activate() expected ref->count to be zero
+> which is not true anymore as __i915_active_activate() calls
+> debug_active_activate() after incrementing the count.
 > 
-> > Why would I stonewall improvements to the process?
-> > 
-> > I'm getting a bunch of suggestions and complaints that I'm not implementing
-> > those suggestions fast enough on my spare time.
-> > 
-> > > One of the first things I would do if I was maintaining the stable kernels is to
-> > > set up a way to automatically run searches on the mailing lists, and then take
-> > > advantage of that in the stable process in various ways.  Not having that is the
-> > > root cause of a lot of the issues with the current process, IMO.
-> > 
-> > "if I was maintaining the stable kernels" - why is this rellevant? give
-> > us the tool you've proposed below and we'll be happy to use it. Heck,
-> > don't give it to us, use it to review the patches we're sending out for
-> > review and let us know if we've missed anything.
+> v2: No need to check for "ref->count == 1" as __i915_active_activate()
+> already make sure of that.
 > 
-> It's kind of a stretch to claim that maintaining the stable kernels is not part
-> of your and Greg's jobs.  But anyway, the real problem is that it's currently
-> very hard for others to contribute, given the unique role the stable maintainers
-> have and the lack of documentation about it.  Each of the two maintainers has
-> their own scripts, and it is not clear how they use them and what processes they
-> follow.
+> Fixes: 04240e30ed06 ("drm/i915: Skip taking acquire mutex for no ref->active callback")
+> Cc: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: Thomas Hellström <thomas.hellstrom@intel.com>
+> Cc: Andi Shyti <andi.shyti@linux.intel.com>
+> Cc: intel-gfx@lists.freedesktop.org
+> Cc: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+> Cc: <stable@vger.kernel.org> # v5.10+
+> Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
 
-Just a comment here about our scripts and process.
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
 
-Our scripts are different as we both currently do different things for
-the stable trees.  I have almost no scripts for finding patches, all I
-use is a git hook that dumps emails into a mbox and then go through them
-and queue them up to the quilt trees based on if they are valid or not
-after review.
+Regards
+Andrzej
+> ---
+>   drivers/gpu/drm/i915/i915_active.c | 3 +--
+>   1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/i915_active.c
+> index a9fea115f2d2..8ef93889061a 100644
+> --- a/drivers/gpu/drm/i915/i915_active.c
+> +++ b/drivers/gpu/drm/i915/i915_active.c
+> @@ -92,8 +92,7 @@ static void debug_active_init(struct i915_active *ref)
+>   static void debug_active_activate(struct i915_active *ref)
+>   {
+>   	lockdep_assert_held(&ref->tree_lock);
+> -	if (!atomic_read(&ref->count)) /* before the first inc */
+> -		debug_object_activate(ref, &active_debug_desc);
+> +	debug_object_activate(ref, &active_debug_desc);
+>   }
+>   
+>   static void debug_active_deactivate(struct i915_active *ref)
 
-My scripts primarily are for doing a release, not building the patches
-up.
-
-That being said, I do have 2 scripts I use to run on an existing tree or
-series to verify that the fixes are all present already (i.e. if we have
-fixes for the fixes), but that's not really relevant for this discussion.
-
-Those, and my big "treat the filesystem as a git database" hack can be
-found in this repo:
-	https://git.sr.ht/~gregkh/linux-stable_commit_tree/
-if you are curious, these are probably the relevant scripts if you are
-curious:
-	https://git.sr.ht/~gregkh/linux-stable_commit_tree/tree/master/item/find_fixes_in_queue
-	https://git.sr.ht/~gregkh/linux-stable_commit_tree/tree/master/item/find_fixes_in_range
-
-And I use:
-	https://git.sr.ht/~gregkh/linux-stable_commit_tree/tree/master/item/id_found_in
-all the time to determine if a SHA1 is in any stable releases.
-
-> (Even just stable-kernel-rules.rst is totally incorrect these days.)
-
-I do not understand this, what is not correct?
-
-It's how to get patches merged into stable kernels, we go
-above-and-beyond that for those developers and maintainers that do NOT
-follow those rules.  If everyone followed them, we wouldn't be having
-this discussion at all :)
-
-> Actually I still don't even know where your scripts are!  They are not in
-> stable-queue/scripts, it seems those are only Greg's scripts?  And if I built
-> something, how do I know you would even use it?  You likely have all sorts of
-> requirements that I don't even know about.
-
-I think what you are talking about here would require new work.  New
-tools to dig in the commits to extract "here's the whole series of
-patches" would be wonderful, but as others have pointed out, it is
-_very_ common to have a cc: stable as the first few commits in a series,
-and then the rest have nothing to do with a stable tree.
-
-But when doing something like what AUTOSEL does, digging up the whole
-series would be great.  We have tools that can match up every commit in
-the tree to a specific email message (presentations on the tool and how
-it works have been a previous LinuxCon conferences), but if we can use
-lore.kernel.org for it, that would probably help everyone out.
-
-And that's why I use the Link: tag, as Ted pointed out, for everything
-that I apply to all of the subsystems I work with.  While I know Linus
-doesn't like it, I think it is quite valuable as it makes it so that
-_anyone_ can instantly find the thread where the patch came from, and no
-external tools are required.
-
-Anyway, as always, I gladly accept help with figuring out what commits
-to apply to stable kernels.  I've always said this, and Sasha has
-stepped up in an amazing way here over the years, creating tools based
-on collaboration with many others (see his presentations at conferences
-with Julia) on how to dig into the kernel repo to find patches that we
-all forget to tag for stable kernels and he sends them out for review.
-
-If you want to help out and do much the same thing using different sorts
-of tools, or come up with other ways of finding the bugfixes that are in
-there that are not properly tagged, wonderful, I will gladly accept
-them, I have never turned down help like this.
-
-And that's what I ask from companies all the time when they say "what
-can we do to help out?"  A simple thing to do is dig in your vendor
-trees and send me the fixes that you have backported there.  I know
-distros have this (and some distros help out and do this, I'll call out
-Debian for being very good here), and some companies do submit their
-backports as well (Amazon and Hawaii are good, Android also does a good
-job), but they are rare compared to all of the groups that I know use
-Linux.
-
-Anyway, if anyone noticed the big problems this weekend with the stable
-releases were due to patches that were actually tagged with "cc: stable"
-so that's kind of proof that we all are human and even when we think a
-fix is enough, it can cause problems when it hits real world testing.
-
-We are all human, the best we can do is when confronted with "hey, this
-fix causes a problem" is revert it and get the fix out to people as
-quick as possible.  That includes fixes picked from tools like AUTOSEL
-as well as manual tags, there is no difference here in our response.
-
-thanks,
-
-greg k-h
