@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 952C26B81B6
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 20:23:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44F886B81B9
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 20:24:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230179AbjCMTXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 15:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55514 "EHLO
+        id S229449AbjCMTYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 15:24:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231259AbjCMTW6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 15:22:58 -0400
+        with ESMTP id S229827AbjCMTX7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 15:23:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB999193DA
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 12:22:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48FDD1CBC2
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 12:23:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61006B81150
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 19:22:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0604C433EF;
-        Mon, 13 Mar 2023 19:22:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36C4BB811DD
+        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 19:23:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF41DC433D2;
+        Mon, 13 Mar 2023 19:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678735363;
-        bh=s9909jI5PwXSuuE36ULb/laFF+DVoZkI/RdXPFUQ2sk=;
+        s=k20201202; t=1678735390;
+        bh=BijfgByntABiAYlj6OrFomp0dyrciWsas5Aq1yk3QOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NK9FySCCmxEvOGczqBOv38iepvzRqhpimgLnk0oGakCfF93PX3Q2jugp3oH1bJlDG
-         0UNrn2EJ8RlUvaGdeonCKBJ3xBelnyv930vUZUMYMHIg3vYs5rQ7pfm3GwK4XEj1Wz
-         +FbsoKQ9yU3w6RXZGNTDu7XZZPSgCj18h5y87iklk+Z3xS2DUrwXriFh173Flm/cuJ
-         0b03D/OYJ9+diUCrOcVbjm9FEIYM2eJofS2TXuuQfoOtYzcSfHz+wuZQbT5NLJklll
-         SbBKrK4D+Jc7Yyw2wdb2n5dCVHL71Oj10fNkwyHhHucUsnUYQfjiQoV3j9BgIX46na
-         RdOMxqNJwBFFQ==
+        b=qPMr1VHAaKS0Y1Ko2pcEdOnQWY87D4sRWphYSQhH3LHEbK+j7UxxUYUq/gWhGfifS
+         L+Y+0bTVgOSSIdNgwx+zV/Dem3MONpsROL6WbXeXfaNy+RLs+Gf3e6R9BleTrK6jPM
+         aKA5evKmWlpnPUFSc1OWekhKtE0OD+V2GVQL23VlCYafjGhUP61QyYCxyL6DCZ1Yai
+         CPVeLFrFfuSljnu6JJ8A82AIjdxeFxdP/fBIGU3hoYl5MgDbdtOvcYZdv6LxiSkTg7
+         q7m9OFW28l6OS4FDhDCP3TNDmM3S8+i/xtId+dPAsdHSRaNsx6zWXPgvKN7MV0HkZE
+         7CnuMoIoBWJlQ==
 From:   "Seth Forshee (DigitalOcean)" <sforshee@kernel.org>
 To:     gregkh@linuxfoundation.org
 Cc:     sforshee@kernel.org, brauner@kernel.org, stable@vger.kernel.org
-Subject: [PATCH 6.1] filelocks: use mount idmapping for setlease permission check
-Date:   Mon, 13 Mar 2023 14:22:41 -0500
-Message-Id: <20230313192241.3987557-1-sforshee@kernel.org>
+Subject: [PATCH 5.15] filelocks: use mount idmapping for setlease permission check
+Date:   Mon, 13 Mar 2023 14:23:09 -0500
+Message-Id: <20230313192309.3988024-1-sforshee@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <167870483012291@kroah.com>
-References: <167870483012291@kroah.com>
+In-Reply-To: <1678704830213151@kroah.com>
+References: <1678704830213151@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -71,18 +71,18 @@ Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/fs/locks.c b/fs/locks.c
-index 7dc129cc1a26..240b9309ed6d 100644
+index 82a4487e95b3..881fd16905c6 100644
 --- a/fs/locks.c
 +++ b/fs/locks.c
-@@ -1862,9 +1862,10 @@ int generic_setlease(struct file *filp, long arg, struct file_lock **flp,
+@@ -1901,9 +1901,10 @@ int generic_setlease(struct file *filp, long arg, struct file_lock **flp,
  			void **priv)
  {
  	struct inode *inode = locks_inode(filp);
-+	vfsuid_t vfsuid = i_uid_into_vfsuid(file_mnt_user_ns(filp), inode);
++	kuid_t uid = i_uid_into_mnt(file_mnt_user_ns(filp), inode);
  	int error;
  
 -	if ((!uid_eq(current_fsuid(), inode->i_uid)) && !capable(CAP_LEASE))
-+	if ((!vfsuid_eq_kuid(vfsuid, current_fsuid())) && !capable(CAP_LEASE))
++	if ((!uid_eq(current_fsuid(), uid)) && !capable(CAP_LEASE))
  		return -EACCES;
  	if (!S_ISREG(inode->i_mode))
  		return -EINVAL;
