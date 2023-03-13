@@ -2,160 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D55A6B82CF
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 21:34:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8F546B83B6
+	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 22:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230026AbjCMUeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 16:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58770 "EHLO
+        id S230316AbjCMVHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 17:07:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230105AbjCMUd7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 16:33:59 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67AD518152;
-        Mon, 13 Mar 2023 13:33:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=tbb20uIFyWqo9nThJPQCwFWeu9XvOL/qUHrC9xMBsms=;
-        t=1678739596; x=1679949196; b=q8y1rf08QeMSZ81uZBYVC1orwcIOwlOqd5b3u6d/A2vtnU/
-        bKEWtsY8K4h7M+whRIu/t1sS6zvZUhpkqHlC/1IQtJ+ecEm7uJaNUxwjaI6U+3zRRHQ9fX3Hc6NdZ
-        7RzNJv3uc6VRyYdGjYvXWk7cQebvlel2JXhQnUaKlgq/rExK7t6qh/pOS4EYafFHYD5TA1ugJcu/4
-        61ULDz7MjcPE4LkkXZTlmhnMarKoav59UW2tNzNg7MvXQbmgiIzyIpHmGbbpTADAvUjuRID1bShWy
-        nY+MFbbTOoRtFSxamVWwpqih+CQY8aKWqHfblHnS3cNpuwz7p6JaJPfAuGyBW6Xw==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.96)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1pbor2-002LqN-0F;
-        Mon, 13 Mar 2023 21:33:12 +0100
-Message-ID: <130d44bccb317cc82d57caf5b8ca1471fe0faed4.camel@sipsolutions.net>
-Subject: Re: [PATCH] wifi: mac80211: Serialize calls to drv_wake_tx_queue()
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Alexander Wetzel <alexander@wetzel-home.de>
-Cc:     nbd@nbd.name, linux-wireless@vger.kernel.org,
-        Thomas Mann <rauchwolke@gmx.net>, stable@vger.kernel.org,
-        Toke =?ISO-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@toke.dk>
-Date:   Mon, 13 Mar 2023 21:33:10 +0100
-In-Reply-To: <20230313201542.72325-1-alexander@wetzel-home.de>
-References: <20230313201542.72325-1-alexander@wetzel-home.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S230282AbjCMVHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 17:07:33 -0400
+Received: from nbd.name (nbd.name [46.4.11.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A66EC67D;
+        Mon, 13 Mar 2023 14:06:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+        s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:Subject:From
+        :References:Cc:To:MIME-Version:Date:Message-ID:Sender:Reply-To:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=rPVBUVq+AJVWj4nP3Zp9d9JZjQMiQahOiXcAF0sclA4=; b=GOojPxUWdB6qIhiY6h39jPP++t
+        D2liKYgGwtk1uAefNQnBMJD1pVF8nAbm2dhqWcP8L7ijd+PEykBi/DQyVVb0FQLjpP1fVFDEdaTwT
+        /4GBUDob6mEmEhdZse7piDXJFZoWX50GEsKpLBgYPJ4WiuSzAvcgUrtamgWkRpCi0eqI=;
+Received: from p54ae9730.dip0.t-ipconnect.de ([84.174.151.48] helo=nf.local)
+        by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <nbd@nbd.name>)
+        id 1pbpLS-001Z2s-Iv; Mon, 13 Mar 2023 22:04:38 +0100
+Message-ID: <88c400d4-e162-3cc8-62f2-af07b545a6c3@nbd.name>
+Date:   Mon, 13 Mar 2023 22:04:38 +0100
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.8.0
+Content-Language: en-US
+To:     Alexander Wetzel <alexander@wetzel-home.de>,
+        johannes@sipsolutions.net
+Cc:     linux-wireless@vger.kernel.org, Thomas Mann <rauchwolke@gmx.net>,
+        stable@vger.kernel.org
+References: <20230313201542.72325-1-alexander@wetzel-home.de>
+From:   Felix Fietkau <nbd@nbd.name>
+Subject: Re: [PATCH] wifi: mac80211: Serialize calls to drv_wake_tx_queue()
+In-Reply-To: <20230313201542.72325-1-alexander@wetzel-home.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2023-03-13 at 21:15 +0100, Alexander Wetzel wrote:
->=20
-> While drivers with native iTXQ support are able to handle that,=C2=A0
->=20
-
-questionable. Looking at iwlwifi:
-
-void iwl_mvm_mac_wake_tx_queue(struct ieee80211_hw *hw,
-                               struct ieee80211_txq *txq)
-{
-        struct iwl_mvm *mvm =3D IWL_MAC80211_GET_MVM(hw);
-...
-        list_add_tail(&mvmtxq->list, &mvm->add_stream_txqs);
-...
-}
-
-which might explain some rare and hard to debug list corruptions in the
-driver that we've seen reports of ...
-
+On 13.03.23 21:15, Alexander Wetzel wrote:
+> drv_wake_tx_queue() has no protection against running concurrent
+> multiple times. It's normally executed within the task calling
+> ndo_start_xmit(). But wake_txqs_tasklet is also calling into it,
+> regardless if the function is already running on another CPU or not.
+> 
+> While drivers with native iTXQ support are able to handle that, calls to
+> ieee80211_handle_wake_tx_queue() - used by the drivers without
+> native iTXQ support - must be serialized. Otherwise drivers can get
+> unexpected overlapping drv_tx() calls from mac80211. Which causes issues
+> for at least rt2800usb.
+> 
 > To avoid what seems to be a not needed distinction between native and
 > drivers using ieee80211_handle_wake_tx_queue(), the serialization is
 > done for drv_wake_tx_queue() here.
-
-So probably no objection to that, at least for now, though in the common
-path (what I showed above was the 'first use' path), iwlwifi actually
-hits different HW resources, so it _could_ benefit from concurrent TX
-after fixing that bug.
-
+> 
 > The serialization works by detecting and blocking concurrent calls into
 > drv_wake_tx_queue() and - when needed - restarting all queues after the
 > wake_tx_queue ops returned from the driver.
+> 
+> This fix here is only required when a tree has 'c850e31f79f0 ("wifi:
+> mac80211: add internal handler for wake_tx_queue")', which introduced
+> the buggy code path in mac80211. Drivers were switched to it with
+> 'a790cc3a4fad ("wifi: mac80211: add wake_tx_queue callback to
+> drivers")'. But only after fixing an independent bug with commit
+> '4444bc2116ae ("wifi: mac80211: Proper mark iTXQs for resumption")'
+> problematic concurrent calls to drv_wake_tx_queue() really happened and
+> exposed the initial issue.
+> 
+> Fixes: c850e31f79f0 ("wifi: mac80211: add internal handler for wake_tx_queue")
+> Reported-by: Thomas Mann <rauchwolke@gmx.net>
+> Tested-by: Thomas Mann <rauchwolke@gmx.net>
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=217119
+> Link: https://lore.kernel.org/r/b8efebc6-4399-d0b8-b2a0-66843314616b@leemhuis.info/
+> CC: <stable@vger.kernel.org>
+> Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+> ---
+> 
+> There are multiple variations how we can fix the issue.
+> 
+> But this fix has to go directly into 6.2 to solve an ongoing
+> regression.
+> I tried to prevent an outright redesign while still having a
+> full fix:
 
-This seems ... overly complex? It feels like you're implementing a kind
-of spinlock (using atomic bit ops) with very expensive handling of
-contention?
+This serialization approach confuses me a bit, and I worry that it might 
+cause performance regressions on mt76 somehow, though I can't point to 
+any specific scenario in which this would happen.
 
-Since drivers are supposed to handle concurrent TX per AC, you could
-almost just do something like this:
+> Most questionable decision here probably is, if we should fix it in
+> drv_wake_tx_queue() or only in ieee80211_handle_wake_tx_queue().
+> But the decision how to serialize - tasklet vs some kind of locking
+> - may also be an issue.
+> 
+> Personally, I did not like the overhead of checking all iTXQ for every
+> drv_wake_tx_queue(). These are happening per-packet AND can be easily
+> avoided when we are not using a tasklet. Most of the time.
 
-diff --git a/include/net/mac80211.h b/include/net/mac80211.h
-index f07a3c1b4d9a..1946e28868ea 100644
---- a/include/net/mac80211.h
-+++ b/include/net/mac80211.h
-@@ -7108,10 +7108,8 @@ struct ieee80211_txq *ieee80211_next_txq(struct ieee=
-80211_hw *hw, u8 ac);
-  */
- void ieee80211_txq_schedule_start(struct ieee80211_hw *hw, u8 ac);
-=20
--/* (deprecated) */
--static inline void ieee80211_txq_schedule_end(struct ieee80211_hw *hw, u8 =
-ac)
--{
--}
-+/** ... */
-+void ieee80211_txq_schedule_end(struct ieee80211_hw *hw, u8 ac);
-=20
- void __ieee80211_schedule_txq(struct ieee80211_hw *hw,
- 			      struct ieee80211_txq *txq, bool force);
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 1fae44fb1be6..606ca8620d20 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -4250,11 +4250,17 @@ void ieee80211_txq_schedule_start(struct ieee80211_=
-hw *hw, u8 ac)
- 	} else {
- 		local->schedule_round[ac] =3D 0;
- 	}
--
--	spin_unlock_bh(&local->active_txq_lock[ac]);
- }
- EXPORT_SYMBOL(ieee80211_txq_schedule_start);
-=20
-+void ieee80211_txq_schedule_end(struct ieee80211_hw *hw, u8 ac)
-+{
-+	struct ieee80211_local *local =3D hw_to_local(hw);
-+
-+	spin_unlock_bh(&local->active_txq_lock[ac]);
-+}
-+EXPORT_SYMBOL(ieee80211_txq_schedule_end);
-+
- void __ieee80211_subif_start_xmit(struct sk_buff *skb,
- 				  struct net_device *dev,
- 				  u32 info_flags,
+Moving the scheduling to a tasklet wouldn't involve checking all iTXQ 
+for every wake call, only the active ones that have packets queued.
+If you use a kthread instead, multiple concurrent events (and in some 
+cases even consecutive ones when busy enough) can be handled in a single 
+scheduling run, which can be flexible about which CPU to run on as well.
 
+> I also assume that drivers don't *want* concurrent drv_wake_tx_queue()
+> calls and it's a benefit to all drivers to serialize it.
 
+I think the main problem with your patch is that it does not solve the 
+issue completely, just one instance of it. Concurrent calls to 
+ieee80211_handle_wake_tx_queue for multiple iTXQs belonging to the same 
+WMM AC are just as problematic as concurrent calls for the same iTXQ. 
+Your patch does not seem to handle that.
 
-assuming that TXQ drivers actually still call
-ieee80211_txq_schedule_end() which says it's deprecated.
+Also, mt76 is completely fine with concurrent drv_wake_tx_queue calls, 
+as it only uses them to schedule the main tx kthread.
 
-That even has _bh() so the tasklet can't be running anyway ...
+In my opinion, the best approach is still to use a single kthread for 
+the ieee80211_handle_wake_tx_queue case and leave drivers alone that 
+take care of scheduling on their own.
 
-So if the concurrency really is only TX vs. tasklet, then you could even
-just keep the BHs disabled (in _start spin_unlock only and then in _end
-local_bh_disable)?
-
-> Which may also be the solution for the regression in 6.2:
-> Do it now for ieee80211_handle_wake_tx_queue() and apply this patch
-> to the development tree only.
-
-I'd argue the other way around - do it for all to fix these issues, and
-then audit drivers such as iwlwifi or even make concurrency here opt-in.
-
-Felix did see some benefits of the concurrency I think though, so he
-might have a different opinion.
-
-johannes
+- Felix
