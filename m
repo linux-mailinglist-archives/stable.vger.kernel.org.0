@@ -2,131 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA2916B84C7
-	for <lists+stable@lfdr.de>; Mon, 13 Mar 2023 23:30:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0DAA6B85CC
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 00:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229483AbjCMWaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Mar 2023 18:30:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46544 "EHLO
+        id S230038AbjCMXCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Mar 2023 19:02:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229992AbjCMWaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 18:30:01 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C9016A2D1
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 15:30:00 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id e15-20020a17090ac20f00b0023d1b009f52so3126566pjt.2
-        for <stable@vger.kernel.org>; Mon, 13 Mar 2023 15:30:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1678746599;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XPLn+orVfSK+z4tupCE3vvaGTo6pOxRCWsTN9XiJPXw=;
-        b=jwVQFnAZvTbL1m3KsEL+nj7y4CkOYqkthOJJZum4ez+s9ehzdY/jhGB0JirvrTvSCM
-         7SR9W1NWfEuWwA6QbUBpgU0GPxwrjZmm2fE5jYhi23JHRYR5Q3ZCDyPrpG03hgw3sark
-         ZA4S2l4uR/NYjZU1VXsKl+FSisRWndkN9o27U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678746599;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XPLn+orVfSK+z4tupCE3vvaGTo6pOxRCWsTN9XiJPXw=;
-        b=pYtEDYYtaf4xe8PXLNrALRZ9mTiYiC2N8aaMma1muepOor5pSBKI0LmE1HVKJvz9uD
-         DIHgKBY3AJczulKk2SuUrHR6DrLt3AEiDmr6giwEcrua4R9XxxOmytTiDcTHHH0iJX/e
-         OL1zLc/eg4xhjo8ldb5JhtrXBq94jhk3g0F0Z1uAsyIY8scxWs8vDfF2gnr0FB74UPt6
-         67MvEQLqm7W5BmVJiYg6wjVMg0I3dOlUBZKnjXFs9kI9u+0tURAyD1kb0L/d8HVNsglK
-         eOLfkYH5Tdj12TWcbCUo/FFG6ORD3b21Cla4oIhjDNvliBycDc46RKuFqk6gsR6uCBk/
-         qy/g==
-X-Gm-Message-State: AO0yUKVdrMhvf1RUdfEZ/fc5dhuodCgbhVS33XNMtSN/ybtRHbvUvkOa
-        0y9CYWH2SDuyxA8NejRF04cq0kGJnWDqOMSYZ5SvlQ==
-X-Google-Smtp-Source: AK7set+bwCXPeXXJYiHoIs21LWog9BcgfWy0JQjslrBQOlmossB4jqnklmjuEP81ZHtlr8WCPOmtjQ==
-X-Received: by 2002:a17:903:446:b0:1a0:48ff:53a0 with SMTP id iw6-20020a170903044600b001a048ff53a0mr3867362plb.35.1678746599155;
-        Mon, 13 Mar 2023 15:29:59 -0700 (PDT)
-Received: from khazhy-linux.svl.corp.google.com ([2620:15c:2d4:203:157:b07d:930a:fb24])
-        by smtp.gmail.com with ESMTPSA id km8-20020a17090327c800b0019aa8149cb9sm352440plb.79.2023.03.13.15.29.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Mar 2023 15:29:58 -0700 (PDT)
-From:   Khazhismel Kumykov <khazhy@chromium.org>
-X-Google-Original-From: Khazhismel Kumykov <khazhy@google.com>
-To:     stable@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>,
-        Khazhismel Kumykov <khazhy@google.com>
-Subject: [PATCH v5.10 5/5] block, bfq: fix uaf for bfqq in bic_set_bfqq()
-Date:   Mon, 13 Mar 2023 15:27:57 -0700
-Message-Id: <20230313222757.1103179-6-khazhy@google.com>
-X-Mailer: git-send-email 2.40.0.rc1.284.g88254d51c5-goog
-In-Reply-To: <20230313222757.1103179-1-khazhy@google.com>
-References: <20230313222757.1103179-1-khazhy@google.com>
+        with ESMTP id S230280AbjCMXBj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Mar 2023 19:01:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041A3769ED;
+        Mon, 13 Mar 2023 16:00:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E05A5B815FC;
+        Mon, 13 Mar 2023 23:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0B3C433EF;
+        Mon, 13 Mar 2023 23:00:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678748448;
+        bh=JCeQvBY6bMqovbU34cXbJ4Zgnocr52q58fWGR8Okslg=;
+        h=From:Date:Subject:To:Cc:From;
+        b=db8ONJnU3rzg0GkiT8U7ITxd6f/Pcpenykg1Q3Gh7uOGiQUfuKf+uowPWc92kRciM
+         XClRrybnkrciyd9wLhE/RVuTmdPSSpoo7sk4Uu7cFGrpVokmkJWJOy7Hrynp5WTs1A
+         tKssWkWDmsSGhK3ZFN2v3EDos4Sx/zcxpYCOHTvciNdA1uUZhLXT8xgvToT2/9EtRR
+         eyHRXwwGypRwKKEKNAucW0swKGz8yjRYkcN5tV3YiY7srhFlfRiL7r9aGbsW3iv4AB
+         bOT+ASwBhst36EDe6ab+VBcGUZgESIgn8UzP1gnHdQMCaarY5lvCF/UM1LOA2QscI7
+         IAT03dPN/YTGw==
+From:   Nathan Chancellor <nathan@kernel.org>
+Date:   Mon, 13 Mar 2023 16:00:23 -0700
+Subject: [PATCH] riscv: Handle zicsr/zifencei issues between clang and
+ binutils
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230313-riscv-zicsr-zifencei-fiasco-v1-1-dd1b7840a551@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAarD2QC/x2NQQrDMAwEvxJ0riC2A6X9SulBVuRGhzpFKiE05
+ O91clkYFmY2cDEVh3u3gcmirnNtEC4d8ET1JahjY4h9TH0KCU2dF/wpu7UtUlkUi5LzjPE2BCb
+ Jch0ZmiGTC2ajytPheJN/xY7jY1J0PbOP577/AX8nSeKGAAAA
+To:     paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, conor.dooley@microchip.com
+Cc:     nathan@kernel.org, ndesaulniers@google.com, trix@redhat.com,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        llvm@lists.linux.dev, patches@lists.linux.dev,
+        stable@vger.kernel.org
+X-Mailer: b4 0.12.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6797; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=JCeQvBY6bMqovbU34cXbJ4Zgnocr52q58fWGR8Okslg=;
+ b=owGbwMvMwCEmm602sfCA1DTG02pJDCn8q+W/p6yaqjirarFIdECezW+de4YNOQ0aynImBz++m
+ sKzSO9uRykLgxgHg6yYIkv1Y9XjhoZzzjLeODUJZg4rE8gQBi5OAZhI53xGhu3M74vyHI/Vdh0N
+ Fnbm+HaSU2tO389nYWqvr3sy9NQrrWFkaFCeGvwou9z2E8P1nR6KSVdWnPwXds6/6nW4bNjJte0
+ XWQE=
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+There are two related issues that appear in certain combinations with
+clang and GNU binutils.
 
-[ Upstream commit b600de2d7d3a16f9007fad1bdae82a3951a26af2 ]
+The first occurs when a version of clang that supports zicsr or zifencei
+via '-march=' [1] (i.e, >= 17.x) is used in combination with a version
+of GNU binutils that do not recognize zicsr and zifencei in the
+'-march=' value (i.e., < 2.36):
 
-After commit 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'"),
-bic->bfqq will be accessed in bic_set_bfqq(), however, in some context
-bic->bfqq will be freed, and bic_set_bfqq() is called with the freed
-bic->bfqq.
+  riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_c2p0_zicsr2p0_zifencei2p0: Invalid or unknown z ISA extension: 'zifencei'
+  riscv64-linux-gnu-ld: failed to merge target specific data of file fs/efivarfs/file.o
+  riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_c2p0_zicsr2p0_zifencei2p0: Invalid or unknown z ISA extension: 'zifencei'
+  riscv64-linux-gnu-ld: failed to merge target specific data of file fs/efivarfs/super.o
 
-Fix the problem by always freeing bfqq after bic_set_bfqq().
+The second occurs when a version of clang that does not support zicsr or
+zifencei via '-march=' (i.e., <= 16.x) is used in combination with a
+version of GNU as that defaults to a newer ISA base spec, which requires
+specifying zicsr and zifencei in the '-march=' value explicitly (i.e, >=
+2.38):
 
-Fixes: 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'")
-Reported-and-tested-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230130014136.591038-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+  ../arch/riscv/kernel/kexec_relocate.S: Assembler messages:
+  ../arch/riscv/kernel/kexec_relocate.S:147: Error: unrecognized opcode `fence.i', extension `zifencei' required
+  clang-12: error: assembler command failed with exit code 1 (use -v to see invocation)
+
+This is the same issue addressed by commit 6df2a016c0c8 ("riscv: fix
+build with binutils 2.38") (see [2] for additional information) but
+older versions of clang miss out on it because the cc-option check
+fails:
+
+  clang-12: error: invalid arch name 'rv64imac_zicsr_zifencei', unsupported standard user-level extension 'zicsr'
+  clang-12: error: invalid arch name 'rv64imac_zicsr_zifencei', unsupported standard user-level extension 'zicsr'
+
+To resolve the first issue, only attempt to add zicsr and zifencei to
+the march string when using the GNU assembler 2.38 or newer, which is
+when the default ISA spec was updated, requiring these extensions to be
+specified explicitly. LLVM implements an older version of the base
+specification for all currently released versions, so these instructions
+are available as part of the 'i' extension. If LLVM's implementation is
+updated in the future, a CONFIG_AS_IS_LLVM condition can be added to
+CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI.
+
+To resolve the second issue, use version 2.2 of the base ISA spec when
+using an older version of clang that does not support zicsr or zifencei
+via '-march=', as that is the spec version most compatible with the one
+clang/LLVM implements and avoids the need to specify zicsr and zifencei
+explicitly due to still being a part of 'i'.
+
+[1]: https://github.com/llvm/llvm-project/commit/22e199e6afb1263c943c0c0d4498694e15bf8a16
+[2]: https://lore.kernel.org/ZAxT7T9Xy1Fo3d5W@aurel32.net/
+
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1808
+Co-developed-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
- block/bfq-cgroup.c  | 2 +-
- block/bfq-iosched.c | 4 +++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+This is essentially a v3 of Conor's v1 and v2 but since I am sending the
+patch after finding a separate but related issue, I left it at v1:
 
-diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-index 2f440b79183d..1f9ccc661d57 100644
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -748,8 +748,8 @@ static void *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
- 				 * request from the old cgroup.
- 				 */
- 				bfq_put_cooperator(sync_bfqq);
--				bfq_release_process_ref(bfqd, sync_bfqq);
- 				bic_set_bfqq(bic, NULL, true);
-+				bfq_release_process_ref(bfqd, sync_bfqq);
- 			}
- 		}
- 	}
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 016d7f32af9f..6687b805bab3 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5070,9 +5070,11 @@ static void bfq_check_ioprio_change(struct bfq_io_cq *bic, struct bio *bio)
+- v1: https://lore.kernel.org/20230223220546.52879-1-conor@kernel.org/
+- v2: https://lore.kernel.org/20230308220842.1231003-1-conor@kernel.org/
+
+I have built allmodconfig with the following toolchain combinations to
+confirm this problem is resolved:
+
+- clang 12/17 + GNU as and ld 2.35/2.39
+- clang 12/17 with the integrated assembler + GNU ld 2.35/2.39
+- clang 12/17 with the integrated assembler + ld.lld
+
+There are a couple of other incompatibilities between clang-17 and GNU
+binutils that I had to patch to get allmodconfig to build successfully
+but those are less likely to be hit in practice because the full LLVM
+stack can be used with LLVM versions 13.x and newer. I will follow up
+with separate issues and patches.
+---
+ arch/riscv/Kconfig  | 22 ++++++++++++++++++++++
+ arch/riscv/Makefile | 10 ++++++----
+ 2 files changed, 28 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index c5e42cc37604..5b182d1c196c 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -464,6 +464,28 @@ config TOOLCHAIN_HAS_ZIHINTPAUSE
+ 	depends on !32BIT || $(cc-option,-mabi=ilp32 -march=rv32ima_zihintpause)
+ 	depends on LLD_VERSION >= 150000 || LD_VERSION >= 23600
  
- 	bfqq = bic_to_bfqq(bic, false);
- 	if (bfqq) {
--		bfq_release_process_ref(bfqd, bfqq);
-+		struct bfq_queue *old_bfqq = bfqq;
++config TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI
++	def_bool y
++	# https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=aed44286efa8ae8717a77d94b51ac3614e2ca6dc
++	depends on AS_IS_GNU && AS_VERSION >= 23800
++	help
++	  Newer binutils versions default to ISA spec version 20191213 which
++	  moves some instructions from the I extension to the Zicsr and Zifencei
++	  extensions.
 +
- 		bfqq = bfq_get_queue(bfqd, bio, false, bic);
- 		bic_set_bfqq(bic, bfqq, false);
-+		bfq_release_process_ref(bfqd, old_bfqq);
- 	}
++config TOOLCHAIN_NEEDS_OLD_ISA_SPEC
++	def_bool y
++	depends on TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI
++	# https://github.com/llvm/llvm-project/commit/22e199e6afb1263c943c0c0d4498694e15bf8a16
++	depends on CC_IS_CLANG && CLANG_VERSION < 170000
++	help
++	  Certain versions of clang do not support zicsr and zifencei via -march
++	  but newer versions of binutils require it for the reasons noted in the
++	  help text of CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI. This
++	  option causes an older ISA spec compatible with these older versions
++	  of clang to be passed to GAS, which has the same result as passing zicsr
++	  and zifencei to -march.
++
+ config FPU
+ 	bool "FPU support"
+ 	default y
+diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+index 4de83b9b1772..b05e833a022d 100644
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -57,10 +57,12 @@ riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
+ riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
+ riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
  
- 	bfqq = bic_to_bfqq(bic, true);
+-# Newer binutils versions default to ISA spec version 20191213 which moves some
+-# instructions from the I extension to the Zicsr and Zifencei extensions.
+-toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
+-riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
++ifdef CONFIG_TOOLCHAIN_NEEDS_OLD_ISA_SPEC
++KBUILD_CFLAGS += -Wa,-misa-spec=2.2
++KBUILD_AFLAGS += -Wa,-misa-spec=2.2
++else
++riscv-march-$(CONFIG_TOOLCHAIN_NEEDS_EXPLICIT_ZICSR_ZIFENCEI) := $(riscv-march-y)_zicsr_zifencei
++endif
+ 
+ # Check if the toolchain supports Zihintpause extension
+ riscv-march-$(CONFIG_TOOLCHAIN_HAS_ZIHINTPAUSE) := $(riscv-march-y)_zihintpause
+
+---
+base-commit: eeac8ede17557680855031c6f305ece2378af326
+change-id: 20230313-riscv-zicsr-zifencei-fiasco-2941caebe7dc
+
+Best regards,
 -- 
-2.40.0.rc1.284.g88254d51c5-goog
+Nathan Chancellor <nathan@kernel.org>
 
