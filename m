@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 412CA6B8E71
+	by mail.lfdr.de (Postfix) with ESMTP id 8D17B6B8E72
 	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 10:19:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229796AbjCNJTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 05:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57928 "EHLO
+        id S229863AbjCNJT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 05:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229815AbjCNJTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 05:19:21 -0400
+        with ESMTP id S229903AbjCNJTX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 05:19:23 -0400
 Received: from EUR02-DB5-obe.outbound.protection.outlook.com (mail-db5eur02on2114.outbound.protection.outlook.com [40.107.249.114])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 581529663E
-        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 02:19:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62C0A97FF3
+        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 02:19:21 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=E6o92UczIXXHKW2YcrzqzuRz6CAEpYSS1jwzpVKyzxh1XTB4uq/JtY9QeO26zE1Pv6z5cnqaRkmXlqJcsO/nq+tpBpW9IJNMv5uOUQFG1pBhOpNiVQY99w9Qi84VI9oiNwtkrOnhXhBlu1Y+scAx+sum1Hl8v2qaWUSz4jeSnBbDjY6AQilabnFYwstTENOqBZaooTfyXfQNfCuUBB7gw8T/3uN9KO7Upv+Y0u+M7PBQkLzRKyp+UmN9pwghsPxg5Kuezs9dqNxC1Tk0xBtEj6G0VNkSldhm6uS+g1fHDwjSbG5yY+7fa/SempbCVZAQ9utPwfq4CVbGQiLLWVWdNg==
+ b=iUl2ylW5P5wkQP/g3DpHCp+XtMXh41pFUvumvHjMr/M8qL7MWuklZSIKgy4/nc5Bv62wi76R2aaePwE7W/w83F0HAWrQAUXMGlTBoHD7Y+i0XZy9td2QFGJfl7BUuQ1aAh42NaBiNMhDn+6gFNkwVF8MLEdxMlGcsynrFHFZ02cqQ/LWm4kQ6E5Lx+gJTerRGT2fEEI/9V+63aCxxVu2h0m40fKaApMM9NTcPju6ebNjbta9VwgnapVZqzpC0w+bhlYa5EPUMTXWiWXxDVpkaeIy5CneDy7ASi0o/nWWDx2mF/XFh21TxAEG+tbvxO40HIL3Wr3HKMYmH53egGEPKg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9yEYm/sTLEadVQ7wO2UW2GN2K/KiGy8LC3pNIkLHwsA=;
- b=Pn/9fsAHSrxc+fQk7BUJ5C0mUM1hqLf0eBI1PIRc8TFL4NCZFNUj52bDq4ggFKVe++Q00aRSNGOBcwZVQtW1JAYuD8BZdsQjy6OKsBcupHcGMVabm7NLdVahET9WRB+WN0qhwDS9g60JQ3Pyq8BpztoDuuOy+ExB9E/SzABhKCJ/B15K0JXa35kjrQdKd82vgCLDgg44++N+4pY+L0NbBm0pq0ZIvgHmWgQU0th1F8sKqrkrLOKxrrjlj80F/INaE1stXA+3y0uiC3gGyTWMTYDFSKPUecEWCGdjMBAyc3ht+LGRsuCvkgW0wMQt6m6RvYykbpx24Xkfs0IcZlzAlg==
+ bh=5DSbBIwojVebY32/yMINMNiDnisoaLB+WhMhTRsPlMo=;
+ b=Mfexe1DP1PdVwpTWVb1FJHpv96FOphxNLPume5adfoNlN+xw9xQ+Ujz5j2hh2d9z9mPyJFRofaIUzuhsfTFVuYTZCqFKXom7z3Uhb2U29okJut6oRJhks0ibstJ26OHh69Sfu/c0gxeBlmWqyCvbFJdRKR35NVWJoXDw1Wl3ShlApcjD0Qxheh6ScEIoblFTIZWsOR0UUtaDQYnx8G48F5Les08Ya0r+aorbIdAWAeh3p2AFUgZ/I+1j2fsrjfYoTgadfiwDXES1kP7x0qGSFqG8hX54uDbzotnl75H+TzaQkCCBjZRh8BIr0vHvJP2HfTzVXiJddRUuN/Ul2g8rsg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=uipath.com; dmarc=pass action=none header.from=uipath.com;
  dkim=pass header.d=uipath.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uipath.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9yEYm/sTLEadVQ7wO2UW2GN2K/KiGy8LC3pNIkLHwsA=;
- b=pgA/gWOTEO2BZSNVgEKnYV6k6HLJO3r9/oxj2aCRql63M29R+RZ1Cxsz29hY30xtR63G6ac1M2HysLMPbYK8SzaAWhCS7Spoj2ff9Ro04Ykl4/Q7/DjB4g+4S4+Jo6YMGsqmsujA5F7KZ3s1+ooShFjyCaULrgUr2zSw7BQr2QEjJiCG/nxInka3iU+m5XlFqY8TFU1o4LgjWkODJ5WxpEI+wTzXKgfJMl7ds/keaLRmgxieLTodf8dupB6rbfpNXQJ3kZDm4G3RbXF27DbrmAAFG/18/8rRy0iXhySrJZd8DUYTa9u0WqGRQE/mlhR0cu0uZlzIg0XOKJh5fnxLUw==
+ bh=5DSbBIwojVebY32/yMINMNiDnisoaLB+WhMhTRsPlMo=;
+ b=qNCIeO+S84XZ9cwMgENGlvJ85HE8h+xQ/2zGZx4Q5TAkODpP+UvlQhRNJKPfsCaiCwTjaUpOQnqvsWoglMS3ZCmGWB2w4vQ6O0OKkdtuJEtHlW+ONWPnso2TG+ymmdlEn+FH8Jnhazqty/Em3SUjlDS2C8btH/BBU6ov7+gq3mVAfUfvfSMFUwtFtNJg2q6pmPGUorLPCnRCHmwdDQmg+ybUt8Z/KW1Gxt/Wxdhq0wydQAxknAF5thd+NyoWSz5mcWpMWdXhoLt93NRfRkuEpc3KffX3yzRP2XOu1uYHBPeb5Fa3iwZVgo0yOu/nLV1u4fH8Pw1MDszi703xkJ3YxA==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=uipath.com;
 Received: from VI1PR02MB4527.eurprd02.prod.outlook.com (2603:10a6:803:b1::28)
  by PA4PR02MB6543.eurprd02.prod.outlook.com (2603:10a6:102:fe::18) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6178.26; Tue, 14 Mar
- 2023 09:19:16 +0000
+ 2023 09:19:17 +0000
 Received: from VI1PR02MB4527.eurprd02.prod.outlook.com
  ([fe80::224e:d6bd:a174:9605]) by VI1PR02MB4527.eurprd02.prod.outlook.com
  ([fe80::224e:d6bd:a174:9605%6]) with mapi id 15.20.6178.026; Tue, 14 Mar 2023
- 09:19:16 +0000
+ 09:19:17 +0000
 From:   Alexandru Matei <alexandru.matei@uipath.com>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Alexandru Matei <alexandru.matei@uipath.com>,
         Mihai Petrisor <mihai.petrisor@uipath.com>,
         Viorel Canja <viorel.canja@uipath.com>
-Subject: [PATCH 5.10.y 0/3] Stable backport for KVM-on-HyperV fix
-Date:   Tue, 14 Mar 2023 11:18:58 +0200
-Message-Id: <20230314091901.2975-1-alexandru.matei@uipath.com>
+Subject: [PATCH 5.10.y 1/3] KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
+Date:   Tue, 14 Mar 2023 11:18:59 +0200
+Message-Id: <20230314091901.2975-2-alexandru.matei@uipath.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <167811889022881@kroah.com>
+In-Reply-To: <20230314091901.2975-1-alexandru.matei@uipath.com>
 References: <167811889022881@kroah.com>
+ <20230314091901.2975-1-alexandru.matei@uipath.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-ClientProxiedBy: VI1P194CA0050.EURP194.PROD.OUTLOOK.COM
@@ -60,51 +61,51 @@ X-ClientProxiedBy: VI1P194CA0050.EURP194.PROD.OUTLOOK.COM
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: VI1PR02MB4527:EE_|PA4PR02MB6543:EE_
-X-MS-Office365-Filtering-Correlation-Id: 26654731-f480-4860-05fd-08db246d2ee2
+X-MS-Office365-Filtering-Correlation-Id: c06874d9-8864-4d07-4ded-08db246d2f4d
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: XZkS/j2AFmwqeZgH/9wmELH1LcdmaaunVDowu8MZvav2ikgtgEW2uN8FePMvbvB+tRVnqEly4Z8RKT0piCNlj72wA+nbRzeg7HXYu3R+tiXGx7Vd/Denh73Erqreo9z4H89djL31KYe4L+2ffq90wrinjHXKF9N/8crMpdzc4bR3O/RyS6QN6bSjuPTH+QWQZS0xVhopIDkSob4pAo+XyZL1jK92AeJdJS4cwN+JUdD8yefdnBkQU0m5U2iwEcebpLHluBEtoFToBxWyMDVUMZqRBP+Q8TM1ufIWkE4yVJ7L0c9lrp1McnR9zIEA7Pw3fql8iDlFxFQCNNKOu/XzBLdrcjFZG4Zw722RQl+oc4XofBQU8TvuaXZ6XX7jEbBJ7w7LY/rTNtmiLeEPsyk952DPQBDdk4ZPGIk2JGAZFOUDFtM5k0ECBJIGqmnDEhneUdXW0wrX1UJLHKLGQzmA8WvQWXVMuDgjExiFStJr+5C9z0t2r6H7itWxtWED7UfwXFjGS40tUWVD9VzWJ2lgO+msoIqJaidCev2JTYrH3shkhS4N1JBSONJiS401+9KReO3VAEnTZSZmRZhGs7ijf8/edUx7Jfg7HCEC/1Il722RijyjXKT+7OMqoqyZj5U/It6VX3D9w3OjupiRkx4Mww==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR02MB4527.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(396003)(346002)(39860400002)(366004)(376002)(136003)(451199018)(5660300002)(4744005)(41300700001)(44832011)(2906002)(38100700002)(86362001)(36756003)(8936002)(478600001)(6486002)(66476007)(8676002)(66946007)(66556008)(107886003)(6666004)(6916009)(4326008)(83380400001)(54906003)(316002)(186003)(1076003)(26005)(6512007)(2616005)(6506007);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: F+fc6FOLloo2ypv86H9h/nRcE0SIYJUCS04Qo8pTtRjkAfWBmE9opoEGFkKP/36kuMr59/dullQ2O499qY5sigIklqggpj1g2qAU8G5Jo1qoWDqydQu3i2/mwx8tbpDMYocLe28g51LuxE2C+6muH827D1/pZmyA6ASd+ZVkjMeg3aD3/FMJVuBWd887tR5qHphaJLj8nJ7JBf9BjuebY9+hq+xBw8/r7Fw21cWgWt1DJCzIKisCW/DfHnAP/ALV9rNP+hHkM3VEuKjXzxf3xfD59I1fm9pt5MTcf9gk6Kik9zEGAb2OKnMr5Dm1EzFhmLdJDOA/TEBC4XPyax8u/IFMVa28ViYek+o0Q3o+QMmGCHa/XEhsyXJllDAgU3Cx44ScvCvEksr9E25O5IwpTO6qnMKXeLw9CKI+0dphYQ/HzACMakXUnHKcAKVeWFM09Amj0xyU5MhXrnIeha3/jKg6l8zn9poPhHnH6meH42eFHkUgBQIu1Ou3CKXplXDVHmBMV4B/Bx8UZCrMEJ91SrZA2iaglNz9UoqUPhE0nSINw5tLOwmyC3EO4dagWpIKS5vsqCge/Ol03ZuQAZmAAf556Wwza9f3ZnrpnfHcizGgc1AR9av0xxAsER512Z0PcqnSVRns2SGr/4Z2SmLg/Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR02MB4527.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(396003)(346002)(39860400002)(366004)(376002)(136003)(451199018)(5660300002)(41300700001)(44832011)(2906002)(38100700002)(86362001)(36756003)(8936002)(478600001)(6486002)(66476007)(8676002)(66946007)(66556008)(107886003)(6666004)(6916009)(4326008)(83380400001)(54906003)(316002)(186003)(1076003)(26005)(6512007)(2616005)(6506007);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Oa04jUXcM5+iBWMWNYgbySJSpJC+ydHtuph44cg39zy/RNihZ+UqtHqTQ4Ws?=
- =?us-ascii?Q?RxKqNvLxRTLJmjwYstfaY278ttZQCfQ4DEmVuxfzRxsfksIloWc6xQWbIZ6C?=
- =?us-ascii?Q?lXSHv9kitbx0rhJynTMiRoaedNBLzPPj3CVkTgkwPfhEhyay0fdUtkFtik7j?=
- =?us-ascii?Q?sAvZ19JFYQBjnjKo09UPq65ARGMGHhjQjAcuOEeBlgofCRvbAf7wYFp2UT4y?=
- =?us-ascii?Q?VVjpOQIv/VzB0UmY0r6ji0EAvYuGRAciSebnsXu1hHSHG8lh62yLEvZyFpBU?=
- =?us-ascii?Q?7gDCeXUHtgeraFKYcIyP8DOJq9IhPq7slqKbzjlOXU2EjagrWVTovPWUf2QD?=
- =?us-ascii?Q?Jn032z28izfzrJ9N07x5QRexr15W6JTJQ1UD6K+ZpQ9jAa7+QTbrRIQjkIc6?=
- =?us-ascii?Q?mlY2UrGykKRWeOVlAUGv76qcSp4XvayWOONcjlMR/csLP6oDtF3+mciCcbkr?=
- =?us-ascii?Q?esvgthFWbN3eDP9BCTE1hudnwxY9Db7C4mtFf6k9qy0fgr4Gjg7VeFWakgV6?=
- =?us-ascii?Q?2os1s2KfBkHU1MfWJ3F2QTaNwg0/ZpA622E3cBR2G+OFvU2g6jLTrx5PHUWs?=
- =?us-ascii?Q?/QyP11hPF8IwaQ5OO6nWNa8wW3CEJ4PMMS7AYBBS0QU3QPmVuKFEj3LHrh6L?=
- =?us-ascii?Q?cdkE08HyMHx1jy+cLq+5zGg9PaOx5GwYdiOMnyyTxl/2bxXNFzd9MqJrLqtv?=
- =?us-ascii?Q?N3xj1rjpsUEFeSAEa/p45WeMfpGbPNNxhfUhMstp1u0XCEcx3WsLEURgDhEl?=
- =?us-ascii?Q?aMGLH7WGqcGQsGs3tz/QOh5QElNpbSmgpKQC2XHBk4Vq1mRR3jnLKvM3VS92?=
- =?us-ascii?Q?/1NXkvcCo5CPCc0tOwbgqiUptv7uHBsp++UoSoOMytShefv6uzYNBzZeszOx?=
- =?us-ascii?Q?tReLOY6jKT6qqw9k2iWyGOmAWBDnBLDLg6+Y5EmPxsP/nxzsnI1ZG63FoYDX?=
- =?us-ascii?Q?cNuJve0fohrSKzm0hyzY07dizYVe+nX0nzfBC2MPbqqzugaN+XeJBj3IQ+pl?=
- =?us-ascii?Q?MME/iJzNqxEBUO2R5550hgzr1xmTneZJajbKZz9xjg1ULNg99pxNoj1bQrJR?=
- =?us-ascii?Q?HItRXaDrL4H28vCF25bPA9rWQV867iQxANGKdgNzlgmmpMMXqq2P1CaigvzY?=
- =?us-ascii?Q?PzZWvQQMNkccgOazHCinqZM4DMXl0EkGo8bRsv0AqU0yMcCZz6iGFu1bRpOb?=
- =?us-ascii?Q?SdsVii+aLVlQ11X3xrBM8zKVni4/WGEzNUqgdbnHS+7yTJVbAVFy6ooF+nIh?=
- =?us-ascii?Q?it9Z0Wh26r6Emv5HiHJvzMw6YFVAR6PSL1KHXAudSayrvc+MOL300nXl9hc7?=
- =?us-ascii?Q?TYNOVvzh9U4ikqc8bCEunf6Sf0JC6iGQrMMlcmZCXzyLAtQwOAWP1HXwehVf?=
- =?us-ascii?Q?GobeoRAjywbiq6JIaJddCY6x/IslwznDx78kHW63R8fCpKqFsi6P+NQATtCp?=
- =?us-ascii?Q?GQpQXjLwyq8n9YMC9/XJemWjFpvAoZCWQSlFBtWwlPgk4B0NicVklL8ofh7U?=
- =?us-ascii?Q?pDULfmzO6Au4qo0/mVOT2kM8U4kyKjM6sY1niTXEJpsFj1901zHFVcB2Q1Hu?=
- =?us-ascii?Q?PUOo+c5LAEizKfhtZWP4dlJ8ppSEFn/qqGJJGpTijHscRvc9dYjVH7oF/G9a?=
- =?us-ascii?Q?mw=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RLNcIh/Qr3cNCWysRSAylA5zRSY0o5Yish/t6LX+YJbgI0GrDy19G4gNDpTg?=
+ =?us-ascii?Q?Q2d5V2sV3v164zyuhD5kmZbxY3I3u21y3dzxl8bbKEQRyLpbOm13Of9nUph6?=
+ =?us-ascii?Q?R2GYa9t58Xh+7tJQuF+lvY8Ra3YBpT3EUzZLyH/j0neDezpmxBQlOr0kHpKq?=
+ =?us-ascii?Q?e95QdCb6XHex9WRK9GIbSslOkFzBth/6lvXBxTkkwVa7Qb1EY2SLLpiPQwKn?=
+ =?us-ascii?Q?amFOPCV/rIei59CkAjgFWYlK/qBlpDnGOcQfDR+VpPa0wsj7QQqdfAZHPHDq?=
+ =?us-ascii?Q?0JAfc16kJbv+GzggAdc7/P2bySOCnwqX2B+ccLOzN4qwyGyRhbXmvpSaxKp+?=
+ =?us-ascii?Q?FiGdkufHOZr3nucj9pJYlDRFo9gPpBen7AzLyrBHGu67l6t1lQs4IBG7F/Ts?=
+ =?us-ascii?Q?/N6ioWBnqdPtQAdzE9nOLbjYWdmFZCEwLufPD3GjrPME8q06zuG94K+Wkxhg?=
+ =?us-ascii?Q?EXJDj3lc1S0aBygtzDeDDbc2YEl9vkJXSvsfZAxUn9Z9e93lcKPU1RulpOVG?=
+ =?us-ascii?Q?UolwcKh/bFNUofhHtyY9m/UMIecZ6FzvgriC7+C94oXXWpsj0j6/SdGwGWIS?=
+ =?us-ascii?Q?NiHyQF9Taws/gzEPkV/qnZ5aJc6PbUf6+tXwdpiOkqBZI5J+cCJT2nhh4usq?=
+ =?us-ascii?Q?RetUdoCrNy6BmQEYUijf5lIWPF2me6eNQS6S5HxysFXzbWdIXOEaQ9EkUFW8?=
+ =?us-ascii?Q?xfzCzl0kv/kj2h2EMdnPWTQkQ5KrTj2YXMi+OEGD+xsAGxaqz7XNKA76kqfO?=
+ =?us-ascii?Q?/48x7zYtCPgS79faFdI2WKK3WMO2Gd3aQUjqrie90VBsxdh7UB5eHN0OgCRX?=
+ =?us-ascii?Q?ae9a8SU+HA92Ll5cmLFJxwRQyiW17e+NSAypct4EUMp60xURQP+4jbIY9kVK?=
+ =?us-ascii?Q?GkKt083IIiUoTGud+4zFhyF/Nni3Qorfqyye1czt0cOE+jQ/0zdVNfEQNMj2?=
+ =?us-ascii?Q?Y1O6I/SE+UKQC2G6ETMzGqIj+5aBolpPSiCUDthBMY5mx+YGrE0Urf0w/9es?=
+ =?us-ascii?Q?9Z2i600Bk5yJkS9ActJ2kiJwuHwUcZHNVTWBJa98Z93QGktnIwz3jzuBTEjP?=
+ =?us-ascii?Q?EpbsJAe0rJVun3Oh24qvrKl//zx0tlgxV9srPUrfkZJmDUWdxzloveK9qGla?=
+ =?us-ascii?Q?SmooakEfvo/2jnpQ4tEF/TplSsr5NfUiM5mFo4KSA2vJEcnnBtQyBows4yet?=
+ =?us-ascii?Q?Bs+AOIKNOafhYjUtcJRCjxEaS0IT8rVmbozu6CnhIiq0mt3c7mUpNhQnaOPl?=
+ =?us-ascii?Q?3fFhPqkk8yc0sOhHsj6JaLX9Yr5Xv5xxZtZrXT2Cqdp0nNG9wwZ8rxB3ynLY?=
+ =?us-ascii?Q?ySaafVHuKzV+LTkbKmaNtJZoatwyQUDTZVIVFa6iGLtMsjPPZH/IZK2zJhG2?=
+ =?us-ascii?Q?4ejeS0zC8BcIGHZP4ec8lBvbSCQkfFs5QRExJDcWrA90w5yQ3N+geaTn3Yvo?=
+ =?us-ascii?Q?/0RXCAf00NnISNZwMM2olbDDQpAyrNBPaVdWSbLVm5VbM9i9wP4Hnvh+AuHp?=
+ =?us-ascii?Q?Di8RakyCf1uP3U3A0458DMI8NUEpF8eunhsTv6MjmFXAY15Ch4xn+2N6dwgb?=
+ =?us-ascii?Q?1cw2bs5KflyX1iMPJTBmxp83FKWZxpXbLbzuuClNgCofC46/gGPmrBf4mUy8?=
+ =?us-ascii?Q?Dw=3D=3D?=
 X-OriginatorOrg: uipath.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 26654731-f480-4860-05fd-08db246d2ee2
+X-MS-Exchange-CrossTenant-Network-Message-Id: c06874d9-8864-4d07-4ded-08db246d2f4d
 X-MS-Exchange-CrossTenant-AuthSource: VI1PR02MB4527.eurprd02.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2023 09:19:16.1844
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Mar 2023 09:19:17.0437
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: d8353d2a-b153-4d17-8827-902c51f72357
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: U70AwyXYrqKQgsCn772Ym9iisf6AQ96EvWSyNci8YqtjNa8HG48xNPoa0Z9ZpmF2YYd2jWare54uFtHmwRIlsmeOX8cnqFoiXgY51Tn7iEM=
+X-MS-Exchange-CrossTenant-UserPrincipalName: 4jEKj3PA4c3K3GDH9TM9Z1mDnHAHz6HDHgCopJmi3y3WNOR31q1Tf7fW3wYml2J7hxC+rQUqL/JhzwsixchVMX6L2slXYFQyhe+2eGi/6VQ=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR02MB6543
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
@@ -116,24 +117,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi folks,
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-Here are the backports for enlightened MSR bitmap fix and two prerequisite
-patches.
+commit 250552b925ce400c17d166422fde9bb215958481 upstream.
 
-Thanks!
+When KVM runs as a nested hypervisor on top of Hyper-V it uses Enlightened
+VMCS and enables Enlightened MSR Bitmap feature for its L1s and L2s (which
+are actually L2s and L3s from Hyper-V's perspective). When MSR bitmap is
+updated, KVM has to reset HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP from
+clean fields to make Hyper-V aware of the change. For KVM's L1s, this is
+done in vmx_disable_intercept_for_msr()/vmx_enable_intercept_for_msr().
+MSR bitmap for L2 is build in nested_vmx_prepare_msr_bitmap() by blending
+MSR bitmap for L1 and L1's idea of MSR bitmap for L2. KVM, however, doesn't
+check if the resulting bitmap is different and never cleans
+HV_VMX_ENLIGHTENED_CLEAN_FIELD_MSR_BITMAP in eVMCS02. This is incorrect and
+may result in Hyper-V missing the update.
 
-Alexandru Matei (1):
-  KVM: VMX: Fix crash due to uninitialized current_vmcs
+The issue could've been solved by calling evmcs_touch_msr_bitmap() for
+eVMCS02 from nested_vmx_prepare_msr_bitmap() unconditionally but doing so
+would not give any performance benefits (compared to not using Enlightened
+MSR Bitmap at all). 3-level nesting is also not a very common setup
+nowadays.
 
-Vitaly Kuznetsov (2):
-  KVM: nVMX: Don't use Enlightened MSR Bitmap for L3
-  KVM: VMX: Introduce vmx_msr_bitmap_l01_changed() helper
+Don't enable 'Enlightened MSR Bitmap' feature for KVM's L2s (real L3s) for
+now.
 
- arch/x86/kvm/vmx/evmcs.h | 11 ----------
- arch/x86/kvm/vmx/vmx.c   | 44 ++++++++++++++++++++++++++++------------
- 2 files changed, 31 insertions(+), 24 deletions(-)
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20211129094704.326635-2-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kvm/vmx/vmx.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index c37cbd3fdd85..eefd6387a99d 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -2725,15 +2725,6 @@ int alloc_loaded_vmcs(struct loaded_vmcs *loaded_vmcs)
+ 		if (!loaded_vmcs->msr_bitmap)
+ 			goto out_vmcs;
+ 		memset(loaded_vmcs->msr_bitmap, 0xff, PAGE_SIZE);
+-
+-		if (IS_ENABLED(CONFIG_HYPERV) &&
+-		    static_branch_unlikely(&enable_evmcs) &&
+-		    (ms_hyperv.nested_features & HV_X64_NESTED_MSR_BITMAP)) {
+-			struct hv_enlightened_vmcs *evmcs =
+-				(struct hv_enlightened_vmcs *)loaded_vmcs->vmcs;
+-
+-			evmcs->hv_enlightenments_control.msr_bitmap = 1;
+-		}
+ 	}
+ 
+ 	memset(&loaded_vmcs->host_state, 0, sizeof(struct vmcs_host_state));
+@@ -7029,6 +7020,19 @@ static int vmx_create_vcpu(struct kvm_vcpu *vcpu)
+ 	if (err < 0)
+ 		goto free_pml;
+ 
++	/*
++	 * Use Hyper-V 'Enlightened MSR Bitmap' feature when KVM runs as a
++	 * nested (L1) hypervisor and Hyper-V in L0 supports it. Enable the
++	 * feature only for vmcs01, KVM currently isn't equipped to realize any
++	 * performance benefits from enabling it for vmcs02.
++	 */
++	if (IS_ENABLED(CONFIG_HYPERV) && static_branch_unlikely(&enable_evmcs) &&
++	    (ms_hyperv.nested_features & HV_X64_NESTED_MSR_BITMAP)) {
++		struct hv_enlightened_vmcs *evmcs = (void *)vmx->vmcs01.vmcs;
++
++		evmcs->hv_enlightenments_control.msr_bitmap = 1;
++	}
++
+ 	/* The MSR bitmap starts with all ones */
+ 	bitmap_fill(vmx->shadow_msr_intercept.read, MAX_POSSIBLE_PASSTHROUGH_MSRS);
+ 	bitmap_fill(vmx->shadow_msr_intercept.write, MAX_POSSIBLE_PASSTHROUGH_MSRS);
 -- 
 2.25.1
 
