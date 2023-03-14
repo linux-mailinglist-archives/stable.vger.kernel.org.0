@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A2E6B949F
-	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 370AA6B94AB
+	for <lists+stable@lfdr.de>; Tue, 14 Mar 2023 13:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232154AbjCNMrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 08:47:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58504 "EHLO
+        id S232297AbjCNMr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 08:47:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232155AbjCNMq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:46:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4728A2256;
-        Tue, 14 Mar 2023 05:44:58 -0700 (PDT)
+        with ESMTP id S232163AbjCNMqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 08:46:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B88C8736D;
+        Tue, 14 Mar 2023 05:45:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D08DFB8196E;
-        Tue, 14 Mar 2023 12:44:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365F7C433D2;
-        Tue, 14 Mar 2023 12:44:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7965B61782;
+        Tue, 14 Mar 2023 12:44:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBB2FC433A1;
+        Tue, 14 Mar 2023 12:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678797852;
-        bh=3DZKPSB3eGEDg/foRv0B/RKMlE+9sgeTdtFENIatV2o=;
+        s=k20201202; t=1678797856;
+        bh=v6nTogP6iEQ2uww4dLnsRnckbyhaQOz1zvK0D9le53s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlbTpUrTHImHkjvR6wVLCs1b9LMRPr4Dhib+xFIQxRode0F9r7L0XFl/va642TGWk
-         0sr2D6apZ/SNeVrw+WgARYIkkt5W3alloReWJRfbm4WDF0dlp74cKIlmSkxawQKZzp
-         9Agx8kYxhazy5rpEyu1IQb+ChDYK7iSD8B4wX6iZj3u2sG0rLhwdpOlQy8780sYd90
-         HtdMWuIyZJGZ2jipOcuwF/i+iajGmkBTJZXdCBhH3MxPEMP3GbNIfbwCyGCj+wYpZA
-         VER/fT3VT5ot/4G3xLfL6Nj4ELcnh+S91b5jCAmZjK5UAyso9NRF82Jvg0zHA7yJLq
-         QLtNdv8U7qbTg==
+        b=mcNWXe/nYqhMwCh3J7y3h28I/MzjYcR59TOJX8aKHAi2aALbOcUU68oW/l28KUTKa
+         PcgcvA7bucmhWrWbtflcXDduCvkcuCkToS7uKlOC44MVgYrQFG3tirwOM8IMLQyqkx
+         vHS6gpzGl/OpnykDaJqO6oRdoYPTRDonX4aLH2EDfHAu3LANTKb9NaWBn0NsTfzAzN
+         AsaEpvwZXKPz9ykc5p8K/Mk6AMLqsCVaOWTeqIZX5mVBt25AwEmJl/OwNkSQj7M6dN
+         NcJJaar4iU6L3PW1zv+r4pn7srIa00XIdLNUJnEzegGiX4Q3JdeRYhBtJen6AcQGwW
+         lunTK5YnUxk8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Hung <alex.hung@amd.com>, Jun Lei <Jun.Lei@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        airlied@linux.ie, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 8/8] drm/amd/display: fix shift-out-of-bounds in CalculateVMAndRowBytes
-Date:   Tue, 14 Mar 2023 08:44:00 -0400
-Message-Id: <20230314124400.471257-8-sashal@kernel.org>
+Cc:     Yifei Liu <yifeliu@cs.stonybrook.edu>,
+        Erez Zadok <ezk@cs.stonybrook.edu>,
+        Manish Adkar <madkar@cs.stonybrook.edu>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, dwmw2@infradead.org,
+        linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 2/7] jffs2: correct logic when creating a hole in jffs2_write_begin
+Date:   Tue, 14 Mar 2023 08:44:07 -0400
+Message-Id: <20230314124412.471364-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230314124400.471257-1-sashal@kernel.org>
-References: <20230314124400.471257-1-sashal@kernel.org>
+In-Reply-To: <20230314124412.471364-1-sashal@kernel.org>
+References: <20230314124412.471364-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,47 +58,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Hung <alex.hung@amd.com>
+From: Yifei Liu <yifeliu@cs.stonybrook.edu>
 
-[ Upstream commit 031f196d1b1b6d5dfcb0533b431e3ab1750e6189 ]
+[ Upstream commit 23892d383bee15b64f5463bd7195615734bb2415 ]
 
-[WHY]
-When PTEBufferSizeInRequests is zero, UBSAN reports the following
-warning because dml_log2 returns an unexpected negative value:
+Bug description and fix:
 
-  shift exponent 4294966273 is too large for 32-bit type 'int'
+1. Write data to a file, say all 1s from offset 0 to 16.
 
-[HOW]
+2. Truncate the file to a smaller size, say 8 bytes.
 
-In the case PTEBufferSizeInRequests is zero, skip the dml_log2() and
-assign the result directly.
+3. Write new bytes (say 2s) from an offset past the original size of the
+file, say at offset 20, for 4 bytes.  This is supposed to create a "hole"
+in the file, meaning that the bytes from offset 8 (where it was truncated
+above) up to the new write at offset 20, should all be 0s (zeros).
 
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Hung <alex.hung@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+4. Flush all caches using "echo 3 > /proc/sys/vm/drop_caches" (or unmount
+and remount) the f/s.
+
+5. Check the content of the file.  It is wrong.  The 1s that used to be
+between bytes 9 and 16, before the truncation, have REAPPEARED (they should
+be 0s).
+
+We wrote a script and helper C program to reproduce the bug
+(reproduce_jffs2_write_begin_issue.sh, write_file.c, and Makefile).  We can
+make them available to anyone.
+
+The above example is shown when writing a small file within the same first
+page.  But the bug happens for larger files, as long as steps 1, 2, and 3
+above all happen within the same page.
+
+The problem was traced to the jffs2_write_begin code, where it goes into an
+'if' statement intended to handle writes past the current EOF (i.e., writes
+that may create a hole).  The code computes a 'pageofs' that is the floor
+of the write position (pos), aligned to the page size boundary.  In other
+words, 'pageofs' will never be larger than 'pos'.  The code then sets the
+internal jffs2_raw_inode->isize to the size of max(current inode size,
+pageofs) but that is wrong: the new file size should be the 'pos', which is
+larger than both the current inode size and pageofs.
+
+Similarly, the code incorrectly sets the internal jffs2_raw_inode->dsize to
+the difference between the pageofs minus current inode size; instead it
+should be the current pos minus the current inode size.  Finally,
+inode->i_size was also set incorrectly.
+
+The patch below fixes this bug.  The bug was discovered using a new tool
+for finding f/s bugs using model checking, called MCFS (Model Checking File
+Systems).
+
+Signed-off-by: Yifei Liu <yifeliu@cs.stonybrook.edu>
+Signed-off-by: Erez Zadok <ezk@cs.stonybrook.edu>
+Signed-off-by: Manish Adkar <madkar@cs.stonybrook.edu>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c   | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/jffs2/file.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-index e427f4ffa0807..e5b1002d7f3f0 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
-@@ -1868,7 +1868,10 @@ static unsigned int CalculateVMAndRowBytes(
+diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
+index 34880a4c21732..94bd4bbd37875 100644
+--- a/fs/jffs2/file.c
++++ b/fs/jffs2/file.c
+@@ -137,19 +137,18 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
+ 	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 	pgoff_t index = pos >> PAGE_SHIFT;
+-	uint32_t pageofs = index << PAGE_SHIFT;
+ 	int ret = 0;
+ 
+ 	jffs2_dbg(1, "%s()\n", __func__);
+ 
+-	if (pageofs > inode->i_size) {
+-		/* Make new hole frag from old EOF to new page */
++	if (pos > inode->i_size) {
++		/* Make new hole frag from old EOF to new position */
+ 		struct jffs2_raw_inode ri;
+ 		struct jffs2_full_dnode *fn;
+ 		uint32_t alloc_len;
+ 
+-		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new page\n",
+-			  (unsigned int)inode->i_size, pageofs);
++		jffs2_dbg(1, "Writing new hole frag 0x%x-0x%x between current EOF and new position\n",
++			  (unsigned int)inode->i_size, (uint32_t)pos);
+ 
+ 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
+ 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
+@@ -169,10 +168,10 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		ri.mode = cpu_to_jemode(inode->i_mode);
+ 		ri.uid = cpu_to_je16(i_uid_read(inode));
+ 		ri.gid = cpu_to_je16(i_gid_read(inode));
+-		ri.isize = cpu_to_je32(max((uint32_t)inode->i_size, pageofs));
++		ri.isize = cpu_to_je32((uint32_t)pos);
+ 		ri.atime = ri.ctime = ri.mtime = cpu_to_je32(JFFS2_NOW());
+ 		ri.offset = cpu_to_je32(inode->i_size);
+-		ri.dsize = cpu_to_je32(pageofs - inode->i_size);
++		ri.dsize = cpu_to_je32((uint32_t)pos - inode->i_size);
+ 		ri.csize = cpu_to_je32(0);
+ 		ri.compr = JFFS2_COMPR_ZERO;
+ 		ri.node_crc = cpu_to_je32(crc32(0, &ri, sizeof(ri)-8));
+@@ -202,7 +201,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			goto out_err;
+ 		}
+ 		jffs2_complete_reservation(c);
+-		inode->i_size = pageofs;
++		inode->i_size = pos;
+ 		mutex_unlock(&f->sem);
  	}
  
- 	if (SurfaceTiling == dm_sw_linear) {
--		*dpte_row_height = dml_min(128, 1 << (unsigned int) dml_floor(dml_log2(PTEBufferSizeInRequests * *PixelPTEReqWidth / Pitch), 1));
-+		if (PTEBufferSizeInRequests == 0)
-+			*dpte_row_height = 1;
-+		else
-+			*dpte_row_height = dml_min(128, 1 << (unsigned int) dml_floor(dml_log2(PTEBufferSizeInRequests * *PixelPTEReqWidth / Pitch), 1));
- 		*dpte_row_width_ub = (dml_ceil(((double) SwathWidth - 1) / *PixelPTEReqWidth, 1) + 1) * *PixelPTEReqWidth;
- 		*PixelPTEBytesPerRow = *dpte_row_width_ub / *PixelPTEReqWidth * *PTERequestSize;
- 	} else if (ScanDirection != dm_vert) {
 -- 
 2.39.2
 
