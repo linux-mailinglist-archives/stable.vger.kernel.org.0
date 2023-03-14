@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A95D66BA352
-	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 00:05:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5246BA354
+	for <lists+stable@lfdr.de>; Wed, 15 Mar 2023 00:07:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231225AbjCNXFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Mar 2023 19:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41626 "EHLO
+        id S229571AbjCNXHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Mar 2023 19:07:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229540AbjCNXFO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 19:05:14 -0400
+        with ESMTP id S229540AbjCNXHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Mar 2023 19:07:05 -0400
 Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E31A27D68
-        for <stable@vger.kernel.org>; Tue, 14 Mar 2023 16:05:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E0C12CFD5;
+        Tue, 14 Mar 2023 16:07:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1678835113; x=1710371113;
+  t=1678835224; x=1710371224;
   h=from:to:cc:subject:date:message-id;
   bh=WrrhCRvdXc22LfrfW5RvmTwqb6i5r2ubwQSHJiMjvQE=;
-  b=FbwoMY0c2zfYNWQZGEfEJzNaoO3RsdBcz9ZRkfDu3d3k0jad8m0qLtKf
-   AI7uSRKq8+vu0lMYuBcItBHzkFHMkPsFo/QJfkNEFH4RwqXIYAB8eFOI2
-   zldBr4u9Kkg28AUQlFIIGbJXz4qmxKmycBIAQgpIpCUbOERlBw7n+76i5
-   U0U567cbaIEsPM28W2+kQyw0xpkCDxgN/OW7P6EJUa95OiAoJUDg8ClTM
-   NH9S4hlOxBj+o0pmEqcyaKF9GU5hFnml3hlKnxZiLKq6dgeYFjlSYwpnP
-   TqkYrkZQLfKLp0SWBlpY7zJA4rqSRl7/nwBvEkdBb0/oQpIjHgRtKTGWA
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10649"; a="339925960"
+  b=Dq80RIaqaSINecA0xrtIbjXy4wKht35msa1KXtYjPigzAE+FQ0GAfwG8
+   dQTF+4atESJ83stEYMfxg5yWs1JTsp1lhqURVwlRfnBW+VFZMFinmQw03
+   43oX3RS8+IxoCmbxROPKipNSNytFd57lK4ZlueQ7J4jlr50DIZjaqkAxd
+   gD2LNaPj7uCI191cgBkxcd2Lw3hBDblMFde5SPOpLIZgsSc4A3kM7v9Rb
+   HSULqOQcMlgvjddBovFgd+4uckJFYKcv278D8zaroIuONIrmQLCcZpDP1
+   4+I7FAG4s3MxLUOBBDJV/gzUAK3p5LLGP73Gv7diFHJQAfCV6g+VbEKWj
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10649"; a="339926314"
 X-IronPort-AV: E=Sophos;i="5.98,261,1673942400"; 
-   d="scan'208";a="339925960"
+   d="scan'208";a="339926314"
 Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2023 16:05:12 -0700
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2023 16:07:04 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10649"; a="743481024"
+X-IronPort-AV: E=McAfee;i="6500,9779,10649"; a="743481196"
 X-IronPort-AV: E=Sophos;i="5.98,261,1673942400"; 
-   d="scan'208";a="743481024"
+   d="scan'208";a="743481196"
 Received: from ranerica-svr.sc.intel.com ([172.25.110.23])
-  by fmsmga008.fm.intel.com with ESMTP; 14 Mar 2023 16:05:11 -0700
+  by fmsmga008.fm.intel.com with ESMTP; 14 Mar 2023 16:07:03 -0700
 From:   Ricardo Neri <ricardo.neri-calderon@linux.intel.com>
 To:     x86@kernel.org
 Cc:     Ricardo Neri <ricardo.neri@intel.com>,
+        linux-kernel@vger.kernel.org,
         Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Len Brown <len.brown@intel.com>,
@@ -47,8 +48,8 @@ Cc:     Ricardo Neri <ricardo.neri@intel.com>,
         Zhang Rui <rui.zhang@intel.com>, Chen Yu <yu.c.chen@intel.com>,
         stable@vger.kernel.org
 Subject: [PATCH] x86/cacheinfo: Define per-CPU num_cache_leaves
-Date:   Tue, 14 Mar 2023 16:15:19 -0700
-Message-Id: <20230314231519.30119-1-ricardo.neri-calderon@linux.intel.com>
+Date:   Tue, 14 Mar 2023 16:16:58 -0700
+Message-Id: <20230314231658.30169-1-ricardo.neri-calderon@linux.intel.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
